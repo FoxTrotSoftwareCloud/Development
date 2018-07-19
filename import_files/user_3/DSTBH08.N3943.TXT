@@ -1,0 +1,8 @@
+RHR001NEWACCT ACTIVIT200802262008022621322055DTDMU1090160000001*DSTBH*R                                                                                         
+NAA0010000021COL      077249100000350100020000555         F20080225200802263ALLOYCURTA02530213123451234000000000000481788537190010000010000000000000000000000NNN
+NAA0020000STERLING TRUST COMPANY             FBO TONY CURTIS IRA              12019 PEMBROOKE CIR                 SOUTH LYON MI  48178-8537          N       2N
+NAA003                                                                                                         140      CY YOUNG                         
+NAA0010000021COL      077249100000350100020000444         F20080226000000003FORMAGEORD00050322565656567000000000000275178564060000000000000000000000000000000NNN
+NAA0020000GEORGE D FORMAN                  SUBJECT TO TOD RULES               50106 MANLY                         CHAPEL HILL NC  27517-8564         N       2N
+NAA003                                                                                                         140      CY YOUNG                        
+RTR001NEWACCT ACTIVIT000000008                                                                                                                                  

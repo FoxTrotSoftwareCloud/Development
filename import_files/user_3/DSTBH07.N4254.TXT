@@ -1,0 +1,5 @@
+RHR001NONFINANCIALACT200802262008022622165524DTDMU7050220000001*DSTBH*R                                                                                         
+NFA00100000216626     BHMULREIT000350800000011111         F20070810000000005SMITH-FAMI00700351231231232000001000000741520593000000000000000000000000000000000NNN
+NFA0020000RHONDA SMITH TTEE &                THOMAS SMITH TTEE                  SMITH FAMILY TRUST                 DTD 8/28/97                                2N
+NFA0031245 MAIN ST                           TULSA OK 74152-0593                                               2584     JOHN WAYNE                                                                                                                     141      JOHN A COLEMAN                          
+RTR001NONFINANCIALACT000000005                                                                                                                                  

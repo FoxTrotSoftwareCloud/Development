@@ -1,0 +1,17 @@
+RHR001ACCT MASTER POS200802252008022522133998DTDMU6240170000001*DSTBH*R                                                                                         
+AMP00100000216626     BHMULREIT000350800000011111         F20070810000000005SMITH-FAMI00700351231231232000001000000741520593000000000000000000000000000000000NNN
+AMP0020000RHONDA SMITH TTEE &                THOMAS SMITH TTEE                  SMITH FAMILY TRUST                 DTD 8/28/97                                2N
+AMP0031245 MAIN ST                           TULSA OK 74152-0593                                               2675     CHARLES GIBSON                 
+AMP00100000216626     BHMULREIT000350800000022222         F20070831000000002MONESMARTH00050354564564563200000100000074152059300000000000000000000000000000000NNN
+AMP0020000MARTHA STEWART 	                   123 KELP RD                        TULSA OK 74152-0593                                                           2N
+AMP003                                                                                                         2675     CHARLES GIBSON                   
+AMP00100000216626     BHMULREIT000350800000033333         F20070831000000002ZETA-JONES00050357897897892000001000000741370000000000000000000000000000000000000NNN
+AMP0020000CATHERINE JONES                    3514 W. 8TH ST                     TULSA OK 74137                                                                2N
+AMP003                                                                                                         2675     CHARLES GIBSON                  
+AMP00100000216626     BHMULREIT000350800000044444         F20070921200802253SIMPLR---S02530351212121212000001001000744644190000010000010000000000000000000000NNN
+AMP0020000STERLING TRUST CO                  MICHAEL EDWARDS SIMPLE IRA         501 FOREST RIDGE DRIVE           TAHLEQUAH OK 74464-4190                      2N
+AMP003                                                                                                         2675     CHARLES GIBSON                  
+AMP0010000021ART      077249100000350100000055555         F20070803000000003CLAUSRICHO00050454545454542000000000000240860000000000000000000000000000000000000NNN
+AMP0020000SANTA CLAUS                        SUBJECT TO TOD RULES               12500 NORTH POLE DR              WINTER VA 24086      	                      2N
+AMP003                                                                                                         331      LES JONES                          
+RTR001ACCT MASTER POS000000019                                                                                                                                
