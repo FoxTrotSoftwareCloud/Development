@@ -1,0 +1,246 @@
+<?php
+require_once 'header.php';
+?>
+
+<html lang="en">
+<head>
+	<?php
+	echo HEAD;
+	?>
+    <style>
+    .alert-warning1{
+        color: #856404;
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+    }
+    </style>
+</head>
+
+<body>
+<div class='loader'></div>
+<!--Top Navigation Bar-->
+<?php echo show_top_navigation_bar(); ?>
+
+<!--Content-->
+<div class="container-fluid">
+	<div class="row">
+		<!--Sidebar-->
+		<?php echo show_sidebar(basename(__FILE__, '.php')); ?>
+
+		<!--Main Content-->
+		<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+			<div class="pt-3 pb-2 mb-2 border-bottom">
+				<h2>
+					Reports
+				</h2>
+			</div>
+			<div class="row">
+                <div class='col-sm-3' style="cursor: pointer;" id="client_account_list" onclick="open_currentreport_box(this.id);">
+					<div class='alert rp_section alert-warning1 rp_active'>
+						<strong>Client Account List</strong>
+					</div>
+				</div>
+                <div class='col-sm-3' style="cursor: pointer;" id="trades_on_hold" onclick="open_currentreport_box(this.id);">
+					<div class='alert rp_section alert-info'>
+						<strong>Trades On Hold</strong>
+					</div>
+				</div>
+				<div class='col-sm-3' style="cursor: pointer;" id="ytd_earnings" onclick="open_currentreport_box(this.id);">
+					<div class='alert rp_section alert-info'>
+						<strong>Year to Date Earnings</strong>
+					</div>
+				</div>
+				<div class='col-sm-3' style="cursor: pointer;" id="current_licensing" onclick="open_currentreport_box(this.id);">
+					<div class='alert rp_section alert-info'>
+						<strong>Current Licensing</strong>
+					</div>
+				</div>
+            </div>
+            <div id="client_account_list_section">
+			<div class="row">
+				<form id="client_account_list_form" class="col-md-12 dates_form client_account_list_date_form">
+					<div class="server_response_div mt-2">
+						<div class="alert" role="alert"></div>
+					</div>
+					<div class="custom-control custom-checkbox">
+						<input type="checkbox" name="client_account_list_all_dates" class="custom-control-input"
+						       id="client_account_list_all_dates_checkbox" checked>
+						<label class="custom-control-label" for="client_account_list_all_dates_checkbox">All Clients</label>
+					</div>
+					<label>From</label>
+					<input type="date" name="client_account_list_from_date" disabled required><br class="d-xs-block d-sm-none">
+					<label>To</label>
+					<input type="date" name="client_account_list_to_date" disabled required><br class="d-xs-block d-sm-none">
+					<input class="btn btn-primary ml-sm-2" type="submit" value="Apply" >
+					<input name="class" value="no_class" hidden>
+					<input name="func" value="client_account_list" hidden>
+				</form>
+			</div>
+			<div class="table-responsive mb-5" style="overflow: hidden;width: 100% !important;">
+				<table id="client_account_list_table"
+				       class="main-table table table-hover table-striped table-sm text-center"
+				       style="font-size: 0.8rem;width: 100% !important;">
+					<thead>
+					<tr>
+						<th>CLIENT NAME</th>
+                        <!--<th>CLIENT ACCOUNT</th>-->
+						<th>CLIENT#</th>
+						<th>ADDRESS</th>
+						<th>TELEPHONE</th>
+						<th>OPEN DATE</th>
+						<th>BIRTH DATE</th>
+						<th>LAST TRADE</th>
+				    </tr>
+					</thead>
+					<tbody>
+					<?php
+					try{
+						$json_obj = client_account_list(['all_dates' => 'on'], false);
+						echo $json_obj->data_arr['client_account_list_table'];
+						$pdf_title_first_line  = $json_obj->data_arr['pdf_title_first_line'];
+						$pdf_title_second_line = $json_obj->data_arr['pdf_title_second_line'];
+						echo "<script>
+							var trade_pdf_title_first_line = '$pdf_title_first_line';
+							var trade_pdf_title_second_line = '$pdf_title_second_line';
+						</script>";
+					}catch(Exception $e){
+						catch_doc_first_load_exception($e, 'reports_form');
+					}
+					?>
+					</tbody>
+				</table>
+				<script type="text/javascript">
+					$( document ).ready( function(){
+						var currentDate = new Date();
+                        var current_minutes = ('0'+ currentDate.getMinutes()).slice(-2);
+						var top_massage = 'Created: ' + (currentDate.getMonth()+1) + '/' + currentDate.getDate() + '/' + currentDate.getFullYear() + ' ' + currentDate.getHours() + ':' + current_minutes;
+						const months_names = ["January", "February", "March", "April", "May", "June",
+							"July", "August", "September", "October", "November", "December"
+						];
+						var file_name = 'Client Account List ' + currentDate.getDate() + ' ' + months_names[currentDate.getMonth()] + ' ' + currentDate.getFullYear();
+						var pdf_title = trade_pdf_title_first_line + '\n\r' + trade_pdf_title_second_line;
+						var excel_title = trade_pdf_title_first_line + ' - ' + trade_pdf_title_second_line;
+						$( '#client_account_list_table' ).DataTable( {
+							language: {search: ""},
+							pageLength: 50,
+							info: false,
+							dom: 'Bfrtip',
+							buttons: [
+								{
+									extend: 'excelHtml5',
+									orientation: 'landscape',
+									filename: file_name,
+									messageTop: top_massage,
+									title: excel_title
+								},
+								{
+									extend: 'pdfHtml5',
+									orientation: 'landscape',
+									filename: file_name,
+									messageTop: top_massage,
+									title: pdf_title
+								}
+							],
+							"order": [[ 0, "desc" ]],
+							"scrollX": true
+						} );
+
+						$( '.buttons-html5' ).addClass( 'btn btn-secondary' );
+						$( '#client_account_list_table_filter input' ).addClass( 'form-control' ).attr( "placeholder", "Search" ).css( 'margin', 0 );
+						$( '#client_account_list_table_filter' ).width( 210 ).css( 'float', 'right' );
+						$( '.dt-buttons' ).width( 200 ).css( 'float', 'left' );
+						if( $( document ).width() < 992 ){
+							$( '#client_account_list_table_filter' ).width( '100%' ).addClass( 'text-left mt-2' );
+							$( '#client_account_list_table_filter input' ).width( '100%' );
+						}
+					} );
+                    $('.rp_section').click(function() {
+                        $('.rp_active').removeClass('alert-warning1')
+                        $('.rp_active').addClass('alert-info');
+                        $('.rp_active').removeClass('rp_active')
+                        $(this).addClass('rp_active');
+                        $(this).addClass('alert-warning1');
+                    });
+				</script>
+			</div>
+            </div>
+            <div id="trades_on_hold_section" style="display: none;">
+			<div class="row">
+				<form id="trade_reports_form" class="col-md-12 dates_form trades_date_form">
+					<div class="server_response_div mt-2">
+						<div class="alert" role="alert"></div>
+					</div>
+					<div class="custom-control custom-checkbox">
+						<input type="checkbox" name="trade_reports_all_dates" class="custom-control-input"
+						       id="trade_reports_all_dates_checkbox" checked>
+						<label class="custom-control-label" for="trade_reports_all_dates_checkbox">All Trade Dates</label>
+					</div>
+					<label>From</label>
+					<input type="date" name="trade_reports_from_date" disabled required><br class="d-xs-block d-sm-none">
+					<label>To</label>
+					<input type="date" name="trade_reports_to_date" disabled required><br class="d-xs-block d-sm-none">
+					<input class="btn btn-primary ml-sm-2" type="submit" value="Apply" >
+					<input name="class" value="no_class" hidden>
+					<input name="func" value="hold_trades_update" hidden>
+				</form>
+			</div>
+			<div class="table-responsive mb-5" style="overflow: hidden;width: 100% !important;">
+				<table id="trade_reports_table"
+				       class="main-table table table-hover table-striped table-sm text-center"
+				       style="font-size: 0.8rem;width: 100% !important;">
+					<thead>
+					<tr>
+						<th>DATE</th>
+						<th>DATE RECEIVED</th>
+						<th>CLIENT ACCOUNT</th>
+						<th>CLIENT NAME</th>
+						<th class='text-center'>PRODUCT DESCRIPTION</th>
+                        <th>CUSIP</th>
+						<th>PRINCIPAL</th>
+                        <!--<th>COMMISSION EXPECTED</th>-->
+						<th>COMMISSION RECEIVED</th>
+						<th>PAYOUT RATE</th>
+						<th>COMMISSION PAID</th>
+						<th>DATE PAID</th>
+                        <th>HOLD REASON</th>
+					</tr>
+					</thead>
+					<tbody>
+					<?php
+					try{
+						$json_obj = hold_trades_update(['all_dates' => 'on'], false);
+						echo $json_obj->data_arr['trade_reports_table'];
+						$pdf_title_first_line  = $json_obj->data_arr['pdf_title_first_line'];
+						$pdf_title_second_line = $json_obj->data_arr['pdf_title_second_line'];
+						echo "<script>
+							var trade_pdf_title_first_line = '$pdf_title_first_line';
+							var trade_pdf_title_second_line = '$pdf_title_second_line';
+						</script>";
+					}catch(Exception $e){
+						catch_doc_first_load_exception($e, 'reports_form');
+					}
+					?>
+					</tbody>
+				</table>
+				<script type="text/javascript">
+					$( document ).ready( function(){
+						var currentDate = new Date();
+                        var current_minutes = ('0'+ currentDate.getMinutes()).slice(-2);
+						var top_massage = 'Created: ' + (currentDate.getMonth()+1) + '/' + currentDate.getDate() + '/' + currentDate.getFullYear() + ' ' + currentDate.getHours() + ':' + current_minutes;
+						const months_names = ["January", "February", "March", "April", "May", "June",
+							"July", "August", "September", "October", "November", "December"
+						];
+						var file_name = 'Transaction On Hold ' + currentDate.getDate() + ' ' + months_names[currentDate.getMonth()] + ' ' + currentDate.getFullYear();
+						var pdf_title = trade_pdf_title_first_line + '\n\r' + trade_pdf_title_second_line;
+						var excel_title = trade_pdf_title_first_line + ' - ' + trade_pdf_title_second_line;
+						$( '#trade_reports_table' ).DataTable( {
+							language: {search: ""},
+							pageLength: 50,
+							info: false,
+							dom: 'Bfrtip',
+							buttons: [
+								{
+									extend: 'excelHtml5',
+									orientation: 'landscape',
+									filename: file_name,
+									messageTop: top_massage,
