@@ -1,0 +1,12 @@
+RHR001ACCT MASTER POS200708132007081323132544DHDMU6240170001556*DFHFA*                                                                                          
+AMP0010002738200      416645406000021400000781411         F20070412200702233HANNEDENNH00150483976489622000000000000544499592740010622830000000000001000000000NYN
+AMP0020000DENNIS H HANNEMAN                  RITA K HANNEMAN JTWROS             11774 SUNSET DR                    MARSHFIELD WI  54449-9592          PNNNX   2N
+AMP003                                                                                                         PEFSC2   CHRISTIPHER L BELONGE                   
+AMP0010002738200      416645505000022800000692770         F20041124200702163THOMAERICW07010483937003012000000000000541629691810010105160000000000001000001000NNN
+AMP0020000US BANK NATIONAL ASSOC C/F         ERIC W THOMAS IRA                  8181 WINDANCER DR                  PULASKI WI  54162-9691             PN NQ   2N
+AMP003                                                                                                         PEFSC2   CHRISTIPHER L BELONGE                   
+RTR001ACCT MASTER POS000000008                                                                                                                                  
+RHR001SECURITY FILE  200708132007081323132544SECURITY9240001556*DFHFA*                                                                                          
+SFR0014166455050000228THE HARTFORD CAPITAL APPRECIATION FD-B                                        IHCAX   RT                                                  
+SFR0014166454060000214THE HARTFORD CAPITAL APPRECIATION FD-A                                        ITHAX   MF                                                  
+RTR001SECURITY FILE  000000004                                                                                                                                  

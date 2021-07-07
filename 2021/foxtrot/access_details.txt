@@ -1,0 +1,27 @@
+Trello.com
+
+username : scspl.krunal@gmail.com
+password : 123456789
+
+Github
+
+https://github.com/foxtrotsoftware/Development
+username : scspl.krunal@gmail.com
+password : krunal_ns1
+
+
+Referance site front
+http://foxtrotsw.com/index.html
+
+
+FTP Login Credentials
+
+Host: ftp.foxtrotsoftware.com
+Username: krunal.foxtrotsoftware.com
+Password: We3b2!12
+Port: 21
+
+
+site:
+
+foxtrotsoftware.com/CloudFox/
