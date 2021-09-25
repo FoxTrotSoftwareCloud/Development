@@ -1,6 +1,7 @@
 <?php
     define('SITE_OPTIONS','site_options');
     define('USER_MASTER','user_master');
+    define('USER_WIDGET_SETTINGS','user_widget_settings');
     define('MENU_MASTER','menu_master');
     define('USER_MENU_RIGHTS','ft_user_menu_rights');
     define('ADMIN_MASTER','admin_master');

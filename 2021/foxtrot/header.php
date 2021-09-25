@@ -221,7 +221,7 @@ $instance_header = new header_class();
 			</div>
 			<div class="collapse navbar-collapse" id="myNavbar">
             <div class="sitelogo"><a href="home.php" title="Foxtrot"><img src="images/sitelogo.png" alt="Foxtrot" height="53.68"/></a></div>
-			<ul class="nav navbar-nav" style="margin: 30px 0px 0px 0px;float: ;">
+			<ul class="nav navbar-nav" style="margin: 30px 0px 0px 0px;">
 			  <li class="active menuhome"><a href="home.php"><i class="fa fa-home"></i></a></li>
 			  <?php  
 				$menu = $instance_header->menu_select();
@@ -261,9 +261,9 @@ $instance_header = new header_class();
 						?>
 	              </li>
                 <?php }?>
-                <a href="#" class="userinfo"><img src="images/Help-desk.png" alt="Chat/Help" title="Chat/Help" height="30" width="50" style="padding-bottom: 5px;" /></a>
+                <!--<a href="#" class="userinfo"><img src="images/Help-desk.png" alt="Chat/Help" title="Chat/Help" height="30" width="50" style="padding-bottom: 5px;" /></a>-->
                 <li class="dropdown" style="float: right;">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: #ef7623;font-weight: 500;font-size: 18px;padding: 0;text-transform: capitalize;"><?php if(isset($_SESSION['user_name'])){echo 'Hello '.$_SESSION['user_name']." ";}?>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: #ef7623;font-weight: 500;font-size: 18px;padding: 0;text-transform: capitalize;"><?php if(isset($_SESSION['user_name'])){echo $_SESSION['user_name']." ";}?>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="<?php echo SITE_URL; ?>user_profile.php?action=edit&id=<?php echo $_SESSION['user_id'];?>">User Profile</a></li>

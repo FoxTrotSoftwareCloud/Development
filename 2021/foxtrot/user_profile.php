@@ -31,7 +31,7 @@
         $return = $instance->insert_update($_POST);
         
         if($return===true){
-            header("location:".CURRENT_PAGE);exit;
+            header("location:". SITE_URL);exit;
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';

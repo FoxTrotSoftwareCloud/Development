@@ -10811,6 +10811,23 @@ INSERT INTO `user_master` (`id`, `first_name`, `last_name`, `email`, `user_name`
 (5, 'user', '05', 'user05@gmail.com', 'user05', 'bUd1R0xhTVl5ZWdjNCtRSEhiQ3lxZz09', '1517804248616796.jpg', 1, 0, '', 3, '2018-02-05 09:46:54', '192.168.30.20', 3, '2018-02-05 09:47:28', '192.168.30.20');
 
 --
+-- Table structure for table `user_master`
+--
+
+CREATE TABLE IF NOT EXISTS `user_widget_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `daily_importing` varchar(50) DEFAULT NULL,
+  `commissions` varchar(50) DEFAULT NULL,
+  `payroll` varchar(50) DEFAULT NULL,
+  `compliance` varchar(50) DEFAULT NULL,
+  `ytd_production` varchar(50) DEFAULT NULL,
+  `date_updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_record_per_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
 -- Indexes for dumped tables
 --
 

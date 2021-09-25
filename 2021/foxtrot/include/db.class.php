@@ -1035,6 +1035,30 @@ class db
         }
         return $password;
     }
+    
+    public function toSqlQuotedString($link, $string)
+    {
+      return "'".mysqli_real_escape_string($link, $string)."'";
+    }
+    
+    public function getLastInsertId($link, $table)
+    {
+      $query = "SELECT LAST_INSERT_ID() as id FROM `$table` LIMIT 0,1";
+      $res = $this->re_db_query($query, $link);
+      
+      if($this->re_db_num_rows($res) > 0)
+      {
+        $res = $this->re_db_fetch_array($res);
+        return $res[0]['id'];
+      }
+      else
+        return null;
+    }
+    
+    public function formatSqlDatetime($timestamp)
+    {
+      return date('Y-m-d H:i:s', $timestamp);
+    }
 
 }
 class Excel extends db
@@ -1185,7 +1209,7 @@ class Excel extends db
                     )
                 );
                 
-                // Redirect output to a client’s web browser (Excel5)
+                // Redirect output to a clientâ€™s web browser (Excel5)
                 header('Content-Type: application/vnd.ms-excel');
                 header('Content-Disposition: attachment;filename="'.$properties['excel_name'].'.xls"');
                 header('Cache-Control: max-age=0');

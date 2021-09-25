@@ -421,6 +421,14 @@ Highcharts.chart('container_payroll', {
 });
 });
 </script>
+<?php
+$widgetSettings = new user_widget_settings($_SESSION['user_id']);
+$dailyImportingStatus = $widgetSettings->dailyImporting == 'expanded' ? '' : 'showhidata';
+$commissionsStatus = $widgetSettings->commissions == 'expanded' ? '' : 'showhidata';
+$payrollStatus = $widgetSettings->payroll == 'expanded' ? '' : 'showhidata';
+$complianceStatus = $widgetSettings->compliance == 'expanded' ? '' : 'showhidata';
+$ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'showhidata';
+?>
 <div class="sectionwrapper">
   <div class="container">
   <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
@@ -433,11 +441,17 @@ Highcharts.chart('container_payroll', {
     <div class="row" id="chart_row">
         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 pull-left">
 			<div class="graphbox" id="chart_1">
-				<div class="graphboxtitle">Daily Importing <i class="fa fa-calendar datepicker" aria-hidden="true" id="calendar_1"></i><i id="showhideclick" class="fa fa-chevron-circle-up"></i></div>
+				<div class="graphboxtitle">
+          Daily Importing 
+          <i class="fa fa-calendar datepicker" aria-hidden="true" id="calendar_1"></i> 
+          <a class="toggle-widget" href="#" onclick="return false;" data-widget="daily-importing">
+            <i id="showhideclick" class="fa fa-chevron-circle-up"></i>
+          </a>
+        </div>
 				<div class="graphboxcontent dailyimporting">
-					<div class="graphdata01">
+					<div class="graphdata01 graphdata <?php print $dailyImportingStatus; ?>">
 						<div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
 								<span class="data01title"><b>New Files to Process:</b></span>
 								<span class="data01count"><?php echo $di_new_files; ?></span>
 							</div>
@@ -449,39 +463,42 @@ Highcharts.chart('container_payroll', {
 								<span class="data01title"><b>Partially Completed Files:</b></span>
 								<span class="data01count"><?php echo $di_partially_completed_files; ?></span>
 							</div>
-							
 						</div>
 					</div>
-                    <table width='100%' class="graphdata02"> 
-                        <tr>
-                            <td>New Files to Process:</td>
-                            <td><?php echo $di_new_files; ?></td>
-                            <td rowspan="5" width='60%'><div id="container_daily_importing" style="min-width: 200px; height: 200px;  max-width: 3000px; margin:  auto"></div></td>
-                        </tr>
-                        <tr>
-                            <td>Completed Files:</td>
-                            <td><?php echo $di_completed_files; ?></td>
-                        </tr>
-                        <tr>
-                            <td>Partially Completed Files:</td>
-                            <td><?php echo $di_partially_completed_files; ?></td>
-                        </tr>
-                        
-                    </table>
-					<div class="graphimg">
-                    </div>
+          <table width='100%' class="graphdata02 <?php print $dailyImportingStatus; ?>"> 
+            <tr>
+                <td>New Files to Process:</td>
+                <td><?php echo $di_new_files; ?></td>
+                <td rowspan="5" width='60%'><div id="container_daily_importing" style="min-width: 200px; height: 200px;  max-width: 3000px; margin:  auto"></div></td>
+            </tr>
+            <tr>
+                <td>Completed Files:</td>
+                <td><?php echo $di_completed_files; ?></td>
+            </tr>
+            <tr>
+                <td>Partially Completed Files:</td>
+                <td><?php echo $di_partially_completed_files; ?></td>
+            </tr>
+          </table>
+					<div class="graphimg"></div>
 				</div>
 			</div>
-            <div class="graphbox">
-				<div class="graphboxtitle">Commissions <i class="fa fa-calendar datepicker" aria-hidden="true" id="calendar_2"></i></i><i id="showhideclick_2" class="fa fa-chevron-circle-up"></i></div>
+      <div class="graphbox">
+				<div class="graphboxtitle">
+          Commissions 
+          <i class="fa fa-calendar datepicker" aria-hidden="true" id="calendar_2"></i>
+          <a class="toggle-widget" href="#" onclick="return false;" data-widget="commissions">
+            <i id="showhideclick_2" class="fa fa-chevron-circle-up"></i>
+          </a>
+        </div>
 				<div class="graphboxcontent dailyimporting">
-					<div class="graphdata01_2">
+					<div class="graphdata01_2 graphdata <?php print $commissionsStatus; ?>">
 						<div class="row">
 							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
 								<span class="data01title"><b>Investment Amount:</b></span>
 								<span class="data01count">$<?php echo number_format($invest_amount);?></span>
 							</div>
-                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
 								<span class="data01title"><b>Commission Received:</b></span>
 								<span class="data01count">$<?php echo number_format($commission_received_amount);?></span>
 							</div>
@@ -489,32 +506,36 @@ Highcharts.chart('container_payroll', {
 								<span class="data01title"><b>Ticket Charges:</b></span>
 								<span class="data01count">$<?php echo number_format($charge_amount);?></span>
 							</div>
-							
 						</div>
 					</div>
-                    <table width='100%' class="graphdata02_2"> 
-                        <tr>
-                            <td>Investment Amount:</td>
-                            <td>$<?php echo number_format($invest_amount);?></td>
-                            <td rowspan="5" style="width: 60%;"><div id="container_commission" style="min-width: 200px; height: 200px; max-width: 3000px; margin:  auto"></div></td>
-                        </tr>
-                        <tr>
-                            <td>Commission Received:</td>
-                            <td>$<?php echo number_format($commission_received_amount);?></td>
-                        </tr>
-                        <tr>
-                            <td>Ticket Charges:</td>
-                            <td>$<?php echo number_format($charge_amount);?></td>
-                        </tr>
-                    </table>
-					<div class="graphimg">
-                    </div>
+          <table width='100%' class="graphdata02_2 <?php print $commissionsStatus; ?>"> 
+            <tr>
+              <td>Investment Amount:</td>
+              <td>$<?php echo number_format($invest_amount);?></td>
+              <td rowspan="5" style="width: 60%;"><div id="container_commission" style="min-width: 200px; height: 200px; max-width: 3000px; margin:  auto"></div></td>
+            </tr>
+            <tr>
+              <td>Commission Received:</td>
+              <td>$<?php echo number_format($commission_received_amount);?></td>
+            </tr>
+            <tr>
+              <td>Ticket Charges:</td>
+              <td>$<?php echo number_format($charge_amount);?></td>
+            </tr>
+          </table>
+					<div class="graphimg"></div>
 				</div>
-            </div>
-            <div class="graphbox">
-				<div class="graphboxtitle">Payroll <i class="fa fa-calendar datepicker" aria-hidden="true" id="calendar_3"></i><i id="showhideclick_3" class="fa fa-chevron-circle-up"></i></div>
+      </div>
+      <div class="graphbox">
+				<div class="graphboxtitle">
+          Payroll 
+          <i class="fa fa-calendar datepicker" aria-hidden="true" id="calendar_3"></i>
+          <a class="toggle-widget" href="#" onclick="return false;" data-widget="payroll">
+            <i id="showhideclick_3" class="fa fa-chevron-circle-up"></i>
+          </a>
+        </div>
 				<div class="graphboxcontent dailyimporting">
-					<div class="graphdata01_3">
+					<div class="graphdata01_3 graphdata <?php print $payrollStatus; ?>">
 						<div class="row">
 							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
 								<span class="data01title"><b>Last Cutoff :</b></span>
@@ -554,55 +575,60 @@ Highcharts.chart('container_payroll', {
 							</div>
 						</div>
 					</div>
-                    <table width='100%' class="graphdata02_3"> 
-                        <tr>
-                            <td>Last Cutoff</td>
-                            <td>15-11-2017</td>
-                            <td rowspan="9" style="width: 60%;"><div id="container_payroll" style="min-width: 200px; height: 200px; max-width: 3000px; margin:  auto"></div></td>
-                        </tr>
-                        <tr>
-                            <td>Gross Commission</td>
-                            <td>$325k</td>
-                        </tr>
-                        <tr>
-                            <td>Average Payout Rate</td>
-                            <td>$346.512.1</td>
-                        </tr>
-                        <tr>
-                            <td>Charges</td>
-                            <td>$1.5k</td>
-                        </tr>
-                        <tr>
-                            <td>Net Commission</td>
-                            <td>$228k</td>
-                        </tr>
-                        <tr>
-                            <td>Adjustment</td>
-                            <td>$4.5k</td>
-                        </tr>
-                        <tr>
-                            <td>Total Check Amount</td>
-                            <td>$265k</td>
-                        </tr>
-                        <tr>
-                            <td>Balance Carried Forword</td>
-                            <td>$45k</td>
-                        </tr>
-                        <tr>
-                            <td>Retention</td>
-                            <td>$415k</td>
-                        </tr>
-                    </table>
-					<div class="graphimg">
-                    </div>
+          <table width='100%' class="graphdata02_3 <?php print $payrollStatus; ?>"> 
+              <tr>
+                  <td>Last Cutoff</td>
+                  <td>15-11-2017</td>
+                  <td rowspan="9" style="width: 60%;"><div id="container_payroll" style="min-width: 200px; height: 200px; max-width: 3000px; margin:  auto"></div></td>
+              </tr>
+              <tr>
+                  <td>Gross Commission</td>
+                  <td>$325k</td>
+              </tr>
+              <tr>
+                  <td>Average Payout Rate</td>
+                  <td>$346.512.1</td>
+              </tr>
+              <tr>
+                  <td>Charges</td>
+                  <td>$1.5k</td>
+              </tr>
+              <tr>
+                  <td>Net Commission</td>
+                  <td>$228k</td>
+              </tr>
+              <tr>
+                  <td>Adjustment</td>
+                  <td>$4.5k</td>
+              </tr>
+              <tr>
+                  <td>Total Check Amount</td>
+                  <td>$265k</td>
+              </tr>
+              <tr>
+                  <td>Balance Carried Forword</td>
+                  <td>$45k</td>
+              </tr>
+              <tr>
+                  <td>Retention</td>
+                  <td>$415k</td>
+              </tr>
+          </table>
+					<div class="graphimg"></div>
 				</div>
-            </div>
+      </div>
 		</div>	
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-right">
             <div class="graphbox graphbox02">
-			<div class="graphboxtitle">Compliance <i class="fa fa-calendar datepicker" aria-hidden="true" id="calendar_4"></i><i id="showhideclick_4" class="fa fa-chevron-circle-up"></i></div>
+			<div class="graphboxtitle">
+        Compliance 
+        <i class="fa fa-calendar datepicker" aria-hidden="true" id="calendar_4"></i>
+        <a class="toggle-widget" href="#" onclick="return false;" data-widget="compliance">
+          <i id="showhideclick_4" class="fa fa-chevron-circle-up"></i>
+        </a>
+      </div>
 			<div class="graphboxcontent dailyimporting">
-				<div class="graphdata01_4">
+				<div class="graphdata01_4 graphdata <?php print $complianceStatus; ?>">
 					<div class="row">
 						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-left">
 							<span class="data01title"><b>Transactions Processed: </b></span>
@@ -616,7 +642,7 @@ Highcharts.chart('container_payroll', {
 						</div>
 					</div>
 				</div>
-                <table width='100%' class="graphdata02_4"> 
+                <table width='100%' class="graphdata02_4 <?php print $complianceStatus; ?>"> 
                     <tr>
                         <td style="text-align: right;min-width: 145px;">Transactions Processed: </td>
                         <td style="text-align: left;min-width: 145px;"><?php echo '&nbsp;&nbsp;'.$total_processed_transaction; ?></td>
@@ -634,9 +660,15 @@ Highcharts.chart('container_payroll', {
 			</div>
         </div>
         <div class="graphbox graphbox02">
-			<div class="graphboxtitle">YTD Production <i class="fa fa-calendar datepicker2" aria-hidden="true" id="calendar_5"></i><i id="showhideclick_5" class="fa fa-chevron-circle-up"></i></div>
+			<div class="graphboxtitle">
+        YTD Production 
+        <i class="fa fa-calendar datepicker2" aria-hidden="true" id="calendar_5"></i>
+        <a class="toggle-widget" href="#" onclick="return false;" data-widget="ytd-production">
+          <i id="showhideclick_5" class="fa fa-chevron-circle-up"></i>
+        </a>
+      </div>
 			<div class="graphboxcontent dailyimporting">
-				<div class="graphdata01_5">
+				<div class="graphdata01_5 graphdata <?php print $ytdProductionStatus; ?>">
 					<div class="row">
                         <?php 
                         foreach($ytd_product_category as $key=>$val){
@@ -652,7 +684,7 @@ Highcharts.chart('container_payroll', {
                         <?php } } ?>
 					</div>
 				</div>
-                <table width='100%' class="graphdata02_5"> 
+                <table width='100%' class="graphdata02_5 <?php print $ytdProductionStatus; ?>"> 
                     <tr>
                         <td colspan="4" width='60%'><div id="container2" style="min-width: 190px; max-width: 800px; height: 400px; margin: 0 auto"></div></td>
                     </tr>
@@ -723,7 +755,7 @@ $(function(){
 	  
 	$("#showhideclick").click(function () {
 	  $('.graphdata02').toggleClass('showhidata');	  
-		});
+  });
 })
 $('#showhideclick').click(function(){
     $(this).toggleClass('fa-chevron-circle-down fa-chevron-circle-up')
@@ -778,6 +810,17 @@ $(function(){
 })
 
 $('#showhideclick_5').click(function(){
-    $(this).toggleClass('fa-chevron-circle-down fa-chevron-circle-up')
+  $(this).toggleClass('fa-chevron-circle-down fa-chevron-circle-up')
+});
+$('.toggle-widget').click(function(){
+  const $el = $(this);
+  const $graphDataEl = $el.closest(".graphbox").find(".graphdata");
+  const wasExpanded = $graphDataEl.hasClass('showhidata');
+  const pars = {
+    widget: $el.data('widget'),
+    status: wasExpanded ? 'collapsed' : 'expanded'
+  };
+  
+  AjaxRequest('/ajax/save_widget_setting.php', pars, function(){});
 });
 </script>
