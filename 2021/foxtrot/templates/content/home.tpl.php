@@ -821,6 +821,6 @@ $('.toggle-widget').click(function(){
     status: wasExpanded ? 'collapsed' : 'expanded'
   };
   
-  AjaxRequest('/ajax/save_widget_setting.php', pars, function(){});
+  AjaxRequest('/CloudFox/ajax/save_widget_setting.php', pars, function(){});
 });
 </script>
