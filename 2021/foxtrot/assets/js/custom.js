@@ -114,3 +114,62 @@ function isFloatNumber(item,evt) {
     }
     return true;
 }
+
+/**
+ * AJAX request.
+ * @param {string} url
+ * @param {array} pars
+ * @param {function} success
+ * @param {runction} error
+ * @returns {undefined}
+ */
+function AjaxRequest(url, pars, success, error)
+{
+  $.ajax({
+    type: 'POST',
+    url: url,
+    data : pars,
+    dataType: 'json',
+    timeout: 300000,
+    jsonp: 'jsonp_callback',
+    xhrFields: {
+      withCredentials: true
+    },
+    success: function(data)
+    {
+      var code = data.code;
+      var message = data.message;
+      switch(code)
+      {
+        case 200:
+          if (data.cookies)
+          {
+            var cookies = data.cookies;
+            for (var index in cookies)
+            {
+              $.cookie(index, cookies[index], {path    : '/', secure  : false});
+            }
+          }
+          if (typeof(success) === "function")
+            success(data);
+          if (data.redirectUrl)
+            window.location = data.redirectUrl;
+          if (data.reload)
+            location.reload();
+          break;
+        case 400:
+          if (typeof(error) === "function")
+            error(message);
+          break;
+        default:
+          break;
+      }
+    },
+    error: function(jqXHR)
+    {
+      let jsonValue = jQuery.parseJSON( jqXHR.responseText );
+      if (typeof(error) === "function")
+        error(jsonValue.message);
+    }
+  });
+}
