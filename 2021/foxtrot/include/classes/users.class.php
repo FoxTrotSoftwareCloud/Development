@@ -56,6 +56,7 @@
                         $_SESSION['user_name'] = $row['user_name'];
                         // $_SESSION['user_lf'] = $row['first_name'].$row['last_name'];
                         $_SESSION['success'] = 'Welcome to FoxTrot';
+                        $_SESSION['user_is_admin'] = isset($row['is_admin']) ? boolval($row['is_admin']) : false;
                         return true;
                     }
                 }

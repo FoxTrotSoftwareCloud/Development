@@ -266,7 +266,14 @@ $instance_header = new header_class();
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: #ef7623;font-weight: 500;font-size: 18px;padding: 0;text-transform: capitalize;"><?php if(isset($_SESSION['user_name'])){echo $_SESSION['user_name']." ";}?>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="<?php echo SITE_URL; ?>user_profile.php?action=edit&id=<?php echo $_SESSION['user_id'];?>">User Profile</a></li>
+                        <?php
+                            if(isset($_SESSION['user_is_admin']) and $_SESSION['user_is_admin']){
+                                $user_profile_url = SITE_URL.'user_profile.php?action=view';
+                            }else{
+                                $user_profile_url = SITE_URL.'user_profile.php?action=edit&id='.$_SESSION['user_id'];
+                            }
+                            ?>
+                        <li><a href="<?php echo $user_profile_url;?>">User Profile</a></li>
 						<li><a href="sign-out.php">Logout</a></li>
                     </ul>
                 </li> 
