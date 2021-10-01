@@ -32,7 +32,10 @@
         
         if($return===true){
             if (!(isset($_SESSION['user_is_admin']) and $_SESSION['user_is_admin'])) {
-                header("location:". SITE_URL);exit;
+                header("location:". SITE_URL); exit;
+            }
+            else {
+                header("location:".CURRENT_PAGE); exit;
             }
         }
         else{
