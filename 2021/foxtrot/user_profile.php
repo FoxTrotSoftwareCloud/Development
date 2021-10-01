@@ -31,7 +31,9 @@
         $return = $instance->insert_update($_POST);
         
         if($return===true){
-            header("location:". SITE_URL);exit;
+            if (!(isset($_SESSION['user_is_admin']) and $_SESSION['user_is_admin'])) {
+                header("location:". SITE_URL);exit;
+            }
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
