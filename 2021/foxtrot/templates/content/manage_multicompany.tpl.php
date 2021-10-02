@@ -158,7 +158,7 @@
                                 <label>Date Established <span class="text-red">*</span> </label><br />
                                 <div id="demo-dp-range">
 	                                <div class="input-daterange input-group" id="datepicker">
-                                        <input type="text" name="e_date" id="e_date" value="<?php if($action=='edit'){echo date('m/d/Y',strtotime($e_date));} ?>" class="form-control" />
+                                        <input type="text" name="e_date" id="e_date" value="<?php if($action=='edit'){echo date(DATE_FORMAT, strtotime($e_date));} ?>" class="form-control" />
 	                                </div>
 	                            </div>
                             </div>
@@ -168,7 +168,7 @@
                                 <label>Inactive Date </label><br />
                                 <div id="demo-dp-range">
                                     <div class="input-daterange input-group" id="datepicker">
-                                        <input type="text" name="i_date" id="i_date" value="<?php if($action=='edit'){echo date('m/d/Y',strtotime($i_date));} ?>" class="form-control" />
+                                        <input type="text" name="i_date" id="i_date" value="<?php if($action=='edit'){echo date(DATE_FORMAT, strtotime($i_date));} ?>" class="form-control" />
                                     </div>
                                 </div>
                             </div>
@@ -486,7 +486,7 @@
                     
                         <td><?php echo ++$count; ?></td>
                         <td><?php echo $val['user_initial'];?></td>
-                        <td><?php echo date('m/d/Y',strtotime($val['modified_time']));?></td>
+                        <td><?php echo date('d/m/Y', strtotime($val['modified_time']));?></td>
                         <td><?php echo $feild_name;?></td>
                        <?php if($feild_name == 'Payout Level'){?>
                         <td>

@@ -45,6 +45,10 @@
     if(isset($_POST['submit'])&& $_POST['submit']=='Save'){
         
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
+        
+        if ($id > 0)
+          $originalInstance = $instance->select_branch_by_id($id);
+        
         $name = isset($_POST['name'])?$instance->re_db_input($_POST['name']):'';
         $broker = isset($_POST['broker'])?$instance->re_db_input($_POST['broker']):'';
         $b_status = isset($_POST['b_status'])?$instance->re_db_input($_POST['b_status']):'';
@@ -75,8 +79,20 @@
         
         $return = $instance->insert_update($_POST);
         
-        if($return===true){
-            header("location:".CURRENT_PAGE.'?action=view');exit;
+        if($return===true)
+        {
+          if ($id > 0)
+          {
+            $newInstance = $instance->select_branch_by_id($id);
+            $fieldsToWatch = array('name', 'broker', 'b_status', 'contact', 'company', 'osj', 'non_registered', 'finra_fee',
+              'business_address1', 'business_address2', 'business_city', 'business_state', 'business_state', 'mailing_address1', 'mailing_address2', 'mailing_city',
+              'mailing_state', 'mailing_zipcode', 'email', 'website', 'phone', 'facsimile', 'date_established', 'date_terminated', 'finra_start_date',
+              'finra_end_date', 'last_audit_date');
+
+            $instance->update_history('ft_branch_history', $originalInstance, $newInstance, $fieldsToWatch);
+          }
+          
+          header("location:".CURRENT_PAGE.'?action=view');exit;
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';

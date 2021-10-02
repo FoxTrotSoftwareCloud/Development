@@ -3,8 +3,92 @@
 		
 		public $table = BROKER_MASTER;
 		public $errors = '';
-        public $last_inserted_id = '';
-        /**
+    public $last_inserted_id = '';
+        
+    /**
+		 * @param int $brokerId, default all
+		 * @return 
+		 * */
+		public function select_broker_general_by_id($brokerId)
+    {
+			$q = "SELECT `fbg`.*
+					FROM `ft_broker_general` AS `fbg`
+                    WHERE `fbg`.`is_delete`='0' AND `fbg`.`broker_id`=$brokerId
+                    ORDER BY `fbg`.`id` ASC";
+      
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
+		}
+    
+    /**
+		 * @param int $brokerId, default all
+		 * @return 
+		 * */
+		public function select_broker_by_id($brokerId)
+    {
+			$q = "SELECT `fbg`.*
+					FROM `" . $this->table . "` AS `fbg`
+                    WHERE `fbg`.`is_delete`='0' AND `fbg`.`id`=$brokerId
+                    ORDER BY `fbg`.`id` ASC";
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
+		}
+    
+    /**
+		 * @param int $brokerId, default all
+		 * @return 
+		 * */
+		public function select_broker_payout_by_id($brokerId)
+    {
+			$q = "SELECT `fbpm`.*
+					FROM `" . BROKER_PAYOUT_MASTER . "` AS `fbpm`
+                    WHERE `fbpm`.`is_delete`='0' AND `fbpm`.`id`=$brokerId
+                    ORDER BY `fbpm`.`id` ASC";
+
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
+		}
+    
+    /**
+		 * @param int $brokerId, default all
+		 * @return 
+		 * */
+		public function select_broker_branch_by_id($brokerId)
+    {
+			$q = "SELECT `bb`.*
+					FROM `" . BROKER_BRANCHES . "` AS `bb`
+                    WHERE `bb`.`is_delete`='0' AND `bb`.`id`=$brokerId
+                    ORDER BY `bb`.`id` ASC";
+
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
+		}
+    
+    /**
 		 * @param post array
 		 * @return true if success, error message if any errors
 		 * */
@@ -13,6 +97,8 @@
             //echo '<pre>';print_r($_POST);exit;
             $_SESSION['last_insert_id'] = 0;
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
+      if ($id > 0)
+        $originalInstance = $this->select_broker_by_id($id);
 			$fname = isset($data['fname'])?$this->re_db_input($data['fname']):'';
 			$lname = isset($data['lname'])?$this->re_db_input($data['lname']):'';
 			$mname = isset($data['mname'])?$this->re_db_input($data['mname']):'';
@@ -123,12 +209,18 @@
 							return false;
 						}
 					}
-					else if($id>0){
-					    $q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`middle_name`='".$mname."',`suffix`='".$suffix."',`fund`='".$fund."',`internal`='".$internal."',`display_on_statement`='".$display_on_statement."',`tax_id`='".$tax_id."',`crd`='".$crd."',`ssn`='".$ssn."',`active_status`='".$active_status_cdd."',`pay_method`='".$pay_method."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+					else if($id>0)
+          {
+            $q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`middle_name`='".$mname."',`suffix`='".$suffix."',`fund`='".$fund."',`internal`='".$internal."',`display_on_statement`='".$display_on_statement."',`tax_id`='".$tax_id."',`crd`='".$crd."',`ssn`='".$ssn."',`active_status`='".$active_status_cdd."',`pay_method`='".$pay_method."'".$this->update_common_sql()." WHERE `id`='".$id."'";
 						$res = $this->re_db_query($q);
-						if($res){
-						      
-                            $_SESSION['success'] = UPDATE_MESSAGE;
+						if($res)
+            {
+              $newInstance = $this->select_broker_by_id($id);
+              $fieldsToWatch = array('first_name', 'last_name', 'middle_name', 'suffix', 'fund', 'internal',
+                'display_on_statement', 'tax_id', 'crd', 'ssn', 'active_status', 'pay_method');
+              $this->update_history(BROKER_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+              
+              $_SESSION['success'] = UPDATE_MESSAGE;
 							return true;
 						}
 						else{
@@ -143,6 +235,8 @@
         /** Insert update general data for broker. **/
         public function insert_update_general($data){
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
+      if ($id > 0)
+        $originalInstance = $this->select_broker_general_by_id($id);
 			$home_general = isset($data['home_general'])?$this->re_db_input($data['home_general']):'';
 			$home_address1_general = isset($data['home_address1_general'])?$this->re_db_input($data['home_address1_general']):'';
 			$home_address2_general = isset($data['home_address2_general'])?$this->re_db_input($data['home_address2_general']):'';
@@ -310,11 +404,14 @@
 					$this->errors = 'This broker is already exists.';
 				}
 				*/
-				if($this->errors!=''){
+				if($this->errors!='')
+        {
 					return $this->errors;
 				}
-				else if($id>=0){
-					if($id==0){
+				else if($id>=0)
+        {
+					if($id==0)
+          {
 						$q = "INSERT INTO `".BROKER_GENERAL."` SET `broker_id`='".$_SESSION['last_insert_id']."',`home`='".$home_general."',`home_address1_general`='".$home_address1_general."',`home_address2_general`='".$home_address2_general."',`business_address1_general`='".$business_address1_general."',`business_address2_general`='".$business_address2_general."',`city`='".$city_general."',`state_id`='".$state_general."',`zip_code`='".$zip_code_general."',`telephone`='".$telephone_general."',`cell`='".$cell_general."',`fax`='".$fax_general."',`gender`='".$gender_general."',`marital_status`='".$status_general."',`spouse`='".$spouse_general."',`children`='".$children_general."',`email1`='".$email1_general."',`email2`='".$email2_general."',`web_id`='".$web_id_general."',`web_password`='".$web_password_general."',`dob`='".$dob_general."',`prospect_date`='".$prospect_date_general."',`reassign_broker`='".$reassign_broker_general."',`u4`='".$u4_general."',`u5`='".$u5_general."',`day_after_u5`='".$day_after_u5."',`dba_name`='".$dba_name_general."',`eft_information`='".$eft_info_general."',`start_date`='".$start_date_general."',`transaction_type`='".$transaction_type_general."',`routing`='".$routing_general."',`account_no`='".$account_no_general."',`cfp`='".$cfp_general."',`chfp`='".$chfp_general."',`cpa`='".$cpa_general."',`clu`='".$clu_general."',`cfa`='".$cfa_general."',`ria`='".$ria_general."',`insurance`='".$insurance_general."'".$this->insert_common_sql();
 						$res = $this->re_db_query($q);
                         if($res){
@@ -326,13 +423,21 @@
 							$_SESSION['warning'] = UNKWON_ERROR;
 							return false;
 						}*/
-				}
-                else {
-					    $q = "UPDATE `".BROKER_GENERAL."`  SET `home`='".$home_general."',`home_address1_general`='".$home_address1_general."',`home_address2_general`='".$home_address2_general."',`business_address1_general`='".$business_address1_general."',`business_address2_general`='".$business_address2_general."',`city`='".$city_general."',`state_id`='".$state_general."',`zip_code`='".$zip_code_general."',`telephone`='".$telephone_general."',`cell`='".$cell_general."',`fax`='".$fax_general."',`gender`='".$gender_general."',`marital_status`='".$status_general."',`spouse`='".$spouse_general."',`children`='".$children_general."',`email1`='".$email1_general."',`email2`='".$email2_general."',`web_id`='".$web_id_general."',`web_password`='".$web_password_general."',`dob`='".$dob_general."',`prospect_date`='".$prospect_date_general."',`reassign_broker`='".$reassign_broker_general."',`u4`='".$u4_general."',`u5`='".$u5_general."',`day_after_u5`='".$day_after_u5."',`dba_name`='".$dba_name_general."',`eft_information`='".$eft_info_general."',`start_date`='".$start_date_general."',`transaction_type`='".$transaction_type_general."',`routing`='".$routing_general."',`account_no`='".$account_no_general."',`cfp`='".$cfp_general."',`chfp`='".$chfp_general."',`cpa`='".$cpa_general."',`clu`='".$clu_general."',`cfa`='".$cfa_general."',`ria`='".$ria_general."',`insurance`='".$insurance_general."'".$this->update_common_sql()." WHERE `broker_id`='".$id."'";
+          }
+          else 
+          {
+            $q = "UPDATE `".BROKER_GENERAL."`  SET `home`='".$home_general."',`home_address1_general`='".$home_address1_general."',`home_address2_general`='".$home_address2_general."',`business_address1_general`='".$business_address1_general."',`business_address2_general`='".$business_address2_general."',`city`='".$city_general."',`state_id`='".$state_general."',`zip_code`='".$zip_code_general."',`telephone`='".$telephone_general."',`cell`='".$cell_general."',`fax`='".$fax_general."',`gender`='".$gender_general."',`marital_status`='".$status_general."',`spouse`='".$spouse_general."',`children`='".$children_general."',`email1`='".$email1_general."',`email2`='".$email2_general."',`web_id`='".$web_id_general."',`web_password`='".$web_password_general."',`dob`='".$dob_general."',`prospect_date`='".$prospect_date_general."',`reassign_broker`='".$reassign_broker_general."',`u4`='".$u4_general."',`u5`='".$u5_general."',`day_after_u5`='".$day_after_u5."',`dba_name`='".$dba_name_general."',`eft_information`='".$eft_info_general."',`start_date`='".$start_date_general."',`transaction_type`='".$transaction_type_general."',`routing`='".$routing_general."',`account_no`='".$account_no_general."',`cfp`='".$cfp_general."',`chfp`='".$chfp_general."',`cpa`='".$cpa_general."',`clu`='".$clu_general."',`cfa`='".$cfa_general."',`ria`='".$ria_general."',`insurance`='".$insurance_general."'".$this->update_common_sql()." WHERE `broker_id`='".$id."'";
 						$res = $this->re_db_query($q);
-						if($res){
-						      
-                            $_SESSION['success'] = UPDATE_MESSAGE;
+						if($res)
+            {
+              $newInstance = $this->select_broker_general_by_id($id);
+              $fieldsToWatch = array('home', 'home_address1_general', 'home_address2_general', 'business_address1_general', 'business_address2_general', 'city',
+              'state_id', 'zip_code', 'telephone', 'cell', 'fax', 'gender', 'marital_status', 'spouse', 'children', 'email1', 'email2', 'web_id', 'web_password',
+              'dob', 'prospect_date', 'reassign_broker', 'u4', 'u5', 'day_after_u5', 'dba_name', 'eft_information', 'start_date', 'transaction_type', 'routing',
+              'account_no', 'cfp', 'chfp', 'cpa', 'clu', 'cfa', 'ria', 'insurance' );
+              $this->update_history(BROKER_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+              
+              $_SESSION['success'] = UPDATE_MESSAGE;
 							return true;
 						}
 						/*else{
@@ -621,6 +726,8 @@
         {
             
             $id = isset($data['id'])?$this->re_db_input($data['id']):'0';
+            if ($id > 0)
+              $originalInstance = $this->select_broker_payout_by_id($id);
             $payout_schedule_id = isset($data['schedule_id'])?$this->re_db_input($data['schedule_id']):'';
             $payout_schedule_name = isset($data['schedule_name'])?$this->re_db_input($data['schedule_name']):'';            
             $transaction_type_general = isset($data['transaction_type_general'])?$this->re_db_input($data['transaction_type_general']):'1';
@@ -694,25 +801,35 @@
     					}
                     
     			}
-                else if($record>0){
+                else if($record>0)
+                {
                     
-                        $q = "UPDATE `".BROKER_PAYOUT_MASTER."`  SET `broker_id`='".$id."',`payout_schedule_id`='".$payout_schedule_id."' ,`payout_schedule_name`='".$payout_schedule_name."' ,`transaction_type_general`='".$transaction_type_general."' ,`product_category1`='".$product_category1."' , 
-                        `product_category2`='".$product_category2."' , `product_category3`='".$product_category3."' ,`product_category4`='".$product_category4."' ,`basis`='".$basis."' ,
-                        `cumulative`='".$cumulative."' ,`year`='".$year."',`calculation_detail`='".$calculation_detail."',`clearing_charge_deducted_from`='".$clearing_charge_deducted_from."',`reset`='".$reset."',`description_type`='".$description_type."',`minimum_trade_gross`='".$minimum_trade_gross."',`minimum_12B1_gross`='".$minimum_12B1_gross."' ,
-                        `team_member`='".$team_member_string."' ,`start`='".$start."',`until`='".$until."',`apply_to`='".$apply_to."',`product_2`='".$product_2."' ,`product_3`='".$product_3."',`product_4`='".$product_4."',
-                        `product_5`='".$product_5."' ,`calculate_on`='".$calculate_on."',`deduct`='".$deduct."',`hold_commissions`='".$hold_commissions."' ,`hold_commission_until`='".$hold_commission_until."',`hold_commission_after`='".$hold_commission_after."',`summarize_payroll_adjustments`='".$summarize_payroll_adjustments."',`summarize_12B1_from_autoposting`='".$summarize_12B1_from_autoposting."'".$this->update_common_sql()." WHERE  `broker_id`='".$id."'";
-      					
-                         $res = $this->re_db_query($q);    
-                         
-                         if($res){
-    					      
-                             $_SESSION['success'] = UPDATE_MESSAGE;
-    					   	 return true;
-    					 }
-    					 else{
-    					 	$_SESSION['warning'] = UNKWON_ERROR;
-    					 	return false;
-    					 }                    	
+                  $q = "UPDATE `".BROKER_PAYOUT_MASTER."`  SET `broker_id`='".$id."',`payout_schedule_id`='".$payout_schedule_id."' ,`payout_schedule_name`='".$payout_schedule_name."' ,`transaction_type_general`='".$transaction_type_general."' ,`product_category1`='".$product_category1."' , 
+                  `product_category2`='".$product_category2."' , `product_category3`='".$product_category3."' ,`product_category4`='".$product_category4."' ,`basis`='".$basis."' ,
+                  `cumulative`='".$cumulative."' ,`year`='".$year."',`calculation_detail`='".$calculation_detail."',`clearing_charge_deducted_from`='".$clearing_charge_deducted_from."',`reset`='".$reset."',`description_type`='".$description_type."',`minimum_trade_gross`='".$minimum_trade_gross."',`minimum_12B1_gross`='".$minimum_12B1_gross."' ,
+                  `team_member`='".$team_member_string."' ,`start`='".$start."',`until`='".$until."',`apply_to`='".$apply_to."',`product_2`='".$product_2."' ,`product_3`='".$product_3."',`product_4`='".$product_4."',
+                  `product_5`='".$product_5."' ,`calculate_on`='".$calculate_on."',`deduct`='".$deduct."',`hold_commissions`='".$hold_commissions."' ,`hold_commission_until`='".$hold_commission_until."',`hold_commission_after`='".$hold_commission_after."',`summarize_payroll_adjustments`='".$summarize_payroll_adjustments."',`summarize_12B1_from_autoposting`='".$summarize_12B1_from_autoposting."'".$this->update_common_sql()." WHERE  `broker_id`='".$id."'";
+
+                  $res = $this->re_db_query($q);    
+
+                  if($res)
+                  {
+    					      $newInstance = $this->select_broker_payout_by_id($id);
+                    $fieldsToWatch = array('payout_schedule_id', 'payout_schedule_name', 'transaction_type_general', 'product_category1',
+                      'product_category2', 'product_category3',
+                      'product_category4', 'basis', 'cumulative', 'year', 'calculation_detail', 'clearing_charge_deducted_from',
+                      'reset', 'description_type', 'minimum_trade_gross', 'minimum_12B1_gross', 'team_member', 
+                      'start', 'until', 'apply_to', 'product_2', 'product_3', 'product_4', 'product_5', 'calculate_on', 'deduct',
+                      'hold_commissions', 'hold_commission_until', 'hold_commission_after', 'summarize_payroll_adjustments', 'summarize_12B1_from_autoposting');
+                    $this->update_history(BROKER_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+                    $_SESSION['success'] = UPDATE_MESSAGE;
+                    return true;
+                  }
+                  else
+                  {
+                    $_SESSION['warning'] = UNKWON_ERROR;
+                    return false;
+                  }
                 }
                 /*if($res){			      
                     $_SESSION['success'] = UPDATE_MESSAGE;
@@ -773,11 +890,11 @@
                         
                         if($variable>0)
                         {
-                            $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `type_of_licences`='".$type_of_licences."' ,`state_id`='".$key."' , 
-                            `waive_home_state_fee`='".$waive_home_state_fee."' , `product_category`='".$product_category."' ,`active_check`='".$active_check."' ,`fee`='".$fee."' ,
-                            `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `state_id`='".$key."' and `broker_id`='".$id."'";
-      					
-                            $res = $this->re_db_query($q);
+                          $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `type_of_licences`='".$type_of_licences."' ,`state_id`='".$key."' , 
+                          `waive_home_state_fee`='".$waive_home_state_fee."' , `product_category`='".$product_category."' ,`active_check`='".$active_check."' ,`fee`='".$fee."' ,
+                          `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `state_id`='".$key."' and `broker_id`='".$id."'";
+
+                          $res = $this->re_db_query($q);
     		            }
                         else
                         {   
@@ -1387,43 +1504,52 @@
             }	
 		}
         /** Insert update branches data for broker. **/
-        public function insert_update_branches($data){
-			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
-			$branch_broker = isset($data['branch_broker'])?$this->re_db_input($data['branch_broker']):'';
-			$branch_1 = isset($data['branch_1'])?$this->re_db_input($data['branch_1']):'';
-			$branch_office_1 = isset($data['branch_office_1'])?$this->re_db_input($data['branch_office_1']):'';
-            $branch_2 = isset($data['branch_2'])?$this->re_db_input($data['branch_2']):'';
-			$branch_office_2 = isset($data['branch_office_2'])?$this->re_db_input($data['branch_office_2']):'';
-            $branch_3 = isset($data['branch_3'])?$this->re_db_input($data['branch_3']):'';
-			$branch_office_3 = isset($data['branch_office_3'])?$this->re_db_input($data['branch_office_3']):'';
-            $assess_branch_office_fee = isset($data['assess_branch_office_fee'])?$this->re_db_input($data['assess_branch_office_fee']):0;
-			$assess_audit_fee = isset($data['assess_audit_fee'])?$this->re_db_input($data['assess_audit_fee']):0;
-			$stamp = isset($data['stamp'])?$this->re_db_input($data['stamp']):0;
-			$stamp_certification = isset($data['stamp_certification'])?$this->re_db_input($data['stamp_certification']):0;
-			$stamp_indemnification = isset($data['stamp_indemnification'])?$this->re_db_input($data['stamp_indemnification']):0;
+        public function insert_update_branches($data)
+        {
+          $id = isset($data['id'])?$this->re_db_input($data['id']):0;
+          if ($id > 0)
+            $originalInstance = $this->select_broker_branch_by_id($id);
+          $branch_broker = isset($data['branch_broker'])?$this->re_db_input($data['branch_broker']):'';
+          $branch_1 = isset($data['branch_1'])?$this->re_db_input($data['branch_1']):'';
+          $branch_office_1 = isset($data['branch_office_1'])?$this->re_db_input($data['branch_office_1']):'';
+          $branch_2 = isset($data['branch_2'])?$this->re_db_input($data['branch_2']):'';
+          $branch_office_2 = isset($data['branch_office_2'])?$this->re_db_input($data['branch_office_2']):'';
+          $branch_3 = isset($data['branch_3'])?$this->re_db_input($data['branch_3']):'';
+          $branch_office_3 = isset($data['branch_office_3'])?$this->re_db_input($data['branch_office_3']):'';
+          $assess_branch_office_fee = isset($data['assess_branch_office_fee'])?$this->re_db_input($data['assess_branch_office_fee']):0;
+          $assess_audit_fee = isset($data['assess_audit_fee'])?$this->re_db_input($data['assess_audit_fee']):0;
+          $stamp = isset($data['stamp'])?$this->re_db_input($data['stamp']):0;
+          $stamp_certification = isset($data['stamp_certification'])?$this->re_db_input($data['stamp_certification']):0;
+          $stamp_indemnification = isset($data['stamp_indemnification'])?$this->re_db_input($data['stamp_indemnification']):0;
             
-			if($id==0){
-				$q = "INSERT INTO `".BROKER_BRANCHES."` SET `broker_id`='".$_SESSION['last_insert_id']."',`broker_name`='".$branch_broker."',`branch1`='".$branch_1."',`branch_office1`='".$branch_office_1."',`branch2`='".$branch_2."',`branch_office2`='".$branch_office_2."',`branch3`='".$branch_3."',`branch_office3`='".$branch_office_3."',`assess_branch_office_fee`='".$assess_branch_office_fee."',`assess_audit_fee`='".$assess_audit_fee."',`stamp`='".$stamp."',`stamp_certification`='".$stamp_certification."',`stamp_indemnification`='".$stamp_indemnification."'".$this->insert_common_sql();
-				$res = $this->re_db_query($q);
-                if($res){
-				      
-                    $_SESSION['success'] = INSERT_MESSAGE;
-					return true;
-				}
-				/*else{
-					$_SESSION['warning'] = UNKWON_ERROR;
-					return false;
-				}*/
-			}
-            else 
+          if($id==0)
+          {
+            $q = "INSERT INTO `".BROKER_BRANCHES."` SET `broker_id`='".$_SESSION['last_insert_id']."',`broker_name`='".$branch_broker."',`branch1`='".$branch_1."',`branch_office1`='".$branch_office_1."',`branch2`='".$branch_2."',`branch_office2`='".$branch_office_2."',`branch3`='".$branch_3."',`branch_office3`='".$branch_office_3."',`assess_branch_office_fee`='".$assess_branch_office_fee."',`assess_audit_fee`='".$assess_audit_fee."',`stamp`='".$stamp."',`stamp_certification`='".$stamp_certification."',`stamp_indemnification`='".$stamp_indemnification."'".$this->insert_common_sql();
+            $res = $this->re_db_query($q);
+            if($res)
             {
-			    $q = "UPDATE `".BROKER_BRANCHES."`  SET `broker_name`='".$branch_broker."',`branch1`='".$branch_1."',`branch_office1`='".$branch_office_1."',`branch2`='".$branch_2."',`branch_office2`='".$branch_office_2."',`branch3`='".$branch_3."',`branch_office3`='".$branch_office_3."',`assess_branch_office_fee`='".$assess_branch_office_fee."',`assess_audit_fee`='".$assess_audit_fee."',`stamp`='".$stamp."',`stamp_certification`='".$stamp_certification."',`stamp_indemnification`='".$stamp_indemnification."'".$this->update_common_sql()." WHERE `broker_id`='".$id."'";
-				$res = $this->re_db_query($q);
-				if($res){
-				      
-                    $_SESSION['success'] = UPDATE_MESSAGE;
-					return true;
-				}
+              $_SESSION['success'] = INSERT_MESSAGE;
+              return true;
+            }
+            /*else{
+              $_SESSION['warning'] = UNKWON_ERROR;
+              return false;
+            }*/
+          }
+          else 
+          {
+            $q = "UPDATE `".BROKER_BRANCHES."`  SET `broker_name`='".$branch_broker."',`branch1`='".$branch_1."',`branch_office1`='".$branch_office_1."',`branch2`='".$branch_2."',`branch_office2`='".$branch_office_2."',`branch3`='".$branch_3."',`branch_office3`='".$branch_office_3."',`assess_branch_office_fee`='".$assess_branch_office_fee."',`assess_audit_fee`='".$assess_audit_fee."',`stamp`='".$stamp."',`stamp_certification`='".$stamp_certification."',`stamp_indemnification`='".$stamp_indemnification."'".$this->update_common_sql()." WHERE `broker_id`='".$id."'";
+            $res = $this->re_db_query($q);
+            if($res)
+            {
+              $newInstance = $this->select_broker_branch_by_id($id);
+              $fieldsToWatch = array('broker_name', 'branch1', 'branch_office1', 'branch2', 'branch_office2',
+                'branch3', 'branch_office3', 'assess_branch_office_fee', 'assess_audit_fee', 'stamp',
+                'stamp_certification', 'stamp_indemnification');
+              $this->update_history(BROKER_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+              $_SESSION['success'] = UPDATE_MESSAGE;
+              return true;
+            }
 				/*else{
 					$_SESSION['warning'] = UNKWON_ERROR;
 					return false;

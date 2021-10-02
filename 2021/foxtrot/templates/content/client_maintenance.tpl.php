@@ -1399,7 +1399,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                     <?php }
                                     else if($feild_name == 'Income'){
                                     $income_name = $instance->get_income_name($val['old_value']);?>
-                                    <td><?php echo $income_name['income'];?></td>
+                                    <td><?php echo isset($income_name['income']) ? $income_name['income'] : '';?></td>
                                     <?php $income_name = $instance->get_income_name($val['new_value']);?>
                                     <td><?php echo $income_name['income'];?></td>
                                     <?php }

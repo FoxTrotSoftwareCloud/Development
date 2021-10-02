@@ -10,13 +10,26 @@
                         <option value="1" <?php if(isset($report_for) && ($report_for == 1 || $report_for == '')){echo "selected='true'";}?>>Account Numbers</option>
                         <option value="2" <?php if(isset($report_for) && $report_for == 2){echo "selected='true'";}?>>Client Lists</option>
                         <option value="3" <?php if(isset($report_for) && $report_for == 3){echo "selected='true'";}?>>Client Review Report</option>
+                        <option value="4" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Broker License Renewal Statements</option>
+                        <option value="5" <?php if(isset($report_for) && $report_for == 5){echo "selected='true'";}?>>E&O Statements</option>
+                        <option value="6" <?php if(isset($report_for) && $report_for == 6){echo "selected='true'";}?>>Broker Registrations Report</option>
+                        <option value="7" <?php if(isset($report_for) && $report_for == 7){echo "selected='true'";}?>>Branch Audit Report</option>
+                        <option value="8" <?php if(isset($report_for) && $report_for == 8){echo "selected='true'";}?>>Broker State Licenses Report</option>
+                        <option value="9" <?php if(isset($report_for) && $report_for == 9){echo "selected='true'";}?>>Client Activity/Churning Report</option>
+                        <option value="10" <?php if(isset($report_for) && $report_for == 10){echo "selected='true'";}?>>Compliance Exceptions Report</option>
+                        <option value="11" <?php if(isset($report_for) && $report_for == 11){echo "selected='true'";}?>>Continuing Education Report</option>
+                        <option value="12" <?php if(isset($report_for) && $report_for == 12){echo "selected='true'";}?>>Broker Sponsor Appointments Listing</option>
+                        <option value="13" <?php if(isset($report_for) && $report_for == 13){echo "selected='true'";}?>>OFAC Activity Report</option>
+                        <option value="14" <?php if(isset($report_for) && $report_for == 14){echo "selected='true'";}?>>FINCEN Activity Report</option>
+                        <option value="15" <?php if(isset($report_for) && $report_for == 15){echo "selected='true'";}?>>CIP Report</option>
+
                     </select>
                 </div>
              </div>
         </div>
         <br />
         <div class="panel" id="report_filters">
-        <div class="titlebox">Client Reports</div><br />
+        <div class="titlebox">Compliance Reports</div><br />
         <div class="row">
             <div class="col-md-8">
                 <div class="row">
@@ -93,7 +106,7 @@
             </div>
         </div>
         </div>
-        <div class="panel-footer">
+        <div class="panel-footer">1
             <div class="selectwrap">
                 <div class="selectwrap">
                     <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>

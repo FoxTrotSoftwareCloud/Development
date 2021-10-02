@@ -15,6 +15,10 @@
         
         //echo '<pre>';print_r($_POST);exit();
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
+        
+        if ($id > 0)
+          $originalInstance = $instance->select_company_by_id($id);
+        
         $company_name = isset($_POST['company_name'])?$instance->re_db_input($_POST['company_name']):'';
         $company_type = isset($_POST['company_type'])?$instance->re_db_input($_POST['company_type']):'';
         $manager_name = isset($_POST['manager_name'])?$instance->re_db_input($_POST['manager_name']):'';
@@ -56,8 +60,21 @@
         
         $return = $instance->insert_update($_POST);
         
-        if($return===true){
-            header("location:".CURRENT_PAGE);
+        if($return===true)
+        {
+          if ($id > 0)
+          {
+            $newInstance = $instance->select_company_by_id($id);
+            $fieldsToWatch = array('company_name', 'company_type', 'manager_name', 'address1', 'address2', 'business_city', 'state_general', 'zip',
+              'mail_address1', 'mail_address2', 'm_city', 'm_state', 'm_zip', 'telephone', 'facsimile', 'e_date', 'i_date', 'payout_level', 'clearing_charge_calculation',
+              'sliding_scale_commision', 'product_category', 'p_rate', 'threshold1', 'l1_rate', 'threshold2', 'l2_rate', 'threshold3', 'l3_rate', 'threshold4', 'l4_rate', 
+              'threshold5', 'l5_rate', 'threshold6', 'l6_rate', 'state', 'forign', 'status', 'is_delete', 'created_by', 'created_time', 'created_ip', 'modified_by', 
+              'modified_ip');
+
+            $instance->update_history('ft_multicompany_history', $originalInstance, $newInstance, $fieldsToWatch);
+          }
+          
+          header("location:".CURRENT_PAGE);
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';

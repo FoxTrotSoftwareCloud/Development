@@ -264,6 +264,26 @@
             }
 			return $return;
 		}
+    
+    /**
+		 * @param int $id, default all
+		 * @return 
+		 * */
+		public function select_branch_by_id($id)
+    {
+			$q = "SELECT `bm`.*
+					FROM `".$this->table."` AS `bm`
+                    WHERE `bm`.`is_delete`='0' AND `bm`.`id`=$id
+                    ORDER BY `bm`.`id` ASC";
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
+		}
         public function select_notes(){
 			$return = array();
 			

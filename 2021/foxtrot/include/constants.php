@@ -22,7 +22,8 @@
     define('UPDATE_MESSAGE','Data updated successfully.');
     define('UNKWON_ERROR','Something went wrong, please try again.');
 	
-	define('PASSWORD_UPDATE_SUCCESS','Your password updated successfully.');
+    define('PASSWORD_UPDATE_SUCCESS','Your password updated successfully.');
+    define('DATE_FORMAT', 'm/d/Y');
     
     /* encryption */
     define('SECRET_KEY','lx.kCe@%D');
