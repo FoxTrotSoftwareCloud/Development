@@ -226,7 +226,8 @@ PostResult( msg );
                                                     <th>File Name</th>
                                                     <th>File Type</th>
                                                     <th>Source</th>
-                                                    <th></th>
+                                                    <th>Results</th>
+                                                    <th>Note</th>
                                                     <th>Action</th>
                                                 </thead>
                                                 <tbody>
@@ -247,7 +248,7 @@ PostResult( msg );
                                                    ?>
                                                     <tr>
                                                         <td><?php echo $file_batch_id;?></td>
-                                                        <td style="width: 15%;"><?php echo $sponsor;?></td>
+                                                        <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id=".$val['id'];?>"><?php echo $sponsor;?></a></td>
                                                         <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
                                                         <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
                                                         <td style="width: 10%;"><?php echo $val['file_name'];?></td>
@@ -311,10 +312,12 @@ PostResult( msg );
                                                             }
                                                         }
                                                         ?>
-                                                        <td style="width: 20%;">
+                                                        <td style="width: 15%;">
                                                         <div class="progress">
+                                                            <?php //echo $count_processed_data."/".$count_exception_data;?>
                                                         <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
-                                                            <div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
+                                                            <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
+                                                            <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
                                                               <?php echo $total_complete_process.'%';?> Complete
                                                             </div>
                                                         <?php }else{ ?>
@@ -328,9 +331,15 @@ PostResult( msg );
                                                             $check_processed_data = $instance->check_processed_data($val['id']);    
                                                             $check_file_exception_process = $instance->check_file_exception_process($val['id']);                                                    
                                                         ?>
-                                                        <td style="width: 30%;">
+                                                        <td style="width: 10%;"><form method="post">
+                                                            <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                            <input type="hidden" name="note" value="save_note" />
+                                                            <input type="text" maxlength="20" value="<?php echo $val['note'];?>" name="note_<?php echo $val['id'];?>">
+                                                            </form>
+                                                        </td>
+                                                        <td style="width: 25%;">
                                                         <form method="post">
-                                                        <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control" style=" width: 78% !important;display: inline;">
+                                                        <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
                                                             <option value="0">Select Option</option>
                                                             <option value="1" >Delete File</option>
                                                             <option value="7" >Preview</option>
@@ -341,7 +350,7 @@ PostResult( msg );
                                                             <option value="6" <?php if(isset($val['processed']) && $val['processed']==0){ echo 'disabled="true"';}else if(isset($val['process_completed']) && $val['process_completed']==0){ echo 'disabled="true"';}else if(isset($check_file_exception_process) && $check_file_exception_process !='0'){echo 'disabled="true"';}else if(isset($val['process_completed']) && $val['process_completed']==1 && $val['is_archived'] == 0){ echo "selected='selected'";} ?>>Move To Archived</option>
                                                         </select>
                                                         <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
-                                                        <button type="submit" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;"> Go</button>
+                                                        <input type="hidden" name="go" value="go" />
                                                         </form>
                                                         </td>
                                                     </tr>
@@ -1351,6 +1360,12 @@ PostResult( msg );
 </style>
 <script type="text/javascript">
 $(document).ready(function() {
+
+        $('.form-go-action').on('onselect change', function(){
+            var form = this.closest('form');
+            form.submit();
+        })
+
         $('#data-table').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
