@@ -140,7 +140,7 @@
 			}
 		}
         
-        /**
+    /**
 		 * @param int status, default all
 		 * @return array of record if success, error message if any errors
 		 * */
@@ -160,6 +160,26 @@
     			}
             }
 			return $return;
+		}
+    
+    /**
+		 * @param int $id, default all
+		 * @return 
+		 * */
+		public function select_company_by_id($id){
+			
+			$q = "SELECT `cm`.*
+					FROM `".$this->table."` AS `cm`
+                    WHERE `cm`.`is_delete`='0' AND `cm`.`id`=$id
+                    ORDER BY `cm`.`id` ASC";
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
 		}
         
         public function insert_update_company_notes($data){//print_r($data);

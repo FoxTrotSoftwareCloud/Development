@@ -3,59 +3,121 @@
 		
 		public $table = CLIENT_MASTER;
 		public $errors = '';
-        
-        /**
+    
+     /**
+		 * @param int $clientId, default all
+		 * @return 
+		 * */
+		public function select_client_master($clientId)
+    {
+			$q = "SELECT `cm`.*
+					FROM `" . $this->table . "` AS `cm`
+                    WHERE `cm`.`is_delete`='0' AND `cm`.`id`=$clientId
+                    ORDER BY `cm`.`id` ASC";
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
+		}
+    
+     /**
+		 * @param int $clientId, default all
+		 * @return 
+		 * */
+		public function select_client_employment_by_id($clientId)
+    {
+			$q = "SELECT `ce`.*
+					FROM `" . CLIENT_EMPLOYMENT . "` AS `ce`
+                    WHERE `ce`.`is_delete`='0' AND `ce`.`client_id`=$clientId
+                    ORDER BY `ce`.`id` ASC";
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
+		}
+    
+     /**
+		 * @param int $clientId, default all
+		 * @return 
+		 * */
+		public function select_client_suitability_by_id($clientId)
+    {
+			$q = "SELECT `cs`.*
+					FROM `" . CLIENT_SUITABILITY . "` AS `cs`
+                    WHERE `cs`.`is_delete`='0' AND `cs`.`client_id`=$clientId
+                    ORDER BY `cs`.`id` ASC";
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+      
+      return null;
+		}
+    
+    /**
 		 * @param post array
 		 * @return true if success, error message if any errors
-		 * */ 
-         
-		public function insert_update($data){//echo '<pre>';print_r($data);exit;
-            $_SESSION['client_id'] = 0;
+		 * */  
+		public function insert_update($data)
+    {//echo '<pre>';print_r($data);exit;
+      $_SESSION['client_id'] = 0;
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
+      if ($id > 0)
+        $originalInstance = $this->select_client_master($id);
 			$fname = isset($data['fname'])?$this->re_db_input($data['fname']):'';
-            $lname = isset($data['lname'])?$this->re_db_input($data['lname']):'';
-            $mi = isset($data['mi'])?$this->re_db_input($data['mi']):'';
-            $do_not_contact = isset($data['do_not_contact'])?$this->re_db_input($data['do_not_contact']):'';
-            $active = isset($data['active'])?$this->re_db_input($data['active']):'';
-            $is_reviewed = isset($data['is_reviewed'])?1:0;
-	        $reviewed_at = isset($data['is_reviewed'])?date("Y-m-d H:i:s",strtotime($this->re_db_input($data['is_reviewed']))):'';
-	        $reviewed_by = isset($data['reviewed_by'])?$this->re_db_input($data['reviewed_by']):'';
-            $long_name = isset($data['long_name'])?$this->re_db_input($data['long_name']):'';
-            $client_file_number = isset($data['client_file_number'])?$this->re_db_input($data['client_file_number']):'';
-            $clearing_account = isset($data['clearing_account'])?$this->re_db_input($data['clearing_account']):'';
-            $client_ssn = isset($data['client_ssn'])?$this->re_db_input($data['client_ssn']):'';
-            $account_type = isset($data['account_type'])?$this->re_db_input($data['account_type']):'';
-            $household = isset($data['household'])?$this->re_db_input($data['household']):'';
-            $broker_name = isset($data['broker_name'])?$this->re_db_input($data['broker_name']):'';
-            $split_broker = isset($data['split_broker'])?$this->re_db_input($data['split_broker']):'';
-            $split_rate = isset($data['split_rate'])?$this->re_db_input($data['split_rate']):'';
-            $address1 = isset($data['address1'])?$this->re_db_input($data['address1']):'';
-            $address2 = isset($data['address2'])?$this->re_db_input($data['address2']):'';
-            $city = isset($data['city'])?$this->re_db_input($data['city']):'';
-            $state = isset($data['state'])?$this->re_db_input($data['state']):'';
-            $zip_code = isset($data['zip_code'])?$this->re_db_input($data['zip_code']):'';
-            $age = isset($data['age'])?$this->re_db_input($data['age']):0;
-            $ofak_check = isset($data['ofak_check'])?$this->re_db_input($data['ofak_check']):'';
-            $fincen_check = isset($data['fincen_check'])?$this->re_db_input($data['fincen_check']):'';
-            $citizenship = isset($data['citizenship'])?$this->re_db_input($data['citizenship']):'';
-            $telephone_mask = isset($data['telephone'])?$this->re_db_input($data['telephone']):'';
-            $telephone_no = str_replace("-", '', $telephone_mask);
-            $telephone_brack1 = str_replace("(", '', $telephone_no);
-            $telephone = str_replace(")", '', $telephone_brack1);
-            $contact_status = isset($data['contact_status'])?$this->re_db_input($data['contact_status']):'';
-            $birth_date = isset($data['birth_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['birth_date']))):'0000-00-00';
-            $date_established = isset($data['date_established'])?$this->re_db_input(date('Y-m-d',strtotime($data['date_established']))):'0000-00-00';
-            $open_date = isset($data['open_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['open_date']))):'0000-00-00';
-            $naf_date = isset($data['naf_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['naf_date']))):'0000-00-00';
-            $last_contacted = isset($data['last_contacted'])?$this->re_db_input(date('Y-m-d',strtotime($data['last_contacted']))):'0000-00-00';
-            //print_r($last_contacted);exit;
-            if($lname==''){
+      $lname = isset($data['lname'])?$this->re_db_input($data['lname']):'';
+      $mi = isset($data['mi'])?$this->re_db_input($data['mi']):'';
+      $do_not_contact = isset($data['do_not_contact'])?$this->re_db_input($data['do_not_contact']):'';
+      $active = isset($data['active'])?$this->re_db_input($data['active']):'';
+      $is_reviewed = isset($data['is_reviewed'])?1:0;
+      $reviewed_at = isset($data['is_reviewed'])?date("Y-m-d H:i:s",strtotime($this->re_db_input($data['is_reviewed']))):'';
+      $reviewed_by = isset($data['reviewed_by'])?$this->re_db_input($data['reviewed_by']):'';
+      $long_name = isset($data['long_name'])?$this->re_db_input($data['long_name']):'';
+      $client_file_number = isset($data['client_file_number'])?$this->re_db_input($data['client_file_number']):'';
+      $clearing_account = isset($data['clearing_account'])?$this->re_db_input($data['clearing_account']):'';
+      $client_ssn = isset($data['client_ssn'])?$this->re_db_input($data['client_ssn']):'';
+      $account_type = isset($data['account_type'])?$this->re_db_input($data['account_type']):'';
+      $household = isset($data['household'])?$this->re_db_input($data['household']):'';
+      $broker_name = isset($data['broker_name'])?$this->re_db_input($data['broker_name']):'';
+      $split_broker = isset($data['split_broker'])?$this->re_db_input($data['split_broker']):'';
+      $split_rate = isset($data['split_rate'])?$this->re_db_input($data['split_rate']):'';
+      $address1 = isset($data['address1'])?$this->re_db_input($data['address1']):'';
+      $address2 = isset($data['address2'])?$this->re_db_input($data['address2']):'';
+      $city = isset($data['city'])?$this->re_db_input($data['city']):'';
+      $state = isset($data['state'])?$this->re_db_input($data['state']):'';
+      $zip_code = isset($data['zip_code'])?$this->re_db_input($data['zip_code']):'';
+      $age = isset($data['age'])?$this->re_db_input($data['age']):0;
+      $ofak_check = isset($data['ofak_check'])?$this->re_db_input($data['ofak_check']):'';
+      $fincen_check = isset($data['fincen_check'])?$this->re_db_input($data['fincen_check']):'';
+      $citizenship = isset($data['citizenship'])?$this->re_db_input($data['citizenship']):'';
+      $telephone_mask = isset($data['telephone'])?$this->re_db_input($data['telephone']):'';
+      $telephone_no = str_replace("-", '', $telephone_mask);
+      $telephone_brack1 = str_replace("(", '', $telephone_no);
+      $telephone = str_replace(")", '', $telephone_brack1);
+      $contact_status = isset($data['contact_status'])?$this->re_db_input($data['contact_status']):'';
+      $birth_date = isset($data['birth_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['birth_date']))):'0000-00-00';
+      $date_established = isset($data['date_established'])?$this->re_db_input(date('Y-m-d',strtotime($data['date_established']))):'0000-00-00';
+      $open_date = isset($data['open_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['open_date']))):'0000-00-00';
+      $naf_date = isset($data['naf_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['naf_date']))):'0000-00-00';
+      $last_contacted = isset($data['last_contacted'])?$this->re_db_input(date('Y-m-d',strtotime($data['last_contacted']))):'0000-00-00';
+      //print_r($last_contacted);exit;
+      if($lname==''){
 				$this->errors = 'Please enter last name.';
 			}
-            else if($broker_name==''){
+      else if($broker_name==''){
 				$this->errors = 'Please select broker name.';
 			}
-            else if($client_file_number==''){
+      else if($client_file_number==''){
 				$this->errors = 'Please enter client file number.';
 			}
 			if($this->errors!=''){
@@ -97,9 +159,16 @@
 					else if($id>0){
 					    
 						$q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`mi`='".$mi."',`do_not_contact`='".$do_not_contact."',`active`='".$active."',`ofac_check`='".$ofak_check."',`fincen_check`='".$fincen_check."',`long_name`='".$long_name."',`client_file_number`='".$client_file_number."',`clearing_account`='".$clearing_account."',`client_ssn`='".$client_ssn."',`house_hold`='".$household."',`split_broker`='".$split_broker."',`split_rate`='".$split_rate."',`address1`='".$address1."',`address2`='".$address2."',`city`='".$city."',`state`='".$state."',`zip_code`='".$zip_code."',`citizenship`='".$citizenship."',`birth_date`='".$birth_date."',`date_established`='".$date_established."',`age`='".$age."',`open_date`='".$open_date."',`naf_date`='".$naf_date."',`last_contacted`='".$last_contacted."',`account_type`='".$account_type."',`broker_name`='".$broker_name."',`telephone`='".$telephone."',`contact_status`='".$contact_status."',`reviewed_at`='".$reviewed_at."',`reviewed_by`='".$reviewed_by."',`is_reviewed`='".$is_reviewed."'".$this->update_common_sql()." WHERE `id`='".$id."'";
-						$res = $this->re_db_query($q);
-						if($res){
-						    $_SESSION['success'] = UPDATE_MESSAGE;
+						$res = $this->re_db_query($q);    
+						if($res)
+            {
+              $newInstance = $this->select_client_master($id);
+              $fieldsToWatch = array('first_name', 'last_name', 'mi', 'do_not_contact', 'active', 'ofac_check', 'fincen_check', 'long_name', 'client_file_number',
+                'clearing_account', 'client_ssn', 'house_hold', 'split_broker', 'split_rate', 'address1', 'address2', 'city', 'state', 'zip_code', 'citizenship',
+                'birth_date', 'date_established', 'age', 'open_date', 'naf_date', 'last_contacted', 'account_type', 'broker_name', 'telephone', 'contact_status',
+                'reviewed_at', 'reviewed_by', 'is_reviewed', '');
+              $this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+              $_SESSION['success'] = UPDATE_MESSAGE;
 							return true;
 						}
 						else{
@@ -116,6 +185,8 @@
 		}
         public function insert_update_employment($data){//echo '<pre>';print_r($data);exit;
 			$id = isset($data['employment_id'])?$this->re_db_input($data['employment_id']):0;
+      if ($id > 0)
+        $originalInstance = $this->select_client_employment_by_id($id);
 			$occupation = isset($data['occupation'])?$this->re_db_input($data['occupation']):'';
             $employer = isset($data['employer'])?$this->re_db_input($data['employer']):'';
             $address_employement = isset($data['address_employement'])?$this->re_db_input($data['address_employement']):'';
@@ -156,7 +227,11 @@
 				$q = "UPDATE `".CLIENT_EMPLOYMENT."` SET `client_id`='".$id."',`occupation`='".$occupation."',`employer`='".$employer."',`address`='".$address_employement."',`position`='".$position."',`security_related_firm`='".$security_related_firm."',`finra_affiliation`='".$finra_affiliation."',`spouse_name`='".$spouse_name."',`spouse_ssn`='".$spouse_ssn."',`dependents`='".$dependents."',`salutation`='".$salutation."',`options`='".$options."',`other`='".$other."',`number`='".$number."',`expiration`='".$expiration."',`state`='".$state_employe."',`date_verified`='".$date_verified."',`telephone`='".$telephone_employment."'".$this->update_common_sql()." WHERE `client_id`='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){
-				    $_SESSION['success'] = UPDATE_MESSAGE;
+          $newInstance = $this->select_client_employment_by_id($id);
+          $fieldsToWatch = array('occupation', 'employer', 'address', 'position', 'security_related_firm', 'finra_affiliation', 
+            'spouse_name', 'spouse_ssn', 'dependents', 'salutation', 'options', 'other', 'number', 'expiration', 'state', 'date_verified', 'telephone');
+          $this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+          $_SESSION['success'] = UPDATE_MESSAGE;
 					return true;
 				}
 				else{
@@ -248,6 +323,8 @@
         }
         public function insert_update_suitability($data){
             $id = isset($data['suitability_id'])?$this->re_db_input($data['suitability_id']):0;
+            if ($id > 0)
+              $originalInstance = $this->select_client_suitability_by_id($id);
             $income = isset($data['income'])?$this->re_db_input($data['income']):'';
             $goal_horizone = isset($data['goal_horizone'])?$this->re_db_input($data['goal_horizone']):'';
             $net_worth = isset($data['net_worth'])?$this->re_db_input($data['net_worth']):'';
@@ -265,7 +342,7 @@
             $tax_id = isset($data['tax_id'])?$this->re_db_input($data['tax_id']):'';
             
             
-            if($id==0){
+        if($id==0){
 				$q = "INSERT INTO `".CLIENT_SUITABILITY."` SET `client_id`='".$_SESSION['client_id']."',`income`='".$income."',`goal_horizon`='".$goal_horizone."',`net_worth`='".$net_worth."',`risk_tolerance`='".$risk_tolerance."',`annual_expenses`='".$annual_expenses."',`liquidity_needs`='".$liquidity_needs."',`liquid_net_worth`='".$liquid_net_worth."',`special_expenses`='".$special_expenses."',`per_of_portfolio`='".$per_of_portfolio."',`time_frame_for_special_exp`='".$timeframe_for_special_exp."',`account_use`='".$account_use."',`signed_by`='".$signed_by."',`sign_date`='".$sign_date."',`tax_bracket`='".$tax_bracket."',`tax_id`='".$tax_id."'".$this->insert_common_sql();
 				$res = $this->re_db_query($q);
                 $id = $this->re_db_insert_id();
@@ -282,8 +359,13 @@
 			    
 				$q = "UPDATE `".CLIENT_SUITABILITY."` SET `client_id`='".$id."',`income`='".$income."',`goal_horizon`='".$goal_horizone."',`net_worth`='".$net_worth."',`risk_tolerance`='".$risk_tolerance."',`annual_expenses`='".$annual_expenses."',`liquidity_needs`='".$liquidity_needs."',`liquid_net_worth`='".$liquid_net_worth."',`special_expenses`='".$special_expenses."',`per_of_portfolio`='".$per_of_portfolio."',`time_frame_for_special_exp`='".$timeframe_for_special_exp."',`account_use`='".$account_use."',`signed_by`='".$signed_by."',`sign_date`='".$sign_date."',`tax_bracket`='".$tax_bracket."',`tax_id`='".$tax_id."'".$this->update_common_sql()." WHERE `client_id`='".$id."'";
 				$res = $this->re_db_query($q);
-				if($res){
-				    $_SESSION['success'] = UPDATE_MESSAGE;
+				if($res)
+        {
+          $newInstance = $this->select_client_suitability_by_id($id);
+          $fieldsToWatch = array('income', 'goal_horizon', 'net_worth', 'risk_tolerance', 'annual_expenses', 'liquidity_needs', 'liquid_net_worth', 
+            'special_expenses', 'per_of_portfolio', 'time_frame_for_special_exp', 'account_use', 'signed_by', 'sign_date', 'tax_bracket', 'tax_id');
+          $this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+          $_SESSION['success'] = UPDATE_MESSAGE;
 					return true;
 				}
 				else{

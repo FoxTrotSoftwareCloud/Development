@@ -110,19 +110,24 @@
 					}
 					else if($id>0){
 						$q = "UPDATE `product_category_".$category."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->update_common_sql()." WHERE `id`='".$id."'";
-                        $res = $this->re_db_query($q);
-                        
-                        $q = "UPDATE `product_rates_".$category."` SET `is_delete`='1' WHERE `product_id`='".$id."'";
-				        $res = $this->re_db_query($q);
-                        
-                        foreach($min_threshold as $key_thres=>$val_thres)
-                        {
-                            if($val_thres != '' && $min_rate[$key_thres]>0)
-                            {
-                				$q = "INSERT INTO `product_rates_".$category."` SET `product_id`='".$id."',`min_threshold`='".$val_thres."',`max_threshold`='".$max_threshold[$key_thres]."',`min_rate`='".$min_rate[$key_thres]."',`max_rate`='".$max_rate[$key_thres]."'".$this->insert_common_sql();
-                				$res = $this->re_db_query($q);
-                            }
-                        }
+            $res = $this->re_db_query($q);
+//            $fieldsToWatch = array('category', 'name', 'sponsor', 'ticker_symbol', 'cusip', 'security', 'receive', 'income', 'networth',
+//              'networthonly', 'minimum_investment', 'minimum_offer', 'maximum_offer', 'objective', 'non_commissionable', 'class_type', 
+//              'fund_code', 'sweep_fee', 'ria_specific', 'ria_specific_type', 'based', 'fee_rate', 'st_bo', 'm_date', 'type',
+//              'var', 'reg_type');
+//            $this->update_history('product_history_'.$category, $oldInstance, $newInstance, $fieldsToWatch);
+            
+            $q = "UPDATE `product_rates_".$category."` SET `is_delete`='1' WHERE `product_id`='".$id."'";
+            $res = $this->re_db_query($q);
+
+            foreach($min_threshold as $key_thres=>$val_thres)
+            {
+                if($val_thres != '' && $min_rate[$key_thres]>0)
+                {
+            $q = "INSERT INTO `product_rates_".$category."` SET `product_id`='".$id."',`min_threshold`='".$val_thres."',`max_threshold`='".$max_threshold[$key_thres]."',`min_rate`='".$min_rate[$key_thres]."',`max_rate`='".$max_rate[$key_thres]."'".$this->insert_common_sql();
+            $res = $this->re_db_query($q);
+                }
+            }
 						if($res){
 						    $_SESSION['success'] = UPDATE_MESSAGE;
 							return true;

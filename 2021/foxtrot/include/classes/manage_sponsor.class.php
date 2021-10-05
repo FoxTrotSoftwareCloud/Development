@@ -8,52 +8,54 @@
 		 * @return true if success, error message if any errors
 		 * */
 		
-        public function insert_update_sponsor($data){
+        public function insert_update_sponsor($data)
+        {
+          $id = isset($data['sponsor_id'])?$this->re_db_input($data['sponsor_id']):0;
+          if ($id)
+            $originalInstance = $this->select_sponsor_by_id($id);
+          $sponser_name = isset($data['sponser_name'])?$this->re_db_input($data['sponser_name']):'';
+          $saddress1 = isset($data['saddress1'])?$this->re_db_input($data['saddress1']):'';
+          $saddress2 = isset($data['saddress2'])?$this->re_db_input($data['saddress2']):'';
+          $scity = isset($data['scity'])?$this->re_db_input($data['scity']):'';
+          $sstate = isset($data['sstate'])?$this->re_db_input($data['sstate']):'';
+          $szip_code = isset($data['szip_code'])?$this->re_db_input($data['szip_code']):'';
+          $semail = isset($data['semail'])?$this->re_db_input($data['semail']):'';
+          $swebsite = isset($data['swebsite'])?$this->re_db_input($data['swebsite']):'';
+          $sgeneral_contact = isset($data['sgeneral_contact'])?$this->re_db_input($data['sgeneral_contact']):'';
+          $sgeneral_phone = isset($data['sgeneral_phone'])?$this->re_db_input($data['sgeneral_phone']):'';
+          $soperations_contact = isset($data['soperations_contact'])?$this->re_db_input($data['soperations_contact']):'';
+          $soperations_phone = isset($data['soperations_phone'])?$this->re_db_input($data['soperations_phone']):'';
+          $sdst_system_id = isset($data['sdst_system_id'])?$this->re_db_input($data['sdst_system_id']):'';
+          $sdst_mgmt_code = isset($data['sdst_mgmt_code'])?$this->re_db_input($data['sdst_mgmt_code']):'';
+          $sdst_import = isset($data['sdst_import'])?$this->re_db_input($data['sdst_import']):'';
+          $sdazl_code = isset($data['sdazl_code'])?$this->re_db_input($data['sdazl_code']):'';
+          $sdazl_import = isset($data['sdazl_import'])?$this->re_db_input($data['sdazl_import']):'';
+          $sdtcc_nscc = isset($data['sdtcc_nscc'])?$this->re_db_input($data['sdtcc_nscc']):'';
+          $sclr_firm = isset($data['sclr_firm'])?$this->re_db_input($data['sclr_firm']):'';
+
+          //for import module
+          $for_import = isset($data['for_import'])?$this->re_db_input($data['for_import']):'false';
+          $file_id = isset($data['file_id'])?$this->re_db_input($data['file_id']):'';
+          $temp_data_id = isset($data['temp_data_id'])?$this->re_db_input($data['temp_data_id']):'';
             
-			$id = isset($data['sponsor_id'])?$this->re_db_input($data['sponsor_id']):0;
-			$sponser_name = isset($data['sponser_name'])?$this->re_db_input($data['sponser_name']):'';
-            $saddress1 = isset($data['saddress1'])?$this->re_db_input($data['saddress1']):'';
-            $saddress2 = isset($data['saddress2'])?$this->re_db_input($data['saddress2']):'';
-            $scity = isset($data['scity'])?$this->re_db_input($data['scity']):'';
-            $sstate = isset($data['sstate'])?$this->re_db_input($data['sstate']):'';
-            $szip_code = isset($data['szip_code'])?$this->re_db_input($data['szip_code']):'';
-            $semail = isset($data['semail'])?$this->re_db_input($data['semail']):'';
-            $swebsite = isset($data['swebsite'])?$this->re_db_input($data['swebsite']):'';
-            $sgeneral_contact = isset($data['sgeneral_contact'])?$this->re_db_input($data['sgeneral_contact']):'';
-            $sgeneral_phone = isset($data['sgeneral_phone'])?$this->re_db_input($data['sgeneral_phone']):'';
-            $soperations_contact = isset($data['soperations_contact'])?$this->re_db_input($data['soperations_contact']):'';
-            $soperations_phone = isset($data['soperations_phone'])?$this->re_db_input($data['soperations_phone']):'';
-            $sdst_system_id = isset($data['sdst_system_id'])?$this->re_db_input($data['sdst_system_id']):'';
-            $sdst_mgmt_code = isset($data['sdst_mgmt_code'])?$this->re_db_input($data['sdst_mgmt_code']):'';
-            $sdst_import = isset($data['sdst_import'])?$this->re_db_input($data['sdst_import']):'';
-            $sdazl_code = isset($data['sdazl_code'])?$this->re_db_input($data['sdazl_code']):'';
-            $sdazl_import = isset($data['sdazl_import'])?$this->re_db_input($data['sdazl_import']):'';
-            $sdtcc_nscc = isset($data['sdtcc_nscc'])?$this->re_db_input($data['sdtcc_nscc']):'';
-            $sclr_firm = isset($data['sclr_firm'])?$this->re_db_input($data['sclr_firm']):'';
-            
-            //for import module
-            $for_import = isset($data['for_import'])?$this->re_db_input($data['for_import']):'false';
-            $file_id = isset($data['file_id'])?$this->re_db_input($data['file_id']):'';
-            $temp_data_id = isset($data['temp_data_id'])?$this->re_db_input($data['temp_data_id']):'';
-            
-			if($sponser_name==''){
-				$this->errors = 'Please enter sponsor name.';
-			}
-            if($this->errors!=''){
-				return $this->errors;
-			}
-            else{
-            /* check duplicate record */
-			$con = '';
-			if($id>0){
-				$con = " AND `id`!='".$id."'";
-			}
-			$q = "SELECT * FROM `".SPONSOR_MASTER."` WHERE `is_delete`='0' AND `name`='".$sponser_name."' ".$con;
-			$res = $this->re_db_query($q);
-			$return = $this->re_db_num_rows($res);
-			if($return>0){
-				$this->errors = 'This sponser is already exists.';
-			}
+          if($sponser_name==''){
+            $this->errors = 'Please enter sponsor name.';
+          }
+          if($this->errors!=''){
+            return $this->errors;
+          }
+          else{
+          /* check duplicate record */
+          $con = '';
+          if($id>0){
+            $con = " AND `id`!='".$id."'";
+          }
+          $q = "SELECT * FROM `".SPONSOR_MASTER."` WHERE `is_delete`='0' AND `name`='".$sponser_name."' ".$con;
+          $res = $this->re_db_query($q);
+          $return = $this->re_db_num_rows($res);
+          if($return>0){
+            $this->errors = 'This sponser is already exists.';
+          }
 			
 			if($this->errors!=''){
 				return $this->errors;
@@ -82,8 +84,14 @@
 				else if($id>0){
 					$q = "UPDATE `".SPONSOR_MASTER."` SET `name`='".strtoupper($sponser_name)."',`address1`='".$saddress1."',`address2`='".$saddress2."',`city`='".$scity."',`state`='".$sstate."',`zip_code`='".$szip_code."',`email`='".$semail."',`website`='".$swebsite."',`general_contact`='".$sgeneral_contact."',`general_phone`='".$sgeneral_phone."',`operations_contact`='".$soperations_contact."',`operations_phone`='".$soperations_phone."',`dst_system_id`='".$sdst_system_id."',`dst_mgmt_code`='".$sdst_mgmt_code."',`dst_importing`='".$sdst_import."',`dazl_code`='".$sdazl_code."',`dazl_importing`='".$sdazl_import."',`dtcc_nscc_id`='".$sdtcc_nscc."',`clearing_firm_id`='".$sclr_firm."'".$this->update_common_sql()." WHERE `id`='".$id."'";
                     $res = $this->re_db_query($q);
-					if($res){
-					    $_SESSION['success'] = UPDATE_MESSAGE;
+					if($res)
+          {
+            $newInstance = $this->select_sponsor_by_id($id);
+            $fieldsToWatch = array('name', 'address1', 'address2', 'city', 'state', 'zip_code', 'email', 'website', 'general_contact',
+              'general_phone', 'operations_contact', 'operations_phone', 'dst_system_id', 'dst_mgmt_code', 'dst_importing', 'dazl_code',
+              'dazl_importing', 'dtcc_nscc_id', 'clearing_firm_id');
+            $this->update_history(SPONSOR_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+            $_SESSION['success'] = UPDATE_MESSAGE;
 						return true;
 					}
 					else{
@@ -379,6 +387,23 @@
     			}
             }
 			return $return;
+		}
+    
+    public function select_sponsor_by_id($id){
+			$return = array();
+			
+			$q = "SELECT `sm`.*
+					FROM `".SPONSOR_MASTER."` AS `sm`
+                    WHERE `sm`.`is_delete`='0'
+                    AND `sm`.`id`=$id
+                    ORDER BY `sm`.`id` ASC";
+			$res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0)
+      {
+        $row = $this->re_db_fetch_array($res);
+        return $row;
+      }
+			return null;
 		}
         public function get_sponsor_on_system_management_code($system_id='',$management_code=''){
 			$return = array();
