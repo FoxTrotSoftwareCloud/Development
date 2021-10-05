@@ -84,6 +84,14 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
+    else if (isset($_POST['note']) and $_POST['note'] == "save_note") {
+        $return = $instance->save_note($_POST);
+        if($return == true) {
+            header("location:".CURRENT_PAGE);exit;
+        }else{
+            $error = !isset($_SESSION['warning'])?$return:'';
+        }
+    }
     else if(isset($_GET['action']) && $_GET['action'] == 'process_file' && $_GET['file_id'] !='')
     {
         $id = $_GET['file_id'];

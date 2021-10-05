@@ -3070,7 +3070,30 @@
 				return false;
 			}
 		}
-        
+
+        public function save_note($data)
+        {
+            $id   = isset($data['id'])?$this->re_db_input($data['id']):0;
+            $note = isset($data['note_'.$id])?$this->re_db_input($data['note_'.$id]):'';
+            if (!$id) {
+                $this->errors = "Missing ID";
+            }
+            if($this->errors!=''){
+                return $this->errors;
+            }
+            $sql = "UPDATE `".IMPORT_CURRENT_FILES."` SET `note`='".$note."' ".$this->update_common_sql().
+                   "WHERE `id`='".$id."'";
+            $res = $this->re_db_query($sql);
+            if($res) {
+                $_SESSION['success'] = UPDATE_MESSAGE;
+                return true;
+            }
+            else {
+                $_SESSION['warning'] = UNKWON_ERROR;
+                return false;
+            }
+
+        }
         
     }
 ?>
