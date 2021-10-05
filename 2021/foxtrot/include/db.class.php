@@ -276,6 +276,27 @@ class db
       }
     }
     
+    public function update_routine_history($tableName, $mainColumnName, $mainColumnValue, $field, $oldValue, $newValue)
+    {
+      $values = array(
+        array(
+          $mainColumnName => $mainColumnValue,
+          'field' => $field,
+          'old_value' => $oldValue,
+          'new_value' => $newValue,
+          'status' => 'new',
+          'is_delete' => '0',
+          'created_by' => $_SESSION['user_id'],
+          'created_time' => date("Y-m-d H:i:s",time()),
+          'created_ip' => $this->get_client_ip(),
+          'modified_by' => $_SESSION['user_id'],
+          'modified_time' => date("Y-m-d H:i:s",time()),
+          'modified_ip' => $this->get_client_ip(),
+        )
+      );
+      $this->insert_rows($tableName, $values);
+    }
+    
     public function validemail($email)
     {
       if(filter_var($email,FILTER_VALIDATE_EMAIL) === false){
