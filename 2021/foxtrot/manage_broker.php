@@ -3,11 +3,13 @@
 	require_once(DIR_FS."islogin.php");
 	
     $error = '';
+    $broker_trans=array();
     $return = array();
     $fname = '';
     $lname = '';
     $mname = '';
     $suffix = '';
+    $_SESSION['broker_full_name'] ='';
     $fund = '';
     $internal = '';
     $display_on_statement = '';
@@ -74,6 +76,7 @@
     $get_register=$instance->select_register();
     $get_sponsor = $instance->select_sponsor();
     $select_broker= $instance->select();
+    $broker_trans=$instance->select_broker_transaction($id);
     $select_branch= $instance_branch->select();
     $select_percentage= $instance->select_percentage();
     $broker_charge=$instance->select_broker_charge($id);
@@ -82,6 +85,8 @@
     $select_docs = $instance->select_docs();
     $select_broker_docs = $instance->get_broker_doc_name();
     $product_category = $instance->select_category();
+    $product_category_based_on_series = $instance->select_category_based_on_series();
+    
     $get_payout_schedule = $instance->get_payout_schedule();
     $get_branch_office = $instance->select_branch_office();
     if(isset($_GET['file_id']) && ($_GET['file_id'] && $_GET['exception_data_id']) >0 )
@@ -119,7 +124,10 @@
     }
     //echo '<pre>';print_r($product_category);exit();
     
-    if(isset($_POST['submit'])&& $_POST['submit']=='Save'){//echo '<pre>';print_r($_POST);exit;
+    if((isset($_POST['submit'])&& $_POST['submit']=='Save') 
+        || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
+        || (isset($_POST['submit'])&& $_POST['submit']=='Next') )
+    {//echo '<pre>';print_r($_POST);exit;
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $fname = isset($_POST['fname'])?$instance->re_db_input($_POST['fname']):'';
     	$lname = isset($_POST['lname'])?$instance->re_db_input($_POST['lname']):'';
@@ -231,7 +239,7 @@
         $return_broker_branches = $instance->insert_update_branches($_POST);
         
         
-        if($return===true){
+        if($return==true && $_POST['submit']=='Save'){
             
             if($for_import == 'true')
             {
@@ -252,6 +260,30 @@
             {
                 header("location:".CURRENT_PAGE);exit;
             }
+        }
+        else if($return==true && $_POST['submit']=='Next')
+        {
+            $return = $instance->get_next_broker($id);
+            
+            if($return!=false){
+                $id=$return['id'];
+                header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
+            }
+            else{
+                header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
+             }
+        }
+        else if($return==true && $_POST['submit']=='Previous')
+        {
+            $return = $instance->get_Previous_broker($id);
+            
+            if($return!=false){
+                $id=$return['id'];
+                header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
+            }
+            else{
+                header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
+             }
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
@@ -417,6 +449,7 @@
         $fname = isset($return['first_name'])?$instance->re_db_output($return['first_name']):'';
         $lname = isset($return['last_name'])?$instance->re_db_output($return['last_name']):'';
         $mname = isset($return['middle_name'])?$instance->re_db_output($return['middle_name']):'';
+        $_SESSION['broker_full_name'] = $return['first_name'].' '.$return['middle_name'].' '.$return['last_name'];
         $suffix = isset($return['suffix'])?$instance->re_db_output($return['suffix']):'';
         $fund = isset($return['fund'])?$instance->re_db_output($return['fund']):'';
     	$internal = isset($return['internal'])?$instance->re_db_output($return['internal']):'';

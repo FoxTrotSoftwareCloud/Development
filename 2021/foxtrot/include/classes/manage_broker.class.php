@@ -1825,6 +1825,26 @@
             }
 			return $return;
 		}
+    
+    public function select_broker_transaction($id='0'){
+					$broker_trans = array();
+					
+					$q = "SELECT `at`.*
+							FROM `".TRANSACTION_MASTER."` AS `at`
+		                    WHERE `at`.`is_delete`='0' AND `at`.`broker_name`='".$id."'
+		                    ORDER BY `at`.`id` ASC";
+					$res = $this->re_db_query($q);
+		            if($this->re_db_num_rows($res)>0){
+		                $a = 0;
+		    			while($row = $this->re_db_fetch_array($res)){
+		    			     array_push($broker_trans,$row);
+		                     
+		    			}
+		            }
+					return $broker_trans;
+		}
+    
+    public function select_category_based_on_series() {}
         public function select_category(){
 			$return = array();
 			
