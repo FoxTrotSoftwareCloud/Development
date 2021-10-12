@@ -102,13 +102,14 @@ require_once(DIR_FS."islogin.php");?>
     float: right;
 }
 .headermenu {
-    padding: 10px 0;
+    padding: 4px 0;
+    margin: 0px;
 }
 .userinfo {
     margin: -40px 0px 0 -560px;/*margin: -40px 0px 0 220px;/* 89 when use menu icon*/
 }
 .contentmain{
-    padding: 100px 0 90px;
+    padding: 60px 0 90px;
 }
 </style>
 </head>
@@ -220,8 +221,8 @@ $instance_header = new header_class();
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
 			</div>
 			<div class="collapse navbar-collapse" id="myNavbar">
-            <div class="sitelogo"><a href="home.php" title="Foxtrot"><img src="images/sitelogo.png" alt="Foxtrot" height="53.68"/></a></div>
-			<ul class="nav navbar-nav" style="margin: 30px 0px 0px 0px;">
+            <div class="sitelogo"><a href="home.php" title="Foxtrot"><img src="images/sitelogo.png" alt="Foxtrot" height="40ox"/></a></div>
+			<ul class="nav navbar-nav" style="margin: 15px 0px 0px 0px;">
 			  <li class="active menuhome"><a href="home.php"><i class="fa fa-home"></i></a></li>
 			  <?php  
 				$menu = $instance_header->menu_select();
