@@ -1251,7 +1251,7 @@ PostResult( msg );
                 <div class="col-md-4">
                     <div class="inputpopup">
                         <select name="rep_for_broker" id="rep_for_broker" class="form-control">
-                            <option value="">Select Broker</option>
+                            <option value="">Last Name, First Name</option>
                             <?php foreach($get_broker as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>"><?php echo $val['first_name'].' '.$val['last_name'];?></option>
                             <?php } ?>
