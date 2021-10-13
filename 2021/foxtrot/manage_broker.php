@@ -84,36 +84,42 @@
     $product_category = $instance->select_category();
     $get_payout_schedule = $instance->get_payout_schedule();
     $get_branch_office = $instance->select_branch_office();
-    if(isset($_GET['file_id']) && ($_GET['file_id'] && $_GET['exception_data_id']) >0 )
+    if (isset($_GET['file_id']) && ($_GET['file_id'] && $_GET['exception_data_id']) > 0)
     {
         $file_id = $_GET['file_id'];
         $temp_data_id = $_GET['exception_data_id'];
         $rep = $_GET['rep_no'];
-        $instance_import= new import();
-        $return_exception_detail = $instance_import->select_single_exception_data($file_id,$temp_data_id);
-        foreach($return_exception_detail as $key=>$val)
+        $instance_import = new import();
+        $return_exception_detail = $instance_import->select_single_exception_data($file_id, $temp_data_id);
+        if (isset($return_exception_detail[0]['id']))
         {
-            $rep_name = explode(' ',$val['rep_name']);
+            $internal = $return_exception_detail[0]['id'];
+        }
+
+        foreach ($return_exception_detail as $key => $val)
+        {
+            $rep_name = explode(' ', $val['rep_name']);
             $file_type = $val['file_type'];
-            $header_detail = $instance_import->get_files_header_detail($file_id,$temp_data_id,$file_type);
-            if($header_detail != array()){
+            $header_detail = $instance_import->get_files_header_detail($file_id, $temp_data_id, $file_type);
+            if ($header_detail != array())
+            {
                 $system_id = $header_detail['system_id'];
                 $management_code = $header_detail['management_code'];
-                $sponsor_detail = $instance_import->get_sponsor_on_system_management_code($system_id,$management_code);
-                $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
-                $alias_number = $rep;
+                $sponsor_detail = $instance_import->get_sponsor_on_system_management_code($system_id, $management_code);
+                $alias_sponsor = isset($sponsor_detail['id']) ? $sponsor_detail['id'] : '';
+                $alias_number = isset($rep) ? $rep : '';
             }
-        
-            if(isset($rep_name[2]) && $rep_name[2] != '')
+
+            if (isset($rep_name[2]) && $rep_name[2] != '')
             {
-                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
-                $mname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
-                $lname = isset($rep_name[2])?$instance->re_db_input($rep_name[2]):'';
+                $fname = isset($rep_name[0]) ? $instance->re_db_input($rep_name[0]) : '';
+                $mname = isset($rep_name[1]) ? $instance->re_db_input($rep_name[1]) : '';
+                $lname = isset($rep_name[2]) ? $instance->re_db_input($rep_name[2]) : '';
             }
             else
             {
-                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
-                $lname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
+                $fname = isset($rep_name[0]) ? $instance->re_db_input($rep_name[0]) : '';
+                $lname = isset($rep_name[1]) ? $instance->re_db_input($rep_name[1]) : '';
             }
         }
     }

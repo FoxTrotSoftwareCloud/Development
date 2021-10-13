@@ -594,7 +594,7 @@ var waitingDialog = waitingDialog || (function ($) {
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Internal Broker ID Number </label>
-                                                    <input type="text" name="internal" id="internal" value="<?php echo $internal; ?>" class="form-control" />
+                                                    <input type="text" name="internal" id="internal" disabled="true" value="<?php echo $internal; ?>" class="form-control" />
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
@@ -2668,45 +2668,54 @@ var waitingDialog = waitingDialog || (function ($) {
                                                     </thead>
                                                     <tbody>
                                                         
-                                                        <?php $doc_id=0; //echo '<pre>';print_r($edit_required_docs);
-                                                        if(isset($_GET['action']) && $_GET['action']=='edit' && isset($edit_required_docs) ){  
-                                                        foreach($edit_alias as $key=>$val){ $doc_id++;?>
-                                                            <tr>
-                                                                <td>
-                                                                    <input type="text" name="alias[alias_name][<?php echo $doc_id;?>]" value="<?php echo $val['alias_name']; ?>" max="20" class="form-control"/>
-                                                                </td>
-                                                                <td>
-                                                                    <select name="alias[sponsor_company][<?php echo $doc_id;?>]" class="form-control">
-                                                                        <option value="0">All Companies</option>
-                                                                        <?php foreach($get_sponsor as $key_sponsor=>$val_sponsor){?>
-                                                                        <option value="<?php echo $val_sponsor['id'];?>" <?php if($val['sponsor_company'] != '' && $val['sponsor_company']==$val_sponsor['id']){echo "selected='selected'";} ?>><?php echo $val_sponsor['name'];?></option>
-                                                                        <?php } ?>
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <div id="demo-dp-range">
-                    					                                <div class="input-daterange input-group" id="datepicker">
-                                                                            <input type="text" name="alias[date][<?php echo $doc_id;?>]" value="<?php if(isset($val['date']) && $val['date'] != ''){ echo date('m/d/Y',strtotime($val['date'])); }?>" class="form-control" />
-                    					                                </div>
-                 					                                </div>
-                                                                </td>
-                                                                <td>
-                                                                    <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
-                                                                </td>
-                                                            </tr>
-                                                      <?php } }$doc_id  ++;  ?>
+                                                        <?php
+                                                        $doc_id = 0;
+                                                        //echo '<pre>';print_r($edit_required_docs);
+                                                        if (isset($_GET['action']) && $_GET['action'] == 'edit' && isset($edit_required_docs))
+                                                        {
+                                                            foreach ($edit_alias as $key => $val)
+                                                            {
+                                                                $doc_id++;
+                                                                ?>
+
+                                                                <tr>
+                                                                    <td>
+                                                                        <input type="text" name="alias[alias_name][<?php echo $doc_id;?>]" value="<?php echo $val['alias_name']; ?>" max="20" class="form-control"/>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select name="alias[sponsor_company][<?php echo $doc_id;?>]" class="form-control">
+                                                                            <option value="0">All Companies</option>
+                                                                            <?php foreach($get_sponsor as $key_sponsor=>$val_sponsor){?>
+                                                                            <option value="<?php echo $val_sponsor['id'];?>" <?php if($val['sponsor_company'] != '' && $val['sponsor_company']==$val_sponsor['id']){echo "selected='selected'";} ?>><?php echo $val_sponsor['name'];?></option>
+                                                                            <?php } ?>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div id="demo-dp-range">
+                                                                            <div class="input-daterange input-group" id="datepicker">
+                                                                                <input type="text" name="alias[date][<?php echo $doc_id;?>]" value="<?php if(isset($val['date']) && $val['date'] != ''){ echo date('m/d/Y',strtotime($val['date'])); }?>" class="form-control" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
+                                                                    </td>
+                                                                </tr>
+
+                                                                <?php
+                                                            }
+                                                        }
+                                                        $doc_id++;
+
+                                                        echo $get_sponsor[$alias_sponsor]['name'];
+                                                        ?>
                                                       
                                                        <tr id="add_row_alias">
                                                             <td>
-                                                                <input type="text" name="alias[alias_name][<?php echo $doc_id;?>]" value="<?php if(isset($alias_number) && $alias_number != ''){ echo $alias_number;}?>" max="20" class="form-control"/>
+                                                                <input type="text" name="alias[alias_name][<?= $doc_id ?>]" value="<?= $alias_number ?>" max="20" class="form-control">
                                                             </td>
                                                             <td>
-                                                                <select name="alias[sponsor_company][<?php echo $doc_id;?>]" class="form-control">
-                                                                    <option value="0">All Companies</option>
-                                                                    <?php foreach($get_sponsor as $key_sponsor=>$val_sponsor){?>
-                                                                    <option value="<?php echo $val_sponsor['id'];?>" <?php if(isset($alias_sponsor) && $alias_sponsor == $val_sponsor['id']){ echo "selected='selected'";} ?>><?php echo $val_sponsor['name'];?></option>
-                                                                    <?php } ?>
-                                                                </select>
+                                                                <input type="text" name="alias[sponsor_company][<?= $doc_id ?>]" value="<?= $get_sponsor[$alias_sponsor]['name'] ?>" max="20" class="form-control" disabled="true" />
                                                             </td>
                                                             <td>
                                                                 <div id="demo-dp-range">
