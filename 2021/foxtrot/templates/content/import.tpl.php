@@ -1335,7 +1335,6 @@ PostResult( msg );
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
         	            <button type="submit" style="alignment-adjust: central !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
-
                     </div>
                 </div>
                 <div class="col-md-5" id="link_div">
@@ -1767,11 +1766,23 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             document.getElementById("field_label").innerHTML = 'Broker Alias to Add:';
             document.getElementById("exception_value").value = rep_number;
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker.</a>';
+            const add_url = [
+                '<?= SITE_URL ?>manage_broker.php?action=add_new&rep_no=',
+                rep_number,
+                '&file_id=',
+                exception_file_id,
+                '&exception_data_id=',
+                temp_data_id
+            ];
+            const add_button = [
+                '<a href="' + add_url.join('') + '" style="display: block; float: right" id="add_broker_for_rep"',
+                    '<button type="submit" style="" class="btn btn-sm btn-warning">Add New Broker</button>',
+                '</div>',
+            ];
+            document.getElementById("link_div").innerHTML = add_button.join('')
             //document.getElementById("exception_value_dis").value = rep_number;
             $("#assign_rep_to_broker").css('display','block');
             //$("#exception_value").css('display','none');
-
         }
         else{
             $("#assign_rep_to_broker").css('display','none');
