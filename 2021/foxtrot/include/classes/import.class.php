@@ -1890,17 +1890,73 @@
                     }*/
                     if(isset($result) && $result == 0)
                     {
-                        $q = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".$check_data_val['representative_number']."',`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['mutual_fund_customer_account_number']."',`client`='".$check_data_val['registration_line1']."',`cusip`='".$check_data_val['cusip_number']."',`principal`='0',`commission`='0',`error_code_id`='0',`field`='',`solved`='1',`process_completed`='1',`file_type`='1'".$this->insert_common_sql();
+                        $q = "INSERT INTO `".IMPORT_EXCEPTION."` SET
+                         `file_id`='".$check_data_val['file_id']."',
+                         `temp_data_id`='".$check_data_val['id']."',
+                         `date`='".date('Y-m-d')."',
+                         `rep`='".$check_data_val['representative_number']."',
+                         `rep_name`='".$check_data_val['representative_name']."',
+                         `account_no`='".$check_data_val['mutual_fund_customer_account_number']."',
+                         `client`='".$check_data_val['registration_line1']."',
+                         `cusip`='".$check_data_val['cusip_number']."',
+                         `principal`='0',
+                         `commission`='0',
+                         `error_code_id`='0',
+                         `field`='',
+                         `solved`='1',
+                         `process_completed`='1',
+                         `modified_by`=0,
+                         `modified_time`='0000-00-00',
+                         `modified_ip`='',
+                         `file_type`='1'".$this->insert_common_sql();
      			        $res = $this->re_db_query($q);
                         
                         $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
                         
-                        $q = "INSERT INTO `".CLIENT_MASTER."` SET `file_id`='".$check_data_val['file_id']."',`first_name`='".$first_name."',`mi`='".$middle_name."',`last_name`='".$last_name."',`address1`='".$get_client_data[0]['client_address']."',`birth_date`='".$check_data_val['customer_date_of_birth']."',`zip_code`='".$check_data_val['zip_code']."',`broker_name`='".$broker_id."',`client_ssn`='".$check_data_val['social_security_number']."',`last_contacted`='".$check_data_val['last_maintenance_date']."'".$this->insert_common_sql();
+                        $q = "INSERT INTO `".CLIENT_MASTER."` SET
+                         `file_id`='".$check_data_val['file_id']."',
+                         `first_name`='".$first_name."',
+                         `mi`='".$middle_name."',
+                         `last_name`='".$last_name."',
+                         `address1`='".$get_client_data[0]['client_address']."',
+                         `birth_date`='".$check_data_val['customer_date_of_birth']."',
+                         `zip_code`='".$check_data_val['zip_code']."',
+                         `broker_name`='".$broker_id."',
+                         `client_ssn`='".$check_data_val['social_security_number']."',
+                         `ofac_check`='',
+                         `fincen_check`='',
+                         `long_name`='',
+                         `client_file_number`='',
+                         `clearing_account`='',
+                         `house_hold`='',
+                         `split_broker`='',
+                         `address2`='',
+                         `city`='',
+                         `state`='',
+                         `citizenship`='',
+                         `age`=0,
+                         `date_established`='0000-00-00',
+                         `open_date`='0000-00-00',
+                         `naf_date`='0000-00-00',
+                         `account_type`=0,
+                         `ressign_date`='0000-00-00',
+                         `telephone`='',
+                         `contact_status`=0,
+                         `modified_by`=0,
+                         `modified_ip`='',
+                         `modified_time`='0000-00-00',
+                         `last_contacted`='".$check_data_val['last_maintenance_date']."'".$this->insert_common_sql();
      			        $res = $this->re_db_query($q);
                         $last_inserted_id = $this->re_db_insert_id();
                         if($res)
                         {
-                            $q = "INSERT INTO `".CLIENT_ACCOUNT."` SET `client_id`='".$last_inserted_id."',`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'".$this->insert_common_sql();
+                            $q = "INSERT INTO `".CLIENT_ACCOUNT."` SET
+                             `client_id`='".$last_inserted_id."',
+                             `sponsor_company`='',
+                             `modified_by`=0,
+                             `modified_time`='0000-00-00',
+                             `modified_ip`='',
+                             `account_no`='".$check_data_val['mutual_fund_customer_account_number']."'".$this->insert_common_sql();
             				$res = $this->re_db_query($q);
                             $reprocess_status = true;
                         }
