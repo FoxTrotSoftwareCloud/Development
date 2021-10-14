@@ -1775,9 +1775,9 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
                 temp_data_id
             ];
             const add_button = [
-                '<a href="' + add_url.join('') + '" style="display: block; float: right" id="add_broker_for_rep"',
-                    '<button type="submit" style="" class="btn btn-sm btn-warning">Add New Broker</button>',
-                '</div>',
+                '<a href="' + add_url.join('') + '" style="display: block; float: right" id="add_broker_for_rep">',
+                    '<button type="button" class="btn btn-sm btn-warning">Add New Broker</button>',
+                '</a>',
             ];
             document.getElementById("link_div").innerHTML = add_button.join('')
             //document.getElementById("exception_value_dis").value = rep_number;
