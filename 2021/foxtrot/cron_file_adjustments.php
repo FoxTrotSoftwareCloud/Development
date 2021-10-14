@@ -18,6 +18,7 @@ foreach($return as $key_adjust=>$val_adjust)
             $is_expired=0;
             $total_usage=$val_adjust['total_usage']+1;
             $renew_adjustments = $instance->renew_mid_month_adjustments($is_expired,'','',$total_usage);
+            $renew_detail_adjustments = $instance->renew_sub_mid_month_adjustments($is_expired,'','',$total_usage);
         }
     }
     else if(isset($val_adjust['recurring_type_id']) && $val_adjust['recurring_type_id'] == 3)
@@ -30,6 +31,7 @@ foreach($return as $key_adjust=>$val_adjust)
             $is_expired=0;
             $total_usage=$val_adjust['total_usage']+1;
             $renew_adjustments = $instance->renew_end_month_adjustments($is_expired,$val_adjust['id'],'',$total_usage);
+            $renew_detail_adjustments = $instance->renew_sub_end_month_adjustments($is_expired,$val_adjust['id'],'',$total_usage);
         }
     }
     else if(isset($val_adjust['recurring_type_id']) && $val_adjust['recurring_type_id'] == 4)
@@ -43,6 +45,7 @@ foreach($return as $key_adjust=>$val_adjust)
             $is_expired=0;
             $total_usage=$val_adjust['total_usage']+1;
             $renew_adjustments = $instance->renew_semi_mid_month_adjustments($is_expired,'','',$total_usage);
+            $renew_detail_adjustments = $instance->renew_sub_semi_mid_month_adjustments($is_expired,'','',$total_usage);
         }
     }
     else if(isset($val_adjust['recurring_type_id']) && $val_adjust['recurring_type_id'] == 5)
@@ -56,6 +59,7 @@ foreach($return as $key_adjust=>$val_adjust)
             $is_expired=0;
             $total_usage=$val_adjust['total_usage']+1;
             $renew_adjustments = $instance->renew_semi_end_month_adjustments($is_expired,'','',$total_usage);
+            $renew_detail_adjustments = $instance->renew_sub_semi_end_month_adjustments($is_expired,'','',$total_usage);
         }
     }
     else if(isset($val_adjust['recurring_type_id']) && $val_adjust['recurring_type_id'] == 6)
@@ -71,6 +75,7 @@ foreach($return as $key_adjust=>$val_adjust)
             $is_expired=0;
             $total_usage=$val_adjust['total_usage']+1;
             $renew_adjustments = $instance->renew_qua_mid_month_adjustments($is_expired,'','',$total_usage);
+            $renew_detail_adjustments = $instance->renew_sub_qua_mid_month_adjustments($is_expired,'','',$total_usage);
         }
     }
     else if(isset($val_adjust['recurring_type_id']) && $val_adjust['recurring_type_id'] == 7)
@@ -86,6 +91,7 @@ foreach($return as $key_adjust=>$val_adjust)
             $is_expired=0;
             $total_usage=$val_adjust['total_usage']+1;
             $renew_adjustments = $instance->renew_qua_end_month_adjustments($is_expired,'','',$total_usage);
+            $renew_detail_adjustments = $instance->renew_sub_qua_end_month_adjustments($is_expired,'','',$total_usage);
         }
     }
 }

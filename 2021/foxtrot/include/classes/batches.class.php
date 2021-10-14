@@ -39,12 +39,13 @@
             $prompt_for_check_amount= isset($data['prompt_for_check_amount'])?$this->re_db_input($data['prompt_for_check_amount']):0;
             $posted_amounts= isset($data['posted_amounts'])?$this->re_db_input($data['posted_amounts']):0;
             			
-			if($pro_category==''){
-				$this->errors = 'Please select product category.';
+			if($batch_date=='' || $batch_date=='1970-01-01')
+			{
+				$this->errors = 'Please select batch date.';
 			}
-            /*else if($batch_number==''){
-				$this->errors = 'Please enter batch number';
-			}*/
+            else if($batch_desc==''){
+				$this->errors = 'Please enter batch description';
+			}
 			else if($sponsor==''){
 				$this->errors = 'Please select sponsor.';
 			}
@@ -52,12 +53,15 @@
 				return $this->errors;
 			}
 			else{
+				$is_multi_sponsors= $sponsor == -1 ? 1 : 0;
 				if($id>=0){
 					if($id==0){
+
+						
 						$q = "INSERT INTO ".$this->table." SET `pro_category`='".$pro_category."',`batch_desc`='".$batch_desc."',
                         `sponsor`='".$sponsor."',`batch_date`='".$batch_date."',`deposit_date`='".$deposit_date."',`trade_start_date`='".$trade_start_date."',
                         `trade_end_date`='".$trade_end_date."',`check_amount`='".$check_amount."',`commission_amount`='".$commission_amount."',`split`='".$split."',
-                        `prompt_for_check_amount`='".$prompt_for_check_amount."',`posted_amounts`='".$posted_amounts."'".$this->insert_common_sql();
+                        `prompt_for_check_amount`='".$prompt_for_check_amount."', `is_multi_sponsors`='".$is_multi_sponsors."' ,  `posted_amounts`='".$posted_amounts."'".$this->insert_common_sql();
 						$res = $this->re_db_query($q);
                         $_SESSION['last_inserted_batch_id'] = $this->re_db_insert_id();
                         
@@ -74,7 +78,7 @@
 						$q = "UPDATE ".$this->table." SET `pro_category`='".$pro_category."',`batch_desc`='".$batch_desc."',
                         `sponsor`='".$sponsor."',`batch_date`='".$batch_date."',`deposit_date`='".$deposit_date."',`trade_start_date`='".$trade_start_date."',
                         `trade_end_date`='".$trade_end_date."',`check_amount`='".$check_amount."',`commission_amount`='".$commission_amount."',`split`='".$split."',
-                        `prompt_for_check_amount`='".$prompt_for_check_amount."',`posted_amounts`='".$posted_amounts."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+                        `prompt_for_check_amount`='".$prompt_for_check_amount."', `is_multi_sponsors`='".$is_multi_sponsors."' ,`posted_amounts`='".$posted_amounts."'".$this->update_common_sql()." WHERE `id`='".$id."'";
                         $res = $this->re_db_query($q);
 						if($res){
 						    $_SESSION['success'] = 'Batch Number '.$_SESSION['last_inserted_batch_id'].' successfully updated';

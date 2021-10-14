@@ -1,6 +1,6 @@
 <div class="container">
-<h1 class="<?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}?>">Maintain Payable Transactions</h1>
-<div class="col-lg-12 well <?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}?>">
+<h1 class="<?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}*/?>">Maintain Payable Transactions</h1>
+<div class="col-lg-12 well <?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}*/?>">
 <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
         <div class="tab-content col-md-12">
             <div class="tab-pane active" id="tab_a">
@@ -263,7 +263,7 @@
                                 
                             </div>
                         </div>
-                        <div class="panel-footer"><br />
+                        <div class="panel-footer fixedbtmenu"><br />
                             <div class="selectwrap">
                 				<div class="selectwrap">
                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />

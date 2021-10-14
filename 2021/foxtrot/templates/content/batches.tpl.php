@@ -1,10 +1,10 @@
 <div class="container">
-    <h1 class="<?php if($action=='add_batches'||($action=='edit_batches' && $id>0)){?>topfixedtitle<?php }?>">Batches</h1>
-    <div class="col-lg-12 well <?php if($action=='add_batches'||($action=='edit_batches' && $id>0)){ echo 'fixedwell';}?>">
+    <h1 class="<?php /*if($action=='add_batches'||($action=='edit_batches' && $id>0)){?>topfixedtitle<?php }*/?>">Batches</h1>
+    <div class="col-lg-12 well <?php /*if($action=='add_batches'||($action=='edit_batches' && $id>0)){ echo 'fixedwell';}*/?>">
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
         <?php  
     
-    if((isset($_GET['action']) && $_GET['action']=='add_batches') || (isset($_GET['action']) && ($_GET['action']=='edit_batches' && $id>0))){
+    if((isset($_GET['action']) && $_GET['action']=='add_batches') || (isset($_GET['action']) && $_GET['action']=='add_batches_from_trans') || (isset($_GET['action']) && ($_GET['action']=='edit_batches' && $id>0))){
         ?>
         <form name="frm2" method="POST">
             <!--<div class="row">
@@ -40,16 +40,17 @@
             <div class="panel-body">
             
             <div class="row">
+               
                 <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Batch Description <span class="text-red">*</span></label><br />
+                        <input type="text" maxlength="40" class="form-control" name="batch_desc" id="batch_desc" value="<?php if(isset($batch_desc)) {echo $batch_desc;}?>"  />
+                    </div>
+                </div>
+                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Batch Number </label><br />
                         <input type="text" maxlength="10" class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57' name="batch_number" disabled="true"  value="<?php if(isset($batch_number) && $batch_number != '') {echo $batch_number;}else { echo 'Will be Assigned When Saving';}?>"/>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Batch Description </label><br />
-                        <input type="text" maxlength="40" class="form-control" name="batch_desc" id="batch_desc" value="<?php if(isset($batch_desc)) {echo $batch_desc;}?>"  />
                     </div>
                 </div>
             </div>
@@ -64,7 +65,7 @@
                         <label>Posted Commission Amount</label><br />
                         <div class="input-group">
                         <span class="input-group-addon">$</span>
-                        <input type="text"  class="form-control"  maxlength="12" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 ' name="commission_amount1" value="<?php if(isset($commission_amount) && $commission_amount!='') {echo $commission_amount;}else{echo '0';}?>" <?php if(isset($_GET['action']) && ($action=='edit_batches' || $action=='add_batches')){ echo "disabled='true'";}?> />
+                        <input type="text"  class="form-control"  maxlength="12" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 ' name="commission_amount1" value="<?php if(isset($commission_amount) && $commission_amount!='') {echo number_format($commission_amount,2);}else{echo '0';}?>" <?php if(isset($_GET['action']) && ($action=='edit_batches' || $action=='add_batches')){ echo "disabled='true'";}?> />
                         <input type="hidden"  class="form-control"  maxlength="12" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 ' name="commission_amount" value="<?php if(isset($commission_amount) && $commission_amount!='') {echo $commission_amount;}else{echo '0';}?>" />
                         </div>
                     </div>
@@ -74,7 +75,7 @@
                         <label>Check Amount </label><br />
                         <div class="input-group">
                         <span class="input-group-addon">$</span>
-                        <input type="text"  class="form-control" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 '  maxlength="8" name="check_amount" id="check_amount" value="<?php if(isset($check_amount) && $check_amount!='') {echo $check_amount;}else{echo '0';}?>" />
+                        <input type="text"  class="form-control" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 '  maxlength="8" name="check_amount" id="check_amount" value="<?php if(isset($check_amount) && $check_amount!='') {echo number_format($check_amount,2);}else{echo '0';}?>" />
                         </div>
                     </div>
                 </div>
@@ -82,7 +83,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Batch Date </label><br />
+                        <label>Batch Date <span class="text-red">*</span></label><br />
                         <div id="demo-dp-range">
                             <div class="input-daterange input-group" id="datepicker">
                                 <input type="text" name="batch_date" id="batch_date" value="<?php if(isset($batch_date) && ($batch_date != '' && $batch_date != '0000-00-00')) {echo date('m/d/Y',strtotime($batch_date));}?>" class="form-control" />
@@ -104,12 +105,14 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Product Category <span class="text-red">*</span></label><br />
+                        <label>Product Category</label><br />
                         <select class="form-control" name="pro_category">
                             <option value="">Select Category</option>
+                            <option value="<?php echo '-1';?>" <?php if(isset($pro_category) && $pro_category=='-1'){ ?>selected="true"<?php } ?>><?php echo 'Multiple Categories';?></option>
                             <?php foreach($product_category as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>" <?php if(isset($pro_category) && $pro_category==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['type'];?></option>
                             <?php } ?>
+                            
                         </select>
                     </div>
                 </div>
@@ -118,6 +121,8 @@
                         <label>Sponsor <span class="text-red">*</span></label><br />
                         <select class="form-control" name="sponsor">
                             <option value="">Select Sponsor</option>
+                             <option value="-1"> Multiple Sponsors</option>
+                           
                              <?php foreach($get_sponsor as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>" <?php if(isset($sponsor) && $sponsor==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
                             <?php } ?>
@@ -234,12 +239,12 @@
     			<table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
     	            <thead>
     	                <tr>
-                            <th>BATCH NUMBER</th>
+                            <th>BATCH #</th>
                             <th>BATCH DATE</th>
                             <th>DESCRIPTION</th>
                             <th>SPONSOR</th>
-                            <th>CHECK AMOUNT</th>
-                            <th>POSTED AMOUNT</th>
+                            <th>AMT RECEIVED</th>
+                            <th>AMT POSTED</th>
                             <th class="text-center" colspan="2">ACTION</th>
                             <!--<th class="text-center">TRADE</th>-->
                         </tr>
@@ -256,12 +261,21 @@
                         }else{ $posted_commission_amount = 0;}
                         ?>
     	                   <tr>
-                                <td class="td_space"><?php echo $val['id'];;?></td>
+                                <td class="td_space" style="text-align:center;"><?php echo $val['id'];;?></td>
                                 <td class="td_space"><?php echo date('m/d/Y',strtotime($val['batch_date']));?></td>
-                                <td class="td_space"><?php echo $val['batch_desc'];?></td>
-                                <td class="td_space"><?php foreach($get_sponsor as $ke=>$va){ if(isset($val['sponsor']) && $val['sponsor']==$va['id']){ echo $va['name']; } }?></td>
-                                <td class="td_space" style="text-align: right;"><?php echo '$'.$val['check_amount'];?></td>
-                                <td class="td_space" style="text-align: right;"><?php echo '$'.$posted_commission_amount;?></td>
+                                <td class="td_space" style="width: 20%"><?php echo $val['batch_desc'];?></td>
+                                <td class="td_space" style="width: 20%"><?php 
+                                if($val['sponsor'] == -1){
+                                       echo "Multiple Sponsors";
+                                }
+                                else{
+                                        foreach($get_sponsor as $ke=>$va){ 
+                                    if(isset($val['sponsor']) && $val['sponsor']==$va['id']){ echo $va['name']; } }
+                                }
+                                
+                                ?></td>
+                                <td class="td_space" style="text-align: right;"><?php echo '$'.number_format($val['check_amount'],2);?></td>
+                                <td class="td_space" style="text-align: right;"><?php echo '$'.number_format($posted_commission_amount,2);?></td>
                                 
                                 <!--td class="text-center">
                                     <?php
@@ -311,7 +325,8 @@
         "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] }, 
                         { "bSearchable": false, "aTargets": [ 6,7 ] }]
         });
-        $("div.toolbar").html('<div class="panel-control">'+
+        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_batches" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
+            '<div class="panel-control" style="padding-left:5px;display:inline;">'+
                     '<div class="btn-group dropdown" style="float: right;">'+
                         '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
     					'<ul class="dropdown-menu dropdown-menu-right" style="">'+

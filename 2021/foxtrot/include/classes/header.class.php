@@ -36,7 +36,7 @@
    		}
         public function sub_menu_select($link_id){
     		$return = array();
-    		
+    		//echo $_SESSION['user_id'];
     		$q = "SELECT `m`.*
                 FROM `".MENU_MASTER."` AS `m` LEFT JOIN `ft_user_menu_rights` as `umr` on `umr`.`link_id`=`m`.`link_id`
                 WHERE `m`.`is_delete`='0' AND `m`.`parent_id`='".$link_id."' AND `umr`.`user_id`='".$_SESSION['user_id']."' 

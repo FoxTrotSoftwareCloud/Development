@@ -5,8 +5,18 @@
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     
+    $payroll_date = date('m/d/Y');
     $instance = new payroll();
-    $payroll_date = '';
+    $existing_payroll_data = $instance->select(1);
+    if(count($existing_payroll_data)>0)
+    {
+        $payroll_date = isset($existing_payroll_data[0]['payroll_date'])?date('m/d/Y',strtotime($existing_payroll_data[0]['payroll_date'])):'';
+        $is_payroll_calculated = 1;
+    }
+    else
+    {
+        $is_payroll_calculated = 0;
+    }
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
         

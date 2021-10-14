@@ -67,12 +67,13 @@ $(document).on('click','.remove-row',function(){
 });
 </script>
 <div class="container">
-<h1 class="<?php if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtitle';}?>">  Product Maintenance  </h1>
-<div class="col-lg-12 well <?php if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'fixedwell';}?>">
+<h1 class="<?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtitle';}*/?>">  Product Maintenance  </h1>
+<div class="col-lg-12 well <?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'fixedwell';}*/?>">
 <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
             <?php
                     if(isset($_GET['action']) && $_GET['action']=='view_product') {?>
                 <div class="panel">
+
             		<!--<div class="panel-heading">
                         <div class="panel-control">
                             <div class="btn-group dropdown" style="float: right;">
@@ -160,14 +161,15 @@ $(document).on('click','.remove-row',function(){
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Product Category </label><br />
-                                <select class="form-control" name="set_category" style="display: inline !important;">
-                                    <option value="">Select Category</option>
+                                <select class="form-control" id="set_category" onchange="product_category_autoredirect(this.value)" name="set_category" style="display: inline !important;">
+                                    <option value="0" selected="true">Select Category</option>
                                     <?php foreach($product_category as $key=>$val){?>
                                     <option value="<?php echo $val['id'];?>" <?php if($category==$val['id']){echo "selected='selected'";} ?>><?php echo $val['type'];?></option>
                                     <?php } ?>
                                 </select>
                             </div>
                         </div>
+                        <div id="next_btn" style="visibility:hidden;">
                         <div class="col-md-6">
                             <div class="form-group">
                             <label>&nbsp;</label><br />
@@ -176,22 +178,29 @@ $(document).on('click','.remove-row',function(){
                                 </div>
                             </div>
                         </div>
+                        </div>
+                        <div>
+                            <div class="col-md-6">
+                             <a href="#joint_account" data-toggle="modal"><input type="button" onclick="get_product_category(0);" name="joint_account" value="Add/edit Product Category" /></a>
+                              
+                         </div>
+                        </div>
                     </div>
                     
                    </div>
                 </form>
                 </div>
                 <?php
-                    }else if($action=='add_product' || ($action=='edit_product' && $id>0)){
+                    }else if($action=='add_product' || $action=='add_product_from_trans' || ($action=='edit_product' && $id>0)){
                 ?>   
-                <ul class="nav nav-tabs <?php if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtabs';}?>">
+                <ul class="nav nav-tabs <?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtabs';}*/?>">
                   <li class="active"><a href="#tab_aa" data-toggle="tab">General</a></li>
                   <li><a href="#tab_bb" data-toggle="tab">Suitability</a></li>
                   <!--<li><a href="#tab_ee" data-toggle="tab">Documents</a></li>-->
                     <div class="btn-group dropdown" style="float: right;">
 						<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
 						<ul class="dropdown-menu dropdown-menu-right" style="">
-							<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
+							<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_product&category=<?php echo $category;?>"><i class="fa fa-eye"></i> View List</a></li>
 						</ul>
 					</div>
 				</ul> 
@@ -255,14 +264,16 @@ $(document).on('click','.remove-row',function(){
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
+                                    <div id="div_sponsor">
                                     <div class="form-group">
                                         <label>Sponsor <span class="text-red">*</span></label><br />
-                                        <select class="form-control" name="sponsor">
+                                        <select class="form-control" name="sponsor" id="sponsor">
                                             <option value="">Select Sponsor</option>
                                              <?php foreach($get_sponsor as $key=>$val){?>
                                             <option value="<?php echo $val['id'];?>" <?php if($sponsor != '' && $sponsor==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>
                                             <?php } ?>
                                         </select>
+                                    </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -682,8 +693,8 @@ $(document).on('click','.remove-row',function(){
                             <input type="hidden" name="temp_data_id" id="temp_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
                             <?php }?>
                             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
-                            <?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous&category=<?php echo $category;?>" class="previous next_previous_a" style="float: left;"><input type="button" name="Previous" value="&laquo; Previous" /></a><?php } ?>
-        					<?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next&category=<?php echo $category;?>" class="next next_previous_a"><input type="button" name="Next" value="Next &raquo;" /></a><?php } ?>
+                            <?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous&category=<?php echo $category;?>" class="previous next_previous_a" style="float: left;"><input type="submit" name="submit" value="Previous" /></a><?php } ?>
+        					<?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next&category=<?php echo $category;?>" class="next next_previous_a"><input type="submit" name="submit" value="Next" /></a><?php } ?>
                             
                             <?php if($action=='edit_product' && $id>0){?>
                             <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10%;"/></a>
@@ -699,6 +710,98 @@ $(document).on('click','.remove-row',function(){
                 <?php
                     }
                 ?> 
+                <!-- Lightbox strart -->    
+
+
+        <div id="joint_account" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
+        <div class="modal-dialog" style="margin-left: 19% !important;">
+        <div class="modal-content" >
+        <div class="modal-header" style="margin-bottom: 0px !important;">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+            <h4 class="modal-title">Product Category</h4>
+        </div>
+        <div class="modal-body">
+        
+        <div class="inputpopup">
+            <a class="btn btn-sm btn-success" href="#add_new_category" onclick="get_product_category(0);" data-toggle="modal" style="float: right !important; margin-right: 5px !important;"><i class="fa fa-plus"></i> Add New</a>
+        </div>
+        
+        <div class="col-md-12">
+            <div id="msg_account">
+            </div>
+        </div>
+       
+        <div class="inputpopup">
+            <div class="table-responsive" id="ajax_account" style="margin: 0px 5px 0px 5px;">
+                <div class="col-md-12" style="padding-bottom:10px">
+                    <div class="col-md-8">
+                     <label>Product Category </label>
+                     
+                                <select class="form-control" id="edit_category" onchange="prod_cate_edit_del_enable(this.value)"  name="edit_category" style="display: inline !important;">
+                                    <option value="0" selected="true">Select Category</option>
+                                    <?php foreach($product_category as $key=>$val){?>
+                                    <option value="<?php echo $val['id'];?>" <?php if($category==$val['id']){echo "selected='selected'";} ?>><?php echo $val['type'];?></option>
+                                    <?php } ?>
+                                </select>
+                    </div>
+                    
+                    <div class="col-md-4" id="div_prod_cat_edit_del" style="visibility:hidden;">
+                        
+                        <a href="#add_new_category" onclick="get_product_category_edit();" data-toggle="modal"class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                       <!--  <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
+                       <a href="#delete_category" onclick="get_product_category_move();" data-toggle="modal" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash">Move Product Category</i></a>
+                    </div>
+                    </div>
+                           
+            </div>
+        </div>
+        </div><!-- End of Modal body -->
+        </div><!-- End of Modal content -->
+        </div><!-- End of Modal dialog -->
+</div><!-- End of Modal -->                         
+
+                      <!-- Lightbox strart -->                          
+    <!-- Modal for add client notes -->
+    <div  id= "add_new_category" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
+        <div class="modal-dialog" style="margin-left: 19% !important;">
+        <div class="modal-content" >
+        <div class="modal-header" style="margin-bottom: 0px !important;">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+            <h4 class="modal-title">Add/Edit Product Category</h4>
+        </div>
+        <div class="modal-body">
+                 <div class="inputpopup">
+                        <div class="table-responsive" id="ajax_product_category" style="margin: 0px 5px 0px 5px;">
+                            
+                        </div>
+                    </div>
+      
+        
+        </div><!-- End of Modal body -->
+        </div><!-- End of Modal content -->
+        </div><!-- End of Modal dialog -->
+</div><!-- End of Modal -->
+                      <!-- Lightbox strart -->                          
+    <!-- Modal for add client notes -->
+    <div  id= "delete_category" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
+        <div class="modal-dialog" style="margin-left: 19% !important;">
+        <div class="modal-content" >
+        <div class="modal-header" style="margin-bottom: 0px !important;">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+            <h4 class="modal-title">Delete Product Category</h4>
+        </div>
+        <div class="modal-body">
+        <div class="inputpopup">
+            <div class="table-responsive" id="ajax_move_product_category" style="margin: 0px 5px 0px 5px;">
+                  
+                    
+            </div>
+        </div>
+        </div><!-- End of Modal body -->
+        </div><!-- End of Modal content -->
+        </div><!-- End of Modal dialog -->
+</div><!-- End of Modal -->
+    <!-- Modal for add client notes -->
             <!-- Lightbox strart -->							
             	<!-- Modal for add client notes -->
             	<div id="product_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
@@ -729,6 +832,7 @@ $(document).on('click','.remove-row',function(){
             		</div><!-- End of Modal dialog -->
             </div><!-- End of Modal -->
             <!-- Lightbox strart -->							
+
 			<!-- Lightbox strart -->							
 	<!-- Modal for add client notes -->
 	<div id="product_attach" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
@@ -1330,7 +1434,8 @@ $(document).on('click','.remove-row',function(){
                         { "bSearchable": false, "aTargets": [ 4 ] }]
         });
         
-        $("div.toolbar").html('<div class="panel-control">'+
+        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_product&category=<?php echo $category; ?>" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
+            '<div class="panel-control" style="padding-left:5px;display:inline;">'+
                     '<div class="btn-group dropdown" style="float: right;">'+
                         '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
     					'<ul class="dropdown-menu dropdown-menu-right" style="">'+
@@ -1339,6 +1444,7 @@ $(document).on('click','.remove-row',function(){
                         '</ul>'+
     				'</div>'+
     			'</div>');
+        hideshow_sponser_based_on_product_category(<?php echo $category; ?>);
 } );
 </script>
 <style type="text/css">
@@ -1351,7 +1457,82 @@ $(document).on('click','.remove-row',function(){
 function set_Category(val){
     var category = val;
     var a = document.getElementById("product_category").value;
-    alert(a);
+    // alert(a);
+}
+
+
+
+
+function formsubmit_movecategory()
+{
+   $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+
+   var url = "product_category_maintenance.php"; // the script where you handle the form input.
+   console.log($("#move_category_form").serialize());
+   $.ajax({
+      type: "POST",
+      url: url,
+      data: $("#move_category_form").serialize(), // serializes the form's elements.
+      success: function(data){
+          if(data=='1'){
+            
+             $("#delete_category").modal('hide');
+             get_product_category(0);
+             location.reload(); 
+             //header("location:"."product_cate.php");exit;
+            $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
+            //window.location.href = "product_category_maintenance.php";//get_client_notes();   
+          }
+          else{
+               $('#msg_account').html('<div class="alert alert-danger">'+data+'</div>');
+          }
+          
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+           $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
+      }
+      
+   });
+
+   //e.preventDefault(); // avoid to execute the actual submit of the form.
+   return false;
+       
+}
+
+function formsubmit_category()
+{
+   $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+
+   var url = "product_category_maintenance.php"; // the script where you handle the form input.
+   console.log($("#add_new_category_form").serialize());
+   $.ajax({
+      type: "POST",
+      url: url,
+      data: $("#add_new_category_form").serialize(), // serializes the form's elements.
+      success: function(data){
+          if(data=='1'){
+            
+             $("#add_new_category").modal('hide');
+             get_product_category(0);
+             location.reload(); 
+             //header("location:"."product_cate.php");exit;
+            $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
+            //window.location.href = "product_category_maintenance.php";//get_client_notes();   
+          }
+          else{
+               $('#msg_account').html('<div class="alert alert-danger">'+data+'</div>');
+          }
+          
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+           $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
+      }
+      
+   });
+
+   //e.preventDefault(); // avoid to execute the actual submit of the form.
+   return false;
+       
 }
 </script>
 <script>
@@ -1441,6 +1622,9 @@ function open_newattach()
 }
 </script>
 <script>
+
+    var isRedirectToTransPage=<?php  echo isset($_GET['redirect']) && $_GET['redirect']== "add_product_from_trans" ? 1 : 0 ?>;
+
 function get_product_notes(){
     
         var xmlhttp = new XMLHttpRequest();
@@ -1451,6 +1635,42 @@ function get_product_notes(){
             }
         };
         xmlhttp.open("GET", "ajax_product_notes.php", true);
+        xmlhttp.send();
+}
+function get_product_category_edit(){
+        var cat_id = document.getElementById('edit_category').value;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) 
+            {
+                document.getElementById("ajax_product_category").innerHTML = this.responseText;
+            }
+        };
+        xmlhttp.open("GET", "ajax_product_category.php?id="+cat_id, true);
+        xmlhttp.send();
+}
+function get_product_category_move(){
+        var cat_id = document.getElementById('edit_category').value;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) 
+            {
+                document.getElementById("ajax_move_product_category").innerHTML = this.responseText;
+            }
+        };
+        xmlhttp.open("GET", "ajax_product_category.php?move_cat_id="+cat_id, true);
+        xmlhttp.send();
+}
+function get_product_category(id){
+        
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) 
+            {
+                document.getElementById("ajax_product_category").innerHTML = this.responseText;
+            }
+        };
+        xmlhttp.open("GET", "ajax_product_category.php", true);
         xmlhttp.send();
 }
 function get_product_attach(){
@@ -1465,6 +1685,17 @@ function get_product_attach(){
         xmlhttp.open("GET", "ajax_product_attach.php", true);
         xmlhttp.send();
 }
+function hideshow_sponser_based_on_product_category(product_category)
+{
+     if(product_category =='2' ||product_category =='3'|| product_category =='6'||product_category =='7'||product_category =='8')
+        {
+            document.getElementById("div_sponsor").style.visibility='hidden';
+        }
+        else
+        {
+            document.getElementById("div_sponsor").style.visibility='visible';
+        }
+}
 function openedit(note_id){
     
     var frm_element = document.getElementById("add_client_notes_"+note_id);
@@ -1472,6 +1703,28 @@ function openedit(note_id){
     name = frm_element.elements["client_note"].removeAttribute("style"); 
     //$(name).css('pointer-events','');
     console.log(name);
+}
+function product_category_autoredirect(product_category){
+    
+    if(product_category!='0')
+    {   
+        if(isRedirectToTransPage == 1)
+          window.location="product_cate.php?action=add_product&category="+product_category+"&redirect=add_product_from_trans";
+        else
+        window.location="product_cate.php?action=view_product&category="+product_category
+    }
+    
+}
+function prod_cate_edit_del_enable(product_category)
+{
+    if(product_category!='0')
+    {
+        document.getElementById("div_prod_cat_edit_del").style.visibility = "visible";
+    }
+    else
+    {
+        document.getElementById("div_prod_cat_edit_del").style.visibility = "hidden";
+    }
 }
 </script>
 <script>
@@ -1581,6 +1834,7 @@ function delete_attach(attach_id){
 }
 
 
+
 $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
@@ -1592,6 +1846,8 @@ function checkLength(el) {
     alert("length grater than 2 characters")
   }
 }
+
+
 
 
 var waitingDialog = waitingDialog || (function ($) {

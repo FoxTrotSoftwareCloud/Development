@@ -38,7 +38,7 @@ $total_charges = 0;
     // add a page
     $pdf->AddPage('L');
     // Title
-    $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="30px" />';
+    $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
     
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
@@ -48,7 +48,7 @@ $total_charges = 0;
                 {
                     $html .='<td width="20%" align="left">'.$img.'</td>';
                 }
-                    $html .='<td width="60%" style="font-size:13px;font-weight:normal;text-align:center;">XYZ Successful Brokerage</td>';
+                    $html .='<td width="60%" style="font-size:12px;font-weight:normal;text-align:center;">XYZ Successful Brokerage</td>';
                 if(isset($system_company_name) && $system_company_name != '')
                 {
                     $html.='<td width="20%" style="font-size:10px;font-weight:bold;text-align:right;">'.$system_company_name.'</td>';
@@ -61,7 +61,7 @@ $total_charges = 0;
                  
                 } else {
                     
-                    $html .='<td width="100%" style="font-size:16px;font-weight:bold;text-align:center;">BROKERS WITHOUT PRODUCTION</td>';
+                    $html .='<td width="100%" style="font-size:14px;font-weight:bold;text-align:center;">BROKERS WITHOUT PRODUCTION</td>';
                 }   
             $html .='</tr>
         </table>';
@@ -70,13 +70,13 @@ $total_charges = 0;
     
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
-    $html='<table border="0" cellpadding="3" width="100%">
+    $html='<table border="0" cellpadding="1" width="100%">
                 <tr style="background-color: #f1f1f1;">
-                    <td width="32%" style="text-align:center;"><h4>BROKER</h4></td>
-                    <td width="17%" style="text-align:center;"><h4>OVERRIDE PAY</h4></td>
-                    <td width="17%" style="text-align:center;"><h4>ADJUSTMENTS</h4></td>
-                    <td width="17%" style="text-align:center;"><h4>PRIOR PERIOD BALANCE</h4></td>
-                    <td width="17%" style="text-align:center;"><h4>TOTAL</h4></td>
+                    <td width="32%" style="text-align:center;"><h5>BROKER</h5></td>
+                    <td width="17%" style="text-align:center;"><h5>OVERRIDE PAY</h5></td>
+                    <td width="17%" style="text-align:center;"><h5>ADJUSTMENTS</h5></td>
+                    <td width="17%" style="text-align:center;"><h5>PRIOR PERIOD BALANCE</h5></td>
+                    <td width="17%" style="text-align:center;"><h5>TOTAL</h5></td>
                 </tr>
                 <br/>';
     //$pdf->Line(10, 81, 290, 81);
@@ -92,17 +92,17 @@ $total_charges = 0;
             if($trans_data['trade_date'] != '0000-00-00'){ $trade_date = date('m/d/Y',strtotime($trans_data['trade_date'])); }
             if($trans_data['commission_received_date'] != '0000-00-00'){ $commission_received_date = date('m/d/Y',strtotime($trans_data['commission_received_date'])); }*/
         $html.='<tr>
-                       <td style="font-size:13px;font-weight:normal;text-align:left;">1 SPLIT BROKER, JONES/ROBERTS</td>
-                       <td style="font-size:13px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:13px;font-weight:normal;text-align:right;">-160.00</td>
-                       <td style="font-size:13px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:13px;font-weight:normal;text-align:right;">-160.00</td>
+                       <td style="font-size:8px;font-weight:normal;text-align:center;">1 SPLIT BROKER, JONES/ROBERTS</td>
+                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
+                       <td style="font-size:8px;font-weight:normal;text-align:right;">-160.00</td>
+                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
+                       <td style="font-size:8px;font-weight:normal;text-align:right;">-160.00</td>
                 </tr>';
     /*}
     else
     {
         $html.='<tr>
-                    <td style="font-size:13px;font-weight:cold;text-align:center;" colspan="8">No Records Found.</td>
+                    <td style="font-size:8px;font-weight:cold;text-align:center;" colspan="8">No Records Found.</td>
                 </tr>';
     }  */         
     $html.='</table>';

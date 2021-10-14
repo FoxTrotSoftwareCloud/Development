@@ -38,8 +38,9 @@
     $naf_date = '';
     $last_contacted = '';
     $search_text = '';
-    
     $sponsor_company = '';
+    $is_reviewed = '';
+    $reviewed_at = '';
     
     //employment variable
     
@@ -118,7 +119,15 @@
     $user_instance=new user_master();
     $u_id=$_SESSION['user_id'];
     $logged_user=$user_instance->get_user($u_id);
-    if(isset($_POST['submit'])&& $_POST['submit']=='Save'){//print_r($_POST);exit;
+    $redirect = isset($_GET['redirect'])&&$_GET['redirect']!=''?$instance->re_db_input($_GET['redirect']):'';
+
+
+    
+if((isset($_POST['submit'])&& $_POST['submit']=='Save') 
+        || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
+        || (isset($_POST['submit'])&& $_POST['submit']=='Next') )
+    {
+
         
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $fname = isset($_POST['fname'])?$instance->re_db_input($_POST['fname']):'';
@@ -148,7 +157,7 @@
         $fincen_check = isset($_POST['fincen_check'])?$instance->re_db_input($_POST['fincen_check']):'';
         $telephone = isset($_POST['telephone'])?$instance->re_db_input($_POST['telephone']):'';
         $citizenship = isset($_POST['citizenship'])?$instance->re_db_input($_POST['citizenship']):'';
-        $contact_status = isset($_POST['contact_status'])?$instance->re_db_input($_POST['contact_status']):'';
+        $contact_status = isset($_POST['do_not_contact'])?$instance->re_db_input($_POST['do_not_contact']):'';
         $birth_date = isset($_POST['birth_date'])?$instance->re_db_input($_POST['birth_date']):'';
         $date_established = isset($_POST['date_established'])?$instance->re_db_input($_POST['date_established']):'';
         $open_date = isset($_POST['open_date'])?$instance->re_db_input($_POST['open_date']):'';
@@ -206,33 +215,74 @@
         
                
         $return = $instance->insert_update($_POST);
-        $return1 = $instance->insert_update_employment($_POST);
-        $return2 = $instance->insert_update_account($_POST);
-        $return3 = $instance->insert_update_suitability($_POST);
+
         
-        if($return===true){
-            
-            if($for_import == 'true')
+        if($return==true)
+        {
+            $return1 = $instance->insert_update_employment($_POST);
+            $return2 = $instance->insert_update_account($_POST);
+            $return3 = $instance->insert_update_suitability($_POST);
+        }
+        
+        if($return===true && $_POST['submit']=='Save')
+        {
+            if($redirect=='add_client_from_trans')
             {
-                if(isset($file_id) && $file_id >0 )
-                {
-                    header("location:".SITE_URL."import.php?tab=review_files&id=".$file_id);exit;
-                }
-                else
-                {
-                    header("location:".SITE_URL."import.php");exit;
-                }
-            }
-            else if($action == 'edit')
-            {
-                header("location:".CURRENT_PAGE);exit;
+                header("location:".SITE_URL."transaction.php?action=add&client_id=".$_SESSION['client_id']);exit;
             }
             else
             {
-                header("location:".CURRENT_PAGE);exit;
+                if($for_import == 'true')
+                {
+                    if(isset($file_id) && $file_id >0 )
+                    {
+                        header("location:".SITE_URL."import.php?tab=review_files&id=".$file_id);exit;
+                    }
+                    else
+                    {
+                        header("location:".SITE_URL."import.php");exit;
+                    }
+                }
+                else if($action == 'edit')
+                {
+                    header("location:".CURRENT_PAGE);exit;
+                }
+                else
+                {
+                    header("location:".CURRENT_PAGE);exit;
+                }
             }
         }
-        else{
+        else if($return===true && $_POST['submit']=='Next')
+        {
+            $return = $instance->get_next_client($id);
+            
+            if($return!=false){
+                $id=$return['id'];
+                header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
+            }
+            else{
+                header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
+             }
+        }
+        else if($return===true && $_POST['submit']=='Previous')
+        {
+            $return = $instance->get_previous_client($id);
+            
+            if($return!=false)
+            {
+
+                $id=$return['id'];
+                header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
+            }
+            else{
+                header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
+             }
+        }
+
+        else
+        {
+           
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
@@ -462,8 +512,8 @@
         $account_type = isset($return['account_type'])?$instance->re_db_output($return['account_type']):'';
         $broker_name = isset($return['broker_name'])?$instance->re_db_output($return['broker_name']):'';
         $telephone = isset($return['telephone'])?$instance->re_db_output($return['telephone']):'';
-        $contact_status = isset($return['contact_status'])?$instance->re_db_output($return['contact_status']):'';
-        $_SESSION['client_full_name'] = $return['first_name'].' '.$return['mi'].'.'.$return['last_name'];
+        $contact_status = isset($return['do_not_contact'])?$instance->re_db_output($return['do_not_contact']):'';
+        $_SESSION['client_full_name'] = $return['first_name'].' '.$return['mi'].' '.$return['last_name'];
         $_SESSION['client_id'] = $id;
         $return_account = $instance->edit_account($id);
         

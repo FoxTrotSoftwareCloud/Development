@@ -14,7 +14,7 @@ require_once(DIR_FS."islogin.php");?>
 <link href="css/bootstrap.min.css" rel="stylesheet" />
 <!-- font-awesome -->
 <link href="css/font-awesome.min.css" rel="stylesheet" />
-<link href="css/style.css" rel="stylesheet" />
+<link href="css/style.css?1.0" rel="stylesheet" />
 <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
 <link href="<?php echo SITE_CSS; ?>bootstrap-datepicker.min.css" rel="stylesheet"/>
 <link href="<?php echo SITE_CSS; ?>jquery.multiselect.css" type="text/css" rel="stylesheet"/>
@@ -23,6 +23,8 @@ require_once(DIR_FS."islogin.php");?>
 <!-- <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" /> -->
 <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script> -->
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="<?php echo SITE_JS; ?>bootstrap.min.js"></script>
+
 <!-- <script src="js/jquery.min.js"></script> -->
 <script src="<?php echo SITE_JS; ?>bootstrap-datepicker.min.js"></script>
 <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
@@ -46,11 +48,14 @@ require_once(DIR_FS."islogin.php");?>
 <script src="<?php echo SITE_JS; ?>custom.js"></script>
 <script src="<?php echo SITE_PLUGINS; ?>bootbox/bootbox.min.js"></script>
 <script src="<?php echo SITE_PLUGINS; ?>masked-input/jquery.maskedinput.min.js"></script>
+
 <style>
 .dropdown-submenu {
     position: relative;
 }
-
+.error{
+	border: 1px solid red!important;
+}
 .dropdown-submenu>.dropdown-menu {
     top: 0;
     left: 100%;

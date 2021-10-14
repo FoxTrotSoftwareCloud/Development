@@ -2,35 +2,59 @@
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
 $instance = new transaction();
-$get_trans_data = array();
+
 $get_logo = $instance->get_system_logo();
 $system_logo = isset($get_logo['logo'])?$instance->re_db_input($get_logo['logo']):'';
 $get_company_name = $instance->get_company_name();
 $system_company_name = isset($get_company_name['company_name'])?$instance->re_db_input($get_company_name['company_name']):'';
-//print_r($system_logo);exit;
 
+$instance_payroll = new payroll();
 $filter_array = array();
+$get_adjustments_data = array();
 $company = 0;
-$sort_by='';
-//filter payroll company statement report
+$payroll_date = '';
+$sort_by = '';
+$output_type = '';
+
+//filter payroll adjustments log report
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
     $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
+    $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
+    $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
     
-    $get_trans_data = $instance->select_data_report($company,$sort_by);
-    
+    $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_date,$sort_by,$output_type);
 }
-if(isset($_GET['batch_id']))
+if($company>0)
 {
-    $batch = $_GET['batch_id'];
-    $get_trans_data = $instance->select_data_report('','',$batch,'','','');
+    $company_name = isset($get_adjustments_data['company_name'])?$get_adjustments_data['company_name']:'';
 }
-$batch_desc = isset($get_trans_data[0]['batch_desc'])?$instance->re_db_input($get_trans_data[0]['batch_desc']):'';
-$total_amount_invested = 0;
-$total_commission_received = 0;
-$total_charges = 0;
+else
+{
+    $company_name = 'All Company';
+}
+if(isset($sort_by) && $sort_by == 1)
+{
+    $sorted_by = 'Sorted by Rep Name';
+}
+else if(isset($sort_by) && $sort_by == 2)
+{
+    $sorted_by = 'Sorted by Rep Number';
+}
+else if(isset($sort_by) && $sort_by == 3)
+{
+    $sorted_by = 'Sorted by Category';
+}
+else if(isset($sort_by) && $sort_by == 4)
+{
+    $sorted_by = 'Sorted by G/L Account';
+}
+else
+{
+    $sorted_by='';
+}
 ?>
 <?php
 
@@ -49,15 +73,18 @@ $total_charges = 0;
                 {
                     $html .='<td width="20%" align="left">'.$img.'</td>';
                 }
-                    $html .='<td width="60%" style="font-size:14px;font-weight:bold;text-align:center;">COMMISSION ADJUSTMENT LOG</td>';
+                $html .='<td width="60%" style="font-size:10px;font-weight:normal;text-align:center;">'.$company_name.'</td>';
                 if(isset($system_company_name) && $system_company_name != '')
                 {
                     $html.='<td width="20%" style="font-size:10px;font-weight:bold;text-align:right;">'.$system_company_name.'</td>';
                 }
-                $html.='</tr>
-                <tr>';
-                    $html .='<td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">Sorted By Rep Number</td>';
-            $html .='</tr>
+                $html.='</tr>';
+                $html.='<tr>
+                        <td width="100%" style="font-size:14px;font-weight:bold;text-align:center;">COMMISSION ADJUSTMENT LOG</td>
+                        </tr>';
+                $html.='<tr>';
+                    $html.='<td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$sorted_by.'</td>';
+                $html .='</tr>
         </table>';
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(2);
@@ -65,93 +92,145 @@ $total_charges = 0;
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
     $html='<table border="0" cellpadding="1" width="100%">
-                <tr style="background-color: #f1f1f1;">
-                    <td width="10%" style="text-align:center;"><h5>ADJUST#</h5></td>
-                    <td width="10%" style="text-align:center;"><h5>REP#</h5></td>
-                    <td width="10%" style="text-align:center;"><h5>CLEAR NUMBER</h5></td>
+                <tr style="background-color: #f1f1f1;">';
+                if(isset($output_type) && $output_type != '2')
+                {
+                    $html.='<td width="10%" style="text-align:center;"><h5>ADJUST#</h5></td>';
+                }
+                if(isset($output_type) && $output_type == '2')
+                {
+                    $html.='<td width="73%" style="text-align:center;" colspan="5"><h5>REP#</h5></td>';
+                }
+                else
+                {
+                    $html.='<td width="10%" style="text-align:center;"><h5>REP#</h5></td>';
+                }
+                if(isset($output_type) && $output_type != '2')
+                {
+                    $html.='<td width="10%" style="text-align:center;"><h5>CLEAR NUMBER</h5></td>
                     <td width="20%" style="text-align:center;"><h5>DESCRIPTION</h5></td>
-                    <td width="20%" style="text-align:center;"><h5>CATEGORY</h5></td>
-                    <td width="9%" style="text-align:center;"><h5>TAXABLE AMOUNT</h5></td>
+                    <td width="20%" style="text-align:center;"><h5>CATEGORY</h5></td>';
+                }
+                    $html.='<td width="9%" style="text-align:center;"><h5>TAXABLE AMOUNT</h5></td>
                     <td width="9%" style="text-align:center;"><h5>NON TAXABLE AMOUNT</h5></td>
                     <td width="9%" style="text-align:center;"><h5>ADVANCE</h5></td>
                 </tr>
                 <br/>';
     //$pdf->Line(10, 81, 290, 81);
-    /*if($get_trans_data != array())
+    if(isset($get_adjustments_data['data']) && $get_adjustments_data['data'] != array())
     {
-        foreach($get_trans_data as $trans_key=>$trans_data)
+        $report_taxable_adjustments = 0;
+        $report_non_taxable_adjustments = 0;
+        $report_advance = 0;
+        
+        if(isset($output_type) && ($output_type == '1' || $output_type == '3'))
         {
-            $trade_date='';
-            $commission_received_date='';
-            $total_amount_invested = ($total_amount_invested+$trans_data['invest_amount']);
-            $total_commission_received = ($total_commission_received+$trans_data['commission_received']);
-            $total_charges = ($total_charges+$trans_data['charge_amount']);
-            if($trans_data['trade_date'] != '0000-00-00'){ $trade_date = date('m/d/Y',strtotime($trans_data['trade_date'])); }
-            if($trans_data['commission_received_date'] != '0000-00-00'){ $commission_received_date = date('m/d/Y',strtotime($trans_data['commission_received_date'])); }*/
-        $html.='<tr>
-                       <td colspan="11" style="font-size:8px;font-weight:bold;text-align:left;">BROKER #01 - SPLIT BROKER,JONES/ROBERTS</td>
-                </tr>
-                <br/>';   
-        $html.='<tr>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">16</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">1</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">HS23</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">DBA email domain set</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">TECHNOLOGY</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">-150.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                    </tr>';
-        $html.='<tr>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">25</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">1</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">HS23</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">FORGOT TO WEAR A TIE</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">ADVANCE</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">-10.00</td>
-                    </tr>';
-        /*}*/
-        $html.='<tr style="background-color: #f1f1f1;">
-                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="5">* #1 SPLIT BROKER, JONES/ROBERTS TOTAL *</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">0.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-150.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-10.00</td>
-                </tr>
-                <br/>';
-        $html.='<tr>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">2</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">2</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">B116</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">E & O INSURANCE</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">E & O INSURANCE</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">-150.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                    </tr>';
-        $html.='<tr style="background-color: #f1f1f1;">
-                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="5">* #2 JONES, JIM TOTAL *</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">0.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-150.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">0.00</td>
-                </tr>
-                <br/>';
-        $html.='<tr style="background-color: #f1f1f1;">
-                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="5">*** REPORT TOTALS **** </td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">0.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-300.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-10.00</td>
-                </tr>
-                <br/>';
+            foreach($get_adjustments_data['data'] as $adj_key=>$adj_data)
+            {
+                
+                $html.='<tr>
+                            <td colspan="11" style="font-size:8px;font-weight:bold;text-align:left;">BROKER #'.strtoupper($adj_key).'</td>
+                        </tr>
+                        <br/>'; 
+                        $broker_taxable_adjustments = 0;
+                        $broker_non_taxable_adjustments = 0;
+                        $broker_advance = 0;
+                        foreach($adj_data as $adj_sub_key=>$adj_sub_data)
+                        {
+                            if(isset($adj_sub_data['payroll_category']) && strtolower($adj_sub_data['payroll_category']) == strtolower('ADVANCE'))
+                            {
+                                $taxable_adjustments = 0;
+                                $non_taxable_adjustments = 0;
+                                $advance = isset($adj_sub_data['adjustment_amount']) && $adj_sub_data['adjustment_amount'] != '' ?$adj_sub_data['adjustment_amount']:0;
+                            }
+                            else
+                            {
+                                $taxable_adjustments = isset($adj_sub_data['taxable_adjustment']) && $adj_sub_data['taxable_adjustment'] == 1 ?$adj_sub_data['adjustment_amount']:0;
+                                $non_taxable_adjustments = isset($adj_sub_data['taxable_adjustment']) && $adj_sub_data['taxable_adjustment'] == 0 ?$adj_sub_data['adjustment_amount']:0;
+                                $advance = 0;
+                            }
+                            $broker_taxable_adjustments = $broker_taxable_adjustments+$taxable_adjustments;
+                            $broker_non_taxable_adjustments = $broker_non_taxable_adjustments+$non_taxable_adjustments;
+                            $broker_advance = $broker_advance+$advance;
+                        $html.='<tr>
+                                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$adj_sub_data['id'].'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$adj_sub_data['broker_id'].'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$adj_sub_data['fund'].'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$adj_sub_data['description'].'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$adj_sub_data['payroll_category'].'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($taxable_adjustments,2).'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($non_taxable_adjustments,2).'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($advance,2).'</td>
+                                </tr>';
+                        }
+                        $report_taxable_adjustments = $report_taxable_adjustments+$broker_taxable_adjustments;
+                        $report_non_taxable_adjustments = $report_non_taxable_adjustments+$broker_non_taxable_adjustments;
+                        $report_advance = $report_advance+$broker_advance;
+                        $html.='<br/>
+                                <tr style="background-color: #f1f1f1;">
+                                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="5">* #'.strtoupper($adj_key).' TOTAL *</td>
+                                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($broker_taxable_adjustments,2).'</td>
+                                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($broker_non_taxable_adjustments,2).'</td>
+                                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($broker_advance,2).'</td>
+                                </tr>';
+                        
+             
+             }
+         }
+         else if(isset($output_type) && $output_type == '2')
+         {
+            foreach($get_adjustments_data['data'] as $adj_key=>$adj_data)
+            {
+                    $broker_taxable_adjustments = 0;
+                    $broker_non_taxable_adjustments = 0;
+                    $broker_advance = 0;
+                    foreach($adj_data as $adj_sub_key=>$adj_sub_data)
+                    {
+                        if(isset($adj_sub_data['payroll_category']) && strtolower($adj_sub_data['payroll_category']) == strtolower('ADVANCE'))
+                        {
+                            $taxable_adjustments = 0;
+                            $non_taxable_adjustments = 0;
+                            $advance = isset($adj_sub_data['adjustment_amount']) && $adj_sub_data['adjustment_amount'] != '' ?$adj_sub_data['adjustment_amount']:0;
+                        }
+                        else
+                        {
+                            $taxable_adjustments = isset($adj_sub_data['taxable_adjustment']) && $adj_sub_data['taxable_adjustment'] == 1 ?$adj_sub_data['adjustment_amount']:0;
+                            $non_taxable_adjustments = isset($adj_sub_data['taxable_adjustment']) && $adj_sub_data['taxable_adjustment'] == 0 ?$adj_sub_data['adjustment_amount']:0;
+                            $advance = 0;
+                        }
+                        $broker_taxable_adjustments = $broker_taxable_adjustments+$taxable_adjustments;
+                        $broker_non_taxable_adjustments = $broker_non_taxable_adjustments+$non_taxable_adjustments;
+                        $broker_advance = $broker_advance+$advance;
+                    }
+                    $report_taxable_adjustments = $report_taxable_adjustments+$broker_taxable_adjustments;
+                    $report_non_taxable_adjustments = $report_non_taxable_adjustments+$broker_non_taxable_adjustments;
+                    $report_advance = $report_advance+$broker_advance;
+                    $html.='<tr>
+                               <td style="font-size:8px;font-weight:normal;text-align:left;" colspan="5">BROKER #'.strtoupper($adj_key).'</td>
+                               <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($broker_taxable_adjustments,2).'</td>
+                               <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($broker_non_taxable_adjustments,2).'</td>
+                               <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($broker_advance,2).'</td>
+                            </tr>';
+                    
+             
+             }
+         }
          
-    /*}
+         $html.='<br/>
+                <tr style="background-color: #f1f1f1;">
+                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="5">*** REPORT TOTALS **** </td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_taxable_adjustments,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_non_taxable_adjustments,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_advance,2).'</td>
+                </tr>
+                <br/>';
+    }
     else
     {
         $html.='<tr>
                     <td style="font-size:13px;font-weight:cold;text-align:center;" colspan="8">No Records Found.</td>
                 </tr>';
-    }  */         
+    }         
     $html.='</table>';
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(2);

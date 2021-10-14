@@ -92,30 +92,30 @@
                 
             </div><br />
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <input type="checkbox" class="checkbox" name="brocker_pick_lists" value="1" style="display: inline;" <?php if($brocker_pick_lists==1){?>checked="true"<?php } ?> id="brocker_pick_lists" />&nbsp;
                         <label>Display Terminated Brokers on Pick-Lists</label>&nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <input type="checkbox" class="checkbox" name="branch_pick_lists" value="1" style="display: inline;" <?php if($branch_pick_lists==1){?>checked="true"<?php } ?> id="branch_pick_lists" />&nbsp;
                         <label>Display Terminated Branches of Pick-lists</label>&nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">       
                         <input type="checkbox" class="checkbox" name="brocker_statement" value="1" style="display: inline;" <?php if($brocker_statement==1){?>checked="true"<?php } ?> id="brocker_statement" />&nbsp;
                         <label>Exclude Terminated Brokers on Statements</label>&nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
-                <div class="col-md-3">
+                <!--<div class="col-md-3">
                     <div class="form-group">
                         <input type="checkbox" class="checkbox" name="firm_does_not_participate" value="1" style="display: inline;" <?php if($firm_does_not_participate==1){?>checked="true"<?php } ?> id="firm_does_not_participate" />&nbsp;
                         <label>Firm does not participate in commission loss</label>&nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
-                </div>
+                </div>-->
             </div>
             </div>
             <div class="panel-footer fixedbtmenu">

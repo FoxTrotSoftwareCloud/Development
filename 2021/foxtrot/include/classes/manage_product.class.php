@@ -12,7 +12,7 @@
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
 			$type = isset($data['type'])?$this->re_db_input($data['type']):'';
             $type_code = isset($data['type_code'])?$this->re_db_input($data['type_code']):'';
-			
+			$sponsor =isset($data['sponsor'])?$this->re_db_input($data['sponsor']):'0';
 			if($type==''){
 				$this->errors = 'Please enter type.';
 			}
@@ -39,7 +39,7 @@
 				}
 				else if($id>=0){
 					if($id==0){
-						$q = "INSERT INTO `".$this->table."` SET `type`='".$type."',`type_code`='".$type_code."'".$this->insert_common_sql();
+						$q = "INSERT INTO `".$this->table."` SET `type`='".$type."',`type_code`='".$type_code."',`sponsor_id`='".$sponsor."'".$this->insert_common_sql();
 						$res = $this->re_db_query($q);
                         $id = $this->re_db_insert_id();
 						if($res){
@@ -266,6 +266,7 @@
 		 * @param int status, default all
 		 * @return array of record if success, error message if any errors
 		 * */
+
 		public function select_product_type(){
 			$return = array();
 			
@@ -289,6 +290,7 @@
 		 * @return array of record if success, error message if any errors
 		 * */
 		public function edit($id){
+            
 			$return = array();
 			$q = "SELECT `at`.*
 					FROM `".$this->table."` AS `at`
@@ -325,6 +327,36 @@
 				return false;
 			}
 		}
+
+        public function move_category($id,$to_category){
+            $id = trim($this->re_db_input($id));
+            $to_category = trim($this->re_db_input($to_category));
+            if($id>0){
+                if($to_category>0)
+                {
+                    $q = "INSERT INTO `product_category_".$to_category."` SELECT * FROM `product_category_".$id."`";
+                    $this->re_db_query($q);
+                    $q = "INSERT INTO `product_history_".$to_category."` SELECT * FROM `product_history_".$id."`";
+                    $this->re_db_query($q);
+                    $q = "INSERT INTO `product_rates_".$to_category."` SELECT * FROM `product_rates_".$id."`";
+                    $this->re_db_query($q);
+                }
+                $q = "UPDATE `".$this->table."` SET `status`=0,`is_delete`=1 WHERE `id`='".$id."'";
+                $res = $this->re_db_query($q);
+                if($res){
+                    $_SESSION['success'] = STATUS_MESSAGE;
+                    return true;
+                }
+                else{
+                    $_SESSION['warning'] = UNKWON_ERROR;
+                    return false;
+                }
+            }
+            else{
+                 $_SESSION['warning'] = UNKWON_ERROR;
+                return false;
+            }
+        }
 		
 		/**
 		 * @param id of record

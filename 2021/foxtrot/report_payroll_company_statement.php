@@ -2,34 +2,27 @@
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
 $instance = new transaction();
-$get_trans_data = array();
 $get_logo = $instance->get_system_logo();
 $system_logo = isset($get_logo['logo'])?$instance->re_db_input($get_logo['logo']):'';
 $get_company_name = $instance->get_company_name();
 $system_company_name = isset($get_company_name['company_name'])?$instance->re_db_input($get_company_name['company_name']):'';
-//print_r($system_logo);exit;
 
+
+$instance_payroll = new payroll();
+$get_company_data = array();
 $filter_array = array();
-$company = 0;
+
 //filter payroll company statement report
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
-    $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'],true);
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
+    $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
     
-    $get_trans_data = $instance->select_data_report($company,$sort_by);
-    
+    $get_company_data = $instance_payroll->get_company_statement_report_data($company,$sort_by,$payroll_date);
+    //echo '<pre>';print_r($get_company_data);exit;
 }
-if(isset($_GET['batch_id']))
-{
-    $batch = $_GET['batch_id'];
-    $get_trans_data = $instance->select_data_report('','',$batch,'','','');
-}
-$batch_desc = isset($get_trans_data[0]['batch_desc'])?$instance->re_db_input($get_trans_data[0]['batch_desc']):'';
-$total_amount_invested = 0;
-$total_commission_received = 0;
-$total_charges = 0;
 ?>
 <?php
 
@@ -56,8 +49,12 @@ $total_charges = 0;
                 $html.='</tr>
                 <tr>';
                 if($company > 0){
-                    
-                    $html .='<td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$company.'</td>';
+                    $company_name = '';
+                    foreach($get_company_data as $key=>$val)
+                    {
+                        $company_name = $key;
+                    }
+                    $html .='<td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$company_name.'</td>';
                  
                 } else {
                     
@@ -86,82 +83,104 @@ $total_charges = 0;
                 </tr>
                 <br/>';
     //$pdf->Line(10, 81, 290, 81);
-    /*if($get_trans_data != array())
+    if($get_company_data != array())
     {
-        foreach($get_trans_data as $trans_key=>$trans_data)
-        {
-            $trade_date='';
-            $commission_received_date='';
-            $total_amount_invested = ($total_amount_invested+$trans_data['invest_amount']);
-            $total_commission_received = ($total_commission_received+$trans_data['commission_received']);
-            $total_charges = ($total_charges+$trans_data['charge_amount']);
-            if($trans_data['trade_date'] != '0000-00-00'){ $trade_date = date('m/d/Y',strtotime($trans_data['trade_date'])); }
-            if($trans_data['commission_received_date'] != '0000-00-00'){ $commission_received_date = date('m/d/Y',strtotime($trans_data['commission_received_date'])); }*/
-        $html.='<tr>
-                       <td colspan="11" style="font-size:8px;font-weight:bold;text-align:left;">#01 XYZ Successfull Investing</td>
-                </tr>
-                <br/>';   
-        $html.='<tr>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">B116</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">Jones, Jim</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">743.50</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">356.75</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">30.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">-150.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">-14.87</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">191.88</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">551.62</td>
-                    </tr>';
-                    
-        $html.='<tr>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">MK908</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">Roberts, AL</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">743.52</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">356.75</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">30.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">-150.00</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">-14.87</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">691.88</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">52.03</td>
-                    </tr>';
-        /*}*/
-        $html.='<tr style="background-color: #f1f1f1;">
-                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="2">* Company Total *</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">1487.02</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">1063.11</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">60.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">0.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">0.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-310.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-29.74</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">723.37</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">763.65</td>
-                </tr>
-                <br/>';
+        $report_gross_comm_total = 0;
+        $report_net_comm_total = 0;
+        $report_charge_total = 0;
+        $report_override_comm_total = 0;
+        $report_balances_total = 0;
+        $report_adjustments_total = 0;
+        $report_finra_sipc_total = 0;
+        $report_check_amount_total = 0;
+        $report_retention_total = 0;
+        foreach($get_company_data as $com_key=>$com_data)
+        {//echo '<pre>'print_r($get_company_data);exit;
+            $html.='<tr>
+                   <td colspan="11" style="font-size:8px;font-weight:bold;text-align:left;">'.$com_key.'</td>
+            </tr>
+            <br/>'; 
+            $company_gross_comm_total = 0;
+            $company_net_comm_total = 0;
+            $company_charge_total = 0;
+            $company_override_comm_total = 0;
+            $company_balances_total = 0;
+            $company_adjustments_total = 0;
+            $company_finra_sipc_total = 0;
+            $company_check_amount_total = 0;
+            $company_retention_total = 0;
+            foreach($com_data as $com_sub_key=>$com_sub_data)
+            {
+                $retention = $com_sub_data['commission_received']-$com_sub_data['check_amount'];
+                $finra_sipc = $com_sub_data['finra']+$com_sub_data['sipc'];
+                
+                $company_gross_comm_total = $company_gross_comm_total+$com_sub_data['commission_received'];
+                $company_net_comm_total = $company_net_comm_total+$com_sub_data['commission_paid'];
+                $company_charge_total = $company_charge_total+$com_sub_data['charge'];
+                $company_override_comm_total = $company_override_comm_total+$com_sub_data['override_rate'];
+                $company_balances_total = $company_balances_total+$com_sub_data['balance'];
+                $company_adjustments_total = $company_adjustments_total+$com_sub_data['adjustments'];
+                $company_finra_sipc_total = $company_finra_sipc_total+$finra_sipc;
+                $company_check_amount_total = $company_check_amount_total+$com_sub_data['check_amount'];
+                $company_retention_total = $company_retention_total+$retention;
+                
+                $html.='<tr>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$com_sub_data['fund'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$com_sub_data['broker_firstname'].' '.$com_sub_data['broker_lastname'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.$com_sub_data['commission_received'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.$com_sub_data['commission_paid'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.$com_sub_data['charge'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.$com_sub_data['override_rate'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.$com_sub_data['balance'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.$com_sub_data['adjustments'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($finra_sipc,2).'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.$com_sub_data['check_amount'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($retention,2).'</td>
+                        </tr>';
+            }
+            $report_gross_comm_total = $report_gross_comm_total+$company_gross_comm_total;
+            $report_net_comm_total = $report_net_comm_total+$company_net_comm_total;
+            $report_charge_total = $report_charge_total+$company_charge_total;
+            $report_override_comm_total = $report_override_comm_total+$company_override_comm_total;
+            $report_balances_total = $report_balances_total+$company_balances_total;
+            $report_adjustments_total = $report_adjustments_total+$company_adjustments_total;
+            $report_finra_sipc_total = $report_finra_sipc_total+$company_finra_sipc_total;
+            $report_check_amount_total = $report_check_amount_total+$company_check_amount_total;
+            $report_retention_total = $report_retention_total+$company_retention_total;
+            $html.='<tr style="background-color: #f1f1f1;">
+                       <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="2">* Company Total *</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_gross_comm_total,2).'</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_net_comm_total,2).'</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_charge_total,2).'</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_override_comm_total,2).'</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_balances_total,2).'</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_adjustments_total,2).'</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_finra_sipc_total,2).'</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_check_amount_total,2).'</td>
+                       <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($company_retention_total,2).'</td>
+                    </tr>
+                    <br/>';
+        }
         $html.='<tr style="background-color: #f1f1f1;">
                    <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="2">*** Report Total ***</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">1487.02</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">1063.11</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">60.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">0.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">0.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-310.00</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">-29.74</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">723.37</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">763.65</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_gross_comm_total,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_net_comm_total,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_charge_total,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_override_comm_total,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_balances_total,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_adjustments_total,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_finra_sipc_total,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_check_amount_total,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($report_retention_total,2).'</td>
                 </tr>';
          
-    /*}
+    }
     else
     {
         $html.='<tr>
-                    <td style="font-size:13px;font-weight:cold;text-align:center;" colspan="8">No Records Found.</td>
+                    <td style="font-size:11px;font-weight:cold;text-align:center;" colspan="11">No Records Found.</td>
                 </tr>';
-    }  */         
+    }        
     $html.='</table>';
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(5);

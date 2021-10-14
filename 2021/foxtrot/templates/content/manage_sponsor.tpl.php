@@ -37,15 +37,9 @@ $(document).on('click','.remove-row',function(){
     z-index: 10000;
     border-radius: 0 0 0.5em 0.5em;
 }
-
 body {
-    margin: 1em;
+    margin: 0em !important;
 }
-
-p {
-    margin: 1em auto;
-}
-
 
 </style>
 <script>
@@ -107,8 +101,8 @@ $(document).on('click','.remove-row',function(){
 
 </script>
 <div class="container">
-<h1 class="<?php if($action=='add_sponsor'||($action=='edit_sponsor' && $_GET['sponsor_id']>0)){ echo 'topfixedtitle';}?>">Sponsor Maintenance</h1>
-<div class="col-lg-12 well <?php if($action=='add_sponsor'||($action=='edit_sponsor' && $_GET['sponsor_id']>0)){ echo 'fixedwell';}?>">
+<h1 class="<?php /*if($action=='add_sponsor'||($action=='edit_sponsor' && $_GET['sponsor_id']>0)){ echo 'topfixedtitle';}*/?>">Sponsor Maintenance</h1>
+<div class="col-lg-12 well <?php /*if($action=='add_sponsor'||($action=='edit_sponsor' && $_GET['sponsor_id']>0)){ echo 'fixedwell';}*/?>">
 <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
 <?php  
     if((isset($_GET['action']) && $_GET['action']=='add_sponsor') || (isset($_GET['action']) && ($_GET['action']=='edit_sponsor' && $sponsor_id>0))){
@@ -277,14 +271,14 @@ $(document).on('click','.remove-row',function(){
            <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Exclude from DST Importing </label><br />
-                        <input type="checkbox" class="checkbox"  name="sdst_import" id="cpa" value="1" style="display: inline;" <?php if($sdst_import>0){echo "checked='checked'"; }?> />
+                        <label>Exclude from DST Importing  <input type="checkbox" class="checkbox"  name="sdst_import" id="cpa" value="1" style="display: inline;" <?php if($sdst_import>0){echo "checked='checked'"; }?> />
+                        </label>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Exclude from DAZL Importing </label><br />
-                        <input type="checkbox" class="checkbox"  name="sdazl_import" id="" value="1" style="display: inline;" <?php if($sdazl_import>0){echo "checked='checked'"; }?> />
+                        <label>Exclude from DAZL Importing  <input type="checkbox" class="checkbox"  name="sdazl_import" id="" value="1" style="display: inline;" <?php if($sdazl_import>0){echo "checked='checked'"; }?> />
+                        </label>
                     </div>
                 </div>
             </div>

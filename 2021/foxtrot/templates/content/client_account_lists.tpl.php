@@ -3,13 +3,11 @@
 		<div class="panel-body">
 			<form method="GET" action="client_account_lists.php">
 				<select class="custom-select sponsors" name="sponsors[]" multiple="multiple">
-					<option value="All">All</option>
 					<?php foreach($get_sponsors as $get_sponsor): ?>
 						<option value="<?php echo $get_sponsor['id']; ?>"><?php echo $get_sponsor['name']; ?></option>
 					<?php endforeach; ?>	
 				</select>
 				<select class="custom-select brokers" name="brokers[]" multiple="multiple">
-					<option value="All">All</option>
 					<?php foreach($get_brokers as $broker): ?>
 						<option value="<?php echo $broker['id']; ?>"><?php echo $broker['first_name'].' '.$broker['last_name']; ?></option>
 					<?php endforeach; ?>	
@@ -104,28 +102,26 @@
 </div>
 <script type="text/javascript">
 	$(function() {
-		$(".sponsors").select2({
-			placeholder:'Sponsors',
+		$(".sponsors").multiselect({
+			columns: 3,
+            placeholder: 'Select Sponsers',
+            search: true,
+            searchOptions: {
+                'default': 'Search Sponsers'
+            },
+            selectAll: true
 			// width:'100%'
 		});
-		$(".brokers").select2({
-			placeholder:'Brokers',
+		$(".brokers").multiselect({
+			columns: 3,
+            placeholder: 'Select Brokers',
+            search: true,
+            searchOptions: {
+                'default': 'Search Brokers'
+            },
+            selectAll: true
 			// width:'100%'
 		});
-		$('.sponsors').on("select2:select", function (e) { 
-           var data = e.params.data.text;
-           if(data=='All'){
-            $(".sponsors > option").prop("selected","selected");
-            $(".sponsors").trigger("change");
-           }
-      	});
-      	$('.brokers').on("select2:select", function (e) { 
-           var data = e.params.data.text;
-           if(data=='All'){
-            $(".brokers > option").prop("selected","selected");
-            $(".brokers").trigger("change");
-           }
-      	});
       	$("#clear_filters").on('click', function(event) {
       		event.preventDefault();
       		$('.sponsors').val(null).trigger('change');

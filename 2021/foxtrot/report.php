@@ -22,6 +22,9 @@
 
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
+        $_POST['sort_by'] =  isset($_POST['payable_sort_by']) ? $_POST['payable_sort_by'] :  $_POST['sort_by'];
+        $_POST['output'] =  isset($_POST['payable_output']) ? $_POST['payable_output'] :  $_POST['output'];
+        $_POST['company'] =  isset($_POST['payable_company']) ? $_POST['payable_company'] :  $_POST['company'];
         $data_array = json_encode($_POST);
         $output = isset($_POST['output'])?$instance->re_db_input($_POST['output']):0;
         $product_category = isset($_POST['product_category'])?$instance->re_db_input($_POST['product_category']):0;

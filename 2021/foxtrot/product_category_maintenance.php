@@ -14,6 +14,7 @@
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $type = isset($_POST['type'])?$instance->re_db_input($_POST['type']):'';
         $type_code = isset($_POST['type_code'])?$instance->re_db_input($_POST['type_code']):'';
+        $sponsor = isset($_POST['sponsor'])?$instance->re_db_input($_POST['sponsor']):'0'; 
         $return = $instance->insert_update($_POST);
         
         if($return===true){
@@ -22,6 +23,43 @@
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }
+    }
+     else if(isset($_POST['submit_account']) && $_POST['submit_account']=='Ok')
+     {
+
+        $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
+        $type = isset($_POST['type'])?$instance->re_db_input($_POST['type']):'';
+        $sponsor = isset($_POST['sponsor'])?$instance->re_db_input($_POST['sponsor']):'0';        
+        $type_code = isset($_POST['type_code'])?$instance->re_db_input($_POST['type_code']):'';
+        $return = $instance->insert_update($_POST);
+        
+        
+        if($return===true){
+            echo '1';exit;
+        }
+        else{
+            $error = !isset($_SESSION['warning'])?$return:'';
+        }
+        echo $error;
+        exit;
+    }
+    else if(isset($_POST['submit_move_category']) && $_POST['submit_move_category']=='Ok')
+     {
+
+        $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
+        $to_category = isset($_POST['to_category'])?$instance->re_db_input($_POST['to_category']):'0';
+
+        $return = $instance->move_category($id,$to_category);
+        
+        
+        if($return===true){
+            echo '1';
+        }
+        else{
+            $error = !isset($_SESSION['warning'])?$return:'';
+        }
+        echo $error;
+        exit;
     }
     else if($action=='edit' && $id>0){
         $return = $instance->edit($id);

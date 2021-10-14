@@ -1,9 +1,43 @@
+<style type="text/css">
+    .checkbox-inline, .radio-inline{
+        padding-left: 22px;
+    }
+    .checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio]{
+         margin-left: -22px;
+         margin-top: 1px;
+    }
+</style>
 <div class="container">
 <h1>Report</h1>
     <div class="col-md-12 well">
-        <form method="POST">
+        <form method="POST" id="report-form">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Select Report </label>
+                    <select class="form-control" name="report_for" id="report_for">
+                        <option value="1" <?php if(isset($report_for) && ($report_for == 1 || $report_for == '')){echo "selected='true'";}?>>Commission Posting Log</option>
+                        <option value="2" <?php if(isset($report_for) && $report_for == 2){echo "selected='true'";}?>>Batch Report</option>
+                        <option value="3" <?php if(isset($report_for) && $report_for == 3){echo "selected='true'";}?>>Hold Report</option>
+                     
+                        <option value="4" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Payables Report</option>
+                    </select>
+                </div>
+             </div>
+        </div>
+        <br />
+        <div class="panel" id="report_filters">
+        <div class="titlebox">Commission Reports</div><br />
+        <div class="row">
+         
+            <div id="category_wrapper" class="col-md-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <input type="radio" class="radio" name="product_category" id="all_category" style="display: inline;" value="0" <?php if(isset($product_category) && ($product_category == 0 || $product_category == '')){echo "checked='checked'";}?>/> All Categories&nbsp;&nbsp;&nbsp;
+                        </div>
+                    </div>
+                </div>
                 <?php foreach($get_product_category as $category_key=>$category_val){//echo $product_category;exit; ?>
                 <div class="row">
                     <div class="col-md-12">
@@ -13,16 +47,10 @@
                     </div>
                 </div>
                 <?php } ?>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <input type="radio" class="radio" name="product_category" id="all_category" style="display: inline;" value="0" <?php if(isset($product_category) && ($product_category == 0 || $product_category == '')){echo "checked='checked'";}?>/> All Categories&nbsp;&nbsp;&nbsp;
-                        </div>
-                    </div>
-                </div>
+                
             </div>
-        
-            <div class="col-md-8">
+            
+            <div id="company_wrapper" class="col-md-8">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
@@ -74,31 +102,111 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <input type="radio" class="radio" name="sort_by" id="sort_by_sponsor" style="display: inline;" value="1" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "checked='checked'";}?>/> Sort by Sponsor&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="sort_by" id="sort_by_batch_number" style="display: inline;" value="2" <?php if(isset($sort_by) && $sort_by == 2){echo "checked='checked'";}?>/> Sort by Batch Number&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="sort_by" id="sort_by_date" style="display: inline;" value="3" <?php if(isset($sort_by) && $sort_by == 3){echo "checked='checked'";}?>/> Sort by Date
+                             <label>Sort By</label> <br/>
+                             <label class="radio-inline">
+                                 <input type="radio" class="radio" name="sort_by" id="sort_by_date" style="display: inline;" value="3" <?php if(isset($sort_by) && ($sort_by == 3 || $sort_by == '')){echo "checked='checked'";}?>/> Date
+                              </label>
+                              <label class="radio-inline">
+                                 <input type="radio" class="radio" name="sort_by" id="sort_by_batch_number" style="display: inline;" value="2" <?php if(isset($sort_by) && $sort_by == 2){echo "checked='checked'";}?>/> Batch Number&nbsp;&nbsp;&nbsp;
+                               </label>
+                              <label class="radio-inline">
+                                 <input type="radio" class="radio" name="sort_by" id="sort_by_sponsor" style="display: inline;" value="1" <?php if(isset($sort_by) && ($sort_by == 1)){echo "checked='checked'";}?>/> Sponsor&nbsp;&nbsp;&nbsp;
+                                </label> 
+                           
+                           
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
+
                         <div class="form-group">
-                            <input type="radio" class="radio" name="output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/> Output to Screen&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Output to Printer&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Output to Excel&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/> Output to PDF
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <input type="radio" class="radio" name="report_for" id="report_for_batch" style="display: inline;" value="1" <?php if(isset($report_for) && ($report_for == 1 || $report_for == '')){echo "checked='checked'";}?>/> View Batch Report&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="report_for" id="report_for_transaction" style="display: inline;" value="2" <?php if(isset($report_for) && $report_for == 2){echo "checked='checked'";}?>/> View Transactions Report&nbsp;&nbsp;&nbsp;
+                            <label>Output to</label> <br/>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/>Screen&nbsp;&nbsp;&nbsp;
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/>Printer&nbsp;&nbsp;&nbsp;
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/>Excel&nbsp;&nbsp;&nbsp;
+                            </label>    
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/>Output to PDF
+                            </label>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div id="payable-filter" class="col-md-8">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Company </label>
+                            <select class="form-control" name="payable_company">
+                                <option value="0">All Companies</option>
+                                <?php foreach($get_multi_company as $key=>$val){?>
+                                <option value="<?php echo $val['id'];?>" <?php if($company != '' && $company==$val['id']){echo "selected='selected'";} ?>><?php echo $val['company_name'];?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <input type="radio" class="radio" name="payable_type" id="payable_type" style="display: inline;" value="1"  <?php if(!isset($payable_type) || ($payable_type == 1 || $payable_type == '')){echo "checked='checked'";}?>  > Commissions Recevied
+                            <input type="radio" class="radio" name="payable_type" id="payable_type" style="display: inline;" value="2"  <?php if(isset($payable_type) && ($payable_type == 2 || $payable_type == '')){echo "checked='checked'";}?>  > All Unpaid Commissions
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            Received on or before (cutoff):    <input type="text" name="cuttoff_date" id="cuttoff_date" class="form-control"  style="display:inline-block;width:150px;" value="<?php if(isset($cuttoff_date) && $cuttoff_date != ''){ echo $cuttoff_date;} else {echo date('m/d/Y');} ?>"/>
+                           
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Sort By</label> <br/>
+                            <label class="radio-inline">
+                                 <input type="radio" class="radio" name="payable_sort_by" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "checked='checked'";}?>  style="display: inline;" value="1" />  Broker
+                            </label> 
+                            <label class="radio-inline">    
+                                <input type="radio" class="radio" name="payable_sort_by" <?php if(isset($sort_by) && ($sort_by == 2 )){echo "checked='checked'";}?> style="display: inline;" value="2" />  Sponser
+                            </label>
+                        
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Output to</label> <br/>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="payable_output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/>Screen&nbsp;&nbsp;&nbsp;
+                            </label>
+                            <label class="radio-inline">    
+                            <input type="radio" class="radio" name="payable_output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Printer&nbsp;&nbsp;&nbsp; 
+                        </label>
+                            <label class="radio-inline">
+                            <input type="radio" class="radio" name="payable_output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Excel&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" class="radio" name="payable_output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/> PDF
+                        </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
         <div class="panel-footer">
             <div class="selectwrap">
@@ -167,11 +275,77 @@ $('#demo-dp-range .input-daterange').datepicker({
         }).on('show',function(){
             $(".datepicker-dropdown").css("z-index",'1000000');
         });
+jQuery(function($){
+
+    $("#cuttoff_date").datepicker({
+        format: "mm/dd/yyyy",
+        todayBtn: "linked",
+        autoclose: true,
+        todayHighlight: true
+        }).on('show',function(){
+            //$(".datepicker-dropdown").css("z-index",'1000000');
+        });
+
+    $("select[name='report_for']").change(function(){
+             console.log(this.value,"this.value")
+             if(this.value ==4){
+                  $("#report_filters").addClass('payable-report');
+             }
+             else{
+                     $("#report_filters").removeClass('payable-report');
+             }
+    }).trigger("change");
+     $("#report-form").submit(function(ev){
+  
+       
+             if($("input[name='output']:checked").val()== 4 || $("input[name='payable_output']:checked").val()== 4){
+                ev.preventDefault();
+                const data = new FormData(ev.target);
+                   value = Object.fromEntries(data.entries());
+                   report_for = $("select[name='report_for']").val() ;
+                  // console.log(report_for )
+                   if(report_for == "1"){
+                          url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_batch.php?filter="+JSON.stringify(value);
+                   }
+                    if(report_for == "2"){
+                        url = "http://foxtrotsoftware.com/CloudFox/report_batch.php?filter="+JSON.stringify(value);
+                    
+                   }
+                  if(report_for == "3"){
+                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_hold.php?filter="+JSON.stringify(value);
+                    
+                   }
+                   if(report_for == "4"){
+                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?filter="+JSON.stringify(value);
+                    
+                   }
+
+
+                   
+               
+                var win= window.open(url,"blank");
+                win.focus();
+                return false;
+             }
+     });
+})
+
 </script>
 <style>
 .btn-primary {
     color: #fff;
     background-color: #337ab7 !important;
     border-color: #2e6da4 !important;
+}
+#report_filters{
+    border: 1px solid #cccccc !important;
+    padding:10px;
+}
+.titlebox{
+    float:left;
+    font-weight: bold;
+    padding:0 5px;
+    margin:-20px 0 0 30px;
+    background:#fff;
 }
 </style>

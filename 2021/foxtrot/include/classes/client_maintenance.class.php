@@ -120,6 +120,10 @@
       else if($client_file_number==''){
 				$this->errors = 'Please enter client file number.';
 			}
+			else if($naf_date=='' || $naf_date == '0000-00-00'){
+				$this->errors = 'Please enter NAF Date.';
+			}
+
 			if($this->errors!=''){
 				return $this->errors;
 			}

@@ -1,6 +1,6 @@
 <div class="container">
-<h1 class="<?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}?>">Broker Balances</h1>
-  <div class="col-lg-12 well <?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}?>">
+<h1 class="<?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}*/?>">Broker Balances</h1>
+  <div class="col-lg-12 well <?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}*/?>">
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
     <?php 
     if($action=='add_new'||($action=='edit' && $id>0)){

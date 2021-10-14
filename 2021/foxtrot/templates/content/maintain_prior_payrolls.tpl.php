@@ -1,6 +1,6 @@
 <div class="container">
-<h1 class="<?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}?>">Prior Broker Payrolls</h1>
-  <div class="col-lg-12 well <?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}?>">
+<h1 class="<?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}*/?>">Prior Broker Payrolls</h1>
+  <div class="col-lg-12 well <?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}*/?>">
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
     <?php 
     if($action=='add_new'||($action=='edit' && $id>0)){
@@ -123,10 +123,12 @@
                         <th>Clear#</th>
                         <th>Gross Commission</th>
                         <th>Check Amount</th>
+                        <th>Taxable Adjustments</th>
+                        <th>Non-Taxable Adjustments</th>
                         <!--<th>Net Commission</th>
                         <th>Adjustments</th>
                         <th>Net Earnings</th>-->
-                        <th class="text-center">ACTION</th>
+                        <th class="text-center" colspan="2">ACTION</th>
                     </tr>
 	            </thead>
 	            <tbody>
@@ -141,11 +143,15 @@
                             <td><?php echo $val['clearing_number']; ?></td>
                             <td><?php echo $val['gross_production']; ?></td>
                             <td><?php echo $val['check_amount']; ?></td>
+                            <td><?php echo $val['taxable_adjustments']; ?></td>
+                            <td><?php echo $val['non-taxable_adjustments']; ?></td>
                             <!--<td><?php echo $val['net_production']; ?></td>
                             <td><?php echo $val['adjustments']; ?></td>
                             <td><?php echo $val['net_earnings']; ?></td>-->
                             <td class="text-center">
                                 <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id'];?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                            </td>
+                            <td class="text-center">
                                 <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                             </td>
                         </tr>

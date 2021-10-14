@@ -1,7 +1,7 @@
 <?php
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
-    include 'include/PHPExcel/classes/PHPExcel.php';
+    //include 'include/PHPExcel/classes/PHPExcel.php';
     
     $instance = new batches();
 
@@ -15,7 +15,7 @@
     $total_received_amount = 0;
     $total_posted_amount = 0;
     $total_records=0;
-    $total_records_sub=0;
+    //$total_records_sub=0;
     
     //DEFAULT PDF DATA:
     $get_logo = $instance->get_system_logo();
@@ -61,7 +61,7 @@
     $sheet_data             = array();
     $i=4;
     
-    $objPHPExcel = new PHPExcel();
+    //$objPHPExcel = new PHPExcel();
     /*$objDrawing = new PHPExcel_Worksheet_HeaderFooterDrawing();
     $objDrawing->setName('Image');
     $objDrawing->setPath("upload/logo/".$system_logo);//print_r($objDrawing);exit;
@@ -137,16 +137,18 @@
             foreach($return as $key=>$val){
                 $i++;
                 $c = $i;
-                $sheet_data[0]['A'.$i] = array($instance->re_db_output('Investment Category: '.$key),array('bold','left','size'=>array(10),'color'=>array('000000'),'merge'=>array('A'.$i,'E'.$i)));
+                $sheet_data[0]['A'.$i] = array($instance->re_db_output('Investment Category: '.$key),array('bold','left','size'=>array(10),'font_name'=>array('Calibri'),'color'=>array('000000'),'merge'=>array('A'.$i,'E'.$i)));
                 $posted_commission_amount = 0;
                 $amount_received = 0;
                 
                 $cat_total_received_amount = 0;
                 $cat_total_posted_amount = 0;
+                $total_records_sub = 0;
                 
                 foreach($val as $sub_key=>$sub_val)
                 { $i++;
                     $total_records_sub = $total_records_sub+1;
+                    $total_records=$total_records+1;
                     $get_commission_amount = $instance->get_commission_total($sub_val['id']);
                     $amount_received = $sub_val['check_amount'];
                     
@@ -166,7 +168,7 @@
                     $sheet_data[0]['E'.$i] = array($instance->re_db_output($sub_val['batch_desc']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                        
                 }
-                $total_records=$total_records+$total_records_sub;
+                
                 $i++;
                 $total_posted_amount = $total_posted_amount+$cat_total_posted_amount;
                 $total_received_amount = $total_received_amount+$cat_total_received_amount;

@@ -1,0 +1,135 @@
+<?php
+    require_once("include/config.php");
+    require_once(DIR_FS."islogin.php");
+    
+    $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
+    $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
+    
+    $instance = new payroll();
+    $instance_payroll_master = new payroll_master();
+    $get_payroll_category = $instance_payroll_master->select_payroll();
+    
+    /*$adj_date = '';
+    $adj_pay_date = '';
+    $adj_broker_number = '';
+    $adj_broker_name = '';
+    $adj_category = '';
+    $adj_description = '';
+    $adj_amount = '';
+    $tra_trade_number = '';
+    $tra_trade_date = '';
+    $tra_broker_number = '';
+    $tra_broker_name = '';
+    $tra_client_account_number = '';
+    $tra_client_name = '';
+    $tra_principal = '';
+    $tra_commission = '';
+    $tra_charge = '';
+    $bal_broker_number = '';
+    $bal_broker_name = '';
+    $bal_balance_amount = '';
+    $ear_payroll_date = '';
+    $ear_broker_number = '';
+    $ear_broker_name = '';
+    $ear_number_of_trades = '';
+    $ear_gross_ytd_concessions = '';
+    $ear_net_ytd_commissions = '';
+    $ear_ytd_check_amount = '';
+    
+    if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){ 
+        
+        $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
+        
+        $adj_date = isset($_POST['adj_date'])?$instance->re_db_input($_POST['adj_date']):'';
+        $adj_pay_date = isset($_POST['adj_pay_date'])?$instance->re_db_input($_POST['adj_pay_date']):'';
+        $adj_broker_number = isset($_POST['adj_broker_number'])?$instance->re_db_input($_POST['adj_broker_number']):'';
+        $adj_broker_name = isset($_POST['adj_broker_name'])?$instance->re_db_input($_POST['adj_broker_name']):'';
+        $adj_category = isset($_POST['adj_category'])?$instance->re_db_input($_POST['adj_category']):'';
+        $adj_description = isset($_POST['adj_description'])?$instance->re_db_input($_POST['adj_description']):'';
+        $adj_amount = isset($_POST['adj_amount'])?$instance->re_db_input($_POST['adj_amount']):'';
+        $tra_trade_number = isset($_POST['tra_trade_number'])?$instance->re_db_input($_POST['tra_trade_number']):'';
+        $tra_trade_date = isset($_POST['tra_trade_date'])?$instance->re_db_input($_POST['tra_trade_date']):'';
+        $tra_broker_number = isset($_POST['tra_broker_number'])?$instance->re_db_input($_POST['tra_broker_number']):'';
+        $tra_broker_name = isset($_POST['tra_broker_name'])?$instance->re_db_input($_POST['tra_broker_name']):'';
+        $tra_client_account_number = isset($_POST['tra_client_account_number'])?$instance->re_db_input($_POST['tra_client_account_number']):'';
+        $tra_client_name = isset($_POST['tra_client_name'])?$instance->re_db_input($_POST['tra_client_name']):'';
+        $tra_principal = isset($_POST['tra_principal'])?$instance->re_db_input($_POST['tra_principal']):'';
+        $tra_commission = isset($_POST['tra_commission'])?$instance->re_db_input($_POST['tra_commission']):'';
+        $tra_charge = isset($_POST['tra_charge'])?$instance->re_db_input($_POST['tra_charge']):'';
+        $bal_broker_number = isset($_POST['bal_broker_number'])?$instance->re_db_input($_POST['bal_broker_number']):'';
+        $bal_broker_name = isset($_POST['bal_broker_name'])?$instance->re_db_input($_POST['bal_broker_name']):'';
+        $bal_balance_amount = isset($_POST['bal_balance_amount'])?$instance->re_db_input($_POST['bal_balance_amount']):'';
+        $ear_payroll_date = isset($_POST['ear_payroll_date'])?$instance->re_db_input($_POST['ear_payroll_date']):'';
+        $ear_broker_number = isset($_POST['ear_broker_number'])?$instance->re_db_input($_POST['ear_broker_number']):'';
+        $ear_broker_name = isset($_POST['ear_broker_name'])?$instance->re_db_input($_POST['ear_broker_name']):'';
+        $ear_number_of_trades = isset($_POST['ear_number_of_trades'])?$instance->re_db_input($_POST['ear_number_of_trades']):'';
+        $ear_gross_ytd_concessions = isset($_POST['ear_gross_ytd_concessions'])?$instance->re_db_input($_POST['ear_gross_ytd_concessions']):'';
+        $ear_net_ytd_commissions = isset($_POST['ear_net_ytd_commissions'])?$instance->re_db_input($_POST['ear_net_ytd_commissions']):'';
+        $ear_ytd_check_amount = isset($_POST['ear_ytd_check_amount'])?$instance->re_db_input($_POST['ear_ytd_check_amount']):'';
+        
+        $return = $instance->insert_update($_POST);
+        
+        if($return===true){
+            
+            header("location:".CURRENT_PAGE."?action=view");exit;
+        }
+        else{
+            $error = !isset($_SESSION['warning'])?$return:'';
+        }
+ 
+    }
+    else if($action=='edit' && $id>0){
+        $return_adjustments = $instance->edit_adjustments($id);
+        $return_transactions = $instance->edit_transactions($id);
+        $return_balances = $instance->edit_balances($id);
+        $return_ytd_earnings = $instance->edit_ytd_earnings($id);
+        
+        $id = isset($return_adjustments['id'])?$instance->re_db_output($return_adjustments['id']):0;
+        
+        $adj_date = isset($return_adjustments['date'])?$instance->re_db_output($return_adjustments['date']):'';
+        $adj_pay_date = isset($return_adjustments['pay_on'])?$instance->re_db_output($return_adjustments['pay_on']):'';
+        $adj_broker_number = isset($return_adjustments['broker_number'])?$instance->re_db_output($return_adjustments['broker_number']):'';
+        $adj_broker_name = isset($return_adjustments['broker_name'])?$instance->re_db_output($return_adjustments['broker_name']):'';
+        $adj_category = isset($return_adjustments['category'])?$instance->re_db_output($return_adjustments['category']):'';
+        $adj_description = isset($return_adjustments['description'])?$instance->re_db_output($return_adjustments['description']):'';
+        $adj_amount = isset($return_adjustments['amount'])?$instance->re_db_output($return_adjustments['amount']):'';
+        $tra_trade_number = isset($return_transactions['trade_number'])?$instance->re_db_output($return_transactions['trade_number']):'';
+        $tra_trade_date = isset($return_transactions['trade_date'])?$instance->re_db_output($return_transactions['trade_date']):'';
+        $tra_broker_number = isset($return_transactions['broker_number'])?$instance->re_db_output($return_transactions['broker_number']):'';
+        $tra_broker_name = isset($return_transactions['broker_name'])?$instance->re_db_output($return_transactions['broker_name']):'';
+        $tra_client_account_number = isset($return_transactions['client_account_number'])?$instance->re_db_output($return_transactions['client_account_number']):'';
+        $tra_client_name = isset($return_transactions['client_name'])?$instance->re_db_output($return_transactions['client_name']):'';
+        $tra_principal = isset($return_transactions['principal'])?$instance->re_db_output($return_transactions['principal']):'';
+        $tra_commission = isset($return_transactions['commission'])?$instance->re_db_output($return_transactions['commission']):'';
+        $tra_charge = isset($return_transactions['charge'])?$instance->re_db_output($return_transactions['charge']):'';
+        $bal_broker_number = isset($return_balances['broker_number'])?$instance->re_db_output($return_balances['broker_number']):'';
+        $bal_broker_name = isset($return_balances['broker_name'])?$instance->re_db_output($return_balances['broker_name']):'';
+        $bal_balance_amount = isset($return_balances['balance_amount'])?$instance->re_db_output($return_balances['balance_amount']):'';
+        $ear_payroll_date = isset($return_ytd_earnings['payroll_date'])?$instance->re_db_output($return_ytd_earnings['payroll_date']):'';
+        $ear_broker_number = isset($return_ytd_earnings['broker_number'])?$instance->re_db_output($return_ytd_earnings['broker_number']):'';
+        $ear_broker_name = isset($return_ytd_earnings['broker_name'])?$instance->re_db_output($return_ytd_earnings['broker_name']):'';
+        $ear_number_of_trades = isset($return_ytd_earnings['number_of_trades'])?$instance->re_db_output($return_ytd_earnings['number_of_trades']):'';
+        $ear_gross_ytd_concessions = isset($return_ytd_earnings['gross_ytd_concessions'])?$instance->re_db_output($return_ytd_earnings['gross_ytd_concessions']):'';
+        $ear_net_ytd_commissions = isset($return_ytd_earnings['net_ytd_commission'])?$instance->re_db_output($return_ytd_earnings['net_ytd_commission']):'';
+        $ear_ytd_check_amount = isset($return_ytd_earnings['ytd_check_amount'])?$instance->re_db_output($return_ytd_earnings['ytd_check_amount']):'';    
+    }
+    else if(isset($action) && $action=='delete' && $id>0)
+    {
+        $return = $instance->delete($id);
+        if($return==true){
+            header('location:'.CURRENT_PAGE.'?action=view');exit;
+        }
+        else{
+            header('location:'.CURRENT_PAGE.'?action=view');exit;
+        }
+    }
+    else if($action=='view'){
+        
+        $return = $instance->select();
+        
+    }*/
+    
+    
+    $content = "maintain_broker_balances";
+    include(DIR_WS_TEMPLATES."main_page.tpl.php");
+?>

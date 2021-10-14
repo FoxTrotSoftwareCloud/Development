@@ -52,13 +52,15 @@ $total_records=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0">
                 <tr>';
-                    $html .='<td width="23%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File: '.$get_file_data['file_name'].'</td>
-                    <td width="23%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Source: '.$get_file_data['source'].'</td>
-                    <td width="24%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File Type: '.$get_file_data['file_type'].'</td>
-                    <td width="15%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Date: '.date('m/d/Y',strtotime($get_file_data['last_processed_date'])).'</td>';
+                    $html .='<td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File: '.$get_file_data['file_name'].'</td>
+                    <td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Source: '.$get_file_data['source'].'</td>
+                    <td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File Type: '.$get_file_data['file_type'].'</td>
+                    <td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Date: '.date('m/d/Y',strtotime($get_file_data['last_processed_date'])).'</td>';
                     if(isset($get_file_type) && $get_file_type == '2')
                     {
-                        $html .='<td width="15%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Amount: $'.number_format($total_commission_amount,2).'</td>';
+                        $batch_id = $instance->get_file_batch($file_id);
+                        $html .='<td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Batch: '.$batch_id.'</td>';
+                        $html .='<td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Amount: $'.number_format($total_commission_amount,2).'</td>';
                     }
                 $html .='</tr>
             </table>';
@@ -178,6 +180,10 @@ $total_records=0;
     $pdf->Ln(5);*/
    
     $pdf->lastPage();
+    if(isset($_GET['open']) && $_GET['open'] == 'output_print')
+    {
+        $pdf->IncludeJS("print();");
+    }
     $pdf->Output('report_processed_data.pdf', 'I');
     
     exit;

@@ -288,7 +288,7 @@ if($get_fincen_data != array())
                                 </tr>
                                 <tr>
                                     <td style="font-weight:normal;font-size:10px;text-align:left;width:60%">
-                                        <?php if($val['fincen_address'] != ''){ echo $val['fincen_address']; }else{ echo '-';} ?>
+                                        <?php echo $val['fincen_address']; ?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:40%">
                                         <?php echo $val['fincen_number']; ?>
@@ -296,7 +296,7 @@ if($get_fincen_data != array())
                                 </tr>
                                 <tr>
                                     <td style="font-weight:normal;font-size:10px;text-align:left;width:60%">
-                                        -
+                                        
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:40%">
                                         <?php echo $val['fincen_number_type']; ?>
@@ -307,7 +307,7 @@ if($get_fincen_data != array())
                                         <?php echo $val['fincen_country'].' '.$val['fincen_phone']; ?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:40%">
-                                        <?php if($fincen_dob != ''){ echo $fincen_dob; }else{ echo '-';} ?>
+                                        <?php echo $fincen_dob; ?>
                                     </td>
                                 </tr>
                             </table>
@@ -320,7 +320,7 @@ if($get_fincen_data != array())
                 <table border="0" cellpadding="1" width="100%">
                     <tr>
                         <td style="font-size:12px;font-weight:bold;text-align:left;">
-                            &nbsp;
+                        &nbsp;
                         </td>
                     </tr>
                 </table>
@@ -380,7 +380,7 @@ if($get_fincen_data != array())
         </tr>
     <?php }?>
     <tr style="background-color: #f1f1f1;">
-        <td style="font-size:10px;font-weight:bold;text-align:right;" colspan="8">Total Records: <?php echo $total_records;?></td>
+        <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="8">Total Records: <?php echo $total_records;?></td>
     </tr>
 <?php }else{ ?>
     

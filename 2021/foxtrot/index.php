@@ -1,6 +1,7 @@
 <?php
-    require_once("include/config.php");
-    require_once(DIR_FS."islogin.php");
+
+    require_once("include/config.php");    
+    require_once(DIR_FS."islogin.php");    
     header("location:home.php");
 ?>
 <!--<!DOCTYPE html>

@@ -1,6 +1,8 @@
 <IfModule mod_rewrite.c>
+
 RewriteEngine On
-	#RewriteBase /foxtrot/
+RewriteBase /CloudFox/
+
 	ErrorDocument 404 /404.html
     
     RewriteRule ^index.html$ index.php

@@ -41,7 +41,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 $total_received_amount = 0;
 $total_posted_amount = 0;
 $total_records=0;
-$total_records_sub=0;
+//$total_records_sub=0;
 
 ?>
 <?php
@@ -106,10 +106,12 @@ $total_records_sub=0;
             
             $cat_total_received_amount = 0;
             $cat_total_posted_amount = 0;
+            $total_records_sub = 0;
             
             foreach($main_val as $sub_key=>$sub_val)
             {
                 $total_records_sub = $total_records_sub+1;
+                $total_records=$total_records+1;
                 $get_commission_amount = $instance->get_commission_total($sub_val['id']);
                 $amount_received = $sub_val['check_amount'];
                 
@@ -130,7 +132,7 @@ $total_records_sub=0;
                        <td style="font-size:8px;font-weight:normal;text-align:center;">'.$sub_val['batch_desc'].'</td>';
                 $html.='</tr>';
             }
-            $total_records=$total_records+$total_records_sub;
+            
             $total_posted_amount = $total_posted_amount+$cat_total_posted_amount;
             $total_received_amount = $total_received_amount+$cat_total_received_amount;
             $html.='<tr style="background-color: #f1f1f1;">

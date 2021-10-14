@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+	ErrorDocument 404 /404.html
+    
+    RewriteRule ^index.html$ index.php
+	RewriteRule ^dashboard$ index.php
+	RewriteRule ^dashboard/$ index.php
+    
+    RewriteRule ^sign-in$ sign-in.php
+	RewriteRule ^sign-in/$ sign-in.php
+    
+    RewriteRule ^forgot-password$ forgot-password.php
+	RewriteRule ^forgot-password/$ forgot-password.php
+    
+    RewriteRule ^sign-out$ sign-out.php
+	RewriteRule ^sign-out/$ sign-out.php
+    
+</IfModule>

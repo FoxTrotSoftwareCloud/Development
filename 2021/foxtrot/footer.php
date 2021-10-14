@@ -28,11 +28,16 @@
 
 
 <!-- Include all compiled plugins (below), or include individual files as needed --> 
-<script src="js/bootstrap.min.js"></script>
+
 <script>
-$(".alert-success").fadeTo(1000, 500).slideUp(500, function(){
-    $(".alert-success").slideUp(500);
+$(".alert-success").fadeTo(2000, 500).slideUp(1000, function(){
+    $(".alert-success").slideUp(1000);
 });
 </script>
 </body>
 </html>
+<style>
+.table>tbody>tr>td {
+    padding: 5px;
+}
+</style>

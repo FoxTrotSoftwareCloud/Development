@@ -9,7 +9,8 @@
     $payroll_date = '';
     $clearing_business_cutoff_date = '';
     $direct_business_cutoff_date = '';
-    
+    $payroll_transactions_array = $instance->select_payroll_transactions();
+        
     if(isset($_POST['upload_payroll'])&& $_POST['upload_payroll']=='Upload Payroll'){
         
         $clearing_business_cutoff_date = isset($_POST['clearing_business_cutoff_date'])?$instance->re_db_input($_POST['clearing_business_cutoff_date']):'';
@@ -37,7 +38,7 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
-    else if(isset($action)&& $action=='payroll_close'){
+    else if(isset($action)&& $action=='payroll_close' && isset($_GET['confirm']) && $_GET['confirm'] == 'yes'){
         
         $return = $instance->payroll_close();
         

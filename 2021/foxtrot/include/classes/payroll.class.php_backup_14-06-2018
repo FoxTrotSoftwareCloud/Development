@@ -1,0 +1,330 @@
+<?php
+
+class payroll extends db{
+    
+    public $errors = '';
+    public $table = PAYROLL_UPLOAD;
+    
+    public function insert_update($data){
+            
+		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
+        
+        $adj_date = isset($data['adj_date'])?$this->re_db_input($data['adj_date']):'';
+        $adj_pay_date = isset($data['adj_pay_date'])?$this->re_db_input($data['adj_pay_date']):'';
+        $adj_broker_number = isset($data['adj_broker_number'])?$this->re_db_input($data['adj_broker_number']):'';
+        $adj_broker_name = isset($data['adj_broker_name'])?$this->re_db_input($data['adj_broker_name']):'';
+        $adj_category = isset($data['adj_category'])?$this->re_db_input($data['adj_category']):'';
+        $adj_description = isset($data['adj_description'])?$this->re_db_input($data['adj_description']):'';
+        $adj_amount = isset($data['adj_amount'])?$this->re_db_input($data['adj_amount']):'';
+        
+        $tra_trade_number = isset($data['tra_trade_number'])?$this->re_db_input($data['tra_trade_number']):'';
+        $tra_trade_date = isset($data['tra_trade_date'])?$this->re_db_input($data['tra_trade_date']):'';
+        $tra_broker_number = isset($data['tra_broker_number'])?$this->re_db_input($data['tra_broker_number']):'';
+        $tra_broker_name = isset($data['tra_broker_name'])?$this->re_db_input($data['tra_broker_name']):'';
+        $tra_client_account_number = isset($data['tra_client_account_number'])?$this->re_db_input($data['tra_client_account_number']):'';
+        $tra_client_name = isset($data['tra_client_name'])?$this->re_db_input($data['tra_client_name']):'';
+        $tra_principal = isset($data['tra_principal'])?$this->re_db_input($data['tra_principal']):'';
+        $tra_commission = isset($data['tra_commission'])?$this->re_db_input($data['tra_commission']):'';
+        $tra_charge = isset($data['tra_charge'])?$this->re_db_input($data['tra_charge']):'';
+        
+        $bal_broker_number = isset($data['bal_broker_number'])?$this->re_db_input($data['bal_broker_number']):'';
+        $bal_broker_name = isset($data['bal_broker_name'])?$this->re_db_input($data['bal_broker_name']):'';
+        $bal_balance_amount = isset($data['bal_balance_amount'])?$this->re_db_input($data['bal_balance_amount']):'';
+        
+        $ear_payroll_date = isset($data['ear_payroll_date'])?$this->re_db_input($data['ear_payroll_date']):'';
+        $ear_broker_number = isset($data['ear_broker_number'])?$this->re_db_input($data['ear_broker_number']):'';
+        $ear_broker_name = isset($data['ear_broker_name'])?$this->re_db_input($data['ear_broker_name']):'';
+        $ear_number_of_trades = isset($data['ear_number_of_trades'])?$this->re_db_input($data['ear_number_of_trades']):'';
+        $ear_gross_ytd_concessions = isset($data['ear_gross_ytd_concessions'])?$this->re_db_input($data['ear_gross_ytd_concessions']):'';
+        $ear_net_ytd_commissions = isset($data['ear_net_ytd_commissions'])?$this->re_db_input($data['ear_net_ytd_commissions']):'';
+        $ear_ytd_check_amount = isset($data['ear_ytd_check_amount'])?$this->re_db_input($data['ear_ytd_check_amount']):''; 
+        
+        	
+        if($adj_pay_date ==''){
+			$this->errors = 'Please select pay date.';
+		}
+        if($this->errors!=''){
+			return $this->errors;
+		}
+		else{
+		 
+            if($id==0){
+                
+				 $q = "INSERT INTO ".PAYROLL_ADJUSTMENTS." SET `date`='".date('Y-m-d',strtotime($adj_date))."',`pay_on`='".date('Y-m-d',strtotime($adj_pay_date))."',`broker_number`='".$adj_broker_number."',
+                `broker_name`='".$adj_broker_name."',`category`='".$adj_category."',`description`='".$adj_description."',`amount`='".$adj_amount."'".$this->insert_common_sql();
+				$res = $this->re_db_query($q);
+                
+                $q_tra = "INSERT INTO ".PAYROLL_TRANSACTIONS." SET `trade_number`='".$tra_trade_number."',`trade_date`='".date('Y-m-d',strtotime($tra_trade_date))."',`broker_number`='".$tra_broker_number."',
+                `broker_name`='".$tra_broker_name."',`client_account_number`='".$tra_client_account_number."',`client_name`='".$tra_client_name."',`principal`='".$tra_principal."',`commission`='".$tra_commission."',`charge`='".$tra_charge."'".$this->insert_common_sql();
+				$res_tra = $this->re_db_query($q_tra);
+                
+                $q_bal = "INSERT INTO ".PAYROLL_BALANCES." SET `broker_number`='".$bal_broker_number."',`broker_name`='".$bal_broker_name."',`balance_amount`='".$bal_balance_amount."'".$this->insert_common_sql();
+				$res_bal = $this->re_db_query($q_bal);
+                
+                $q_bal = "INSERT INTO ".PAYROLL_YTD_EARNINGS." SET `payroll_date`='".$ear_payroll_date."',`broker_number`='".$ear_broker_number."',`broker_name`='".$ear_broker_name."',`number_of_trades`='".$ear_number_of_trades."',`gross_ytd_concessions`='".$ear_gross_ytd_concessions."',`net_ytd_commission`='".$ear_net_ytd_commissions."',`ytd_check_amount`='".$ear_ytd_check_amount."'".$this->insert_common_sql();
+				$res_bal = $this->re_db_query($q_bal);
+                
+                if($res){
+				    $_SESSION['success'] = INSERT_MESSAGE;
+					return true;
+				}
+				else{
+					$_SESSION['warning'] = UNKWON_ERROR;
+					return false;
+				}
+			}
+			else if($id>0){
+			 
+				$q = "UPDATE ".PAYROLL_ADJUSTMENTS." SET `date`='".date('Y-m-d',strtotime($adj_date))."',`pay_on`='".date('Y-m-d',strtotime($adj_pay_date))."',`broker_number`='".$adj_broker_number."',
+                `broker_name`='".$adj_broker_name."',`category`='".$adj_category."',`description`='".$adj_description."',`amount`='".$adj_amount."'".$this->update_common_sql();
+				$res = $this->re_db_query($q);
+                
+                $q_tra = "UPDATE ".PAYROLL_TRANSACTIONS." SET `trade_number`='".$tra_trade_number."',`trade_date`='".date('Y-m-d',strtotime($tra_trade_date))."',`broker_number`='".$tra_broker_number."',
+                `broker_name`='".$tra_broker_name."',`client_account_number`='".$tra_client_account_number."',`client_name`='".$tra_client_name."',`principal`='".$tra_principal."',`commission`='".$tra_commission."',`charge`='".$tra_charge."'".$this->update_common_sql();
+				$res_tra = $this->re_db_query($q_tra);
+                
+                $q_bal = "UPDATE ".PAYROLL_BALANCES." SET `broker_number`='".$bal_broker_number."',`broker_name`='".$bal_broker_name."',`balance_amount`='".$bal_balance_amount."'".$this->update_common_sql();
+				$res_bal = $this->re_db_query($q_bal);
+                
+                $q_bal = "UPDATE ".PAYROLL_YTD_EARNINGS." SET `payroll_date`='".date('Y-m-d',strtotime($ear_payroll_date))."',`broker_number`='".$ear_broker_number."',`broker_name`='".$ear_broker_name."',`number_of_trades`='".$ear_number_of_trades."',`gross_ytd_concessions`='".$ear_gross_ytd_concessions."',`net_ytd_commission`='".$ear_net_ytd_commissions."',`ytd_check_amount`='".$ear_ytd_check_amount."'".$this->update_common_sql();
+				$res_bal = $this->re_db_query($q_bal);
+                    
+                if($res){
+				    $_SESSION['success'] = UPDATE_MESSAGE;
+					return true;
+				}
+				else{
+					$_SESSION['warning'] = UNKWON_ERROR;
+					return false;
+				}
+			}
+		
+		}
+	}
+    public function upload_payroll($data){
+            
+		$payroll_date = isset($data['payroll_date'])?$this->re_db_input($data['payroll_date']):'';
+        $clearing_business_cutoff_date = isset($data['clearing_business_cutoff_date'])?$this->re_db_input($data['clearing_business_cutoff_date']):'';
+        $direct_business_cutoff_date = isset($data['direct_business_cutoff_date'])?$this->re_db_input($data['direct_business_cutoff_date']):'';
+        
+        	
+        if($payroll_date ==''){
+			$this->errors = 'Please select payroll date.';
+		}
+        else if($clearing_business_cutoff_date ==''){
+			$this->errors = 'Please select clearing business cutoff date.';
+		}
+        else if($direct_business_cutoff_date ==''){
+			$this->errors = 'Please select direct business cutoff date.';
+		}
+        if($this->errors!=''){
+			return $this->errors;
+		}
+		else{
+		  
+            $q = "SELECT * FROM `".$this->table."` WHERE `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."'";
+			$res = $this->re_db_query($q);
+			$return = $this->re_db_num_rows($res);
+			if($return>0){
+				$this->errors = 'This payroll is already exists, Please select another date.';
+			}
+			if($this->errors!=''){
+				return $this->errors;
+			}
+		    else
+            {
+                $q = "INSERT INTO ".$this->table." SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',`clearing_business_cutoff_date`='".date('Y-m-d',strtotime($clearing_business_cutoff_date))."',`direct_business_cutoff_date`='".date('Y-m-d',strtotime($direct_business_cutoff_date))."'".$this->insert_common_sql();
+    			$res = $this->re_db_query($q);
+                $last_inserted_id = $this->re_db_insert_id();
+                
+                $trades_array = $this->select_trades($direct_business_cutoff_date);
+                foreach($trades_array as $key=>$val)
+                {
+                    $q_tra = "INSERT INTO ".PAYROLL_TRANSACTIONS." SET `payroll_id`='".$last_inserted_id."',`trade_number`='".$val['id']."',`trade_date`='".$val['trade_date']."',`broker_number`='".$val['broker_name']."',
+                    `broker_name`='".$val['broker_name']."',`client_account_number`='".$val['client_number']."',`client_name`='".$val['client_name']."',`principal`='".$val['invest_amount']."',`commission`='".$val['commission_received']."',`charge`='".$val['charge_amount']."'".$this->insert_common_sql();
+    				$res_tra = $this->re_db_query($q_tra);
+                    
+                    $q = "INSERT INTO ".PAYROLL_ADJUSTMENTS." SET `payroll_id`='".$last_inserted_id."',`date`='',`pay_on`='',`broker_number`='',
+                    `broker_name`='',`category`='',`description`='',`amount`=''".$this->insert_common_sql();
+    				$res = $this->re_db_query($q);
+                    
+                    $q_bal = "INSERT INTO ".PAYROLL_BALANCES." SET `payroll_id`='".$last_inserted_id."',`broker_number`='',`broker_name`='',`balance_amount`=''".$this->insert_common_sql();
+    				$res_bal = $this->re_db_query($q_bal);
+                    
+                    $q_bal = "INSERT INTO ".PAYROLL_YTD_EARNINGS." SET `payroll_id`='".$last_inserted_id."',`payroll_date`='',`broker_number`='',`broker_name`='',`number_of_trades`='',`gross_ytd_concessions`='',`net_ytd_commission`='',`ytd_check_amount`=''".$this->insert_common_sql();
+    				$res_bal = $this->re_db_query($q_bal);
+                    
+                    $q = "UPDATE ".TRANSACTION_MASTER." SET `is_payroll`='1' ".$this->update_common_sql()." WHERE `id`='".$val['id']."'";
+    				$res = $this->re_db_query($q);
+                }
+                
+                if($res){
+    			    $_SESSION['success'] = 'Payroll uploaded successfully.';
+    				return true;
+    			}
+    			else{
+    				$_SESSION['warning'] = UNKWON_ERROR;
+    				return false;
+    			}
+            }
+        }
+	}
+    public function reverse_payroll(){
+            
+		$payroll_transactions_array = $this->select_payroll_transactions();
+        foreach($payroll_transactions_array as $key=>$val)
+        {
+            $q = "UPDATE ".TRANSACTION_MASTER." SET `is_payroll`='0',`payroll_date`='".$val['payroll_date']."',`payroll_id`='".$val['payroll_id']."' ".$this->update_common_sql()." WHERE `id`='".$val['trade_number']."'";
+		    $res = $this->re_db_query($q);
+            
+            $q = "UPDATE ".$this->table." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `id`='".$val['payroll_id']."'";
+    		$res = $this->re_db_query($q);
+            
+            $q = "UPDATE ".PAYROLL_ADJUSTMENTS." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `payroll_id`='".$val['payroll_id']."'";
+    		$res = $this->re_db_query($q);
+            
+            $q = "UPDATE ".PAYROLL_TRANSACTIONS." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `payroll_id`='".$val['payroll_id']."'";
+    		$res = $this->re_db_query($q);
+            
+            $q = "UPDATE ".PAYROLL_BALANCES." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `payroll_id`='".$val['payroll_id']."'";
+    		$res = $this->re_db_query($q);
+            
+            $q = "UPDATE ".PAYROLL_YTD_EARNINGS." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `payroll_id`='".$val['payroll_id']."'";
+    		$res = $this->re_db_query($q);
+        }
+        
+        if($res){
+    	    $_SESSION['success'] = 'Reverse payroll successfully.';
+    		return true;
+    	}
+    	else{
+    		$_SESSION['warning'] = UNKWON_ERROR;
+    		return false;
+    	}
+    }
+    public function edit_adjustments($id){
+		$return = array();
+		$q = "SELECT `ad`.*
+				FROM ".PAYROLL_ADJUSTMENTS." AS `ad`
+                WHERE `ad`.`is_delete`='0' AND `ad`.`id`='".$id."'";
+		$res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+			$return = $this->re_db_fetch_array($res);
+        }
+		return $return;
+   }
+   public function edit_transactions($id){
+		$return = array();
+		$q = "SELECT `trn`.*
+				FROM ".PAYROLL_TRANSACTIONS." AS `trn`
+                WHERE `trn`.`is_delete`='0' AND `trn`.`id`='".$id."'";
+		$res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+			$return = $this->re_db_fetch_array($res);
+        }
+		return $return;
+   }
+   public function edit_balances($id){
+		$return = array();
+		$q = "SELECT `blc`.*
+				FROM ".PAYROLL_BALANCES." AS `blc`
+                WHERE `blc`.`is_delete`='0' AND `blc`.`id`='".$id."'";
+		$res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+			$return = $this->re_db_fetch_array($res);
+        }
+		return $return;
+   }
+   public function edit_ytd_earnings($id){
+		$return = array();
+		$q = "SELECT `ytd`.*
+				FROM ".PAYROLL_YTD_EARNINGS." AS `ytd`
+                WHERE `ytd`.`is_delete`='0' AND `ytd`.`id`='".$id."'";
+		$res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+			$return = $this->re_db_fetch_array($res);
+        }
+		return $return;
+   }
+   public function select(){
+    	$return = array();
+    	
+    	$q = "SELECT `ytd`.*
+    			FROM `".PAYROLL_YTD_EARNINGS."` AS `ytd`
+                WHERE `ytd`.`is_delete`='0'
+                ORDER BY `ytd`.`id` ASC";
+    	$res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+            $a = 0;
+    		while($row = $this->re_db_fetch_array($res)){
+    		     array_push($return,$row);
+    		}
+        }
+    	return $return;
+  } 
+  public function select_trades($commission_received_date){
+    	$return = array();
+    	
+        if($commission_received_date != '')
+        {
+            $q = "SELECT `trans`.*,`bt`.id as batch_number,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname
+    			FROM `".TRANSACTION_MASTER."` AS `trans`
+                LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `trans`.`batch`
+                LEFT JOIN `".CLIENT_MASTER."` as `cl` on `cl`.`id` = `trans`.`client_name`
+                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `trans`.`broker_name`
+                WHERE `trans`.`is_delete`='0' and `trans`.`is_payroll`='0' and `trans`.`payroll_id`='0' and `trans`.`commission_received_date`<='".date('Y-m-d',strtotime($commission_received_date))."'
+                ORDER BY `trans`.`id` ASC";
+        	$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+        		while($row = $this->re_db_fetch_array($res)){
+        		     array_push($return,$row);
+        		}
+            }
+        }
+    	return $return;
+  } 
+  public function select_payroll_transactions(){
+    	$return = array();
+    	
+        $q = "SELECT `up`.*,pt.*
+			FROM `".$this->table."` AS `up`
+            LEFT JOIN `".PAYROLL_TRANSACTIONS."` as `pt` on `pt`.`payroll_id` = `up`.`id`
+            WHERE `up`.`is_delete`='0'
+            ORDER BY `pt`.`trade_number` ASC";
+    	$res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+            $a = 0;
+    		while($row = $this->re_db_fetch_array($res)){
+    		     array_push($return,$row);
+    		}
+        }
+        return $return;
+  } 
+  public function delete($id){
+    	$id = trim($this->re_db_input($id));
+    	if($id>0){
+    		$q = "UPDATE `".PAYROLL_ADJUSTMENTS."` SET `is_delete`='1' WHERE `id`='".$id."'";
+    		$res = $this->re_db_query($q);
+            $q = "UPDATE `".PAYROLL_TRANSACTIONS."` SET `is_delete`='1' WHERE `id`='".$id."'";
+    		$res = $this->re_db_query($q);
+            $q = "UPDATE `".PAYROLL_BALANCES."` SET `is_delete`='1' WHERE `id`='".$id."'";
+    		$res = $this->re_db_query($q);
+            $q = "UPDATE `".PAYROLL_YTD_EARNINGS."` SET `is_delete`='1' WHERE `id`='".$id."'";
+    		$res = $this->re_db_query($q);
+    		if($res){
+    		    $_SESSION['success'] = DELETE_MESSAGE;
+    			return true;
+    		}
+    		else{
+    		    $_SESSION['warning'] = UNKWON_ERROR;
+    			return false;
+    		}
+    	}
+    	else{
+    	     $_SESSION['warning'] = UNKWON_ERROR;
+    		return false;
+    	}
+  }        
+}
+?>

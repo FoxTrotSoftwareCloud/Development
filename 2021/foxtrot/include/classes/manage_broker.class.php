@@ -984,6 +984,20 @@
 						}*/
             }
         }
+
+        public function load_split_commission($transaction_id){
+			$originalArray=array();
+			$qq1="SELECT * FROM `ft_transaction_split_commissions` WHERE is_delete=0 AND `transaction_id`=".$transaction_id."";
+            $res = $this->re_db_query($qq1);
+            $originalArray = array();
+            if($this->re_db_num_rows($res)>0)
+            {
+              while($row = $this->re_db_fetch_array($res)){
+                array_push($originalArray,$row);  
+              }
+            }
+            return $originalArray;
+		}
         
         public function insert_update_licences($data)
         { //echo '<pre>';print_r($data['id']);exit;
@@ -2421,6 +2435,8 @@
             }
 			return $return;
 		}
+
+
         public function search($search_text=''){
 			$return = array();
 			$con = '';

@@ -12,7 +12,7 @@ $edit_grid = $instance->edit_grid($id);//echo '<pre>';//print_r($edit_grid);exit
 $schedule_name = isset($edit_payout['payout_schedule_name'])?$instance->re_db_output($edit_payout['payout_schedule_name']):'';
 $transaction_type_general = isset($edit_payout['transaction_type_general'])?$instance->re_db_output($edit_payout['transaction_type_general']):'';
 $product_category = isset($edit_payout['product_category'])?$instance->re_db_output($edit_payout['product_category']):'';
-$basis = isset($edit_payout['basis'])?$instance->re_db_output($edit_payout['basis']):'';
+$basis = isset($edit_payout['basis'])?$instance->re_db_output($edit_payout['basis']):'2';
 $cumulative = isset($edit_payout['cumulative'])?$instance->re_db_output($edit_payout['cumulative']):'';
 $year = isset($edit_payout['year'])?$instance->re_db_output($edit_payout['year']):'';
 $calculation_detail = isset($edit_payout['calculation_detail'])?$instance->re_db_output($edit_payout['calculation_detail']):'';
@@ -234,15 +234,16 @@ $(document).on('click','.remove-row',function(){
    </div>-->
    <div class="panel" style="border: 1px solid #cccccc !important; padding: 10px !important;">
    <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group">
                 <label>Basis </label><br />
                 <!--<input type="radio" name="basis" <?php if(isset($basis) && $basis=='1'){?>checked="true"<?php } ?>  class="radio" style="display: inline;" value="1"/>&nbsp;<label>Net Earnings</label>&nbsp;&nbsp;-->
+                <input type="radio" name="basis" <?php if(isset($basis) && $basis=='2'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="2"/>&nbsp;<label>Net Commission</label>&nbsp;&nbsp;
                 <input type="radio" name="basis" <?php if(isset($basis) && $basis=='1'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="1"/>&nbsp;<label>Gross Concessions</label>&nbsp;&nbsp;
-                <input type="radio" name="basis" <?php if(isset($basis) && $basis=='2'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="2"/>&nbsp;<label>Principal</label>&nbsp;&nbsp;
+                
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group">
                 <label>Cumulative </label><br />
                 <input type="radio" name="cumulative" <?php if(isset($cumulative) && $cumulative=='1'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="1"/>&nbsp;<label>Payroll-To-Date</label>&nbsp;&nbsp;
@@ -250,16 +251,7 @@ $(document).on('click','.remove-row',function(){
                 <input type="radio" name="cumulative" <?php if(isset($cumulative) && $cumulative=='2'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="2"/>&nbsp;<label>Year-To-Date</label>&nbsp;&nbsp;
             </div>
         </div>
-   </div>
-   <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label>Year </label><br />
-                <input type="radio" name="year" <?php if(isset($year) && $year=='1'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="1"/>&nbsp;<label>Calendar</label>&nbsp;&nbsp;
-                <input type="radio" name="year" <?php if(isset($year) && $year=='2'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="2"/>&nbsp;<label>Rolling</label>&nbsp;&nbsp;
-            </div>
-        </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group">
                 <label>Reset </label>
                 <div id="demo-dp-range">
@@ -276,7 +268,17 @@ $(document).on('click','.remove-row',function(){
    <div class="row">
         <div class="col-md-6">
             <div class="form-group">
-                <label>Calculation Detail </label><br />
+                <label>Year </label><br />
+                <input type="radio" name="year" <?php if(isset($year) && $year=='1'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="1"/>&nbsp;<label>Calendar</label>&nbsp;&nbsp;
+                <input type="radio" name="year" <?php if(isset($year) && $year=='2'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="2"/>&nbsp;<label>Rolling</label>&nbsp;&nbsp;
+            </div>
+        </div>
+        
+   </div>
+   <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Calculation Detail When Threshold Crossed  </label><br />
                 <input type="radio" name="calculation_detail" <?php if(isset($calculation_detail) && $calculation_detail=='1'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="1"/>&nbsp;<label>Apply Incremental Payout Rate</label>&nbsp;&nbsp;
                 <input type="radio" name="calculation_detail" <?php if(isset($calculation_detail) && $calculation_detail=='2'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="2"/>&nbsp;<label>Apply Higher Payout Rate</label>&nbsp;&nbsp;
                 <!--<input type="radio" name="calculation_detail" <?php if(isset($calculation_detail) && $calculation_detail=='3'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="3"/>&nbsp;<label>Use Lower Level Rate</label>&nbsp;&nbsp;-->
@@ -320,7 +322,7 @@ $(document).on('click','.remove-row',function(){
         <select name="team_member[]" id="team_member" class="form-control chosen-select" multiple="true">
             <option value="" disabled="true">Select Broker</option>
             <?php foreach($select_broker as $key => $val) {?>
-                    <option <?php echo in_array($val['id'],$team_member)?'selected="selected"':''; ?> value="<?php echo $val['id'];?>"><?php echo $val['first_name']?></a></option>
+                    <option <?php echo in_array($val['id'],$team_member)?'selected="selected"':''; ?> value="<?php echo $val['id'];?>"><?php echo $val['first_name'].' '.$val['last_name']?></a></option>
             <?php } ?>
         </select>
         </div>

@@ -1,4 +1,5 @@
 <?php
+    // echo phpversion();
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
     $content = "home";
@@ -32,6 +33,8 @@
             $get_di_completed_files = $instance->select_daily_import_completed_files($con);
             $get_di_process_files = $instance->select_daily_import_process_files($con);
             $get_di_new_files = $instance->select_daily_import_new_files($con);
+            $get_di_process_files_at_0 = $instance->select_daily_import_process_files_0($con);
+            
             $_SESSION['chart_1'] = $con;
         }
         else
@@ -40,7 +43,8 @@
             $con = isset($_SESSION['chart_1'])?$_SESSION['chart_1']:'';
             $get_di_completed_files = $instance->select_daily_import_completed_files($con);
             $get_di_process_files = $instance->select_daily_import_process_files($con);
-            $get_di_new_files = $instance->select_daily_import_new_files($con); 
+            $get_di_new_files = $instance->select_daily_import_new_files($con);
+            $get_di_process_files_at_0 = $instance->select_daily_import_process_files_0($con); 
         }
         if($chart_id == '2')
         {
@@ -68,10 +72,26 @@
         }
         if($chart_id == '3')
         {
-            
+            $con = '';
+            if(isset($from_date) && $from_date)
+            {
+                $con .= " and `up`.`created_time`>'".date("Y-m-d H:i:s",strtotime($from_date))."' ";
+            }
+            if(isset($to_date) && $to_date)
+            {
+                $con .= " and `up`.`created_time`<'".date("Y-m-d 23:59:59",strtotime($to_date))."' ";
+            }
+            //payroll calculation details with filter:
+            $select_payroll_data_list = $instance->select_payroll_data_list($con);
+            $select_payroll_data_chart = $instance->select_payroll_data_chart($con);
+            $_SESSION['chart_3'] = $con;
         }
         else
         {
+            //payroll calculation details:
+            $con = isset($_SESSION['chart_3'])?$_SESSION['chart_3']:'';
+            $select_payroll_data_list = $instance->select_payroll_data_list($con); 
+            $select_payroll_data_chart = $instance->select_payroll_data_chart($con);
             
         }
         if($chart_id == '4')
@@ -132,6 +152,7 @@
         $get_di_completed_files = $instance->select_daily_import_completed_files();
         $get_di_process_files = $instance->select_daily_import_process_files();
         $get_di_new_files = $instance->select_daily_import_new_files();
+        $get_di_process_files_at_0 = $instance->select_daily_import_process_files_0($con);
         
         //commission chart details:
         $invest_amount_array = $instance->select_invest_amount();
@@ -146,14 +167,28 @@
         $ytd_amount_array = $instance->select_ytd_amount();
         $ytd_amount_array_list = $instance->select_ytd_amount_list();
         
+        //Payroll chart details:
+        $select_payroll_data_list = $instance->select_payroll_data_list();
+        $select_payroll_data_chart = $instance->select_payroll_data_chart();
+        
     }
     $di_completed_files = isset($get_di_completed_files['total_completed_files'])?$get_di_completed_files['total_completed_files']:0;
     $di_partially_completed_files = isset($get_di_process_files['total_processed_files'])?$get_di_process_files['total_processed_files']:0;
-    $di_new_files = isset($get_di_new_files['total_new_files'])?$get_di_new_files['total_new_files']:0;
+    $di_new_files = isset($get_di_new_files['total_new_files'])?$get_di_new_files['total_new_files']+$get_di_process_files_at_0['total_processed_files_at_0']:0;
     
     $invest_amount = isset($invest_amount_array['count'])?$invest_amount_array['count']:0;
     $charge_amount = isset($charge_amount_array['count'])?$charge_amount_array['count']:0;
     $commission_received_amount = isset($commission_received_amount_array['count'])?$commission_received_amount_array['count']:0;
+    
+    $last_cutoff = isset($select_payroll_data_list['payroll_date']) && ($select_payroll_data_list['payroll_date'] != '' && $select_payroll_data_list['payroll_date'] != '0000-00-00')?date('m/d/Y',strtotime($select_payroll_data_list['payroll_date'])):'';
+    $gross_commission = isset($select_payroll_data_list['gross_commission'])?$select_payroll_data_list['gross_commission']:0;
+    $average_check_amount = 0;//isset($select_payroll_data_list['minimum_check_amount'])?$select_payroll_data_list['minimum_check_amount']:0;
+    $charge = isset($select_payroll_data_list['charge'])?$select_payroll_data_list['charge']:0;
+    $net_commission = isset($select_payroll_data_list['net_commission'])?$select_payroll_data_list['net_commission']:0;
+    $adjustments = isset($select_payroll_data_list['adjustments'])?$select_payroll_data_list['adjustments']:0;
+    $check_amount = isset($select_payroll_data_list['check_amount'])?$select_payroll_data_list['check_amount']:0;
+    $balance = isset($select_payroll_data_list['balance'])?$select_payroll_data_list['balance']:0;
+    $retention = $gross_commission - $check_amount;
     
     foreach($month_array as $key=>$val)
     {
@@ -211,6 +246,13 @@
     $ytd_total_investment_amount_chart = isset($ytd_amount_array_['total_ytd_investment_amount'])?implode(',',$ytd_amount_array_['total_ytd_investment_amount']):0;
     $ytd_total_commission_received_chart = isset($ytd_amount_array_['total_ytd_commission_received'])?implode(',',$ytd_amount_array_['total_ytd_commission_received']):0;
     $ytd_total_commission_pending_chart = isset($ytd_amount_array_['total_ytd_commission_pending'])?implode(',',$ytd_amount_array_['total_ytd_commission_pending']):0;
+    
+    //for payroll chart:
+    $payroll_product_category_array = isset($select_payroll_data_chart['product_category'])?$select_payroll_data_chart['product_category']:array();
+    $total_gross_commissions = isset($select_payroll_data_chart['total_gross_commission'])?implode(',',$select_payroll_data_chart['total_gross_commission']):0;
+    $total_net_commissions = isset($select_payroll_data_chart['total_net_commission'])?implode(',',$select_payroll_data_chart['total_net_commission']):0;
+    $total_retention = isset($select_payroll_data_chart['total_retention'])?implode(',',$select_payroll_data_chart['total_retention']):0;
+    $payroll_product_category_array = json_encode($payroll_product_category_array);
     
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
 ?> 

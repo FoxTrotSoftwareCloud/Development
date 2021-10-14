@@ -97,46 +97,80 @@ $total_charges = 0;
     $html='<table border="0" cellpadding="1" width="100%">
                 <tr style="background-color: #f1f1f1;">
                     <td style="text-align:center;"><h5>TRADE#</h5></td>
-                    <td style="text-align:center;"><h5>BROKER</h5></td>
+                    <td style="text-align:center;"><h5>BATCH#</h5></td>
+                    <td style="text-align:center;"><h5>CLIENT ACCOUNT #</h5></td>
                     <td style="text-align:center;"><h5>CLIENT</h5></td>
                     <td style="text-align:center;"><h5>TRADE DATE</h5></td>
                     <td style="text-align:center;"><h5>DATE RECEIVED</h5></td>
                     <td style="text-align:center;"><h5>AMOUNT INVESTED</h5></td>
-                    <td style="text-align:center;"><h5>COMMISSION RECEIVED</h5></td>
                     <td style="text-align:center;"><h5>CHARGE</h5></td>
-                </tr>';
+                    <td style="text-align:center;"><h5>COMMISSION RECEIVED</h5></td>
+                </tr>
+                <br/>';
+                
     //$pdf->Line(10, 81, 290, 81);
     if($get_trans_data != array())
     {
-        foreach($get_trans_data as $trans_key=>$trans_data)
+        foreach($get_trans_data as $trans_main_key=>$trans_main_data)
         {
-            $total_records = $total_records+1;
-            $trade_date='';
-            $commission_received_date='';
-            $total_amount_invested = ($total_amount_invested+$trans_data['invest_amount']);
-            $total_commission_received = ($total_commission_received+$trans_data['commission_received']);
-            $total_charges = ($total_charges+$trans_data['charge_amount']);
-            if($trans_data['trade_date'] != '0000-00-00'){ $trade_date = date('m/d/Y',strtotime($trans_data['trade_date'])); }
-            if($trans_data['commission_received_date'] != '0000-00-00'){ $commission_received_date = date('m/d/Y',strtotime($trans_data['commission_received_date'])); }
-        $html.='<tr>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data['id'].'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data['broker_name'].'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data['client_name'].'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trade_date.'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">'.$commission_received_date.'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['invest_amount'],2).'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['commission_received'],2).'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['charge_amount'],2).'</td>
-                    </tr>';
+            $sub_total_records=0;
+            $sub_total_amount_invested = 0;
+            $sub_total_commission_received = 0;
+            $sub_total_charges = 0;
+            $broker_name = $trans_main_data[0]['broker_last_name'].', '.$trans_main_data[0]['broker_name'].' (#'.$trans_main_key.')';
+            $html.='<tr>
+                       <td style="font-size:8px;font-weight:bold;text-align:left;" colspan="8">BROKER: '.($broker_name).'</td>
+                    </tr>
+                    <br/>';
+            foreach($trans_main_data as $trans_key=>$trans_data)
+            {
+                $total_records = $total_records+1;
+                $sub_total_records = $sub_total_records+1;
+                $trade_date='';
+                $commission_received_date='';
+                $total_amount_invested = ($total_amount_invested+$trans_data['invest_amount']);
+                $total_commission_received = ($total_commission_received+$trans_data['commission_received']);
+                $total_charges = ($total_charges+$trans_data['charge_amount']);
+                
+                $sub_total_amount_invested = ($sub_total_amount_invested+$trans_data['invest_amount']);
+                $sub_total_commission_received = ($sub_total_commission_received+$trans_data['commission_received']);
+                $sub_total_charges = ($sub_total_charges+$trans_data['charge_amount']);
+                if($trans_data['trade_date'] != '0000-00-00'){ $trade_date = date('m/d/Y',strtotime($trans_data['trade_date'])); }
+                if($trans_data['commission_received_date'] != '0000-00-00'){ $commission_received_date = date('m/d/Y',strtotime($trans_data['commission_received_date'])); }
+                $html.='<tr>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data['id'].'</td>
+                            <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data['batch'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data['client_number'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data['client_name'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trade_date.'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$commission_received_date.'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['invest_amount'],2).'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['charge_amount'],2).'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['commission_received'],2).'</td>
+                        </tr>';
+            }
+            $html.='
+            <br/>
+            <tr style="background-color: #f1f1f1;">
+                   <td style="font-size:8px;font-weight:bold;text-align:center;"></td>
+                   <td></td>
+                   <td></td>
+                   <td></td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="2">'.($broker_name).' TOTAL: </td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($sub_total_amount_invested,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($sub_total_charges,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($sub_total_commission_received,2).'</td>
+                </tr>';
         }
         $html.='<tr style="background-color: #f1f1f1;">
                    <td style="font-size:8px;font-weight:bold;text-align:center;">Total Records: '.$total_records.'</td>
                    <td></td>
                    <td></td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="2">Report Total : </td>
+                   <td></td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;" colspan="2">*** REPORT TOTALS ***</td>
                    <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($total_amount_invested,2).'</td>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($total_commission_received,2).'</td>
                    <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($total_charges,2).'</td>
+                   <td style="font-size:8px;font-weight:bold;text-align:right;">$'.number_format($total_commission_received,2).'</td>
                 </tr>';
          
     }

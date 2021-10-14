@@ -175,7 +175,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                             	<div class="col-md-4">
                                                     <div class="form-group">
                                                         <label>Last Name <span class="text-red">*</span></label><br />
-                                                        <input type="text" name="lname" id="lname" value="<?php echo $lname; ?>" class="form-control" />
+                                                        <input type="text" data-required="true" name="lname" id="lname" value="<?php echo $lname; ?>" class="form-control" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -191,7 +191,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Client File Number <span class="text-red">*</span></label><br />
-                                                        <input type="text" name="client_file_number" id="client_file_number" maxlength="12" class="form-control" value="<?php echo $client_file_number; ?>" />
+                                                        <input type="text" data-required="true" name="client_file_number" id="client_file_number" maxlength="12" class="form-control" value="<?php echo $client_file_number; ?>" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -232,7 +232,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                     <div class="form-group">
                                                         <label>Broker <span class="text-red">*</span>
                                                         </label>
-                                                        <select name="broker_name" id="broker_name" class="form-control">
+                                                        <select name="broker_name" data-required="true" id="broker_name" class="form-control">
                                                            <option value="">Select Broker</option>
                                                             <?php foreach($get_broker as $key=>$val){?>
                                                             <option value="<?php echo $val['id'];?>" <?php if($broker_name != '' && $broker_name==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['last_name'];?></option>
@@ -366,10 +366,10 @@ $(document).on('change', '#is_reviewed', function(event) {
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label>NAF Date </label>
+                                                        <label>NAF Date <span class="text-red">*</span></label>
                                                         <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
-                                                                <input type="text" name="naf_date" id="naf_date" class="form-control" value="<?php if($naf_date !=''){ echo date('m/d/Y',strtotime($naf_date)); } ?>"/>
+                                                                <input type="text" data-required="true" name="naf_date" id="naf_date" class="form-control" value="<?php if($naf_date !=''){ echo date('m/d/Y',strtotime($naf_date)); } ?>"/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -649,7 +649,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                             </div>
                                             <div class="panel-footer">
                                                 <div class="selectwrap">
-                                                    <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="complete" value="Complete" /></a>
+                                                    <a href="<?php echo CURRENT_PAGE;?>" onclick="return waitingDialog.show();"><input type="button" name="complete" value="Complete" /></a>
                                                 </div>
                                            </div>
                                         </div>
@@ -1001,7 +1001,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                         <a href="#joint_account" data-toggle="modal"><input type="button" onclick="get_client_account();" name="joint_account" value="Joint Account" /></a>
                                         <a href="#client_attach" data-toggle="modal"><input type="button"  onclick="get_client_attach();" name="attach" value="Attachments" style="margin-right: 4% !important;" /></a>
                                         <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                                        <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
+                                        <input type="submit" name="submit" onclick="return waitingDialog.show();" value="Save" style="float: right;"/>
                                     </div>
                                  </div>
                                  </form>
@@ -1027,7 +1027,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                         </form>
                         </div><br /><br />-->
                         <div class="table-responsive">
-            			<table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
+            			<table id="data-table-list" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
             	            <thead>
             	                <tr>
                                     <th>NAME</th>
@@ -1482,7 +1482,7 @@ $(document).on('change', '#is_reviewed', function(event) {
 </div>
 <script type="text/javascript">
     $(document).ready(function() {
-        $('#data-table').DataTable({
+        $('#data-table-list').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
         "bFilter": true,
@@ -1572,6 +1572,37 @@ var waitingDialog = waitingDialog || (function ($) {
 		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
 		 */
 		show: function (message, options) {
+                var isErrorFound=false;
+            $('[data-required="true"]').each(function(){
+           
+                
+                if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
+                     if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
+                         isErrorFound=true;
+                         if($(this).next("div").find("a.chosen-single").length){
+                              $(this).next("div").find("a.chosen-single").addClass("error");
+                         }
+                         else
+                         $(this).addClass("error");
+                    }
+                    else{
+
+                         if($(this).next("div").find("a.chosen-single").length){
+                              $(this).next("div").find("a.chosen-single").removeClass("error");
+                         }
+                         else
+                           $(this).removeClass("error");
+                    }
+                }
+                console.log("looping",isErrorFound)
+               
+                if($(this).prop("type") =="radio"){
+                }
+                    
+         });
+            console.log("waiting",isErrorFound)
+            if(isErrorFound)
+                return false;
 			// Assigning defaults
 			if (typeof options === 'undefined') {
 				options = {};
@@ -2003,6 +2034,37 @@ function delete_attach(attach_id){
 </script>
 
 <script>
+
+    jQuery(function($){
+     $('[data-required="true"]').each(function(){
+             $(this).on("change blur",function(){
+                
+                if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
+                     if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
+                         isErrorFound=true;
+                         if($(this).next("div").find("a.chosen-single").length){
+                              $(this).next("div").find("a.chosen-single").addClass("error");
+                         }
+                         else
+                         $(this).addClass("error");
+                    }
+                    else{
+
+                         if($(this).next("div").find("a.chosen-single").length){
+                              $(this).next("div").find("a.chosen-single").removeClass("error");
+                         }
+                         else
+                           $(this).removeClass("error");
+                    }
+                }
+               
+                if($(this).prop("type") =="radio"){
+                }
+                    
+         });
+              
+     });
+})
 //submit share form data
 function add_objectives(objectives_id)
 {

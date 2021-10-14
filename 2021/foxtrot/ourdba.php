@@ -1,7 +1,7 @@
 <?php
 /*
  PHP Mini MySQL Admin
- (c) 2004-2012 Oleg Savchuk <osalabs@gmail.com> http://osalabs.com
+ (c) 2004-2017 Oleg Savchuk <osalabs@gmail.com> http://osalabs.com
 
  Light standalone PHP script for quick and easy access MySQL databases.
  http://phpminiadmin.sourceforge.net
@@ -9,136 +9,143 @@
  Dual licensed: GPL v2 and MIT, see texts at http://opensource.org/licenses/
 */
 
- $ACCESS_PWD='iipl_adm'; #!!!IMPORTANT!!! this is script access password, SET IT if you want to protect you DB from public access
+$ACCESS_PWD='foxtrot_adm'; #!!!IMPORTANT!!! this is script access password, SET IT if you want to protect you DB from public access
 
-
- #DEFAULT db connection settings
- # --- WARNING! --- if you set defaults - it's recommended to set $ACCESS_PWD to protect your db!
- $DBDEF=array(
- 'user'=>"iipldemo_foxtrot",#required
- 'pwd'=>"Ij5Xyv{A}Ati", #required
- 'db'=>"iipldemo_foxtrot",  #optional, default DB
- 'host'=>"97.74.232.123",#optional
- 'port'=>"",#optional
- 'chset'=>"utf8",#optional, default charset
- );
- date_default_timezone_set('UTC');#required by PHP 5.1+
+#DEFAULT db connection settings
+# --- WARNING! --- if you set defaults - it's recommended to set $ACCESS_PWD to protect your db!
+$DBDEF=array(
+'user'=>"jjixgbv9my353010",#required
+'pwd'=>"We3b2!12", #required
+'db'=>"CloudFox_jjixgbv9my353010",  #optional, default DB
+'host'=>"sql5c40n.carrierzone.com",#optional
+'port'=>"",#optional
+'chset'=>"utf8",#optional, default charset
+);
+$IS_COUNT=false; #set to true if you want to see Total records when pagination occurs (SLOWS down all select queries!)
+$DUMP_FILE=dirname(__FILE__).'/pmadump'; #path to file without extension used for server-side exports (timestamp, .sql/.csv/.gz extension added) or imports(.sql)
+file_exists($f=dirname(__FILE__) . '/phpminiconfig.php')&&require($f); // Read from config (easier to update)
+if (function_exists('date_default_timezone_set')) date_default_timezone_set('UTC');#required by PHP 5.1+
 
 //constants
- $VERSION='1.8.120510';
- $MAX_ROWS_PER_PAGE=50; #max number of rows in select per one page
- $D="\r\n"; #default delimiter for export
- $BOM=chr(239).chr(187).chr(191);
- $SHOW_T="SHOW TABLE STATUS";
- $DB=array(); #working copy for DB settings
+$VERSION='1.9.170730';
+$MAX_ROWS_PER_PAGE=50; #max number of rows in select per one page
+$D="\r\n"; #default delimiter for export
+$BOM=chr(239).chr(187).chr(191);
+$SHOW_D="SHOW DATABASES";
+$SHOW_T="SHOW TABLE STATUS";
+$DB=array(); #working copy for DB settings
 
- $self=$_SERVER['PHP_SELF'];
+$self=$_SERVER['PHP_SELF'];
 
- session_start();
- if (!isset($_SESSION['XSS'])) $_SESSION['XSS']=get_rand_str(16);
- $xurl='XSS='.$_SESSION['XSS'];
+session_set_cookie_params(0, null, null, false, true);
+session_start();
+if (!isset($_SESSION['XSS'])) $_SESSION['XSS']=get_rand_str(16);
+$xurl='XSS='.$_SESSION['XSS'];
 
- ini_set('display_errors',1);  #TODO turn off before deploy
- error_reporting(E_ALL ^ E_NOTICE);
+ini_set('display_errors',0);  #turn on to debug db or script issues
+error_reporting(E_ALL ^ E_NOTICE);
 
 //strip quotes if they set
- if (get_magic_quotes_gpc()){
+if (get_magic_quotes_gpc()){
   $_COOKIE=array_map('killmq',$_COOKIE);
   $_REQUEST=array_map('killmq',$_REQUEST);
- }
+}
 
- if (!$ACCESS_PWD) {
+if ($_REQUEST['login']){
+  if ($_REQUEST['pwd']!=$ACCESS_PWD){
+    $err_msg="Invalid password. Try again";
+  }else{
     $_SESSION['is_logged']=true;
     loadcfg();
- }
+  }
+}
 
- if ($_REQUEST['login']){
-    if ($_REQUEST['pwd']!=$ACCESS_PWD){
-       $err_msg="Invalid password. Try again";
-    }else{
-       $_SESSION['is_logged']=true;
-       loadcfg();
-    }
- }
+if ($_REQUEST['logoff']){
+  check_xss();
+  $_SESSION = array();
+  savecfg();
+  session_destroy();
+  $url=$self;
+  if (!$ACCESS_PWD) $url='/';
+  header("location: $url");
+  exit;
+}
 
- if ($_REQUEST['logoff']){
-    check_xss();
-    $_SESSION = array();
-    savecfg();
-    session_destroy();
-    $url=$self;
-    if (!$ACCESS_PWD) $url='/';
-    header("location: $url");
-    exit;
- }
-
- if (!$_SESSION['is_logged']){
+if (!$_SESSION['is_logged']){
+  if (!$ACCESS_PWD) {
+    $_SESSION['is_logged']=true;
+    loadcfg();
+  }else{
     print_login();
     exit;
- }
+  }
+}
 
- if ($_REQUEST['savecfg']){
-    check_xss();
-    savecfg();
- }
+if ($_REQUEST['savecfg']){
+  check_xss();
+  savecfg();
+}
 
- loadsess();
+loadsess();
 
- if ($_REQUEST['showcfg']){
-    print_cfg();
-    exit;
- }
+if ($_REQUEST['showcfg']){
+  print_cfg();
+  exit;
+}
 
- //get initial values
- $SQLq=trim($_REQUEST['q']);
- $page=$_REQUEST['p']+0;
- if ($_REQUEST['refresh'] && $DB['db'] && preg_match('/^show/',$SQLq) ) $SQLq=$SHOW_T;
+//get initial values
+$SQLq=trim(b64d($_REQUEST['q']));
+$page=$_REQUEST['p']+0;
+if ($_REQUEST['refresh'] && $DB['db'] && preg_match('/^show/',$SQLq) ) $SQLq=$SHOW_T;
 
- if (db_connect('nodie')){
-    $time_start=microtime_float();
+if (db_connect('nodie')){
+  $time_start=microtime_float();
 
-    if ($_REQUEST['phpinfo']){
-       ob_start();phpinfo();$sqldr='<div style="font-size:130%">'.ob_get_clean().'</div>';
-    }else{
-     if ($DB['db']){
-      if ($_REQUEST['shex']){
-       print_export();
-      }elseif ($_REQUEST['doex']){
-       check_xss();do_export();
-      }elseif ($_REQUEST['shim']){
-       print_import();
-      }elseif ($_REQUEST['doim']){
-       check_xss();do_import();
-      }elseif ($_REQUEST['dosht']){
-       check_xss();do_sht();
-      }elseif (!$_REQUEST['refresh'] || preg_match('/^select|show|explain|desc/i',$SQLq) ){
-       if ($SQLq)check_xss();
-       do_sql($SQLq);#perform non-select SQL only if not refresh (to avoid dangerous delete/drop)
-      }
-     }else{
-        if ( $_REQUEST['refresh'] ){
-           check_xss();do_sql('show databases');
-        }elseif ( preg_match('/^show\s+(?:databases|status|variables|process)/i',$SQLq) ){
-           check_xss();do_sql($SQLq);
-        }else{
-           $err_msg="Select Database first";
-           if (!$SQLq) do_sql("show databases");
-        }
-     }
+  if ($_REQUEST['pi']){
+    ob_start();phpinfo();$html=ob_get_clean();preg_match("/<body[^>]*>(.*?)<\/body>/is",$html,$m);
+    $sqldr='<div class="pi">'.$m[1].'</div>';
+  }else{
+   if ($DB['db']){
+    if ($_REQUEST['shex']){
+     print_export();
+    }elseif ($_REQUEST['doex']){
+     check_xss();do_export();
+    }elseif ($_REQUEST['shim']){
+     print_import();
+    }elseif ($_REQUEST['doim']){
+     check_xss();do_import();
+    }elseif ($_REQUEST['dosht']){
+     check_xss();do_sht();
+    }elseif (!$_REQUEST['refresh'] || preg_match('/^select|show|explain|desc/i',$SQLq) ){
+     if ($SQLq)check_xss();
+     do_sql($SQLq);#perform non-select SQL only if not refresh (to avoid dangerous delete/drop)
     }
-    $time_all=ceil((microtime_float()-$time_start)*10000)/10000;
+   }else{
+    if ( $_REQUEST['refresh'] ){
+       check_xss();do_sql($SHOW_D);
+    }elseif ($_REQUEST['crdb']){
+      check_xss();do_sql('CREATE DATABASE `'.$_REQUEST['new_db'].'`');do_sql($SHOW_D);
+    }elseif ( preg_match('/^(?:show\s+(?:databases|status|variables|process)|create\s+database|grant\s+)/i',$SQLq) ){
+       check_xss();do_sql($SQLq);
+    }else{
+       $err_msg="Select Database first";
+       if (!$SQLq) do_sql($SHOW_D);
+    }
+   }
+  }
+  $time_all=ceil((microtime_float()-$time_start)*10000)/10000;
 
-    print_screen();
- }else{
-    print_cfg();
- }
+  print_screen();
+}else{
+  print_cfg();
+}
 
 function do_sql($q){
  global $dbh,$last_sth,$last_sql,$reccount,$out_message,$SQLq,$SHOW_T;
  $SQLq=$q;
 
  if (!do_multi_sql($q)){
-    $out_message="Error: ".mysql_error($dbh);
+    $out_message="Error: ".mysqli_error($dbh);
  }else{
     if ($last_sth && $last_sql){
        $SQLq=$last_sql;
@@ -146,7 +153,7 @@ function do_sql($q){
           if ($q!=$last_sql) $out_message="Results of the last select displayed:";
           display_select($last_sth,$last_sql);
        } else {
-         $reccount=mysql_affected_rows($dbh);
+         $reccount=mysqli_affected_rows($dbh);
          $out_message="Done.";
          if (preg_match("/^insert|replace/i",$last_sql)) $out_message.=" Last inserted id=".get_identity();
          if (preg_match("/^drop|truncate/i",$last_sql)) do_sql($SHOW_T);
@@ -156,9 +163,9 @@ function do_sql($q){
 }
 
 function display_select($sth,$q){
- global $dbh,$DB,$sqldr,$reccount,$is_sht,$xurl;
+ global $dbh,$DB,$sqldr,$reccount,$is_sht,$xurl,$is_sm;
  $rc=array("o","e");
- $dbn=$DB['db'];
+ $dbn=ue($DB['db']);
  $sqldr='';
 
  $is_shd=(preg_match('/^show\s+databases/i',$q));
@@ -167,83 +174,90 @@ function display_select($sth,$q){
 
  if ($sth===FALSE or $sth===TRUE) return;#check if $sth is not a mysql resource
 
- $reccount=mysql_num_rows($sth);
- $fields_num=mysql_num_fields($sth);
+ $reccount=mysqli_num_rows($sth);
+ $fields_num=mysqli_field_count($dbh);
 
  $w='';
+ if ($is_sm) $w='sm ';
  if ($is_sht || $is_shd) {$w='wa';
    $url='?'.$xurl."&db=$dbn";
    $sqldr.="<div class='dot'>
-&nbsp;MySQL Server:
-&nbsp;&#183;<a href='$url&q=show+variables'>Show Configuration Variables</a>
-&nbsp;&#183;<a href='$url&q=show+status'>Show Statistics</a>
-&nbsp;&#183;<a href='$url&q=show+processlist'>Show Processlist</a>
-<br>";
-   if ($is_sht) $sqldr.="&nbsp;Database:&nbsp;&#183;<a href='$url&q=show+table+status'>Show Table Status</a>";
+ MySQL Server:
+ &#183; <a href='$url&q=".b64u("show variables")."'>Show Configuration Variables</a>
+ &#183; <a href='$url&q=".b64u("show status")."'>Show Statistics</a>
+ &#183; <a href='$url&q=".b64u("show processlist")."'>Show Processlist</a> ";
+   if ($is_shd) $sqldr.="&#183; <label>Create new database: <input type='text' name='new_db' placeholder='type db name here'></label> <input type='submit' name='crdb' value='Create'>";
+   $sqldr.="<br>";
+   if ($is_sht) $sqldr.="Database: &#183; <a href='$url&q=".b64u("show table status")."'>Show Table Status</a>";
    $sqldr.="</div>";
  }
  if ($is_sht){
-   $abtn="&nbsp;<input type='submit' value='Export' onclick=\"sht('exp')\">
+   $abtn="<div><input type='submit' value='Export' onclick=\"sht('exp')\">
  <input type='submit' value='Drop' onclick=\"if(ays()){sht('drop')}else{return false}\">
  <input type='submit' value='Truncate' onclick=\"if(ays()){sht('trunc')}else{return false}\">
  <input type='submit' value='Optimize' onclick=\"sht('opt')\">
- <b>selected tables</b>";
+ <b>selected tables</b></div>";
    $sqldr.=$abtn."<input type='hidden' name='dosht' value=''>";
  }
 
- $sqldr.="<table class='res $w'>";
+ $sqldr.="<div><table id='res' class='res $w'>";
  $headers="<tr class='h'>";
  if ($is_sht) $headers.="<td><input type='checkbox' name='cball' value='' onclick='chkall(this)'></td>";
  for($i=0;$i<$fields_num;$i++){
     if ($is_sht && $i>0) break;
-    $meta=mysql_fetch_field($sth,$i);
-    $headers.="<th>".$meta->name."</th>";
+    $meta=mysqli_fetch_field($sth);
+    $headers.="<th><div>".hs($meta->name)."</div></th>";
  }
  if ($is_shd) $headers.="<th>show create database</th><th>show table status</th><th>show triggers</th>";
- if ($is_sht) $headers.="<th>engine</th><th>~rows</th><th>data size</th><th>index size</th><th>show create table</th><th>explain</th><th>indexes</th><th>export</th><th>drop</th><th>truncate</th><th>optimize</th><th>repair</th>";
+ if ($is_sht) $headers.="<th>engine</th><th>~rows</th><th>data size</th><th>index size</th><th>show create table</th><th>explain</th><th>indexes</th><th>export</th><th>drop</th><th>truncate</th><th>optimize</th><th>repair</th><th>comment</th>";
  $headers.="</tr>\n";
  $sqldr.=$headers;
  $swapper=false;
- while($row=mysql_fetch_row($sth)){
-   $sqldr.="<tr class='".$rc[$swp=!$swp]."' onmouseover='tmv(this)' onmouseout='tmo(this)' onclick='tc(this)'>";
-   for($i=0;$i<$fields_num;$i++){
-      $v=$row[$i];$more='';
-      if ($is_sht && $v){
-         if ($i>0) break;
-         $vq='`'.$v.'`';
-         $url='?'.$xurl."&db=$dbn";
-         $v="<input type='checkbox' name='cb[]' value=\"$vq\"></td>"
-         ."<td><a href=\"$url&q=select+*+from+$vq\">$v</a></td>"
-         ."<td>".$row[1]."</td>"
-         ."<td align='right'>".$row[4]."</td>"
-         ."<td align='right'>".$row[6]."</td>"
-         ."<td align='right'>".$row[8]."</td>"
-         ."<td>&#183;<a href=\"$url&q=show+create+table+$vq\">sct</a></td>"
-         ."<td>&#183;<a href=\"$url&q=explain+$vq\">exp</a></td>"
-         ."<td>&#183;<a href=\"$url&q=show+index+from+$vq\">ind</a></td>"
-         ."<td>&#183;<a href=\"$url&shex=1&t=$vq\">export</a></td>"
-         ."<td>&#183;<a href=\"$url&q=drop+table+$vq\" onclick='return ays()'>dr</a></td>"
-         ."<td>&#183;<a href=\"$url&q=truncate+table+$vq\" onclick='return ays()'>tr</a></td>"
-         ."<td>&#183;<a href=\"$url&q=optimize+table+$vq\" onclick='return ays()'>opt</a></td>"
-         ."<td>&#183;<a href=\"$url&q=repair+table+$vq\" onclick='return ays()'>rpr</a>";
-      }elseif ($is_shd && $i==0 && $v){
-         $url='?'.$xurl."&db=$v";
-         $v="<a href=\"$url&q=SHOW+TABLE+STATUS\">$v</a></td>"
-         ."<td><a href=\"$url&q=show+create+database+`$v`\">sct</a></td>"
-         ."<td><a href=\"$url&q=show+table+status\">status</a></td>"
-         ."<td><a href=\"$url&q=show+triggers\">trig</a></td>"
-         ;
-      }else{
-       if (is_null($v)) $v="NULL";
-       $v=htmlspecialchars($v);
-      }
+ while($row=mysqli_fetch_row($sth)){
+   $sqldr.="<tr class='".$rc[$swp=!$swp]."' onclick='tc(this)'>";
+   $v=$row[0];
+   if ($is_sht){
+     $vq='`'.$v.'`';
+     $url='?'.$xurl."&db=$dbn&t=".b64u($v);
+     $sqldr.="<td><input type='checkbox' name='cb[]' value=\"".hs($vq)."\"></td>"
+     ."<td><a href=\"$url&q=".b64u("select * from $vq")."\">".hs($v)."</a></td>"
+     ."<td>".hs($row[1])."</td>"
+     ."<td align='right'>".hs($row[4])."</td>"
+     ."<td align='right'>".hs($row[6])."</td>"
+     ."<td align='right'>".hs($row[8])."</td>"
+     ."<td>&#183;<a href=\"$url&q=".b64u("show create table $vq")."\">sct</a></td>"
+     ."<td>&#183;<a href=\"$url&q=".b64u("explain $vq")."\">exp</a></td>"
+     ."<td>&#183;<a href=\"$url&q=".b64u("show index from $vq")."\">ind</a></td>"
+     ."<td>&#183;<a href=\"$url&shex=1&rt=".hs(ue($vq))."\">export</a></td>"
+     ."<td>&#183;<a href=\"$url&q=".b64u("drop table $vq")."\" onclick='return ays()'>dr</a></td>"
+     ."<td>&#183;<a href=\"$url&q=".b64u("truncate table $vq")."\" onclick='return ays()'>tr</a></td>"
+     ."<td>&#183;<a href=\"$url&q=".b64u("optimize table $vq")."\" onclick='return ays()'>opt</a></td>"
+     ."<td>&#183;<a href=\"$url&q=".b64u("repair table $vq")."\" onclick='return ays()'>rpr</a></td>"
+     ."<td>".hs($row[$fields_num-1])."</td>";
+   }elseif ($is_shd){
+     $url='?'.$xurl."&db=".ue($v);
+     $sqldr.="<td><a href=\"$url&q=".b64u("SHOW TABLE STATUS")."\">".hs($v)."</a></td>"
+     ."<td><a href=\"$url&q=".b64u("show create database `$v`")."\">scd</a></td>"
+     ."<td><a href=\"$url&q=".b64u("show table status")."\">status</a></td>"
+     ."<td><a href=\"$url&q=".b64u("show triggers")."\">trig</a></td>";
+   }else{
+     for($i=0;$i<$fields_num;$i++){
+      $v=$row[$i];
+      if (is_null($v)) $v="<i>NULL</i>";
+      elseif (preg_match('/[\x00-\x09\x0B\x0C\x0E-\x1F]+/',$v)){#all chars <32, except \n\r(0D0A)
+       $vl=strlen($v);$pf='';
+       if ($vl>16 && $fields_num>1){#show full dump if just one field
+         $v=substr($v, 0, 16);$pf='...';
+       }
+       $v='BINARY: '.chunk_split(strtoupper(bin2hex($v)),2,' ').$pf;
+      }else $v=hs($v);
       if ($is_show_crt) $v="<pre>$v</pre>";
-      $sqldr.="<td>$v".(!strlen($v)?"<br>":'')."</td>";
+      $sqldr.="<td><div>$v".(!strlen($v)?"<br>":'')."</div></td>";
+     }
    }
    $sqldr.="</tr>\n";
  }
- $sqldr.="</table>\n".$abtn;
-
+ $sqldr.="</table></div>\n".$abtn;
 }
 
 function print_header(){
@@ -255,28 +269,45 @@ function print_header(){
 <head><title>phpMiniAdmin</title>
 <meta charset="utf-8">
 <style type="text/css">
+*{box-sizing:border-box;}
 body{font-family:Arial,sans-serif;font-size:80%;padding:0;margin:0}
-th,td{padding:0;margin:0}
 div{padding:3px}
 pre{font-size:125%}
+textarea{width:100%}
 .nav{text-align:center}
 .ft{text-align:right;margin-top:20px;font-size:smaller}
 .inv{background-color:#069;color:#FFF}
 .inv a{color:#FFF}
-table.res{width:100%;border-collapse:collapse;}
+table{border-collapse:collapse}
+table.res{width:100%}
 table.wa{width:auto}
-table.res th,table.res td{padding:2px;border:1px solid #fff}
+table.res th,table.res td{padding:2px;border:1px solid #fff;vertical-align:top}
+table.sm th,table.sm td{max-width:30em}
+table.sm th>div,table.sm td>div{max-height:3.5em;overflow:hidden}
+table.sm th.lg,table.sm td.lg{max-width:inherit}
+table.sm th.lg>div,table.sm td.lg>div{max-height:inherit;overflow:inherit}
 table.restr{vertical-align:top}
 tr.e{background-color:#CCC}
 tr.o{background-color:#EEE}
+tr.e:hover, tr.o:hover{background-color:#FF9}
 tr.h{background-color:#99C}
 tr.s{background-color:#FF9}
 .err{color:#F33;font-weight:bold;text-align:center}
 .frm{width:400px;border:1px solid #999;background-color:#eee;text-align:left}
-.frm label.l{width:100px;float:left}
+.frm label .l{width:100px;float:left}
 .dot{border-bottom:1px dotted #000}
-.ajax{text-decoration: none;border-bottom: 1px dashed;}
+.ajax{text-decoration:none;border-bottom: 1px dashed}
 .qnav{width:30px}
+.sbtn{width:100px}
+.clear{clear:both;height:0;display:block}
+.pi a{text-decoration:none}
+.pi hr{display:none}
+.pi img{float:right}
+.pi .center{text-align:center}
+.pi table{margin:0 auto}
+.pi table td, .pi table th{border:1px solid #000000;text-align:left;vertical-align:baseline}
+.pi table .e{background-color:#ccccff;font-weight:bold}
+.pi table .v{background-color:#cccccc}
 </style>
 
 <script type="text/javascript">
@@ -287,19 +318,19 @@ function frefresh(){
  var F=document.DF;
  F.method='get';
  F.refresh.value="1";
- F.submit();
+ F.GoSQL.click();
 }
 function go(p,sql){
  var F=document.DF;
  F.p.value=p;
  if(sql)F.q.value=sql;
- F.submit();
+ F.GoSQL.click();
 }
 function ays(){
  return confirm('Are you sure to continue?');
 }
 function chksql(){
- var F=document.DF,v=F.q.value;
+ var F=document.DF,v=F.qraw.value;
  if(/^\s*(?:delete|drop|truncate|alter)/.test(v)) if(!ays())return false;
  if(lschk(1)){
   var lsm=lsmax()+1,ls=localStorage;
@@ -314,16 +345,13 @@ function chksql(){
  }
  return true;
 }
-function tmv(tr){
- tr.sc=tr.className;
- tr.className='h';
-}
-function tmo(tr){
- tr.className=tr.sc;
-}
 function tc(tr){
- tr.className='s';
- tr.sc='s';
+ if (tr.className=='s'){
+  tr.className=tr.classNameX;
+ }else{
+  tr.classNameX=tr.className;
+  tr.className='s';
+ }
 }
 function lschk(skip){
  if (!localStorage || !skip && !localStorage[LSKX]) return false;
@@ -346,7 +374,7 @@ function q_prev(){
  qcur--;
  var x=parseInt(ls[LSKM]);
  if(qcur<x)qcur=x;
- $('q').value=ls[LSK+qcur];
+ $('qraw').value=ls[LSK+qcur];
 }
 function q_next(){
  var ls=localStorage;
@@ -354,10 +382,28 @@ function q_next(){
  qcur++;
  var x=parseInt(ls[LSKX]);
  if(qcur>x)qcur=x;
- $('q').value=ls[LSK+qcur];
+ $('qraw').value=ls[LSK+qcur];
 }
 function after_load(){
+ var F=document.DF;
+ var p=F['v[pwd]'];
+ if (p) p.focus();
  qcur=lsmax();
+
+ F.addEventListener('submit',function(e){
+  if(!F.qraw)return;
+  if(!chksql()){e.preventDefault();return}
+  $('q').value=btoa(encodeURIComponent($('qraw').value).replace(/%([0-9A-F]{2})/g,function(m,p){return String.fromCharCode('0x'+p)}));
+ });
+ var res=$('res');
+ if(res)res.addEventListener('dblclick',function(e){
+  if(!$('is_sm').checked)return;
+  var el=e.target;
+  if(el.tagName!='TD')el=el.parentNode;
+  if(el.tagName!='TD')return;
+  if(el.className.match(/\b\lg\b/))el.className=el.className.replace(/\blg\b/,' ');
+  else el.className+=' lg';
+ });
 }
 function logoff(){
  if(lschk()){
@@ -372,6 +418,12 @@ function logoff(){
 function cfg_toggle(){
  var e=$('cfg-adv');
  e.style.display=e.style.display=='none'?'':'none';
+}
+function qtpl(s){
+ $('qraw').value=s.replace(/%T/g,'`<?php echo $_REQUEST['t']?b64d($_REQUEST['t']):'tablename'?>`');
+}
+function smview(){
+ if($('is_sm').checked){$('res').className+=' sm'}else{$('res').className = $('res').className.replace(/\bsm\b/,' ')}
 }
 <?php if($is_sht){?>
 function chkall(cab){
@@ -389,33 +441,34 @@ function sht(f){
 
 </head>
 <body onload="after_load()">
-<form method="post" name="DF" action="<?php echo $self?>" enctype="multipart/form-data">
-<input type="hidden" name="XSS" value="<?php echo $_SESSION['XSS']?>">
+<form method="post" name="DF" id="DF" action="<?php eo($self)?>" enctype="multipart/form-data">
+<input type="hidden" name="XSS" value="<?php eo($_SESSION['XSS'])?>">
 <input type="hidden" name="refresh" value="">
 <input type="hidden" name="p" value="">
 
 <div class="inv">
-<a href="http://phpminiadmin.sourceforge.net/" target="_blank"><b>phpMiniAdmin <?php echo $VERSION?></b></a>
+<a href="http://phpminiadmin.sourceforge.net/" target="_blank"><b>phpMiniAdmin <?php eo($VERSION)?></b></a>
 <?php if ($_SESSION['is_logged'] && $dbh){ ?>
- | <a href="?<?php echo $xurl?>&q=show+databases">Databases</a>: <select name="db" onChange="frefresh()"><option value='*'> - select/refresh -</option><option value=''> - show all -</option><?php echo get_db_select($dbn)?></select>
-<?php if($dbn){ $z=" &#183; <a href='$self?$xurl&db=$dbn"; ?>
-<?php echo $z.'&q='.urlencode($SHOW_T)?>'>show tables</a>
+ | <a href="?<?php eo($xurl.'&q='.b64u("show databases"))?>">Databases</a>: <select name="db" onChange="frefresh()"><option value='*'> - select/refresh -</option><option value=''> - show all -</option>
+<?php echo get_db_select($dbn)?></select>
+<?php if($dbn){ $z=" &#183; <a href='".hs($self."?$xurl&db=".ue($dbn)); ?>
+<?php echo $z.'&q='.b64u($SHOW_T)?>'>show tables</a>
 <?php echo $z?>&shex=1'>export</a>
 <?php echo $z?>&shim=1'>import</a>
 <?php } ?>
  | <a href="?showcfg=1">Settings</a>
 <?php } ?>
-<?php if ($GLOBALS['ACCESS_PWD']){?> | <a href="?<?php echo $xurl?>&logoff=1" onclick="logoff()">Logoff</a> <?php }?>
- | <a href="?phpinfo=1">phpinfo</a>
+<?php if ($_SESSION['is_logged']){?> | <a href="?<?php eo($xurl)?>&logoff=1" onclick="logoff()">Logoff</a> <?php }?>
+ | <a href="?pi=1">phpinfo</a>
 </div>
 
-<div class="err"><?php echo $err_msg?></div>
+<div class="err"><?php eo($err_msg)?></div>
 
 <?php
 }
 
 function print_screen(){
- global $out_message, $SQLq, $err_msg, $reccount, $time_all, $sqldr, $page, $MAX_ROWS_PER_PAGE, $is_limited_sql;
+ global $out_message, $SQLq, $err_msg, $reccount, $time_all, $sqldr, $page, $MAX_ROWS_PER_PAGE, $is_limited_sql, $last_count, $is_sm;
 
  $nav='';
  if ($is_limited_sql && ($page || $reccount>=$MAX_ROWS_PER_PAGE) ){
@@ -425,20 +478,27 @@ function print_screen(){
  print_header();
 ?>
 
-<div class="dot" style="padding:0 0 5px 20px">
-SQL-query (or multiple queries separated by ";"):&nbsp;<button type="button" class="qnav" onclick="q_prev()">&lt;</button><button type="button" class="qnav" onclick="q_next()">&gt;</button><br>
-<textarea id="q" name="q" cols="70" rows="10" style="width:98%"><?php echo $SQLq?></textarea><br>
-<input type="submit" name="GoSQL" value="Go" onclick="return chksql()" style="width:100px">&nbsp;&nbsp;
-<input type="button" name="Clear" value=" Clear " onclick="document.DF.q.value=''" style="width:100px">
+<div class="dot" style="padding:3px 20px">
+<label for="qraw">SQL-query (or multiple queries separated by ";"):</label>&nbsp;<button type="button" class="qnav" onclick="q_prev()">&lt;</button><button type="button" class="qnav" onclick="q_next()">&gt;</button><br>
+<textarea id="qraw" cols="70" rows="10"><?php eo($SQLq)?></textarea><br>
+<input type="hidden" name="q" id="q" value="<?php b64e($SQLq);?>">
+<input type="submit" name="GoSQL" value="Go" class="sbtn">
+<input type="button" name="Clear" value=" Clear " onclick="$('qraw').value='';" style="width:100px">
+<?php if(!empty($_REQUEST['db'])){ ?>
+<div style="float:right">
+<input type="button" value="Select" class="sbtn" onclick="qtpl('SELECT *\nFROM %T\nWHERE 1')">
+<input type="button" value="Insert" class="sbtn" onclick="qtpl('INSERT INTO %T (`column`, `column`)\nVALUES (\'value\', \'value\')')">
+<input type="button" value="Update" class="sbtn" onclick="qtpl('UPDATE %T\nSET `column`=\'value\'\nWHERE 1=0')">
+<input type="button" value="Delete" class="sbtn" onclick="qtpl('DELETE FROM %T\nWHERE 1=0')">
+</div><br class="clear">
+<?php } ?>
 </div>
-
-<div class="dot" style="padding:5px 0 5px 20px">
-Records: <b><?php echo $reccount?></b> in <b><?php echo $time_all?></b> sec<br>
-<b><?php echo $out_message?></b>
+<div class="dot">
+<div style="float:right;padding:0 15px"><label><input type="checkbox" name="is_sm" value="1" id="is_sm" onclick="smview()" <?php eo($is_sm?'checked':'')?>> compact view</label></div>
+Records: <b><?php eo($reccount); if(!is_null($last_count) && $reccount<$last_count){eo(' out of '.$last_count);}?></b> in <b><?php eo($time_all)?></b> sec<br>
+<b><?php eo($out_message)?></b>
 </div>
-<div class="sqldr">
 <?php echo $nav.$sqldr.$nav; ?>
-</div>
 <?php
  print_footer();
 }
@@ -446,9 +506,7 @@ Records: <b><?php echo $reccount?></b> in <b><?php echo $time_all?></b> sec<br>
 function print_footer(){
 ?>
 </form>
-<div class="ft">
-&copy; 2004-2012 <a href="http://osalabs.com" target="_blank">Oleg Savchuk</a>
-</div>
+<div class="ft">&copy; 2004-2017 <a href="http://osalabs.com" target="_blank">Oleg Savchuk</a></div>
 </body></html>
 <?php
 }
@@ -459,7 +517,7 @@ function print_login(){
 <center>
 <h3>Access protected by password</h3>
 <div style="width:400px;border:1px solid #999999;background-color:#eeeeee">
-Password: <input type="password" name="pwd" value="">
+<label>Password: <input type="password" name="pwd" value=""></label>
 <input type="hidden" name="login" value="1">
 <input type="submit" value=" Login ">
 </div>
@@ -476,18 +534,18 @@ function print_cfg(){
 <center>
 <h3>DB Connection Settings</h3>
 <div class="frm">
-<label class="l">DB user name:</label><input type="text" name="v[user]" value="<?php echo $DB['user']?>"><br>
-<label class="l">Password:</label><input type="password" name="v[pwd]" value=""><br>
+<label><div class="l">DB user name:</div><input type="text" name="v[user]" value="<?php eo($DB['user'])?>"></label><br>
+<label><div class="l">Password:</div><input type="password" name="v[pwd]" value=""></label><br>
 <div style="text-align:right"><a href="#" class="ajax" onclick="cfg_toggle()">advanced settings</a></div>
 <div id="cfg-adv" style="display:none;">
-<label class="l">DB name:</label><input type="text" name="v[db]" value="<?php echo $DB['db']?>"><br>
-<label class="l">MySQL host:</label><input type="text" name="v[host]" value="<?php echo $DB['host']?>"> port: <input type="text" name="v[port]" value="<?php echo $DB['port']?>" size="4"><br>
-<label class="l">Charset:</label><select name="v[chset]"><option value="">- default -</option><?php echo chset_select($DB['chset'])?></select><br>
-<br><input type="checkbox" name="rmb" value="1" checked> Remember in cookies for 30 days
+<label><div class="l">DB name:</div><input type="text" name="v[db]" value="<?php eo($DB['db'])?>"></label><br>
+<label><div class="l">MySQL host:</div><input type="text" name="v[host]" value="<?php eo($DB['host'])?>"></label> <label>port: <input type="text" name="v[port]" value="<?php eo($DB['port'])?>" size="4"></label><br>
+<label><div class="l">Charset:</div><select name="v[chset]"><option value="">- default -</option><?php echo chset_select($DB['chset'])?></select></label><br>
+<br><label for ="rmb"><input type="checkbox" name="rmb" id="rmb" value="1" checked> Remember in cookies for 30 days or until Logoff</label>
 </div>
 <center>
 <input type="hidden" name="savecfg" value="1">
-<input type="submit" value=" Apply "><input type="button" value=" Cancel " onclick="window.location='<?php echo $self?>'">
+<input type="submit" value=" Apply "><input type="button" value=" Cancel " onclick="window.location='<?php eo($self)?>'">
 </center>
 </div>
 </center>
@@ -500,16 +558,20 @@ function print_cfg(){
 function db_connect($nodie=0){
  global $dbh,$DB,$err_msg;
 
- $dbh=@mysql_connect($DB['host'].($DB['port']?":$DB[port]":''),$DB['user'],$DB['pwd']);
+ if ($DB['port']) {
+    $dbh=mysqli_connect($DB['host'],$DB['user'],$DB['pwd'],'',(int)$DB['port']);
+ } else {
+    $dbh=mysqli_connect($DB['host'],$DB['user'],$DB['pwd']);
+ }
  if (!$dbh) {
-    $err_msg='Cannot connect to the database because: '.mysql_error();
+    $err_msg='Cannot connect to the database because: '.mysqli_connect_error();
     if (!$nodie) die($err_msg);
  }
 
  if ($dbh && $DB['db']) {
-  $res=mysql_select_db($DB['db'], $dbh);
+  $res=mysqli_select_db($dbh, $DB['db']);
   if (!$res) {
-     $err_msg='Cannot select db because: '.mysql_error();
+     $err_msg='Cannot select db because: '.mysqli_error($dbh);
      if (!$nodie) die($err_msg);
   }else{
      if ($DB['chset']) db_query("SET NAMES ".$DB['chset']);
@@ -522,7 +584,7 @@ function db_connect($nodie=0){
 function db_checkconnect($dbh1=NULL, $skiperr=0){
  global $dbh;
  if (!$dbh1) $dbh1=&$dbh;
- if (!$dbh1 or !mysql_ping($dbh1)) {
+ if (!$dbh1 or !mysqli_ping($dbh1)) {
     db_connect($skiperr);
     $dbh1=&$dbh;
  }
@@ -531,57 +593,59 @@ function db_checkconnect($dbh1=NULL, $skiperr=0){
 
 function db_disconnect(){
  global $dbh;
- mysql_close($dbh);
+ mysqli_close($dbh);
 }
 
 function dbq($s){
  global $dbh;
  if (is_null($s)) return "NULL";
- return "'".mysql_real_escape_string($s,$dbh)."'";
+ return "'".mysqli_real_escape_string($dbh,$s)."'";
 }
 
-function db_query($sql, $dbh1=NULL, $skiperr=0){
+function db_query($sql, $dbh1=NULL, $skiperr=0, $resmod=MYSQLI_STORE_RESULT){
  $dbh1=db_checkconnect($dbh1, $skiperr);
- $sth=@mysql_query($sql, $dbh1);
+ $sth=mysqli_query($dbh1, $sql, $resmod);
  if (!$sth && $skiperr) return;
- if (!$sth) die("Error in DB operation:<br>\n".mysql_error($dbh1)."<br>\n$sql");
+ if (!$sth) die("Error in DB operation:<br>\n".mysqli_error($dbh1)."<br>\n$sql");
  return $sth;
 }
 
 function db_array($sql, $dbh1=NULL, $skiperr=0, $isnum=0){#array of rows
- $sth=db_query($sql, $dbh1, $skiperr);
+ $sth=db_query($sql, $dbh1, $skiperr, MYSQLI_USE_RESULT);
  if (!$sth) return;
  $res=array();
  if ($isnum){
-   while($row=mysql_fetch_row($sth)) $res[]=$row;
+   while($row=mysqli_fetch_row($sth)) $res[]=$row;
  }else{
-   while($row=mysql_fetch_assoc($sth)) $res[]=$row;
+   while($row=mysqli_fetch_assoc($sth)) $res[]=$row;
  }
+ mysqli_free_result($sth);
  return $res;
 }
 
 function db_row($sql){
  $sth=db_query($sql);
- return mysql_fetch_assoc($sth);
+ return mysqli_fetch_assoc($sth);
 }
 
-function db_value($sql){
- $sth=db_query($sql);
- $row=mysql_fetch_row($sth);
+function db_value($sql,$dbh1=NULL,$skiperr=0){
+ $sth=db_query($sql,$dbh1,$skiperr);
+ if (!$sth) return;
+ $row=mysqli_fetch_row($sth);
  return $row[0];
 }
 
 function get_identity($dbh1=NULL){
  $dbh1=db_checkconnect($dbh1);
- return mysql_insert_id($dbh1);
+ return mysqli_insert_id($dbh1);
 }
 
 function get_db_select($sel=''){
- global $DB;
+ global $DB,$SHOW_D;
  if (is_array($_SESSION['sql_sd']) && $_REQUEST['db']!='*'){//check cache
     $arr=$_SESSION['sql_sd'];
  }else{
-   $arr=db_array("show databases",NULL,1);
+   $arr=db_array($SHOW_D,NULL,1);
    if (!is_array($arr)){
       $arr=array( 0 => array('Database' => $DB['db']) );
     }
@@ -608,7 +672,7 @@ function sel($arr,$n,$sel=''){
  foreach($arr as $a){
 #   echo $a[0];
    $b=$a[$n];
-   $res.="<option value='$b' ".($sel && $sel==$b?'selected':'').">$b</option>";
+   $res.="<option value='".hs($b)."' ".($sel && $sel==$b?'selected':'').">".hs($b)."</option>";
  }
  return $res;
 }
@@ -697,28 +761,30 @@ function savecfg(){
 
  if ($_REQUEST['rmb']){
     $tm=time()+60*60*24*30;
-    setcookie("conn[db]",  $v['db'],$tm);
-    setcookie("conn[user]",$v['user'],$tm);
-    setcookie("conn[pwd]", $v['pwd'],$tm);
-    setcookie("conn[host]",$v['host'],$tm);
-    setcookie("conn[port]",$v['port'],$tm);
-    setcookie("conn[chset]",$v['chset'],$tm);
+    newcookie("conn[db]",  $v['db'],$tm);
+    newcookie("conn[user]",$v['user'],$tm);
+    newcookie("conn[pwd]", $v['pwd'],$tm);
+    newcookie("conn[host]",$v['host'],$tm);
+    newcookie("conn[port]",$v['port'],$tm);
+    newcookie("conn[chset]",$v['chset'],$tm);
  }else{
-    setcookie("conn[db]",  FALSE,-1);
-    setcookie("conn[user]",FALSE,-1);
-    setcookie("conn[pwd]", FALSE,-1);
-    setcookie("conn[host]",FALSE,-1);
-    setcookie("conn[port]",FALSE,-1);
-    setcookie("conn[chset]",FALSE,-1);
+    newcookie("conn[db]",  FALSE,-1);
+    newcookie("conn[user]",FALSE,-1);
+    newcookie("conn[pwd]", FALSE,-1);
+    newcookie("conn[host]",FALSE,-1);
+    newcookie("conn[port]",FALSE,-1);
+    newcookie("conn[chset]",FALSE,-1);
  }
 }
+
+// Allow httponly cookies, or the password is stored plain text in a cookie
+function newcookie($n,$v,$e){$x;return setcookie($n,$v,$e,$x,$x,!!$x,!$x);}
 
 //during login only - from cookies or use defaults;
 function loadcfg(){
  global $DBDEF;
 
  if( isset($_COOKIE['conn']) ){
-    $a=$_COOKIE['conn'];
     $_SESSION['DB']=$_COOKIE['conn'];
  }else{
     $_SESSION['DB']=$DBDEF;
@@ -728,7 +794,7 @@ function loadcfg(){
 
 //each time - from session to $DB_*
 function loadsess(){
- global $DB;
+ global $DB, $is_sm;
 
  $DB=$_SESSION['DB'];
 
@@ -737,16 +803,18 @@ function loadsess(){
  if ($rdb) {
     $DB['db']=$rdb;
  }
+ if($_REQUEST['GoSQL']) $_SESSION['is_sm']=$_REQUEST['is_sm']+0;
+ $is_sm=$_SESSION['is_sm']+0;
 }
 
 function print_export(){
- global $self,$xurl,$DB;
- $t=$_REQUEST['t'];
+ global $self,$xurl,$DB,$DUMP_FILE;
+ $t=$_REQUEST['rt'];
  $l=($t)?"Table $t":"whole DB";
  print_header();
 ?>
 <center>
-<h3>Export <?php echo $l?></h3>
+<h3>Export <?php eo($l)?></h3>
 <div class="frm">
 <input type="checkbox" name="s" value="1" checked> Structure<br>
 <input type="checkbox" name="d" value="1" checked> Data<br><br>
@@ -759,11 +827,15 @@ function print_export(){
 <?php }?>
 </div>
 <br>
+<div><label><input type="checkbox" name="sp" value="1"> import has super privileges</label></div>
 <div><label><input type="checkbox" name="gz" value="1"> compress as .gz</label></div>
 <br>
 <input type="hidden" name="doex" value="1">
-<input type="hidden" name="t" value="<?php echo $t?>">
-<input type="submit" value=" Download "><input type="button" value=" Cancel " onclick="window.location='<?php echo $self.'?'.$xurl.'&db='.$DB['db']?>'">
+<input type="hidden" name="rt" value="<?php eo($t)?>">
+<input type="submit" value=" Download ">
+<input type="submit" name="srv" value=" Dump on Server ">
+<input type="button" value=" Cancel " onclick="window.location='<?php eo($self.'?'.$xurl.'&db='.ue($DB['db']))?>'">
+<p><small>"Dump on Server" exports to file:<br><?php eo(export_fname($DUMP_FILE).'.sql')?></small></p>
 </div>
 </center>
 <?php
@@ -771,9 +843,14 @@ function print_export(){
  exit;
 }
 
+function export_fname($f,$ist=false){
+ $t=$ist?date('Y-m-d-His'):'YYYY-MM-DD-HHMMSS';
+ return $f.$t;
+}
+
 function do_export(){
- global $DB,$VERSION,$D,$BOM,$ex_isgz;
- $rt=str_replace('`','',$_REQUEST['t']);
+ global $DB,$VERSION,$D,$BOM,$ex_isgz,$ex_issrv,$dbh,$out_message;
+ $rt=str_replace('`','',$_REQUEST['rt']);
  $t=explode(",",$rt);
  $th=array_flip($t);
  $ct=count($t);
@@ -782,58 +859,64 @@ function do_export(){
  if(!$MAXI)$MAXI=838860;
  $aext='';$ctp='';
 
+ $ex_super=($_REQUEST['sp'])?1:0;
  $ex_isgz=($_REQUEST['gz'])?1:0;
  if ($ex_isgz) {
     $aext='.gz';$ctp='application/x-gzip';
  }
- ex_start();
+ $ex_issrv=($_REQUEST['srv'])?1:0;
 
  if ($ct==1&&$_REQUEST['et']=='csv'){
+  ex_start('.csv');
   ex_hdr($ctp?$ctp:'text/csv',"$t[0].csv$aext");
-  if ($DB['chset']=='utf8') ex_end($BOM);
+  if ($DB['chset']=='utf8') ex_w($BOM);
 
-  $sth=db_query("select * from `$t[0]`");
-  $fn=mysql_num_fields($sth);
+  $sth=db_query("select * from `$t[0]`",NULL,0,MYSQLI_USE_RESULT);
+  $fn=mysqli_field_count($dbh);
   for($i=0;$i<$fn;$i++){
-   $m=mysql_fetch_field($sth,$i);
+   $m=mysqli_fetch_field($sth);
    ex_w(qstr($m->name).(($i<$fn-1)?",":""));
   }
   ex_w($D);
-  while($row=mysql_fetch_row($sth)) ex_w(to_csv_row($row));
-  ex_end();
-  exit;
+  while($row=mysqli_fetch_row($sth)) ex_w(to_csv_row($row));
+  mysqli_free_result($sth);
+ }else{
+  ex_start('.sql');
+  ex_hdr($ctp?$ctp:'text/plain',"$DB[db]".(($ct==1&&$t[0])?".$t[0]":(($ct>1)?'.'.$ct.'tables':'')).".sql$aext");
+  ex_w("-- phpMiniAdmin dump $VERSION$D-- Datetime: ".date('Y-m-d H:i:s')."$D-- Host: $DB[host]$D-- Database: $DB[db]$D$D");
+  if ($DB['chset']) ex_w("/*!40030 SET NAMES $DB[chset] */;$D");
+  $ex_super && ex_w("/*!40030 SET GLOBAL max_allowed_packet=16777216 */;$D$D");
+  ex_w("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;$D$D");
+
+  $sth=db_query("show full tables from `$DB[db]`");
+  while($row=mysqli_fetch_row($sth)){
+    if (!$rt||array_key_exists($row[0],$th)) do_export_table($row[0],$row[1],$MAXI);
+  }
+
+  ex_w("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;$D$D");
+  ex_w("$D-- phpMiniAdmin dump end$D");
  }
-
- ex_hdr($ctp?$ctp:'text/plain',"$DB[db]".(($ct==1&&$t[0])?".$t[0]":(($ct>1)?'.'.$ct.'tables':'')).".sql$aext");
- ex_w("-- phpMiniAdmin dump $VERSION$D-- Datetime: ".date('Y-m-d H:i:s')."$D-- Host: $DB[host]$D-- Database: $DB[db]$D$D");
- ex_w("/*!40030 SET NAMES $DB[chset] */;$D/*!40030 SET GLOBAL max_allowed_packet=16777216 */;$D$D");
-
- $sth=db_query("show tables from `$DB[db]`");
- while($row=mysql_fetch_row($sth)){
-   if (!$rt||array_key_exists($row[0],$th)) do_export_table($row[0],1,$MAXI);
- }
-
- ex_w("$D-- phpMiniAdmin dump end$D");
  ex_end();
- exit;
+ if (!$ex_issrv) exit;
+ $out_message='Export done successfully';
 }
 
-function do_export_table($t='',$isvar=0,$MAXI=838860){
- global $D;
- set_time_limit(600);
+function do_export_table($t='',$tt='',$MAXI=838860){
+ global $D,$ex_issrv;
+ @set_time_limit(600);
 
  if($_REQUEST['s']){
   $sth=db_query("show create table `$t`");
-  $row=mysql_fetch_row($sth);
+  $row=mysqli_fetch_row($sth);
   $ct=preg_replace("/\n\r|\r\n|\n|\r/",$D,$row[1]);
   ex_w("DROP TABLE IF EXISTS `$t`;$D$ct;$D$D");
  }
 
- if ($_REQUEST['d']){
+ if ($_REQUEST['d']&&$tt!='VIEW'){//no dump for views
   $exsql='';
   ex_w("/*!40000 ALTER TABLE `$t` DISABLE KEYS */;$D");
-  $sth=db_query("select * from `$t`");
-  while($row=mysql_fetch_row($sth)){
+  $sth=db_query("select * from `$t`",NULL,0,MYSQLI_USE_RESULT);
+  while($row=mysqli_fetch_row($sth)){
     $values='';
     foreach($row as $v) $values.=(($values)?',':'').dbq($v);
     $exsql.=(($exsql)?',':'')."(".$values.")";
@@ -841,49 +924,71 @@ function do_export_table($t='',$isvar=0,$MAXI=838860){
        ex_w("INSERT INTO `$t` VALUES $exsql;$D");$exsql='';
     }
   }
+  mysqli_free_result($sth);
   if ($exsql) ex_w("INSERT INTO `$t` VALUES $exsql;$D");
   ex_w("/*!40000 ALTER TABLE `$t` ENABLE KEYS */;$D$D");
  }
- flush();
+ if (!$ex_issrv) flush();
 }
 
 function ex_hdr($ct,$fn){
+ global $ex_issrv;
+ if ($ex_issrv) return;
  header("Content-type: $ct");
  header("Content-Disposition: attachment; filename=\"$fn\"");
 }
-function ex_start(){
- global $ex_isgz,$ex_gz,$ex_tmpf;
+function ex_start($ext){
+ global $ex_isgz,$ex_gz,$ex_tmpf,$ex_issrv,$ex_f,$DUMP_FILE;
  if ($ex_isgz){
-    $ex_tmpf=tempnam(sys_get_temp_dir(),'pma').'.gz';
+    $ex_tmpf=($ex_issrv?export_fname($DUMP_FILE,true).$ext:tmp_name()).'.gz';
     if (!($ex_gz=gzopen($ex_tmpf,'wb9'))) die("Error trying to create gz tmp file");
+ }else{
+    if ($ex_issrv) {
+      if (!($ex_f=fopen(export_fname($DUMP_FILE,true).$ext,'wb'))) die("Error trying to create dump file");
+    }
  }
 }
 function ex_w($s){
- global $ex_isgz,$ex_gz;
+ global $ex_isgz,$ex_gz,$ex_issrv,$ex_f;
  if ($ex_isgz){
     gzwrite($ex_gz,$s,strlen($s));
  }else{
-    echo $s;
+    if ($ex_issrv){
+        fwrite($ex_f,$s);
+    }else{
+        echo $s;
+    }
  }
 }
 function ex_end(){
- global $ex_isgz,$ex_gz,$ex_tmpf;
+ global $ex_isgz,$ex_gz,$ex_tmpf,$ex_issrv,$ex_f;
  if ($ex_isgz){
     gzclose($ex_gz);
-    readfile($ex_tmpf);
+    if (!$ex_issrv){
+      readfile($ex_tmpf);
+      unlink($ex_tmpf);
+    }
+ }else{
+    if ($ex_issrv) fclose($ex_f);
  }
 }
 
 function print_import(){
- global $self,$xurl,$DB;
+ global $self,$xurl,$DB,$DUMP_FILE;
  print_header();
 ?>
 <center>
 <h3>Import DB</h3>
 <div class="frm">
-<b>.sql</b> or <b>.gz</b> file: <input type="file" name="file1" value="" size=40><br>
+<div><label><input type="radio" name="it" value="" checked> import by uploading <b>.sql</b> or <b>.gz</b> file:</label>
+ <input type="file" name="file1" value="" size=40><br>
+</div>
+<div><label><input type="radio" name="it" value="sql"> import from file on server:<br>
+ <?php eo($DUMP_FILE.'.sql')?></label></div>
+<div><label><input type="radio" name="it" value="gz"> import from file on server:<br>
+ <?php eo($DUMP_FILE.'.sql.gz')?></label></div>
 <input type="hidden" name="doim" value="1">
-<input type="submit" value=" Upload and Import " onclick="return ays()"><input type="button" value=" Cancel " onclick="window.location='<?php echo $self.'?'.$xurl.'&db='.$DB['db']?>'">
+<input type="submit" value=" Import " onclick="return ays()"><input type="button" value=" Cancel " onclick="window.location='<?php eo($self.'?'.$xurl.'&db='.ue($DB['db']))?>'">
 </div>
 <br><br><br>
 <!--
@@ -907,7 +1012,7 @@ Import into:<br>
 <input type="radio" name="tt" value="2"> create new table with name <input type="text" name="tn" value="" size="20">
 <br><br>
 <input type="hidden" name="doimcsv" value="1">
-<input type="submit" value=" Upload and Import " onclick="return ays()"><input type="button" value=" Cancel " onclick="window.location='<?php echo $self?>'">
+<input type="submit" value=" Upload and Import " onclick="return ays()"><input type="button" value=" Cancel " onclick="window.location='<?php eo($self)?>'">
 </div>
 -->
 </center>
@@ -917,15 +1022,25 @@ Import into:<br>
 }
 
 function do_import(){
- global $err_msg,$out_message,$dbh,$SHOW_T;
+ global $err_msg,$out_message,$dbh,$SHOW_T,$DUMP_FILE;
  $err_msg='';
- $F=$_FILES['file1'];
+ $it=$_REQUEST['it'];
 
- if ($F && $F['name']){
-  $filename=$F['tmp_name'];
-  $pi=pathinfo($F['name']);
-  if ($pi['extension']!='sql'){//if not sql - assume .gz
-     $tmpf=tempnam(sys_get_temp_dir(),'pma');
+ if (!$it){
+    $F=$_FILES['file1'];
+    if ($F && $F['name']){
+       $filename=$F['tmp_name'];
+       $pi=pathinfo($F['name']);
+       $ext=$pi['extension'];
+    }
+ }else{
+    $ext=($it=='gz'?'sql.gz':'sql');
+    $filename=$DUMP_FILE.'.'.$ext;
+ }
+
+ if ($filename && file_exists($filename)){
+  if ($ext!='sql'){//if not sql - assume .gz and extract
+     $tmpf=tmp_name();
      if (($gz=gzopen($filename,'rb')) && ($tf=fopen($tmpf,'wb'))){
         while(!gzeof($gz)){
            if (fwrite($tf,gzread($gz,8192),8192)===FALSE){$err_msg='Error during gz file extraction to tmp file';break;}
@@ -935,14 +1050,15 @@ function do_import(){
   }
   if (!$err_msg){
    if (!do_multi_sql('', $filename)){
-      $err_msg='Import Error: '.mysql_error($dbh);
+      $err_msg='Import Error: '.mysqli_error($dbh);
    }else{
       $out_message='Import done successfully';
       do_sql($SHOW_T);
       return;
   }}
+
  }else{
-  $err_msg="Error: Please select file first";
+    $err_msg="Error: Please select file first";
  }
  print_import();
  exit;
@@ -950,7 +1066,7 @@ function do_import(){
 
 // multiple SQL statements splitter
 function do_multi_sql($insql,$fname=''){
- set_time_limit(600);
+ @set_time_limit(600);
 
  $sql='';
  $ochar='';
@@ -1053,12 +1169,18 @@ function get_close_char($str, $pos, $ochar){
 }
 
 function do_one_sql($sql){
- global $last_sth,$last_sql,$MAX_ROWS_PER_PAGE,$page,$is_limited_sql;
+ global $last_sth,$last_sql,$MAX_ROWS_PER_PAGE,$page,$is_limited_sql,$last_count,$IS_COUNT;
  $sql=trim($sql);
  $sql=preg_replace("/;$/","",$sql);
  if ($sql){
     $last_sql=$sql;$is_limited_sql=0;
+    $last_count=NULL;
     if (preg_match("/^select/i",$sql) && !preg_match("/limit +\d+/i", $sql)){
+       if ($IS_COUNT){
+          #get total count
+          $sql1='select count(*) from ('.$sql.') ___count_table';
+          $last_count=db_value($sql1,NULL,'noerr');
+       }
        $offset=$page*$MAX_ROWS_PER_PAGE;
        $sql.=" LIMIT $offset,$MAX_ROWS_PER_PAGE";
        $is_limited_sql=1;
@@ -1073,6 +1195,7 @@ function do_sht(){
  global $SHOW_T;
  $cb=$_REQUEST['cb'];
  if (!is_array($cb)) $cb=array();
+ $sql='';
  switch ($_REQUEST['dosht']){
   case 'exp':$_REQUEST['t']=join(",",$cb);print_export();exit;
   case 'drop':$sq='DROP TABLE';break;
@@ -1080,12 +1203,11 @@ function do_sht(){
   case 'opt':$sq='OPTIMIZE TABLE';break;
  }
  if ($sq){
-  $sql='';
   foreach($cb as $v){
    $sql.=$sq." $v;\n";
   }
-  if ($sql) do_sql($sql);
  }
+ if ($sql) do_sql($sql);
  do_sql($SHOW_T);
 }
 
@@ -1120,7 +1242,41 @@ function check_xss(){
 }
 
 function rw($s){#for debug
- echo $s."<br>\n";
+ echo hs(var_dump($s))."<br>\n";
 }
 
+function tmp_name() {
+  if ( function_exists('sys_get_temp_dir')) return tempnam(sys_get_temp_dir(),'pma');
+
+  if( !($temp=getenv('TMP')) )
+    if( !($temp=getenv('TEMP')) )
+      if( !($temp=getenv('TMPDIR')) ) {
+        $temp=tempnam(__FILE__,'');
+        if (file_exists($temp)) {
+          unlink($temp);
+          $temp=dirname($temp);
+        }
+      }
+  return $temp ? tempnam($temp,'pma') : null;
+}
+
+function hs($s){
+  return htmlspecialchars($s, ENT_COMPAT|ENT_HTML401,'UTF-8');
+}
+function eo($s){//echo+escape
+  echo hs($s);
+}
+function ue($s){
+  return urlencode($s);
+}
+
+function b64e($s){
+  return base64_encode($s);
+}
+function b64u($s){
+  return ue(base64_encode($s));
+}
+function b64d($s){
+  return base64_decode($s);
+}
 ?>

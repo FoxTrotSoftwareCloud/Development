@@ -8,7 +8,7 @@
 		 * @param post array
 		 * @return true if success, error message if any errors
 		 * */
-		public function insert_update($data){//echo '<pre>';print_r($data);exit;
+		public function insert_update($data,$isReturn=false){//echo '<pre>';print_r($data);exit;
             
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
 			$category = isset($data['product_category'])?$this->re_db_input($data['product_category']):'';
@@ -99,7 +99,12 @@
                             $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `CUSIP_number`='".$cusip."' WHERE `file_id`='".$file_id."' and `id`='".$temp_data_id."'";
                             $res1 = $this->re_db_query($q1);
                         }
+
+                        
 						if($res){
+							if($isReturn){
+	                        	$_SESSION['new_product_id']=$last_inserted_id;
+	                        }
 						    $_SESSION['success'] = INSERT_MESSAGE;
 							return true;
 						}
@@ -129,6 +134,10 @@
                 }
             }
 						if($res){
+							//$_SESSION['tran']
+							if($isReturn){
+	                        	$_SESSION['new_product_id']=$id;
+	                        }
 						    $_SESSION['success'] = UPDATE_MESSAGE;
 							return true;
 						}

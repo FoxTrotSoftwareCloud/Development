@@ -4,7 +4,7 @@
 <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
     <div class="tab-content col-md-12">
         <div class="tab-pane active" id="tab_a">
-            <form method="post" target="_blank">
+            <form method="post">
                 <div class="tab-content">
                     <div class="row">
                         <div class="col-md-4" style="float: right;">
@@ -18,8 +18,8 @@
                             <div class="form-group">
                                 <label>Publish Report </label>
                                 <select class="form-control" name="publish_report" id="publish_report" onchange="open_reports(this.value);">
-                                    <option value="1">Broker Statements</option>
-                                    <option value="2">Company Statements</option>
+                                    <option value="1">Broker Statement</option>
+                                    <option value="2">Company Statement</option>
                                     <option value="3">Adjustment Report</option>
                                     <option value="4">Reconciliation Report</option>
                                 </select>
@@ -70,16 +70,23 @@ $(document).ready(function(){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) 
         {
-            document.getElementById("output_screen_content").innerHTML = this.responseText;
+            var data=this.responseText;
+            var temp=data.split('|||');
+            document.getElementById("output_screen_content").innerHTML = temp[0];
+            if(temp[1]==1)
+            {
+                window.open('<?php echo SITE_URL; ?>report_payroll_broker_statement.php?open=print_pdf&filter=<?php echo $_GET['filter']; ?>','_blank');
+            }
         }
     };
     xmlhttp.open('GET', 'ajax_publish_payroll_report_view.php?filter=<?php echo $_GET['filter']; ?>', true);
     xmlhttp.send();
 
-
+    
     $('#myModal').modal({
     		show: true
-    	});
+    });
+    
        //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, ""); 
 });
 
@@ -103,6 +110,15 @@ function open_reports(report_name)
         {
             document.getElementById("report_filters").innerHTML = this.responseText;
             $("#report_filters").css('display','block');
+            
+            $('#demo-dp-range .input-daterange').datepicker({
+            format: "mm/dd/yyyy",
+            todayBtn: "linked",
+            autoclose: true,
+            todayHighlight: true
+            }).on('show',function(){
+                $(".datepicker-dropdown").css("z-index",'1000000');
+            });
         }
     };
     xmlhttp.open('GET', 'ajax_publish_payroll_report.php?report_name='+report_name, true);
