@@ -1367,14 +1367,16 @@ PostResult( msg );
         $('.form-go-action').on('focus', function () {
             previous = $(this).val();
         }).on('onselect change', function () {
+            let form = this.closest('form');
             if ($(this).val() == 1)
             {
                 if (confirm('Are you sure you want to delete this file?')) {
-                    let form = this.closest('form');
                     form.submit();
                 } else {
                     $(this).val(previous);
                 }
+            } else {
+                form.submit();
             }
         });
 
