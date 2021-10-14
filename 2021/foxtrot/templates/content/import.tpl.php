@@ -1361,13 +1361,22 @@ PostResult( msg );
     border-color: #2e6da4 !important;
     }
 </style>
-<script type="text/javascript">
-$(document).ready(function() {
-
-        $('.form-go-action').on('onselect change', function(){
-            var form = this.closest('form');
-            form.submit();
-        })
+<script>
+    $(function() {
+        let previous;
+        $('.form-go-action').on('focus', function () {
+            previous = $(this).val();
+        }).on('onselect change', function () {
+            if ($(this).val() == 1)
+            {
+                if (confirm('Are you sure you want to delete this file?')) {
+                    let form = this.closest('form');
+                    form.submit();
+                } else {
+                    $(this).val(previous);
+                }
+            }
+        });
 
         $('#data-table').DataTable({
         "pageLength": 25,
