@@ -6,6 +6,34 @@ $(function() {
         includeSelectAllOption: true
     });
 });
+jQuery(function($){
+    
+    $("#export_broker_data_btn").click(function(ev){
+          console.log("click");
+          ev.preventDefault();
+          $("#export_modal").modal();
+          $.ajax({
+                     url: "ajax_export_broker_data.php",
+                     data:{ broker_id:$(this).data("broker_id")},
+                     type:"get",
+                     dataType:"json",
+                     success:function(data){
+                          $("#export_modal").modal("hide");
+                             var $a = $("<a>");
+                             console.log(data)
+                        $a.attr("href",data.file);
+                        $("body").append($a);
+                        $a.attr("download","export_broker_data.xls");
+                        $a[0].click();
+                        //$a.remove();
+                     },
+                     error:function(){
+
+                     }
+          })
+    });
+
+})
 </script>
 <style>
 .btn-primary {
@@ -107,7 +135,7 @@ function add_split(doc1){
                         '<option value="">Select Broker</option>'+
                         <?php foreach($select_broker as $key => $val) {
                             if($val['id'] != $id){?>
-                        '<option value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>'+
+                        '<option value="<?php echo $val['id']?>"><?php echo $val['last_name'].', '.$val['first_name']?></option>'+
                         <?php } } ?>
                         '</select>'+
                     '</td>'+
@@ -161,7 +189,7 @@ function add_rate(doc){
                         '<option value="">Select Broker</option>'+
                         <?php foreach($select_broker as $key => $val){
                             if($val['id'] != $id){?>
-                        '<option value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>'+
+                        '<option value="<?php echo $val['id']?>"><?php echo $val['last_name'].', '.$val['first_name']?></option>'+
                         <?php } } ?>
                         '</select>'+
                     '</td>'+
@@ -532,6 +560,18 @@ var waitingDialog = waitingDialog || (function ($) {
 
 </script>
 <div class="container">
+
+
+        <div id="export_modal"class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+            <div class="modal-dialog modal-m">
+            <div class="modal-content">
+                <div class="modal-header"><h3 style="margin:0;"> Downloading, Please Wait....</h3></div>
+                <div class="modal-body">
+                    <div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 <h1 class="<?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}*/?>">Broker Maintenance</h1>
 <div class="col-lg-12 well <?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}*/?>">
 <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
@@ -569,6 +609,9 @@ var waitingDialog = waitingDialog || (function ($) {
     				<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
     				<ul class="dropdown-menu dropdown-menu-right" style="">
     					<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
+                        <?php if(($action=='edit' && $id>0)): ?>
+                        <li><a id="export_broker_data_btn" data-broker_id="<?php echo $id; ?>" href="javascript:void(0);"><i class="fa fa-download"></i> Export Broker data</a></li>
+                    <?php endif; ?>
     				</ul>
     			</div>
     		</div>
@@ -880,6 +923,7 @@ var waitingDialog = waitingDialog || (function ($) {
                                                 </select>
                                             </div>
                                         </div>
+
                                    </div>
                                    <div class="row">
                                         <div class="col-md-4">
@@ -1493,7 +1537,7 @@ var waitingDialog = waitingDialog || (function ($) {
                                                 <select name="team_member[]" id="team_member" class="form-control chosen-select" multiple="true">
                                                     <option value="" disabled="true">Select Broker</option>
                                                     <?php foreach($select_broker as $key => $val) {?>
-                                                            <option <?php echo in_array($val['id'],$team_member)?'selected="selected"':''; ?> value="<?php echo $val['id'];?>"><?php echo $val['first_name'].' '.$val['last_name']?></a></option>
+                                                            <option <?php echo in_array($val['id'],$team_member)?'selected="selected"':''; ?> value="<?php echo $val['id'];?>"><?php echo $val['last_name'].', '.$val['first_name']?></a></option>
                                                     <?php } ?>
                                                 </select>
                                             </div>
@@ -1600,7 +1644,7 @@ var waitingDialog = waitingDialog || (function ($) {
                                                 <select name="receiving_rep"  class="form-control">
                                                     <option value="">Select Broker</option>
                                                     <?php foreach($select_broker as $key => $val) {?>
-                                                    <option <?php if(isset($edit_override['rap']) && $edit_override['rap']==$key) {?>selected="true"<?php } ?> value="<?php echo $key?>"><?php echo $val['first_name'].' '.$val['last_name']?></a></option>
+                                                    <option <?php if(isset($edit_override['rap']) && $edit_override['rap']==$key) {?>selected="true"<?php } ?> value="<?php echo $key?>"><?php echo $val['last_name'].', '.$val['first_name']?></a></option>
                                                     <?php } ?>
                                                 </select>
                                             </div>
@@ -1681,7 +1725,7 @@ var waitingDialog = waitingDialog || (function ($) {
                                                                         <option value="">Select Broker</option>
                                                                         <?php foreach($select_broker as $key => $val) {
                                                                             if($val['id'] != $id){?>
-                                                                        <option value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>
+                                                                        <option value="<?php echo $val['id']?>"><?php echo $val['last_name'].', '.$val['first_name']?></option>
                                                                         <?php } } ?>
                                                                     </select>
                                                                 </td>
@@ -1823,7 +1867,7 @@ var waitingDialog = waitingDialog || (function ($) {
                                                                         <option value="0">Select Broker</option>
                                                                         <?php foreach($select_broker as $key => $val) {
                                                                             if($val['id'] != $id){?>
-                                                                        <option value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>
+                                                                        <option value="<?php echo $val['id']?>"><?php echo $val['last_name'].', '.$val['first_name']?></option>
                                                                         <?php } } ?>
                                                                     </select>
                                                                 </td>
@@ -3068,11 +3112,14 @@ var waitingDialog = waitingDialog || (function ($) {
                          <?php if($action=='edit' && $id>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous" class="previous next_previous_a" style="float: left;"><input type="submit" name="submit" value="Previous" /></a><?php } ?>
                          <?php if($action=='edit' && $id>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next" class="next next_previous_a" ><input type="submit" name="submit" value="Next" /></a><?php } ?>
                          <?php if($action=='edit' && $id>0){?>
-                            <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10% !important;"/></a>
+                            <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 2% !important;"/></a>
+
                          <?php } ?>
                          <a href="#broker_notes" data-toggle="modal"><input type="button" onclick="get_broker_notes();" name="notes" value="Notes" /></a>
+                          <a href="#ytd_earnings_modal" data-toggle="modal">
+                            <input type="button" name="view_changes" value="Modify YTD Earnings" style=""/></a>
                          <a href="#client_transactions" data-toggle="modal"><input type="button" name="transactions" value="Transactions" /></a>
-                         <a href="#broker_attach" data-toggle="modal"><input type="button"  onclick="get_broker_attach();" name="attach" value="Attachments" style="margin-right: 10% !important;"/></a>
+                         <a href="#broker_attach" data-toggle="modal"><input type="button"  onclick="get_broker_attach();" name="attach" value="Attachments" style="margin-right: 2% !important;"/></a>
                          <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                          <input type="submit" name="submit" value="Save" style="float: right;"/>
                          
@@ -3143,7 +3190,84 @@ var waitingDialog = waitingDialog || (function ($) {
                 </div><!-- End of Modal body -->
         		</div><!-- End of Modal content -->
         		</div><!-- End of Modal dialog -->
-        </div><!-- End of Modal -->						
+        </div><!-- End of Modal -->		
+
+
+
+            <div id="ytd_earnings_modal" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header" style="margin-bottom: 0px !important;">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    <h4 class="modal-title">YTD Earnings</h4>
+                </div>
+                <div class="modal-body">
+                
+                <div class="inputpopup">
+                     <div class="table-responsive">  
+            <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>Pay Date</th>
+                        <th> Taxable Adjustments</th>
+                        <th> Non Taxable Adjustments</th>
+                        <th>Gross Commission</th>
+                        <th>Net Production</th>
+                        <th class="text-center" colspan="2">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                 <?php
+                $count = 0;
+                foreach($prior_payrolls_data as $key=>$val){
+                    ?>
+                       <tr>
+                            <td><?php echo date('m/d/Y',strtotime($val['payroll_date'])); ?></td>
+                            
+                           
+                           
+                            <td><?php echo $val['taxable_adjustments']; ?></td>
+                            <td><?php echo $val['non-taxable_adjustments']; ?></td>
+                             <td><?php echo $val['gross_production']; ?></td>
+                            <td><?php echo $val['net_production']; ?></td>
+
+                           
+                            <td class="text-center">
+                                <a href="/CloudFox/maintain_prior_payrolls.php?action=edit&id=<?php echo $val['id']; ?>&redirectto=<?php echo urlencode($_SERVER['REQUEST_URI'])?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                            </td>
+                            
+                        </tr>
+                <?php } ?>
+                </tbody>
+            </table>
+        </div>
+                </div>
+                
+                <div class="col-md-12">
+                    <div id="msg_attach">
+                    </div>
+                </div>
+               
+                <div class="inputpopup">
+                    <div class="table-responsive" id="ajax_attach" style="margin: 0px 5px 0px 5px;">
+                        
+                    </div>
+                </div>
+                </div><!-- End of Modal body -->
+                </div><!-- End of Modal content -->
+                </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal --> 
+
+
+
+
+
+
+
+
+
+
+
         <!-- Modal for view changes list -->
         <div id="view_changes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
         	<div class="modal-dialog">
@@ -3739,6 +3863,8 @@ $(document).on('click','.remove-row',function(){
 
 $(document).ready(function(){
 
+    
+
     var check = $('#pass_through1').prop('checked');
     if(check == true)
     {
@@ -4043,6 +4169,8 @@ function addMoreAttach(){
 $(document).on('click','.remove-row',function(){
     $(this).closest('tr').remove();
 });
+
+
 </script>
 <script type="text/javascript">
 function validation()
@@ -4243,12 +4371,19 @@ width: 100% !important;
     const togglePassword = document.querySelector('#togglePassword');
      const password = document.querySelector('#web_password_general');
  
-  togglePassword.addEventListener('click', function (e) {
+ if(togglePassword != null){
+     togglePassword.addEventListener('click', function (e) {
     // toggle the type attribute
     const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
     password.setAttribute('type', type);
     // toggle the eye slash icon
     this.classList.toggle('fa-eye-slash');
 });
+
+ }
+
+
+ 
+ 
 </script>
 

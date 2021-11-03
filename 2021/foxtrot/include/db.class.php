@@ -81,6 +81,10 @@ class db
         return mysqli_fetch_array($db_query, MYSQLI_ASSOC);
     }
     
+    public function re_db_fetch_all($db_query) {
+        return mysqli_fetch_all($db_query, MYSQLI_ASSOC);
+    }
+    
     public function re_db_num_rows($db_query) {        
         return mysqli_num_rows($db_query);
     }
@@ -963,13 +967,21 @@ class db
        return $ipaddress;
     }
 
-	public function update_common_sql(){
-        $update_common_sql = " , `modified_ip`='".$this->get_client_ip()."', `modified_by`='".$_SESSION['user_id']."', `modified_time`='".CURRENT_DATETIME."' ";
+	public function update_common_sql($returnType=1){
+        if ($returnType == 1){
+            $update_common_sql = " , `modified_ip`='".$this->get_client_ip()."', `modified_by`='".$_SESSION['user_id']."', `modified_time`='".CURRENT_DATETIME."' ";
+        } else {
+            $update_common_sql = ['modified_ip'=>$this->get_client_ip(), 'modified_by'=>$_SESSION['user_id'], 'modified_time'=>CURRENT_DATETIME];
+        }
         return $update_common_sql;
     }
     
-    public function insert_common_sql(){
-        $insert_common_sql = " , `created_ip`='".$this->get_client_ip()."', `created_by`='".$_SESSION['user_id']."', `created_time`='".CURRENT_DATETIME."' ";
+    public function insert_common_sql($returnType=1){
+        if ($returnType == 1){
+            $insert_common_sql = " , `created_ip`='".$this->get_client_ip()."', `created_by`='".$_SESSION['user_id']."', `created_time`='".CURRENT_DATETIME."' ";
+        } else {
+            $insert_common_sql = ['created_ip'=>$this->get_client_ip(), 'created_by'=>$_SESSION['user_id'], 'created_time'=>CURRENT_DATETIME];
+        }
         return $insert_common_sql;
     }
     public function get_system_logo(){
@@ -1166,6 +1178,9 @@ class Excel extends db
             $this->objPHPExcel = new PHPExcel();
         endif;
     }
+     public function getHighestColumn(){
+          return  $this->objPHPExcel->getActiveSheet()->getHighestColumn();
+    }
     public function generate($properties){
         if(is_a($this->objPHPExcel,'PHPExcel')===true){
             
@@ -1299,9 +1314,10 @@ class Excel extends db
                         $this->objPHPExcel->getSheetByName('Worksheet')
                     )
                 );
+
                 
                 // Redirect output to a client’s web browser (Excel5)
-                header('Content-Type: application/vnd.ms-excel');
+               /* header('Content-Type: application/vnd.ms-excel');
                 header('Content-Disposition: attachment;filename="'.$properties['excel_name'].'.xls"');
                 header('Cache-Control: max-age=0');
                 // If you're serving to IE 9, then the following may be needed
@@ -1311,10 +1327,18 @@ class Excel extends db
                 header ('Expires: Mon, 01 June 2017 01:00:00 GMT'); // Date in the past
                 header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
                 header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-                header ('Pragma: public'); // HTTP/1.0
-                
+                header ('Pragma: public'); // HTTP/1.0*/
+                ob_start();
                 $objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
                 $objWriter->save('php://output');
+                $xlsData = ob_get_contents();
+                ob_end_clean();
+                $response =  array(
+                    'op' => 'ok',
+                    'file' => "data:application/vnd.ms-excel;base64,".base64_encode($xlsData)
+                );
+
+die(json_encode($response));
             }
             catch(Exception $e){
                 echo "<pre>";

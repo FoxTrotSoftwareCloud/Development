@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Broker ID </label>
+                                <label>ID </label>
                                 <input type="text" name="broker_number_dis" id="broker_number_dis" class="form-control" value="<?php echo $broker_number;?>" disabled="true" />
                                 <input type="hidden" name="broker_number" id="broker_number" class="form-control" value="<?php echo $broker_number;?>" />
                             </div>

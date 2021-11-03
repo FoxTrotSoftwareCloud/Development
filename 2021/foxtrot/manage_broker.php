@@ -429,6 +429,8 @@
     else if($action=='edit' && $id>0){
         $return = $instance->edit($id);
         $broker_data = $instance->get_broker_changes($id);
+        $payrolls_instance = new payroll();
+        $prior_payrolls_data = $payrolls_instance->select_prior_payrolls_master('');
         $edit_general = $instance->edit_general($id);//print_r($edit_general);exit;
         $edit_licences_securities = $instance->edit_licences_securities($id);
         $edit_licences_ria = $instance->edit_licences_ria($id);

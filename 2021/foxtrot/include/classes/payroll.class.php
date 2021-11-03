@@ -1,13 +1,15 @@
 <?php
 
 class payroll extends db{
+    // 11/1/21 Changed field name IN PAYROLL_REVIEW_MASTER - broker_name->broker_id. Templates still use "broker_name" - li
+    // 11/1/21 Changed field name IN BROKER_BALANCES_MASTER - broker_name->broker_id. Templates still use "broker_name" - li
+    // 11/1/21 Changed field name IN PRIOR_PAYROLL_MASTER - rep_number->broker_id. rep_name-><removed> -> Templates still use "rep_number" & "rep_name" - li
     
     public $errors = '';
     public $table = PAYROLL_UPLOAD;
     
     public function insert_update($data){
-            
-		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
+        $id = isset($data['id'])?$this->re_db_input($data['id']):0;
         $payroll_id = isset($data['payroll_id'])?$this->re_db_input($data['payroll_id']):0;
         
         $trade_number = isset($data['trade_number'])?$this->re_db_input($data['trade_number']):'';
@@ -21,6 +23,7 @@ class payroll extends db{
         $client_account_number = isset($data['client_account_number'])?$this->re_db_input($data['client_account_number']):'';
         $client_name = isset($data['client_name'])?$this->re_db_input($data['client_name']):'';
         $broker_name = isset($data['broker_name'])?$this->re_db_input($data['broker_name']):'';
+        $broker_id = $broker_name;
         $quantity = isset($data['quantity'])?$this->re_db_input($data['quantity']):'';
         $price = isset($data['price'])?$this->re_db_input($data['price']):'';
         $investment_amount = isset($data['investment_amount'])?$this->re_db_input($data['investment_amount']):'';
@@ -40,7 +43,7 @@ class payroll extends db{
         
         if($id==0){
             
-			$q = "INSERT INTO ".PAYROLL_REVIEW_MASTER." SET `trade_number`='".$trade_number."',`trade_date`='".$trade_date."' ,`product`='".$product."',`product_category`='".$product_category."',`client_account_number`='".$client_account_number."',`client_name`='".$client_name."',`broker_name`='".$broker_name."',`quantity`='".$quantity."',`price`='".$price."',`investment_amount`='".$investment_amount."',`commission_expired`='".$commission_expired."',`charge`='".$charge."',`date_received`='".$date_received."',`commission_received`='".$commission_received."',`buy_sell`='".$buy_sell."',`hold`='".$hold."',`hold_reason`='".$hold_reason."',`cancel`='".$cancel."',`branch`='".$branch."'".$this->insert_common_sql();
+			$q = "INSERT INTO ".PAYROLL_REVIEW_MASTER." SET `trade_number`='".$trade_number."',`trade_date`='".$trade_date."' ,`product`='".$product."',`product_category`='".$product_category."',`client_account_number`='".$client_account_number."',`client_name`='".$client_name."',`broker_id`='".$broker_id."',`quantity`='".$quantity."',`price`='".$price."',`investment_amount`='".$investment_amount."',`commission_expired`='".$commission_expired."',`charge`='".$charge."',`date_received`='".$date_received."',`commission_received`='".$commission_received."',`buy_sell`='".$buy_sell."',`hold`='".$hold."',`hold_reason`='".$hold_reason."',`cancel`='".$cancel."',`branch`='".$branch."'".$this->insert_common_sql();
 			$res = $this->re_db_query($q);
             
             if($res){
@@ -54,7 +57,7 @@ class payroll extends db{
 		}
 		else if($id>0){
 		 
-			$q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `trade_number`='".$trade_number."',`trade_date`='".$trade_date."' ,`product`='".$product."',`product_category`='".$product_category."',`client_account_number`='".$client_account_number."',`client_name`='".$client_name."',`broker_name`='".$broker_name."',`quantity`='".$quantity."',`price`='".$price."',`investment_amount`='".$investment_amount."',`commission_expired`='".$commission_expired."',`charge`='".$charge."',`date_received`='".$date_received."',`commission_received`='".$commission_received."',`buy_sell`='".$buy_sell."',`hold`='".$hold."',`hold_reason`='".$hold_reason."',`cancel`='".$cancel."',`branch`='".$branch."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+			$q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `trade_number`='".$trade_number."',`trade_date`='".$trade_date."' ,`product`='".$product."',`product_category`='".$product_category."',`client_account_number`='".$client_account_number."',`client_name`='".$client_name."',`broker_id`='".$broker_id."',`quantity`='".$quantity."',`price`='".$price."',`investment_amount`='".$investment_amount."',`commission_expired`='".$commission_expired."',`charge`='".$charge."',`date_received`='".$date_received."',`commission_received`='".$commission_received."',`buy_sell`='".$buy_sell."',`hold`='".$hold."',`hold_reason`='".$hold_reason."',`cancel`='".$cancel."',`branch`='".$branch."'".$this->update_common_sql()." WHERE `id`='".$id."'";
 			$res = $this->re_db_query($q);
             
             if($res){
@@ -94,7 +97,7 @@ class payroll extends db{
 				return $this->errors;
 			}
 		    else
-            {*/
+            {*/        
                 $q = "INSERT INTO ".$this->table." SET `clearing_business_cutoff_date`='".date('Y-m-d',strtotime($clearing_business_cutoff_date))."',`direct_business_cutoff_date`='".date('Y-m-d',strtotime($direct_business_cutoff_date))."'".$this->insert_common_sql();
     			$res = $this->re_db_query($q);
                 $last_inserted_id = $this->re_db_insert_id();
@@ -102,7 +105,7 @@ class payroll extends db{
                 $trades_array = $this->select_trades($direct_business_cutoff_date);
                 foreach($trades_array as $key=>$val)
                 {
-                    $q = "INSERT INTO ".PAYROLL_REVIEW_MASTER." SET `payroll_id`='".$last_inserted_id."',`trade_number`='".$val['id']."',`trade_date`='".$val['trade_date']."' ,`product`='".$val['product']."',`product_category`='".$val['product_cate']."',`client_account_number`='".$val['client_number']."',`client_name`='".$val['client_name']."',`broker_name`='".$val['broker_name']."',`quantity`='".$val['units']."',`price`='".$val['shares']."',`investment_amount`='".$val['invest_amount']."',`commission_expired`='',`charge`='".$val['charge_amount']."',`date_received`='".date('Y-m-d',strtotime($val['commission_received_date']))."',`commission_received`='".$val['commission_received']."',`buy_sell`='".$val['buy_sell']."',`hold`='".$val['hold_commission']."',`hold_reason`='".$val['hold_resoan']."',`is_split`='".$val['split']."',`cancel`='".$val['cancel']."',`branch`='".$val['branch']."'".$this->insert_common_sql();
+                    $q = "INSERT INTO ".PAYROLL_REVIEW_MASTER." SET `payroll_id`='".$last_inserted_id."',`trade_number`='".$val['id']."',`trade_date`='".$val['trade_date']."' ,`product`='".$val['product']."',`product_category`='".$val['product_cate']."',`client_account_number`='".$val['client_number']."',`client_name`='".$val['client_name']."',`broker_id`='".$val['broker_name']."',`quantity`='".$val['units']."',`price`='".$val['shares']."',`investment_amount`='".$val['invest_amount']."',`commission_expired`='',`charge`='".$val['charge_amount']."',`date_received`='".date('Y-m-d',strtotime($val['commission_received_date']))."',`commission_received`='".$val['commission_received']."',`buy_sell`='".$val['buy_sell']."',`hold`='".$val['hold_commission']."',`hold_reason`='".$val['hold_resoan']."',`is_split`='".$val['split']."',`cancel`='".$val['cancel']."',`branch`='".$val['branch']."'".$this->insert_common_sql();
     				$res = $this->re_db_query($q);
                     
                     $q = "UPDATE ".TRANSACTION_MASTER." SET `is_payroll`='1',`payroll_id`='".$last_inserted_id."' ".$this->update_common_sql()." WHERE `id`='".$val['id']."'";
@@ -160,855 +163,69 @@ class payroll extends db{
         	}
         }
     }
-    public function calculate_payroll($data){
+    
+    /**
+     * Calculate Payroll - process uploaded payroll trades, overrides, adjustments for Broker Commission Statements
+     * - Updates the checks table ()
+     * - called from calculate_payrolls.php
+     * @param mixed $data 
+     * @return bool 
+     * 8/30/21 Gutting the code to get Fixed Rates to run - li
+     */
+    public function calculate_payroll($data, $payroll_date=''){
+        $calculate = new payroll_calculation();
         
-        $payroll_date = isset($data['payroll_date'])?$this->re_db_input($data['payroll_date']):'';
-        
-        if($payroll_date != '')
-        {
+        if (!empty($payroll_date) AND $payroll_date != '0000-00-00 00:00:00'){
+            // Do nothing
+        } elseif(count($data) > 0 AND $data['payroll_date'] != '0000-00-00 00:00:00') {
+            $payroll_date = $data['payroll_date'];
+        } else {
+            $payroll_date = '';
+        }
+
+        if($payroll_date != '') {
             $payroll_date = date('Y-m-d',strtotime($payroll_date));
         }
-        $get_uploaded_commissions = $this->select();//echo '<pre>';PRINT_R($get_uploaded_commissions);exit;
-        if(count($get_uploaded_commissions)<=0)
-        {
-            $q = "UPDATE ".PAYROLL_UPLOAD." SET `is_calculate`='1',`payroll_date`='".$payroll_date."'".$this->update_common_sql()." WHERE `is_calculate`='0' and `is_delete`='0' and `is_close`='0'";
-            $res = $this->re_db_query($q);
-            
-            /*$q = "INSERT INTO ".PAYROLL_UPLOAD." SET `is_calculate`='1',`payroll_date`='".$payroll_date."'".$this->insert_common_sql()."";
-            $res = $this->re_db_query($q);*/
-        }
-        else
-        {
-            
-            $step='';
-            foreach($get_uploaded_commissions as $key_data=>$val_data)
-            {
-                $net_pay = 0;
-                $gross_production = 0;
-                $total_adjustments = 0;
-                $both_total_adjustments = 0;
-                $both_total_taxable_adjustments = 0;
-                $both_total_nontaxable_adjustments = 0;
-                $total_balance = 0;
-                $broker = isset($val_data['broker_name'])?$val_data['broker_name']:0;
-                $product_category = isset($val_data['product_category'])?$val_data['product_category']:0;
-                $trade_number = isset($val_data['trade_number'])?$val_data['trade_number']:0;
-                $commission_received_date = isset($val_data['date_received'])?$val_data['date_received']:'';
-                
-                //override condition checking
-                $overrides_on = 0;
-                $overrides_apply_to = 0;
-                if($broker>0)
-                {
-                    $q = "SELECT * FROM `".BROKER_PAYOUT_MASTER."` WHERE `is_delete`='0' AND `broker_id`='".$broker."'";
-                    $res = $this->re_db_query($q);
-                    if($this->re_db_num_rows($res)>0){
-                        while($row = $this->re_db_fetch_array($res)){
-                            
-                            $charge_amount = isset($val_data['charge'])?$val_data['charge']:0;
-                            $basis = isset($row['basis'])?$row['basis']:'';
-                            $basis_amount = 0;
-                            $calculation_detail = isset($row['calculation_detail'])?$row['calculation_detail']:'';
-                            $check_firm_does_not_participate_in_commission_loss = isset($row['firm_does_not_participate_in_commission_loss'])?$row['firm_does_not_participate_in_commission_loss']:'';
-                            $charge_deduction = 0;
-                            //$step.=0;
-                            //$is_break=0;
-                            $overrides_on = isset($row['calculate_on'])?$row['calculate_on']:'';
-                            
-                            if($basis == 1) 
-                            {
-                                $basis_condition_on = isset($val_data['commission_received'])?$val_data['commission_received']:0;
-                            }
-                            else if($basis == 2)
-                            {
-                                $basis_condition_on = isset($val_data['investment_amount'])?$val_data['investment_amount']:0;
-                            }
-                            $basis_amount = isset($val_data['commission_received'])?$val_data['commission_received']:0;
-                            $gross_production = $basis_amount;
-                            $net_commission = $basis_amount-$charge_amount;
-                            
-                            if($calculation_detail == 1)
-                            {
-                                $q = "SELECT * FROM `".BROKER_PAYOUT_GRID."` WHERE `is_delete`='0' AND `broker_id`='".$broker."'";
-                				$res = $this->re_db_query($q);                            
-                                if($this->re_db_num_rows($res)>0){
-                                    $temp_get=true;
-                                    while($row_s = $this->re_db_fetch_array($res)){
-                                        if($temp_get)
-                                        {
-                                            $to_threshold = isset($row_s['to'])?$row_s['to']:'';
-                                            if($to_threshold > 0)
-                                            {
-                                                //$pending_basis_amount = $basis_amount-$to_threshold;
-                                                $pending_basis_condition_on = $basis_condition_on-$to_threshold;
-                                                $incremental_per = isset($row_s['per'])?$row_s['per']:0;
-                                                if($basis_condition_on>$to_threshold)
-                                                {//$step.=1;
-                                                    //$basis_amount = $to_threshold;
-                                                    if($charge_deduction == 0)
-                                                    {
-                                                        $clearing_charge_deducted_from = isset($row['clearing_charge_deducted_from'])?$row['clearing_charge_deducted_from']:'';
-                                                        if($check_firm_does_not_participate_in_commission_loss == 1)
-                                                        {
-                                                            $net_pay = $basis_amount-$charge_amount;
-                                                            //$net_commission = $basis_amount-$charge_amount;
-                                                        }
-                                                        else
-                                                        {
-                                                            if($charge_amount<=($basis_amount*$incremental_per)/100)
-                                                            {
-                                                                 if($clearing_charge_deducted_from==1)
-                                                                 {
-                                                                     $net_pay = ($basis_amount*$incremental_per)/100-$charge_amount;
-                                                                 }
-                                                                 else if($clearing_charge_deducted_from==2)
-                                                                 {
-                                                                     $net_pay = ($basis_amount-$charge_amount)*$incremental_per/100;
-                                                                 }
-                                                                 $charge_deduction = 1;
-                                                            }
-                                                            else
-                                                            {
-                                                                /*$check_firm_does_not_participate = $this->check_firm_does_not_participate();print_r($check_firm_does_not_participate);exit;
-                                                                if(isset($firm_does_not_participate['firm_does_not_participate']) && $firm_does_not_participate['firm_does_not_participate']==1)
-                                                                {
-                                                                    $net_pay = $basis_amount-$charge_amount;
-                                                                }*/
-                                                                $net_pay = $basis_amount-$charge_amount;
-                                                            }
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        $net_pay = ($basis_amount*$incremental_per)/100;
-                                                    }
-                                                    $pending_basis_amount = $net_pay;                                                    
-                                                    $basis_amount = $pending_basis_amount;
-                                                    $basis_condition_on = $pending_basis_condition_on;
-                                                    //continue;
-                                                }
-                                                else if($basis_condition_on>0 && $basis_condition_on<=$to_threshold)
-                                                {   
-                                                    $temp_get=false;
-                                                    //$step.=2;
-                                                    if($charge_deduction == 0)
-                                                    {
-                                                        $clearing_charge_deducted_from = isset($row['clearing_charge_deducted_from'])?$row['clearing_charge_deducted_from']:'';
-                                                        if($check_firm_does_not_participate_in_commission_loss == 1)
-                                                        {
-                                                            $net_pay = $basis_amount-$charge_amount;
-                                                        }
-                                                        else
-                                                        {
-                                                            if($charge_amount<=($basis_amount*$incremental_per)/100)
-                                                            {
-                                                                 if($clearing_charge_deducted_from==1)
-                                                                 {
-                                                                     $net_pay = ($basis_amount*$incremental_per)/100-$charge_amount;//print_r($net_pay);exit;                                                         
-                                                                 }
-                                                                 else if($clearing_charge_deducted_from==2)
-                                                                 {
-                                                                     $net_pay = ($basis_amount-$charge_amount)*$incremental_per/100;         
-                                                                 }
-                                                                 $charge_deduction = 1;
-                                                            }
-                                                            else
-                                                            {
-                                                                /*$check_firm_does_not_participate = $this->check_firm_does_not_participate();print_r($check_firm_does_not_participate);exit;
-                                                                if(isset($firm_does_not_participate['firm_does_not_participate']) && $firm_does_not_participate['firm_does_not_participate']==1)
-                                                                {
-                                                                    $net_pay = $basis_amount-$charge_amount;
-                                                                }*/
-                                                                $net_pay = $basis_amount-$charge_amount;                                                    
-                                                            }
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        $net_pay = ($basis_amount*$incremental_per)/100;                                                 
-                                                    }                                            
-                                                }
-                                            }
-                                        }
-                                    }//if($val_data['id'] == 26){echo '<br/>';print_r($basis_condition_on.'-'.$net_pay.'-'.$basis_amount.'-'.$incremental_per.'-'.$charge_amount.'||');exit; }
-                                }
-                                else
-                                {//$step.=3;
-                                    $q = "SELECT * FROM `".PAYOUT_FIXED_RATES."` WHERE `is_delete`='0' AND `broker_id`='".$broker."' AND `category_id`='".$val_data['product_category']."'";
-                                    $res = $this->re_db_query($q);
-                                    if($this->re_db_num_rows($res)>0){
-                                        while($row_s = $this->re_db_fetch_array($res)){
-                            			   $deduction_per = isset($row_s['category_rates'])?$row_s['category_rates']:0;
-                                           $clearing_charge_deducted_from = isset($row['clearing_charge_deducted_from'])?$row['clearing_charge_deducted_from']:'';
-                                            if($check_firm_does_not_participate_in_commission_loss == 1)
-                                            {
-                                                $net_pay = $basis_amount-$charge_amount;
-                                            }
-                                            else
-                                            {
-                                                if($charge_amount<=($basis_amount*$deduction_per)/100)
-                                                {
-                                                     if($clearing_charge_deducted_from==1)
-                                                     {
-                                                         $net_pay = ($basis_amount*$deduction_per)/100-$charge_amount;
-                                                     }
-                                                     else if($clearing_charge_deducted_from==2)
-                                                     {
-                                                         $net_pay = ($basis_amount-$charge_amount)*$deduction_per/100;
-                                                     }
-                                                }
-                                                else
-                                                {
-                                                    /*$check_firm_does_not_participate = $this->check_firm_does_not_participate();print_r($check_firm_does_not_participate);exit;
-                                                    if(isset($firm_does_not_participate['firm_does_not_participate']) && $firm_does_not_participate['firm_does_not_participate']==1)
-                                                    {
-                                                        $net_pay = $basis_amount-$charge_amount;
-                                                    }*/
-                                                    $net_pay = $basis_amount-$charge_amount;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else if($calculation_detail == 2)
-                            {
-                                //$q = "SELECT * FROM `".BROKER_PAYOUT_GRID."` WHERE `is_delete`='0' AND `broker_id`='".$broker."' AND ".$basis_condition_on." BETWEEN `from` AND `to`";
-                                $q = "SELECT * FROM `".BROKER_PAYOUT_GRID."` WHERE `is_delete`='0' AND `broker_id`='".$broker."' AND per = (SELECT MAX(per) FROM `".BROKER_PAYOUT_GRID."` WHERE `is_delete`='0' AND `broker_id`='".$broker."')";
-                				$res = $this->re_db_query($q);
-                                if($this->re_db_num_rows($res)>0){
-                                    while($row_s = $this->re_db_fetch_array($res)){
-                                        $deduction_per = isset($row_s['per'])?$row_s['per']:0;
-                        			
-                                        $clearing_charge_deducted_from = isset($row['clearing_charge_deducted_from'])?$row['clearing_charge_deducted_from']:'';
-                                        if($check_firm_does_not_participate_in_commission_loss == 1)
-                                        {
-                                            $net_pay = $basis_amount-$charge_amount;
-                                        }
-                                        else
-                                        {
-                                            if($charge_amount<=($basis_amount*$deduction_per)/100)
-                                            {
-                                                 if($clearing_charge_deducted_from==1)
-                                                 {
-                                                     $net_pay = ($basis_amount*$deduction_per)/100-$charge_amount;
-                                                 }
-                                                 else if($clearing_charge_deducted_from==2)
-                                                 {
-                                                     $net_pay = ($basis_amount-$charge_amount)*$deduction_per/100;
-                                                 }
-                                            }
-                                            else
-                                            {
-                                                /*$check_firm_does_not_participate = $this->check_firm_does_not_participate();print_r($check_firm_does_not_participate);exit;
-                                                if(isset($firm_does_not_participate['firm_does_not_participate']) && $firm_does_not_participate['firm_does_not_participate']==1)
-                                                {
-                                                    $net_pay = $basis_amount-$charge_amount;
-                                                }*/
-                                                $net_pay = $basis_amount-$charge_amount;
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    $q = "SELECT * FROM `".PAYOUT_FIXED_RATES."` WHERE `is_delete`='0' AND `broker_id`='".$broker."' AND `category_id`='".$val_data['product_category']."'";
-                                    $res = $this->re_db_query($q);
-                                    if($this->re_db_num_rows($res)>0){
-                                        while($row_s = $this->re_db_fetch_array($res)){
-                            			   $deduction_per = isset($row_s['category_rates'])?$row_s['category_rates']:0;
-                                           $clearing_charge_deducted_from = isset($row['clearing_charge_deducted_from'])?$row['clearing_charge_deducted_from']:'';
-                                            if($check_firm_does_not_participate_in_commission_loss == 1)
-                                            {
-                                                $net_pay = $basis_amount-$charge_amount;
-                                            }
-                                            else
-                                            {
-                                                if($charge_amount<=($basis_amount*$deduction_per)/100)
-                                                {
-                                                     if($clearing_charge_deducted_from==1)
-                                                     {
-                                                         $net_pay = ($basis_amount*$deduction_per)/100-$charge_amount;
-                                                     }
-                                                     else if($clearing_charge_deducted_from==2)
-                                                     {
-                                                         $net_pay = ($basis_amount-$charge_amount)*$deduction_per/100;
-                                                     }
-                                                }
-                                                else
-                                                {
-                                                    /*$check_firm_does_not_participate = $this->check_firm_does_not_participate();print_r($check_firm_does_not_participate);exit;
-                                                    if(isset($firm_does_not_participate['firm_does_not_participate']) && $firm_does_not_participate['firm_does_not_participate']==1)
-                                                    {
-                                                        $net_pay = $basis_amount-$charge_amount;
-                                                    }*/
-                                                    $net_pay = $basis_amount-$charge_amount;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {//$step.=4;
-                                $q = "SELECT * FROM `".PAYOUT_FIXED_RATES."` WHERE `is_delete`='0' AND `broker_id`='".$broker."' AND `category_id`='".$val_data['product_category']."'";
-                                $res = $this->re_db_query($q);
-                                if($this->re_db_num_rows($res)>0){
-                                    while($row_s = $this->re_db_fetch_array($res)){
-                        			   $deduction_per = isset($row_s['category_rates'])?$row_s['category_rates']:0;
-                                       $clearing_charge_deducted_from = isset($row['clearing_charge_deducted_from'])?$row['clearing_charge_deducted_from']:'';
-                                        if($check_firm_does_not_participate_in_commission_loss == 1)
-                                        {
-                                            $net_pay = $basis_amount-$charge_amount;
-                                        }
-                                        else
-                                        {
-                                            if($charge_amount<=($basis_amount*$deduction_per)/100)
-                                            {
-                                                 if($clearing_charge_deducted_from==1)
-                                                 {
-                                                     $net_pay = ($basis_amount*$deduction_per)/100-$charge_amount;
-                                                 }
-                                                 else if($clearing_charge_deducted_from==2)
-                                                 {
-                                                     $net_pay = ($basis_amount-$charge_amount)*$deduction_per/100;
-                                                 }
-                                            }
-                                            else
-                                            {
-                                                /*$check_firm_does_not_participate = $this->check_firm_does_not_participate();print_r($check_firm_does_not_participate);exit;
-                                                if(isset($firm_does_not_participate['firm_does_not_participate']) && $firm_does_not_participate['firm_does_not_participate']==1)
-                                                {
-                                                    $net_pay = $basis_amount-$charge_amount;
-                                                }*/
-                                                $net_pay = $basis_amount-$charge_amount;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        //check brokers adjustments:
-                        $check_broker_adjustments = array();
-                        $is_expired='';
-                        if(isset($val_data['is_calculate']) && $val_data['is_calculate'] == 1)
-                        {
-                            $is_expired = 0;
-                            $check_broker_adjustments = $this->select_adjustments_master($val_data['id'],0,$broker,'',$payroll_date);
-                        }
-                        else
-                        {
-                            $check_broker_adjustments = $this->select_adjustments_master('',0,$broker,'',$payroll_date);
-                        }
-                        //echo '<pre>';print_r($check_broker_adjustments);exit;
-                        $total_adjustments = 0;
-                        $total_taxable_adjustments = 0;
-                        $total_nontaxable_adjustments = 0;
-                        if(count($check_broker_adjustments)>0)
-                        {
-                            foreach($check_broker_adjustments as $key_amount=>$val_amount)
-                            {
-                                $brokers_adjustment = 0;
-                                if($payroll_date>=$val_amount['pay_on'])
-                                {
-                                    $total_usage=$val_amount['total_usage'];
-                                    if($val_amount['payable_trans_id']==$val_data['id'])
-                                    {
-                                        $total_usage=$total_usage+$val_amount['recalc_old_usage'];
-                                    }
-                                    $recalc_total_usage=$total_usage;
-                                    if(isset($val_amount['pay_type']) && $val_amount['pay_type']== 3 && $val_amount['pay_amount'] != '')                                {
-                                        $total_adjustments_user_manual = ($val_amount['adjustment_amount']*$val_amount['pay_amount'])/100;
-                                        $total_adjustments = $total_adjustments+$total_adjustments_user_manual;
-                                        $brokers_adjustment = $brokers_adjustment+$total_adjustments_user_manual;
-                                        if(isset($val_amount['taxable_adjustment']) && $val_amount['taxable_adjustment'] == 1)
-                                        {
-                                            $total_taxable_adjustments = $total_taxable_adjustments+$total_adjustments_user_manual;
-                                        }
-                                        else
-                                        {
-                                            $total_nontaxable_adjustments = $total_nontaxable_adjustments+$total_adjustments_user_manual;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        $total_adjustments = $total_adjustments+$val_amount['adjustment_amount'];
-                                        $brokers_adjustment = $brokers_adjustment+$val_amount['adjustment_amount'];
-                                        if(isset($val_amount['taxable_adjustment']) && $val_amount['taxable_adjustment'] == 1)
-                                        {
-                                            $total_taxable_adjustments = $total_taxable_adjustments+$val_amount['adjustment_amount'];
-                                        }
-                                        else
-                                        {
-                                            $total_nontaxable_adjustments = $total_nontaxable_adjustments+$val_amount['adjustment_amount'];
-                                        }
-                                    }
-                                    if($total_usage>0)
-                                    {
-                                        $total_adjustments = $total_adjustments*$total_usage;
-                                        $brokers_adjustment = $brokers_adjustment*$total_usage;
-                                        if(isset($val_amount['taxable_adjustment']) && $val_amount['taxable_adjustment'] == 1)
-                                        {
-                                            $total_taxable_adjustments = $total_taxable_adjustments*$total_usage;
-                                        }
-                                        else
-                                        {
-                                            $total_nontaxable_adjustments = $total_nontaxable_adjustments*$total_usage;
-                                        }
-                                    }
-                                    
-                                    $is_expired = 1;
-                                    $adjustment_id = $val_amount['id'];
-                                    
-                                    //for recurring not selected:
-                                    if(isset($val_amount['recurring']) && $val_amount['recurring'] == 0)
-                                    {
-                                        $update_adjustment = $this->remove_adjustments($adjustment_id);
-                                    }
-                                    
-                                    if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 2)
-                                    {
-                                        $expired_adjustments = $this->renew_mid_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                    }
-                                    if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 3)
-                                    {
-                                        $expired_adjustments = $this->renew_end_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                    }
-                                    if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 4)
-                                    {
-                                        $expired_adjustments = $this->renew_semi_mid_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                    }
-                                    if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 5)
-                                    {
-                                        $expired_adjustments = $this->renew_semi_end_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                    }
-                                    if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 6)
-                                    {
-                                        $expired_adjustments = $this->renew_qua_mid_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                    }
-                                    if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 7)
-                                    {
-                                        $expired_adjustments = $this->renew_qua_end_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                    }
-                                }
-                                
-                                $q = "SELECT * FROM ".PAYROLL_BROKERS_ADJUSTMENTS." where `payable_trans_id`=".$val_data['id']." and `broker_id`=".$val_amount['broker_name']." and `adjustment_id`=".$val_amount['id']." and `is_delete` = '0'";
-                                $res = $this->re_db_query($q);
-                                $record = $this->re_db_num_rows($res);
-                                if($record>0)
-                                {
-                                    $q = "UPDATE ".PAYROLL_BROKERS_ADJUSTMENTS." SET `is_delete`='1' where `payable_trans_id`=".$val_data['id']." and `broker_id`=".$val_amount['broker_name']." and `adjustment_id`=".$val_amount['id']." and `is_delete` = '0'";
-                                    $res = $this->re_db_query($q);
-                                }
-                                
-                                $q = "INSERT INTO ".PAYROLL_BROKERS_ADJUSTMENTS." SET `payable_trans_id` ='".$val_data['id']."',`adjustment_id` ='".$val_amount['id']."', `broker_id`='".$broker."',`adjustment_amount`='".$brokers_adjustment."',`current_adjustment_amount`='".$val_amount['adjustment_amount']."',`gl_account`='".$val_amount['gl_account']."',`category`='".$val_amount['category']."',`taxable_adjustment`='".$val_amount['taxable_adjustment']."',`broker`='".$val_amount['broker']."',`description`='".$val_amount['description']."' ".$this->insert_common_sql();
-                                $res = $this->re_db_query($q);
-                            }
-                        }
-                        $both_total_adjustments=$both_total_adjustments+$total_adjustments;
-                        $both_total_taxable_adjustments=$both_total_taxable_adjustments+$total_taxable_adjustments;
-                        $both_total_nontaxable_adjustments=$both_total_nontaxable_adjustments+$total_nontaxable_adjustments;
-                        //$net_pay = $net_pay+$total_adjustments;
-                        
-                        //total adjustments for all broker:
-                        $check_adjustments = $this->select_adjustments_master('',0,'',1,$payroll_date);
-                        $total_adjustments = 0;
-                        $total_taxable_adjustments = 0;
-                        $total_nontaxable_adjustments = 0;
-                        if(count($check_adjustments)>0)
-                        {
-                            foreach($check_adjustments as $key_amount=>$val_amount)
-                            {
-                                if($payroll_date>=$val_amount['pay_on'])
-                                {
-                                    
-                                    $q = "SELECT * FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `adjustment_id`=".$val_amount['id']." and `broker_id`=".$broker."";
-                                    $res = $this->re_db_query($q);
-                                    $record = $this->re_db_num_rows($res);
-                                    if($record>0)
-                                    {
-                                        $q = "DELETE FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `adjustment_id`=".$val_amount['id']." and `broker_id`=".$broker."";
-                                        $res = $this->re_db_query($q);
-                                    }
-                                    $q = "INSERT INTO ".PAYROLL_ADJUSTMENTS_DETAIL." SET `adjustment_id` ='".$val_amount['id']."',`payable_trans_id` ='".$val_data['id']."', `broker_id`='".$broker."',`adjustment_amount`='".$val_amount['adjustment_amount']."',`recurring_type`='".$val_amount['recurring_type_id']."',`is_expired`='".$val_amount['is_expired']."',`total_usage`='".$val_amount['total_usage']."',`recalc_old_usage`='".$val_amount['recalc_old_usage']."',`is_used`='".$val_amount['is_used']."' ".$this->insert_common_sql();
-                                    $res = $this->re_db_query($q);
-                                }
-                            }
-                            $get_broker_adjustments = array();
-                            $is_expired='';
-                            if(isset($val_data['is_calculate']) && $val_data['is_calculate'] == 1)
-                            {
-                                $is_expired = 0;
-                                $get_broker_adjustments = $this->select_all_brokers_adjustments($val_data['id'],0,$broker,$payroll_date);
-                            }
-                            else
-                            {
-                                $get_broker_adjustments = $this->select_all_brokers_adjustments('',0,$broker,$payroll_date);
-                            }//echo '<pre>';print_r($get_broker_adjustments);exit;
-                            $total_adjustments = 0;
-                            if(count($get_broker_adjustments)>0)
-                            {
-                                foreach($get_broker_adjustments as $key_amount=>$val_amount)
-                                {
-                                    $brokers_adjustment = 0;
-                                    if($payroll_date>=$val_amount['pay_on'])
-                                    {
-                                        $total_usage=$val_amount['total_usage'];
-                                        if($val_amount['payable_trans_id']==$val_data['id'])
-                                        {
-                                            $total_usage=$total_usage+$val_amount['recalc_old_usage'];
-                                        }
-                                        $recalc_total_usage=$total_usage;
-                                        if(isset($val_amount['pay_type']) && $val_amount['pay_type']== 3 && $val_amount['pay_amount'] != '')                                {
-                                            $total_adjustments_user_manual = ($val_amount['adjustment_amount']*$val_amount['pay_amount'])/100;
-                                            $total_adjustments = $total_adjustments+$total_adjustments_user_manual;
-                                            $brokers_adjustment = $brokers_adjustment+$total_adjustments_user_manual;
-                                            if(isset($val_amount['taxable_adjustment']) && $val_amount['taxable_adjustment'] == 1)
-                                            {
-                                                $total_taxable_adjustments = $total_taxable_adjustments+$total_adjustments_user_manual;
-                                            }
-                                            else
-                                            {
-                                                $total_nontaxable_adjustments = $total_nontaxable_adjustments+$total_adjustments_user_manual;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $total_adjustments = $total_adjustments+$val_amount['adjustment_amount'];
-                                            $brokers_adjustment = $brokers_adjustment+$val_amount['adjustment_amount'];
-                                            if(isset($val_amount['taxable_adjustment']) && $val_amount['taxable_adjustment'] == 1)
-                                            {
-                                                $total_taxable_adjustments = $total_taxable_adjustments+$val_amount['adjustment_amount'];
-                                            }
-                                            else
-                                            {
-                                                $total_nontaxable_adjustments = $total_nontaxable_adjustments+$val_amount['adjustment_amount'];
-                                            }
-                                        }
-                                        if($total_usage>0)
-                                        {
-                                            $total_adjustments = $total_adjustments*$total_usage;
-                                            $brokers_adjustment = $brokers_adjustment*$total_usage;
-                                            if(isset($val_amount['taxable_adjustment']) && $val_amount['taxable_adjustment'] == 1)
-                                            {
-                                                $total_taxable_adjustments = $total_taxable_adjustments*$total_usage;
-                                            }
-                                            else
-                                            {
-                                                $total_nontaxable_adjustments = $total_nontaxable_adjustments*$total_usage;
-                                            }
-                                        }
-                                        
-                                        $is_expired = 1;
-                                        $adjustment_id = $val_amount['id'];
-                                        
-                                        //for recurring not selected:
-                                        if(isset($val_amount['recurring']) && $val_amount['recurring'] == 0)
-                                        {
-                                            $q = "SELECT * FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `is_delete` = 0 and `is_used` = 0 and `adjustment_id`=".$val_amount['adjustment_id']."";
-                                            $res = $this->re_db_query($q);
-                                            $record = $this->re_db_num_rows($res);
-                                            if($record>0)
-                                            {
-                                                $update_adjustment = $this->remove_sub_adjustments($adjustment_id,$val_amount['adjustment_id']);
-                                            }
-                                            else
-                                            {
-                                                $update_adjustment = $this->remove_adjustments($val_amount['adjustment_id']);
-                                            }
-                                        
-                                        }
-                                        if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 2)
-                                        {
-                                            $q = "SELECT * FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `is_delete` = 0 and `is_expired` = 0 and `adjustment_id`=".$val_amount['adjustment_id']."";
-                                            $res = $this->re_db_query($q);
-                                            $record = $this->re_db_num_rows($res);
-                                            if($record>0)
-                                            {
-                                                $expired_adjustments = $this->renew_sub_mid_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                            else
-                                            {
-                                                $expired_adjustments = $this->renew_mid_month_adjustments($is_expired,$val_amount['adjustment_id'],$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                        }
-                                        if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 3)
-                                        {
-                                            $q = "SELECT * FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `is_delete` = 0 and `is_expired` = 0 and `adjustment_id`=".$val_amount['adjustment_id']."";
-                                            $res = $this->re_db_query($q);
-                                            $record = $this->re_db_num_rows($res);
-                                            if($record>0)
-                                            {
-                                                $expired_adjustments = $this->renew_sub_end_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                            else
-                                            {
-                                                $expired_adjustments = $this->renew_end_month_adjustments($is_expired,$val_amount['adjustment_id'],$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                        }
-                                        if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 4)
-                                        {
-                                            $q = "SELECT * FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `is_delete` = 0 and `is_expired` = 0 and `adjustment_id`=".$val_amount['adjustment_id']."";
-                                            $res = $this->re_db_query($q);
-                                            $record = $this->re_db_num_rows($res);
-                                            if($record>0)
-                                            {
-                                                $expired_adjustments = $this->renew_sub_semi_mid_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                            else
-                                            {
-                                                $expired_adjustments = $this->renew_semi_mid_month_adjustments($is_expired,$val_amount['adjustment_id'],$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                        }
-                                        if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 5)
-                                        {
-                                            $q = "SELECT * FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `is_delete` = 0 and `is_expired` = 0 and `adjustment_id`=".$val_amount['adjustment_id']."";
-                                            $res = $this->re_db_query($q);
-                                            $record = $this->re_db_num_rows($res);
-                                            if($record>0)
-                                            {
-                                                $expired_adjustments = $this->renew_sub_semi_end_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                            else
-                                            {
-                                                $expired_adjustments = $this->renew_semi_end_month_adjustments($is_expired,$val_amount['adjustment_id'],$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                        }
-                                        if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 6)
-                                        {
-                                            $q = "SELECT * FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `is_delete` = 0 and `is_expired` = 0 and `adjustment_id`=".$val_amount['adjustment_id']."";
-                                            $res = $this->re_db_query($q);
-                                            $record = $this->re_db_num_rows($res);
-                                            if($record>0)
-                                            {
-                                                $expired_adjustments = $this->renew_sub_qua_mid_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                            else
-                                            {
-                                                $expired_adjustments = $this->renew_qua_mid_month_adjustments($is_expired,$val_amount['adjustment_id'],$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                        }
-                                        if(isset($val_amount['recurring_type_id']) && $val_amount['recurring_type_id'] == 7)
-                                        {
-                                            $q = "SELECT * FROM ".PAYROLL_ADJUSTMENTS_DETAIL." where `is_delete` = 0 and `is_expired` = 0 and `adjustment_id`=".$val_amount['adjustment_id']."";
-                                            $res = $this->re_db_query($q);
-                                            $record = $this->re_db_num_rows($res);
-                                            if($record>0)
-                                            {
-                                                $expired_adjustments = $this->renew_sub_qua_end_month_adjustments($is_expired,$adjustment_id,$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                            else
-                                            {
-                                                $expired_adjustments = $this->renew_qua_end_month_adjustments($is_expired,$val_amount['adjustment_id'],$val_data['id'],0,$recalc_total_usage);
-                                            }
-                                        }
-                                    }
-                                    $q = "SELECT * FROM ".PAYROLL_BROKERS_ADJUSTMENTS." where `payable_trans_id`=".$val_data['id']." and `broker_id`=".$val_amount['broker_id']." and `adjustment_id`=".$val_amount['adjustment_id']." and `is_delete` = '0'";
-                                    $res = $this->re_db_query($q);
-                                    $record = $this->re_db_num_rows($res);
-                                    if($record>0)
-                                    {
-                                        $q = "UPDATE ".PAYROLL_BROKERS_ADJUSTMENTS." SET `is_delete`='1' where `payable_trans_id`=".$val_data['id']." and `broker_id`=".$val_amount['broker_id']." and `adjustment_id`=".$val_amount['adjustment_id']." and `is_delete` = '0'";
-                                        $res = $this->re_db_query($q);
-                                    }
-                                    
-                                    $q = "INSERT INTO ".PAYROLL_BROKERS_ADJUSTMENTS." SET `payable_trans_id` ='".$val_data['id']."',`adjustment_id` ='".$val_amount['adjustment_id']."', `broker_id`='".$val_amount['broker_id']."',`adjustment_amount`='".$brokers_adjustment."',`current_adjustment_amount`='".$val_amount['adjustment_amount']."',`gl_account`='".$val_amount['gl_account']."',`category`='".$val_amount['category_id']."',`taxable_adjustment`='".$val_amount['taxable_adjustment']."',`broker`='0',`description`='".$val_amount['description']."' ".$this->insert_common_sql();
-                                    $res = $this->re_db_query($q);
-                                    
-                                }
-                            }
-                        }//echo '<pre>';print_r($total_adjustments);exit;
-                        $both_total_adjustments=$both_total_adjustments+$total_adjustments;
-                        $both_total_taxable_adjustments=$both_total_taxable_adjustments+$total_taxable_adjustments;
-                        $both_total_nontaxable_adjustments=$both_total_nontaxable_adjustments+$total_nontaxable_adjustments;
-                        //$net_pay = $net_pay+$total_adjustments;
-                        
-                        //check brokers balance if balance available then add:
-                        $check_broker_balance = $this->select_balances_master($broker);
-                        $total_balance = 0;
-                        if(count($check_broker_balance)>0)
-                        {
-                            foreach($check_broker_balance as $key_amount=>$val_amount)
-                            {
-                                $total_balance = $total_balance+$val_amount['balance_amount'];
-                                $q = "UPDATE ".BROKER_BALANCES_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `id`='".$val_amount['id']."'";
-                                $res = $this->re_db_query($q);
-                            }
-                        }
-                        //$net_pay = $net_pay+$total_balance;
-                    }
-                    //Apply system rates and check with minimum check amount:
-                    $check_minimum_check_amount=$this->check_minimum_check_amount();
-                    
-                    $finra = isset($check_minimum_check_amount['finra'])?$check_minimum_check_amount['finra']:0;
-                    $sipc = isset($check_minimum_check_amount['sipc'])?$check_minimum_check_amount['sipc']:0;
-                    $check_amount = isset($check_minimum_check_amount['minimum_check_amount'])?$check_minimum_check_amount['minimum_check_amount']:0;
-                    $finra_sipc_amount = $finra+$sipc;
-                    $total_system_rate = $net_pay*$finra_sipc_amount/100;
-                    //$net_pay = $net_pay-$total_system_rate;
-                    
-                    //Override rates of other broker deduct:
-                    $total_override_deduct = 0;
-                    $get_override_rates = $this->get_override_rates($payroll_date,$broker,$product_category,2);
-                    if(count($get_override_rates)>0)
-                    {
-                        foreach($get_override_rates as $rate_key=>$rate_val)
-                        {
-                            $override_rate = $rate_val['per'];
-                            if($overrides_on == 2)
-                            {
-                                $total_deduction = $net_commission*$override_rate/100;
-                            }
-                            else
-                            {
-                                $total_deduction = $val_data['commission_received']*$override_rate/100;
-                            }
-                            $total_override_deduct = $total_override_deduct+$total_deduction;
-                            
-                            $q = "SELECT * FROM `".PAYROLL_OVERRIDE_RATES."` WHERE `payable_transaction_id`='".$val_data['id']."' AND `override_id`='".$rate_val['id']."' ";
-            				$res = $this->re_db_query($q);
-                            if($this->re_db_num_rows($res)>0)
-                            {
-                                $q = "UPDATE ".PAYROLL_OVERRIDE_RATES." SET `is_delete`='1' WHERE `payable_transaction_id`='".$val_data['id']."' AND `override_id`='".$rate_val['id']."'";
-                                $res = $this->re_db_query($q);
-                            }
-                            
-                            $q = "INSERT INTO ".PAYROLL_OVERRIDE_RATES." SET `payable_transaction_id` ='".$val_data['id']."', `transaction_id`='".$val_data['trade_number']."',`override_id`='".$rate_val['id']."',`broker_id`='".$val_data['broker_name']."',`receiving_rep`='".$rate_val['rap']."',`rate`='".$total_deduction."',`rate_per`='".$override_rate."',`is_override_broker`='1' ".$this->insert_common_sql();
-                            $res = $this->re_db_query($q);
-                            
-                        }
-                        //$net_pay = $net_pay-$total_override_deduct;
-                    }
-                    
-                    //Override rates of current broker add:
-                    /*$total_override_add = 0;
-                    $get_override_rates = $this->get_override_rates($payroll_date,$broker,$product_category,1);
-                    if(count($get_override_rates)>0)
-                    {
-                        foreach($get_override_rates as $rate_key=>$rate_val)
-                        {
-                            $override_rate = $rate_val['per'];
-                            $total_addition = $net_pay*$override_rate/100;
-                            $total_override_add = $total_override_add+$total_addition;
-                            
-                            $q = "SELECT * FROM `".PAYROLL_OVERRIDE_RATES."` WHERE `payable_transaction_id`='".$val_data['id']."' AND `override_id`='".$rate_val['id']."' ";
-            				$res = $this->re_db_query($q);
-                            if($this->re_db_num_rows($res)>0)
-                            {
-                                $q = "UPDATE ".PAYROLL_OVERRIDE_RATES." SET `is_delete`='1' WHERE `payable_transaction_id`='".$val_data['id']."' AND `override_id`='".$rate_val['id']."'";
-                                $res = $this->re_db_query($q);
-                            }
-                            
-                            $q = "INSERT INTO ".PAYROLL_OVERRIDE_RATES." SET `payable_transaction_id` ='".$val_data['id']."', `transaction_id`='".$val_data['trade_number']."',`override_id`='".$rate_val['id']."',`broker_id`='".$val_data['broker_name']."',`receiving_rep`='".$rate_val['rap']."',`rate`='".$total_addition."',`rate_per`='".$override_rate."' ".$this->insert_common_sql();
-                            $res = $this->re_db_query($q);
-                            
-                        }
-                        //$net_pay = $net_pay+$total_override_add;
-                    }*/
-                    //apply split rate if split yes checked on trades:
-                    $total_split_deduct = 0;
-                    $total_split_add = 0;
-                    if(isset($val_data['is_split']) && $val_data['is_split'] == 1)
-                    {
-                        //Split rates of other broker deduct:
-                        $get_split_rates = $this->get_split_rates($payroll_date,$broker,2);
-                        if(count($get_split_rates)>0)
-                        {
-                            foreach($get_split_rates as $rate_key=>$rate_val)
-                            {
-                                $split_rate = $rate_val['rate'];
-                                $total_deduction = $net_pay*$split_rate/100;
-                                $total_split_deduct = $total_split_deduct+$total_deduction;
-                                
-                                $q = "SELECT * FROM `".PAYROLL_SPLIT_RATES."` WHERE `payable_transaction_id`='".$val_data['id']."' AND `split_id`='".$rate_val['id']."' ";
-                				$res = $this->re_db_query($q);
-                                if($this->re_db_num_rows($res)>0)
-                                {
-                                    $q = "UPDATE ".PAYROLL_SPLIT_RATES." SET `is_delete`='1' WHERE `payable_transaction_id`='".$val_data['id']."' AND `split_id`='".$rate_val['id']."'";
-                                    $res = $this->re_db_query($q);
-                                }
-                                 
-                                $q = "INSERT INTO ".PAYROLL_SPLIT_RATES." SET `payable_transaction_id` ='".$val_data['id']."',`transaction_id`='".$val_data['trade_number']."',`split_id`='".$rate_val['id']."',`broker_id`='".$val_data['broker_name']."',`split_broker`='".$rate_val['rap']."',`split_rate`='".$total_deduction."',`split_rate_per`='".$split_rate."',`is_split_broker`='1' ".$this->insert_common_sql();
-                                $res = $this->re_db_query($q);
-                                
-                            }
-                            //$net_pay = $net_pay-$total_split_deduct;
-                        }
-                        
-                        //Split rates of current broker add:
-                        /*$get_split_rates = $this->get_split_rates($payroll_date,$broker,1);
-                        if(count($get_split_rates)>0)
-                        {
-                            foreach($get_split_rates as $rate_key=>$rate_val)
-                            {
-                                $split_rate = $rate_val['rate'];
-                                $total_addition = $net_pay*$split_rate/100;
-                                $total_split_add = $total_split_add+$total_addition;
-                                
-                                $q = "SELECT * FROM `".PAYROLL_SPLIT_RATES."` WHERE `payable_transaction_id`='".$val_data['id']."' AND `split_id`='".$rate_val['id']."' ";
-                				$res = $this->re_db_query($q);
-                                if($this->re_db_num_rows($res)>0)
-                                {
-                                    $q = "UPDATE ".PAYROLL_SPLIT_RATES." SET `is_delete`='1' WHERE `payable_transaction_id`='".$val_data['id']."' AND `split_id`='".$rate_val['id']."'";
-                                    $res = $this->re_db_query($q);
-                                }
-                                
-                                $q = "INSERT INTO ".PAYROLL_SPLIT_RATES." SET `payable_transaction_id` ='".$val_data['id']."',`transaction_id`='".$val_data['trade_number']."',`split_id`='".$rate_val['id']."',`broker_id`='".$val_data['broker_name']."',`split_broker`='".$rate_val['rap']."',`split_rate`='".$total_addition."',`split_rate_per`='".$split_rate."'".$this->insert_common_sql();
-                                $res = $this->re_db_query($q);
-                                
-                            }
-                            //$net_pay = $net_pay+$total_split_add;
-                        }*/
-                    }
-                }
-                
-                if(isset($check_amount) && $net_pay<$check_amount)
-                {
-                    $q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `is_balance`='1',`commission_paid`='".$net_pay."',`net_commission`='".$net_commission."',`adjustments`='".$both_total_adjustments."',`taxable_adjustments`='".$both_total_taxable_adjustments."',`non-taxable_adjustments`='".$both_total_nontaxable_adjustments."',`balance`='".$total_balance."',`override_rate`='".$total_override_deduct."',`split_rate`='".$total_split_deduct."',`finra`='".$finra."',`sipc`='".$sipc."',`check_amount`='".$check_amount."' ".$this->update_common_sql()." WHERE `id`='".$val_data['id']."'";
-                    $res = $this->re_db_query($q);
-                    
-                    $q = "UPDATE ".PAYROLL_UPLOAD." SET `is_calculate`='1',`payroll_date`='".$payroll_date."'".$this->update_common_sql()." WHERE `id`='".$val_data['payroll_id']."'";
-                    $res = $this->re_db_query($q);
-                }
-                else
-                {
-                    $q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `is_balance`='0',`commission_paid`='".$net_pay."',`net_commission`='".$net_commission."',`adjustments`='".$both_total_adjustments."',`taxable_adjustments`='".$both_total_taxable_adjustments."',`non-taxable_adjustments`='".$both_total_nontaxable_adjustments."',`balance`='".$total_balance."',`override_rate`='".$total_override_deduct."',`split_rate`='".$total_split_deduct."',`finra`='".$finra."',`sipc`='".$sipc."',`check_amount`='".$check_amount."' ".$this->update_common_sql()." WHERE `id`='".$val_data['id']."'";
-                    $res = $this->re_db_query($q);
-                    
-                    $q = "UPDATE ".PAYROLL_UPLOAD." SET `is_calculate`='1',`payroll_date`='".$payroll_date."'".$this->update_common_sql()." WHERE `id`='".$val_data['payroll_id']."'";
-                    $res = $this->re_db_query($q);
-                }
-            }
-        }
-        if(isset($res) && $res != ''){
-    	    $_SESSION['success'] = 'Payroll calculated successfully.';
-    		return true;
-    	}
-    	else{
-    		$_SESSION['warning'] = UNKWON_ERROR;
-    		return false;
-    	}
         
+        // Clear Commission Paid field in Payroll Master
+        $q = "UPDATE `" .PAYROLL_REVIEW_MASTER. "` SET `commission_paid` = 0, `override_rate` = 0 WHERE 1";
+        $res = $this->re_db_query($q);
+
+        // Breakout SPLIT transactions before calculating the "paid" field - 10/11/21
+        $calculate->insert_payroll_split_rates($payroll_date);
+
+        // **********************************************
+        // * 1. Broker Commissions 
+        // * 2. Split Commissions - added 10/12/21 li
+        // * 3. Override Commissions - added 9/26/21 li
+        // **********************************************
+        $payroll_commissions = $calculate->select_payroll_calculation_transactions();
+        
+        // Clear out the Override Transactions - populated in "overrideCalculation()"
+        $calculate->clearOverrides();
+
+        if(count($payroll_commissions)<=0) {
+            // No uploaded trades
+            $q = "UPDATE " .PAYROLL_UPLOAD. "
+                    SET
+                        `is_calculate`='1',
+                        `payroll_date`='" .$calculate->re_db_input($payroll_date). "'".
+                        $calculate->update_common_sql(). "
+                    WHERE `is_calculate`='0' and `is_delete`='0' and `is_close`='0'
+            ";
+            $res = $calculate->re_db_query($q);
+        } else {
+            $calculate->commissionCalculation($payroll_commissions, $payroll_date);
+            $calculate->calculateAdjustments($payroll_date);
+            $calculate->calculateCurrentPayroll($payroll_date);
+        }
     }
+
     public function payroll_close(){
-    
+
 		$q = "UPDATE `".PAYROLL_UPLOAD."` SET `is_close`='1' WHERE `is_close`='0' and `is_calculate`='1' ";
 		$res = $this->re_db_query($q);
         
-        $q = "UPDATE `".PAYROLL_ADJUSTMENTS_MASTER."` SET `is_delete`='1' WHERE `is_used`='1' ";
-		$res = $this->re_db_query($q);
-        
-        /*$q = "UPDATE `".PAYROLL_OVERRIDE_RATES."` SET `is_delete`='1' WHERE `is_used`='1' ";
-		$res = $this->re_db_query($q);
-        
-        $q = "UPDATE `".PAYROLL_SPLIT_RATES."` SET `is_delete`='1' WHERE `is_used`='1' ";
-		$res = $this->re_db_query($q);*/
-        
-        /*$q = "TRUNCATE TABLE `".PAYROLL_OVERRIDE_RATES."`";
-		$res = $this->re_db_query($q);
-        
-        $q = "TRUNCATE TABLE `".PAYROLL_SPLIT_RATES."`";
-		$res = $this->re_db_query($q);*/
         
         $get_prior_payrolls = $this->get_brokers_payroll();
         if(count($get_prior_payrolls)>0)
@@ -1019,10 +236,10 @@ class payroll extends db{
                 $instance_broker = new broker_master();
                 $get_broker_data = $instance_broker->edit($broker);
                 
-                $q = "UPDATE ".PRIOR_PAYROLL_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `rep_name`='".$broker."'";
+                $q = "UPDATE ".PRIOR_PAYROLL_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
                 $res = $this->re_db_query($q);
                 
-                $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".$val_prior_payrolls['payroll_date']."',`rep_number`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`rep_name`='".$get_broker_data['id']."',`gross_production`='".$val_prior_payrolls['gross_commissions']."',`check_amount`='".$val_prior_payrolls['prior_check_amounts']."',`taxable_adjustments`='".$val_prior_payrolls['taxable_adjustments']."',`non-taxable_adjustments`='".$val_prior_payrolls['non-taxable_adjustments']."' ".$this->insert_common_sql();
+                $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".$val_prior_payrolls['payroll_date']."',`broker_id`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`gross_production`='".$val_prior_payrolls['gross_commissions']."',`check_amount`='".$val_prior_payrolls['prior_check_amounts']."' ".$this->insert_common_sql();
                 $res = $this->re_db_query($q);
             }
         }
@@ -1035,13 +252,10 @@ class payroll extends db{
                 $instance_broker = new broker_master();
                 $get_broker_data = $instance_broker->edit($broker);
                 
-                $q = "UPDATE ".BROKER_BALANCES_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_name`='".$broker."'";
+                $q = "UPDATE ".BROKER_BALANCES_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
                 $res = $this->re_db_query($q);
                 
-                $q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_name`='".$broker."' and `is_balance`='1'";
-                $res = $this->re_db_query($q);
-                
-                $q = "INSERT INTO ".BROKER_BALANCES_MASTER." SET `broker_number`='".$get_broker_data['id']."',`broker_name`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`balance_amount`='".$val_balance['broker_balance_amounts']."' ".$this->insert_common_sql();
+                $q = "INSERT INTO ".BROKER_BALANCES_MASTER." SET `broker_number`='".$get_broker_data['id']."',`broker_id`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`balance_amount`='".$val_balance['broker_balance_amounts']."' ".$this->insert_common_sql();
                 $res = $this->re_db_query($q);
                 
             }
@@ -1283,14 +497,14 @@ class payroll extends db{
             
 		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
         
-        $broker_number = isset($data['broker_number'])?$this->re_db_input($data['broker_number']):0;
         $broker_name = isset($data['broker_name'])?$this->re_db_input($data['broker_name']):'';
+        $broker_id = $broker_name;
         $clearing_number = isset($data['clearing_number'])?$this->re_db_input($data['clearing_number']):'';
         $balance_amount = isset($data['balance_amount'])?$this->re_db_input($data['balance_amount']):'';
         
         if($id==0){
                 
-			 $q = "INSERT INTO ".BROKER_BALANCES_MASTER." SET `broker_number`='".$broker_number."',`broker_name`='".$broker_name."',`clearing_number`='".$clearing_number."',`balance_amount`='".$balance_amount."'".$this->insert_common_sql();
+			 $q = "INSERT INTO ".BROKER_BALANCES_MASTER." SET `broker_id`='".$broker_id."',`clearing_number`='".$clearing_number."',`balance_amount`='".$balance_amount."'".$this->insert_common_sql();
 			$res = $this->re_db_query($q);
             
             if($res){
@@ -1304,7 +518,7 @@ class payroll extends db{
 		}
 		else if($id>0){
 		 
-			$q = "UPDATE ".BROKER_BALANCES_MASTER." SET `broker_number`='".$broker_number."',`broker_name`='".$broker_name."',`clearing_number`='".$clearing_number."',`balance_amount`='".$balance_amount."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+			$q = "UPDATE ".BROKER_BALANCES_MASTER." SET `broker_id`='".$broker_id."',`clearing_number`='".$clearing_number."',`balance_amount`='".$balance_amount."'".$this->update_common_sql()." WHERE `id`='".$id."'";
 			$res = $this->re_db_query($q);
             
             if($res){
@@ -1322,9 +536,10 @@ class payroll extends db{
 		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
         
         $payroll_date = isset($data['payroll_date'])?$this->re_db_input($data['payroll_date']):'';
-        $rep_number = isset($data['rep_number'])?$this->re_db_input($data['rep_number']):'';
-        $clearing_number = isset($data['clearing'])?$this->re_db_input($data['clearing']):'';
+        // $rep_number deprecated in PRIOR_PAYROLL_MASTER database, replaced with "broker_id" - 11/1/21 li
+        $broker_id = isset($data['rep_number'])?$this->re_db_input($data['rep_number']):'';
         $rep_name = isset($data['rep_name'])?$this->re_db_input($data['rep_name']):'';
+        $clearing_number = isset($data['clearing'])?$this->re_db_input($data['clearing']):'';
         $gross_production = isset($data['gross_production'])?$this->re_db_input($data['gross_production']):'';
         $check_amount = isset($data['check_amount'])?$this->re_db_input($data['check_amount']):'';
         $net_production = isset($data['net_production'])?$this->re_db_input($data['net_production']):'';
@@ -1333,7 +548,7 @@ class payroll extends db{
         
         if($id==0){
                 
-			 $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',`rep_number`='".$rep_number."',`clearing_number`='".$clearing_number."',`rep_name`='".$rep_name."',`gross_production`='".$gross_production."',`check_amount`='".$check_amount."',`net_production`='".$net_production."',`adjustments`='".$adjustments."',`net_earnings`='".$net_earnings."'".$this->insert_common_sql();
+			 $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',`broker_id`='".$broker_id."',`clearing_number`='".$clearing_number."',`gross_production`='".$gross_production."',`check_amount`='".$check_amount."',`net_production`='".$net_production."',`adjustments`='".$adjustments."',`net_earnings`='".$net_earnings."'".$this->insert_common_sql();
 			$res = $this->re_db_query($q);
             
             if($res){
@@ -1347,7 +562,7 @@ class payroll extends db{
 		}
 		else if($id>0){
 		 
-			$q = "UPDATE ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',`rep_number`='".$rep_number."',`clearing_number`='".$clearing_number."',`rep_name`='".$rep_name."',`gross_production`='".$gross_production."',`check_amount`='".$check_amount."',`net_production`='".$net_production."',`adjustments`='".$adjustments."',`net_earnings`='".$net_earnings."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+			$q = "UPDATE ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',`broker_id`='".$broker_id."',`clearing_number`='".$clearing_number."',`gross_production`='".$gross_production."',`check_amount`='".$check_amount."',`net_production`='".$net_production."',`adjustments`='".$adjustments."',`net_earnings`='".$net_earnings."'".$this->update_common_sql()." WHERE `id`='".$id."'";
 			$res = $this->re_db_query($q);
             
             if($res){
@@ -1360,17 +575,23 @@ class payroll extends db{
 			}
 		}
    }
-   public function edit_review_payroll($id){
-		$return = array();
-		$q = "SELECT `trn`.*
-				FROM ".PAYROLL_REVIEW_MASTER." AS `trn`
+
+ public function edit_review_payroll($id){
+        $return = array();
+        $q = "SELECT `trn`.*, `trn`.`broker_id` AS broker_name
+                FROM ".PAYROLL_REVIEW_MASTER." AS `trn`
                 WHERE `trn`.`is_delete`='0' AND `trn`.`id`='".$id."'";
-		$res = $this->re_db_query($q);
+        $res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
-			$return = $this->re_db_fetch_array($res);
+            $return = $this->re_db_fetch_array($res);
         }
-		return $return;
-   }
+        return $return;
+    }
+   /** INVALID: Table PAYROLL_TRADE_OVERRIDES doesn't exist, but may be added later - 10/29/21 li
+    * @param mixed $id 
+    * @param mixed $transaction_id 
+    * @return array 
+    */
    public function edit_review_trade_overrides($id,$transaction_id){
 		$return = array();
 		$q = "SELECT `pto`.*
@@ -1384,6 +605,11 @@ class payroll extends db{
         }
 		return $return;
    }
+   /** INVALID: Table PAYROLL_TRADE_SPLITS doesn't exist, but may be added later - 10/29/21 li
+    * @param mixed $id 
+    * @param mixed $transaction_id 
+    * @return array 
+    */
    public function edit_review_trade_splits($id,$transaction_id){
 		$return = array();
 		$q = "SELECT `pts`.*
@@ -1410,7 +636,7 @@ class payroll extends db{
    }
    public function edit_balances_master($id){
 		$return = array();
-		$q = "SELECT `bb`.*
+		$q = "SELECT `bb`.*, `bb`.`broker_id` AS `broker_name`, `bb`.`broker_id` AS `broker_number`
 				FROM ".BROKER_BALANCES_MASTER." AS `bb`
                 WHERE `bb`.`is_delete`='0' AND `bb`.`id`='".$id."'";
 		$res = $this->re_db_query($q);
@@ -1421,7 +647,24 @@ class payroll extends db{
    }
    public function edit_prior_payrolls_master($id){
 		$return = array();
-		$q = "SELECT `pr`.*
+		$q = "SELECT `pr`.`id`,
+                     `pr`.`payroll_date`,
+                     `pr`.`broker_id` AS `rep_number`,
+                     `pr`.`broker_id` AS `rep_name`,
+                     `pr`.`clearing_number`,
+                     `pr`.`gross_production`,
+                     `pr`.`check_amount`,
+                     `pr`.`minimum_check_amount`,
+                     `pr`.`finra`,
+                     `pr`.`sipc`,
+                     `pr`.`sipc_gross`,
+                     `pr`.`net_production`,
+                     `pr`.`adjustments`,
+                     `pr`.`taxable_adjustments`,
+                     `pr`.`non-taxable_adjustments`,
+                     `pr`.`net_earnings`,
+                     `pr`.`status`,
+                     `pr`.`is_delete`
 				FROM ".PRIOR_PAYROLL_MASTER." AS `pr`
                 WHERE `pr`.`is_delete`='0' AND `pr`.`id`='".$id."'";
 		$res = $this->re_db_query($q);
@@ -1430,32 +673,7 @@ class payroll extends db{
         }
 		return $return;
    }
-   public function select($is_listing=0){
-    	$return = array();
-        $con='';
-        
-        if($is_listing == 1)
-        {
-            $con.= " AND `up`.`is_calculate` > 0";
-        }
-    	
-    	$q = "SELECT `up`.*,`pt`.*,`up`.`id` as payroll_id,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname
-                FROM `".PAYROLL_UPLOAD."` AS `up`, `".PAYROLL_REVIEW_MASTER."` AS `pt` 
-                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pt`.`broker_name`
-                LEFT JOIN `".CLIENT_MASTER."` as `cl` on `cl`.`id` = `pt`.`client_name`
-                WHERE `up`.`is_delete`='0' and `up`.`is_close` = 0 AND `pt`.`payroll_id`= `up`.`id` ".$con."
-                ORDER BY `pt`.`id` ASC";
-                
-    	$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            $a = 0;
-    		while($row = $this->re_db_fetch_array($res)){
-    		     array_push($return,$row);
-    		}
-        }
-    	return $return;
-  }
-  public function get_last_payroll(){
+    public function get_last_payroll(){
     	$return = array();
         $con='';
         
@@ -1473,88 +691,22 @@ class payroll extends db{
         }
     	return $return;
   }
-  public function get_override_rates($payroll_date='',$broker='',$product_category='',$current='')
-  {
-        $return = array();
-        $con='';
-        
-        if($broker>0 && $current == 2)
-        {
-            $con.= " AND `ovr`.`broker_id` = '".$broker."'";
-        }
-        if($broker>0 && $current == 1)
-        {
-            $con.= " AND `ovr`.`rap` = '".$broker."'";
-        }
-        if($product_category>0)
-        {
-            $con.= " AND (`ovr`.`product_category` = '".$product_category."' or `ovr`.`product_category` = '0')";
-        }
-        if($payroll_date != '')
-        {
-            $con.= " AND '".date('Y-m-d',strtotime($payroll_date))."' BETWEEN `ovr`.`from` AND `ovr`.`to` ";
-        }
-    	$q = "SELECT `ovr`.*
-    			FROM `".BROKER_MASTER."` AS `bm`
-                LEFT JOIN `".BROKER_PAYOUT_OVERRIDE."` as `ovr` on `ovr`.`broker_id` = `bm`.`id`
-                WHERE `ovr`.`is_delete`='0' ".$con."
-                ORDER BY `ovr`.`id` ASC";
-    	$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            $a = 0;
-    		while($row = $this->re_db_fetch_array($res)){
-    		     array_push($return,$row);
-    		}
-        }
-    	return $return;
-  }
-  public function get_split_rates($payroll_date='',$broker='',$current='')
-  {
-        $return = array();
-        $con='';
-        
-        if($broker>0 && $current == 2)
-        {
-            $con.= " AND `spl`.`broker_id` = '".$broker."'";
-        }
-        if($broker>0 && $current == 1)
-        {
-            $con.= " AND `spl`.`rap` = '".$broker."'";
-        }
-        if($payroll_date != '')
-        {
-            $con.= " AND '".date('Y-m-d',strtotime($payroll_date))."' BETWEEN `spl`.`start` AND `spl`.`until` ";
-        }
-    	$q = "SELECT `spl`.*
-    			FROM `".BROKER_MASTER."` AS `bm`
-                LEFT JOIN `".BROKER_PAYOUT_SPLIT."` as `spl` on `spl`.`broker_id` = `bm`.`id`
-                WHERE `spl`.`is_delete`='0' ".$con."
-                ORDER BY `spl`.`id` ASC";
-    	$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            $a = 0;
-    		while($row = $this->re_db_fetch_array($res)){
-    		     array_push($return,$row);
-    		}
-        }
-    	return $return;
-  }
   public function get_brokers_payroll($broker=''){
     	$return = array();
         $con='';
         
         if($broker != '')
         {
-            $con.= " AND `pt`.`broker_name` = '".$broker."'";
+            $con.= " AND `pt`.`broker_id` = '".$broker."'";
         }
     	
-    	$q = "SELECT `up`.*,(select max(up.payroll_date) from ft_payroll_upload as sub where `sub`.`id`=`up`.`id`) as payroll_date, sum(`pt`.commission_received) as gross_commissions,sum(`pt`.commission_paid) as prior_check_amounts,`pt`.*,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname
+    	$q = "SELECT `up`.*, sum(`pt`.commission_received) as gross_commissions,sum(`pt`.commission_paid) as prior_check_amounts,`pt`.*,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname
                 FROM `".PAYROLL_UPLOAD."` AS `up`
     			LEFT JOIN `".PAYROLL_REVIEW_MASTER."` AS `pt` on `pt`.`payroll_id` = `up`.`id`
-                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pt`.`broker_name`
+                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pt`.`broker_id`
                 LEFT JOIN `".CLIENT_MASTER."` as `cl` on `cl`.`id` = `pt`.`client_name`
-                WHERE `up`.`is_delete`='0' and `up`.`is_calculate`='1' and `up`.`is_close`='1' and `pt`.`is_balance`='0' and `pt`.`is_delete`='0' ".$con."
-                GROUP BY `pt`.`broker_name` order by up.id ASC";
+                WHERE `up`.`is_delete`='0' and `up`.`is_calculate`='1' and `up`.`is_close`='1' and `pt`.`is_balance`='0' ".$con."
+                GROUP BY `pt`.`broker_id` ASC";
     	$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
             $a = 0;
@@ -1570,16 +722,16 @@ class payroll extends db{
         
         if($broker != '')
         {
-            $con.= " AND `pt`.`broker_name` = '".$broker."'";
+            $con.= " AND `pt`.`broker_id` = '".$broker."'";
         }
     	
-    	$q = "SELECT sum(`pt`.commission_received) as gross_commissions,sum(`pt`.commission_paid) as broker_balance_amounts,`pt`.*,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname
+    	$q = "SELECT `pt`.`broker_id`, sum(`pt`.commission_received) as gross_commissions,sum(`pt`.commission_paid) as broker_balance_amounts,`pt`.*,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname
                 FROM `".PAYROLL_UPLOAD."` AS `up`
     			LEFT JOIN `".PAYROLL_REVIEW_MASTER."` AS `pt` on `pt`.`payroll_id` = `up`.`id`
-                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pt`.`broker_name`
+                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pt`.`broker_id`
                 LEFT JOIN `".CLIENT_MASTER."` as `cl` on `cl`.`id` = `pt`.`client_name`
-                WHERE `up`.`is_delete`='0' and `up`.`is_calculate`='1' and `up`.`is_close`='1' and `pt`.`is_balance`='1' and `pt`.`is_delete`='0' ".$con."
-                GROUP BY `pt`.`broker_name` ASC";
+                WHERE `up`.`is_delete`='0' and `up`.`is_calculate`='1' and `up`.`is_close`='1' and `pt`.`is_balance`='1' ".$con."
+                GROUP BY `pt`.`broker_id` ASC";
     	$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
             $a = 0;
@@ -1589,10 +741,12 @@ class payroll extends db{
         }
     	return $return;
   } 
-  public function select_adjustments_master($payable_trans_id='',$is_expired='',$broker='',$all_brokers='',$expire_date=''){
+
+  public function select_adjustments_master($payable_trans_id='',$is_expired='',$broker='',$all_brokers=''){
     	$return = array();
         $con='';
-        //print_r($is_expired);
+        $extraFields = '';
+        
         if($broker>0)
         {
             $con.=" AND `pa`.`broker`='2' AND `pa`.`broker_number`='".$broker."'";
@@ -1601,24 +755,15 @@ class payroll extends db{
         {
             $con.=" AND `pa`.`broker`='1'";
         }
-        if($payable_trans_id>0)
-        {
-            $con.=" AND (`pa`.`is_expired`='".$is_expired."' or `pa`.`payable_trans_id`='".$payable_trans_id."')";
-        }
-        else
+        if($is_expired!='')
         {
             $con.=" AND `pa`.`is_expired`='".$is_expired."'";
         }
-        /*if($payable_trans_id>0)
+        if($payable_trans_id>0)
         {
             $con.=" or `pa`.`payable_trans_id`='".$payable_trans_id."'";
-        }*/
-        if($expire_date != '')
-        {
-            $con.=" AND `pa`.`expire` >= '".date('Y-m-d',strtotime($expire_date))."'";
         }
-        
-    	$q = "SELECT `pa`.*,`pa`.`recurring_type` as recurring_type_id ,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname,`rt`.`name` as recurring_type,`pt`.`type` as category_name
+    	$q = "SELECT `pa`.*,`pa`.`recurring_type` as recurring_type_id ,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname,`rt`.`name` as recurring_type,`pt`.`type` as category
     			FROM `".PAYROLL_ADJUSTMENTS_MASTER."` AS `pa`
                 LEFT JOIN `".RECURRING_TYPE_MASTER."` as `rt` on `rt`.`id` = `pa`.`recurring_type` 
                 LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pa`.`broker_name`
@@ -1633,57 +778,19 @@ class payroll extends db{
     		}
         }
     	return $return;
-  }
-  public function select_all_brokers_adjustments($payable_trans_id='',$is_expired='',$broker='',$expire_date=''){
-    	$return = array();
-        $con='';
-        //print_r($is_expired);
-        if($broker>0)
-        {
-            $con.=" AND `pa`.`broker`='1' AND `padtl`.`broker_id`='".$broker."'";
-        }
-        if($payable_trans_id>0)
-        {
-            $con.=" AND (`padtl`.`is_expired`='".$is_expired."' or `padtl`.`payable_trans_id`='".$payable_trans_id."')";
-        }
-        else
-        {
-            $con.=" AND `padtl`.`is_expired`='".$is_expired."'";
-        }
-        if($expire_date != '')
-        {
-            $con.=" AND `pa`.`expire` >= '".date('Y-m-d',strtotime($expire_date))."'";
-        }
-        
-    	$q = "SELECT `padtl`.*,`pa`.`pay_on`,`pa`.`description`,`pa`.`category` as category_id,`pa`.`gl_account`,`pa`.`taxable_adjustment`,`pa`.`pay_type`,`pa`.`pay_amount`,`pa`.`recurring`,`pa`.`recurring_type` as recurring_type_id ,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname,`rt`.`name` as recurring_type,`pt`.`type` as category
-                FROM `".PAYROLL_ADJUSTMENTS_DETAIL."` AS `padtl`
-    			LEFT JOIN `".PAYROLL_ADJUSTMENTS_MASTER."` AS `pa` on `pa`.`id` = `padtl`.`adjustment_id`
-                LEFT JOIN `".RECURRING_TYPE_MASTER."` as `rt` on `rt`.`id` = `pa`.`recurring_type` 
-                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `padtl`.`broker_id`
-                LEFT JOIN `".PAYROLL_TYPE."` as `pt` on `pt`.`id` = `pa`.`category`
-                WHERE `pa`.`is_delete`='0' AND `padtl`.`is_delete`='0' ".$con."
-                ORDER BY `pa`.`id` ASC";
-    	$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            $a = 0;
-    		while($row = $this->re_db_fetch_array($res)){
-    		     array_push($return,$row);
-    		}
-        }
-    	return $return;
-  }  
+  } 
   public function select_balances_master($broker=''){
     	$return = array();
         $con='';
         
         if($broker>0)
         {
-            $con.=" AND `bb`.`broker_number`='".$broker."'";
+            $con.=" AND `bb`.`broker_id`='".$broker."'";
         }
         
-    	$q = "SELECT `bb`.*,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname
+    	$q = "SELECT `bb`.*,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname, `bb`.`id` AS broker_name, `bb`.`id` AS broker_number
     			FROM `".BROKER_BALANCES_MASTER."` AS `bb`
-                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `bb`.`broker_name`
+                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `bb`.`broker_id`
                 WHERE `bb`.`is_delete`='0' ".$con."
                 ORDER BY `bb`.`id` ASC";
     	$res = $this->re_db_query($q);
@@ -1696,17 +803,36 @@ class payroll extends db{
     	return $return;
   } 
   public function select_prior_payrolls_master($broker=''){
+        // 11/1/21 li - phase out field "rep_name", and rename "rep_number" to "broker_id" to normalize database
     	$return = array();
         $con='';
         
         if($broker>0)
         {
-            $con.=" AND `pr`.`rep_name`='".$broker."'";
+            $con.=" AND `pr`.`broker_id`='".$broker."'";
         }
         
-    	$q = "SELECT `pr`.*,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname
+    	$q = "SELECT `pr`.`id`,
+                     `pr`.`payroll_date`,
+                     `pr`.`broker_id` AS `rep_number`,
+                     `pr`.`broker_id` AS `rep_name`,
+                     `pr`.`clearing_number`,
+                     `pr`.`gross_production`,
+                     `pr`.`check_amount`,
+                     `pr`.`minimum_check_amount`,
+                     `pr`.`finra`,
+                     `pr`.`sipc`,
+                     `pr`.`sipc_gross`,
+                     `pr`.`net_production`,
+                     `pr`.`adjustments`,
+                     `pr`.`taxable_adjustments`,
+                     `pr`.`non-taxable_adjustments`,
+                     `pr`.`net_earnings`,
+                     `pr`.`status`,
+                     `pr`.`is_delete`,
+                     `bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname
     			FROM `".PRIOR_PAYROLL_MASTER."` AS `pr`
-                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pr`.`rep_name`
+                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pr`.`broker_id`
                 WHERE `pr`.`is_delete`='0' ".$con."
                 ORDER BY `pr`.`id` ASC";
     	$res = $this->re_db_query($q);
@@ -1721,7 +847,7 @@ class payroll extends db{
    public function check_minimum_check_amount(){
     	$return = array();
     	
-    	$q = "SELECT `sc`.*
+    	$q = "SELECT `sc`.`minimum_check_amount`, `sc`.`finra`, `sc`.`sipc`
     			FROM `".SYSTEM_CONFIGURATION."` AS `sc`
                 WHERE `sc`.`is_delete`='0'
                 ORDER BY `sc`.`id` ASC";
@@ -1734,7 +860,43 @@ class payroll extends db{
         }
     	return $return;
   } 
-  public function select_trades($commission_received_date){
+
+    public function select($is_listing=0) {
+        $return = array();
+        $con='';
+      
+        if($is_listing == 1) {
+            $con.= " AND `up`.`is_calculate` > 0";
+        }
+    	
+        // 9/26/21 li - Order by the broker, date, product category for better payroll calculation, especially for Sliding Scale reps going to higher breakpoint in the middle of the payroll run
+    	$q = "SELECT `up`.`id`,`up`.`is_calculate`,`up`.`payroll_date`,`pt`.*,
+                    `bm`.first_name as broker_firstname,
+                    `bm`.last_name as broker_lastname,
+                    `cl`.first_name as client_firstname,
+                    `cl`.last_name as client_lastname,
+                    `pt`.`broker_id` AS `broker_name`
+                FROM `".PAYROLL_UPLOAD."` AS `up`
+    			LEFT JOIN `".PAYROLL_REVIEW_MASTER."` AS `pt` on `pt`.`payroll_id`= `up`.`id`
+                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pt`.`broker_id`
+                LEFT JOIN `".CLIENT_MASTER."` as `cl` on `cl`.`id` = `pt`.`client_name`
+                WHERE `up`.`is_delete`='0' and `up`.`is_close` = 0 ".$con."
+                ORDER BY `pt`.`broker_id`, `pt`.`trade_date`, `pt`.`product_category`";
+                
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+            $a = 0;
+            while($row = $this->re_db_fetch_array($res)){
+                // 9/27/21 LI - Remove Uploads that don't have a matching record in Review Master ($row['id']=null)
+                if (!is_null($row['id']))
+                    array_push($return,$row);
+            }
+        }
+        
+    	return $return;
+    }
+
+    public function select_trades($commission_received_date){
     	$return = array();
     	
         if($commission_received_date != '')
@@ -1760,8 +922,9 @@ class payroll extends db{
             }
         }
     	return $return;
-  } 
-  public function select_trade_splits($transaction_id){
+    } 
+  
+    public function select_trade_splits($transaction_id){
     	$return = array();
     	
         $q = "SELECT `ts`.*
@@ -1776,8 +939,9 @@ class payroll extends db{
     		}
         }
         return $return;
-  }
-  public function select_trade_overrides($transaction_id){
+    }
+    
+    public function select_trade_overrides($transaction_id){
     	$return = array();
     	
         $q = "SELECT `to`.*
@@ -1842,6 +1006,7 @@ class payroll extends db{
         }
         return $return;
   }
+    
   public function check_firm_does_not_participate(){
     	$return = array();
     	
@@ -2081,170 +1246,14 @@ class payroll extends db{
          return false;
 	  }
     	
-  } 
-  public function renew_sub_mid_month_adjustments($is_expired,$adjustment_id='',$payable_trans_id='',$total_usage='',$recalc_total_usage=''){
-      $con='';
-      $add_str='';
-    
-      if($adjustment_id>0)
-      {
-           $con.=" AND id='".$adjustment_id."'";
-      }
-      if($payable_trans_id > 0)
-      {
-           $add_str.=",payable_trans_id='".$payable_trans_id."',recalc_old_usage='".$recalc_total_usage."'";
-      }
-	   
-	  $q = "UPDATE `".PAYROLL_ADJUSTMENTS_DETAIL."` SET `is_expired`='".$is_expired."',`total_usage`='".$total_usage."' ".$add_str." WHERE `recurring_type`='2' ".$con."";
-	  $res = $this->re_db_query($q);
-      if($res){
-	     return true;
-	  }
-	  else{
-         return false;
-	  }
-    	
   }
-  public function renew_sub_end_month_adjustments($is_expired,$adjustment_id='',$payable_trans_id='',$total_usage='',$recalc_total_usage=''){
-      $con='';
-      $add_str='';
-    
-      if($adjustment_id>0)
-      {
-           $con.=" AND id='".$adjustment_id."'";
-      }
-      if($payable_trans_id > 0)
-      {
-           $add_str.=",payable_trans_id='".$payable_trans_id."',recalc_old_usage='".$recalc_total_usage."'";
-      }
-	   
-	  $q = "UPDATE `".PAYROLL_ADJUSTMENTS_DETAIL."` SET `is_expired`='".$is_expired."',`total_usage`='".$total_usage."' ".$add_str." WHERE `recurring_type`='3' ".$con."";
-	  $res = $this->re_db_query($q);
-      if($res){
-	     return true;
-	  }
-	  else{
-         return false;
-	  }
-    	
-  }
-  public function renew_sub_semi_mid_month_adjustments($is_expired,$adjustment_id='',$payable_trans_id='',$total_usage='',$recalc_total_usage=''){
-      $con='';
-      $add_str='';
-    
-      if($adjustment_id>0)
-      {
-           $con.=" AND id='".$adjustment_id."'";
-      }
-      if($payable_trans_id > 0)
-      {
-           $add_str.=",payable_trans_id='".$payable_trans_id."',recalc_old_usage='".$recalc_total_usage."'";
-      }
-	   
-	  $q = "UPDATE `".PAYROLL_ADJUSTMENTS_DETAIL."` SET `is_expired`='".$is_expired."',`total_usage`='".$total_usage."' ".$add_str." WHERE `recurring_type`='4' ".$con."";
-	  $res = $this->re_db_query($q);
-      if($res){
-	     return true;
-	  }
-	  else{
-         return false;
-	  }
-    	
-  } 
-  public function renew_sub_semi_end_month_adjustments($is_expired,$adjustment_id='',$payable_trans_id='',$total_usage='',$recalc_total_usage=''){
-      $con='';
-      $add_str='';
-    
-      if($adjustment_id>0)
-      {
-           $con.=" AND id='".$adjustment_id."'";
-      }
-      if($payable_trans_id > 0)
-      {
-           $add_str.=",payable_trans_id='".$payable_trans_id."',recalc_old_usage='".$recalc_total_usage."'";
-      }
-	   
-	  $q = "UPDATE `".PAYROLL_ADJUSTMENTS_DETAIL."` SET `is_expired`='".$is_expired."',`total_usage`='".$total_usage."' ".$add_str." WHERE `recurring_type`='5' ".$con."";
-	  $res = $this->re_db_query($q);
-      if($res){
-	     return true;
-	  }
-	  else{
-         return false;
-	  }
-    	
-  } 
-  public function renew_sub_qua_mid_month_adjustments($is_expired,$adjustment_id='',$payable_trans_id='',$total_usage='',$recalc_total_usage=''){
-      $con='';
-      $add_str='';
-    
-      if($adjustment_id>0)
-      {
-           $con.=" AND id='".$adjustment_id."'";
-      }
-      if($payable_trans_id > 0)
-      {
-           $add_str.=",payable_trans_id='".$payable_trans_id."',recalc_old_usage='".$recalc_total_usage."'";
-      }
-	   
-	  $q = "UPDATE `".PAYROLL_ADJUSTMENTS_DETAIL."` SET `is_expired`='".$is_expired."',`total_usage`='".$total_usage."' ".$add_str." WHERE `recurring_type`='6' ".$con."";
-	  $res = $this->re_db_query($q);
-      if($res){
-	     return true;
-	  }
-	  else{
-         return false;
-	  }
-    	
-  }
-  public function renew_sub_qua_end_month_adjustments($is_expired,$adjustment_id='',$payable_trans_id='',$total_usage='',$recalc_total_usage=''){
-      $con='';
-      $add_str='';
-    
-      if($adjustment_id>0)
-      {
-           $con.=" AND id='".$adjustment_id."'";
-      }
-      if($payable_trans_id > 0)
-      {
-           $add_str.=",payable_trans_id='".$payable_trans_id."',recalc_old_usage='".$recalc_total_usage."'";
-      }
-	   
-	  $q = "UPDATE `".PAYROLL_ADJUSTMENTS_DETAIL."` SET `is_expired`='".$is_expired."',`total_usage`='".$total_usage."' ".$add_str." WHERE `recurring_type`='7' ".$con."";
-	  $res = $this->re_db_query($q);
-      if($res){
-	     return true;
-	  }
-	  else{
-         return false;
-	  }
-    	
-  } 
-  public function remove_adjustments($adjustment_id = ''){
-    
-      $q = "UPDATE `".PAYROLL_ADJUSTMENTS_MASTER."` SET `is_used`='1' WHERE `id`='".$adjustment_id."'";
-	  $res = $this->re_db_query($q);
-      
-      if($res){
-	     return true;
-	  }
-	  else{
-         return false;
-	  }
-  }
-  public function remove_sub_adjustments($adjustment_id = ''){
-    
-      $q = "UPDATE `".PAYROLL_ADJUSTMENTS_DETAIL."` SET `is_used`='1' WHERE `id`='".$adjustment_id."'";
-      $res = $this->re_db_query($q);
-      
-      if($res){
-	     return true;
-	  }
-	  else{
-         return false;
-	  }
-  }
-  public function get_company_statement_report_data($company='',$sort_by='',$payroll_date){
+
+
+  /*************************************************************************
+   * REPORT FUNCTIONS ADDED RECENTLY
+   * 10/31/21 Added back, but the code isn't right. To be updated 10/31/21+
+   *************************************************************************/
+    public function get_company_statement_report_data($company='',$sort_by='',$payroll_date){
 		$return = array();
         $con='';
         
@@ -2428,16 +1437,16 @@ class payroll extends db{
             $con .= " ORDER BY `bm`.`fund` ASC";
         }
         
-        $q = "SELECT `rp`.*,com.company_name,bm.first_name as broker_firstname,bm.last_name as broker_lastname,`bm`.`id` as broker_id,`bm`.`fund`,cm.first_name as client_firstname,cm.last_name as client_lastname,`pt`.`type` as product_category,`bc`.`batch_desc` as batch_description,`pe`.`check_amount` as prior_broker_earnings,`bl`.`balance_amount` as prior_broker_balance
+        $q = "SELECT `rp`.*,com.company_name,bm.first_name as broker_firstname,bm.last_name as broker_lastname,`bm`.`id` as broker_id,`bm`.`fund`,cm.first_name as client_firstname,cm.last_name as client_lastname,`pt`.`type` as product_category,`bc`.`batch_desc` as batch_description,`pe`.`check_amount` as prior_broker_earnings,`bl`.`balance_amount` as prior_broker_balance,`rp`.`broker_id` AS `broker_name`
                 FROM `".$this->table."` AS `up`,`".PAYROLL_REVIEW_MASTER."` AS `rp`
-				LEFT JOIN `".BROKER_MASTER."` AS `bm` on `bm`.`id`=`rp`.`broker_name` and `bm`.`is_delete`='0'
+				LEFT JOIN `".BROKER_MASTER."` AS `bm` on `bm`.`id`=`rp`.`broker_id` and `bm`.`is_delete`='0'
                 LEFT JOIN `".CLIENT_MASTER."` AS `cm` on `cm`.`id`=`rp`.`client_name` and `cm`.`is_delete`='0'
                 LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`id`=`rp`.`trade_number` and `ts`.`is_delete`='0'
                 LEFT JOIN `".PRODUCT_TYPE."` AS `pt` on `pt`.`id`=`rp`.`product_category` and `pt`.`is_delete`='0'
                 LEFT JOIN `".COMPANY_MASTER."` AS `com` on `com`.`id`=`ts`.`company` and `com`.`is_delete`='0'
                 LEFT JOIN `".BATCH_MASTER."` AS `bc` on `bc`.`id`=`ts`.`batch` and `bc`.`is_delete`='0'
-                LEFT JOIN `".PRIOR_PAYROLL_MASTER."` AS `pe` on `pe`.`rep_name`=`rp`.`broker_name` and `pe`.`is_delete`='0'
-                LEFT JOIN `".BROKER_BALANCES_MASTER."` AS `bl` on `bl`.`broker_name`=`rp`.`broker_name` and `bl`.`is_delete`='0' 
+                LEFT JOIN `".PRIOR_PAYROLL_MASTER."` AS `pe` on `pe`.`broker_id`=`rp`.`broker_id` and `pe`.`is_delete`='0'
+                LEFT JOIN `".BROKER_BALANCES_MASTER."` AS `bl` on `bl`.`broker_id`=`rp`.`broker_id` and `bl`.`is_delete`='0' 
                 WHERE `up`.`is_delete`='0' and `rp`.`payroll_id`=`up`.`id` and `rp`.`is_delete`='0' ".$con."
                 ";
 		$res = $this->re_db_query($q);
@@ -2456,116 +1465,6 @@ class payroll extends db{
         }
 		return $return;
 	}
-    public function get_broker_split_commission_data($broker=''){
-		$return = array();
-        $con='';
-        
-        if($broker>0)
-        {
-            $con .= ' and `psr`.`split_broker`="'.$broker.'"';
-        }
-        
-        $q = "SELECT `rp`.*,`psr`.`split_rate` as split_rate_amount,`psr`.`split_rate_per` as split_rate_per,`psr`.`broker_id` as transactions_broker,com.company_name,bm.first_name as broker_firstname,bm.last_name as broker_lastname,`bm`.`id` as broker_id,cm.first_name as client_firstname,cm.last_name as client_lastname,`pt`.`type` as product_category,`bc`.`batch_desc` as batch_description
-                FROM `".PAYROLL_SPLIT_RATES."` AS `psr`
-				LEFT JOIN `".PAYROLL_REVIEW_MASTER."` AS `rp` on `rp`.`id`=`psr`.`payable_transaction_id`
-                LEFT JOIN `".BROKER_MASTER."` AS `bm` on `bm`.`id`=`rp`.`broker_name`
-                LEFT JOIN `".CLIENT_MASTER."` AS `cm` on `cm`.`id`=`rp`.`client_name`
-                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`id`=`rp`.`trade_number`
-                LEFT JOIN `".PRODUCT_TYPE."` AS `pt` on `pt`.`id`=`rp`.`product_category`
-                LEFT JOIN `".COMPANY_MASTER."` AS `com` on `com`.`id`=`ts`.`company`
-                LEFT JOIN `".BATCH_MASTER."` AS `bc` on `bc`.`id`=`ts`.`batch`
-                WHERE `psr`.`is_delete`='0' ".$con."
-                ";
-		$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            $a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-			    $return[$row['broker_firstname'].' '.$row['broker_lastname']][]=$row;
-            }
-        }
-		return $return;
-	}
-    public function get_broker_override_commission_data($broker=''){
-		$return = array();
-        $con='';
-        
-        if($broker>0)
-        {
-            $con .= ' and `por`.`receiving_rep`="'.$broker.'"';
-        }
-        
-        $q = "SELECT `rp`.*,`por`.`rate` as rate_amount,`por`.`id` as override_id,`por`.`rate_per` as rate_per,`por`.`broker_id` as transactions_broker,com.company_name,bm.first_name as broker_firstname,bm.last_name as broker_lastname,`bm`.`id` as broker_id,cm.first_name as client_firstname,cm.last_name as client_lastname,`pt`.`type` as product_category,`bc`.`batch_desc` as batch_description
-                FROM `".PAYROLL_OVERRIDE_RATES."` AS `por`
-				LEFT JOIN `".PAYROLL_REVIEW_MASTER."` AS `rp` on `rp`.`id`=`por`.`payable_transaction_id`
-                LEFT JOIN `".BROKER_MASTER."` AS `bm` on `bm`.`id`=`rp`.`broker_name`
-                LEFT JOIN `".CLIENT_MASTER."` AS `cm` on `cm`.`id`=`rp`.`client_name`
-                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`id`=`rp`.`trade_number`
-                LEFT JOIN `".PRODUCT_TYPE."` AS `pt` on `pt`.`id`=`rp`.`product_category`
-                LEFT JOIN `".COMPANY_MASTER."` AS `com` on `com`.`id`=`ts`.`company`
-                LEFT JOIN `".BATCH_MASTER."` AS `bc` on `bc`.`id`=`ts`.`batch`
-                WHERE `por`.`is_delete`='0' ".$con."
-                ";
-		$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            $a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-			    $return[$row['broker_firstname'].' '.$row['broker_lastname']][]=$row;
-            }
-        }
-		return $return;
-	}
-    public function get_broker_detail($broker_id){
-		$return = array();
-        $con='';
-        
-        if($broker_id>0)
-        {
-            $con = "AND `bm`.`id` = '".$broker_id."'";
-        }
-        
-        $q = "SELECT `bm`.*,`bg`.`home_address1_general`,`bg`.`home_address2_general`,`bg`.`city`,`st`.`name` as state_name,`bg`.`zip_code`,`br`.`name` as branch_name ,`bp`.`payroll_draw`, `bp`.`salary`
-                FROM `".BROKER_MASTER."` AS `bm`
-				LEFT JOIN `".BROKER_GENERAL."` AS `bg` on `bg`.`broker_id`=`bm`.`id`
-                LEFT JOIN `".BRANCH_MASTER."` AS `br` on `br`.`broker`=`bm`.`id`
-                LEFT JOIN `".BROKER_PAYOUT_MASTER."` AS `bp` on `bp`.`broker_id`=`bm`.`id`
-                LEFT JOIN `".STATE_MASTER."` AS `st` on `st`.`id`=`bg`.`state_id`
-                WHERE `bm`.`is_delete`='0' ".$con."
-                ";
-		$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            $a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-			     $return=$row;
-			}
-        }
-		return $return;
-	}
-    public function get_adjustments_for_broker_statement($payable_trans_id,$broker_id){
-		$return = array();
-        $con='';
-        
-        if($broker_id>0)
-        {
-            $con .= "AND `pba`.`broker_id` = '".$broker_id."'";
-        }
-        if($payable_trans_id>0)
-        {
-            $con .= "AND `pba`.`payable_trans_id` = '".$payable_trans_id."'";
-        }
-        
-        $q = "SELECT `pba`.*
-                FROM `".PAYROLL_BROKERS_ADJUSTMENTS."` AS `pba`
-				LEFT JOIN `".PAYROLL_ADJUSTMENTS_MASTER."` AS `pam` on `pam`.`id`=`pba`.`adjustment_id`
-                WHERE `pba`.`is_delete`='0' AND `pam`.`is_delete`='0' ".$con."
-                ";
-        $res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            $a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-			     array_push($return,$row);
-			}
-        }
-		return $return;
-	}
+
 }
 ?>

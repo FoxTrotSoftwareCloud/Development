@@ -33,10 +33,17 @@
         $net_earnings = isset($_POST['net_earnings'])?$instance->re_db_input($_POST['net_earnings']):'';
         
         $return = $instance->insert_update_prior_payrolls_master($_POST);
+
         
         if($return===true){
-            
-            header("location:".CURRENT_PAGE."?action=view");exit;
+             if(isset($_GET['redirectto']) && !empty($_GET['redirectto'])){
+
+                header("location:".urldecode($_GET['redirectto']));exit;
+             }
+            else{
+                             header("location:".CURRENT_PAGE."?action=view");exit;
+
+            }
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';

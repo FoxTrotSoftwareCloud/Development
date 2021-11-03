@@ -114,5 +114,7 @@
     define('TRANSACTION_OVERRIDES','ft_transaction_overrides');
     define('PAYROLL_SPLIT_RATES','ft_payroll_split_rates');
     define('PAYROLL_OVERRIDE_RATES','ft_payroll_override_rates');
-    define('PAYROLL_ADJUSTMENTS_DETAIL','ft_payroll_adjustments_detail');
+    define('PAYROLL_ADJUSTMENTS_CURRENT','ft_payroll_adjustments_current');
+    define('PAYROLL_CURRENT_PAYROLL','ft_payroll_current_payroll');
+
 ?>
