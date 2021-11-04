@@ -192,9 +192,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 $category_charges = $category_charges+$comm_sub_data['charge'];
                                 $category_rate = $category_rate+0;
                                 $category_broker_commission = $category_broker_commission+$comm_sub_data['commission_paid'];
-                                $total_finra_assessment = -($comm_sub_data['finra']);
-                                $total_sipc_assessment = -($comm_sub_data['sipc']); 
-                                $total_prior_balance = $comm_sub_data['balance'];  // + $total_prior_balance
+                                $total_finra_assessment = $comm_sub_data['finra'];
+                                $total_sipc_assessment = $comm_sub_data['sipc']; 
+                                $total_prior_balance = $total_prior_balance+$comm_sub_data['balance'];
                                 $total_forward_balance = $comm_sub_data['prior_broker_balance'];
                                 $total_broker_earnings = $comm_sub_data['prior_broker_earnings'];
                                 
@@ -385,7 +385,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 $category_net_commission = $category_net_commission+$split_sub_data['net_commission'];
                                 $category_charges = $category_charges+$split_sub_data['charge'];
                                 $category_rate = $category_rate+0;
-                                $category_broker_commission = $category_broker_commission+$split_sub_data['rate_amount'];
+                                $category_broker_commission = $category_broker_commission+$split_sub_data['split_rate_amount'];
                                 
                                 if(isset($split_sub_data['buy_sell']) && $split_sub_data['buy_sell'] == 1)
                                 {
@@ -411,7 +411,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['charge'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['net_commission'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;">0.00</td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['rate_amount'],2);?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['split_rate_amount'],2);?></td>
                                 </tr>
                             <?php
                             }
@@ -713,7 +713,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         foreach($com_data as $com_sub_key=>$com_sub_data)
                         {
                             $retention = $com_sub_data['commission_received']-$com_sub_data['check_amount'];
-                            $finra_sipc = -$com_sub_data['finra']-$com_sub_data['sipc'];
+                            $finra_sipc = $com_sub_data['finra']+$com_sub_data['sipc'];
                             
                             $company_gross_comm_total = $company_gross_comm_total+$com_sub_data['commission_received'];
                             $company_net_comm_total = $company_net_comm_total+$com_sub_data['commission_paid'];

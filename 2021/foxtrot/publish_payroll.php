@@ -11,9 +11,7 @@
     $instance = new payroll();
     $get_last_payroll = $instance->get_last_payroll();
     if(count($get_last_payroll)>0)
-    {
         $payroll_date = isset($get_last_payroll['payroll_date'])?date('m/d/Y',strtotime($get_last_payroll['payroll_date'])):'';
-    }
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
         $data_array = json_encode($_POST);
