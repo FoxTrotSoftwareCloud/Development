@@ -385,7 +385,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 $category_net_commission = $category_net_commission+$split_sub_data['net_commission'];
                                 $category_charges = $category_charges+$split_sub_data['charge'];
                                 $category_rate = $category_rate+0;
-                                $category_broker_commission = $category_broker_commission+$split_sub_data['rate_amount'];
+                                $category_broker_commission = $category_broker_commission+$split_sub_data['split_rate_amount'];
                                 
                                 if(isset($split_sub_data['buy_sell']) && $split_sub_data['buy_sell'] == 1)
                                 {
@@ -411,7 +411,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['charge'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['net_commission'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;">0.00</td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['rate_amount'],2);?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['split_rate_amount'],2);?></td>
                                 </tr>
                             <?php
                             }

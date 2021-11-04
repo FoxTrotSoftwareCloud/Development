@@ -252,7 +252,7 @@ class payroll_calculation extends payroll {
                     `pa`.`is_delete`,
                     '" .$payroll_date. "' AS `payroll_date`
                 FROM `".PAYROLL_ADJUSTMENTS_MASTER."` AS `pa`
-                LEFT JOIN `".RECURRING_TYPE_MASTER."` as `rt` on `rt`.`id` = `pa`.`recurring_type`
+                LEFT JOIN `".RECURRING_TYPE_MASTER."` AS `rt` on `rt`.`id` = `pa`.`recurring_type`
                 WHERE `pa`.`is_delete`='0' AND ('".$payroll_date."' >= `pa`.`pay_on`) AND (`pa`.`expire`='0000-00-00 00:00:00' OR '".$payroll_date."' <= `pa`.`expire`)
                 ORDER BY `pa`.`id` ASC
         ";
@@ -328,8 +328,8 @@ class payroll_calculation extends payroll {
                     COUNT(`psr`.`split_broker`) AS is_split,
                     SUM(IF(`prm`.`product_category`<15 AND `prm`.`product_category`!=5, `psr`.`split_gross`, 0)) AS `sipc_gross`
                 FROM `".PAYROLL_SPLIT_RATES."` psr
-                LEFT JOIN (SELECT `lfp`.`id`,`lfp`.`broker_id`,`lfp`.`is_delete` FROM `".PAYROLL_CURRENT_PAYROLL."` `lfp` WHERE `lfp`.`is_delete`=0) pcp ON `psr`.`split_broker`=`pcp`.`broker_id`
-                LEFT JOIN `" .PAYROLL_REVIEW_MASTER. "` `prm` ON `psr`.`payable_transaction_id`=`prm`.`id`
+                LEFT JOIN `".PAYROLL_CURRENT_PAYROLL."` AS `pcp` ON `psr`.`split_broker`=`pcp`.`broker_id` AND `pcp`.`is_delete`=0
+                LEFT JOIN `" .PAYROLL_REVIEW_MASTER. "` AS  `prm` ON `psr`.`payable_transaction_id`=`prm`.`id`
                 WHERE `psr`.`is_delete` = 0
                 GROUP BY `psr`.`split_broker`
                 ORDER BY `psr`.`split_broker`
@@ -528,7 +528,7 @@ class payroll_calculation extends payroll {
                     `spl`.`split_rate`, 
                     `spl`.`is_delete`
                 FROM `".PAYROLL_REVIEW_MASTER."` AS `pm`
-                LEFT JOIN (SELECT `tts`.`id`, `tts`.`transaction_id`, `tts`.`split_broker`,`tts`.`split_rate`, `tts`.`is_delete`  FROM `" .TRANSACTION_TRADE_SPLITS. "` AS `tts` WHERE `tts`.`is_delete` = 0) AS `spl` ON `pm`.`trade_number` = `spl`.`transaction_id`
+                LEFT JOIN `" .TRANSACTION_TRADE_SPLITS. "` `spl` ON `pm`.`trade_number` = `spl`.`transaction_id` AND `spl`.`is_delete`=0
                 WHERE `pm`.`is_delete` = 0
                 ORDER BY `trade_number`
         ";
