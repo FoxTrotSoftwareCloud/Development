@@ -673,18 +673,27 @@ class payroll extends db{
         }
 		return $return;
    }
-    public function get_last_payroll(){
+    public function get_last_payroll($allPayrolls=0){
     	$return = array();
-        $con='';
-        
+
+        if (!$allPayrolls) {
+            $con = " AND  `up`.`is_close` = 0 ";
+        } else {
+            $con = "";
+        }
+
         $q = "SELECT `up`.*
                 FROM `".PAYROLL_UPLOAD."` AS `up` 
-                WHERE `up`.`is_delete`='0' and `up`.`is_close` = 0 AND `up`.`is_calculate` > 0 
-                ORDER BY `up`.`id` DESC limit 1";
+                WHERE `up`.`is_delete`='0' AND `up`.`is_calculate` > 0 $con
+                ORDER BY `up`.`id` DESC";
                 
     	$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
-            $return = $this->re_db_fetch_array($res);
+            if ($allPayrolls) {
+                $return = $this->re_db_fetch_all($res);
+            } else {
+                $return = $this->re_db_fetch_array($res);
+            }
         }
     	return $return;
   }
@@ -1272,7 +1281,7 @@ class payroll extends db{
         }
         if($print_type == 1)
         {
-            $con .= " ORDER BY `bm`.`first_name` ASC";
+            $con .= " ORDER BY `bm`.`last_name`, `bm`.`first_name`, `bm`.`id` ASC";
         }
         else
         {
