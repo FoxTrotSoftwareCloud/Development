@@ -9,7 +9,7 @@ $instance_multi_company = new manage_company();
 $get_multi_company = $instance_multi_company->select_company();
 $instance_product_type = new product_master();
 $get_product_category =$instance_product_type->select_product_type();
-$get_last_payroll = $instance->get_last_payroll();
+$get_last_payroll = $instance->get_last_payroll(1);
 if(count($get_last_payroll)>0)
     $payroll_date = isset($get_last_payroll['payroll_date'])?date('m/d/Y',strtotime($get_last_payroll['payroll_date'])):'';
 
