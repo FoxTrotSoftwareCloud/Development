@@ -221,7 +221,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['commission_received'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['charge'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['net_commission'],2);?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;">0.00</td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['rate'],2); ?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['commission_paid'],2);?></td>
                                 </tr>
                             <?php
@@ -410,7 +410,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['commission_received'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['charge'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['net_commission'],2);?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;">0.00</td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['rate'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['rate_amount'],2);?></td>
                                 </tr>
                             <?php

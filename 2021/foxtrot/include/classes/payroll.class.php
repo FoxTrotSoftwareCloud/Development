@@ -175,6 +175,12 @@ class payroll extends db{
     public function calculate_payroll($data, $payroll_date=''){
         $calculate = new payroll_calculation();
         
+        if (isset($data['payroll_id'])) {
+            $payroll_id = $data['payroll_id'];
+        } else {
+            $payroll_id = 0;
+        }
+
         if (!empty($payroll_date) AND $payroll_date != '0000-00-00 00:00:00'){
             // Do nothing
         } elseif(count($data) > 0 AND $data['payroll_date'] != '0000-00-00 00:00:00') {
@@ -192,33 +198,34 @@ class payroll extends db{
         $res = $this->re_db_query($q);
 
         // Breakout SPLIT transactions before calculating the "paid" field - 10/11/21
-        $calculate->insert_payroll_split_rates($payroll_date);
+        $calculate->insert_payroll_split_rates($payroll_id);
 
         // **********************************************
         // * 1. Broker Commissions 
         // * 2. Split Commissions - added 10/12/21 li
         // * 3. Override Commissions - added 9/26/21 li
         // **********************************************
-        $payroll_commissions = $calculate->select_payroll_calculation_transactions();
+        $payroll_commissions = $calculate->select_payroll_calculation_transactions($payroll_id);
         
         // Clear out the Override Transactions - populated in "overrideCalculation()"
         $calculate->clearOverrides();
 
-        if(count($payroll_commissions)<=0) {
-            // No uploaded trades
+        if(count($payroll_commissions)>0) {
+            $calculate->commissionCalculation($payroll_commissions, $payroll_date);
+            $calculate->calculateAdjustments($payroll_date, $payroll_id);
+            $calculate->calculateCurrentPayroll($payroll_date, $payroll_id);
+
             $q = "UPDATE " .PAYROLL_UPLOAD. "
                     SET
                         `is_calculate`='1',
-                        `payroll_date`='" .$calculate->re_db_input($payroll_date). "'".
-                        $calculate->update_common_sql(). "
-                    WHERE `is_calculate`='0' and `is_delete`='0' and `is_close`='0'
+                        `calculated_time`=CURRENT_TIME
+                    WHERE `id`=$payroll_id
             ";
             $res = $calculate->re_db_query($q);
-        } else {
-            $calculate->commissionCalculation($payroll_commissions, $payroll_date);
-            $calculate->calculateAdjustments($payroll_date);
-            $calculate->calculateCurrentPayroll($payroll_date);
         }
+
+
+        return true;
     }
 
     public function payroll_close(){
@@ -673,27 +680,32 @@ class payroll extends db{
         }
 		return $return;
    }
-    public function get_last_payroll($allPayrolls=0){
+    public function get_payroll_uploads($id=0, $allOpenClosed=0, $isCalculated=0){
     	$return = array();
+        $con = "";
 
-        if (!$allPayrolls) {
-            $con = " AND  `up`.`is_close` = 0 ";
-        } else {
-            $con = "";
+        if ($id != 0){
+            $con .= " AND  `up`.`id` = $id ";
+        }
+        if ($allOpenClosed == 1) {
+            $con .= " AND  `up`.`is_close` = 0 ";
+        } else if ($allOpenClosed == 2){
+            $con .= " AND `up`.`is_close` != 0 ";
+        }        
+        if ($isCalculated) {
+            $con .= " AND  `up`.`is_calculate` != 0 ";
         }
 
         $q = "SELECT `up`.*
                 FROM `".PAYROLL_UPLOAD."` AS `up` 
-                WHERE `up`.`is_delete`='0' AND `up`.`is_calculate` > 0 $con
+                WHERE `up`.`is_delete`='0' $con
                 ORDER BY `up`.`id` DESC";
                 
     	$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            if ($allPayrolls) {
-                $return = $this->re_db_fetch_all($res);
-            } else {
-                $return = $this->re_db_fetch_array($res);
-            }
+        if ($id != 0){
+            $return = $this->re_db_fetch_array($res);
+        } else if ($this->re_db_num_rows($res)>1) {
+            $return = $this->re_db_fetch_all($res);
         }
     	return $return;
   }
@@ -1297,6 +1309,7 @@ class payroll extends db{
                     ROUND((`rp`.`commission_received`-`rp`.`charge`)*`rp`.`split_rate`*.01,2) AS net_commission,
                     ROUND(`rp`.`commission_received`,2) AS commission_received,
                     `rp`.`commission_paid`,
+                    `rp`.`payout_rate` AS rate,
                     `rp`.`is_split`,
                     `rp`.`broker_id` AS `broker_name`,
                     `com`.`company_name`,
@@ -1378,7 +1391,8 @@ class payroll extends db{
                     `psr`.`split_charge` AS `charge`,
                     `psr`.`split_gross` - `psr`.`split_charge` AS `net_commission`,
                     `psr`.`split_rate` as `rate_per`,
-                    `psr`.`split_paid` as `rate_amount`
+                    `psr`.`split_paid` as `rate_amount`,
+                    `psr`.`payout_rate` as `rate`
                 FROM `".PAYROLL_SPLIT_RATES."` AS `psr`
 				LEFT JOIN `".PAYROLL_REVIEW_MASTER."` AS `rp` ON `psr`.`payable_transaction_id`=`rp`.`id`
                 LEFT JOIN `".BROKER_MASTER."` AS `bm2` ON `psr`.`broker_id`=`bm2`.`id`

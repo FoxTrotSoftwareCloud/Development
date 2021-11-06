@@ -7,10 +7,11 @@
     
     $payroll_date = date('m/d/Y');
     $instance = new payroll();
-    $existing_payroll_data = $instance->select(1);
-    if(count($existing_payroll_data)>0)
+    // Dropdown created 11/05/21 li
+    $get_payroll_uploads = $instance->get_payroll_uploads(0,1);
+    if(count($get_payroll_uploads)>0)
     {
-        $payroll_date = isset($existing_payroll_data[0]['payroll_date'])?date('m/d/Y',strtotime($existing_payroll_data[0]['payroll_date'])):'';
+        $payroll_date = $get_payroll_uploads[0]['payroll_date'];
         $is_payroll_calculated = 1;
     }
     else
@@ -19,14 +20,13 @@
     }
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
-        
-        $payroll_date = isset($_POST['payroll_date'])?$instance->re_db_input($_POST['payroll_date']):'';
-        
-        $return = $instance->calculate_payroll($_POST);
+        $return = $instance->get_payroll_uploads($_POST['payroll_id']);
+        $payroll_date = $return['payroll_date'];
+
+        $return = $instance->calculate_payroll($_POST,$payroll_date);
         
         if($return===true){
-            
-            header("location:".SITE_URL."review_payroll.php?action=view");exit;
+           // header("location:".SITE_URL."review_payroll.php?action=view");exit;
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
