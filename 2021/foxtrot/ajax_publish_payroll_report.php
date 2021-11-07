@@ -9,11 +9,15 @@ $instance_multi_company = new manage_company();
 $get_multi_company = $instance_multi_company->select_company();
 $instance_product_type = new product_master();
 $get_product_category =$instance_product_type->select_product_type();
-$get_last_payroll = $instance->get_payroll_uploads(0,0,1);
-if(count($get_last_payroll)>0)
-    $payroll_date = date('m/d/Y',strtotime($get_last_payroll[0]['payroll_date']));
 
-if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
+// Change the key to the array key - 11/7/21 li
+// $get_last_payroll = $instance->get_payroll_uploads(0,0,1);
+// if(count($get_last_payroll)>0)
+//     $payroll_date = date('m/d/Y',strtotime($get_last_payroll[0]['payroll_date']));
+$get_payroll_uploads = $instance->get_payroll_uploads(0,1);
+$payrollDateSelectedKey = 0;
+
+    if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
 ?>
 <div class="titlebox">Payroll Commission Statement</div><br />
 <div class="row">
@@ -31,9 +35,9 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
     <div class="col-md-6">
         <div class="form-group">
             <label>Payroll Date </label>
-            <select class="form-control" name="payroll_date">
+            <select class="form-control" name="payroll_date_selected">
                 <?php foreach($get_payroll_uploads as $key=>$val){?>
-                <option value="<?php echo $val['id'];?>" ><?php echo date('m/d/Y', strtotime($val['payroll_date'])).'-'.$val['id'];?></option>
+                <option value="<?php echo $key;?>" <?php ($key==$payrollDateSelectedKey)?'selected':'' ?>><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
                 <?php } ?>
             </select>
         </div>

@@ -8,9 +8,9 @@
                 <div class="form-group">
                     <label>Payroll Date <span class="text-red">*</span></label>
                     <div id="demo-dp-range">
-                        <select class="form-control" name="payroll_id">
+                        <select class="form-control" name="payroll_selected_key">
                             <?php foreach($get_payroll_uploads as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>" ><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
+                            <option value="<?php echo $key;?>" <?php echo ($key==$payrollSelectedKey)?'selected':'' ?>><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
                             <?php } ?>
                         </select>
                     </div>

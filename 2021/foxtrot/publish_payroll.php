@@ -10,6 +10,8 @@
     $payroll_date = date('m/d/Y');
     $instance = new payroll();
     $get_last_payroll = $instance->get_payroll_uploads();
+    $get_payroll_uploads = $instance->get_payroll_uploads(0,1);
+    $payrollSelectedKey= 0;
     if(count($get_last_payroll)>0)
         $payroll_date = isset($get_last_payroll['payroll_date'])?date('m/d/Y',strtotime($get_last_payroll['payroll_date'])):'';
     
