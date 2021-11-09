@@ -18,8 +18,9 @@ $get_company_name = $instance->get_company_name();
 $system_company_name = isset($get_company_name['company_name'])?$instance->re_db_input($get_company_name['company_name']):'';
 $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
 
+// Data gathering done by "payroll" class functions
 $instance_payroll = new payroll();
-//filter batch report
+
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
     $filter_array = json_decode($_GET['filter'],true);
@@ -31,11 +32,13 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         
         $company = isset($filter_array['company'])?$filter_array['company']:0;
         $print_type = isset($filter_array['print_type'])?$filter_array['print_type']:'';
-        $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
         $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
         $broker = isset($filter_array['broker'])?$filter_array['broker']:0;
-        
-        $get_broker_commission_data = $instance_payroll->get_broker_commission_report_data($company,$payroll_date,$broker,$print_type);
+        $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+        $payroll_date = $instance_payroll->get_payroll_uploads($payroll_id);
+        $payroll_date = $payroll_date['payroll_date'];
+
+        $get_broker_commission_data = $instance_payroll->get_broker_commission_report_data($company,$payroll_id,$broker,$print_type);
     
         if($payroll_date != ''){ 
             $payroll_date = date('F d, Y',strtotime($payroll_date));
@@ -467,7 +470,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                <td width="9%" style="font-size:10px;font-weight:normal;text-align:right;">0.00</td>
                                <td width="9%" style="font-size:10px;font-weight:normal;text-align:right;">0.00</td>
                                <td width="9%" style="font-size:10px;font-weight:bold;text-align:right;"></td>
-                               <td width="10%" style="font-size:10px;font-weight:normal;text-align:right;"><?php echo $adj_data['adjustment_amount'];?></td>
+                               <td width="10%" style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($adj_data['adjustment_amount'],2);?></td>
                             </tr>
                         <?php
                         }

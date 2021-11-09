@@ -9,7 +9,7 @@ class payroll_calculation extends payroll {
      * @return none
      * @throws none
      **/
-    function commissionCalculation($paydata=[], $payroll_date='') {
+    function commissionCalculation($paydata=[], $payroll_date='', $payroll_id=0) {
         // Initialize the variables for the entire payroll
         // $applyHigherRate - has to be outside the loop, because it is checked between the 2 "do...while" loops
         $paydata_recno= 0;
@@ -234,7 +234,7 @@ class payroll_calculation extends payroll {
      * @return array 
     */
     function calculateAdjustments($payroll_date,$payroll_id=0) {
-        $this->clearCurrentAdjustments();
+        $this->clearCurrentAdjustments($payroll_id);
 
         // Filter for "pay_on" & "expire" 
         $q = "SELECT 
@@ -304,7 +304,7 @@ class payroll_calculation extends payroll {
     * @return bool
     */
     function calculateCurrentPayroll($payroll_date='', $payroll_id=0) {
-        $this->clearCurrentPayroll();
+        $this->clearCurrentPayroll($payroll_id);
         
         // Commissions
         $q = "SELECT broker_id, 
@@ -340,9 +340,9 @@ class payroll_calculation extends payroll {
                     COUNT(`psr`.`split_broker`) AS is_split,
                     SUM(IF(`prm`.`product_category`<15 AND `prm`.`product_category`!=5, `psr`.`split_gross`, 0)) AS `sipc_gross`
                 FROM `".PAYROLL_SPLIT_RATES."` psr
-                LEFT JOIN `".PAYROLL_CURRENT_PAYROLL."` AS `pcp` ON `psr`.`split_broker`=`pcp`.`broker_id` AND `pcp`.`is_delete`=0
+                LEFT JOIN `".PAYROLL_CURRENT_PAYROLL."` AS `pcp` ON `psr`.`split_broker`=`pcp`.`broker_id`  AND `pcp`.`is_delete`=0 AND `pcp`.`payroll_id`=$payroll_id
                 LEFT JOIN `" .PAYROLL_REVIEW_MASTER. "` AS  `prm` ON `psr`.`payable_transaction_id`=`prm`.`id`
-                WHERE `psr`.`is_delete` = 0
+                WHERE `psr`.`is_delete` = 0 AND `psr`.`payroll_id`=$payroll_id 
                 GROUP BY `psr`.`split_broker`, `pcp`.`id`, `payroll_date`, `payroll_id`
                 ORDER BY `psr`.`split_broker`
             ";
@@ -370,7 +370,8 @@ class payroll_calculation extends payroll {
                     SUM(`por`.`over_paid`) AS `override_paid`,
                     ROUND(SUM(`por`.`over_paid`)/SUM(`por`.`over_gross`)*100,2) AS `override_rate` 
                 FROM `" .PAYROLL_OVERRIDE_RATES. "` `por`
-                LEFT JOIN `".PAYROLL_CURRENT_PAYROLL."` `pcp` ON `pcp`.`broker_id`=`por`.`receiving_rep`
+                LEFT JOIN `".PAYROLL_CURRENT_PAYROLL."` `pcp` ON `pcp`.`broker_id`=`por`.`receiving_rep` AND `pcp`.`payroll_id`=$payroll_id 
+                WHERE `por`.`is_delete` = 0 AND `por`.`payroll_id`=$payroll_id 
                 GROUP BY `por`.`receiving_rep`, `pcp`.`id`, `payroll_date`, `payroll_id`
                 ORDER BY `por`.`receiving_rep` 
         ";        
@@ -388,7 +389,8 @@ class payroll_calculation extends payroll {
                 SUM(IF(`pac`.`taxable_adjustment`=1, `pac`.`adjustment_amount` * IF(`pac`.`pay_type`=3, `pac`.`pay_amount`*.01, 1), 0)) AS `taxable_adjustments`,
                 SUM(IF(`pac`.`taxable_adjustment`='1', 0, `pac`.`adjustment_amount` * IF(`pac`.`pay_type`=3, `pac`.`pay_amount`*.01, 1))) AS `non-taxable_adjustments`
             FROM `" .PAYROLL_ADJUSTMENTS_CURRENT. "` `pac`
-            LEFT JOIN `" .PAYROLL_CURRENT_PAYROLL. "` `pcp` ON `pac`.`broker_id` = `pcp`.`broker_id`
+            LEFT JOIN `" .PAYROLL_CURRENT_PAYROLL. "` `pcp` ON `pac`.`broker_id` = `pcp`.`broker_id` AND `pcp`.`payroll_id`=$payroll_id
+            WHERE `pac`.`is_delete` = 0 AND `pac`.`payroll_id`=$payroll_id 
             GROUP BY `pac`.`broker_id`, `pcp`.`id`, `payroll_date`, `payroll_id` 
             ORDER BY `pac`.`broker_id`, `pcp`.`id`, `payroll_date`
         ";
@@ -431,16 +433,13 @@ class payroll_calculation extends payroll {
     /** Clear all rows in the PAYROLL_CURRENT_PAYROLL table for Payroll Calculation
     * Re-populated in calculate_payroll()
     * @return bool  */
-    function clearCurrentPayroll() {
+    function clearCurrentPayroll($payroll_id=0) {
         $return = true;
 
-        $q = "DELETE FROM `" .PAYROLL_CURRENT_PAYROLL. "` WHERE 1";
+        $q = "DELETE FROM `" .PAYROLL_CURRENT_PAYROLL. "` WHERE ".($payroll_id ? "payroll_id=".$payroll_id : '1');
         $res = $this->re_db_query($q);
         
         if($res){
-            $q = "ALTER TABLE `" .PAYROLL_CURRENT_PAYROLL. "` AUTO_INCREMENT = 1";
-            $res = $this->re_db_query($q);
-
             $_SESSION['success'] = UPDATE_MESSAGE;
         } else {
             $_SESSION['warning'] = UNKWON_ERROR;
@@ -450,9 +449,9 @@ class payroll_calculation extends payroll {
 
         return $return;
     }
-    function clearSplitRates() {
+    function clearSplitRates($payroll_id=0) {
         // Clear out the Payroll SPLIT Transactions - populated in Insert Split Rates method
-        $q = "DELETE FROM `" .PAYROLL_SPLIT_RATES. "` WHERE 1";
+        $q = "DELETE FROM `" .PAYROLL_SPLIT_RATES. "` WHERE ".($payroll_id ? "payroll_id=".$payroll_id : '1');
         $res = $this->re_db_query($q);
         $return = true;
         
@@ -478,9 +477,9 @@ class payroll_calculation extends payroll {
      /** Clear all rows in the OVERRIDE_RATE table for Payroll Calculation
      * Re-populated in calculateOverride()
      * @return bool  */
-    function clearOverrides() {
+    function clearOverrides($payroll_id=0) {
         // Clear out the Override Transactions - populated in "overrideCalculation()"
-        $q = "DELETE FROM `" .PAYROLL_OVERRIDE_RATES. "` WHERE 1";
+        $q = "DELETE FROM `" .PAYROLL_OVERRIDE_RATES. "` WHERE ".($payroll_id ? "payroll_id=".$payroll_id : '1');
         $res = $this->re_db_query($q);
         $return = true;
         
@@ -496,9 +495,9 @@ class payroll_calculation extends payroll {
 
         return $return;
     }
-    public function clearCurrentAdjustments (){
+    public function clearCurrentAdjustments ($payroll_id=0){
         // Clear out the Override Transactions - populated in "overrideCalculation()"
-        $q = "DELETE FROM `" .PAYROLL_ADJUSTMENTS_CURRENT. "` WHERE 1";
+        $q = "DELETE FROM `" .PAYROLL_ADJUSTMENTS_CURRENT. "` WHERE ".($payroll_id ? "payroll_id=".$payroll_id : '1');
         $res = $this->re_db_query($q);
         $return = true;
         
@@ -522,14 +521,14 @@ class payroll_calculation extends payroll {
     **/
     function insert_payroll_split_rates ($payroll_id=0) {
         // *** Initialize the SPLIT RATE & PAYROLL MASTER tables for the splits ***
-        $this->clearSplitRates();
+        $this->clearSplitRates($payroll_id);
         $payrollUpload = ($payroll_id==0) ? ['payroll_date'=>date('Y-m-d')] : $this->get_payroll_uploads($payroll_id);
         $payroll_date = $payrollUpload['payroll_date'];
         $payrollIdQuery = ($payroll_id==0) ? '' : " AND `pm`.`payroll_id`=$payroll_id";
         
         $q = "UPDATE `" .PAYROLL_REVIEW_MASTER. "` 
                 SET `is_split`= 0, `split_rate`= 100" .$this->update_common_sql(). "
-                WHERE 1
+                WHERE payroll_id = $payroll_id
         ";
         $res = $this->re_db_query($q);
         
@@ -583,7 +582,7 @@ class payroll_calculation extends payroll {
                 $split_charge = round($trade_row['trade_charge'] * $trade_row['split_rate'] * .01, 2);
                 $split_rate  = $trade_row['split_rate'];
 
-                        // Only INSERT a new record if there is a split rate, otherwise it's a waste of time to process later
+                        // Only INSERT a new record if there is a split rate
                 if ($trade_row['broker_id'] > 0  AND  $trade_row['split_broker'] > 0  AND  $split_rate > 0)
                     $this->insert_into_split_rates($trade_row, $trade_row['split_broker'], $trade_row['split_id'], $trade_row['split_rate'], $split_gross, $split_charge);
             }
@@ -641,6 +640,7 @@ public function insert_update_current_payroll ($data) {
     $fieldValues = '';
     $fieldNames = '';
     $createdBySessionValues = $this->insert_common_sql(2);
+    $fieldNameIndex = 0;
 
     foreach ($dataCopy AS $dataIndex=>$dataFields) {
         // ADD else UPDATE table
@@ -655,6 +655,7 @@ public function insert_update_current_payroll ($data) {
             }
             // Load the field values string to be bulk inserted below
             $fieldValues .= (empty($fieldValues)? "": ",")."(".$this->setString($data[$dataIndex], 2).")";
+            $fieldNameIndex = $dataIndex;
         } else {
             $q = "UPDATE " .PAYROLL_CURRENT_PAYROLL. "
                     SET ".$this->setString($data[$dataIndex]).                            
@@ -666,7 +667,7 @@ public function insert_update_current_payroll ($data) {
     }
     
     if (!empty($fieldValues)){
-        $fieldNames = $this->setString($data[$dataIndex], 3);
+        $fieldNames = $this->setString($data[$fieldNameIndex], 3);
         $q = "INSERT INTO ".PAYROLL_CURRENT_PAYROLL." (".$fieldNames.") VALUES ".$fieldValues;
         $res = $this->re_db_query($q);
     }    
