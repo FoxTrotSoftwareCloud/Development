@@ -94,8 +94,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 $broker_zipcode = isset($get_broker_detail['zip_code'])?$get_broker_detail['zip_code']:'';
                 $broker_number = isset($get_broker_detail['id'])?$get_broker_detail['id']:'';
                 $broker_branch = isset($get_broker_detail['branch_name'])?$get_broker_detail['branch_name']:'';
-                $total_payroll_draw = $total_payroll_draw+$get_broker_detail['payroll_draw'];
-                $total_base_salary = $total_base_salary+$get_broker_detail['salary'];
+                $total_payroll_draw = $total_payroll_draw + isset($get_broker_detail['payroll_draw'])?$get_broker_detail['payroll_draw']: 0;
+                $total_base_salary = $total_base_salary + isset($get_broker_detail['salary'])?$get_broker_detail['salary']: 0;
                 
                 if($broker_state != '' && $broker_zipcode > 0)
                 {
@@ -131,7 +131,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                  <table border="0" width="100%">
                         <tr>
                             <td width="70%" align="left" style="font-size:10px;"><?php echo $broker_name;?></td>
-                            <td width="30%" align="left" style="font-size:10px;">BROKER# : <?php echo $broker_number;?></td>
+                            <td width="30%" align="left" style="font-size:10px;">BROKER# : <?php echo $brokers_comm_data['broker_name'];?></td>
                         </tr>
                         <tr>
                             <td width="70%" align="left" style="font-size:10px;"><?php echo $broker_address;?></td>
@@ -169,7 +169,13 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $broker_net_commission = 0;
                         $broker_charges = 0;
                         $broker_rate = 0;
-                        $broker_broker_commission = 0;?>
+                        $broker_broker_commission = 0;
+                        $total_finra_assessment = -($brokers_comm_data['finra']);
+                        $total_sipc_assessment = -($brokers_comm_data['sipc']); 
+                        $total_prior_balance = $brokers_comm_data['balance'];
+                        $total_forward_balance = $brokers_comm_data['prior_broker_balance'];
+                        $total_broker_earnings = $brokers_comm_data['prior_broker_earnings'];
+                    ?>
                         <tr>
                                <td colspan="10" style="font-size:10px;font-weight:bold;text-align:center;">BROKER TRANSACTIONS</td>
                         </tr>
@@ -195,11 +201,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 $category_charges = $category_charges+$comm_sub_data['charge'];
                                 $category_rate = $category_rate+0;
                                 $category_broker_commission = $category_broker_commission+$comm_sub_data['commission_paid'];
-                                $total_finra_assessment = -($comm_sub_data['finra']);
-                                $total_sipc_assessment = -($comm_sub_data['sipc']); 
-                                $total_prior_balance = $comm_sub_data['balance'];  // + $total_prior_balance
-                                $total_forward_balance = $comm_sub_data['prior_broker_balance'];
-                                $total_broker_earnings = $comm_sub_data['prior_broker_earnings'];
+                                /*** Moved above foreach($brokers_comm_data['direct_transactions'].....) - Only needed to be updated once, since these numbers are already calculated in Payroll_Calculation() 11/9/21 ***/
+                                // $total_finra_assessment = -($comm_sub_data['finra']);
+                                // $total_sipc_assessment = -($comm_sub_data['sipc']); 
+                                // $total_prior_balance = $comm_sub_data['balance'];  // + $total_prior_balance
+                                // $total_forward_balance = $comm_sub_data['prior_broker_balance'];
+                                // $total_broker_earnings = $comm_sub_data['prior_broker_earnings'];
                                 
                                 if(isset($comm_sub_data['buy_sell']) && $comm_sub_data['buy_sell'] == 1)
                                 {
