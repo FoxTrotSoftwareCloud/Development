@@ -60,14 +60,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 $total_split_transactions = 0;
                 $total_override_transactions = 0;
                 $total_adjustments = 0;
-                $total_payroll_draw = 0;
-                $total_base_salary = 0;
-                $total_finra_assessment = 0;
-                $total_sipc_assessment = 0;
-                $total_prior_balance = 0;
-                
-                $total_forward_balance = 0;
-                $total_broker_earnings = 0;
+
+                $total_payroll_draw = isset($get_broker_detail['payroll_draw'])?$get_broker_detail['payroll_draw']: 0;
+                $total_base_salary = isset($get_broker_detail['salary'])?$get_broker_detail['salary']: 0;
+                $total_finra_assessment = -($brokers_comm_data['finra']);
+                $total_sipc_assessment = -($brokers_comm_data['sipc']); 
+                $total_prior_balance = $brokers_comm_data['balance'];
+                $total_forward_balance = $brokers_comm_data['prior_broker_balance'];
+                $total_broker_earnings = $brokers_comm_data['prior_broker_earnings'];
                 
                 $get_broker_detail = $instance_payroll->get_broker_detail($brokers_comm_key);
             
@@ -94,8 +94,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 $broker_zipcode = isset($get_broker_detail['zip_code'])?$get_broker_detail['zip_code']:'';
                 $broker_number = isset($get_broker_detail['id'])?$get_broker_detail['id']:'';
                 $broker_branch = isset($get_broker_detail['branch_name'])?$get_broker_detail['branch_name']:'';
-                $total_payroll_draw = $total_payroll_draw + isset($get_broker_detail['payroll_draw'])?$get_broker_detail['payroll_draw']: 0;
-                $total_base_salary = $total_base_salary + isset($get_broker_detail['salary'])?$get_broker_detail['salary']: 0;
                 
                 if($broker_state != '' && $broker_zipcode > 0)
                 {
@@ -170,11 +168,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $broker_charges = 0;
                         $broker_rate = 0;
                         $broker_broker_commission = 0;
-                        $total_finra_assessment = -($brokers_comm_data['finra']);
-                        $total_sipc_assessment = -($brokers_comm_data['sipc']); 
-                        $total_prior_balance = $brokers_comm_data['balance'];
-                        $total_forward_balance = $brokers_comm_data['prior_broker_balance'];
-                        $total_broker_earnings = $brokers_comm_data['prior_broker_earnings'];
                     ?>
                         <tr>
                                <td colspan="10" style="font-size:10px;font-weight:bold;text-align:center;">BROKER TRANSACTIONS</td>

@@ -1304,9 +1304,6 @@ class payroll extends db{
             $con .= " ORDER BY `bm`.`fund` ASC";
         }
         
-        $ytdStart = date('Y-m-d', strtotime($payroll_date." -1 year + 1 day"));
-        $ytdEarnings = $this->$get_ytd_earnings('net_earnings', $ytdStart, $payroll_date);
-
         $q = "SELECT 
                     `pc`.`broker_id` AS `broker_name`,
                     `pc`.`id` AS payroll_current_id,
@@ -1326,13 +1323,15 @@ class payroll extends db{
                 LEFT JOIN `".BROKER_MASTER."` AS `bm` on `pc`.`broker_id`=`bm`.`id` and `bm`.`is_delete`='0'
                 WHERE `pc`.`is_delete`='0' ".$con."
         ";
-
+        
         $res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
-			while($row = $this->re_db_fetch_array($res)){
+            while($row = $this->re_db_fetch_array($res)){
                 $return['company_name']=$company;
                 $return['broker_transactions'][$row['broker_name']] = $row;
-
+                $ytdEarnings = $this->get_prior_earnings('net_earnings', $row['broker_name'], '', $payroll_date);
+                $return['broker_transactions'][$row['broker_name']]['prior_broker_earnings'] = $ytdEarnings;
+                
                 $direct_transactions = $this->get_direct_transactions_for_broker_statement($row['broker_name'],$payroll_id, $company);
                 $return['broker_transactions'][$row['broker_name']]['direct_transactions'] = $direct_transactions;
                 $adjustments = $this->get_adjustments_for_broker_statement($row['broker_name'], $payroll_id);
@@ -1510,20 +1509,23 @@ class payroll extends db{
 		return ($this->re_db_num_rows($res)>0) ? $this->re_db_fetch_array($res) : '';
 	}
 
-    public function get_prior_earnings($earningsFields, $broker_id, $startDate='', $endDate='') {
+    public function get_prior_earnings($earningsFields='net_earnings', $broker_id=0, $startDate='', $endDate='') {
         $return = 0;
 
         if (empty($earningsFields) OR empty($broker_id)){
             return $return;
+        }
+        if (empty($endDate)) {
+            $endDate = date('Y-m-d');
         }
         if (empty($startDate)) {
             $startDate = date('Y-m-d', strtotime($endDate.' -1 year + 1 day'));
         }
 
         $q = "SELECT `broker_id`,
-                     SUM($earningsFields) AS `total`
+                     ROUND(SUM($earningsFields),2) AS `total`
                 FROM `".PRIOR_PAYROLL_MASTER."`
-                WHERE `is_delete`=0 AND `payroll_date` BETWEEN $startDate AND $endDate
+                WHERE `is_delete`=0 AND `broker_id`='$broker_id' AND `payroll_date` BETWEEN '$startDate' AND '$endDate'
                 GROUP BY `broker_id`
         ";
 		
