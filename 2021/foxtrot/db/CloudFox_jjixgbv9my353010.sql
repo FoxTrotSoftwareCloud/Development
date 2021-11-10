@@ -1,5 +1,5 @@
 -- phpMiniAdmin dump 1.9.170730
--- Datetime: 2021-11-03 05:49:25
+-- Datetime: 2021-11-10 05:21:16
 -- Host: sql5c40n.carrierzone.com
 -- Database: CloudFox_jjixgbv9my353010
 
@@ -2254,6 +2254,7 @@ INSERT INTO `ft_payroll_master` VALUES ('1','E&O Premium','1','0','1','2018-01-3
 DROP TABLE IF EXISTS `ft_payroll_override_rates`;
 CREATE TABLE `ft_payroll_override_rates` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
+  `payroll_id` int(11) NOT NULL,
   `payable_transaction_id` int(12) NOT NULL,
   `transaction_id` int(12) NOT NULL,
   `override_id` int(12) DEFAULT NULL,
@@ -2282,6 +2283,7 @@ CREATE TABLE `ft_payroll_override_rates` (
 DROP TABLE IF EXISTS `ft_payroll_prior_payroll_master`;
 CREATE TABLE `ft_payroll_prior_payroll_master` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
+  `payroll_id` int(11) NOT NULL,
   `payroll_date` date NOT NULL,
   `broker_id` int(11) DEFAULT NULL,
   `clearing_number` varchar(100) NOT NULL,
@@ -2308,7 +2310,7 @@ CREATE TABLE `ft_payroll_prior_payroll_master` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 /*!40000 ALTER TABLE `ft_payroll_prior_payroll_master` DISABLE KEYS */;
-INSERT INTO `ft_payroll_prior_payroll_master` VALUES ('1','2018-10-23','1','3345','308.75','154.38','0.00','0.00','0.00','0.00','','','100.00','-50.00','','1','0','21','2018-11-01 15:03:39','103.36.122.212','1','2021-10-29 06:28:58','96.55.37.191'),('2','2018-10-23','3','C49','1187.50','475.00','0.00','0.00','0.00','0.00','','','150.00','-65.00','','1','0','21','2018-11-01 15:03:39','103.36.122.212','1','2021-11-02 02:19:16','72.197.227.26');
+INSERT INTO `ft_payroll_prior_payroll_master` VALUES ('1','0','2018-10-23','1','3345','308.75','154.38','0.00','0.00','0.00','0.00','','','100.00','-50.00','','1','0','21','2018-11-01 15:03:39','103.36.122.212','1','2021-10-29 06:28:58','96.55.37.191'),('2','0','2018-10-23','3','C49','1187.50','475.00','0.00','0.00','0.00','0.00','','','150.00','-65.00','','1','0','21','2018-11-01 15:03:39','103.36.122.212','1','2021-11-02 02:19:16','72.197.227.26');
 /*!40000 ALTER TABLE `ft_payroll_prior_payroll_master` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `ft_payroll_review_master`;
@@ -2331,6 +2333,7 @@ CREATE TABLE `ft_payroll_review_master` (
   `commission_received` decimal(8,2) NOT NULL DEFAULT '0.00',
   `net_commission` decimal(8,2) NOT NULL DEFAULT '0.00',
   `commission_paid` decimal(8,2) NOT NULL DEFAULT '0.00',
+  `payout_rate` decimal(5,2) NOT NULL,
   `adjustments` decimal(8,2) NOT NULL DEFAULT '0.00',
   `taxable_adjustments` decimal(8,2) NOT NULL DEFAULT '0.00',
   `non-taxable_adjustments` decimal(8,2) NOT NULL DEFAULT '0.00',
@@ -2359,12 +2362,13 @@ CREATE TABLE `ft_payroll_review_master` (
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 
 /*!40000 ALTER TABLE `ft_payroll_review_master` DISABLE KEYS */;
-INSERT INTO `ft_payroll_review_master` VALUES ('1','1','16','2016-04-27','1','2','00150247194','1','2','','','6500.00','0.00','10.00','2018-10-23','308.75','298.75','0.00','200.00','250.00','-50.00','0.00','0.00','100.00','2.00','3.00','100.00','1','0','0','','0','1','1','1','1','21','2018-10-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('2','1','27','2016-04-27','6','1','00150247194','1','4','','','10000.00','0.00','0.00','2018-10-23','475.00','475.00','0.00','350.00','400.00','-50.00','0.00','0.00','100.00','2.00','3.00','100.00','1','0','2','','2','0','1','1','1','21','2018-10-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('3','1','28','2016-04-27','6','1','00150247194','1','1','','','6500.00','0.00','0.00','2018-10-23','308.75','308.75','43.23','50.00','100.00','-50.00','0.00','0.00','70.00','2.00','3.00','100.00','1','1','2','','2','1','0','1','0','21','2018-10-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('4','1','31','2016-04-27','6','1','00150247194','1','3','','','25000.00','0.00','0.00','2018-10-23','1187.50','1187.50','142.50','85.00','150.00','-65.00','0.00','0.00','30.00','2.00','3.00','100.00','1','1','2','','2','2','0','1','0','21','2018-10-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('5','3','33','2016-04-27','6','1','00150247194','1','1','','','10000.00','0.00','0.00','2018-11-01','475.00','475.00','38.00','0.00','0.00','0.00','0.00','0.00','40.00','2.00','3.00','100.00','1','2','0','','0','1','0','1','0','21','2018-11-01','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('6','3','34','2016-04-27','6','1','00150247194','1','2','','','6500.00','0.00','0.00','2018-11-01','308.75','308.75','108.07','0.00','0.00','0.00','0.00','0.00','70.00','2.00','3.00','100.00','1','1','2','','2','1','0','1','0','21','2018-11-01','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('7','3','37','2016-04-27','6','1','00150247194','1','3','','','25000.00','0.00','0.00','2018-11-01','1187.50','1187.50','142.50','0.00','0.00','0.00','0.00','0.00','30.00','2.00','3.00','100.00','1','1','2','','2','2','0','1','0','21','2018-11-01','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('8','3','38','2016-04-27','6','1','00150247194','1','1','','','20000.00','0.00','0.00','2018-11-01','950.00','950.00','76.00','0.00','0.00','0.00','0.00','0.00','40.00','2.00','3.00','100.00','1','2','2','','2','1','0','1','0','21','2018-11-01','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('9','4','35','2016-04-27','6','1','00123456789','2','2','','','6380.00','0.00','0.00','2018-11-15','303.05','303.05','106.07','0.00','0.00','0.00','0.00','0.00','70.00','2.00','3.00','100.00','1','1','2','','2','1','0','1','0','21','2018-11-15','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('10','4','39','2016-04-27','6','1','00150247194','1','1','','','10000.00','0.00','0.00','2018-11-15','475.00','475.00','38.00','0.00','0.00','0.00','0.00','0.00','40.00','2.00','3.00','100.00','1','2','2','','2','1','0','1','0','21','2018-11-15','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('11','4','40','2016-04-27','1','2','00150247194','1','2','','','6500.00','0.00','0.00','2018-11-15','308.75','308.75','108.07','0.00','0.00','0.00','0.00','0.00','70.00','2.00','3.00','100.00','1','1','2','','2','1','0','1','0','21','2018-11-15','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('12','5','48','2016-04-27','6','1','00123456789','2','4','','','25000.00','0.00','0.00','2018-11-23','1187.50','1187.50','475.00','0.00','0.00','0.00','0.00','0.00','100.00','2.00','3.00','100.00','1','0','2','','2','0','0','1','0','21','2018-11-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26');
+INSERT INTO `ft_payroll_review_master` VALUES ('1','1','16','2016-04-27','1','2','00150247194','1','2','','','6500.00','0.00','10.00','2018-10-23','308.75','298.75','0.00','0.00','200.00','250.00','-50.00','0.00','0.00','100.00','2.00','3.00','100.00','1','0','0','','0','1','1','1','1','21','2018-10-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('2','1','27','2016-04-27','6','1','00150247194','1','4','','','10000.00','0.00','0.00','2018-10-23','475.00','475.00','0.00','0.00','350.00','400.00','-50.00','0.00','0.00','100.00','2.00','3.00','100.00','1','0','2','','2','0','1','1','1','21','2018-10-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('3','1','28','2016-04-27','6','1','00150247194','1','1','','','6500.00','0.00','0.00','2018-10-23','308.75','308.75','43.23','0.00','50.00','100.00','-50.00','0.00','0.00','70.00','2.00','3.00','100.00','1','1','2','','2','1','0','1','0','21','2018-10-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('4','1','31','2016-04-27','6','1','00150247194','1','3','','','25000.00','0.00','0.00','2018-10-23','1187.50','1187.50','142.50','0.00','85.00','150.00','-65.00','0.00','0.00','30.00','2.00','3.00','100.00','1','1','2','','2','2','0','1','0','21','2018-10-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('5','3','33','2016-04-27','6','1','00150247194','1','1','','','10000.00','0.00','0.00','2018-11-01','475.00','475.00','38.00','0.00','0.00','0.00','0.00','0.00','0.00','40.00','2.00','3.00','100.00','1','2','0','','0','1','0','1','0','21','2018-11-01','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('6','3','34','2016-04-27','6','1','00150247194','1','2','','','6500.00','0.00','0.00','2018-11-01','308.75','308.75','108.07','0.00','0.00','0.00','0.00','0.00','0.00','70.00','2.00','3.00','100.00','1','1','2','','2','1','0','1','0','21','2018-11-01','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('7','3','37','2016-04-27','6','1','00150247194','1','3','','','25000.00','0.00','0.00','2018-11-01','1187.50','1187.50','142.50','0.00','0.00','0.00','0.00','0.00','0.00','30.00','2.00','3.00','100.00','1','1','2','','2','2','0','1','0','21','2018-11-01','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('8','3','38','2016-04-27','6','1','00150247194','1','1','','','20000.00','0.00','0.00','2018-11-01','950.00','950.00','76.00','0.00','0.00','0.00','0.00','0.00','0.00','40.00','2.00','3.00','100.00','1','2','2','','2','1','0','1','0','21','2018-11-01','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('9','4','35','2016-04-27','6','1','00123456789','2','2','','','6380.00','0.00','0.00','2018-11-15','303.05','303.05','106.07','0.00','0.00','0.00','0.00','0.00','0.00','70.00','2.00','3.00','100.00','1','1','2','','2','1','0','1','0','21','2018-11-15','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('10','4','39','2016-04-27','6','1','00150247194','1','1','','','10000.00','0.00','0.00','2018-11-15','475.00','475.00','38.00','0.00','0.00','0.00','0.00','0.00','0.00','40.00','2.00','3.00','100.00','1','2','2','','2','1','0','1','0','21','2018-11-15','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('11','4','40','2016-04-27','1','2','00150247194','1','2','','','6500.00','0.00','0.00','2018-11-15','308.75','308.75','108.07','0.00','0.00','0.00','0.00','0.00','0.00','70.00','2.00','3.00','100.00','1','1','2','','2','1','0','1','0','21','2018-11-15','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26'),('12','5','48','2016-04-27','6','1','00123456789','2','4','','','25000.00','0.00','0.00','2018-11-23','1187.50','1187.50','475.00','0.00','0.00','0.00','0.00','0.00','0.00','100.00','2.00','3.00','100.00','1','0','2','','2','0','0','1','0','21','2018-11-23','103.36.122.212','1','2021-11-02 02:21:51','72.197.227.26');
 /*!40000 ALTER TABLE `ft_payroll_review_master` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `ft_payroll_split_rates`;
 CREATE TABLE `ft_payroll_split_rates` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
+  `payroll_id` int(11) NOT NULL,
   `payable_transaction_id` int(12) NOT NULL,
   `transaction_id` int(12) NOT NULL,
   `split_id` int(12) NOT NULL DEFAULT '0',
@@ -2379,6 +2383,7 @@ CREATE TABLE `ft_payroll_split_rates` (
   `split_gross` decimal(8,2) NOT NULL,
   `split_charge` decimal(8,2) NOT NULL,
   `split_paid` decimal(8,2) NOT NULL,
+  `payout_rate` decimal(5,2) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1',
   `is_delete` tinyint(1) NOT NULL,
   `created_by` int(12) NOT NULL,
@@ -2391,7 +2396,6 @@ CREATE TABLE `ft_payroll_split_rates` (
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 
 /*!40000 ALTER TABLE `ft_payroll_split_rates` DISABLE KEYS */;
-INSERT INTO `ft_payroll_split_rates` VALUES ('1','3','28','34','0','1','1','30','0','0','308.75','0.00','92.63','0.00','18.53','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('2','4','31','36','0','3','4','70','0','0','1187.50','0.00','831.25','0.00','332.50','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('3','5','33','40','0','1','4','40','0','0','475.00','0.00','190.00','0.00','76.00','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('4','5','33','39','0','1','2','20','0','0','475.00','0.00','95.00','0.00','47.50','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('5','6','34','41','0','2','1','30','0','0','308.75','0.00','92.63','0.00','18.53','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('6','9','35','42','0','2','1','30','0','0','303.05','0.00','90.92','0.00','18.18','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('7','7','37','43','0','3','4','70','0','0','1187.50','0.00','831.25','0.00','332.50','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('8','8','38','44','0','1','2','20','0','0','950.00','0.00','190.00','0.00','95.00','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('9','8','38','45','0','1','4','40','0','0','950.00','0.00','380.00','0.00','152.00','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('10','10','39','46','0','1','2','20','0','0','475.00','0.00','95.00','0.00','47.50','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('11','10','39','47','0','1','4','40','0','0','475.00','0.00','190.00','0.00','76.00','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00',''),('12','11','40','48','0','2','1','30','0','0','308.75','0.00','92.63','0.00','27.79','1','0','1','2021-11-02 02:21:51','72.197.227.26','0','0000-00-00 00:00:00','');
 /*!40000 ALTER TABLE `ft_payroll_split_rates` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `ft_payroll_upload`;
@@ -2410,11 +2414,12 @@ CREATE TABLE `ft_payroll_upload` (
   `modified_by` int(12) NOT NULL,
   `modified_time` datetime NOT NULL,
   `modified_ip` varchar(100) NOT NULL,
+  `calculated_time` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 /*!40000 ALTER TABLE `ft_payroll_upload` DISABLE KEYS */;
-INSERT INTO `ft_payroll_upload` VALUES ('1','1','2018-10-23','2018-10-23','2018-10-23','1','1','0','21','2018-10-23 17:59:01','103.36.122.212','21','2018-10-25 20:31:31','76.176.130.44'),('2','0','0000-00-00','2018-11-01','2018-11-01','0','1','0','21','2018-11-01 15:05:35','103.36.122.212','0','0000-00-00 00:00:00',''),('3','1','2018-11-16','2018-11-01','2018-11-01','0','1','0','21','2018-11-01 15:10:36','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81'),('4','1','2018-11-16','2018-11-15','2018-11-15','0','1','0','21','2018-11-15 17:40:54','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81'),('5','1','2018-11-16','2018-11-23','2018-11-23','0','1','0','21','2018-11-23 15:58:47','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81'),('6','0','0000-00-00','2021-07-09','2021-07-09','0','1','0','1','2021-07-02 22:28:43','107.210.168.81','0','0000-00-00 00:00:00','');
+INSERT INTO `ft_payroll_upload` VALUES ('1','1','2018-10-23','2018-10-23','2018-10-23','1','1','0','21','2018-10-23 17:59:01','103.36.122.212','21','2018-10-25 20:31:31','76.176.130.44','0000-00-00 00:00:00'),('2','0','2018-11-01','2018-11-01','2018-11-01','0','1','0','21','2018-11-01 15:05:35','103.36.122.212','0','0000-00-00 00:00:00','','0000-00-00 00:00:00'),('3','1','2018-12-01','2018-11-01','2018-11-01','0','1','0','21','2018-11-01 15:10:36','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','0000-00-00 00:00:00'),('4','1','2019-01-01','2018-11-15','2018-11-15','0','1','0','21','2018-11-15 17:40:54','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','0000-00-00 00:00:00'),('5','1','2019-06-01','2018-11-23','2018-11-23','0','1','0','21','2018-11-23 15:58:47','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','0000-00-00 00:00:00'),('6','0','2021-11-09','2021-07-09','2021-07-09','0','1','0','1','2021-07-02 22:28:43','107.210.168.81','0','0000-00-00 00:00:00','','0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `ft_payroll_upload` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `ft_percentage_detail`;
@@ -2469,6 +2474,28 @@ CREATE TABLE `ft_product_attach` (
 /*!40000 ALTER TABLE `ft_product_attach` DISABLE KEYS */;
 INSERT INTO `ft_product_attach` VALUES ('1','2018-01-02 00:00:00','user02','1514898379754797.png','apple-touch-icon@2.png','1','1','2','2018-01-02 18:36:19','103.36.122.212','0','0000-00-00 00:00:00','');
 /*!40000 ALTER TABLE `ft_product_attach` ENABLE KEYS */;
+
+DROP TABLE IF EXISTS `ft_product_categories`;
+CREATE TABLE `ft_product_categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(100) NOT NULL,
+  `type_code` varchar(100) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` int(12) NOT NULL DEFAULT '0',
+  `created_time` datetime NOT NULL,
+  `created_ip` varchar(100) NOT NULL,
+  `modified_by` int(12) NOT NULL DEFAULT '0',
+  `modified_time` datetime NOT NULL,
+  `modified_ip` varchar(100) NOT NULL,
+  `sponsor_id` int(11) DEFAULT NULL,
+  `sort_order` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+
+/*!40000 ALTER TABLE `ft_product_categories` DISABLE KEYS */;
+INSERT INTO `ft_product_categories` VALUES ('1','Mutual Funds','MF','1','0','3','2018-02-06 16:01:25','192.168.30.30','1','2021-10-22 04:48:22','107.210.168.81',NULL,'1'),('2','Stocks','','1','0','3','2018-02-06 16:03:55','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('3','Bonds','','1','0','3','2018-02-06 16:04:11','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('4','Variable Annuities','VA','1','0','3','2018-02-06 16:04:24','192.168.30.30','3','2018-04-09 09:16:02','192.168.30.30',NULL,'2'),('5','Fixed Annuities','','1','0','3','2018-02-06 16:04:41','192.168.30.30','0','0000-00-00 00:00:00','',NULL,'3'),('6','Options','','1','0','3','2018-02-06 16:04:59','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('7','UIT\'s','','1','0','3','2018-02-06 16:05:12','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('8','CD\'s','','1','0','3','2018-02-06 16:05:28','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('9','REIT\'s','RT','1','0','3','2018-02-06 16:05:44','192.168.30.30','3','2018-04-09 09:24:05','192.168.30.30',NULL,NULL),('10','Limited Partnerships','','1','0','3','2018-02-06 16:06:01','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('11','Investment Banking','','1','0','3','2018-02-21 09:17:56','192.168.30.20','0','0000-00-00 00:00:00','',NULL,NULL),('12','RIA','','1','0','3','2018-02-21 09:18:20','192.168.30.20','0','0000-00-00 00:00:00','',NULL,'5'),('13','Program Manager','PM','0','0','21','2018-04-26 19:02:50','103.36.122.212','0','0000-00-00 00:00:00','',NULL,NULL),('14','Variable Universal Life Insure','VL','1','0','21','2018-04-26 19:03:55','103.36.122.212','0','0000-00-00 00:00:00','',NULL,NULL),('15','Cryptocurrency','CC','1','0','21','2018-05-08 20:32:40','76.176.130.44','0','0000-00-00 00:00:00','',NULL,NULL),('16','Alternative Investments','','1','0','21','2021-08-11 17:03:02','49.34.172.53','1','2021-11-09 10:44:45','27.255.223.190',NULL,NULL),('17','Financial Planning','','1','0','21','2021-08-11 17:03:22','49.34.172.53','0','0000-00-00 00:00:00','',NULL,NULL),('18','Fixed Indexed Annuities','','1','0','21','2021-08-11 17:03:39','49.34.172.53','0','0000-00-00 00:00:00','',NULL,NULL),('19','Group Annuity Contract','','1','0','21','2021-08-11 17:03:55','49.34.172.53','0','0000-00-00 00:00:00','',NULL,'4'),('20','Life Settlement','','1','0','21','2021-08-11 17:04:12','49.34.172.53','0','0000-00-00 00:00:00','',NULL,NULL);
+/*!40000 ALTER TABLE `ft_product_categories` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `ft_product_maintenance`;
 CREATE TABLE `ft_product_maintenance` (
@@ -2537,27 +2564,94 @@ CREATE TABLE `ft_product_notes` (
 INSERT INTO `ft_product_notes` VALUES ('1','2018-05-08 00:00:00','marcus','test note','1','0','21','2018-05-08 10:16:01','103.36.122.212','0','0000-00-00 00:00:00','');
 /*!40000 ALTER TABLE `ft_product_notes` ENABLE KEYS */;
 
-DROP TABLE IF EXISTS `ft_product_type`;
-CREATE TABLE `ft_product_type` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(100) NOT NULL,
-  `type_code` varchar(100) NOT NULL,
+DROP TABLE IF EXISTS `ft_products`;
+CREATE TABLE `ft_products` (
+  `id` int(12) NOT NULL AUTO_INCREMENT,
+  `category` int(12) DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `sponsor` varchar(100) DEFAULT NULL,
+  `ticker_symbol` varchar(100) DEFAULT NULL,
+  `cusip` varchar(100) DEFAULT NULL,
+  `security` varchar(100) DEFAULT NULL,
+  `receive` tinyint(1) NOT NULL DEFAULT '0',
+  `income` varchar(100) DEFAULT NULL,
+  `networth` varchar(100) DEFAULT NULL,
+  `networthonly` varchar(100) DEFAULT NULL,
+  `minimum_investment` varchar(100) DEFAULT NULL,
+  `minimum_offer` varchar(100) DEFAULT NULL,
+  `maximum_offer` varchar(100) DEFAULT NULL,
+  `objective` varchar(100) DEFAULT NULL,
+  `non_commissionable` tinyint(1) NOT NULL DEFAULT '0',
+  `class_type` varchar(100) DEFAULT NULL,
+  `fund_code` varchar(100) DEFAULT NULL,
+  `sweep_fee` tinyint(1) NOT NULL DEFAULT '0',
+  `ria_specific` varchar(100) DEFAULT NULL,
+  `ria_specific_type` varchar(100) DEFAULT NULL,
+  `based` varchar(100) DEFAULT NULL,
+  `fee_rate` varchar(100) DEFAULT NULL,
+  `st_bo` varchar(100) DEFAULT NULL,
+  `m_date` date DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  `var` varchar(100) DEFAULT NULL,
+  `reg_type` varchar(100) DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1',
   `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) NOT NULL DEFAULT '0',
-  `created_time` datetime NOT NULL,
-  `created_ip` varchar(100) NOT NULL,
-  `modified_by` int(12) NOT NULL DEFAULT '0',
-  `modified_time` datetime NOT NULL,
-  `modified_ip` varchar(100) NOT NULL,
-  `sponsor_id` int(11) DEFAULT NULL,
-  `sort_order` int(11) DEFAULT NULL,
+  `created_by` int(12) DEFAULT NULL,
+  `created_time` datetime DEFAULT NULL,
+  `created_ip` varchar(100) DEFAULT NULL,
+  `modified_by` int(12) DEFAULT NULL,
+  `modified_time` datetime DEFAULT NULL,
+  `modified_ip` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
-/*!40000 ALTER TABLE `ft_product_type` DISABLE KEYS */;
-INSERT INTO `ft_product_type` VALUES ('1','Mutual Funds','MF','1','0','3','2018-02-06 16:01:25','192.168.30.30','1','2021-10-22 04:48:22','107.210.168.81',NULL,'1'),('2','Stocks','','1','0','3','2018-02-06 16:03:55','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('3','Bonds','','1','0','3','2018-02-06 16:04:11','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('4','Variable Annuities','VA','1','0','3','2018-02-06 16:04:24','192.168.30.30','3','2018-04-09 09:16:02','192.168.30.30',NULL,'2'),('5','Fixed Annuities','','1','0','3','2018-02-06 16:04:41','192.168.30.30','0','0000-00-00 00:00:00','',NULL,'3'),('6','Options','','1','0','3','2018-02-06 16:04:59','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('7','UIT\'s','','1','0','3','2018-02-06 16:05:12','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('8','CD\'s','','1','0','3','2018-02-06 16:05:28','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('9','REIT\'s','RT','1','0','3','2018-02-06 16:05:44','192.168.30.30','3','2018-04-09 09:24:05','192.168.30.30',NULL,NULL),('10','Limited Partnerships','','1','0','3','2018-02-06 16:06:01','192.168.30.30','0','0000-00-00 00:00:00','',NULL,NULL),('11','Investment Banking','','1','0','3','2018-02-21 09:17:56','192.168.30.20','0','0000-00-00 00:00:00','',NULL,NULL),('12','RIA','','1','0','3','2018-02-21 09:18:20','192.168.30.20','0','0000-00-00 00:00:00','',NULL,'5'),('13','Program Manager','PM','0','0','21','2018-04-26 19:02:50','103.36.122.212','0','0000-00-00 00:00:00','',NULL,NULL),('14','Variable Universal Life Insure','VL','1','0','21','2018-04-26 19:03:55','103.36.122.212','0','0000-00-00 00:00:00','',NULL,NULL),('15','Cryptocurrency','CC','1','0','21','2018-05-08 20:32:40','76.176.130.44','0','0000-00-00 00:00:00','',NULL,NULL),('16','Alternative Investments','','1','0','21','2021-08-11 17:03:02','49.34.172.53','0','0000-00-00 00:00:00','',NULL,NULL),('17','Financial Planning','','1','0','21','2021-08-11 17:03:22','49.34.172.53','0','0000-00-00 00:00:00','',NULL,NULL),('18','Fixed Indexed Annuities','','1','0','21','2021-08-11 17:03:39','49.34.172.53','0','0000-00-00 00:00:00','',NULL,NULL),('19','Group Annuity Contract','','1','0','21','2021-08-11 17:03:55','49.34.172.53','0','0000-00-00 00:00:00','',NULL,'4'),('20','Life Settlement','','1','0','21','2021-08-11 17:04:12','49.34.172.53','0','0000-00-00 00:00:00','',NULL,NULL);
-/*!40000 ALTER TABLE `ft_product_type` ENABLE KEYS */;
+/*!40000 ALTER TABLE `ft_products` DISABLE KEYS */;
+INSERT INTO `ft_products` VALUES ('7','12','RIA PRODUCT','1','','','','0','','','','','','','','0','','','0','','','','10.0','','1970-01-01','','','','1','0','1','2021-11-09 14:24:14','124.253.3.207','1','2021-11-09 14:24:30','124.253.3.207'),('6','2','STOCK PRODUCT','6','!!!!!','23423423','','0','','','','','','','','0','','','0','','','','','1','1970-01-01','','','','1','0','1','2021-11-09 14:23:53','124.253.3.207',NULL,NULL,NULL),('5','1','PRODUCT 1','1','@','test','','0','','','','','','','','0','','','0','','','','','','1970-01-01','','','','1','0','1','2021-11-09 13:01:01','124.253.3.207','1','2021-11-10 10:28:47','96.55.37.191');
+/*!40000 ALTER TABLE `ft_products` ENABLE KEYS */;
+
+DROP TABLE IF EXISTS `ft_products_history`;
+CREATE TABLE `ft_products_history` (
+  `id` int(12) NOT NULL AUTO_INCREMENT,
+  `product_id` int(12) DEFAULT NULL,
+  `field` varchar(100) DEFAULT NULL,
+  `old_value` varchar(100) DEFAULT NULL,
+  `new_value` varchar(100) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` int(12) DEFAULT NULL,
+  `created_time` datetime DEFAULT NULL,
+  `created_ip` varchar(100) DEFAULT NULL,
+  `modified_by` int(12) DEFAULT NULL,
+  `modified_time` datetime DEFAULT NULL,
+  `modified_ip` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+/*!40000 ALTER TABLE `ft_products_history` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ft_products_history` ENABLE KEYS */;
+
+DROP TABLE IF EXISTS `ft_products_rates`;
+CREATE TABLE `ft_products_rates` (
+  `id` int(12) NOT NULL AUTO_INCREMENT,
+  `product_id` int(12) DEFAULT NULL,
+  `min_threshold` varchar(100) DEFAULT NULL,
+  `max_threshold` varchar(100) DEFAULT NULL,
+  `min_rate` float(8,2) DEFAULT NULL,
+  `max_rate` float(8,2) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` int(12) DEFAULT NULL,
+  `created_time` datetime DEFAULT NULL,
+  `created_ip` varchar(100) DEFAULT NULL,
+  `modified_by` int(12) DEFAULT NULL,
+  `modified_time` datetime DEFAULT NULL,
+  `modified_ip` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+
+/*!40000 ALTER TABLE `ft_products_rates` DISABLE KEYS */;
+INSERT INTO `ft_products_rates` VALUES ('6','5','10','2222','1.00','0.00','1','0','1','2021-11-10 10:28:47','96.55.37.191',NULL,NULL,NULL);
+/*!40000 ALTER TABLE `ft_products_rates` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `ft_recurring_type_master`;
 CREATE TABLE `ft_recurring_type_master` (
@@ -3923,426 +4017,6 @@ CREATE TABLE `product_category_9` (
 INSERT INTO `product_category_9` VALUES ('1','9','                                      ',NULL,'IHCAX   ','416645505',NULL,'0',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0',NULL,'0000228','0',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'1','0','3','2018-04-09 12:04:50','103.36.122.212',NULL,NULL,NULL),('2','9','                                      ',NULL,'1IHCAX','1416645505',NULL,'0',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0',NULL,'0000228','0',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'1','0','3','2018-04-09 12:09:38','103.36.122.212',NULL,NULL,NULL),('3','9','                                      ',NULL,'tIHCAX','t416645505',NULL,'0',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0',NULL,'0000228','0',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'1','0','3','2018-04-09 12:46:24','103.36.122.212',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `product_category_9` ENABLE KEYS */;
 
-DROP TABLE IF EXISTS `product_history_1`;
-CREATE TABLE `product_history_1` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_1` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_1` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_10`;
-CREATE TABLE `product_history_10` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_10` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_10` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_11`;
-CREATE TABLE `product_history_11` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_11` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_11` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_12`;
-CREATE TABLE `product_history_12` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_12` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_12` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_13`;
-CREATE TABLE `product_history_13` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_13` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_13` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_14`;
-CREATE TABLE `product_history_14` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_14` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_14` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_15`;
-CREATE TABLE `product_history_15` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_15` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_15` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_16`;
-CREATE TABLE `product_history_16` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_16` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_16` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_17`;
-CREATE TABLE `product_history_17` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_17` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_17` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_18`;
-CREATE TABLE `product_history_18` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_18` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_18` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_19`;
-CREATE TABLE `product_history_19` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_19` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_19` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_2`;
-CREATE TABLE `product_history_2` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_2` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_2` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_20`;
-CREATE TABLE `product_history_20` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_20` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_20` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_3`;
-CREATE TABLE `product_history_3` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_3` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_3` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_4`;
-CREATE TABLE `product_history_4` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_4` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_4` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_5`;
-CREATE TABLE `product_history_5` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_5` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_5` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_6`;
-CREATE TABLE `product_history_6` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_6` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_6` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_7`;
-CREATE TABLE `product_history_7` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_7` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_7` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_8`;
-CREATE TABLE `product_history_8` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_8` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_8` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_history_9`;
-CREATE TABLE `product_history_9` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `old_value` varchar(100) DEFAULT NULL,
-  `new_value` varchar(100) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_history_9` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_history_9` ENABLE KEYS */;
-
 DROP TABLE IF EXISTS `product_rates_1`;
 CREATE TABLE `product_rates_1` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
@@ -4365,424 +4039,6 @@ CREATE TABLE `product_rates_1` (
 /*!40000 ALTER TABLE `product_rates_1` DISABLE KEYS */;
 INSERT INTO `product_rates_1` VALUES ('1','1','9879','987','987.00','0.00','1','1','3','2018-02-21 18:52:53','103.36.122.212',NULL,NULL,NULL),('2','1','7987','987','987.00','0.00','1','1','3','2018-02-21 18:52:53','103.36.122.212',NULL,NULL,NULL),('3','1','98791','1','321.00','0.00','1','1','3','2018-02-21 18:53:27','103.36.122.212',NULL,NULL,NULL),('4','1','20','30','40.00','0.00','1','1','3','2018-02-21 18:53:27','103.36.122.212',NULL,NULL,NULL),('5','1','40','50','60.00','0.00','1','1','3','2018-02-21 18:53:27','103.36.122.212',NULL,NULL,NULL),('6','1','98791','1','321.00','0.00','1','1','3','2018-02-21 18:53:47','103.36.122.212',NULL,NULL,NULL),('7','1','20','30','40.00','0.00','1','1','3','2018-02-21 18:53:47','103.36.122.212',NULL,NULL,NULL),('8','1','40','50','60.00','0.00','1','1','3','2018-02-21 18:53:47','103.36.122.212',NULL,NULL,NULL),('9','1','98791','1','321.00','0.00','1','1','21','2018-02-23 03:52:23','76.176.130.44',NULL,NULL,NULL),('10','1','20','30','40.00','0.00','1','1','21','2018-02-23 03:52:23','76.176.130.44',NULL,NULL,NULL),('11','1','40','50','60.00','0.00','1','1','21','2018-02-23 03:52:23','76.176.130.44',NULL,NULL,NULL),('12','1','98791','1','321.00','0.00','1','1','21','2018-02-23 03:52:50','76.176.130.44',NULL,NULL,NULL),('13','1','20','30','40.00','0.00','1','1','21','2018-02-23 03:52:50','76.176.130.44',NULL,NULL,NULL),('14','1','40','50','60.00','0.00','1','1','21','2018-02-23 03:52:50','76.176.130.44',NULL,NULL,NULL),('15','2','200','200','20.00','0.00','1','1','3','2018-02-27 17:07:54','103.36.122.212',NULL,NULL,NULL),('16','2','200','200','20.00','0.00','1','1','3','2018-03-01 18:31:48','103.36.122.212',NULL,NULL,NULL),('17','1','98791','1','321.00','0.00','1','1','21','2018-04-02 21:17:00','76.176.130.44',NULL,NULL,NULL),('18','1','20','30','40.00','0.00','1','1','21','2018-04-02 21:17:00','76.176.130.44',NULL,NULL,NULL),('19','1','40','50','60.00','0.00','1','1','21','2018-04-02 21:17:00','76.176.130.44',NULL,NULL,NULL),('20','1','98791','1','321.00','0.00','1','1','21','2018-04-20 19:10:21','103.36.122.212',NULL,NULL,NULL),('21','1','20','30','40.00','0.00','1','1','21','2018-04-20 19:10:21','103.36.122.212',NULL,NULL,NULL),('22','1','40','50','60.00','0.00','1','1','21','2018-04-20 19:10:21','103.36.122.212',NULL,NULL,NULL),('23','1','98791','1','321.00','0.00','1','1','21','2018-04-26 19:09:00','103.36.122.212',NULL,NULL,NULL),('24','1','20','30','40.00','0.00','1','1','21','2018-04-26 19:09:00','103.36.122.212',NULL,NULL,NULL),('25','1','40','50','60.00','0.00','1','1','21','2018-04-26 19:09:00','103.36.122.212',NULL,NULL,NULL),('26','2','200','200','20.00','0.00','1','1','21','2018-05-08 10:16:14','103.36.122.212',NULL,NULL,NULL),('27','2','200','200','20.00','0.00','1','1','21','2018-05-17 18:10:18','103.36.122.212',NULL,NULL,NULL),('28','1','98791','1','321.00','0.00','1','1','21','2018-05-17 18:10:32','103.36.122.212',NULL,NULL,NULL),('29','1','20','30','40.00','0.00','1','1','21','2018-05-17 18:10:32','103.36.122.212',NULL,NULL,NULL),('30','1','40','50','60.00','0.00','1','1','21','2018-05-17 18:10:32','103.36.122.212',NULL,NULL,NULL),('31','6','20','40','10.00','0.00','1','1','21','2018-09-07 12:34:22','103.36.122.212',NULL,NULL,NULL),('32','1','98791','1','321.00','0.00','1','1','1','2021-04-08 07:16:25','107.210.168.81',NULL,NULL,NULL),('33','1','20','30','40.00','0.00','1','1','1','2021-04-08 07:16:25','107.210.168.81',NULL,NULL,NULL),('34','1','40','50','60.00','0.00','1','1','1','2021-04-08 07:16:25','107.210.168.81',NULL,NULL,NULL),('35','1','98791','1','321.00','0.00','1','1','1','2021-06-25 06:11:00','107.210.168.81',NULL,NULL,NULL),('36','1','20','30','40.00','0.00','1','1','1','2021-06-25 06:11:00','107.210.168.81',NULL,NULL,NULL),('37','1','40','50','60.00','0.00','1','1','1','2021-06-25 06:11:00','107.210.168.81',NULL,NULL,NULL),('38','6','20','40','10.00','0.00','1','1','1','2021-06-30 13:17:31','96.55.37.191',NULL,NULL,NULL),('39','6','20','40','10.00','0.00','1','1','1','2021-08-04 00:33:32','107.210.168.81',NULL,NULL,NULL),('40','6','20','40','10.00','0.00','1','1','1','2021-08-04 00:33:37','107.210.168.81',NULL,NULL,NULL),('41','2','200','200','20.00','0.00','1','1','1','2021-08-04 00:33:39','107.210.168.81',NULL,NULL,NULL),('42','6','20','40','10.00','0.00','1','1','1','2021-08-04 00:33:42','107.210.168.81',NULL,NULL,NULL),('43','6','20','40','10.00','0.00','1','1','1','2021-08-13 02:38:27','107.210.168.81',NULL,NULL,NULL),('44','6','20','40','10.00','0.00','1','1','1','2021-08-13 02:38:29','107.210.168.81',NULL,NULL,NULL),('45','2','200','200','20.00','0.00','1','1','1','2021-08-13 02:38:31','107.210.168.81',NULL,NULL,NULL),('46','6','20','40','10.00','0.00','1','1','1','2021-08-13 02:38:33','107.210.168.81',NULL,NULL,NULL),('47','2','200','200','20.00','0.00','1','0','1','2021-08-13 02:38:39','107.210.168.81',NULL,NULL,NULL),('48','6','20','40','10.00','0.00','1','0','1','2021-08-13 02:38:42','107.210.168.81',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `product_rates_1` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_10`;
-CREATE TABLE `product_rates_10` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_10` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_10` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_11`;
-CREATE TABLE `product_rates_11` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_11` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_11` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_12`;
-CREATE TABLE `product_rates_12` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_12` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_12` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_13`;
-CREATE TABLE `product_rates_13` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_13` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_13` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_14`;
-CREATE TABLE `product_rates_14` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_14` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_14` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_15`;
-CREATE TABLE `product_rates_15` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_15` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_15` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_16`;
-CREATE TABLE `product_rates_16` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_16` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_16` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_17`;
-CREATE TABLE `product_rates_17` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_17` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_17` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_18`;
-CREATE TABLE `product_rates_18` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_18` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_18` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_19`;
-CREATE TABLE `product_rates_19` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_19` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_19` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_2`;
-CREATE TABLE `product_rates_2` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_2` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_2` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_20`;
-CREATE TABLE `product_rates_20` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_20` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_20` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_3`;
-CREATE TABLE `product_rates_3` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_3` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_3` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_4`;
-CREATE TABLE `product_rates_4` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_4` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_4` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_5`;
-CREATE TABLE `product_rates_5` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_5` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_5` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_6`;
-CREATE TABLE `product_rates_6` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_6` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_6` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_7`;
-CREATE TABLE `product_rates_7` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_7` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_7` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_8`;
-CREATE TABLE `product_rates_8` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_8` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_8` ENABLE KEYS */;
-
-DROP TABLE IF EXISTS `product_rates_9`;
-CREATE TABLE `product_rates_9` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `product_id` int(12) DEFAULT NULL,
-  `min_threshold` varchar(100) DEFAULT NULL,
-  `max_threshold` varchar(100) DEFAULT NULL,
-  `min_rate` float(8,2) DEFAULT NULL,
-  `max_rate` float(8,2) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `is_delete` tinyint(1) NOT NULL DEFAULT '0',
-  `created_by` int(12) DEFAULT NULL,
-  `created_time` datetime DEFAULT NULL,
-  `created_ip` varchar(100) DEFAULT NULL,
-  `modified_by` int(12) DEFAULT NULL,
-  `modified_time` datetime DEFAULT NULL,
-  `modified_ip` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*!40000 ALTER TABLE `product_rates_9` DISABLE KEYS */;
-/*!40000 ALTER TABLE `product_rates_9` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `sales`;
 CREATE TABLE `sales` (
@@ -4847,7 +4103,7 @@ CREATE TABLE `user_widget_settings` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 /*!40000 ALTER TABLE `user_widget_settings` DISABLE KEYS */;
-INSERT INTO `user_widget_settings` VALUES ('1','1','collapsed','collapsed','expanded','expanded','expanded','2021-10-26 10:36:58');
+INSERT INTO `user_widget_settings` VALUES ('1','1','collapsed','collapsed','expanded','expanded','expanded','2021-11-10 10:25:06');
 /*!40000 ALTER TABLE `user_widget_settings` ENABLE KEYS */;
 
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
