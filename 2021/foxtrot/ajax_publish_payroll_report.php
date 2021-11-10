@@ -9,9 +9,11 @@ $instance_multi_company = new manage_company();
 $get_multi_company = $instance_multi_company->select_company();
 $instance_product_type = new product_master();
 $get_product_category =$instance_product_type->select_product_type();
-$get_last_payroll = $instance->get_last_payroll();
-if(count($get_last_payroll)>0)
-    $payroll_date = isset($get_last_payroll['payroll_date'])?date('m/d/Y',strtotime($get_last_payroll['payroll_date'])):'';
+
+// Get a list of Uploaded Payrolls for the "PayrolL Date" pulldown - 11/7/21 li
+// $get_payroll_uploads = $instance->get_payroll_uploads(0,1,1);
+$payroll_id = 0;
+
 
 if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
 ?>
@@ -31,11 +33,11 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
     <div class="col-md-6">
         <div class="form-group">
             <label>Payroll Date </label>
-            <div id="demo-dp-range">
-                <div class="input-daterange input-group" id="datepicker">
-                    <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php if(isset($payroll_date) && $payroll_date != ''){ echo $payroll_date;} else {echo date('m/01/Y');} ?>"/>
-                </div>
-            </div>
+            <select class="form-control" name="payroll_id">
+                <?php $get_payroll_uploads = $instance->get_payroll_uploads(0,1,1); foreach($get_payroll_uploads as $key=>$val){?>
+                    <option value="<?php echo $val['id'];?>" <?php ($val['id']==$payroll_id)?'selected':'' ?>><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
+                <?php } ?>
+            </select>
         </div>
     </div>
 </div>

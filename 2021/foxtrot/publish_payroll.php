@@ -7,11 +7,13 @@
     $output = 0;
     
     $instance = new payroll();
-    $payroll_date = date('m/d/Y');
-    $instance = new payroll();
-    $get_last_payroll = $instance->get_last_payroll();
-    if(count($get_last_payroll)>0)
-        $payroll_date = isset($get_last_payroll['payroll_date'])?date('m/d/Y',strtotime($get_last_payroll['payroll_date'])):'';
+    // $get_payroll_uploads = $instance->get_payroll_uploads(0,1);
+    // if(count($get_payroll_uploads)>0) {
+    //     $payroll_date = $get_payroll_uploads[0]['payroll_date'];
+    // } else {
+    //     $payroll_date = date('m/d/Y');
+    // }
+    $payroll_id = 99999;
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
         $data_array = json_encode($_POST);
@@ -106,6 +108,7 @@
         $ending_date = isset($filter_array['ending_date'])?$instance->re_db_input($filter_array['ending_date']):'';
         $sort_by = isset($filter_array['sort_by'])?$instance->re_db_input($filter_array['sort_by']):'';
         $report_for = isset($filter_array['report_for'])?$instance->re_db_input($filter_array['report_for']):'';
+        $payroll_id = isset($filter_array['payroll_id'])?$instance->re_db_input($filter_array['payroll_id']):'';
     }
     $content = "publish_payroll";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");

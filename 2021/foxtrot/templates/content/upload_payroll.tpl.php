@@ -6,6 +6,18 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
+                    <label>Payroll Date <span class="text-red">*</span></label>
+                    <div id="demo-dp-range">
+                        <div class="input-daterange input-group" id="datepicker">
+                            <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php echo $payroll_date;?>"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
                     <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
                     <div id="demo-dp-range">
                         <div class="input-daterange input-group" id="datepicker">

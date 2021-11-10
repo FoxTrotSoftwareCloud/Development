@@ -72,6 +72,7 @@ class payroll extends db{
 	}
     public function upload_payroll($data){
             
+		$payroll_date = isset($data['payroll_date'])?$this->re_db_input($data['payroll_date']):'';
 		$clearing_business_cutoff_date = isset($data['clearing_business_cutoff_date'])?$this->re_db_input($data['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($data['direct_business_cutoff_date'])?$this->re_db_input($data['direct_business_cutoff_date']):'';
         
@@ -98,7 +99,11 @@ class payroll extends db{
 			}
 		    else
             {*/        
-                $q = "INSERT INTO ".$this->table." SET `clearing_business_cutoff_date`='".date('Y-m-d',strtotime($clearing_business_cutoff_date))."',`direct_business_cutoff_date`='".date('Y-m-d',strtotime($direct_business_cutoff_date))."'".$this->insert_common_sql();
+                $q = "INSERT INTO ".$this->table." 
+                        SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',
+                            `clearing_business_cutoff_date`='".date('Y-m-d',strtotime($clearing_business_cutoff_date))."',
+                            `direct_business_cutoff_date`='".date('Y-m-d',strtotime($direct_business_cutoff_date))."'".
+                            $this->insert_common_sql();
     			$res = $this->re_db_query($q);
                 $last_inserted_id = $this->re_db_insert_id();
                 
@@ -175,6 +180,12 @@ class payroll extends db{
     public function calculate_payroll($data, $payroll_date=''){
         $calculate = new payroll_calculation();
         
+        if (isset($data['payroll_id'])) {
+            $payroll_id = $data['payroll_id'];
+        } else {
+            $payroll_id = 0;
+        }
+
         if (!empty($payroll_date) AND $payroll_date != '0000-00-00 00:00:00'){
             // Do nothing
         } elseif(count($data) > 0 AND $data['payroll_date'] != '0000-00-00 00:00:00') {
@@ -188,37 +199,36 @@ class payroll extends db{
         }
         
         // Clear Commission Paid field in Payroll Master
-        $q = "UPDATE `" .PAYROLL_REVIEW_MASTER. "` SET `commission_paid` = 0, `override_rate` = 0 WHERE 1";
+        $q = "UPDATE `" .PAYROLL_REVIEW_MASTER. "` SET `commission_paid` = 0, `override_rate` = 0 WHERE payroll_id=".$payroll_id;
         $res = $this->re_db_query($q);
 
         // Breakout SPLIT transactions before calculating the "paid" field - 10/11/21
-        $calculate->insert_payroll_split_rates($payroll_date);
+        $calculate->insert_payroll_split_rates($payroll_id);
 
         // **********************************************
         // * 1. Broker Commissions 
         // * 2. Split Commissions - added 10/12/21 li
         // * 3. Override Commissions - added 9/26/21 li
         // **********************************************
-        $payroll_commissions = $calculate->select_payroll_calculation_transactions();
+        $payroll_commissions = $calculate->select_payroll_calculation_transactions($payroll_id);
         
         // Clear out the Override Transactions - populated in "overrideCalculation()"
-        $calculate->clearOverrides();
+        $calculate->clearOverrides($payroll_id);
 
-        if(count($payroll_commissions)<=0) {
-            // No uploaded trades
+        if(count($payroll_commissions)>0) {
+            $calculate->commissionCalculation($payroll_commissions, $payroll_date, $payroll_id);
+            $calculate->calculateAdjustments($payroll_date, $payroll_id);
+            $calculate->calculateCurrentPayroll($payroll_date, $payroll_id);
+
             $q = "UPDATE " .PAYROLL_UPLOAD. "
                     SET
                         `is_calculate`='1',
-                        `payroll_date`='" .$calculate->re_db_input($payroll_date). "'".
-                        $calculate->update_common_sql(). "
-                    WHERE `is_calculate`='0' and `is_delete`='0' and `is_close`='0'
+                        `calculated_time`=CURRENT_TIME
+                      WHERE `id`=$payroll_id
             ";
             $res = $calculate->re_db_query($q);
-        } else {
-            $calculate->commissionCalculation($payroll_commissions, $payroll_date);
-            $calculate->calculateAdjustments($payroll_date);
-            $calculate->calculateCurrentPayroll($payroll_date);
         }
+        return true;
     }
 
     public function payroll_close(){
@@ -673,27 +683,32 @@ class payroll extends db{
         }
 		return $return;
    }
-    public function get_last_payroll($allPayrolls=0){
+    public function get_payroll_uploads($id=0, $allOpenClosed=0, $isCalculated=0){
     	$return = array();
+        $con = "";
 
-        if (!$allPayrolls) {
-            $con = " AND  `up`.`is_close` = 0 ";
-        } else {
-            $con = "";
+        if ($id != 0){
+            $con .= " AND  `up`.`id` = $id ";
+        }
+        if ($allOpenClosed == 1) {
+            $con .= " AND  `up`.`is_close` = 0 ";
+        } else if ($allOpenClosed == 2){
+            $con .= " AND `up`.`is_close` != 0 ";
+        }        
+        if ($isCalculated) {
+            $con .= " AND  `up`.`is_calculate` != 0 ";
         }
 
         $q = "SELECT `up`.*
                 FROM `".PAYROLL_UPLOAD."` AS `up` 
-                WHERE `up`.`is_delete`='0' AND `up`.`is_calculate` > 0 $con
+                WHERE `up`.`is_delete`='0' $con
                 ORDER BY `up`.`id` DESC";
                 
     	$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-            if ($allPayrolls) {
-                $return = $this->re_db_fetch_all($res);
-            } else {
-                $return = $this->re_db_fetch_array($res);
-            }
+        if ($id != 0){
+            $return = $this->re_db_fetch_array($res);
+        } else if ($this->re_db_num_rows($res)>1) {
+            $return = $this->re_db_fetch_all($res);
         }
     	return $return;
   }
@@ -1259,25 +1274,26 @@ class payroll extends db{
    * REPORT FUNCTIONS ADDED RECENTLY
    * 10/31/21 Added back, but the code isn't right. To be updated 10/31/21+
    *************************************************************************/
-    public function get_broker_commission_report_data($company='',$payroll_date='',$broker='',$print_type=''){
+    public function get_broker_commission_report_data($company='',$payroll_id='',$broker='',$print_type=''){
 		$return = array();
         $con='';
+        $payroll_date = date('Y-m-d');
+        $ytdEarnings = 0;
         
-        if($company>0)
+        if($payroll_id != '')
         {
-            $con.=" AND `ts`.`company` = ".$company."";
-        }
-        if($payroll_date != '')
-        {
-            $con.=" AND `up`.`is_close`='0' AND `up`.`payroll_date` = '".date('Y-m-d',strtotime($payroll_date))."'";
+            $con.=" AND `pc`.`payroll_id` = '".$payroll_id."'";
+            $payroll_date = $this->get_payroll_uploads($payroll_id);
+            $payroll_date = $payroll_date['payroll_date'];
         }
         else
         {
-            $con.=" AND `up`.`is_close`='0' ";
+            // DEPRECATED - 11/09/21: Query no longer keyed on PAYROLL_UPLOAD table - function should only be called by Active Payroll menu items\programs
+            //$con.=" AND `up`.`is_close`='0' ";
         }
         if($broker>0)
         {
-            $con .= ' and `rp`.`broker_name`="'.$broker.'"';
+            $con .= ' and `pc`.`broker_id`="'.$broker.'"';
         }
         if($print_type == 1)
         {
@@ -1289,67 +1305,99 @@ class payroll extends db{
         }
         
         $q = "SELECT 
-                    `rp`.`id`,
-                    `rp`.`trade_date`,
-                    `rp`.`buy_sell`,
-                    `rp`.`investment_amount`,
-                    ROUND(`rp`.`charge`*`rp`.`split_rate`*01,2) AS charge,
-                    ROUND((`rp`.`commission_received`-`rp`.`charge`)*`rp`.`split_rate`*.01,2) AS net_commission,
-                    ROUND(`rp`.`commission_received`,2) AS commission_received,
-                    `rp`.`commission_paid`,
-                    `rp`.`is_split`,
-                    `rp`.`broker_id` AS `broker_name`,
-                    `com`.`company_name`,
-                    `bm`.`first_name` AS broker_firstname,
-                    `bm`.`last_name` AS broker_lastname,
-                    `bm`.`id` AS broker_id,
-                    `bm`.`fund`,
-                    `cm`.`first_name` AS client_firstname,
-                    `cm`.`last_name` AS client_lastname,
-                    `pt`.`type` AS product_category,
-                    `bc`.`batch_desc` AS batch_description,
-                    `pc`.`check_amount` AS prior_broker_earnings,
+                    `pc`.`broker_id` AS `broker_name`,
+                    `pc`.`id` AS payroll_current_id,
+                    `pc`.`payroll_id`,
+                    `pc`.`check_amount`,
                     `pc`.`sipc`,
                     `pc`.`finra`,
                     `pc`.`balance`,
-                    `bl`.`balance_amount` AS prior_broker_balance,
+                    `pc`.`balance` AS prior_broker_balance,
+                    `pc`.`check_amount` AS prior_broker_earnings,
+                    `bm`.`first_name` AS broker_firstname,
+                    `bm`.`last_name` AS broker_lastname,
+                    `bm`.`fund`,
                     0 AS `payroll_draw`,
                     0 AS `salary`
-                FROM `".$this->table."` AS `up`
-                LEFT JOIN `".PAYROLL_REVIEW_MASTER."` AS `rp` ON `up`.`id`=`rp`.`payroll_id` and `rp`.`is_delete`=0
-				LEFT JOIN `".BROKER_MASTER."` AS `bm` on `rp`.`broker_id`=`bm`.`id` and `bm`.`is_delete`='0'
+                FROM `".PAYROLL_CURRENT_PAYROLL."` AS `pc`
+                LEFT JOIN `".BROKER_MASTER."` AS `bm` on `pc`.`broker_id`=`bm`.`id` and `bm`.`is_delete`='0'
+                WHERE `pc`.`is_delete`='0' ".$con."
+        ";
+        
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+            while($row = $this->re_db_fetch_array($res)){
+                $return['company_name']=$company;
+                $return['broker_transactions'][$row['broker_name']] = $row;
+                $ytdEarnings = $this->get_prior_earnings('net_earnings', $row['broker_name'], '', $payroll_date);
+                $return['broker_transactions'][$row['broker_name']]['prior_broker_earnings'] = $ytdEarnings;
+                
+                $direct_transactions = $this->get_direct_transactions_for_broker_statement($row['broker_name'],$payroll_id, $company);
+                $return['broker_transactions'][$row['broker_name']]['direct_transactions'] = $direct_transactions;
+                $adjustments = $this->get_adjustments_for_broker_statement($row['broker_name'], $payroll_id);
+                $return['broker_transactions'][$row['broker_name']]['adjustments'] = $adjustments;
+                $split_transactions = $this->get_broker_split_commission_data($row['broker_name'], $payroll_id);
+                $return['broker_transactions'][$row['broker_name']]['split_transactions'] = $split_transactions;
+                $override_transactions = $this->get_broker_override_commission_data($row['broker_name'], $payroll_id);
+                $return['broker_transactions'][$row['broker_name']]['override_transactions'] = $override_transactions;
+            }
+        }
+        return $return;
+	}
+    /** Sub-array of "Product Category"
+     * @param int $broker_id 
+     * @return array 
+     */
+    public function get_direct_transactions_for_broker_statement($broker_id=0, $payroll_id=0, $company=''){
+        $return =[];
+        $con = '';
+
+        if($company>0) {
+            $con.=" AND `ts`.`company` = ".$company."";
+        }
+
+        $q = "SELECT 
+                    `rp`.`id` AS `payable_transaction_id`,
+                    `rp`.`trade_date`,
+                    `rp`.`buy_sell`,
+                    `rp`.`investment_amount`,
+                    ROUND(`rp`.`charge`*`rp`.`split_rate`*.01,2) AS charge,
+                    ROUND((`rp`.`commission_received`-`rp`.`charge`)*`rp`.`split_rate`*.01,2) AS net_commission,
+                    ROUND(`rp`.`commission_received`*`rp`.`split_rate`*.01,2) AS commission_received,
+                    `rp`.`commission_paid`,
+                    `rp`.`payout_rate` AS rate,
+                    `rp`.`is_split`,
+                    `rp`.`broker_id` AS `broker_name`,
+                    `com`.`company_name`,
+                    `cm`.`first_name` AS client_firstname,
+                    `cm`.`last_name` AS client_lastname,
+                    `pt`.`type` AS product_category,
+                    `bc`.`batch_desc` AS batch_description
+                FROM `".PAYROLL_REVIEW_MASTER."` AS `rp` 
                 LEFT JOIN `".CLIENT_MASTER."` AS `cm` on `rp`.`client_name`=`cm`.`id` and `cm`.`is_delete`='0'
                 LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `rp`.`trade_number`=`ts`.`id` and `ts`.`is_delete`='0'
                 LEFT JOIN `".PRODUCT_TYPE."` AS `pt` on `rp`.`product_category`=`pt`.`id` and `pt`.`is_delete`='0'
                 LEFT JOIN `".COMPANY_MASTER."` AS `com` on `ts`.`company`=`com`.`id` and `com`.`is_delete`='0'
                 LEFT JOIN `".BATCH_MASTER."` AS `bc` on `ts`.`batch`=`bc`.`id` and `bc`.`is_delete`='0'
-                LEFT JOIN `".PAYROLL_CURRENT_PAYROLL."` AS `pc` on `rp`.`broker_id`=`pc`.`broker_id` and `pc`.`is_delete`='0'
-                LEFT JOIN `".BROKER_BALANCES_MASTER."` AS `bl` on `rp`.`broker_id`=`bl`.`broker_id` and `bl`.`is_delete`='0' 
-                WHERE `up`.`is_delete`='0' and `rp`.`payroll_id`=`up`.`id` and `rp`.`is_delete`='0' ".$con."
+                WHERE `rp`.`is_delete`=0 AND `rp`.`broker_id`=$broker_id AND `rp`.`payroll_id`=$payroll_id ".$con."
         ";
+
 		$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
 			while($row = $this->re_db_fetch_array($res)){
-			     $return['company_name']=$row['company_name'];
-			     $return['broker_transactions'][$row['broker_name']]['direct_transactions'][$row['product_category']][] = $row;
-                 $adjustments = $this->get_adjustments_for_broker_statement($row['broker_name']);
-                 $return['broker_transactions'][$row['broker_name']]['adjustments'] = $adjustments;
-                 $split_transactions = $this->get_broker_split_commission_data($row['broker_name']);
-                 $return['broker_transactions'][$row['broker_name']]['split_transactions'] = $split_transactions;
-                 $override_transactions = $this->get_broker_override_commission_data($row['broker_name']);
-                 $return['broker_transactions'][$row['broker_name']]['override_transactions'] = $override_transactions;
+                $return[$row['product_category']][] = $row;
             }
-        }
+        } 
         return $return;
-	}
+    }
     /**
      * @param int $broker_id 
      * @return array 
      */
-    public function get_adjustments_for_broker_statement($broker_id=0){
+    public function get_adjustments_for_broker_statement($broker_id=0, $payroll_id=0){
         $q = "SELECT `pac`.*
                 FROM `".PAYROLL_ADJUSTMENTS_CURRENT."` AS `pac`
-                WHERE `pac`.`is_delete`='0' AND `pac`.`broker_id`=$broker_id
+                WHERE `pac`.`is_delete`='0' AND `pac`.`payroll_id`=$payroll_id AND `pac`.`broker_id`=$broker_id
         ";
         $res = $this->re_db_query($q);
         return($this->re_db_num_rows($res)>0) ? $this->re_db_fetch_all($res) : array();
@@ -1358,7 +1406,7 @@ class payroll extends db{
      * @param int $broker 
      * @return array 
      */
-    public function get_broker_split_commission_data($broker=0){
+    public function get_broker_split_commission_data($broker=0, $payroll_id=0){
         $return = [];
         $q = "SELECT 
                     `com`.`company_name`,
@@ -1378,7 +1426,8 @@ class payroll extends db{
                     `psr`.`split_charge` AS `charge`,
                     `psr`.`split_gross` - `psr`.`split_charge` AS `net_commission`,
                     `psr`.`split_rate` as `rate_per`,
-                    `psr`.`split_paid` as `rate_amount`
+                    `psr`.`split_paid` as `rate_amount`,
+                    `psr`.`payout_rate` as `rate`
                 FROM `".PAYROLL_SPLIT_RATES."` AS `psr`
 				LEFT JOIN `".PAYROLL_REVIEW_MASTER."` AS `rp` ON `psr`.`payable_transaction_id`=`rp`.`id`
                 LEFT JOIN `".BROKER_MASTER."` AS `bm2` ON `psr`.`broker_id`=`bm2`.`id`
@@ -1387,7 +1436,7 @@ class payroll extends db{
                 LEFT JOIN `".PRODUCT_TYPE."` AS `pt` ON `rp`.`product_category`=`pt`.`id`
                 LEFT JOIN `".COMPANY_MASTER."` AS `com` on`ts`.`company`= `com`.`id`
                 LEFT JOIN `".BATCH_MASTER."` AS `bc` ON `ts`.`batch`=`bc`.`id`
-                WHERE `psr`.`is_delete`='0' AND `psr`.`split_broker`=$broker 
+                WHERE `psr`.`is_delete`='0' AND `psr`.`split_broker`=$broker AND `psr`.`payroll_id`=$payroll_id
                 ORDER BY `giving_lastname`, `giving_firstname`, `giving_broker`
         ";
 		$res = $this->re_db_query($q);
@@ -1402,7 +1451,7 @@ class payroll extends db{
      * @param int $broker 
      * @return array 
      */
-    public function get_broker_override_commission_data($broker=0){
+    public function get_broker_override_commission_data($broker=0, $payroll_id=0){
         $return = [];
         $q = "SELECT 
                     `com`.`company_name`,
@@ -1431,7 +1480,7 @@ class payroll extends db{
                 LEFT JOIN `".PRODUCT_TYPE."` AS `pt` ON `rp`.`product_category`=`pt`.`id`
                 LEFT JOIN `".COMPANY_MASTER."` AS `com` ON `ts`.`company`=`com`.`id`
                 LEFT JOIN `".BATCH_MASTER."` AS `bc` ON `ts`.`batch`=`bc`.`id`
-                WHERE `por`.`is_delete`='0' AND `por`.`receiving_rep`=$broker
+                WHERE `por`.`is_delete`='0' AND `por`.`receiving_rep`=$broker AND `por`.`payroll_id`=$payroll_id
                 ORDER BY `giving_lastname`, `giving_firstname`, `por`.`broker_id`, `rp`.`trade_date`
         ";
 		$res = $this->re_db_query($q);
@@ -1459,6 +1508,31 @@ class payroll extends db{
 		$res = $this->re_db_query($q);
 		return ($this->re_db_num_rows($res)>0) ? $this->re_db_fetch_array($res) : '';
 	}
+
+    public function get_prior_earnings($earningsFields='net_earnings', $broker_id=0, $startDate='', $endDate='') {
+        $return = 0;
+
+        if (empty($earningsFields) OR empty($broker_id)){
+            return $return;
+        }
+        if (empty($endDate)) {
+            $endDate = date('Y-m-d');
+        }
+        if (empty($startDate)) {
+            $startDate = date('Y-m-d', strtotime($endDate.' -1 year + 1 day'));
+        }
+
+        $q = "SELECT `broker_id`,
+                     ROUND(SUM($earningsFields),2) AS `total`
+                FROM `".PRIOR_PAYROLL_MASTER."`
+                WHERE `is_delete`=0 AND `broker_id`='$broker_id' AND `payroll_date` BETWEEN '$startDate' AND '$endDate'
+                GROUP BY `broker_id`
+        ";
+		
+        $res = $this->re_db_query($q);
+		$return = ($this->re_db_num_rows($res)>0) ? $this->re_db_fetch_array($res) : ['total'=>0];
+        return $return['total'];
+    }
     // *** END: Broker Payroll Statement Functions - 11/2/21 *** //
 
     public function get_company_statement_report_data($company='',$sort_by='',$payroll_date){
