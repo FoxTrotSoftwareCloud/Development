@@ -1279,30 +1279,33 @@ class payroll extends db{
         $con='';
         $payroll_date = date('Y-m-d');
         $ytdEarnings = 0;
-        
-        if($payroll_id != '')
-        {
+        $manage_company = new manage_company();
+        $companyName = 'ALL COMPANIES';
+
+        if($company>0) {
+            $con .= " AND (`br1`.`company`=$company OR `br2`.`company`=$company OR `br3`.`company`=$company)";
+            
+            $companyName = $manage_company->select_company_by_id($company);
+            $companyName = $companyName['company_name'];
+        }
+        if($payroll_id != '') {
             $con.=" AND `pc`.`payroll_id` = '".$payroll_id."'";
             $payroll_date = $this->get_payroll_uploads($payroll_id);
             $payroll_date = $payroll_date['payroll_date'];
         }
-        else
-        {
-            // DEPRECATED - 11/09/21: Query no longer keyed on PAYROLL_UPLOAD table - function should only be called by Active Payroll menu items\programs
-            //$con.=" AND `up`.`is_close`='0' ";
-        }
-        if($broker>0)
-        {
+        if($broker>0) {
             $con .= ' and `pc`.`broker_id`="'.$broker.'"';
         }
-        if($print_type == 1)
-        {
-            $con .= " ORDER BY `bm`.`last_name`, `bm`.`first_name`, `bm`.`id` ASC";
+        // Order by 
+        if($print_type == 2) {
+            $con .= " ORDER BY `bm`.`internal`, ";
+        } else if ($print_type == 3) {
+            $con .= " ORDER BY `bm`.`fund`, ";
+        } else {
+            // Default to "name" inserted in the next line
+            $con .= " ORDER BY ";
         }
-        else
-        {
-            $con .= " ORDER BY `bm`.`fund` ASC";
-        }
+        $con .= "`bm`.`last_name`, `bm`.`first_name`, `bm`.`id`";
         
         $q = "SELECT 
                     `pc`.`broker_id` AS `broker_name`,
@@ -1318,16 +1321,24 @@ class payroll extends db{
                     `bm`.`last_name` AS broker_lastname,
                     `bm`.`fund`,
                     0 AS `payroll_draw`,
-                    0 AS `salary`
+                    0 AS `salary`,
+                    `br1`.`name` AS `branch_name1`, `br1`.`company` AS `branch_company1`,
+                    `br2`.`name` AS `branch_name2`, `br2`.`company` AS `branch_company2`,
+                    `br3`.`name` AS `branch_name3`, `br3`.`company` AS `branch_company3`
                 FROM `".PAYROLL_CURRENT_PAYROLL."` AS `pc`
-                LEFT JOIN `".BROKER_MASTER."` AS `bm` on `pc`.`broker_id`=`bm`.`id` and `bm`.`is_delete`='0'
+                LEFT JOIN `".BROKER_MASTER."` AS `bm` ON `pc`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`='0'
+                LEFT JOIN `".BROKER_BRANCHES."` AS `repbr` ON `pc`.`broker_id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'
+                LEFT JOIN `".BRANCH_MASTER."` AS `br1` ON `br1`.`id`=`repbr`.`branch1` AND `br1`.`is_delete`=0
+                LEFT JOIN `".BRANCH_MASTER."` AS `br2` ON `br2`.`id`=`repbr`.`branch2` AND `br2`.`is_delete`=0
+                LEFT JOIN `".BRANCH_MASTER."` AS `br3` ON `br3`.`id`=`repbr`.`branch3` AND `br3`.`is_delete`=0
                 WHERE `pc`.`is_delete`='0' ".$con."
         ";
-        
+                
         $res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
+            $return['company_name'] = $companyName;
+
             while($row = $this->re_db_fetch_array($res)){
-                $return['company_name']=$company;
                 $return['broker_transactions'][$row['broker_name']] = $row;
                 $ytdEarnings = $this->get_prior_earnings('net_earnings', $row['broker_name'], '', $payroll_date);
                 $return['broker_transactions'][$row['broker_name']]['prior_broker_earnings'] = $ytdEarnings;

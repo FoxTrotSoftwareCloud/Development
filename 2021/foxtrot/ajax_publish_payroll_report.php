@@ -9,11 +9,7 @@ $instance_multi_company = new manage_company();
 $get_multi_company = $instance_multi_company->select_company();
 $instance_product_type = new product_master();
 $get_product_category =$instance_product_type->select_product_type();
-
-// Get a list of Uploaded Payrolls for the "PayrolL Date" pulldown - 11/7/21 li
-// $get_payroll_uploads = $instance->get_payroll_uploads(0,1,1);
 $payroll_id = 0;
-
 
 if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
 ?>
@@ -74,6 +70,7 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
             <select class="form-control" name="print_type">
                 <option value="1">By Name</option>
                 <option value="2">By Fund/Clear No.</option>
+                <option value="3">By Internal Broker ID Number</option>
             </select>
         </div>
     </div>

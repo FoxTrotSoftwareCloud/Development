@@ -33,12 +33,16 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $print_type = isset($filter_array['print_type'])?$filter_array['print_type']:'';
-    $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
+    // $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
+    $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+    $payroll_date = $instance_payroll->get_payroll_uploads($payroll_id);
+    $payroll_date = $payroll_date['payroll_date'];
+
     $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
     $broker = isset($filter_array['broker'])?$filter_array['broker']:0;
     $pdf_for_broker = isset($filter_array['pdf_for_broker'])?$filter_array['pdf_for_broker']:'';
     
-    $get_broker_commission_data = $instance_payroll->get_broker_commission_report_data($company,$payroll_date,$broker,$print_type);
+    $get_broker_commission_data = $instance_payroll->get_broker_commission_report_data($company,$payroll_id,$broker,$print_type);
     
     if($payroll_date != ''){ 
         $payroll_date = date('F d, Y',strtotime($payroll_date));
@@ -73,15 +77,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $total_split_transactions = 0;
             $total_override_transactions = 0;
             $total_adjustments = 0;
-            $total_payroll_draw = 0;
-            $total_base_salary = 0;
-            $total_finra_assessment = 0;
-            $total_sipc_assessment = 0;
-            $total_prior_balance = 0;
-            
-            $total_forward_balance = 0;
-            $total_broker_earnings = 0;
-            
+            $total_payroll_draw = isset($get_broker_detail['payroll_draw'])?$get_broker_detail['payroll_draw']: 0;
+            $total_base_salary = isset($get_broker_detail['salary'])?$get_broker_detail['salary']: 0;
+            $total_finra_assessment = -($brokers_comm_data['finra']);
+            $total_sipc_assessment = -($brokers_comm_data['sipc']); 
+            $total_prior_balance = $brokers_comm_data['balance'];
+            $total_forward_balance = $brokers_comm_data['prior_broker_balance'];
+            $total_broker_earnings = $brokers_comm_data['prior_broker_earnings'];
+
             
             $get_broker_detail = $instance_payroll->get_broker_detail($brokers_comm_key);
         
@@ -108,8 +111,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $broker_zipcode = isset($get_broker_detail['zip_code'])?$get_broker_detail['zip_code']:'';
             $broker_number = isset($get_broker_detail['id'])?$get_broker_detail['id']:'';
             $broker_branch = isset($get_broker_detail['branch_name'])?$get_broker_detail['branch_name']:'';
-            $total_payroll_draw = $total_payroll_draw+$get_broker_detail['payroll_draw'];
-            $total_base_salary = $total_base_salary+$get_broker_detail['salary'];
             
             if($broker_state != '' && $broker_zipcode > 0)
             {
@@ -226,11 +227,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $category_charges = $category_charges+$comm_sub_data['charge'];
                         $category_rate = $category_rate+0;
                         $category_broker_commission = $category_broker_commission+$comm_sub_data['commission_paid'];
-                        $total_finra_assessment = $comm_sub_data['finra'];
-                        $total_sipc_assessment = $comm_sub_data['sipc']; 
-                        $total_prior_balance = $total_prior_balance+$comm_sub_data['balance'];
-                        $total_forward_balance = $comm_sub_data['prior_broker_balance'];
-                        $total_broker_earnings = $comm_sub_data['prior_broker_earnings'];
+                        /*** Moved above foreach($brokers_comm_data['direct_transactions'].....) - Only needed to be updated once, since these numbers are already calculated in Payroll_Calculation() 11/9/21 ***/
+                        // $total_finra_assessment = $comm_sub_data['finra'];
+                        // $total_sipc_assessment = $comm_sub_data['sipc']; 
+                        // $total_prior_balance = $total_prior_balance+$comm_sub_data['balance'];
+                        // $total_forward_balance = $comm_sub_data['prior_broker_balance'];
+                        // $total_broker_earnings = $comm_sub_data['prior_broker_earnings'];
                         
                         if(isset($comm_sub_data['buy_sell']) && $comm_sub_data['buy_sell'] == 1)
                         {
@@ -255,7 +257,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($comm_sub_data['commission_received'],2).'</td>
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($comm_sub_data['charge'],2).'</td>
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($comm_sub_data['net_commission'],2).'</td>
-                                   <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($comm_sub_data['rate'],2).'</td>
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($comm_sub_data['commission_paid'],2).'</td>
                                 </tr>';
                     }
@@ -415,7 +417,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $category_net_commission = $category_net_commission+$split_sub_data['net_commission'];
                         $category_charges = $category_charges+$split_sub_data['charge'];
                         $category_rate = $category_rate+0;
-                        $category_broker_commission = $category_broker_commission+$split_sub_data['split_rate_amount'];
+                        $category_broker_commission = $category_broker_commission+$split_sub_data['rate_amount'];
                         
                         if(isset($split_sub_data['buy_sell']) && $split_sub_data['buy_sell'] == 1)
                         {
@@ -440,8 +442,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($split_sub_data['commission_received'],2).'</td>
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($split_sub_data['charge'],2).'</td>
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($split_sub_data['net_commission'],2).'</td>
-                                   <td style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
-                                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($split_sub_data['split_rate_amount'],2).'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($split_sub_data['rate'],2).'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($split_sub_data['rate_amount'],2).'</td>
                                 </tr>';
                     }
                     $broker_investment_amount = $broker_investment_amount+$category_investment_amount;
@@ -495,7 +497,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td width="9%" style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
                                    <td width="9%" style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
                                    <td width="9%" style="font-size:8px;font-weight:bold;text-align:right;"></td>
-                                   <td width="10%" style="font-size:8px;font-weight:normal;text-align:right;">'.$adj_data['adjustment_amount'].'</td>
+                                   <td width="10%" style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($adj_data['adjustment_amount'],2).'</td>
                                 </tr>';
                 }
                 $total_adjustments = $total_adjustments+$adjustment_total;
