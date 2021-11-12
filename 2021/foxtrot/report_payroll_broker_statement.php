@@ -84,6 +84,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $total_prior_balance = $brokers_comm_data['balance'];
             $total_forward_balance = $brokers_comm_data['prior_broker_balance'];
             $total_broker_earnings = $brokers_comm_data['prior_broker_earnings'];
+            $check_minimum_check_amount = $brokers_comm_data['minimum_check_amount'];
 
             
             $get_broker_detail = $instance_payroll->get_broker_detail($brokers_comm_key);
@@ -152,7 +153,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $html='<table border="0" width="100%">
                         <tr>
                             <td width="70%" align="left" style="font-size:8px;">'.$broker_name.'</td>
-                            <td width="30%" align="left" style="font-size:8px;">BROKER# : '.$broker_number.'</td>
+                            <td width="30%" align="left" style="font-size:8px;">BROKER#/FUND/INTERNAL : '.$broker_number.' / '.$brokers_comm_data['fund'].' / '.$brokers_comm_data['internal'].'</td>
                         </tr>
                         <tr>
                             <td width="70%" align="left" style="font-size:8px;">'.$broker_address.'</td>
@@ -572,18 +573,22 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                             <table width="100%">
                                 <tr>
                                     <td style="font-size:8px;font-weight:normal;text-align:right;">Please Retain for Your Records </td>
-                                </tr>
-                                <tr>
-                                    <td style="font-size:8px;font-weight:normal;text-align:right;">THERE WILL BE NO CHECK THIS PERIOD</td>
-                                </tr>
-                            </table>
+                                </tr>';
+                                
+                                // 11/11/21 Take the minimum check amount from the data - see in the totals for the individual broker data ($brokers_comm_data['minimum_check_amount'])
+                                //$check_minimum_check_amount=$instance_payroll->check_minimum_check_amount();
+                                if ($check_minimum_check_amount>$total_check_amount){
+                                    $html.='<tr>
+                                        <td style="font-size:8px;font-weight:normal;text-align:right;">THERE WILL BE NO CHECK THIS PERIOD</td>
+                                    </tr>';
+                                }
+                    $html.='</table>
                         </td>
                         <td width="5%"></td>
                         <td width="25%" border="1">
                             <table width="100%">';
                                 $total_broker_earnings = $total_broker_earnings+$total_check_amount;
-                                $check_minimum_check_amount=$instance_payroll->check_minimum_check_amount();
-                                if(isset($check_minimum_check_amount['minimum_check_amount']) && $check_minimum_check_amount['minimum_check_amount']>$total_check_amount){
+                                if ($check_minimum_check_amount>$total_check_amount){
                                 $html.='<tr>
                                     <td width="70%" style="font-size:8px;font-weight:normal;text-align:right;">Balance Forward </td>
                                     <td width="30%" style="font-size:8px;font-weight:normal;text-align:right;"> $'.number_format($total_check_amount,2).'&nbsp;&nbsp;</td>

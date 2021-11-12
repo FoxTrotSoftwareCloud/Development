@@ -1284,7 +1284,6 @@ class payroll extends db{
 
         if($company>0) {
             $con .= " AND (`br1`.`company`=$company OR `br2`.`company`=$company OR `br3`.`company`=$company)";
-            
             $companyName = $manage_company->select_company_by_id($company);
             $companyName = $companyName['company_name'];
         }
@@ -1312,6 +1311,7 @@ class payroll extends db{
                     `pc`.`id` AS payroll_current_id,
                     `pc`.`payroll_id`,
                     `pc`.`check_amount`,
+                    `pc`.`minimum_check_amount`,
                     `pc`.`sipc`,
                     `pc`.`finra`,
                     `pc`.`balance`,
@@ -1320,6 +1320,7 @@ class payroll extends db{
                     `bm`.`first_name` AS broker_firstname,
                     `bm`.`last_name` AS broker_lastname,
                     `bm`.`fund`,
+                    `bm`.`internal`,
                     0 AS `payroll_draw`,
                     0 AS `salary`,
                     `br1`.`name` AS `branch_name1`, `br1`.`company` AS `branch_company1`,

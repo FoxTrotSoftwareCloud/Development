@@ -1338,7 +1338,7 @@ class Excel extends db
                     'file' => "data:application/vnd.ms-excel;base64,".base64_encode($xlsData)
                 );
 
-die(json_encode($response));
+                //die(json_encode($response));
             }
             catch(Exception $e){
                 echo "<pre>";

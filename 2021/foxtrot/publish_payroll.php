@@ -5,30 +5,27 @@
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     $output = 0;
-    
     $instance = new payroll();
-    // $get_payroll_uploads = $instance->get_payroll_uploads(0,1);
-    // if(count($get_payroll_uploads)>0) {
-    //     $payroll_date = $get_payroll_uploads[0]['payroll_date'];
-    // } else {
-    //     $payroll_date = date('m/d/Y');
-    // }
     $payroll_id = 99999;
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
         $data_array = json_encode($_POST);
         $publish_report = isset($_POST['publish_report'])?$instance->re_db_input($_POST['publish_report']):0;
         $output = isset($_POST['output'])?$instance->re_db_input($_POST['output']):0;
-        
+        // 11/11/21 Not sure if this is the best way to default the prior report selections, but i am pressed for time!   
+        $_SESSION['publish_payroll']=$_POST;
+
         if(isset($publish_report) && $publish_report == 1)
         {
             if($output == 1)
             {
-                header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
+                header('location:'.CURRENT_PAGE.'?filter='.$data_array); 
+                exit;
             }
             else if($output == 2)
             {
-                header("location:".SITE_URL."report_payroll_broker_statement.php?open=output_print&filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_broker_statement.php?open=output_print&filter=".$data_array);
+                exit;
             }
             else if($output == 3)
             {
