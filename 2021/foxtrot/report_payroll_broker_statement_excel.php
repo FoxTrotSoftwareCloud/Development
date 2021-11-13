@@ -190,7 +190,7 @@
                         $category_charges = $category_charges+$comm_sub_data['charge'];
                         $category_rate = $category_rate+0;
                         $category_broker_commission = $category_broker_commission+$comm_sub_data['commission_paid'];
-                                                /*** Moved above foreach($brokers_comm_data['direct_transactions'].....) - Only needed to be updated once, since these numbers are already calculated in Payroll_Calculation() 11/9/21 ***/
+                        /*** Moved above foreach($brokers_comm_data['direct_transactions'].....) - Only needed to be updated once, since these numbers are already calculated in Payroll_Calculation() 11/9/21 ***/
                         // $total_finra_assessment = $comm_sub_data['finra'];
                         // $total_sipc_assessment = $comm_sub_data['sipc']; 
                         // $total_prior_balance = $total_prior_balance+$comm_sub_data['balance'];

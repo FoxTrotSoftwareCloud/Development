@@ -86,7 +86,7 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
             <label>Output Destination </label>
             <select class="form-control" name="output">
                 <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
-                <option value="2" <?php echo ($output==2)?'selected':''?> >Printer</option>
+                <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
                 <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>
                 <option value="4" <?php echo ($output==4)?'selected':''?> >PDF</option>
             </select>

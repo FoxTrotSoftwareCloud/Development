@@ -1168,21 +1168,23 @@ class Excel extends db
 {
     private $objPHPExcel;
     public function __construct(){
-        require_once(SITE_EXCEL."Classes/PHPExcel.php");
+        // 11/12/21 PHPExcel deprecated in 2019. Migrate to PhpSpreadsheet
+        require_once(SITE_EXCEL.'Autoload.php');
+
         // Check with is web browsers.
         if (PHP_SAPI == 'cli'):
            //return array("Run only web browsers.");
            echo "Run only web browsers.";exit;           
         else:
-            // Create new PHPExcel object
-            $this->objPHPExcel = new PHPExcel();
+            // Create new PhpSpreadsheet object
+            $this->objPHPExcel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         endif;
     }
      public function getHighestColumn(){
           return  $this->objPHPExcel->getActiveSheet()->getHighestColumn();
     }
     public function generate($properties){
-        if(is_a($this->objPHPExcel,'PHPExcel')===true){
+        if(is_a($this->objPHPExcel,'\PhpOffice\PhpSpreadsheet\Spreadsheet')===true){
             
             try{
                 // Set document properties
@@ -1262,7 +1264,7 @@ class Excel extends db
                         $column_alphabates = preg_replace("/[^a-zA-Z]+/", "", $column);
                         $this->objPHPExcel->getActiveSheet()->getColumnDimension($column_alphabates)->setAutoSize(true);
                         // For set General format data type of cell.
-                        $this->objPHPExcel->getActiveSheet()->getStyle($column)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL); // 'General'
+                        $this->objPHPExcel->getActiveSheet()->getStyle($column)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_GENERAL); // 'General'
                         // Set formatting.
                         $styleArray = array(
                             'font' => array(
@@ -1273,11 +1275,11 @@ class Excel extends db
                                 'name' => array_key_exists('font_name',$row_style)&&isset($row_style['font_name'])?intval($row_style['font_name'][0]):'Verdana'
                             ),
                             'alignment' => array(
-                                'horizontal' => in_array('center',$row_style)?PHPExcel_Style_Alignment::HORIZONTAL_CENTER:PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+                                'horizontal' => in_array('center',$row_style)?\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER:\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
                             ),
                             'borders' => array(
                                   'allborders' => array(
-                                      'style' => PHPExcel_Style_Border::BORDER_NONE,
+                                      'style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE,
                                       'color' => array('rgb' => '000000')
                                   )
                              )
@@ -1285,7 +1287,7 @@ class Excel extends db
                         
                         if(array_key_exists('background',$row_style)){
                             $styleArray['fill'] = array(
-                                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                                'type' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                                 'color' => array('rgb' => $row_style['background'][0])
                             );
                         }
@@ -1296,7 +1298,7 @@ class Excel extends db
                         
                         $this->objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
                         if(in_array('unprotect',$row_style)){
-                            $this->objPHPExcel->getActiveSheet()->getStyle($column)->getProtection()->setLocked(PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);
+                            $this->objPHPExcel->getActiveSheet()->getStyle($column)->getProtection()->setLocked(\PhpOffice\PhpSpreadsheet\Style\Protection::PROTECTION_UNPROTECTED);
                         }
                         
                         $this->objPHPExcel->getActiveSheet()->getStyle($column)->applyFromArray($styleArray);
@@ -1329,8 +1331,9 @@ class Excel extends db
                 header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
                 header ('Pragma: public'); // HTTP/1.0*/
                 ob_start();
-                $objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
-                $objWriter->save('c:/1 Temp/BrokerStatement_PhpExcel.xls');
+                // $objWriter = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($this->objPHPExcel, 'Excel5');
+                $objWriter = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($this->objPHPExcel, 'Xlsx');
+                $objWriter->save("c:/1 Temp/CloudfoxBrokerStatement.xlsx");
                 $xlsData = ob_get_contents();
                 ob_end_clean();
                 $response =  array(
