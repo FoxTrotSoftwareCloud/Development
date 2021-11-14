@@ -285,7 +285,9 @@ class PHPExcel_Shared_OLE
                     $pps = new PHPExcel_Shared_OLE_PPS_File($name);
                     break;
                 default:
-                    continue;
+                    // 11/13/21 Got a Warning: "continue" targeting switch is equivalent to "break". Did you mean 'continue 2'?
+                    // - The program is outputting a good file if you save('name.xls'), but not save("php://output");
+                    continue 2;
             }
             fseek($fh, 1, SEEK_CUR);
             $pps->Type    = $type;

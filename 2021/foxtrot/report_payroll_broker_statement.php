@@ -487,7 +487,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 $adjustment_total = 0;
                 foreach($brokers_comm_data['adjustments'] as $adj_key=>$adj_data)
                 {
-                    $adjustment_total = $adjustment_total + $adj_data['adjustment_amount'];
+                    $adjustment_numeric = round(floatval($adj_data['adjustment_amount']),2);
+                    $adjustment_total = $adjustment_total + $adjustment_numeric;
                     $html.='<tr>
                                    <td width="10%" style="font-size:8px;font-weight:normal;text-align:center;">02/28/2016</td>
                                    <td width="15%" style="font-size:8px;font-weight:normal;text-align:center;"></td>
@@ -498,7 +499,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td width="9%" style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
                                    <td width="9%" style="font-size:8px;font-weight:normal;text-align:right;">0.00</td>
                                    <td width="9%" style="font-size:8px;font-weight:bold;text-align:right;"></td>
-                                   <td width="10%" style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($adj_data['adjustment_amount'],2).'</td>
+                                   <td width="10%" style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($adjustment_numeric,2).'</td>
                                 </tr>';
                 }
                 $total_adjustments = $total_adjustments+$adjustment_total;
