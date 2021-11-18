@@ -77,12 +77,28 @@ class payroll extends db{
         $direct_business_cutoff_date = isset($data['direct_business_cutoff_date'])?$this->re_db_input($data['direct_business_cutoff_date']):'';
         
         	
-        if($clearing_business_cutoff_date ==''){
-			$this->errors = 'Please select clearing business cutoff date.';
-		}
-        else if($direct_business_cutoff_date ==''){
-			$this->errors = 'Please select direct business cutoff date.';
-		}
+        if($payroll_date == ''){
+            $this->errors = 'Please enter a payroll date.';
+        } else if($clearing_business_cutoff_date ==''){
+            $this->errors = 'Please select clearing business cutoff date.';
+		} else if($direct_business_cutoff_date ==''){
+            $this->errors = 'Please select direct business cutoff date.';
+		} else {
+            // 11/17/21 Check for an open payroll date -> prompt if the user wants to assign trades to the existing payroll, else exit
+            $q = "SELECT id, payroll_date, clearing_business_cutoff_date, direct_business_cutoff_date, created_time 
+                    FROM ".$this->table." 
+                    WHERE `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."'
+                    AND is_delete = 0 AND is_close = 0
+            ";
+            $res = $this->re_db_query($q);
+            if ($this->re_db_num_rows($res)>0){
+                $payroll = $this->re_db_fetch_array($res);
+                $this->errors = 'Payroll Date already exists: '.date('m/d/Y', strtotime($payroll['payroll_date']));
+                $_SESSION['upload_payroll']['duplicate_payroll'] = $payroll;
+                $_SESSION['upload_payroll']['duplicate_payroll']['proceed'] = 0;
+            }
+        }
+
         if($this->errors!=''){
 			return $this->errors;
 		}
@@ -92,12 +108,12 @@ class payroll extends db{
 			$res = $this->re_db_query($q);
 			$return = $this->re_db_num_rows($res);
 			if($return>0){
-				$this->errors = 'Payroll data already exist,Please clear current payroll !';
+				$this->errors = 'Payroll data already exist. Please close current payroll !';
 			}
 			if($this->errors!=''){
 				return $this->errors;
 			}
-		    else
+		    else 
             {*/        
                 $q = "INSERT INTO ".$this->table." 
                         SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',
@@ -701,7 +717,7 @@ class payroll extends db{
 
         $q = "SELECT `up`.*
                 FROM `".PAYROLL_UPLOAD."` AS `up` 
-                WHERE `up`.`is_delete`='0' $con
+                WHERE `up`.`is_delete`='0' ".$con."
                 ORDER BY `up`.`id` DESC";
                 
     	$res = $this->re_db_query($q);

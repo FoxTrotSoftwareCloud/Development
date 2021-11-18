@@ -2,7 +2,7 @@
 <h1>Upload</h1>
     <div class="col-md-12 well">
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
-        <form method="POST">
+        <form id="upload_payroll" method="POST">
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
@@ -42,9 +42,10 @@
         <div class="panel-footer">
             <div class="selectwrap">
 				<div class="selectwrap">
-                    <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+                    <a href="<?php echo CURRENT_PAGE; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
 					<input type="submit" name="reverse_payroll"  value="Reverse Payroll" style="float: right;" <?php if(isset($payroll_transactions_array) && count($payroll_transactions_array)<=0){?>disabled="true"<?php }?>/>
                     <input type="submit" name="upload_payroll"  value="Upload Payroll" style="float: right;"/>
+                    <input type="hidden" name="hiddenProceed" id="hiddenProceed" value="" />
                 </div>
             </div>
         </div>
@@ -59,6 +60,12 @@ if(isset($action) && $action == 'payroll_close'){?>
         conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
         });
 <?php } ?>
+<?php
+if(!empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll']['proceed']) && $_SESSION['upload_payroll']['duplicate_payroll']['proceed']==0){?>
+    $(document).ready(function() {
+        duplicate_payroll('<?php echo CURRENT_PAGE; ?>', "<?php echo 'Payroll '.date('m/d/Y', strtotime($_SESSION['upload_payroll']['duplicate_payroll']['payroll_date'])).' already exists.\n Do you want to add trades to the existing payroll? (Proceed='.$_SESSION['upload_payroll']['duplicate_payroll']['proceed'].')' ; ?>");
+    });
+<?php } ?>
 $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
@@ -67,9 +74,10 @@ $('#demo-dp-range .input-daterange').datepicker({
         }).on('show',function(){
             $(".datepicker-dropdown").css("z-index",'1000000');
         });
-var waitingDialog = waitingDialog || (function ($) {
+    
+    var waitingDialog = waitingDialog || (function ($) {
     'use strict';
-
+    
 	// Creating modal dialog's DOM
 	var $dialog = $(
 		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
@@ -80,7 +88,7 @@ var waitingDialog = waitingDialog || (function ($) {
 				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
 			'</div>' +
 		'</div></div></div>');
-
+    
 	return {
 		/**
 		 * Opens our dialog
@@ -148,7 +156,31 @@ function conf_close(url){
             };
         }
     });
-}     
+}
+function duplicate_payroll(url, message){
+    bootbox.confirm({
+        message: message, 
+        backdrop: true,
+        buttons: {
+            confirm: {
+                label: '<i class="ion-android-done-all"></i> Yes',
+                className: 'btn-success'
+            },
+            cancel: {
+                label: '<i class="fa fa-warning"></i> No',
+                className: 'btn-warning'
+            }
+        },
+        callback: function(result) {
+            if (result) {
+                document.getElementById("hiddenProceed").value = 1;
+                document.getElementById("upload_payroll").submit();
+            }else{
+                document.getElementById("hiddenProceed").value = 0;
+            };
+        }
+    });
+}
 </script>
 <style>
 .btn-primary {

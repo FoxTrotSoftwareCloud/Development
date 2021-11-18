@@ -1,4 +1,7 @@
 <?php
+    /*
+    *   11/17/21 [Modified] Payroll Date validation - Allow user to upload to same Payroll Date/ID multiple times.
+    */
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
     
@@ -10,20 +13,24 @@
     $clearing_business_cutoff_date = '';
     $direct_business_cutoff_date = '';
     $payroll_transactions_array = $instance->select_payroll_transactions();
-        
+    
     if(isset($_POST['upload_payroll'])&& $_POST['upload_payroll']=='Upload Payroll'){
         
         $payroll_date = isset($_POST['payroll_date'])?$instance->re_db_input($_POST['payroll_date']):'';
         $clearing_business_cutoff_date = isset($_POST['clearing_business_cutoff_date'])?$instance->re_db_input($_POST['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($_POST['direct_business_cutoff_date'])?$instance->re_db_input($_POST['direct_business_cutoff_date']):'';
+        if (!isset($_SESSION['upload_payroll']['duplicate_payroll'])) {
+            $_SESSION['upload_payroll'] = $_POST;
+        } 
         
         $return = $instance->upload_payroll($_POST);
         
         if($return===true){
-            
-            header("location:".SITE_URL."calculate_payrolls.php?action=view");exit;
+            header("location:".SITE_URL."calculate_payrolls.php?action=view");
+            unset($_SESSION['upload_payroll']);
+            exit;
         }
-        else{
+        else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
@@ -32,10 +39,8 @@
         $return = $instance->reverse_payroll();
         
         if($return===true){
-            
             header("location:".CURRENT_PAGE."?action=view");exit;
-        }
-        else{
+        } else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
@@ -44,12 +49,12 @@
         $return = $instance->payroll_close();
         
         if($return===true){
-            
             header("location:".CURRENT_PAGE."?action=view");exit;
-        }
-        else{
+        } else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
+    } else {
+        unset($_SESSION['upload_payroll']);
     }
     
     $content = "upload_payroll";
