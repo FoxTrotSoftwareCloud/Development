@@ -7,22 +7,22 @@
     
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
+    if (!isset($_POST['upload_payroll'])) {
+        unset($_SESSION['upload_payroll']);
+    }
     
     $instance = new payroll();
     $payroll_date = '';
     $clearing_business_cutoff_date = '';
     $direct_business_cutoff_date = '';
     $payroll_transactions_array = $instance->select_payroll_transactions();
-    
-    if(isset($_POST['upload_payroll'])&& $_POST['upload_payroll']=='Upload Payroll'){
-        
+
+
+    if( (isset($_POST['upload_payroll']) && $_POST['upload_payroll']=='Upload Payroll') || (isset($_POST['duplicate_payroll_proceed']) && $_POST['duplicate_payroll_proceed']=="true") ) {
         $payroll_date = isset($_POST['payroll_date'])?$instance->re_db_input($_POST['payroll_date']):'';
         $clearing_business_cutoff_date = isset($_POST['clearing_business_cutoff_date'])?$instance->re_db_input($_POST['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($_POST['direct_business_cutoff_date'])?$instance->re_db_input($_POST['direct_business_cutoff_date']):'';
-        if (!isset($_SESSION['upload_payroll']['duplicate_payroll'])) {
-            $_SESSION['upload_payroll'] = $_POST;
-        } 
-        
+                
         $return = $instance->upload_payroll($_POST);
         
         if($return===true){
@@ -34,9 +34,9 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
-    else if(isset($_POST['reverse_payroll'])&& $_POST['reverse_payroll']=='Reverse Payroll'){
+    else if(isset($_POST['reverse_payroll']) && $_POST['reverse_payroll']=='Reverse Payroll'){
         
-        $return = $instance->reverse_payroll();
+        $return = $instance->reverse_payroll($_POST);
         
         if($return===true){
             header("location:".CURRENT_PAGE."?action=view");exit;
@@ -54,7 +54,6 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     } else {
-        unset($_SESSION['upload_payroll']);
     }
     
     $content = "upload_payroll";

@@ -45,7 +45,7 @@
                     <a href="<?php echo CURRENT_PAGE; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
 					<input type="submit" name="reverse_payroll"  value="Reverse Payroll" style="float: right;" <?php if(isset($payroll_transactions_array) && count($payroll_transactions_array)<=0){?>disabled="true"<?php }?>/>
                     <input type="submit" name="upload_payroll"  value="Upload Payroll" style="float: right;"/>
-                    <input type="hidden" name="hiddenProceed" id="hiddenProceed" value="" />
+                    <input type="hidden" name="duplicate_payroll_proceed" id="duplicate_payroll_proceed" value="" />
                 </div>
             </div>
         </div>
@@ -60,12 +60,15 @@ if(isset($action) && $action == 'payroll_close'){?>
         conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
         });
 <?php } ?>
+
 <?php
-if(!empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll']['proceed']) && $_SESSION['upload_payroll']['duplicate_payroll']['proceed']==0){?>
-    $(document).ready(function() {
-        duplicate_payroll('<?php echo CURRENT_PAGE; ?>', "<?php echo 'Payroll '.date('m/d/Y', strtotime($_SESSION['upload_payroll']['duplicate_payroll']['payroll_date'])).' already exists.\n Do you want to add trades to the existing payroll? (Proceed='.$_SESSION['upload_payroll']['duplicate_payroll']['proceed'].')' ; ?>");
-    });
+    if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) { 
+?>
+        $(document).ready(function() {
+            duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists. \n Do you want to add trades to the existing payroll?      (If not, closeout the payroll and upload again.)'; ?>");
+        });
 <?php } ?>
+
 $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
@@ -152,7 +155,7 @@ function conf_close(url){
             if (result) {
                 window.location.href = url;
             }else{
-                //return false;
+                //window.location.href = url + '?action=upload_payroll_duplicate_cancel';
             };
         }
     });
@@ -172,11 +175,9 @@ function duplicate_payroll(url, message){
             }
         },
         callback: function(result) {
+            document.getElementById("duplicate_payroll_proceed").value = result;
             if (result) {
-                document.getElementById("hiddenProceed").value = 1;
                 document.getElementById("upload_payroll").submit();
-            }else{
-                document.getElementById("hiddenProceed").value = 0;
             };
         }
     });
