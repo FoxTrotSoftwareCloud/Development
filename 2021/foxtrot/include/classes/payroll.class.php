@@ -83,15 +83,9 @@ class payroll extends db{
             $this->errors = 'Please select direct business cutoff date.';
 		} else {
             // 11/17/21 Check for an open payroll date -> prompt if the user wants to assign trades to the existing payroll, else exit
-            $q = "SELECT id, payroll_date, clearing_business_cutoff_date, direct_business_cutoff_date, created_time 
-                    FROM ".$this->table." 
-                    WHERE `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."'
-                    AND is_delete = 0 AND is_close = 0
-            ";
-            $res = $this->re_db_query($q);
-            if ($this->re_db_num_rows($res)>0){
-                $payroll = $this->re_db_fetch_array($res);
+            $payroll = $this->get_payroll_uploads(0,1,0,$payroll_date);
 
+            if (!empty($payroll)) {
                 if ($data['duplicate_payroll_proceed'] !="true") {
                     $this->errors = 'Payroll Date already exists: '.date('m/d/Y', strtotime($payroll['payroll_date']));
                     $_SESSION['upload_payroll']['duplicate_payroll'] = true;
@@ -194,36 +188,31 @@ class payroll extends db{
 		}
         else
         {
+            // Flag PAYROLL_UPLOAD & Master Payroll records as deleted
+            $q = "UPDATE ".$this->table." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `id`='".$uploaded_payrolls['id']."'";
+            $res = $this->re_db_query($q);
+        
+            $q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `payroll_id`='".$uploaded_payrolls['id']."'";
+            $res = $this->re_db_query($q);
+            
+            // Flag Transaction Master records as reversed - maintain "payroll_id" if the reversal needs reversing
             $payroll_transactions_array = $this->select_payroll_transactions($uploaded_payrolls['id']);
             foreach($payroll_transactions_array as $key=>$val)
             {
                 $q = "UPDATE ".TRANSACTION_MASTER." SET `is_payroll`='0',`is_reverse`='1',`payroll_id`='".$val['payroll_id']."' ".$this->update_common_sql()." WHERE `id`='".$val['trade_number']."'";
     		    $res = $this->re_db_query($q);
-                
-                $q = "UPDATE ".$this->table." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `id`='".$val['payroll_id']."'";
-        		$res = $this->re_db_query($q);
-                
-                $q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `payroll_id`='".$val['payroll_id']."'";
-        		$res = $this->re_db_query($q);
             }
-
-            $q = "DELETE FROM ".PAYROLL_CURRENT_PAYROLL." WHERE `payroll_id`='".$uploaded_payrolls['id']."'";
-            $res = $this->re_db_query($q);
-
-            $q = "DELETE FROM ".PAYROLL_SPLIT_RATES." WHERE `payroll_id`='".$uploaded_payrolls['id']."'";
-            $res = $this->re_db_query($q);
-
-            $q = "DELETE FROM ".PAYROLL_OVERRIDE_RATES." WHERE `payroll_id`='".$uploaded_payrolls['id']."'";
-            $res = $this->re_db_query($q);
-
-            $q = "DELETE FROM ".PAYROLL_ADJUSTMENTS_CURRENT." WHERE `payroll_id`='".$uploaded_payrolls['id']."'";
-            $res = $this->re_db_query($q);
+            // Remove the orphaned payroll data created during Payroll Calculation
+            $payCalcClass = new payroll_calculation();
+            $payCalcClass->clearCurrentPayroll($uploaded_payrolls['id']);
+            $payCalcClass->clearSplitRates($uploaded_payrolls['id']);
+            $payCalcClass->clearOverrides($uploaded_payrolls['id']);
+            $payCalcClass->clearCurrentAdjustments($uploaded_payrolls['id']);
 
             if($res){
         	    $_SESSION['success'] = 'Payroll reversed successfully.';
         		return true;
-        	}
-        	else{
+        	} else {
         		$_SESSION['warning'] = UNKWON_ERROR;
         		return false;
         	}
@@ -292,54 +281,70 @@ class payroll extends db{
         return true;
     }
 
-    public function payroll_close(){
+    public function payroll_close($data){
+        $uploaded_payrolls = $this->get_payroll_uploads(0,1);
+        if (count($uploaded_payrolls) > 1 AND is_array($uploaded_payrolls[0])) {
+            if (!isset($data['payroll_date']) OR empty($data['payroll_date'])) {
+                $this->errors = 'More than one open payroll. Please specify a Payroll Date.';
+                $_SESSION['payroll_close']['duplicate_payroll'] = 1;
+                return $this->errors;
+            } else {
+                $uploaded_payrolls = $this->get_payroll_uploads(0,1,0,date('Y-m-d', strtotime($data['payroll_date'])));
+            }
+        }
 
-		$q = "UPDATE `".PAYROLL_UPLOAD."` SET `is_close`='1' WHERE `is_close`='0' and `is_calculate`='1' ";
-		$res = $this->re_db_query($q);
-        
-        
-        $get_prior_payrolls = $this->get_brokers_payroll();
-        if(count($get_prior_payrolls)>0)
-        {
-            foreach($get_prior_payrolls as $key_prior_payrolls=>$val_prior_payrolls)
+        if (empty($uploaded_payrolls)) {
+            $this->errors = 'Payroll data does not exist!';
+		}
+        if($this->errors!=''){
+            return $this->errors;
+		} else {
+            $q = "UPDATE `".PAYROLL_UPLOAD."` SET `is_close`='1' WHERE `is_close`='0' and `is_calculate`='1' ";
+            $res = $this->re_db_query($q);
+            
+            
+            $get_prior_payrolls = $this->get_brokers_payroll();
+            if(count($get_prior_payrolls)>0)
             {
-                $broker = $val_prior_payrolls['broker_name'];
-                $instance_broker = new broker_master();
-                $get_broker_data = $instance_broker->edit($broker);
-                
-                $q = "UPDATE ".PRIOR_PAYROLL_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
-                $res = $this->re_db_query($q);
-                
-                $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".$val_prior_payrolls['payroll_date']."',`broker_id`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`gross_production`='".$val_prior_payrolls['gross_commissions']."',`check_amount`='".$val_prior_payrolls['prior_check_amounts']."' ".$this->insert_common_sql();
-                $res = $this->re_db_query($q);
+                foreach($get_prior_payrolls as $key_prior_payrolls=>$val_prior_payrolls)
+                {
+                    $broker = $val_prior_payrolls['broker_name'];
+                    $instance_broker = new broker_master();
+                    $get_broker_data = $instance_broker->edit($broker);
+                    
+                    $q = "UPDATE ".PRIOR_PAYROLL_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
+                    $res = $this->re_db_query($q);
+                    
+                    $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".$val_prior_payrolls['payroll_date']."',`broker_id`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`gross_production`='".$val_prior_payrolls['gross_commissions']."',`check_amount`='".$val_prior_payrolls['prior_check_amounts']."' ".$this->insert_common_sql();
+                    $res = $this->re_db_query($q);
+                }
+            }
+            $get_broker_balance = $this->get_brokers_balance();
+            if(count($get_broker_balance)>0)
+            {
+                foreach($get_broker_balance as $key_balance=>$val_balance)
+                {
+                    $broker = $val_balance['broker_name'];
+                    $instance_broker = new broker_master();
+                    $get_broker_data = $instance_broker->edit($broker);
+                    
+                    $q = "UPDATE ".BROKER_BALANCES_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
+                    $res = $this->re_db_query($q);
+                    
+                    $q = "INSERT INTO ".BROKER_BALANCES_MASTER." SET `broker_number`='".$get_broker_data['id']."',`broker_id`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`balance_amount`='".$val_balance['broker_balance_amounts']."' ".$this->insert_common_sql();
+                    $res = $this->re_db_query($q);
+                    
+                }
+            }
+            if($res){
+                $_SESSION['success'] = "Payroll closed successfully";
+                return true;
+            }
+            else{
+                $_SESSION['warning'] = UNKWON_ERROR;
+                return false;
             }
         }
-        $get_broker_balance = $this->get_brokers_balance();
-        if(count($get_broker_balance)>0)
-        {
-            foreach($get_broker_balance as $key_balance=>$val_balance)
-            {
-                $broker = $val_balance['broker_name'];
-                $instance_broker = new broker_master();
-                $get_broker_data = $instance_broker->edit($broker);
-                
-                $q = "UPDATE ".BROKER_BALANCES_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
-                $res = $this->re_db_query($q);
-                
-                $q = "INSERT INTO ".BROKER_BALANCES_MASTER." SET `broker_number`='".$get_broker_data['id']."',`broker_id`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`balance_amount`='".$val_balance['broker_balance_amounts']."' ".$this->insert_common_sql();
-                $res = $this->re_db_query($q);
-                
-            }
-        }
-        if($res){
-		    $_SESSION['success'] = "Payroll closed successfully";
-			return true;
-		}
-		else{
-		    $_SESSION['warning'] = UNKWON_ERROR;
-			return false;
-		}
-    	
     }
     public function insert_update_adjustment_master($data){
             

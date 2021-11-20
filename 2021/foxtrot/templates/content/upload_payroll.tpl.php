@@ -15,37 +15,44 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
-                    <div id="demo-dp-range">
-                        <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" name="clearing_business_cutoff_date" id="clearing_business_cutoff_date" class="form-control" value="<?php echo $clearing_business_cutoff_date;?>"/>
+        <?php if(!isset($action) OR $action != 'payroll_close') { ?>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
+                        <div id="demo-dp-range">
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" name="clearing_business_cutoff_date" id="clearing_business_cutoff_date" class="form-control" value="<?php echo $clearing_business_cutoff_date;?>"/>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Direct Business Cutoff Date <span class="text-red">*</span></label>
-                    <div id="demo-dp-range">
-                        <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" name="direct_business_cutoff_date" id="direct_business_cutoff_date" class="form-control" value="<?php echo $direct_business_cutoff_date;?>"/>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Direct Business Cutoff Date <span class="text-red">*</span></label>
+                        <div id="demo-dp-range">
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" name="direct_business_cutoff_date" id="direct_business_cutoff_date" class="form-control" value="<?php echo $direct_business_cutoff_date;?>"/>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        <?php } ?>
         <div class="panel-footer">
             <div class="selectwrap">
 				<div class="selectwrap">
                     <a href="<?php echo CURRENT_PAGE; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-					<input type="submit" name="reverse_payroll"  value="Reverse Payroll" style="float: right;" <?php if(isset($payroll_transactions_array) && count($payroll_transactions_array)<=0){?>disabled="true"<?php }?>/>
-                    <input type="submit" name="upload_payroll"  value="Upload Payroll" style="float: right;"/>
-                    <input type="hidden" name="duplicate_payroll_proceed" id="duplicate_payroll_proceed" value="" />
+
+                    <?php if(isset($action) && $action == 'payroll_close') { ?>
+                        <input type="submit" name="close_payroll"  value="Close Payroll" style="float: right;"/>
+                    <?php } else {?>
+					    <input type="submit" name="reverse_payroll"  value="Reverse Payroll" style="float: right;" <?php if(isset($payroll_transactions_array) && count($payroll_transactions_array)<=0){?>disabled="true"<?php }?>/>
+                        <input type="submit" name="upload_payroll"  value="Upload Payroll" style="float: right;"/>
+                        <input type="hidden" name="duplicate_payroll_proceed" id="duplicate_payroll_proceed" value="" />
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -54,19 +61,19 @@
 </div>
 
 <script type="text/javascript">
-<?php 
-if(isset($action) && $action == 'payroll_close'){?>
-    $(document).ready(function() {
-        conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
-        });
+ <?php 
+    if(isset($action) && $action == 'payroll_close') {?>
+        // $(document).ready(function() {
+        //     conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
+        // });
 <?php } ?>
 
 <?php
     if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) { 
 ?>
-        $(document).ready(function() {
-            duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists. \n Do you want to add trades to the existing payroll?      (If not, closeout the payroll and upload again.)'; ?>");
-        });
+    $(document).ready(function() {
+        duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
+    });
 <?php } ?>
 
 $('#demo-dp-range .input-daterange').datepicker({

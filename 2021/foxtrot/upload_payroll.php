@@ -46,15 +46,14 @@
     }
     else if(isset($action)&& $action=='payroll_close' && isset($_GET['confirm']) && $_GET['confirm'] == 'yes'){
         
-        $return = $instance->payroll_close();
+        $return = $instance->payroll_close($_POST);
         
         if($return===true){
             header("location:".CURRENT_PAGE."?action=view");exit;
         } else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
-    } else {
-    }
+    } 
     
     $content = "upload_payroll";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
