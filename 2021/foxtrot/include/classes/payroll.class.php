@@ -304,17 +304,12 @@ class payroll extends db{
                     $broker_id = $val_current_payroll['broker_id'];
                     $instance_broker = new broker_master();
                     $get_broker_data = $instance_broker->edit($broker_id);
-                    
-                    $q = "UPDATE ".PRIOR_PAYROLL_MASTER." 
-                            SET `is_delete`='1' 
-                                ".$this->update_common_sql()." 
-                            WHERE `is_delete`=0 AND `broker_id`='".$broker_id."'";
-                    $res = $this->re_db_query($q);
-                    
+                                    
                     $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." 
                             SET 
                                 `payroll_id`='".$val_current_payroll['payroll_id']."',
                                 `payroll_date`='".$payroll_date."',
+                                `current_payroll_id`='".$val_current_payroll['id']."',
                                 `broker_id`='".$broker_id."',
                                 `branch`='".$val_current_payroll['branch']."',
                                 `clearing_number`='".$get_broker_data['fund']."',
@@ -347,7 +342,10 @@ class payroll extends db{
                     $prior_payroll_id = $this->re_db_insert_id();
 
                     // PRIOR PERIOD BALANCES
-                    $q = "UPDATE ".BROKER_BALANCES_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `is_delete`=0 AND `broker_id`='".$broker_id."'";
+                    $q = "UPDATE ".BROKER_BALANCES_MASTER." 
+                            SET `is_delete`='1'
+                                ".$this->update_common_sql()." 
+                            WHERE `is_delete`=0 AND `broker_id`='".$broker_id."'";
                     $res = $this->re_db_query($q);
 
                     if ($val_current_payroll['check_amount'] < $val_current_payroll['minimum_check_amount']) {
@@ -363,9 +361,17 @@ class payroll extends db{
                         ;
                         $res = $this->re_db_query($q);
                     }
-                }
+                    // CURRENT PAYROLL records
+                    $q = "UPDATE `".PAYROLL_CURRENT_PAYROLL."`
+                            SET `is_delete`='1',
+                                `status` = '2' 
+                                ".$this->update_common_sql()."
+                            WHERE `is_delete`=0 AND `status`='0' AND `id`='".$val_current_payroll['id']."'"
+                    ;
+                    $res = $this->re_db_query($q);
+    }
             }
-
+            
             $q = "UPDATE `".PAYROLL_UPLOAD."`
                     SET `is_close`='1' 
                         ".$this->update_common_sql()."

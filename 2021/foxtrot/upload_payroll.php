@@ -19,7 +19,7 @@
     $payroll_transactions_array = $instance->select_payroll_transactions();
 
 
-    if( (isset($_POST['upload_payroll']) && $_POST['upload_payroll']=='Upload Payroll') || (isset($_POST['duplicate_payroll_proceed']) && $_POST['duplicate_payroll_proceed']=="true") ) {
+    if((isset($_POST['upload_payroll']) AND $_POST['upload_payroll']=='Upload Payroll') OR (isset($_POST['duplicate_payroll_proceed']) AND $_POST['duplicate_payroll_proceed']=="true")) {
         $payroll_date = isset($_POST['payroll_date'])?$instance->re_db_input($_POST['payroll_date']):'';
         $clearing_business_cutoff_date = isset($_POST['clearing_business_cutoff_date'])?$instance->re_db_input($_POST['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($_POST['direct_business_cutoff_date'])?$instance->re_db_input($_POST['direct_business_cutoff_date']):'';
@@ -49,7 +49,8 @@
         $return = $instance->payroll_close($_POST['payroll_id']);
         
         if($return===true){
-            header("location:".CURRENT_PAGE."?action=view");exit;
+            unset($_POST['close_payroll']);
+            header("location:".CURRENT_PAGE."?action=payroll_close");exit;
         } else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
