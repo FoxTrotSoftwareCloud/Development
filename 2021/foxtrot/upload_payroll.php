@@ -7,7 +7,8 @@
     
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
-    if (!isset($_POST['upload_payroll'])) {
+    $payroll_id = $id;
+    if ($action == 'view') {
         unset($_SESSION['upload_payroll']);
     }
     
@@ -27,7 +28,6 @@
         
         if($return===true){
             header("location:".SITE_URL."calculate_payrolls.php?action=view");
-            unset($_SESSION['upload_payroll']);
             exit;
         }
         else {
@@ -44,9 +44,9 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
-    else if(isset($action)&& $action=='payroll_close' && isset($_GET['confirm']) && $_GET['confirm'] == 'yes'){
+    else if($action=='payroll_close' && (isset($_POST['close_payroll']) && $_POST['close_payroll']=='Close Payroll')){
         
-        $return = $instance->payroll_close($_POST);
+        $return = $instance->payroll_close($_POST['payroll_id']);
         
         if($return===true){
             header("location:".CURRENT_PAGE."?action=view");exit;

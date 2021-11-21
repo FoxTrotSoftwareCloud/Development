@@ -1,5 +1,5 @@
 <div class="container">
-<h1>Upload</h1>
+<h1><?php echo (isset($action) AND $action=='payroll_close')?"Close Payroll":"Upload" ?></h1>
     <div class="col-md-12 well">
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
         <form id="upload_payroll" method="POST">
@@ -7,11 +7,23 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Payroll Date <span class="text-red">*</span></label>
-                    <div id="demo-dp-range">
-                        <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php echo $payroll_date;?>"/>
+                    <?php if(!isset($action) OR $action != 'payroll_close') { ?>
+                        <div id="demo-dp-range">
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php echo $payroll_date;?>"/>
+                            </div>
                         </div>
-                    </div>
+                    <?php } else { ?>
+                        <select class="form-control" name="payroll_id">
+                            <?php $get_payroll_uploads = $instance->get_payroll_uploads(0,1);  
+                                if (count($get_payroll_uploads)>0) {
+                                    foreach($get_payroll_uploads as $key=>$val){?>
+                                        <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$payroll_id)?'selected':''?> ><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
+                                <?php }} else {?>
+                                    <option value='0'>No Open Payrolls Found</option>
+                            <?php } ?>
+                        </select>
+                    <?php } ?>
                 </div>
             </div>
         </div>
