@@ -52,6 +52,7 @@
     }
     else if($action=='edit' && $id>0){
         $return = $instance->edit_prior_payrolls_master($id);
+
         
         $id = isset($return['id'])?$instance->re_db_output($return['id']):0;
         $payroll_date = isset($return['payroll_date'])?$instance->re_db_output($return['payroll_date']):'';
@@ -62,7 +63,9 @@
         $check_amount = isset($return['check_amount'])?$instance->re_db_output($return['check_amount']):'';
         $net_production = isset($return['net_production'])?$instance->re_db_output($return['net_production']):'';
         $adjustments = isset($return['adjustments'])?$instance->re_db_output($return['adjustments']):'';
-        $net_earnings = isset($return['net_earnings'])?$instance->re_db_output($return['net_earnings']):'';    
+        $net_earnings = isset($return['net_earnings'])?$instance->re_db_output($return['net_earnings']):''; 
+        $taxable_adjustments= isset($return['taxable_adjustments'])?$instance->re_db_output($return['taxable_adjustments']):''; 
+        $non_taxable_adjustments= isset($return['non-taxable_adjustments'])?$instance->re_db_output($return['non-taxable_adjustments']):'';  
     }
     else if(isset($action) && $action=='delete' && $id>0)
     {

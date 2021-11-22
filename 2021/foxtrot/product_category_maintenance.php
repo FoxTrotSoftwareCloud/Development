@@ -62,6 +62,7 @@
         exit;
     }
     else if($action=='edit' && $id>0){
+        
         $return = $instance->edit($id);
         $type = $instance->re_db_output($return['type']);
         $type_code = $instance->re_db_output($return['type_code']);

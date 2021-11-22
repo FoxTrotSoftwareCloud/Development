@@ -73,7 +73,8 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                     <input type="checkbox" name="non_registered" id="non_registered" class="checkbox" value="1" <?php if($non_registered>0){echo "checked='checked'";}?>/>
                 </div>
             </div>
-            <div class="col-md-6" style="visibility: hidden;">
+            <!-- 11/10/21 Not sure why this was hidden. Make visible - "style="visibility: hidden;" -->
+            <div class="col-md-6">
                 <div class="form-group">
                     <label>Company </label><br />
                     <select class="form-control" name="company">

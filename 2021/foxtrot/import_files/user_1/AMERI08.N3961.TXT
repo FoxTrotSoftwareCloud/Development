@@ -1,0 +1,8 @@
+RHR001NEWACCT ACTIVIT200802052008020500000000AEDMU1090160000001*AMERI*V
+NAA0010107972000000000AMEFIMMMAAMEF70755555555555         F20001117        2          00100021231231232000000000000852055522000000000000000000000000000000000
+NAA0020000NANCY JONES                        150 MONSTER RD                     MESA AZ 852055522                                                             0
+NAA003                                                                                                         000009213TERRY D BELKE
+NAA0010107972000000000AMEFIAMMAAMEF70744444444444         F20001117        2          00100021231231232000000000000852055522000000000000000000000000000000000
+NAA0020000PHYLLIS MARKS                      240 HIGH VIEW RD                   MESA AZ 852055522                                                             0
+NAA003                                                                                                         000009213TERRY D BELKE
+RTR001NEWACCT ACTIVIT000000008

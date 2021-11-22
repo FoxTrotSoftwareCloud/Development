@@ -56,6 +56,9 @@ require_once(DIR_FS."islogin.php");?>
 .error{
 	border: 1px solid red!important;
 }
+body .container{
+	 width: 1300px;
+}
 .dropdown-submenu>.dropdown-menu {
     top: 0;
     left: 100%;
@@ -66,6 +69,9 @@ require_once(DIR_FS."islogin.php");?>
     border-radius: 0 6px 6px 6px;
 }
 
+.graphboxcontent{
+    /*padding: 10px 0;*/
+}
 .dropdown-submenu:hover>.dropdown-menu {
     display: block;
 }
@@ -107,13 +113,13 @@ require_once(DIR_FS."islogin.php");?>
     float: right;
 }
 .headermenu {
-    padding: 10px 0;
+    padding: 2px 0;
 }
 .userinfo {
     margin: -40px 0px 0 -560px;/*margin: -40px 0px 0 220px;/* 89 when use menu icon*/
 }
 .contentmain{
-    padding: 100px 0 90px;
+    padding: 75px 0 90px;
 }
 </style>
 </head>

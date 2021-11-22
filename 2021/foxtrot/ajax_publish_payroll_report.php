@@ -9,11 +9,13 @@ $instance_multi_company = new manage_company();
 $get_multi_company = $instance_multi_company->select_company();
 $instance_product_type = new product_master();
 $get_product_category =$instance_product_type->select_product_type();
-$get_last_payroll = $instance->get_last_payroll();
-if(count($get_last_payroll)>0)
-{
-    $payroll_date = isset($get_last_payroll['payroll_date'])?date('m/d/Y',strtotime($get_last_payroll['payroll_date'])):'';
-}
+
+$company = isset($_SESSION['publish_payroll']['company'])?$_SESSION['publish_payroll']['company']:0;
+$payroll_id = isset($_SESSION['publish_payroll']['payroll_id'])?$_SESSION['publish_payroll']['payroll_id']:0;
+$broker = isset($_SESSION['publish_payroll']['broker'])?$_SESSION['publish_payroll']['broker']:0;
+$print_type = isset($_SESSION['publish_payroll']['print_type'])?$_SESSION['publish_payroll']['print_type']:0;
+$output = isset($_SESSION['publish_payroll']['output'])?$_SESSION['publish_payroll']['output']:0;
+
 if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
 ?>
 <div class="titlebox">Payroll Commission Statement</div><br />
@@ -24,7 +26,7 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
             <select class="form-control" name="company">
                 <option value="0">All Companies</option>
                 <?php foreach($get_multi_company as $key=>$val){?>
-                <option value="<?php echo $val['id'];?>"><?php echo $val['company_name'];?></option>
+                <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$company)?'selected':''?>><?php echo $val['company_name'];?></option>
                 <?php } ?>
             </select>
         </div>
@@ -32,11 +34,11 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
     <div class="col-md-6">
         <div class="form-group">
             <label>Payroll Date </label>
-            <div id="demo-dp-range">
-                <div class="input-daterange input-group" id="datepicker">
-                    <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php if(isset($payroll_date) && $payroll_date != ''){ echo $payroll_date;} else {echo date('m/01/Y');} ?>"/>
-                </div>
-            </div>
+            <select class="form-control" name="payroll_id">
+                <?php $get_payroll_uploads = $instance->get_payroll_uploads(0,1,1); foreach($get_payroll_uploads as $key=>$val){?>
+                    <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$payroll_id)?'selected':''?> ><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
+                <?php } ?>
+            </select>
         </div>
     </div>
 </div>
@@ -62,7 +64,7 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
             <select class="form-control" name="broker">
                 <option value="0">All Brokers</option>
                 <?php foreach($get_broker as $key=>$val){?>
-                <option value="<?php echo $val['id'];?>" ><?php echo $val['first_name'].' '.$val['last_name'];?></option>
+                <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$broker)?'selected':''?> ><?php echo $val['first_name'].' '.$val['last_name'];?></option>
                 <?php } ?>
             </select>
         </div>
@@ -71,8 +73,9 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
         <div class="form-group">
             <label>Sort Order </label>
             <select class="form-control" name="print_type">
-                <option value="1">By Name</option>
-                <option value="2">By Fund/Clear No.</option>
+                <option value="1" <?php echo ($print_type==1)?'selected':''?> >By Name</option>
+                <option value="2" <?php echo ($print_type==2)?'selected':''?> >By Fund/Clear No.</option>
+                <option value="3" <?php echo ($print_type==3)?'selected':''?> >By Internal Broker ID Number</option>
             </select>
         </div>
     </div>
@@ -82,10 +85,10 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
         <div class="form-group">
             <label>Output Destination </label>
             <select class="form-control" name="output">
-                <option value="1">Screen</option>
-                <option value="2">Printer</option>
-                <option value="3">Excel</option>
-                <option value="4">PDF</option>
+                <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
+                <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
+                <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>
+                <option value="4" <?php echo ($output==4)?'selected':''?> >PDF</option>
             </select>
         </div>
     </div>
@@ -107,7 +110,7 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '2'){ ?>
             <select class="form-control" name="company">
                 <option value="0">All Companies</option>
                 <?php foreach($get_multi_company as $key=>$val){?>
-                <option value="<?php echo $val['id'];?>" ><?php echo $val['company_name'];?></option>
+                <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$company)?'selected':''?> ><?php echo $val['company_name'];?></option>
                 <?php } ?>
             </select>
         </div>

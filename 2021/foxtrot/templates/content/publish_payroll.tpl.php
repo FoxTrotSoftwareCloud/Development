@@ -1,7 +1,10 @@
 <div class="container">
 <h1>Publish</h1>
 <div class="col-lg-12 well">
-<?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
+<?php 
+    require_once(DIR_FS_INCLUDES."alerts.php"); 
+    $publish_report = isset($_SESSION[basename('publish_payroll')]['publish_report'])?$_SESSION[basename('publish_payroll')]['publish_report']:0;
+?>
     <div class="tab-content col-md-12">
         <div class="tab-pane active" id="tab_a">
             <form method="post">
@@ -18,10 +21,10 @@
                             <div class="form-group">
                                 <label>Publish Report </label>
                                 <select class="form-control" name="publish_report" id="publish_report" onchange="open_reports(this.value);">
-                                    <option value="1">Broker Statement</option>
-                                    <option value="2">Company Statement</option>
-                                    <option value="3">Adjustment Report</option>
-                                    <option value="4">Reconciliation Report</option>
+                                    <option value="1" <?php echo ($publish_report==1)?'selected':''; ?> >Broker Statement</option>
+                                    <option value="2" <?php echo ($publish_report==2)?'selected':''; ?> >Company Statement</option>
+                                    <option value="3" <?php echo ($publish_report==3)?'selected':''; ?> >Adjustment Report</option>
+                                    <option value="4" <?php echo ($publish_report==4)?'selected':''; ?> >Reconciliation Report</option>
                                 </select>
                             </div>
                          </div>
@@ -63,7 +66,7 @@
 </div>
 <?php if(isset($_GET['filter']) && $_GET['filter'] != '' && $output == 1){?>
 <script>
-//location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
+// location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
 $(document).ready(function(){
     
     var xmlhttp = new XMLHttpRequest();
@@ -79,9 +82,10 @@ $(document).ready(function(){
             }
         }
     };
+    // Clear out parameters on the browser's address/history. When the user was hitting "back" on the browser, the AJAX report was firing because "filter" param was still in the URL - 11/11/21
+    window.history.pushState({}, document.title, "<?php echo CURRENT_PAGE;?>");
     xmlhttp.open('GET', 'ajax_publish_payroll_report_view.php?filter=<?php echo $_GET['filter']; ?>', true);
     xmlhttp.send();
-
     
     $('#myModal').modal({
     		show: true
@@ -121,6 +125,7 @@ function open_reports(report_name)
             });
         }
     };
+  
     xmlhttp.open('GET', 'ajax_publish_payroll_report.php?report_name='+report_name, true);
     xmlhttp.send();
 }

@@ -6,6 +6,7 @@ function addMoreThreshold(){
                             '<div class="col-md-5">'+
                                 '<div class="input-group">'+
                                     '<span class="input-group-addon">$</span>'+
+                                    ' <input type="hidden" value=""   class="form-control" id="threshold_id" name="threshold_id[]" placeholder="$0"  />'+
                                     '<input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />'+
                                 '</div>'+
                             '</div>'+
@@ -86,24 +87,7 @@ $(document).on('click','.remove-row',function(){
             			</div>
                     </div><br />-->
             		<div class="panel-body">
-                        <!--<div class="panel-control" style="float: right;" >
-                         <form method="post">
-                            <div class="row"> 
-                            <div class="col-md-5"></div>
-                                <!--div class="col-md-3">
-                                    <!--<select class="form-control" name="search_product_category">
-                                        <?php foreach($product_category as $key=>$val){?>
-                                        <option value="<?php echo $val['id'];?>" <?php if($search_product_category==$val['id']){echo "selected='selected'";} ?>><?php echo $val['type'];?></option>
-                                        <?php } ?>
-                                    </select>
-                                 </div--> 
-                                   <!-- <input type="hidden" name="search_product_category" value="<?php echo $category; ?>"/> 
-                                    <input type="text" name="search_text_product" style=" width:60% !important;"  placeholder="Search Name , Cusip , Ticker" id="search_text_product" value="<?php echo $search_text_product;?>"/>
-                                    <button type="submit" name="search_product" id="submit" value="Search"><i class="fa fa-search"></i> Search</button>
-                                 
-                            </div>
-                        </form>
-                        </div><br /><br />-->
+                        
                        <div class="table-responsive">
             			<table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
             	            <thead>
@@ -153,7 +137,7 @@ $(document).on('click','.remove-row',function(){
             <?php  
             if($action=='select_cat'){
                 ?>
-                <div class="panel">
+                <!-- <div class="panel">
                            
                 <form name="frm2" method="POST">
                     <div class="panel-body">
@@ -189,9 +173,76 @@ $(document).on('click','.remove-row',function(){
                     
                    </div>
                 </form>
+                </div> -->
+
+                <div class="panel">
+                     <div class="panel-body">
+                         <div class="table-responsive">
+                        <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>PRODUCT NAME</th>
+                                    <th>CATEGORY</th>
+                                    <th>CUSIP</th>
+                                    <th>SPONSOR NAME</th>
+                                    <th class="text-center">STATUS</th>
+                                    <th class="text-center">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+                            $count = 0;
+                            foreach($return as $key=>$val){
+                                ?>
+                                   <tr>
+                                        <td><?php echo $val['name'];?></td>
+                                        <td><?php echo $val['type']; ?></td>
+                                        <td><?php echo $val['cusip']; ?></td>
+                                        <td><?php echo $val['sponsor']; ?></td>
+                                        <td class="text-center">
+                                            <?php
+                                                if($val['status']==1){
+                                                    ?>
+                                                    <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success"><i class="fa fa-check-square-o"></i> Active</a>
+                                                    <?php
+                                                }
+                                                else{
+                                                    ?>
+                                                    <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Terminated</a>
+                                                    <?php
+                                                }
+                                            ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit_product&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
+                                        </td>
+                                    </tr>
+                            <?php } ?>
+                            </tbody>
+                        </table>
+                        </div>
+                     </div>   
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
                 <?php
-                    }else if($action=='add_product' || $action=='add_product_from_trans' || ($action=='edit_product' && $id>0)){
+                    }
+
+
+
+
+                    else if($action=='add_product' || $action=='add_product_from_trans' || ($action=='edit_product' && $id>0)){
                 ?>   
                 <ul class="nav nav-tabs <?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtabs';}*/?>">
                   <li class="active"><a href="#tab_aa" data-toggle="tab">General</a></li>
@@ -205,21 +256,7 @@ $(document).on('click','.remove-row',function(){
 					</div>
 				</ul> 
                  <form name="frm" method="POST" onsubmit="return validation();" enctype="multipart/form-data">    
-                 <!--<div class="panel-footer">
-                        <div class="selectwrap col-md-12">
-                            <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
-                            <?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous&category=<?php echo $category;?>" class="previous next_previous_a" style="float: left;" ><input type="button" style="float: left;" name="Previous" value="&laquo; Previous" /></a> <?php } ?>
-        					<?php if($action=='edit_product' && $id>0){?>
-                            <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10%;"/></a>
-                            <?php } ?>
-                            <a href="#product_notes" data-toggle="modal"><input type="button" onclick="get_product_notes();" name="notes" value="Notes" /></a>
-                            <a href="#client_attachment" data-toggle="modal"><input type="button" name="attach" value="Transaction" /></a>
-                            <a href="#product_attach" data-toggle="modal"><input type="button"  onclick="get_product_attach();" name="attach" value="Attachments" /></a>
-                            <input type="submit" name="product" onclick="waitingDialog.show();" value="Save"/>	
-                            <a href="<?php echo CURRENT_PAGE.'?action=view_product';?>"><input type="button" name="cancel" value="Cancel" /></a>
-                            <?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next&category=<?php echo $category;?>" class="next next_previous_a" style="float: right;"><input type="button" name="Next" value="Next &raquo;" /></a><?php } ?>
-                        </div>
-                 </div><br /><br />-->
+                 
                  <div class="tab-content col-md-12 panel">
                     
                     <div class="tab-pane active" id="tab_aa"> 
@@ -227,25 +264,21 @@ $(document).on('click','.remove-row',function(){
         					<div class="row"><br />
                                 <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i> <?php echo $action=='add_product'?'Add':'Edit'; ?> Product</h3>
         					</div><br />
-                            <input type="hidden" name="product_category" id="product_category1" value="<?php echo $category;?>" />
+                           
                             <div class="row">
-                                <!--div class="col-md-6">
-                                    <?php if($action=='edit_product' && $id>0){?>
+                               
+                                                            
+                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Product Category </label><br />
-                                        <select class="form-control" name="product_category" id="product_category" disabled="true">
-                                            <option value="">Select Category</option>
+                                        <select class="form-control" id="product_category" onchange="cateogry_change_event(this.value)" name="product_category" style="display: inline !important;">
+                                            <option value="0" selected="true">Select Category</option>
                                             <?php foreach($product_category as $key=>$val){?>
                                             <option value="<?php echo $val['id'];?>" <?php if($category==$val['id']){echo "selected='selected'";} ?>><?php echo $val['type'];?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
-                                    <?php } else {?>
-                                    <input type="text" name="product_category" id="product_category1" value="<?php echo $category;?>" />
-                                    <?php } ?>
-                                </div-->
-                                                            
-                                    
+                                </div>   
                                  
                                 
                                 <div class="col-md-6">
@@ -307,317 +340,332 @@ $(document).on('click','.remove-row',function(){
                                     </div>
                                 </div>
                             </div>
-                            <?php if(isset($_GET['category']) && $_GET['category'] == 1){ ?>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Allowable Receivable </label><br />
-                                        <input type="checkbox" class="checkbox" name="allowable_receivable" id="allowable_receivable" value="1" style="display: inline;" <?php if($receive>0){echo "checked='checked'";}?>  />
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Non-Commissionable </label><br />
-                                        <input type="checkbox"  class="checkbox" name="non_commissionable" id="non_commissionable" value="1" style="display: inline;" <?php if($non_commissionable>0){echo "checked='checked'";}?>/>
-                                    </div>
-                                </div>
-                            </div>
-                           
-                           <div style="display: block; border: 1px solid #ddd;">
-                           <div class="row" style="padding: 5px;"> 
-                                <div class="col-md-12">
-                                    <h4><b>Mutual Funds</b></h4><br />
-                                </div>
-                           </div>
-                           <div class="row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Class Type </label><br />
-                                        <input type="radio" class="radio" name="class_type" id="cpa" value="1" style="display: inline;" <?php if($class_type==1){echo "checked='checked'";}?>/>&nbsp;<label>A</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="radio" class="radio" name="class_type" id="cpa" value="2" style="display: inline;" <?php if($class_type==2){echo "checked='checked'";}?>/>&nbsp;<label>B</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="radio" class="radio" name="class_type" id="cpa" value="3" style="display: inline;" <?php if($class_type==3){echo "checked='checked'";}?>/>&nbsp;<label>C</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="radio" class="radio" name="class_type" id="cpa" value="4" style="display: inline;" <?php if($class_type==4){echo "checked='checked'";}?>/>&nbsp;<label>other</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Fund Code </label><br />
-                                        <input type="text" maxlength="7" value="<?php echo $fund_code; ?>" class="form-control" name="fund_code"  />
-                                    </div>
-                                </div>
-                            </div><br />
-                            <label>Threshold </label><br />
-                           <?php
-                            if($return_rates != '')
-                            {
-                            foreach($return_rates as $keyedit_rates=>$valedit_rates){
-                            ?>
-                           <div class="row main_row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="row" style="padding: 5px;">
-                                        <div class="col-md-5">
-                                            <div class="input-group">
-                                                <span class="input-group-addon">$</span>
-                                                <input type="number" value="<?php echo $valedit_rates['min_threshold']; ?>"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label>To </label>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="input-group">
-                                                <span class="input-group-addon">$</span>
-                                                <input type="number" value="<?php echo $valedit_rates['max_threshold']; ?>"  maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999"  />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="row" style="padding: 5px;">
-                                        <div class="col-md-4">
+                            <div class="cat_extra_options">
+                                <div class="cat_1_block cat_1" style="display:none">
+                                    <div class="row">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label>with a Rate of </label>
+                                                <label>Allowable Receivable </label><br />
+                                                <input type="checkbox" class="checkbox" name="allowable_receivable" id="allowable_receivable" value="1" style="display: inline;" <?php if($receive>0){echo "checked='checked'";}?>  />
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="input-group">
-                                                <input type="number" value="<?php echo $valedit_rates['min_rate']; ?>" step="0.01" maxlength="5" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.0%"  />
-                                                <span class="input-group-addon">%</span>
-                                            </div>
-                                        </div>
-                                        <!--<div class="col-md-6">
                                             <div class="form-group">
-                                                <input type="text" value="<?php echo $valedit_rates['max_rate']; ?>"  onblur="maxrate(this.value)"  maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />
-                                            </div>
-                                        </div>-->
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
+                                                <label>Non-Commissionable </label><br />
+                                                <input type="checkbox"  class="checkbox" name="non_commissionable" id="non_commissionable" value="1" style="display: inline;" <?php if($non_commissionable>0){echo "checked='checked'";}?>/>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                
-                                
-                           </div>
-                           <?php } }?>
-                           <div class="row" style="padding: 5px;" id="add_more_threshold">
-                                <div class="col-md-6">
-                                    <!--<label>Threshold </label><br />-->
-                                    <div class="row" style="padding: 5px;">
-                                        <div class="col-md-5">
-                                            <div class="input-group">
-                                                <span class="input-group-addon">$</span>
-                                                <input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />
+                               
+                                    <div style="display: block; border: 1px solid #ddd;">
+                                       <div class="row" style="padding: 5px;"> 
+                                            <div class="col-md-12">
+                                                <h4><b>Mutual Funds</b></h4><br />
+                                            </div>
+                                       </div>
+                                        <div class="row" style="padding: 5px;">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Class Type </label><br />
+                                                    <input type="radio" class="radio" name="class_type" id="cpa" value="1" style="display: inline;" <?php if($class_type==1){echo "checked='checked'";}?>/>&nbsp;<label>A</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <input type="radio" class="radio" name="class_type" id="cpa" value="2" style="display: inline;" <?php if($class_type==2){echo "checked='checked'";}?>/>&nbsp;<label>B</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <input type="radio" class="radio" name="class_type" id="cpa" value="3" style="display: inline;" <?php if($class_type==3){echo "checked='checked'";}?>/>&nbsp;<label>C</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <input type="radio" class="radio" name="class_type" id="cpa" value="4" style="display: inline;" <?php if($class_type==4){echo "checked='checked'";}?>/>&nbsp;<label>other</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Fund Code </label><br />
+                                                    <input type="text" maxlength="7" value="<?php echo $fund_code; ?>" class="form-control" name="fund_code"  />
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
-                                            <label>To </label>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="input-group">
-                                                <span class="input-group-addon">$</span>
-                                                <input type="number" value=""  maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999"  />
+                                        <br />
+                                        <label>Threshold </label><br />
+                                       <?php
+                                        if($return_rates != '')
+                                        {
+                                        foreach($return_rates as $keyedit_rates=>$valedit_rates){
+                                        ?>
+                                       <div class="row main_row" style="padding: 5px;">
+                                            <div class="col-md-6">
+                                                <div class="row" style="padding: 5px;">
+
+                                                    <div class="col-md-5">
+                                                        <div class="input-group">
+                                                            <span class="input-group-addon">$</span>
+                                                            <input type="hidden" value="<?php echo $valedit_rates['id']; ?>"   class="form-control" id="threshold_id" name="threshold_id[]"   />
+                                                            <input type="number" value="<?php echo $valedit_rates['min_threshold']; ?>"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label>To </label>
+                                                    </div>
+                                                    <div class="col-md-5">
+                                                        <div class="input-group">
+                                                            <span class="input-group-addon">$</span>
+                                                            <input type="number" value="<?php echo $valedit_rates['max_threshold']; ?>"  maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <!--<label>Rate </label><br />-->
-                                    <div class="row" style="padding: 5px;">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label>with a Rate of </label>
+                                            <div class="col-md-6">
+                                                <div class="row" style="padding: 5px;">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>with a Rate of </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="input-group">
+                                                            <input type="number" value="<?php echo $valedit_rates['min_rate']; ?>" step="0.01" maxlength="5" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.0%"  />
+                                                            <span class="input-group-addon">%</span>
+                                                        </div>
+                                                    </div>
+                                                    <!--<div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" value="<?php echo $valedit_rates['max_rate']; ?>"  onblur="maxrate(this.value)"  maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />
+                                                        </div>
+                                                    </div>-->
+                                                    <div class="col-md-2">
+                                                        <div class="form-group">
+                                                            <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="input-group">
-                                                <input type="number" value="" step="0.01"  maxlength="5" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.00%"  />
-                                                <span class="input-group-addon">%</span>
-                                                <!--<input type="text" value=""  maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />-->
+                                            
+                                            
+                                       </div>
+                                       <?php } }?>
+                                       <div class="row" style="padding: 5px;" id="add_more_threshold">
+                                            <div class="col-md-6">
+                                                <!--<label>Threshold </label><br />-->
+                                                <div class="row" style="padding: 5px;">
+                                                    <div class="col-md-5">
+                                                        <div class="input-group">
+                                                            <span class="input-group-addon">$</span>
+                                                            <input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label>To </label>
+                                                    </div>
+                                                    <div class="col-md-5">
+                                                        <div class="input-group">
+                                                            <span class="input-group-addon">$</span>
+                                                            <input type="number" value=""  maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999"  />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <button type="button" onclick="addMoreThreshold();" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
+                                            <div class="col-md-6">
+                                                <!--<label>Rate </label><br />-->
+                                                <div class="row" style="padding: 5px;">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>with a Rate of </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="input-group">
+                                                            <input type="number" value="" step="0.01"  maxlength="5" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.00%"  />
+                                                            <span class="input-group-addon">%</span>
+                                                            <!--<input type="text" value=""  maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />-->
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group">
+                                                            <button type="button" onclick="addMoreThreshold();" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                           </div>
-                           <div class="row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Waive Sweep Fee </label><br />
-                                        <input type="checkbox" class="checkbox" name="sweep_fee" id="sweep_fee" value="1" style="display: inline;" <?php if($sweep_fee>0){echo "checked='checked'";}?>/>
-                                    </div>
-                                </div>
-                           </div>
-                           </div><br />
-                           <?php } ?>
-                           <?php if(isset($_GET['category']) && $_GET['category'] == 11 ){ ?>
-                           <div style="display: block; border: 1px solid #ddd;">
-                           <div class="row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Investment Banking Type </label><br />
-                                        <select class="form-control" name="investment_banking_type">
-                                            <option value="">Select Banking Type</option>
-                                            <option value="1" <?php if($investment_banking_type==1){echo "selected='selected'";} ?>>IPO</option>
-                                            <option value="2" <?php if($investment_banking_type==2){echo "selected='selected'";} ?>>Bridge</option>
-                                            <option value="3" <?php if($investment_banking_type==3){echo "selected='selected'";} ?>>Reg S</option>
-                                            <option value="4" <?php if($investment_banking_type==4){echo "selected='selected'";} ?>>Reg D</option>
-                                            <option value="5" <?php if($investment_banking_type==5){echo "selected='selected'";} ?>>Private Placement</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            </div><br />
-                           <?php } ?>
-                           <?php if(isset($_GET['category']) && $_GET['category'] == 12 ){ ?>
-                           <div style="display: block; border: 1px solid #ddd;">
-                           <div class="row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>RIA Type </label><br />
-                                        <select class="form-control" name="ria_specific_type">
-                                            <option value="">Select Type</option>
-                                            <option value="1" <?php if($ria_specific_type==1){echo "selected='selected'";} ?>>Fee Based Mutual Funds</option>
-                                            <option value="2" <?php if($ria_specific_type==2){echo "selected='selected'";} ?>>Fee Based Stocks, Bonds &amp; Mutual Funds</option>
-                                            <option value="3" <?php if($ria_specific_type==3){echo "selected='selected'";} ?>>Financial Planning</option>
-                                            <option value="4" <?php if($ria_specific_type==4){echo "selected='selected'";} ?>>Money Managers</option>
-                                            <option value="5" <?php if($ria_specific_type==5){echo "selected='selected'";} ?>>Non-Discretionary</option>
-                                            <option value="6" <?php if($ria_specific_type==6){echo "selected='selected'";} ?>>Socially Screened</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label></label><br />
-                                        <input type="radio"  name="based_type" class="radio"  value="1" style="display: inline;" <?php if($based==1){echo "checked='checked'";}?>/>&nbsp;<label>Asset Based</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="radio"  name="based_type" class="radio"  value="2" style="display: inline;" <?php if($based==2){echo "checked='checked'";}?>/>&nbsp;<label>Fee Based</label>
-                                    </div>
-                                </div>
-                            </div>   
-                            <div class="row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Fee Rate </label><br />
-                                        <input type="text" value="<?php echo $fee_rate; ?>" onblur="round(this.value);"  maxlength="5"   class="form-control" name="fee_rate" id="fee_rate" placeholder="0.00"  />
-                                    </div>
-                                </div>
-                            </div>
-                            </div>
-                            <br />  
-                           <?php } ?>
-                           <?php if(isset($_GET['category']) && ($_GET['category'] == 2 || $_GET['category'] == 3)){ ?> 
-                           <div style="display: block; border: 1px solid #ddd;">
-                           <div class="row" style="padding: 5px;">
-                                <div class="col-md-12">
-                                    <h4><b>Stocks, Bonds</b></h4><br />
-                                </div>
-                           </div>
+                                       </div>
+                                       <div class="row" style="padding: 5px;">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Waive Sweep Fee </label><br />
+                                                    <input type="checkbox" class="checkbox" name="sweep_fee" id="sweep_fee" value="1" style="display: inline;" <?php if($sweep_fee>0){echo "checked='checked'";}?>/>
+                                                </div>
+                                            </div>
+                                       </div>
+                                   </div>
+                                </div>   
                            
-                           <div class="row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <input type="radio" class="radio" name="stocks_bonds" value="1" style="display: inline;" <?php if($st_bo==1){echo "checked='checked'";}?>/>&nbsp;<label>Listed </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    
-                                        <input type="radio" class="radio" name="stocks_bonds"  value="2" style="display: inline;" <?php if($st_bo==2){echo "checked='checked'";}?>/>&nbsp;<label>OTC </label>
-                                    </div>
-                                </div>
-                            </div>
-                            </div>
-                            <br />
-                           <?php } ?>
-                           <?php if(isset($_GET['category']) && ($_GET['category'] == 3 || $_GET['category'] == 7 || $_GET['category'] == 8)){ ?>
-                           <div style="display: block; border: 1px solid #ddd;">
-                            <div class="row" style="padding: 5px;">
                             
-                                <div class="col-md-12">
-                                    <h4><b>CDs, UITs, Bonds</b></h4><br />
-                                </div>
-                            </div>
-                           
-                            <div class="row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Maturity Date </label><br />
-                                        <div id="demo-dp-range">
-                                            <div class="input-daterange input-group" id="datepicker">
-                                                <input type="text" value="<?php echo $m_date; ?>" name="maturity_date" id="maturity_date" class="form-control" />
+                                <div class="cat_block cat_11" style="display:none" data-cat="11">
+                                   <div style="display: block; border: 1px solid #ddd;">
+                                   <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Investment Banking Type </label><br />
+                                                <select class="form-control" name="investment_banking_type">
+                                                    <option value="">Select Banking Type</option>
+                                                    <option value="1" <?php if($investment_banking_type==1){echo "selected='selected'";} ?>>IPO</option>
+                                                    <option value="2" <?php if($investment_banking_type==2){echo "selected='selected'";} ?>>Bridge</option>
+                                                    <option value="3" <?php if($investment_banking_type==3){echo "selected='selected'";} ?>>Reg S</option>
+                                                    <option value="4" <?php if($investment_banking_type==4){echo "selected='selected'";} ?>>Reg D</option>
+                                                    <option value="5" <?php if($investment_banking_type==5){echo "selected='selected'";} ?>>Private Placement</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Type </label><br />
-                                        <select class="form-control" name="type">
-                                            <option value="">Select Type...</option>
-                                            <option value="1" <?php if($type==1){echo "selected='selected'";} ?>>Government Municipal</option>
-                                            <option value="2" <?php if($type==2){echo "selected='selected'";} ?>>Corporate</option>
-                                            <option value="3" <?php if($type==3){echo "selected='selected'";} ?>>Treasury</option>
-                                            <option value="4" <?php if($type==4){echo "selected='selected'";} ?>>Zero Coupon</option>
-                                        </select>
+                                    </div><br />
+                                </div>    
+                          
+                          
+                                <div class="cat_block cat_12" style="display:none" data-cat="12">
+                                   <div style="display: block; border: 1px solid #ddd;">
+                                   <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>RIA Type </label><br />
+                                                <select class="form-control" name="ria_specific_type">
+                                                    <option value="">Select Type</option>
+                                                    <option value="1" <?php if($ria_specific_type==1){echo "selected='selected'";} ?>>Fee Based Mutual Funds</option>
+                                                    <option value="2" <?php if($ria_specific_type==2){echo "selected='selected'";} ?>>Fee Based Stocks, Bonds &amp; Mutual Funds</option>
+                                                    <option value="3" <?php if($ria_specific_type==3){echo "selected='selected'";} ?>>Financial Planning</option>
+                                                    <option value="4" <?php if($ria_specific_type==4){echo "selected='selected'";} ?>>Money Managers</option>
+                                                    <option value="5" <?php if($ria_specific_type==5){echo "selected='selected'";} ?>>Non-Discretionary</option>
+                                                    <option value="6" <?php if($ria_specific_type==6){echo "selected='selected'";} ?>>Socially Screened</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label></label><br />
+                                                <input type="radio"  name="based_type" class="radio"  value="1" style="display: inline;" <?php if($based==1){echo "checked='checked'";}?>/>&nbsp;<label>Asset Based</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio"  name="based_type" class="radio"  value="2" style="display: inline;" <?php if($based==2){echo "checked='checked'";}?>/>&nbsp;<label>Fee Based</label>
+                                            </div>
+                                        </div>
+                                    </div>   
+                                    <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Fee Rate </label><br />
+                                                <input type="text" value="<?php echo $fee_rate; ?>" onblur="round(this.value);"  maxlength="5"   class="form-control" name="fee_rate" id="fee_rate" placeholder="0.00"  />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            </div>
-                            <br /> 
-                           <?php } ?>
-                           <?php if(isset($_GET['category']) && $_GET['category'] == 4){ ?> 
-                           <div style="display: block; border: 1px solid #ddd;">
-                            <div class="row" style="padding: 5px;">
+                                    </div>
+                                    <br />  
+                                 </div>   
                            
-                                <div class="col-md-12">
-                                    <h4><b>Variable Annuities</b></h4><br />
-                                </div>
-                            </div>
-                           <div class="row" style="padding: 5px;">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <input type="radio" class="radio" name="variable_annuities" value="1" style="display: inline;" <?php if($var==1){echo "checked='checked'";}?>/>&nbsp;<label>Single </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          
+                                 <div class="cat_block cat_2 cat_3" style="display:none" data-cat="2,3">
+                                   <div style="display: block; border: 1px solid #ddd;">
+                                   <div class="row" style="padding: 5px;">
+                                        <div class="col-md-12">
+                                            <h4><b>Stocks, Bonds</b></h4><br />
+                                        </div>
+                                   </div>
+                                   
+                                   <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="radio" class="radio" name="stocks_bonds" value="1" style="display: inline;" <?php if($st_bo==1){echo "checked='checked'";}?>/>&nbsp;<label>Listed </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            
+                                                <input type="radio" class="radio" name="stocks_bonds"  value="2" style="display: inline;" <?php if($st_bo==2){echo "checked='checked'";}?>/>&nbsp;<label>OTC </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <br />
+                                </div>    
+                          
+                           
+                                <div class="cat_block cat_3 cat_7 cat_8" style="display:none" data-cat="3,7,8">
+                                   <div style="display: block; border: 1px solid #ddd;">
+                                    <div class="row" style="padding: 5px;">
                                     
-                                        <input type="radio" class="radio" name="variable_annuities"  value="2" style="display: inline;" <?php if($var==2){echo "checked='checked'";}?>/>&nbsp;<label>Recurring </label>
+                                        <div class="col-md-12">
+                                            <h4><b>CDs, UITs, Bonds</b></h4><br />
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            </div>
-                            <br />
-                           <?php } ?>
-                           <?php if(isset($_GET['category']) && ($_GET['category'] == 9 || $_GET['category'] == 10)){ ?>
-                           <div style="display: block; border: 1px solid #ddd;">
-                            <div class="row" style="padding: 5px;">
-                                <div class="col-md-12">
-                                    <h4><b>Partnerships, Alternative Investments, REITs, Agency Tax Credits, Hedge Funds</b></h4><br />
-                                </div>
-                            </div>
-                           
-                            <div class="row" style="padding: 5px;">
-                               <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Registration Type </label><br />
-                                        <select class="form-control" name="registration_type">
-                                            <option value="">Select Registration Type</option>
-                                            <option value="1" <?php if($reg_type==1){echo "selected='selected'";} ?>>Public Real Estate</option>
-                                            <option value="2" <?php if($reg_type==2){echo "selected='selected'";} ?>>Private Real Estate</option>
-                                            <option value="3" <?php if($reg_type==3){echo "selected='selected'";} ?>>Public Oil &amp; Gas</option>
-                                            <option value="4" <?php if($reg_type==4){echo "selected='selected'";} ?>>Private Oil &amp; Gas</option>
-                                            <option value="5" <?php if($reg_type==5){echo "selected='selected'";} ?>>Public Leasing</option>
-                                            <option value="6" <?php if($reg_type==6){echo "selected='selected'";} ?>>Private Leasing</option>
-                                            <option value="7" <?php if($reg_type==7){echo "selected='selected'";} ?>>Public Mortgage</option>
-                                            <option value="8" <?php if($reg_type==8){echo "selected='selected'";} ?>>Private Mortgage</option>
-                                            <option value="9" <?php if($reg_type==9){echo "selected='selected'";} ?>>Public Raw Land</option>
-                                            <option value="10" <?php if($reg_type==10){echo "selected='selected'";} ?>>Private Raw Land</option>
-                                            <option value="11" <?php if($reg_type==11){echo "selected='selected'";} ?>>REIT</option>
-                                            <option value="12" <?php if($reg_type==12){echo "selected='selected'";} ?>>Subsidized Housing</option>
-                                        </select>
+                                   
+                                    <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Maturity Date </label><br />
+                                                <div id="demo-dp-range">
+                                                    <div class="input-daterange input-group" id="datepicker">
+                                                        <input type="text" value="<?php echo $m_date; ?>" name="maturity_date" id="maturity_date" class="form-control" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Type </label><br />
+                                                <select class="form-control" name="type">
+                                                    <option value="">Select Type...</option>
+                                                    <option value="1" <?php if($type==1){echo "selected='selected'";} ?>>Government Municipal</option>
+                                                    <option value="2" <?php if($type==2){echo "selected='selected'";} ?>>Corporate</option>
+                                                    <option value="3" <?php if($type==3){echo "selected='selected'";} ?>>Treasury</option>
+                                                    <option value="4" <?php if($type==4){echo "selected='selected'";} ?>>Zero Coupon</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
+                                    </div>
+                                    <br /> 
+                                </div> 
+                          
+                                <div class="cat_block cat_4" style="display:none" data-cat="4">
+                                   <div style="display: block; border: 1px solid #ddd;">
+                                    <div class="row" style="padding: 5px;">
+                                   
+                                        <div class="col-md-12">
+                                            <h4><b>Variable Annuities</b></h4><br />
+                                        </div>
+                                    </div>
+                                   <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="radio" class="radio" name="variable_annuities" value="1" style="display: inline;" <?php if($var==1){echo "checked='checked'";}?>/>&nbsp;<label>Single </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            
+                                                <input type="radio" class="radio" name="variable_annuities"  value="2" style="display: inline;" <?php if($var==2){echo "checked='checked'";}?>/>&nbsp;<label>Recurring </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <br />
                                 </div>
-                            </div>
-                          </div><br />
-                          <?php } ?>
+                          
+                                <div class="cat_block cat_9 cat_10" style="display:none" data-cat="9,10">
+                                       <div style="display: block; border: 1px solid #ddd;">
+                                        <div class="row" style="padding: 5px;">
+                                            <div class="col-md-12">
+                                                <h4><b>Partnerships, Alternative Investments, REITs, Agency Tax Credits, Hedge Funds</b></h4><br />
+                                            </div>
+                                        </div>
+                                       
+                                        <div class="row" style="padding: 5px;">
+                                           <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Registration Type </label><br />
+                                                    <select class="form-control" name="registration_type">
+                                                        <option value="">Select Registration Type</option>
+                                                        <option value="1" <?php if($reg_type==1){echo "selected='selected'";} ?>>Public Real Estate</option>
+                                                        <option value="2" <?php if($reg_type==2){echo "selected='selected'";} ?>>Private Real Estate</option>
+                                                        <option value="3" <?php if($reg_type==3){echo "selected='selected'";} ?>>Public Oil &amp; Gas</option>
+                                                        <option value="4" <?php if($reg_type==4){echo "selected='selected'";} ?>>Private Oil &amp; Gas</option>
+                                                        <option value="5" <?php if($reg_type==5){echo "selected='selected'";} ?>>Public Leasing</option>
+                                                        <option value="6" <?php if($reg_type==6){echo "selected='selected'";} ?>>Private Leasing</option>
+                                                        <option value="7" <?php if($reg_type==7){echo "selected='selected'";} ?>>Public Mortgage</option>
+                                                        <option value="8" <?php if($reg_type==8){echo "selected='selected'";} ?>>Private Mortgage</option>
+                                                        <option value="9" <?php if($reg_type==9){echo "selected='selected'";} ?>>Public Raw Land</option>
+                                                        <option value="10" <?php if($reg_type==10){echo "selected='selected'";} ?>>Private Raw Land</option>
+                                                        <option value="11" <?php if($reg_type==11){echo "selected='selected'";} ?>>REIT</option>
+                                                        <option value="12" <?php if($reg_type==12){echo "selected='selected'";} ?>>Subsidized Housing</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                      </div><br />
+                                </div>
+                            </div>    
                     </div>  
                     <div class="tab-pane" id="tab_bb"> 
                         <div class="row">
@@ -1434,7 +1482,7 @@ $(document).on('click','.remove-row',function(){
                         { "bSearchable": false, "aTargets": [ 4 ] }]
         });
         
-        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_product&category=<?php echo $category; ?>" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
+        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_product" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
             '<div class="panel-control" style="padding-left:5px;display:inline;">'+
                     '<div class="btn-group dropdown" style="float: right;">'+
                         '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
@@ -1459,6 +1507,11 @@ function set_Category(val){
     var a = document.getElementById("product_category").value;
     // alert(a);
 }
+
+jQuery(function(){
+    console.log("trigger")
+    $("#product_category").trigger("change");
+})
 
 
 
@@ -1536,6 +1589,14 @@ function formsubmit_category()
 }
 </script>
 <script>
+
+    function cateogry_change_event(cat_id){
+        //$('.cat_block').hide();
+        if( $('.cat_'+cat_id).length)
+            $('.cat_'+cat_id).siblings().hide().end().show();
+        else
+            $('.cat_block').hide();
+    }
 function round(feerate)
 {
     if(feerate>100)

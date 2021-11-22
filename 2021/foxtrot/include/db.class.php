@@ -1264,6 +1264,15 @@ class Excel extends db
                         // For set General format data type of cell.
                         $this->objPHPExcel->getActiveSheet()->getStyle($column)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL); // 'General'
                         // Set formatting.
+                        // 11/13/21 There are three choices for Horizontal alignment, so set them!
+                        if (in_array('center',$row_style)) {
+                            $horizontal_alignment = PHPExcel_Style_Alignment::HORIZONTAL_CENTER;
+                        } else if (in_array('right',$row_style)) {
+                            $horizontal_alignment = PHPExcel_Style_Alignment::HORIZONTAL_RIGHT;
+                        } else {
+                            $horizontal_alignment = PHPExcel_Style_Alignment::HORIZONTAL_LEFT;
+                        }
+
                         $styleArray = array(
                             'font' => array(
                                 'bold' => in_array('bold',$row_style)?true:false,
@@ -1273,7 +1282,7 @@ class Excel extends db
                                 'name' => array_key_exists('font_name',$row_style)&&isset($row_style['font_name'])?intval($row_style['font_name'][0]):'Verdana'
                             ),
                             'alignment' => array(
-                                'horizontal' => in_array('center',$row_style)?PHPExcel_Style_Alignment::HORIZONTAL_CENTER:PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+                                'horizontal' => $horizontal_alignment
                             ),
                             'borders' => array(
                                   'allborders' => array(
@@ -1317,11 +1326,11 @@ class Excel extends db
 
                 
                 // Redirect output to a client’s web browser (Excel5)
-               /* header('Content-Type: application/vnd.ms-excel');
+                header('Content-Type: application/vnd.ms-excel');
                 header('Content-Disposition: attachment;filename="'.$properties['excel_name'].'.xls"');
                 header('Cache-Control: max-age=0');
-                // If you're serving to IE 9, then the following may be needed
-                header('Cache-Control: max-age=1');
+                //\*If you're serving to IE 9, then the following may be needed
+                // header('Cache-Control: max-age=1');
                 
                 // If you're serving to IE over SSL, then the following may be needed
                 header ('Expires: Mon, 01 June 2017 01:00:00 GMT'); // Date in the past
@@ -1330,15 +1339,17 @@ class Excel extends db
                 header ('Pragma: public'); // HTTP/1.0*/
                 ob_start();
                 $objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
+                // 11/13/21 Can't find where the buffer is being corrupted, but added this to clear it out before the save('php://output'). [Fixed] the "File & Format don't match ..." error, and blank page output
+                // 11/13/21 Had to do this too - Replaced "continue" in PHPExcel/Shared/OLE.php with "continue 2" line 288. Got a WARNING message in the XL file
+                    ob_end_clean();
                 $objWriter->save('php://output');
                 $xlsData = ob_get_contents();
-                ob_end_clean();
                 $response =  array(
                     'op' => 'ok',
                     'file' => "data:application/vnd.ms-excel;base64,".base64_encode($xlsData)
                 );
 
-die(json_encode($response));
+                //die(json_encode($response));
             }
             catch(Exception $e){
                 echo "<pre>";

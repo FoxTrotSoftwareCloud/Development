@@ -110,7 +110,10 @@
       $open_date = isset($data['open_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['open_date']))):'0000-00-00';
       $naf_date = isset($data['naf_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['naf_date']))):'0000-00-00';
       $last_contacted = isset($data['last_contacted'])?$this->re_db_input(date('Y-m-d',strtotime($data['last_contacted']))):'0000-00-00';
+
+      $objectives = isset($data['objectives'])?($data['objectives']):array();
       //print_r($last_contacted);exit;
+     
       if($lname==''){
 				$this->errors = 'Please enter last name.';
 			}
@@ -122,6 +125,9 @@
 			}
 			else if($naf_date=='' || $naf_date == '0000-00-00'){
 				$this->errors = 'Please enter NAF Date.';
+			}
+			else if(empty($objectives)){
+           $this->errors = 'Please enter Source Objectives.';
 			}
 
 			if($this->errors!=''){
@@ -148,10 +154,18 @@
 					if($id==0){
 						$q = "INSERT INTO `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`mi`='".$mi."',`do_not_contact`='".$do_not_contact."',`active`='".$active."',`ofac_check`='".$ofak_check."',`fincen_check`='".$fincen_check."',`long_name`='".$long_name."',`client_file_number`='".$client_file_number."',`clearing_account`='".$clearing_account."',`client_ssn`='".$client_ssn."',`house_hold`='".$household."',`split_broker`='".$split_broker."',`split_rate`='".$split_rate."',`address1`='".$address1."',`address2`='".$address2."',`city`='".$city."',`state`='".$state."',`zip_code`='".$zip_code."',`citizenship`='".$citizenship."',`birth_date`='".$birth_date."',`date_established`='".$date_established."',`age`='".$age."',`open_date`='".$open_date."',`naf_date`='".$naf_date."',`last_contacted`='".$last_contacted."',`account_type`='".$account_type."',`broker_name`='".$broker_name."',`telephone`='".$telephone."',`contact_status`='".$contact_status."',`reviewed_at`='".$reviewed_at."',`reviewed_by`='".$reviewed_by."',`is_reviewed`='".$is_reviewed."'".$this->insert_common_sql();
 						$res = $this->re_db_query($q);
-                        $_SESSION['client_id'] = $this->re_db_insert_id();
+						            $client_id= $this->re_db_insert_id();
+                        $_SESSION['client_id'] = $client_id;
                         $get_name = $this->get_client_name($_SESSION['client_id']);//print_r($get_name);exit;
                         $_SESSION['client_full_name'] = $get_name[0]['first_name'].' '.$get_name[0]['mi'].'.'.$get_name[0]['last_name'];
+                   
 						if($res){
+               foreach($objectives as $objective){
+               			  $q = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`='".$client_id."',`objectives`='".$objective."'".$this->insert_common_sql();
+               			  	$res = $this->re_db_query($q);   
+               }
+							
+							 
 						    $_SESSION['success'] = INSERT_MESSAGE;
 							return true;
 						}
@@ -172,6 +186,11 @@
                 'birth_date', 'date_established', 'age', 'open_date', 'naf_date', 'last_contacted', 'account_type', 'broker_name', 'telephone', 'contact_status',
                 'reviewed_at', 'reviewed_by', 'is_reviewed', '');
               $this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+
+               $objectiveDbId=$this->updateClientObjectives($id,$objectives);
+
+
+
               $_SESSION['success'] = UPDATE_MESSAGE;
 							return true;
 						}
@@ -187,6 +206,35 @@
 				}
 			}
 		}
+
+		    function updateClientObjectives($client_id,$postObjectives){
+            $return=array();
+			    	$q = "SELECT `o`.objectives
+	    					FROM `".CLIENT_OBJECTIVES."` AS `o`
+	                        
+	                        WHERE `o`.`is_delete`='0' and `o`.`client_id`=".$client_id."
+	                        ORDER BY `o`.`id` ASC";
+	    			$res = $this->re_db_query($q);
+	                if($this->re_db_num_rows($res)>0){
+	                    $a = 0;
+	        			while($row = $this->re_db_fetch_array($res)){
+	        			     array_push($return,$row['objectives']);
+	                         
+	        			}
+	                }
+	              
+	            $deletedRows=array_diff($return,$postObjectives);
+	            $insertRows = array_diff($postObjectives,$return);
+	            foreach($insertRows as $row){
+	            	  $q = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`='".$client_id."',`objectives`='".$row."'".$this->insert_common_sql();
+               			  	$res = $this->re_db_query($q);
+	            }
+	            foreach($deletedRows as $row){
+	            	  $q = "Delete from `".CLIENT_OBJECTIVES."` where  `client_id`='".$client_id."' and `objectives`='".$row."' ";
+               		$res = $this->re_db_query($q);
+	            }
+	            
+		    }
         public function insert_update_employment($data){//echo '<pre>';print_r($data);exit;
 			$id = isset($data['employment_id'])?$this->re_db_input($data['employment_id']):0;
       if ($id > 0)

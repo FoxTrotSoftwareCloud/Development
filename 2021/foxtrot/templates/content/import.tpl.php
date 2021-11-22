@@ -2,6 +2,7 @@
 function GetFileList()
 {
     document.getElementsByName("HTTPDL_result").value="";
+    console.log(HTTPDL,"HTTPDL")
     //HTTPDL_result.value = "";
     HTTPDL.Host = "filetransfer.financialtrans.com";
     HTTPDL.UseProxy = false;
@@ -238,6 +239,11 @@ PostResult( msg );
                                                 $return = $instance->select_current_files();
                                                 foreach($return as $key=>$val){
                                                     $return_file_data_array = $instance->get_file_array($val['id']);
+                                                    $isImportCompleted=$val['processed'] == 1 && $val['process_completed']==1;
+                                                    $isImportArchived= $val['is_archived']==1;
+                                                    $isImportNotStart= $val['processed']==0;
+                                                    $isImportStarted= $val['processed']==1 && $val['process_completed']!=1;
+                                                    //print_r($val);
                                                     $system_id = isset($return_file_data_array[0]['dst_system_id'])?$return_file_data_array[0]['dst_system_id']:'';
                                                     $management_code = isset($return_file_data_array[0]['dst_management_code'])?$return_file_data_array[0]['dst_management_code']:'';
                                                     $sponsor_detail = $instance->get_sponsor_on_system_management_code($system_id,$management_code);
@@ -343,11 +349,11 @@ PostResult( msg );
                                                             <option value="0">Select Option</option>
                                                             <option value="1" >Delete File</option>
                                                             <option value="7" >Preview</option>
-                                                            <option value="2" <?php if(isset($val['processed']) && $val['processed']==0){ echo "selected='selected'";} ?>>Process</option>
-                                                            <option value="3" <?php if(isset($check_exception_data) && $check_exception_data =='0' && isset($check_processed_data) && $check_processed_data == '3'){echo "selected='selected'";} ?> <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
-                                                            <option value="4" <?php if(isset($check_exception_data) && $check_exception_data =='4'){echo "selected='selected'";} ?> <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
-                                                            <option value="5" <?php if(isset($val['processed']) && $val['processed']==0){ echo 'disabled="true"';}else if(isset($check_file_exception_process) && $check_file_exception_process !='0'){echo 'disabled="true"';} ?>>Reprocess</option>
-                                                            <option value="6" <?php if(isset($val['processed']) && $val['processed']==0){ echo 'disabled="true"';}else if(isset($val['process_completed']) && $val['process_completed']==0){ echo 'disabled="true"';}else if(isset($check_file_exception_process) && $check_file_exception_process !='0'){echo 'disabled="true"';}else if(isset($val['process_completed']) && $val['process_completed']==1 && $val['is_archived'] == 0){ echo "selected='selected'";} ?>>Move To Archived</option>
+                                                            <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
+                                                            <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
+                                                            <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
+                                                            <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
+                                                            <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
                                                         </select>
                                                         <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
                                                         <input type="hidden" name="go" value="go" />

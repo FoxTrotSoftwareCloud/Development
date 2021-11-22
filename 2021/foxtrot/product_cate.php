@@ -41,6 +41,7 @@
     $search_text_product = '';
     $search_product_category = '';
     $return_rates = array();
+
     
  
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'select_cat';
@@ -51,7 +52,8 @@
     /*if($redirect=='add_product_from_trans'){
         $_SESSION
     }*/
-    
+
+   
     $instance = new product_maintenance();
     $product_category = $instance->select_category();
     $get_sponsor = $instance->select_sponsor();
@@ -78,7 +80,7 @@
         || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
         || (isset($_POST['submit'])&& $_POST['submit']=='Next'))
     {
-        //echo '<pre>'; print_r($_POST);exit;
+       
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $category = isset($_POST['product_category'])?$instance->re_db_input($_POST['product_category']):'';
         $name = isset($_POST['name'])?$instance->re_db_input($_POST['name']):'';
@@ -115,7 +117,7 @@
         $for_import = isset($_POST['for_import'])?$instance->re_db_input($_POST['for_import']):'false';
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
         
-        $return = $instance->insert_update($_POST,true);
+        $return = $instance->insert_update_product($_POST,true);
         
         if($return===true)
         {
@@ -183,13 +185,16 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
+    else{
+             $error = $return;
+    }
 }
     else if(isset($_POST['submit']) && ($_POST['submit']=='Add Note' || $_POST['submit']=='Update Note')){
         $note_id = isset($_POST['note_id'])?$instance->re_db_input($_POST['note_id']):0;
         $note_date = isset($_POST['note_date'])?$instance->re_db_input($_POST['note_date']):'';
         $note_user = isset($_POST['note_user'])?$instance->re_db_input($_POST['note_user']):'';
         $product_note = isset($_POST['product_note'])?$instance->re_db_input($_POST['product_note']):'';
-        $return = $instance->insert_update($_POST);
+        $return = $instance->insert_update_product($_POST);
         if($return===true){
             echo '1';exit;
         }
@@ -368,6 +373,12 @@
             $return = $instance->select_product_category($category);
         }
         
+    }
+
+    if($action == 'select_cat'){
+            $return =$instance->load_product_list();
+           
+
     }
     $content = "product_cate";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
