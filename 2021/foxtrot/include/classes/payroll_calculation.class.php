@@ -929,7 +929,7 @@ public function insert_update_generic ($table, $data) {
     }
 
 
-    public function select_current_payroll($id) {
+    public function select_current_payroll($id=0) {
         $con = '';
         if ($id > 0){
             $con .= " AND `pcp`.`payroll_id` = '".$id."'";

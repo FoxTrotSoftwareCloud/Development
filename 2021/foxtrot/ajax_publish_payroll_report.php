@@ -118,11 +118,17 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '2'){ ?>
     <div class="col-md-6">
         <div class="form-group">
             <label>Payroll Date </label>
-            <div id="demo-dp-range">
+            <!-- 11/21/21 Removed input box, and replace with a dropdown of available Payroll Dates
+            <!-- <div id="demo-dp-range">
                 <div class="input-daterange input-group" id="datepicker">
                     <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php if(isset($payroll_date) && $payroll_date != ''){ echo $payroll_date;} else {echo date('m/01/Y');} ?>"/>
                 </div>
-            </div>
+            </div> -->
+            <select class="form-control" name="payroll_id">
+                <?php $get_payroll_uploads = $instance->get_payroll_uploads(0,1,1); foreach($get_payroll_uploads as $key=>$val){?>
+                    <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$payroll_id)?'selected':''?> ><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
+                <?php } ?>
+            </select>
         </div>
     </div>
 </div>
@@ -142,7 +148,7 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '2'){ ?>
             <label>Output Destination </label>
             <select class="form-control" name="output">
                 <option value="1">Screen</option>
-                <option value="2">Printer</option>
+                <option value="2">Print Preview</option>
                 <option value="3">Excel</option>
                 <option value="4">PDF</option>
             </select>

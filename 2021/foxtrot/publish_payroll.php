@@ -6,7 +6,10 @@
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     $output = 0;
     $instance = new payroll();
-    $payroll_id = 99999;
+    $payroll_id = $id;
+    if ($payroll_id > 0){
+        $_SESSION['publish_payroll']['payroll_id'] = $payroll_id;
+    }
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
         $data_array = json_encode($_POST);

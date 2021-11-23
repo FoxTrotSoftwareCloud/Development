@@ -18,7 +18,6 @@
         $return = $instance->calculate_payroll(['payroll_date'=>$payroll_date, 'payroll_id'=>$payroll_id],$payroll_date);
         
         if($return===true){
-            // Commented out: Code not functional. Probably a future mod - 11/07/21 li
             header("location:".SITE_URL."publish_payroll.php?action=view&id=$payroll_id");exit;
         }
         else{
