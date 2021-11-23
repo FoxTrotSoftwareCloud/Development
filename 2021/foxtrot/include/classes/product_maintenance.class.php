@@ -3,6 +3,170 @@
 		
 		public $table = PRODUCT_MAINTENANCE;
 		public $errors = '';
+
+
+		public function insert_update_product($data,$isReturn=false){//echo '<pre>';print_r($data);exit;
+            
+			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
+			$category = isset($data['product_category'])?$this->re_db_input($data['product_category']):'';
+            $name = isset($data['name'])?$this->re_db_input($data['name']):'';
+            $sponsor = isset($data['sponsor'])?$this->re_db_input($data['sponsor']):'';
+            $ticker_symbol = isset($data['ticker_symbol'])?$this->re_db_input($data['ticker_symbol']):'';
+            $cusip = isset($data['cusip'])?$this->re_db_input($data['cusip']):'';
+            $security = isset($data['security'])?$this->re_db_input($data['security']):'';
+            $receive = isset($data['allowable_receivable'])?$this->re_db_input($data['allowable_receivable']):'';
+            $income = isset($data['income'])?$this->re_db_input($data['income']):'';
+            $networth = isset($data['networth'])?$this->re_db_input($data['networth']):'';
+            $networthonly = isset($data['networthonly'])?$this->re_db_input($data['networthonly']):'';
+            $minimum_investment = isset($data['minimum_investment'])?$this->re_db_input($data['minimum_investment']):'';
+            $minimum_offer = isset($data['minimum_offer'])?$this->re_db_input($data['minimum_offer']):'';
+            $maximum_offer = isset($data['maximum_offer'])?$this->re_db_input($data['maximum_offer']):'';
+            $objective = isset($data['objectives'])?$this->re_db_input($data['objectives']):'';
+            $non_commissionable = isset($data['non_commissionable'])?$this->re_db_input($data['non_commissionable']):'';
+            $class_type = isset($data['class_type'])?$this->re_db_input($data['class_type']):'';
+            $fund_code = isset($data['fund_code'])?$this->re_db_input($data['fund_code']):'';
+            $sweep_fee = isset($data['sweep_fee'])?$this->re_db_input($data['sweep_fee']):'';
+            $min_threshold = isset($data['min_threshold'])?$data['min_threshold']:array();
+            $max_threshold = isset($data['max_threshold'])?$data['max_threshold']:array();
+            $threshold_id = isset($data['threshold_id'])?$data['threshold_id']:array();
+            $min_rate = isset($data['min_rate'])?$data['min_rate']:array();
+            $max_rate = isset($data['max_rate'])?$data['max_rate']:array();
+            $ria_specific = isset($data['investment_banking_type'])?$this->re_db_input($data['investment_banking_type']):'';
+            $ria_specific_type = isset($data['ria_specific_type'])?$this->re_db_input($data['ria_specific_type']):'';
+            $based = isset($data['based_type'])?$this->re_db_input($data['based_type']):'';
+            $fee_rate = isset($data['fee_rate'])?$this->re_db_input($data['fee_rate']):'';
+            $st_bo = isset($data['stocks_bonds'])?$this->re_db_input($data['stocks_bonds']):'';
+            $m_date = isset($data['maturity_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['maturity_date']))):'';
+            $type = isset($data['type'])?$this->re_db_input($data['type']):'';
+            $var = isset($data['variable_annuities'])?$this->re_db_input($data['variable_annuities']):'';
+            $reg_type = isset($data['registration_type'])?$this->re_db_input($data['registration_type']):'';
+            //for import
+            $for_import = isset($data['for_import'])?$this->re_db_input($data['for_import']):'false';
+            $file_id = isset($data['file_id'])?$this->re_db_input($data['file_id']):'';
+            $temp_data_id = isset($data['temp_data_id'])?$this->re_db_input($data['temp_data_id']):'';
+            
+			
+			if($name==''){
+				$this->errors = 'Please enter product name.';
+			}
+            else if($category==''){
+				$this->errors = 'Please select product category.';
+			}
+			else if($sponsor==''){
+				$this->errors = 'Please select sponsor.';
+			}
+			if($this->errors!=''){
+				return $this->errors;
+			}
+			else{
+				    
+				/* check duplicate record */
+				$con = '';
+				if($id>0){   // update
+					//$con = " AND `id`!='".$id."'";
+
+						$q = "UPDATE `".PRODUCT_LIST."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+			            $res = $this->re_db_query($q);
+                        
+			            
+			            $all_rates_ids=$this->get_product_rates_ids($id);
+			            $delete_rows= array_diff($all_rates_ids,$threshold_id);
+
+
+			            foreach($min_threshold as $key_thres=>$val_thres)
+			            {
+			                if($val_thres != '' && $min_rate[$key_thres]>0)
+			                {
+			                      if(isset($threshold_id[$key_thres])){
+                            		$q = "UPDATE `".PRODUCT_RATES."` SET `product_id`='".$id."',`min_threshold`='".$val_thres."',`max_threshold`='".$max_threshold[$key_thres]."',`min_rate`='".$min_rate[$key_thres]."',`max_rate`='".$max_rate[$key_thres]."'".$this->insert_common_sql()." WHERE `id`='".$threshold_id[$key_thres]."'";
+                                }
+                                else{
+
+                					 $q = "INSERT INTO `".PRODUCT_RATES."` SET `product_id`='".$id."',`min_threshold`='".$val_thres."',`max_threshold`='".$max_threshold[$key_thres]."',`min_rate`='".$min_rate[$key_thres]."',`max_rate`='".$max_rate[$key_thres]."'".$this->insert_common_sql();
+                                }
+                                 $res = $this->re_db_query($q);
+			                }
+			            }
+
+			            if(!empty($delete_rows)){
+			            	 foreach($delete_rows as $row_id){
+			            	 	$q="delete from `".PRODUCT_RATES."` where id='".$row_id."'"; 
+								$res = $this->re_db_query($q);
+			            	 }
+                              
+			            }
+									if($res){
+										//$_SESSION['tran']
+										if($isReturn){
+				                        	$_SESSION['new_product_id']=$id;
+				                        }
+									    $_SESSION['success'] = UPDATE_MESSAGE;
+										return true;
+									}
+									else{
+										$_SESSION['warning'] = UNKWON_ERROR;
+										return false;
+									}
+							
+				}
+				else{ // insert
+                       
+					$q = "INSERT INTO `".PRODUCT_LIST."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->insert_common_sql();
+
+						$res = $this->re_db_query($q);
+                        $last_inserted_id = $this->re_db_insert_id();
+
+                        
+                        foreach($min_threshold as $key_thres=>$val_thres)
+                        {
+                            if($val_thres != '' && $min_rate[$key_thres]>0)
+                            {   
+                				 $q = "INSERT INTO `".PRODUCT_RATES."` SET `product_id`='".$last_inserted_id."',`min_threshold`='".$val_thres."',`max_threshold`='".$max_threshold[$key_thres]."',`min_rate`='".$min_rate[$key_thres]."',`max_rate`='".$max_rate[$key_thres]."'".$this->insert_common_sql();
+                				$res = $this->re_db_query($q);
+                				
+                            }
+                        }
+                        if($for_import == 'true')
+                        {
+                            $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$file_id."' and `temp_data_id`='".$temp_data_id."'";
+                            $res1 = $this->re_db_query($q1);
+                            
+                            $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `CUSIP_number`='".$cusip."' WHERE `file_id`='".$file_id."' and `id`='".$temp_data_id."'";
+                            $res1 = $this->re_db_query($q1);
+                        }
+
+                        
+						if($res){
+							if($isReturn){
+	                        	$_SESSION['new_product_id']=$last_inserted_id;
+	                        }
+						    $_SESSION['success'] = INSERT_MESSAGE;
+							return true;
+						}
+						else{
+							$_SESSION['warning'] = UNKWON_ERROR;
+							return false;
+						}
+
+				}
+			}	
+
+				
+		}
+
+		public function get_product_rates_ids($product_id){
+			$return = array();
+			$q = "SELECT `at`.id
+					FROM `".PRODUCT_RATES."` AS `at`
+                    WHERE `at`.`is_delete`='0' AND `at`.`product_id`='".$product_id."'";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row['id']);
+                }
+            }
+			return $return;
+		}
         
         /**
 		 * @param post array
@@ -116,11 +280,7 @@
 					else if($id>0){
 						$q = "UPDATE `product_category_".$category."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->update_common_sql()." WHERE `id`='".$id."'";
             $res = $this->re_db_query($q);
-//            $fieldsToWatch = array('category', 'name', 'sponsor', 'ticker_symbol', 'cusip', 'security', 'receive', 'income', 'networth',
-//              'networthonly', 'minimum_investment', 'minimum_offer', 'maximum_offer', 'objective', 'non_commissionable', 'class_type', 
-//              'fund_code', 'sweep_fee', 'ria_specific', 'ria_specific_type', 'based', 'fee_rate', 'st_bo', 'm_date', 'type',
-//              'var', 'reg_type');
-//            $this->update_history('product_history_'.$category, $oldInstance, $newInstance, $fieldsToWatch);
+
             
             $q = "UPDATE `product_rates_".$category."` SET `is_delete`='1' WHERE `product_id`='".$id."'";
             $res = $this->re_db_query($q);
@@ -361,7 +521,7 @@
         public function get_product_changes($id,$category){
 			$return = array();
 			$q = "SELECT `at`.*,u.first_name as user_initial
-					FROM `product_history_".$category."` AS `at`
+					FROM `".PRODUCT_HISTORY."` AS `at`
                     LEFT JOIN `".USER_MASTER."` as `u` on `u`.`id`=`at`.`modified_by`
                     WHERE `at`.`is_delete`='0' AND `at`.`product_id`='".$id."'";
 			$res = $this->re_db_query($q);
@@ -491,7 +651,7 @@
 		public function edit_product($id,$category=''){
 			$return = array();
 			$q = "SELECT `at`.*
-					FROM `product_category_".$category."` AS `at`
+					FROM `".PRODUCT_LIST."` AS `at`
                     WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -499,10 +659,12 @@
             }
 			return $return;
 		}
+
+
         public function edit_product_rates($id,$category=''){
 			$return = array();
 			$q = "SELECT `at`.*
-					FROM `product_rates_".$category."` AS `at`
+					FROM `".PRODUCT_RATES."` AS `at`
                     WHERE `at`.`is_delete`='0' AND `at`.`product_id`='".$id."'";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -521,7 +683,7 @@
 			$id = trim($this->re_db_input($id));
 			$status = trim($this->re_db_input($status));
 			if($id>0 && ($status==0 || $status==1) ){
-				$q = "UPDATE `product_category_".$category."` SET `status`='".$status."' WHERE `id`='".$id."'";
+				$q = "UPDATE `".PRODUCT_LIST."` SET `status`='".$status."' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){
 				    $_SESSION['success'] = STATUS_MESSAGE;
@@ -546,7 +708,7 @@
 			$id = trim($this->re_db_input($id));
             $category = trim($this->re_db_input($category));
 			if($id>0 && ($status==0 || $status==1) ){
-				$q = "UPDATE `product_category_".$category."` SET `is_delete`='1' WHERE `id`='".$id."'";
+				$q = "UPDATE `".PRODUCT_LIST."` SET `is_delete`='1' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){
 				    $_SESSION['success'] = DELETE_MESSAGE;
@@ -561,6 +723,28 @@
 			     $_SESSION['warning'] = UNKWON_ERROR;
 				return false;
 			}
+		}
+
+		public function load_product_list(){
+			$return=array();
+			$q = "SELECT `at`.*,pc.type,sp.name as sponsor
+					FROM `".PRODUCT_LIST."` AS `at`
+                    LEFT JOIN `".PRODUCT_TYPE."` as `pc` on `pc`.`id`=`at`.`category`
+                    LEFT JOIN `".SPONSOR_MASTER."` as `sp` on `sp`.`id`=`at`.`sponsor`
+                    WHERE `at`.`is_delete`='0'
+                    ORDER BY `at`.`id` ASC";
+                   
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+                     
+    			}
+            }
+            
+
+			return $return;
 		}
         
         

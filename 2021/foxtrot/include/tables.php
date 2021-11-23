@@ -6,7 +6,12 @@
     define('USER_MENU_RIGHTS','ft_user_menu_rights');
     define('ADMIN_MASTER','admin_master');
     define('ACCOUNT_TYPE','ft_account_type');
-    define('PRODUCT_TYPE','ft_product_type');
+    define('PRODUCT_TYPE','ft_product_categories');
+    define('PRODUCT_LIST','ft_products');
+    define('PRODUCT_RATES','ft_products_rates');
+    define('PRODUCT_HISTORY','ft_products_history');
+    
+    
     define('PAYROLL_TYPE','ft_payroll_master');
     define('CLIENT_MASTER','ft_client_master');
     define('BROKER_MASTER','ft_broker_master');

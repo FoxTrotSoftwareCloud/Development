@@ -34,9 +34,9 @@
         $get_total_commission = $instance->get_total_commission_amount($_GET['id']);
         $total_commission_amount = $get_total_commission;
     }
-
+   
     if(isset($_POST['go'])&& $_POST['go']=='go'){
-
+       
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $process_file = isset($_POST['process_file_'.$id])?$instance->re_db_input($_POST['process_file_'.$id]):'';
         if(isset($process_file) && $process_file == 1)
@@ -44,7 +44,8 @@
             $return = $instance->delete_current_files($id);
         }
         else if(isset($process_file) && $process_file == 2)
-        {
+        {   
+          
             $return = $instance->process_current_files($id);
             if($return == '')
             {
@@ -246,7 +247,7 @@
         }
     }
     else if($action=='view'){
-
+        
         $return = $instance->select_current_files();//echo '<pre>';print_r($return);exit;
     }
 

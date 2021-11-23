@@ -3212,7 +3212,7 @@ var waitingDialog = waitingDialog || (function ($) {
                         <th> Taxable Adjustments</th>
                         <th> Non Taxable Adjustments</th>
                         <th>Gross Commission</th>
-                        <th>Net Production</th>
+                        <th>Net Commission</th>
                         <th class="text-center" colspan="2">ACTION</th>
                     </tr>
                 </thead>

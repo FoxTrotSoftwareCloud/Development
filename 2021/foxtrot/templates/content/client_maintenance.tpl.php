@@ -1,4 +1,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo SITE_PLUGINS; ?>multi-select/css/multi-select.css">
+<script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>multi-select/js/jquery.multi-select.js"></script>
+<style type="text/css">
+    .objectives-wrap{
+        width: 90%;
+    }
+    .ms-elem-selectable span,.ms-elem-selection span{
+        font-size: 16px;
+    }
+    ul.ms-list {
+    margin-top: 10
+px
+;
+}
+</style>
 <script>
 function addMoreDocs(){
     var html = '<div class="row">'+
@@ -71,7 +86,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                               <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="account_no"){ echo "active"; } ?>"><a href="#tab_dd" data-toggle="tab">Account No's</a></li>
                               <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="employment"){ echo "active"; } ?>"><a href="#tab_bb" data-toggle="tab">Employment</a></li>
                               <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="suitability"){ echo "active"; } ?>"><a href="#tab_ff" data-toggle="tab">Suitability</a></li>
-                              <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="objectives"){ echo "active"; } ?>"><a href="<?php echo CURRENT_PAGE; ?>#tab_cc" data-toggle="tab">Objectives</a></li>
+                              <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="objectives"){ echo "active"; } ?>"><a href="<?php echo CURRENT_PAGE; ?>#tab_cc"  data-tab="tab_cc" data-toggle="tab">Objectives</a></li>
                               
                               <!--<li><a href="#tab_ee" data-toggle="tab">Documents</a></li>-->
                                 <div class="btn-group dropdown" style="float: right;">
@@ -578,9 +593,18 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                </div>
                                             <div class="panel-body">
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
+                                                    
+                                                    <select multiple="multiple" data-required="true" id="objectives" name="objectives[]">
+                                                        <?php foreach($get_objectives as $key=>$val):  ?>
+                                                            <option <?php  echo in_array($val['id'], $objectives_check_id) ? "selected='selected'":"";?>  value="<?php echo $val['id'];?>"><?php echo $val['option'];?> </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                               <!--  <div class="col-md-6">
                                                     <div class="form-group">
-                                                       <h4 class="panel-title" style="font-size: 20px;">Source Objectives <a href="#" onclick="send_allobjectives()"><i class="fa fa-angle-double-right"></i></a></h4>
+                                                       <h4 class="panel-title" style="font-size: 20px;">Source Objectives 
+                                                        <a href="#" onclick="send_allobjectives()"><i class="fa fa-angle-double-right"></i></a></h4>
                                                         <?php 
                                                         foreach($get_objectives as $key=>$val){
                                                             ?>
@@ -598,9 +622,9 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                     <div class="form-group">
                                                         <h4 class="panel-title" style="font-size: 20px;"><a href="#" onclick="delete_allobjectives(<?php echo $_SESSION['client_id'];?>)"><i class="fa fa-angle-double-left"></i></a> Selected Objectives</h4>
                                                     </div>
-                                                </div>
+                                                </div> -->
                                             </div>
-                                            <div class="row">
+                                            <!-- <div class="row">
                                                 <div class="col-md-6">
                                                     <div style="display: block; border: 1px solid #ddd;">
                                                         <div class="table-responsive" style="padding: 5px !important;">
@@ -642,16 +666,16 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                     </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             </div>
                                             <div class="panel-overlay">
                                                 <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span><h4 class="panel-overlay-title"></h4><p></p></div>
                                             </div>
-                                            <div class="panel-footer">
+                                            <!-- <div class="panel-footer">
                                                 <div class="selectwrap">
                                                     <a href="<?php echo CURRENT_PAGE;?>" onclick="return waitingDialog.show();"><input type="button" name="complete" value="Complete" /></a>
                                                 </div>
-                                           </div>
+                                           </div> -->
                                         </div>
                                     </div>
                                 
@@ -1542,6 +1566,9 @@ function close_other()
 <script type="text/javascript">
 $(document).ready(function(){
     $('#telephone').mask("(999)-999-9999");
+
+    $("#objectives").multiSelect({ selectableHeader: '<h4 class="panel-title" style="font-size: 20px;">Source Objectives <i class="fa fa-angle-double-right"></i> <span class="text-red">*</span></h4>',
+        selectionHeader: '<h4 class="panel-title" style="font-size: 20px;"><i class="fa fa-angle-double-left"></i> Selected Objectives </h4>',cssClass:"objectives-wrap"});
 });
 $(document).ready(function(){
     $('#telephone_dis').mask("(999)-999-9999");
@@ -1576,7 +1603,7 @@ var waitingDialog = waitingDialog || (function ($) {
             $('[data-required="true"]').each(function(){
            
                 
-                if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
+                if($(this).prop("type") =="text" || $(this).prop("type") =="select-one" ){
                      if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
                          isErrorFound=true;
                          if($(this).next("div").find("a.chosen-single").length){
@@ -1594,13 +1621,33 @@ var waitingDialog = waitingDialog || (function ($) {
                            $(this).removeClass("error");
                     }
                 }
-                console.log("looping",isErrorFound)
+
+                if("select-multiple" == $(this).prop("type")){
+                    console.log($(this).val());
+                    if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0' || $(this).val() == null){
+                         if(!isErrorFound){
+                             $("a[data-tab='tab_cc']").trigger("click");
+                             $('.ms-selectable ul').addClass("error");
+                         }
+                         else{
+                               $('.ms-selectable ul').removeClass("error");
+                         }  
+                          isErrorFound=true;
+                    }
+                    else{
+                            $('.ms-selectable ul').removeClass("error");
+                    }
+                    
+                }
+               
                
                 if($(this).prop("type") =="radio"){
                 }
                     
          });
             console.log("waiting",isErrorFound)
+
+          
             if(isErrorFound)
                 return false;
 			// Assigning defaults
@@ -1720,7 +1767,7 @@ function send_allobjectives()
 }
 function send_objectives(id)
 {
-    $('#message').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+    /*$('#message').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
     var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) 
@@ -1729,7 +1776,7 @@ function send_objectives(id)
             }
         };
         xmlhttp.open("GET", "ajax_objectives.php?objectives="+id, true);
-        xmlhttp.send();
+        xmlhttp.send();*/
 }
 function delete_allobjectives(id)
 {

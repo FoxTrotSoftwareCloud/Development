@@ -73,7 +73,29 @@
                             </div>
                         </div>
                    </div> 
-                   <!--div class="row">
+                   <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Taxable Adjustments </label>
+                                <input type="text" name="taxable_adjustments" id="taxable_adjustments" class="form-control" value="<?php echo $taxable_adjustments;?>" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Non Taxable Adjustments </label>
+                                <input type="text" name="non_taxable_adjustments" id="non_taxable_adjustments" class="form-control" value="<?php echo $non_taxable_adjustments;?>" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Net Commission </label>
+                                <input type="text" name="net_production" id="net_production" class="form-control" value="<?php echo $net_production;?>" />
+                            </div>
+                        </div>
+                    </div>        
+                   <!--<div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Net Commission </label>
