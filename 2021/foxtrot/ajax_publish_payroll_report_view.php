@@ -809,10 +809,13 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
       { 
         $company = isset($filter_array['company'])?$filter_array['company']:0;
         $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
-        $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
+        // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
+        $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+        $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+        $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
         $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
         
-        $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_date,$sort_by,$output_type);
+        $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_id,$sort_by,$output_type);
         
         if($company>0)
         {
@@ -864,6 +867,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 </tr>
                 <tr>
                     <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo $sorted_by;?></td>
+                </tr>
+                <tr>
+                    <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo $payroll_date;?></td>
                 </tr>
          </table>
          <table border="0" cellpadding="1" width="100%">
@@ -1027,8 +1033,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
       { 
         $get_reconci_data = array();
         $product_category = isset($filter_array['product_category'])?$filter_array['product_category']:0;
-        $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
-        $get_reconci_data = $instance_payroll->get_reconciliation_report_data($product_category,$payroll_date);
+        // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
+        $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+        $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+        $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
+        $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
+
+        $get_reconci_data = $instance_payroll->get_reconciliation_report_data($product_category,$payroll_id);
+        
         ?>
          <table border="0" width="100%">
                 <tr>

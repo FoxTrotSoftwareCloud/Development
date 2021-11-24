@@ -1831,37 +1831,55 @@ class payroll extends db{
         }
 		return $return;
 	}
-    public function get_reconciliation_report_data($category='',$payroll_date=''){
+    public function get_reconciliation_report_data($category='', $payroll_id='') {
 		$return = array();
+
         $con='';
         
         if($category>0)
         {
             $con.=" AND `ts`.`product_cate` = ".$category."";
         }
-        if($payroll_date != '')
+        if($payroll_id != '')
         {
-            $con.=" AND `up`.`is_close`='0' AND `up`.`payroll_date` = '".date('Y-m-d',strtotime($payroll_date))."'";
-        }
-        else
-        {
-            $con.=" AND `up`.`is_close`='0' ";
+            $con.=" AND `prm`.`payroll_id` = '".$payroll_id."'";
         }
         
-        $q = "SELECT `up`.*,`rp`.*,`bc`.`id` as batch_number,`bc`.`batch_date` as batch_date,`bc`.`batch_desc` as batch_description,`bc`.`check_amount` as batch_check_amount,`pc`.`type` as product_category,COUNT(`rp`.`trade_number`) as trade_count,SUM(`rp`.`commission_received`) as gross_commission,SUM(`rp`.`commission_paid`) as total_commission,SUM(`rp`.`investment_amount`) as total_investment_amount
-				FROM `".$this->table."` AS `up`,`".PAYROLL_REVIEW_MASTER."` AS `rp`
-                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`id`=`rp`.`trade_number`
-                LEFT JOIN `".BATCH_MASTER."` AS `bc` on `bc`.`id`=`ts`.`batch`
-                LEFT JOIN `".PRODUCT_TYPE."` AS `pc` on `pc`.`id`=`ts`.`product_cate`
-                WHERE `up`.`is_delete`='0' and `rp`.`payroll_id`=`up`.`id` ".$con." group by `bc`.id
-                ";
+        $q = "SELECT 
+                    `bc`.`id` AS `batch_number`,
+                    `bc`.`batch_date` AS `batch_date`,
+                    `bc`.`batch_desc` AS `batch_description`,
+                    `bc`.`check_amount` AS `batch_check_amount`,
+                    `bc`.`commission_amount` AS `batch_commission_amount`,
+                    `bc`.`pro_category`,
+                    `pc`.`type` AS `product_category`,
+                    COUNT(`prm`.`trade_number`) AS `trade_count`,
+                    COUNT(`prm`.`trade_number`) AS `hold_trade_count`,
+                    SUM(`prm`.`commission_received`) AS `gross_commission`,
+                    SUM(`prm`.`commission_received`) AS `total_commission`,
+                    SUM(`prm`.`investment_amount`) AS `total_investment_amount`
+				FROM `".PAYROLL_REVIEW_MASTER."` AS `prm`
+                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` ON `prm`.`trade_number` = `ts`.`id` AND `ts`.`is_delete`=0
+                LEFT JOIN `".BATCH_MASTER."` AS `bc` ON `ts`.`batch`=`bc`.`id` AND `bc`.`is_delete`=0
+                LEFT JOIN `".PRODUCT_TYPE."` AS `pc` ON `bc`.`pro_category`=`pc`.`id` AND `pc`.`is_delete`=0
+                WHERE `prm`.`is_delete`='0' ".$con." 
+                GROUP BY `batch_number`, `batch_date`, `batch_description`, `batch_check_amount`, `batch_commission_amount`, `ts`.`product_cate`, `product_category`
+                ORDER BY `bc`.`pro_category`, `product_category`, `batch_number`
+        ";
 		$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
-            $a = 0;
 			while($row = $this->re_db_fetch_array($res)){
 			     $total_hold_commission = $this->get_hold_commissions_data($row['batch_number']);//print_r($total_hold_commission);exit;
-			     $row['total_hold_commission'] = $total_hold_commission['total_hold_commission'];
-                 $return[$row['product_category']][] = $row;
+                if (count($total_hold_commission)>0) {
+                    $row['total_hold_commission'] = $total_hold_commission['total_hold_commission'];
+                    $row['total_commission'] +=  $total_hold_commission['total_hold_commission'];
+                    $row['hold_trade_count'] = $total_hold_commission['hold_trade_count'];
+                    $row['trade_count'] += $total_hold_commission['hold_trade_count'];
+                } else {
+                    $row['total_hold_commission'] = 0;
+                    $row['hold_trade_count'] = 0;
+                }
+                $return[$row['product_category']][] = $row;
 			}
         }
 		return $return;
@@ -1872,13 +1890,15 @@ class payroll extends db{
         
         if($batch>0)
         {
-            $con.=" AND `ts`.`batch` = ".$batch."";
+            $con.=" AND `ts`.`batch` = '".$batch."'";
         }
         
-        $q = "SELECT SUM(`ts`.`commission_received`) as total_hold_commission
+        $q = "SELECT COUNT(`ts`.`commission_received`) AS hold_trade_count, 
+                     SUM(`ts`.`commission_received`) as total_hold_commission
 				FROM `".TRANSACTION_MASTER."` AS `ts`
                 WHERE `ts`.`is_delete`='0' and `ts`.`hold_commission`='1' ".$con."
-                ";
+                GROUP BY `ts`.`batch`
+        ";
 		$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
             $a = 0;
@@ -1888,56 +1908,78 @@ class payroll extends db{
         }
 		return $return;
 	}
-    public function get_adjustments_report_data($company='',$payroll_date='',$sort_by='',$output_type=''){
+    public function get_adjustments_report_data($company='',$payroll_id=0,$sort_by='',$output_type=''){
 		$return = array();
-        $con='';
-        
-        if($payroll_date != '')
-        {
-            $con.=" AND `up`.`is_close`='0' AND `up`.`payroll_date` = '".date('Y-m-d',strtotime($payroll_date))."'";
+        $con="`adj_cur`.`is_delete`='0'";
+
+        // Query Strings
+        if($payroll_id != 0) {
+            $con.=" AND `adj_cur`.`payroll_id` = '".$payroll_id."'";
         }
-        else
-        {
-            $con.=" AND `up`.`is_close`='0' ";
+
+        if($company>0) {
+            $con .= " AND (`br1`.`company`=$company OR `br2`.`company`=$company OR `br3`.`company`=$company)";
         }
-        if($company>0)
-        {
-            $con.=" AND `ts`.`company` = ".$company."";
+
+        if($output_type==3) {
+            $con.=" AND `adj_cur`.`recurring` = 1";
         }
-        if($output_type==3)
-        {
-            $con.=" AND `pam`.`recurring` = 1";
+
+        // ORDER BY query strings
+        $orderBy = '';
+        if($sort_by == 1) {
+            $orderBy .= "`bm`.`last_name`, `bm`.`first_name`, `bm`.`internal`, `bm`.`id`";
         }
-        if($sort_by == 1)
-        {
-            $con .= " ORDER BY bm.first_name ASC";
+        else if($sort_by == 2) {
+            $orderBy .= "`bm`.`internal`, `bm`.`last_name`, `bm`.`first_name`, `bm`.`id`";
         }
-        else if($sort_by == 2)
-        {
-            $con .= " ORDER BY bm.id ASC";
+        else if($sort_by == 3) {
+            $orderBy .= "`payroll_category`, `adj_cur`.`category`, `bm`.`last_name`, `bm`.`first_name`, `bm`.`internal`, `bm`.`id`";
         }
-        else if($sort_by == 3)
+        else //if($sort_by == 4) 
         {
-            $con .= " ORDER BY pt.type ASC";
-        }
-        else if($sort_by == 4)
-        {
-            $con .= " ORDER BY pa.gl_account ASC";
+            $orderBy .= "`adj_cur`.`gl_account`, `bm`.`last_name`, `bm`.`first_name`, `bm`.`internal`, `bm`.`id`";
         }
         
-        $q = "SELECT `pa`.*,`bm`.`fund`,`pt`.`type` as payroll_category,cm.company_name,bm.first_name as broker_firstname,bm.last_name as broker_lastname,`bm`.`id` as broker_id
-                FROM `".$this->table."` AS `up`,`".PAYROLL_REVIEW_MASTER."` AS `rp`
-				LEFT JOIN `".PAYROLL_BROKERS_ADJUSTMENTS."` AS `pa` on `pa`.`payable_trans_id`=`rp`.`id`
-                LEFT JOIN `".PAYROLL_ADJUSTMENTS_MASTER."` AS `pam` on `pam`.`id`=`pa`.`adjustment_id`
-                LEFT JOIN `".BROKER_MASTER."` AS `bm` on `bm`.`id`=`pa`.`broker_id`
-                LEFT JOIN `".PAYROLL_TYPE."` AS `pt` on `pt`.`id`=`pa`.`category`
-                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`id`=`rp`.`trade_number`
-                LEFT JOIN `".COMPANY_MASTER."` AS `cm` on `cm`.`id`=`ts`.`company`
-                WHERE `up`.`is_delete`='0' AND `pa`.`is_delete`='0' and `rp`.`payroll_id`=`up`.`id` ".$con."
-                ";
-		$res = $this->re_db_query($q);
+        $queryString = 
+                "SELECT 
+                    `adj_cur`.`id`,
+                    `adj_cur`.`broker_id`,
+                    `adj_cur`.`description`,
+                    `adj_cur`.`category` AS `category_id`,
+                    `adj_cur`.`adjustment_amount`,
+                    `adj_cur`.`taxable_adjustment`,
+                    `rt`.`name` AS `recurring_type`,
+                    `pr_tp`.`type` AS `payroll_category`,
+                    `bm`.`first_name` AS `broker_firstname`,
+                    `bm`.`last_name` AS `broker_lastname`,
+                    `bm`.`fund`,
+                    `bm`.`internal`,
+                    `br1`.`name` AS `branch_name1`, `br1`.`company` AS `branch_company1`,
+                    `br2`.`name` AS `branch_name2`, `br2`.`company` AS `branch_company2`,
+                    `br3`.`name` AS `branch_name3`, `br3`.`company` AS `branch_company3`,
+                    CASE WHEN `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0 THEN `co1`.`company_name`
+                         WHEN `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0 THEN `co2`.`company_name`
+                         WHEN `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0 THEN `co3`.`company_name`
+                         ELSE '* No Company *'
+                         END AS `company_name`
+                FROM `".PAYROLL_ADJUSTMENTS_CURRENT."` AS `adj_cur`
+                LEFT JOIN `".RECURRING_TYPE_MASTER."` AS `rt` ON `adj_cur`.`recurring_type`=`rt`.`id` AND `rt`.`is_delete`='0'
+                LEFT JOIN `".PAYROLL_TYPE."` AS `pr_tp` ON `adj_cur`.`category`=`pr_tp`.`id` AND `pr_tp`.`is_delete`='0'
+                LEFT JOIN `".BROKER_MASTER."` AS `bm` ON `adj_cur`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`='0'
+                LEFT JOIN `".BROKER_BRANCHES."` AS `repbr` ON `adj_cur`.`broker_id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'
+                LEFT JOIN `".BRANCH_MASTER."` AS `br1` ON `br1`.`id`=`repbr`.`branch1` AND `br1`.`is_delete`=0
+                LEFT JOIN `".BRANCH_MASTER."` AS `br2` ON `br2`.`id`=`repbr`.`branch2` AND `br2`.`is_delete`=0
+                LEFT JOIN `".BRANCH_MASTER."` AS `br3` ON `br3`.`id`=`repbr`.`branch3` AND `br3`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co1` ON `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co2` ON `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co3` ON `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0
+                WHERE ".$con."
+                ORDER BY ".$orderBy."
+        ";
+
+		$res = $this->re_db_query($queryString);
         if($this->re_db_num_rows($res)>0){
-            $a = 0;
 			while($row = $this->re_db_fetch_array($res)){
 			     $return['company_name']=$row['company_name'];
 			     $return['data'][$row['broker_id'].' - '.$row['broker_firstname'].', '.$row['broker_lastname']][] = $row;

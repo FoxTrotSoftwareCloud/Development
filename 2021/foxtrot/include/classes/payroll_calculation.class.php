@@ -229,7 +229,7 @@ class payroll_calculation extends payroll {
         }
         return $overRateTotal;
     }
-    /** Process the adjustments for payout to the brokers
+    /* Process the adjustments for payout to the brokers
      * @param mixed $payroll_date 
      * @return array 
     */

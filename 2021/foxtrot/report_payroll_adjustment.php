@@ -22,10 +22,13 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
-    $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
+    // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
+    $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+    $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+    $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
     $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
     
-    $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_date,$sort_by,$output_type);
+    $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_id,$sort_by,$output_type);
 }
 if($company>0)
 {
@@ -80,12 +83,15 @@ else
                 }
                 $html.='</tr>';
                 $html.='<tr>
-                        <td width="100%" style="font-size:14px;font-weight:bold;text-align:center;">COMMISSION ADJUSTMENT LOG</td>
+                            <td width="100%" style="font-size:14px;font-weight:bold;text-align:center;">COMMISSION ADJUSTMENT LOG</td>
                         </tr>';
-                $html.='<tr>';
-                    $html.='<td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$sorted_by.'</td>';
-                $html .='</tr>
-        </table>';
+                $html.='<tr>
+                            <td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$sorted_by.'</td>
+                        </tr>';
+                $html.='<tr>
+                            <td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$payroll_date.'</td>
+                        </tr>
+            </table>';
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(2);
     

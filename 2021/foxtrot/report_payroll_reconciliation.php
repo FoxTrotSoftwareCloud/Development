@@ -16,8 +16,13 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
     $filter_array = json_decode($_GET['filter'],true);
     $product_category = isset($filter_array['product_category'])?$filter_array['product_category']:0;
-    $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
-    $get_reconci_data = $instance_payroll->get_reconciliation_report_data($product_category,$payroll_date);//echo '<pre>';print_r($get_reconci_data);exit;
+    // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
+    $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+    $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+    $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
+    $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
+
+    $get_reconci_data = $instance_payroll->get_reconciliation_report_data($product_category,$payroll_id);
 }
 ?>
 <?php
@@ -45,6 +50,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 $html.='</tr>
                 <tr>';
                     $html .='<td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">ALL BATCH GROUPS</td>';
+                $html .='</tr>';
+                $html .='<tr>';
+                $html .='   <td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$payroll_date.'</td>';
                 $html .='</tr>
         </table>';
     $pdf->writeHTML($html, false, 0, false, 0);
