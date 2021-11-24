@@ -1,6 +1,6 @@
 <?php
     @session_start();
-    date_default_timezone_set ("Asia/Calcutta");
+    date_default_timezone_set ("America/Los_Angeles");
     ini_set('display_errors',1);
     define('HTTP_HOST','http://'.$_SERVER['HTTP_HOST'].'/');
 	// Changed to dynamically find the local path - 11/04/21

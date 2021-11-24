@@ -229,7 +229,7 @@ class payroll_calculation extends payroll {
         }
         return $overRateTotal;
     }
-    /** Process the adjustments for payout to the brokers
+    /* Process the adjustments for payout to the brokers
      * @param mixed $payroll_date 
      * @return array 
     */
@@ -929,10 +929,15 @@ public function insert_update_generic ($table, $data) {
     }
 
 
-    public function select_current_payroll() {
+    public function select_current_payroll($id=0) {
+        $con = '';
+        if ($id > 0){
+            $con .= " AND `pcp`.`payroll_id` = '".$id."'";
+        }
+
         $q = "SELECT *
                 FROM `" .PAYROLL_CURRENT_PAYROLL. "` `pcp`
-                WHERE `pcp`.`is_delete`='0' 
+                WHERE `pcp`.`is_delete`='0' ".$con." 
         ";
 
         $res = $this->re_db_query($q);

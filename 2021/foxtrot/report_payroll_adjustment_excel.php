@@ -25,10 +25,13 @@
         $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
         $company = isset($filter_array['company'])?$filter_array['company']:0;
         $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
-        $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
+        // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
+        $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+        $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+        $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
         $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
         
-        $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_date,$sort_by,$output_type);
+        $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_id,$sort_by,$output_type);
     }
     if($company>0)
     {
@@ -71,7 +74,7 @@
     $default_open_sub_sheet = 0; // 0 means first indexed sub sheets.
     $excel_name             = 'Foxtrot Payroll Adjustments Log Report';
     $sheet_data             = array();
-    $i=5;
+    $i=6;
         
             
     // Set output excel array.
@@ -88,14 +91,15 @@
                 
                 'A2'=>array('COMMISSION ADJUSTMENT LOG',array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('A2','H3'))),
                 'A4'=>array($sorted_by,array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A4','H4'))),
-                'A5'=>array('ADJUST#',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-                'B5'=>array('REP#',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-                'C5'=>array('CLEAR NUMBER',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-                'D5'=>array('DESCRIPTION',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-                'E5'=>array('CATEGORY',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-                'F5'=>array('TAXABLE AMOUNT',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-                'G5'=>array('NON TAXABLE AMOUNT',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-                'H5'=>array('ADVANCE',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+                'A5'=>array($payroll_date,array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A5','H5'))),
+                'A6'=>array('ADJUST#',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+                'B6'=>array('REP#',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+                'C6'=>array('CLEAR NUMBER',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+                'D6'=>array('DESCRIPTION',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+                'E6'=>array('CATEGORY',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+                'F6'=>array('TAXABLE AMOUNT',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+                'G6'=>array('NON TAXABLE AMOUNT',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+                'H6'=>array('ADVANCE',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
             )
         );
     }
@@ -159,11 +163,11 @@
                     $sheet_data[0]['A'.$i] = array($instance->re_db_output($adj_sub_data['id']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                     $sheet_data[0]['B'.$i] = array($instance->re_db_output($adj_sub_data['broker_id']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                     $sheet_data[0]['C'.$i] = array($instance->re_db_output($adj_sub_data['fund']),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                    $sheet_data[0]['D'.$i] = array($instance->re_db_output($adj_sub_data['description']),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                    $sheet_data[0]['E'.$i] = array($instance->re_db_output($adj_sub_data['payroll_category']),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                    $sheet_data[0]['F'.$i] = array($instance->re_db_output(number_format($taxable_adjustments,2)),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                    $sheet_data[0]['G'.$i] = array($instance->re_db_output(number_format($non_taxable_adjustments,2)),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                    $sheet_data[0]['H'.$i] = array($instance->re_db_output(number_format($advance,2)),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                    $sheet_data[0]['D'.$i] = array($instance->re_db_output($adj_sub_data['description']),array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                    $sheet_data[0]['E'.$i] = array($instance->re_db_output($adj_sub_data['payroll_category']),array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                    $sheet_data[0]['F'.$i] = array($instance->re_db_output('$'.number_format($taxable_adjustments,2)),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                    $sheet_data[0]['G'.$i] = array($instance->re_db_output('$'.number_format($non_taxable_adjustments,2)),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                    $sheet_data[0]['H'.$i] = array($instance->re_db_output('$'.number_format($advance,2)),array('right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                 }$i++;
                 $report_taxable_adjustments = $report_taxable_adjustments+$broker_taxable_adjustments;
                 $report_non_taxable_adjustments = $report_non_taxable_adjustments+$broker_non_taxable_adjustments;

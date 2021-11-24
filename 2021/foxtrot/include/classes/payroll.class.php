@@ -71,18 +71,28 @@ class payroll extends db{
 		}
 	}
     public function upload_payroll($data){
-            
 		$payroll_date = isset($data['payroll_date'])?$this->re_db_input($data['payroll_date']):'';
 		$clearing_business_cutoff_date = isset($data['clearing_business_cutoff_date'])?$this->re_db_input($data['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($data['direct_business_cutoff_date'])?$this->re_db_input($data['direct_business_cutoff_date']):'';
-        
         	
-        if($clearing_business_cutoff_date ==''){
-			$this->errors = 'Please select clearing business cutoff date.';
-		}
-        else if($direct_business_cutoff_date ==''){
-			$this->errors = 'Please select direct business cutoff date.';
-		}
+        if($payroll_date == ''){
+            $this->errors = 'Please enter a payroll date.';
+        } else if($clearing_business_cutoff_date ==''){
+            $this->errors = 'Please select clearing business cutoff date.';
+		} else if($direct_business_cutoff_date ==''){
+            $this->errors = 'Please select direct business cutoff date.';
+		} else {
+            // 11/17/21 Check for an open payroll date -> prompt if the user wants to assign trades to the existing payroll, else exit
+            $payroll = $this->get_payroll_uploads(0,1,0,$payroll_date);
+
+            if (!empty($payroll)) {
+                if ($data['duplicate_payroll_proceed'] !="true") {
+                    $this->errors = 'Payroll Date already exists: '.date('m/d/Y', strtotime($payroll['payroll_date']));
+                    $_SESSION['upload_payroll']['duplicate_payroll'] = true;
+                }
+            }
+        }
+
         if($this->errors!=''){
 			return $this->errors;
 		}
@@ -92,22 +102,34 @@ class payroll extends db{
 			$res = $this->re_db_query($q);
 			$return = $this->re_db_num_rows($res);
 			if($return>0){
-				$this->errors = 'Payroll data already exist,Please clear current payroll !';
+				$this->errors = 'Payroll data already exist. Please close current payroll !';
 			}
 			if($this->errors!=''){
 				return $this->errors;
 			}
-		    else
+		    else 
             {*/        
-                $q = "INSERT INTO ".$this->table." 
-                        SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',
-                            `clearing_business_cutoff_date`='".date('Y-m-d',strtotime($clearing_business_cutoff_date))."',
-                            `direct_business_cutoff_date`='".date('Y-m-d',strtotime($direct_business_cutoff_date))."'".
-                            $this->insert_common_sql();
-    			$res = $this->re_db_query($q);
-                $last_inserted_id = $this->re_db_insert_id();
+                if ($data['duplicate_payroll_proceed']=="true") {
+                    $last_inserted_id = $payroll['id'];
+
+                    $q = "UPDATE ".$this->table." 
+                            SET `clearing_business_cutoff_date`='".date('Y-m-d',strtotime($clearing_business_cutoff_date))."',
+                                `direct_business_cutoff_date`='".date('Y-m-d',strtotime($direct_business_cutoff_date))."'" 
+                                .$this->update_common_sql()."
+                            WHERE id = '".$last_inserted_id."'
+                    ";
+                    $res = $this->re_db_query($q);
+                } else {
+                    $q = "INSERT INTO ".$this->table." 
+                            SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',
+                                `clearing_business_cutoff_date`='".date('Y-m-d',strtotime($clearing_business_cutoff_date))."',
+                                `direct_business_cutoff_date`='".date('Y-m-d',strtotime($direct_business_cutoff_date))."'".
+                                $this->insert_common_sql();
+                    $res = $this->re_db_query($q);
+                    $last_inserted_id = $this->re_db_insert_id();
+                }
                 
-                $trades_array = $this->select_trades($direct_business_cutoff_date);
+                $trades_array = $this->select_trades($direct_business_cutoff_date,1);
                 foreach($trades_array as $key=>$val)
                 {
                     $q = "INSERT INTO ".PAYROLL_REVIEW_MASTER." SET `payroll_id`='".$last_inserted_id."',`trade_number`='".$val['id']."',`trade_date`='".$val['trade_date']."' ,`product`='".$val['product']."',`product_category`='".$val['product_cate']."',`client_account_number`='".$val['client_number']."',`client_name`='".$val['client_name']."',`broker_id`='".$val['broker_name']."',`quantity`='".$val['units']."',`price`='".$val['shares']."',`investment_amount`='".$val['invest_amount']."',`commission_expired`='',`charge`='".$val['charge_amount']."',`date_received`='".date('Y-m-d',strtotime($val['commission_received_date']))."',`commission_received`='".$val['commission_received']."',`buy_sell`='".$val['buy_sell']."',`hold`='".$val['hold_commission']."',`hold_reason`='".$val['hold_resoan']."',`is_split`='".$val['split']."',`cancel`='".$val['cancel']."',`branch`='".$val['branch']."'".$this->insert_common_sql();
@@ -117,6 +139,18 @@ class payroll extends db{
     				$res = $this->re_db_query($q);
                 }
                 $total_trades = count($trades_array);
+
+                $trades_array = $this->select_trades($clearing_business_cutoff_date,2);
+                foreach($trades_array as $key=>$val)
+                {
+                    $q = "INSERT INTO ".PAYROLL_REVIEW_MASTER." SET `payroll_id`='".$last_inserted_id."',`trade_number`='".$val['id']."',`trade_date`='".$val['trade_date']."' ,`product`='".$val['product']."',`product_category`='".$val['product_cate']."',`client_account_number`='".$val['client_number']."',`client_name`='".$val['client_name']."',`broker_id`='".$val['broker_name']."',`quantity`='".$val['units']."',`price`='".$val['shares']."',`investment_amount`='".$val['invest_amount']."',`commission_expired`='',`charge`='".$val['charge_amount']."',`date_received`='".date('Y-m-d',strtotime($val['commission_received_date']))."',`commission_received`='".$val['commission_received']."',`buy_sell`='".$val['buy_sell']."',`hold`='".$val['hold_commission']."',`hold_reason`='".$val['hold_resoan']."',`is_split`='".$val['split']."',`cancel`='".$val['cancel']."',`branch`='".$val['branch']."'".$this->insert_common_sql();
+    				$res = $this->re_db_query($q);
+                    
+                    $q = "UPDATE ".TRANSACTION_MASTER." SET `is_payroll`='1',`payroll_id`='".$last_inserted_id."' ".$this->update_common_sql()." WHERE `id`='".$val['id']."'";
+    				$res = $this->re_db_query($q);
+                }
+                $total_trades += count($trades_array);
+
                 if($res){
                     if($total_trades>0)
                     {
@@ -135,34 +169,50 @@ class payroll extends db{
             //}
         }
 	}
-    public function reverse_payroll(){
-            
-		$payroll_transactions_array = $this->select_payroll_transactions();
-        if(count($payroll_transactions_array)<=0)
-        {
+    public function reverse_payroll($data=''){
+        $uploaded_payrolls = $this->get_payroll_uploads(0,1);
+        if (count($uploaded_payrolls) > 1 AND is_array($uploaded_payrolls[0])) {
+            if (!isset($data['payroll_date']) OR empty($data['payroll_date'])) {
+                $this->errors = 'More than one open payroll. Please specify a Payroll Date.';
+                return $this->errors;
+            } else {
+                $uploaded_payrolls = $this->get_payroll_uploads(0,1,0,date('Y-m-d', strtotime($data['payroll_date'])));
+            }
+        }
+
+        if (empty($uploaded_payrolls)) {
             $this->errors = 'Payroll data does not exist!';
 		}
         if($this->errors!=''){
-			return $this->errors;
+            return $this->errors;
 		}
         else
         {
+            // Flag PAYROLL_UPLOAD & Master Payroll records as deleted
+            $q = "UPDATE ".$this->table." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `id`='".$uploaded_payrolls['id']."'";
+            $res = $this->re_db_query($q);
+        
+            $q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `payroll_id`='".$uploaded_payrolls['id']."'";
+            $res = $this->re_db_query($q);
+            
+            // Flag Transaction Master records as reversed - maintain "payroll_id" if the reversal needs reversing
+            $payroll_transactions_array = $this->select_payroll_transactions($uploaded_payrolls['id']);
             foreach($payroll_transactions_array as $key=>$val)
             {
                 $q = "UPDATE ".TRANSACTION_MASTER." SET `is_payroll`='0',`is_reverse`='1',`payroll_id`='".$val['payroll_id']."' ".$this->update_common_sql()." WHERE `id`='".$val['trade_number']."'";
     		    $res = $this->re_db_query($q);
-                
-                $q = "UPDATE ".$this->table." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `id`='".$val['payroll_id']."'";
-        		$res = $this->re_db_query($q);
-                
-                $q = "UPDATE ".PAYROLL_REVIEW_MASTER." SET `is_delete`='1' ".$this->update_common_sql()." WHERE `payroll_id`='".$val['payroll_id']."'";
-        		$res = $this->re_db_query($q);
             }
+            // Remove the orphaned payroll data created during Payroll Calculation
+            $payCalcClass = new payroll_calculation();
+            $payCalcClass->clearCurrentPayroll($uploaded_payrolls['id']);
+            $payCalcClass->clearSplitRates($uploaded_payrolls['id']);
+            $payCalcClass->clearOverrides($uploaded_payrolls['id']);
+            $payCalcClass->clearCurrentAdjustments($uploaded_payrolls['id']);
+
             if($res){
         	    $_SESSION['success'] = 'Payroll reversed successfully.';
         		return true;
-        	}
-        	else{
+        	} else {
         		$_SESSION['warning'] = UNKWON_ERROR;
         		return false;
         	}
@@ -174,10 +224,10 @@ class payroll extends db{
      * - Updates the checks table ()
      * - called from calculate_payrolls.php
      * @param mixed $data 
-     * @return bool 
+     * @return bool calculate_payroll(
      * 8/30/21 Gutting the code to get Fixed Rates to run - li
      */
-    public function calculate_payroll($data, $payroll_date=''){
+    public function calculate_payroll ($data, $payroll_date=''){
         $calculate = new payroll_calculation();
         
         if (isset($data['payroll_id'])) {
@@ -231,55 +281,163 @@ class payroll extends db{
         return true;
     }
 
-    public function payroll_close(){
+    public function payroll_close($payroll_id = 0){
+        $uploaded_payroll = $this->get_payroll_uploads($payroll_id);
+        
+        if (empty($uploaded_payroll)) {
+            $this->errors = 'Payroll ID does not exist.';
+		}
 
-		$q = "UPDATE `".PAYROLL_UPLOAD."` SET `is_close`='1' WHERE `is_close`='0' and `is_calculate`='1' ";
-		$res = $this->re_db_query($q);
-        
-        
-        $get_prior_payrolls = $this->get_brokers_payroll();
-        if(count($get_prior_payrolls)>0)
-        {
-            foreach($get_prior_payrolls as $key_prior_payrolls=>$val_prior_payrolls)
+        if ($this->errors!=''){
+            return $this->errors;
+		} else {
+            
+            // 11/20/21 Prior Payroll table - update from the new fields in CURRENT_PAYROLL table
+            $payroll_date = $uploaded_payroll['payroll_date'];
+            $payCalcClass = new payroll_calculation();
+            $get_current_payroll = $payCalcClass->select_current_payroll($payroll_id);
+
+            if(count($get_current_payroll)>0)
             {
-                $broker = $val_prior_payrolls['broker_name'];
-                $instance_broker = new broker_master();
-                $get_broker_data = $instance_broker->edit($broker);
-                
-                $q = "UPDATE ".PRIOR_PAYROLL_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
-                $res = $this->re_db_query($q);
-                
-                $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".$val_prior_payrolls['payroll_date']."',`broker_id`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`gross_production`='".$val_prior_payrolls['gross_commissions']."',`check_amount`='".$val_prior_payrolls['prior_check_amounts']."' ".$this->insert_common_sql();
-                $res = $this->re_db_query($q);
-            }
-        }
-        $get_broker_balance = $this->get_brokers_balance();
-        if(count($get_broker_balance)>0)
-        {
-            foreach($get_broker_balance as $key_balance=>$val_balance)
-            {
-                $broker = $val_balance['broker_name'];
-                $instance_broker = new broker_master();
-                $get_broker_data = $instance_broker->edit($broker);
-                
-                $q = "UPDATE ".BROKER_BALANCES_MASTER." SET `is_delete`='1'".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
-                $res = $this->re_db_query($q);
-                
-                $q = "INSERT INTO ".BROKER_BALANCES_MASTER." SET `broker_number`='".$get_broker_data['id']."',`broker_id`='".$get_broker_data['id']."',`clearing_number`='".$get_broker_data['fund']."',`balance_amount`='".$val_balance['broker_balance_amounts']."' ".$this->insert_common_sql();
-                $res = $this->re_db_query($q);
-                
-            }
-        }
-        if($res){
-		    $_SESSION['success'] = "Payroll closed successfully";
-			return true;
-		}
-		else{
-		    $_SESSION['warning'] = UNKWON_ERROR;
-			return false;
-		}
-    	
+                foreach($get_current_payroll as $key_current_payroll=>$val_current_payroll)
+                {
+                    $broker_id = $val_current_payroll['broker_id'];
+                    $instance_broker = new broker_master();
+                    $get_broker_data = $instance_broker->edit($broker_id);
+                                    
+                    $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." 
+                            SET 
+                                `payroll_id`='".$val_current_payroll['payroll_id']."',
+                                `payroll_date`='".$payroll_date."',
+                                `current_payroll_id`='".$val_current_payroll['id']."',
+                                `broker_id`='".$broker_id."',
+                                `branch`='".$val_current_payroll['branch']."',
+                                `clearing_number`='".$get_broker_data['fund']."',
+                                `gross_production`='".$val_current_payroll['commission_received']."',
+                                `check_amount`='".$val_current_payroll['check_amount']."',
+                                `minimum_check_amount`='".$val_current_payroll['minimum_check_amount']."',
+                                `finra`='".$val_current_payroll['finra']."',
+                                `sipc`='".$val_current_payroll['sipc']."',
+                                `sipc_gross`='".$val_current_payroll['sipc_gross']."',
+                                `net_production`='".$val_current_payroll['commission_paid']."',
+                                `adjustments`='".$val_current_payroll['adjustments']."',
+                                `taxable_adjustments`='".$val_current_payroll['taxable_adjustments']."',
+                                `non-taxable_adjustments`='".$val_current_payroll['non-taxable_adjustments']."',
+                                `net_earnings`='".$val_current_payroll['check_amount']."',
+                                `check_number`='".$val_current_payroll['check_number']."',
+                                `charge`='".$val_current_payroll['charge']."',
+                                `commission_received`='".$val_current_payroll['commission_received']."',
+                                `commission_paid`='".$val_current_payroll['commission_paid']."',
+                                `is_split`='".$val_current_payroll['is_split']."',
+                                `split_charge`='".$val_current_payroll['split_charge']."',
+                                `split_rate`='".$val_current_payroll['split_rate']."',
+                                `split_gross`='".$val_current_payroll['split_gross']."',
+                                `split_paid`='".$val_current_payroll['split_paid']."',
+                                `override_rate`='".$val_current_payroll['override_rate']."',
+                                `override_paid`='".$val_current_payroll['override_paid']."',
+                                `balance`='".$val_current_payroll['balance']."'
+                                ".$this->insert_common_sql()
+                    ;
+                    $res = $this->re_db_query($q);
+                    $prior_payroll_id = $this->re_db_insert_id();
+
+                    // PRIOR PERIOD BALANCES
+                    $q = "UPDATE ".BROKER_BALANCES_MASTER." 
+                            SET `is_delete`='1'
+                                ".$this->update_common_sql()." 
+                            WHERE `is_delete`=0 AND `broker_id`='".$broker_id."'";
+                    $res = $this->re_db_query($q);
+
+                    if ($val_current_payroll['check_amount'] < $val_current_payroll['minimum_check_amount']) {
+                        $q = "INSERT INTO ".BROKER_BALANCES_MASTER." 
+                                SET `payroll_id`='".$val_current_payroll['payroll_id']."',
+                                    `current_payroll_id`='".$val_current_payroll['id']."',
+                                    `prior_payroll_id`='".$prior_payroll_id."',
+                                    `payroll_date`='".$payroll_date."',
+                                    `broker_id`='".$broker_id."',
+                                    `clearing_number`='".$get_broker_data['fund']."',
+                                    `balance_amount`='".$val_current_payroll['check_amount']."' 
+                                    ".$this->insert_common_sql()
+                        ;
+                        $res = $this->re_db_query($q);
+                    }
+                    // CURRENT PAYROLL records
+                    $q = "UPDATE `".PAYROLL_CURRENT_PAYROLL."`
+                            SET `is_delete`='1',
+                                `status` = '2' 
+                                ".$this->update_common_sql()."
+                            WHERE `is_delete`=0 AND `status`='0' AND `id`='".$val_current_payroll['id']."'"
+                    ;
+                    $res = $this->re_db_query($q);
     }
+            }
+            
+            $q = "UPDATE `".PAYROLL_UPLOAD."`
+                    SET `is_close`='1' 
+                        ".$this->update_common_sql()."
+                    WHERE `is_delete`=0 AND `is_close`='0' AND `id`='".$uploaded_payroll['id']."'"
+            ;
+            $res = $this->re_db_query($q);
+
+            if($res){
+                $_SESSION['success'] = "Payroll closed successfully";
+                return true;
+            }
+            else{
+                $_SESSION['warning'] = UNKWON_ERROR;
+                return false;
+            }
+        }
+    }
+
+    function reverse_close ($payroll_id=0) {
+        $thisPayrollClass = new payroll();
+        $uploaded_payroll = $thisPayrollClass->get_payroll_uploads($payroll_id);
+        
+        if (empty($uploaded_payroll)) {
+            echo "<h2>Payroll #$payroll_id doesn't exist.</h2>";
+		// } else if ($uploaded_payroll['is_close']==0){
+        //     echo "<h2>Payroll #$payroll_id not closed.</h2>";
+        } else {
+            // 11/20/21 Prior Payroll table - update from the new fields in CURRENT_PAYROLL table
+            $payroll_date = $uploaded_payroll['payroll_date'];
+            $payCalcClass = new payroll_calculation();
+
+            // UNCLOSE AND/OR UNDELETE Tables
+            $q = "UPDATE `".PAYROLL_UPLOAD."`
+                    SET `is_close`='0' 
+                        ".$thisPayrollClass->update_common_sql()."
+                    WHERE `is_delete`=0 AND `is_close`='1' AND `id`='".$uploaded_payroll['id']."'"
+            ;
+            $res = $thisPayrollClass->re_db_query($q);
+
+            $q = "UPDATE `".PAYROLL_CURRENT_PAYROLL."`
+                    SET `is_delete`='0',
+                        `status` = '1' 
+                        ".$thisPayrollClass->update_common_sql()."
+                    WHERE `is_delete`=1 AND `status`=2 AND `payroll_id`='".$uploaded_payroll['id']."'"
+            ;
+            $res = $thisPayrollClass->re_db_query($q);
+
+            // DELETE DATA FOR THE TABLES BELOW
+            $q = "UPDATE ".BROKER_BALANCES_MASTER." 
+                SET `is_delete`='1',
+                    `status`=-1
+                    ".$thisPayrollClass->update_common_sql()."
+                WHERE `is_delete`=0 AND `status`>-1 AND `payroll_id`='".$uploaded_payroll['id']."'"
+            ;
+            $res = $thisPayrollClass->re_db_query($q);
+
+            $q = "UPDATE `".PRIOR_PAYROLL_MASTER."` 
+                    SET `is_delete`='1',
+                        `status`=-1 
+                        ".$thisPayrollClass->update_common_sql()."
+                    WHERE `is_delete`=0 AND `status`>-1 AND `payroll_id`='".$uploaded_payroll['id']."'"
+            ;
+            $res = $thisPayrollClass->re_db_query($q);
+        }
+    }
+
     public function insert_update_adjustment_master($data){
             
 		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
@@ -555,12 +713,24 @@ class payroll extends db{
         $net_production = isset($data['net_production'])?$this->re_db_input($data['net_production']):'';
         $adjustments = isset($data['adjustments'])?$this->re_db_input($data['adjustments']):'';
         $net_earnings = isset($data['net_earnings'])?$this->re_db_input($data['net_earnings']):'';
-        $taxable_adjustments = isset($data['taxable_adjustments'])?$this->re_db_input($data['taxable_adjustments']):'';
-        $non_taxable_adjustments = isset($data['non_taxable_adjustments'])?$this->re_db_input($data['non_taxable_adjustments']):'';
-        
+        // 11/20/21 Update the fields that correspond to the "new" fields for the Payroll Calculation
+        $commission_received = $gross_production;
+        $commission_paid = $net_production;
+
         if($id==0){
                 
-			 $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',`broker_id`='".$broker_id."',`clearing_number`='".$clearing_number."',`gross_production`='".$gross_production."',`check_amount`='".$check_amount."',`net_production`='".$net_production."',`adjustments`='".$adjustments."',`taxable_adjustments`='".$taxable_adjustments."',`non-taxable_adjustments`='".$non_taxable_adjustments."',`net_earnings`='".$net_earnings."'".$this->insert_common_sql();
+			 $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." 
+                    SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',
+                        `broker_id`='".$broker_id."',
+                        `clearing_number`='".$clearing_number."',
+                        `gross_production`='".$gross_production."',
+                        `check_amount`='".$check_amount."',
+                        `net_production`='".$net_production."',
+                        `adjustments`='".$adjustments."',
+                        `net_earnings`='".$net_earnings."',
+                        `commission_received`='".$commission_received."',
+                        `commission_paid`='".$commission_paid."'
+                        ".$this->insert_common_sql();
 			$res = $this->re_db_query($q);
             
             if($res){
@@ -574,7 +744,19 @@ class payroll extends db{
 		}
 		else if($id>0){
 		 
-			$q = "UPDATE ".PRIOR_PAYROLL_MASTER." SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',`broker_id`='".$broker_id."',`clearing_number`='".$clearing_number."',`gross_production`='".$gross_production."',`check_amount`='".$check_amount."',`net_production`='".$net_production."',`adjustments`='".$adjustments."',`taxable_adjustments`='".$taxable_adjustments."',`non-taxable_adjustments`='".$non_taxable_adjustments."',`net_earnings`='".$net_earnings."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+			$q = "UPDATE ".PRIOR_PAYROLL_MASTER." 
+                    SET `payroll_date`='".date('Y-m-d',strtotime($payroll_date))."',
+                        `broker_id`='".$broker_id."',
+                        `clearing_number`='".$clearing_number."',
+                        `gross_production`='".$gross_production."',
+                        `check_amount`='".$check_amount."',
+                        `net_production`='".$net_production."',
+                        `adjustments`='".$adjustments."',
+                        `net_earnings`='".$net_earnings."',
+                        `commission_received`='".$commission_received."',
+                        `commission_paid`='".$commission_paid."'
+                        ".$this->update_common_sql()." 
+                    WHERE `id`='".$id."'";
 			$res = $this->re_db_query($q);
             
             if($res){
@@ -685,7 +867,7 @@ class payroll extends db{
         }
 		return $return;
    }
-    public function get_payroll_uploads($id=0, $allOpenClosed=0, $isCalculated=0){
+    public function get_payroll_uploads($id=0, $allOpenClosed=0, $isCalculated=0, $payroll_date=''){
     	$return = array();
         $con = "";
 
@@ -697,19 +879,22 @@ class payroll extends db{
         } else if ($allOpenClosed == 2){
             $con .= " AND `up`.`is_close` != 0 ";
         }        
-        if ($isCalculated) {
+        if ($isCalculated == 1) {
             $con .= " AND  `up`.`is_calculate` != 0 ";
+        }
+        if ($payroll_date != ''){
+            $con .= " AND `up`.`payroll_date` = '".date('Y-m-d', strtotime($payroll_date))."'";
         }
 
         $q = "SELECT `up`.*
                 FROM `".PAYROLL_UPLOAD."` AS `up` 
-                WHERE `up`.`is_delete`='0' $con
-                ORDER BY `up`.`id` DESC";
+                WHERE `up`.`is_delete`='0' ".$con."
+                ORDER BY `up`.`payroll_date`, `up`.`id` DESC";
                 
     	$res = $this->re_db_query($q);
-        if ($id != 0){
+        if ($id != 0 OR $payroll_date != ''){
             $return = $this->re_db_fetch_array($res);
-        } else if ($this->re_db_num_rows($res)>1) {
+        } else if ($this->re_db_num_rows($res)>0) {
             $return = $this->re_db_fetch_all($res);
         }
     	return $return;
@@ -919,9 +1104,16 @@ class payroll extends db{
     	return $return;
     }
 
-    public function select_trades($commission_received_date){
+    public function select_trades($commission_received_date, $directClearing=0){
     	$return = array();
-    	
+        
+        $con = '';
+    	if ($directClearing == 1) {
+            $con .= " AND (`trans`.`source`='' OR `trans`.`source` IN ('DS', 'DZ'))";
+        } else if ($directClearing == 2) {
+            $con .= " AND (`trans`.`source`!='' AND `trans`.`source` NOT IN ('DS', 'DZ'))";
+        }
+ 
         if($commission_received_date != '')
         {
             $q = "SELECT `trans`.*,`bt`.id as batch_number,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname
@@ -929,18 +1121,21 @@ class payroll extends db{
                 LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `trans`.`batch`
                 LEFT JOIN `".CLIENT_MASTER."` as `cl` on `cl`.`id` = `trans`.`client_name`
                 LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `trans`.`broker_name`
-                WHERE `trans`.`is_delete`='0' and `trans`.`hold_commission`!='1' and `trans`.`is_payroll`='0' and `trans`.`commission_received_date`<='".date('Y-m-d',strtotime($commission_received_date))."' and `trans`.`commission_received_date`!='0000-00-00 00:00:00'
+                WHERE `trans`.`is_delete`='0' 
+                  AND `trans`.`hold_commission`!='1' 
+                  AND `trans`.`is_payroll`='0' 
+                  AND `trans`.`commission_received_date`<='".date('Y-m-d',strtotime($commission_received_date))."' 
+                  AND `trans`.`commission_received_date`!='0000-00-00 00:00:00'
+                  ".$con."
                 ORDER BY `trans`.`id` ASC";
         	$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
         		while($row = $this->re_db_fetch_array($res)){
-        		  
         		     $transaction_id = $row['id'];
                      $row['splits_rate']=$this->select_trade_splits($transaction_id);
                      $row['overrides_rate']=$this->select_trade_overrides($transaction_id);
         		     array_push($return,$row);
-                     
         		}
             }
         }
@@ -980,17 +1175,22 @@ class payroll extends db{
         }
         return $return;
   }
-  public function select_payroll_transactions(){
+  public function select_payroll_transactions($payroll_id=0){
     	$return = array();
+        
+        $con = '';
+        if ($payroll_id > 0){
+            $con .= " AND `up`.`id`= '".$payroll_id."'";
+        }
     	
         $q = "SELECT `up`.*,pt.*
 			FROM `".$this->table."` AS `up`
             LEFT JOIN `".PAYROLL_REVIEW_MASTER."` as `pt` on `pt`.`payroll_id` = `up`.`id`
             WHERE `up`.`is_delete`='0' and `up`.`is_close`= 0
+                  ".$con."
             ORDER BY `pt`.`trade_number` ASC";
     	$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
-            $a = 0;
     		while($row = $this->re_db_fetch_array($res)){
     		     array_push($return,$row);
     		}
@@ -1274,7 +1474,6 @@ class payroll extends db{
 
   /*************************************************************************
    * REPORT FUNCTIONS ADDED RECENTLY
-   * 10/31/21 Added back, but the code isn't right. To be updated 10/31/21+
    *************************************************************************/
     public function get_broker_commission_report_data($company='',$payroll_id='',$broker='',$print_type=''){
 		$return = array();
@@ -1549,77 +1748,138 @@ class payroll extends db{
     }
     // *** END: Broker Payroll Statement Functions - 11/2/21 *** //
 
-    public function get_company_statement_report_data($company='',$sort_by='',$payroll_date){
+    /*
+    * COMPANY COMMISSION STATEMENT - data set function - report_payroll_company_statement.php
+    */
+    public function get_company_statement_report_data($company='',$sort_by='',$payroll_id){
 		$return = array();
         $con='';
+        $payroll_date = date('Y-m-d');
+        $manage_company = new manage_company();
+        $companyName = 'ALL COMPANIES';
         
-        if($company>0)
-        {
-            $con.=" AND `ts`.`company` = ".$company."";
+        if($company>0) {
+            $con .= " AND (`br1`.`company`=$company OR `br2`.`company`=$company OR `br3`.`company`=$company)";
+            $companyName = $manage_company->select_company_by_id($company);
+            $companyName = $companyName['company_name'];
         }
-        if($payroll_date != '')
-        {
-            $con.=" AND `up`.`is_close`='0' AND `up`.`payroll_date` = '".date('Y-m-d',strtotime($payroll_date))."'";
+        if($payroll_id != '') {
+            $con.=" AND `pc`.`payroll_id` = '".$payroll_id."'";
+            $payroll_date = $this->get_payroll_uploads($payroll_id);
+            $payroll_date = $payroll_date['payroll_date'];
         }
-        else
-        {
-            $con.=" AND `up`.`is_close`='0' ";
+        // Add the "ORDER BY" string
+        $orderBy = empty($company) ? "`company_name`" : "";
+        if  ($sort_by == 2) {
+            $orderBy .= (empty($orderBy)? "" : ", ")."`bm`.`fund`";
         }
-        if($sort_by == 1)
-        {
-            $con .= " ORDER BY bm.first_name ASC";
-        }
-        else if($sort_by == 2)
-        {
-            $con .= " ORDER BY bm.fund ASC";
-        }
-        $q = "SELECT `up`.*,`rp`.*,bm.first_name as broker_firstname,bm.last_name as broker_lastname,bm.fund,cm.company_name
-				FROM `".$this->table."` AS `up`,`".PAYROLL_REVIEW_MASTER."` AS `rp`
-                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`id`=`rp`.`trade_number`
-                LEFT JOIN `".BROKER_MASTER."` AS `bm` on `bm`.`id`=`ts`.`broker_name`
-                LEFT JOIN `".COMPANY_MASTER."` AS `cm` on `cm`.`id`=`ts`.`company`
-                WHERE `up`.`is_delete`='0' and `rp`.`payroll_id`=`up`.`id` ".$con."
-                ";
+        $orderBy .= (empty($orderBy)? "" : ", ")."`bm`.`last_name`, `bm`.`first_name`, `bm`.`internal`, `bm`.`id`";
+
+        $q = "SELECT 
+                    `pc`.`broker_id` AS `broker_name`,
+                    `pc`.`id` AS payroll_current_id,
+                    `pc`.`payroll_id`,
+                    `pc`.`commission_received` + `pc`.`split_gross` AS `commission_received`,
+                    `pc`.`commission_paid` + `pc`.`split_paid` AS `commission_paid`,
+                    `pc`.`charge` + `pc`.`charge` AS `charge`,
+                    `pc`.`override_paid`,
+                    `pc`.`check_amount`,
+                    `pc`.`minimum_check_amount`,
+                    `pc`.`sipc`,
+                    `pc`.`finra`,
+                    `pc`.`adjustments`,
+                    `pc`.`balance`,
+                    `pc`.`balance` AS prior_broker_balance,
+                    `pc`.`check_amount` AS prior_broker_earnings,
+                    `bm`.`first_name` AS broker_firstname,
+                    `bm`.`last_name` AS broker_lastname,
+                    `bm`.`fund`,
+                    `bm`.`internal`,
+                    0 AS `payroll_draw`,
+                    0 AS `salary`,
+                    `br1`.`name` AS `branch_name1`, `br1`.`company` AS `branch_company1`,
+                    `br2`.`name` AS `branch_name2`, `br2`.`company` AS `branch_company2`,
+                    `br3`.`name` AS `branch_name3`, `br3`.`company` AS `branch_company3`,
+                    CASE WHEN `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0 THEN `co1`.`company_name`
+                         WHEN `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0 THEN `co2`.`company_name`
+                         WHEN `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0 THEN `co3`.`company_name`
+                         ELSE '* No Company *'
+                         END AS `company_name`
+                FROM `".PAYROLL_CURRENT_PAYROLL."` AS `pc`
+                LEFT JOIN `".BROKER_MASTER."` AS `bm` ON `pc`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`='0'
+                LEFT JOIN `".BROKER_BRANCHES."` AS `repbr` ON `pc`.`broker_id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'
+                LEFT JOIN `".BRANCH_MASTER."` AS `br1` ON `br1`.`id`=`repbr`.`branch1` AND `br1`.`is_delete`=0
+                LEFT JOIN `".BRANCH_MASTER."` AS `br2` ON `br2`.`id`=`repbr`.`branch2` AND `br2`.`is_delete`=0
+                LEFT JOIN `".BRANCH_MASTER."` AS `br3` ON `br3`.`id`=`repbr`.`branch3` AND `br3`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co1` ON `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co2` ON `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co3` ON `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0
+                WHERE `pc`.`is_delete`='0' ".$con."
+                ORDER BY ".$orderBy."
+        ";
 		$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
             $a = 0;
 			while($row = $this->re_db_fetch_array($res)){
-			     $return[$row['company_name']][] = $row;
+                // Some brokers are in more than one company, so if the query is for ONE company, put all records into the specified query Company, so they will be grouped under one company on the report
+                if ($company > 0) {
+                    $return[$companyName][] = $row;
+                } else {
+                    $return[$row['company_name']][] = $row;
+                }
 			}
         }
 		return $return;
 	}
-    public function get_reconciliation_report_data($category='',$payroll_date=''){
+    public function get_reconciliation_report_data($category='', $payroll_id='') {
 		$return = array();
+
         $con='';
         
         if($category>0)
         {
             $con.=" AND `ts`.`product_cate` = ".$category."";
         }
-        if($payroll_date != '')
+        if($payroll_id != '')
         {
-            $con.=" AND `up`.`is_close`='0' AND `up`.`payroll_date` = '".date('Y-m-d',strtotime($payroll_date))."'";
-        }
-        else
-        {
-            $con.=" AND `up`.`is_close`='0' ";
+            $con.=" AND `prm`.`payroll_id` = '".$payroll_id."'";
         }
         
-        $q = "SELECT `up`.*,`rp`.*,`bc`.`id` as batch_number,`bc`.`batch_date` as batch_date,`bc`.`batch_desc` as batch_description,`bc`.`check_amount` as batch_check_amount,`pc`.`type` as product_category,COUNT(`rp`.`trade_number`) as trade_count,SUM(`rp`.`commission_received`) as gross_commission,SUM(`rp`.`commission_paid`) as total_commission,SUM(`rp`.`investment_amount`) as total_investment_amount
-				FROM `".$this->table."` AS `up`,`".PAYROLL_REVIEW_MASTER."` AS `rp`
-                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`id`=`rp`.`trade_number`
-                LEFT JOIN `".BATCH_MASTER."` AS `bc` on `bc`.`id`=`ts`.`batch`
-                LEFT JOIN `".PRODUCT_TYPE."` AS `pc` on `pc`.`id`=`ts`.`product_cate`
-                WHERE `up`.`is_delete`='0' and `rp`.`payroll_id`=`up`.`id` ".$con." group by `bc`.id
-                ";
+        $q = "SELECT 
+                    `bc`.`id` AS `batch_number`,
+                    `bc`.`batch_date` AS `batch_date`,
+                    `bc`.`batch_desc` AS `batch_description`,
+                    `bc`.`check_amount` AS `batch_check_amount`,
+                    `bc`.`commission_amount` AS `batch_commission_amount`,
+                    `bc`.`pro_category`,
+                    `pc`.`type` AS `product_category`,
+                    COUNT(`prm`.`trade_number`) AS `trade_count`,
+                    COUNT(`prm`.`trade_number`) AS `hold_trade_count`,
+                    SUM(`prm`.`commission_received`) AS `gross_commission`,
+                    SUM(`prm`.`commission_received`) AS `total_commission`,
+                    SUM(`prm`.`investment_amount`) AS `total_investment_amount`
+				FROM `".PAYROLL_REVIEW_MASTER."` AS `prm`
+                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` ON `prm`.`trade_number` = `ts`.`id` AND `ts`.`is_delete`=0
+                LEFT JOIN `".BATCH_MASTER."` AS `bc` ON `ts`.`batch`=`bc`.`id` AND `bc`.`is_delete`=0
+                LEFT JOIN `".PRODUCT_TYPE."` AS `pc` ON `bc`.`pro_category`=`pc`.`id` AND `pc`.`is_delete`=0
+                WHERE `prm`.`is_delete`='0' ".$con." 
+                GROUP BY `batch_number`, `batch_date`, `batch_description`, `batch_check_amount`, `batch_commission_amount`, `ts`.`product_cate`, `product_category`
+                ORDER BY `bc`.`pro_category`, `product_category`, `batch_number`
+        ";
 		$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
-            $a = 0;
 			while($row = $this->re_db_fetch_array($res)){
 			     $total_hold_commission = $this->get_hold_commissions_data($row['batch_number']);//print_r($total_hold_commission);exit;
-			     $row['total_hold_commission'] = $total_hold_commission['total_hold_commission'];
-                 $return[$row['product_category']][] = $row;
+                if (count($total_hold_commission)>0) {
+                    $row['total_hold_commission'] = $total_hold_commission['total_hold_commission'];
+                    $row['total_commission'] +=  $total_hold_commission['total_hold_commission'];
+                    $row['hold_trade_count'] = $total_hold_commission['hold_trade_count'];
+                    $row['trade_count'] += $total_hold_commission['hold_trade_count'];
+                } else {
+                    $row['total_hold_commission'] = 0;
+                    $row['hold_trade_count'] = 0;
+                }
+                $return[$row['product_category']][] = $row;
 			}
         }
 		return $return;
@@ -1630,13 +1890,15 @@ class payroll extends db{
         
         if($batch>0)
         {
-            $con.=" AND `ts`.`batch` = ".$batch."";
+            $con.=" AND `ts`.`batch` = '".$batch."'";
         }
         
-        $q = "SELECT SUM(`ts`.`commission_received`) as total_hold_commission
+        $q = "SELECT COUNT(`ts`.`commission_received`) AS hold_trade_count, 
+                     SUM(`ts`.`commission_received`) as total_hold_commission
 				FROM `".TRANSACTION_MASTER."` AS `ts`
                 WHERE `ts`.`is_delete`='0' and `ts`.`hold_commission`='1' ".$con."
-                ";
+                GROUP BY `ts`.`batch`
+        ";
 		$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
             $a = 0;
@@ -1646,56 +1908,78 @@ class payroll extends db{
         }
 		return $return;
 	}
-    public function get_adjustments_report_data($company='',$payroll_date='',$sort_by='',$output_type=''){
+    public function get_adjustments_report_data($company='',$payroll_id=0,$sort_by='',$output_type=''){
 		$return = array();
-        $con='';
-        
-        if($payroll_date != '')
-        {
-            $con.=" AND `up`.`is_close`='0' AND `up`.`payroll_date` = '".date('Y-m-d',strtotime($payroll_date))."'";
+        $con="`adj_cur`.`is_delete`='0'";
+
+        // Query Strings
+        if($payroll_id != 0) {
+            $con.=" AND `adj_cur`.`payroll_id` = '".$payroll_id."'";
         }
-        else
-        {
-            $con.=" AND `up`.`is_close`='0' ";
+
+        if($company>0) {
+            $con .= " AND (`br1`.`company`=$company OR `br2`.`company`=$company OR `br3`.`company`=$company)";
         }
-        if($company>0)
-        {
-            $con.=" AND `ts`.`company` = ".$company."";
+
+        if($output_type==3) {
+            $con.=" AND `adj_cur`.`recurring` = 1";
         }
-        if($output_type==3)
-        {
-            $con.=" AND `pam`.`recurring` = 1";
+
+        // ORDER BY query strings
+        $orderBy = '';
+        if($sort_by == 1) {
+            $orderBy .= "`bm`.`last_name`, `bm`.`first_name`, `bm`.`internal`, `bm`.`id`";
         }
-        if($sort_by == 1)
-        {
-            $con .= " ORDER BY bm.first_name ASC";
+        else if($sort_by == 2) {
+            $orderBy .= "`bm`.`internal`, `bm`.`last_name`, `bm`.`first_name`, `bm`.`id`";
         }
-        else if($sort_by == 2)
-        {
-            $con .= " ORDER BY bm.id ASC";
+        else if($sort_by == 3) {
+            $orderBy .= "`payroll_category`, `adj_cur`.`category`, `bm`.`last_name`, `bm`.`first_name`, `bm`.`internal`, `bm`.`id`";
         }
-        else if($sort_by == 3)
+        else //if($sort_by == 4) 
         {
-            $con .= " ORDER BY pt.type ASC";
-        }
-        else if($sort_by == 4)
-        {
-            $con .= " ORDER BY pa.gl_account ASC";
+            $orderBy .= "`adj_cur`.`gl_account`, `bm`.`last_name`, `bm`.`first_name`, `bm`.`internal`, `bm`.`id`";
         }
         
-        $q = "SELECT `pa`.*,`bm`.`fund`,`pt`.`type` as payroll_category,cm.company_name,bm.first_name as broker_firstname,bm.last_name as broker_lastname,`bm`.`id` as broker_id
-                FROM `".$this->table."` AS `up`,`".PAYROLL_REVIEW_MASTER."` AS `rp`
-				LEFT JOIN `".PAYROLL_BROKERS_ADJUSTMENTS."` AS `pa` on `pa`.`payable_trans_id`=`rp`.`id`
-                LEFT JOIN `".PAYROLL_ADJUSTMENTS_MASTER."` AS `pam` on `pam`.`id`=`pa`.`adjustment_id`
-                LEFT JOIN `".BROKER_MASTER."` AS `bm` on `bm`.`id`=`pa`.`broker_id`
-                LEFT JOIN `".PAYROLL_TYPE."` AS `pt` on `pt`.`id`=`pa`.`category`
-                LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`id`=`rp`.`trade_number`
-                LEFT JOIN `".COMPANY_MASTER."` AS `cm` on `cm`.`id`=`ts`.`company`
-                WHERE `up`.`is_delete`='0' AND `pa`.`is_delete`='0' and `rp`.`payroll_id`=`up`.`id` ".$con."
-                ";
-		$res = $this->re_db_query($q);
+        $queryString = 
+                "SELECT 
+                    `adj_cur`.`id`,
+                    `adj_cur`.`broker_id`,
+                    `adj_cur`.`description`,
+                    `adj_cur`.`category` AS `category_id`,
+                    `adj_cur`.`adjustment_amount`,
+                    `adj_cur`.`taxable_adjustment`,
+                    `rt`.`name` AS `recurring_type`,
+                    `pr_tp`.`type` AS `payroll_category`,
+                    `bm`.`first_name` AS `broker_firstname`,
+                    `bm`.`last_name` AS `broker_lastname`,
+                    `bm`.`fund`,
+                    `bm`.`internal`,
+                    `br1`.`name` AS `branch_name1`, `br1`.`company` AS `branch_company1`,
+                    `br2`.`name` AS `branch_name2`, `br2`.`company` AS `branch_company2`,
+                    `br3`.`name` AS `branch_name3`, `br3`.`company` AS `branch_company3`,
+                    CASE WHEN `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0 THEN `co1`.`company_name`
+                         WHEN `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0 THEN `co2`.`company_name`
+                         WHEN `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0 THEN `co3`.`company_name`
+                         ELSE '* No Company *'
+                         END AS `company_name`
+                FROM `".PAYROLL_ADJUSTMENTS_CURRENT."` AS `adj_cur`
+                LEFT JOIN `".RECURRING_TYPE_MASTER."` AS `rt` ON `adj_cur`.`recurring_type`=`rt`.`id` AND `rt`.`is_delete`='0'
+                LEFT JOIN `".PAYROLL_TYPE."` AS `pr_tp` ON `adj_cur`.`category`=`pr_tp`.`id` AND `pr_tp`.`is_delete`='0'
+                LEFT JOIN `".BROKER_MASTER."` AS `bm` ON `adj_cur`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`='0'
+                LEFT JOIN `".BROKER_BRANCHES."` AS `repbr` ON `adj_cur`.`broker_id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'
+                LEFT JOIN `".BRANCH_MASTER."` AS `br1` ON `br1`.`id`=`repbr`.`branch1` AND `br1`.`is_delete`=0
+                LEFT JOIN `".BRANCH_MASTER."` AS `br2` ON `br2`.`id`=`repbr`.`branch2` AND `br2`.`is_delete`=0
+                LEFT JOIN `".BRANCH_MASTER."` AS `br3` ON `br3`.`id`=`repbr`.`branch3` AND `br3`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co1` ON `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co2` ON `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0
+                LEFT JOIN `".COMPANY_MASTER."` AS `co3` ON `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0
+                WHERE ".$con."
+                ORDER BY ".$orderBy."
+        ";
+
+		$res = $this->re_db_query($queryString);
         if($this->re_db_num_rows($res)>0){
-            $a = 0;
 			while($row = $this->re_db_fetch_array($res)){
 			     $return['company_name']=$row['company_name'];
 			     $return['data'][$row['broker_id'].' - '.$row['broker_firstname'].', '.$row['broker_lastname']][] = $row;

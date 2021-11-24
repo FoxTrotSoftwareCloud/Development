@@ -121,7 +121,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                             }?>
                         </tr>
                         <tr>
-                            <td width="100%" colspan="3" style="font-size:16px;font-weight:bold;text-align:center;"><?php echo 'COMMISSION STATEMENT';?></td>
+                            <td width="100%" colspan="3" style="font-size:16px;font-weight:bold;text-align:center;"><?php echo 'BROKER STATEMENT';?></td>
                         </tr>
                         <tr>
                             <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo $payroll_date;?></td>
@@ -639,8 +639,11 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $get_company_data = array();
         $company = isset($filter_array['company'])?$filter_array['company']:0;
         $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
-        $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
-        $get_company_data = $instance_payroll->get_company_statement_report_data($company,$sort_by,$payroll_date);
+        $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+        $get_company_data = $instance_payroll->get_company_statement_report_data($company,$sort_by,$payroll_id);
+        $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+        $payroll_date = $get_payroll_upload['payroll_date'];
+
         ?>
          <table border="0" width="100%">
                 <tr>
@@ -673,6 +676,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo 'All Companies';?></td>
                 </tr>
                 <?php } ?>
+                <tr>
+                    <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo date('m/d/Y', strtotime($payroll_date));?></td>
+                </tr>
          </table>
          <table border="0" cellpadding="1" width="100%">
             <thead>
@@ -727,7 +733,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                             $company_gross_comm_total = $company_gross_comm_total+$com_sub_data['commission_received'];
                             $company_net_comm_total = $company_net_comm_total+$com_sub_data['commission_paid'];
                             $company_charge_total = $company_charge_total+$com_sub_data['charge'];
-                            $company_override_comm_total = $company_override_comm_total+$com_sub_data['override_rate'];
+                            $company_override_comm_total = $company_override_comm_total+$com_sub_data['override_paid'];
                             $company_balances_total = $company_balances_total+$com_sub_data['balance'];
                             $company_adjustments_total = $company_adjustments_total+$com_sub_data['adjustments'];
                             $company_finra_sipc_total = $company_finra_sipc_total+$finra_sipc;
@@ -740,7 +746,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo $com_sub_data['commission_received'];?></td>
                                <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo $com_sub_data['commission_paid'];?></td>
                                <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo $com_sub_data['charge'];?></td>
-                               <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo $com_sub_data['override_rate'];?></td>
+                               <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo $com_sub_data['override_paid'];?></td>
                                <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo $com_sub_data['balance'];?></td>
                                <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo $com_sub_data['adjustments'];?></td>
                                <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($finra_sipc,2);?></td>
@@ -803,10 +809,13 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
       { 
         $company = isset($filter_array['company'])?$filter_array['company']:0;
         $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
-        $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
+        // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
+        $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+        $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+        $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
         $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
         
-        $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_date,$sort_by,$output_type);
+        $get_adjustments_data = $instance_payroll->get_adjustments_report_data($company,$payroll_id,$sort_by,$output_type);
         
         if($company>0)
         {
@@ -858,6 +867,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 </tr>
                 <tr>
                     <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo $sorted_by;?></td>
+                </tr>
+                <tr>
+                    <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo $payroll_date;?></td>
                 </tr>
          </table>
          <table border="0" cellpadding="1" width="100%">
@@ -1021,8 +1033,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
       { 
         $get_reconci_data = array();
         $product_category = isset($filter_array['product_category'])?$filter_array['product_category']:0;
-        $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
-        $get_reconci_data = $instance_payroll->get_reconciliation_report_data($product_category,$payroll_date);
+        // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
+        $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+        $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+        $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
+        $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
+
+        $get_reconci_data = $instance_payroll->get_reconciliation_report_data($product_category,$payroll_id);
+        
         ?>
          <table border="0" width="100%">
                 <tr>

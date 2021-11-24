@@ -13,6 +13,7 @@ $get_product_category =$instance_product_type->select_product_type();
 $company = isset($_SESSION['publish_payroll']['company'])?$_SESSION['publish_payroll']['company']:0;
 $payroll_id = isset($_SESSION['publish_payroll']['payroll_id'])?$_SESSION['publish_payroll']['payroll_id']:0;
 $broker = isset($_SESSION['publish_payroll']['broker'])?$_SESSION['publish_payroll']['broker']:0;
+$product_category = isset($_SESSION['publish_payroll']['product_category'])?$_SESSION['publish_payroll']['product_category']:0;
 $print_type = isset($_SESSION['publish_payroll']['print_type'])?$_SESSION['publish_payroll']['print_type']:0;
 $output = isset($_SESSION['publish_payroll']['output'])?$_SESSION['publish_payroll']['output']:0;
 
@@ -118,11 +119,17 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '2'){ ?>
     <div class="col-md-6">
         <div class="form-group">
             <label>Payroll Date </label>
-            <div id="demo-dp-range">
+            <!-- 11/21/21 Removed input box, and replace with a dropdown of available Payroll Dates
+            <!-- <div id="demo-dp-range">
                 <div class="input-daterange input-group" id="datepicker">
                     <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php if(isset($payroll_date) && $payroll_date != ''){ echo $payroll_date;} else {echo date('m/01/Y');} ?>"/>
                 </div>
-            </div>
+            </div> -->
+            <select class="form-control" name="payroll_id">
+                <?php $get_payroll_uploads = $instance->get_payroll_uploads(0,1,1); foreach($get_payroll_uploads as $key=>$val){?>
+                    <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$payroll_id)?'selected':''?> ><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
+                <?php } ?>
+            </select>
         </div>
     </div>
 </div>
@@ -141,10 +148,10 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '2'){ ?>
         <div class="form-group">
             <label>Output Destination </label>
             <select class="form-control" name="output">
-                <option value="1">Screen</option>
-                <option value="2">Printer</option>
-                <option value="3">Excel</option>
-                <option value="4">PDF</option>
+                <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
+                <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
+                <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>
+                <option value="4" <?php echo ($output==4)?'selected':''?> >PDF</option>
             </select>
         </div>
     </div>
@@ -160,7 +167,7 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '3'){ ?>
             <select class="form-control" name="company">
                 <option value="0">All Companies</option>
                 <?php foreach($get_multi_company as $key=>$val){?>
-                <option value="<?php echo $val['id'];?>" ><?php echo $val['company_name'];?></option>
+                <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$company)?'selected':''?>><?php echo $val['company_name'];?></option>
                 <?php } ?>
             </select>
         </div>
@@ -168,11 +175,17 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '3'){ ?>
     <div class="col-md-6">
         <div class="form-group">
             <label>Payroll Date </label>
-            <div id="demo-dp-range">
+            <!-- 11/23/21 Update to Dropdown Box<select>, instead of <input> box -->
+            <!-- <div id="demo-dp-range">
                 <div class="input-daterange input-group" id="datepicker">
                     <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php if(isset($payroll_date) && $payroll_date != ''){ echo $payroll_date;} else {echo date('m/01/Y');} ?>"/>
                 </div>
-            </div>
+            </div> -->
+            <select class="form-control" name="payroll_id">
+                <?php $get_payroll_uploads = $instance->get_payroll_uploads(0,1,1); foreach($get_payroll_uploads as $key=>$val){ ?>
+                    <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$payroll_id)?'selected':''?> ><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
+                <?php } ?>
+            </select>
         </div>
     </div>
 </div>
@@ -206,10 +219,10 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '3'){ ?>
         <div class="form-group">
             <label>Output Destination </label>
             <select class="form-control" name="output">
-                <option value="1">Screen</option>
-                <option value="2">Printer</option>
-                <option value="3">Excel</option>
-                <option value="4">PDF</option>
+                <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
+                <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
+                <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>
+                <option value="4" <?php echo ($output==4)?'selected':''?> >PDF</option>
             </select>
         </div>
     </div>
@@ -222,9 +235,9 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '4'){ ?>
         <div class="form-group">
             <label>&nbsp;</label>
             <select class="form-control" name="product_category">
-                <option value="0">All Batch Groups</option>
+                <option value="0">All Product Categories</option>
                 <?php foreach($get_product_category as $key=>$val){?>
-                <option value="<?php echo $val['id'];?>" ><?php echo $val['type'];?></option>
+                    <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$product_category)?'selected':''?> ><?php echo $val['type'];?></option>
                 <?php } ?>
             </select>
         </div>
@@ -232,11 +245,17 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '4'){ ?>
     <div class="col-md-6">
         <div class="form-group">
             <label>Payroll Date </label>
-            <div id="demo-dp-range">
+            <!-- 11/23/21 Update to Dropdown Box<select>, instead of <input> box -->
+            <!-- <div id="demo-dp-range">
                 <div class="input-daterange input-group" id="datepicker">
                     <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php if(isset($payroll_date) && $payroll_date != ''){ echo $payroll_date;} else {echo date('m/01/Y');} ?>"/>
                 </div>
-            </div>
+            </div> -->
+            <select class="form-control" name="payroll_id">
+                <?php $get_payroll_uploads = $instance->get_payroll_uploads(0,1,1); foreach($get_payroll_uploads as $key=>$val){ ?>
+                    <option value="<?php echo $val['id'];?>" <?php echo ($val['id']==$payroll_id)?'selected':''?> ><?php echo date('m/d/Y', strtotime($val['payroll_date']));?></option>
+                <?php } ?>
+            </select>
         </div>
     </div>
 </div>
@@ -246,10 +265,10 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '4'){ ?>
         <div class="form-group">
             <label>Output Destination </label>
             <select class="form-control" name="output">
-                <option value="1">Screen</option>
-                <option value="2">Printer</option>
-                <option value="3">Excel</option>
-                <option value="4">PDF</option>
+                <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
+                <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
+                <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>
+                <option value="4" <?php echo ($output==4)?'selected':''?> >PDF</option>
             </select>
         </div>
     </div>
