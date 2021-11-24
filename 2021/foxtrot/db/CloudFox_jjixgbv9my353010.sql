@@ -1,5 +1,5 @@
 -- phpMiniAdmin dump 1.9.170730
--- Datetime: 2021-11-22 08:29:18
+-- Datetime: 2021-11-24 05:34:05
 -- Host: sql5c40n.carrierzone.com
 -- Database: CloudFox_jjixgbv9my353010
 
@@ -2139,8 +2139,8 @@ INSERT INTO `ft_payroll_adjustments_master` VALUES ('1','0','100.00','2017-12-01
 DROP TABLE IF EXISTS `ft_payroll_broker_balances_master`;
 CREATE TABLE `ft_payroll_broker_balances_master` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
-  `payroll_id` tinyint(4) NOT NULL,
-  `prior_payroll_id` tinyint(4) NOT NULL,
+  `payroll_id` int(11) DEFAULT NULL,
+  `prior_payroll_id` int(11) DEFAULT NULL,
   `current_payroll_id` tinyint(4) NOT NULL,
   `payroll_date` date NOT NULL,
   `broker_id` int(11) DEFAULT NULL,
@@ -2285,6 +2285,7 @@ CREATE TABLE `ft_payroll_prior_payroll_master` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
   `payroll_id` int(11) NOT NULL,
   `payroll_date` date NOT NULL,
+  `current_payroll_id` int(11) NOT NULL,
   `broker_id` int(11) DEFAULT NULL,
   `clearing_number` varchar(100) NOT NULL,
   `gross_production` varchar(100) NOT NULL,
@@ -2298,6 +2299,19 @@ CREATE TABLE `ft_payroll_prior_payroll_master` (
   `taxable_adjustments` decimal(8,2) NOT NULL DEFAULT '0.00',
   `non-taxable_adjustments` decimal(8,2) NOT NULL DEFAULT '0.00',
   `net_earnings` varchar(100) NOT NULL,
+  `branch` int(11) NOT NULL,
+  `check_number` varchar(50) NOT NULL,
+  `charge` decimal(8,2) NOT NULL,
+  `commission_received` decimal(8,2) NOT NULL,
+  `commission_paid` decimal(8,2) NOT NULL,
+  `is_split` tinyint(4) NOT NULL,
+  `split_charge` decimal(8,2) NOT NULL,
+  `split_rate` decimal(8,2) NOT NULL,
+  `split_gross` decimal(8,2) NOT NULL,
+  `split_paid` decimal(8,2) NOT NULL,
+  `override_rate` decimal(8,2) NOT NULL,
+  `override_paid` decimal(8,2) NOT NULL,
+  `balance` decimal(8,2) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1',
   `is_delete` tinyint(1) NOT NULL DEFAULT '0',
   `created_by` int(12) NOT NULL,
@@ -2310,7 +2324,7 @@ CREATE TABLE `ft_payroll_prior_payroll_master` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 /*!40000 ALTER TABLE `ft_payroll_prior_payroll_master` DISABLE KEYS */;
-INSERT INTO `ft_payroll_prior_payroll_master` VALUES ('1','0','2018-10-23','1','3345','308.75','154.38','0.00','0.00','0.00','0.00','5','','100.00','-50.00','','1','0','21','2018-11-01 15:03:39','103.36.122.212','1','2021-11-22 13:06:28','124.253.245.246'),('2','0','2018-10-23','3','C49','1187.50','475.00','0.00','0.00','0.00','0.00','','','150.00','65.00','','1','0','21','2018-11-01 15:03:39','103.36.122.212','1','2021-11-22 13:05:19','172.218.133.220');
+INSERT INTO `ft_payroll_prior_payroll_master` VALUES ('1','0','2018-10-23','0','1','3345','308.75','154.38','0.00','0.00','0.00','0.00','5','','100.00','50.00','','0','','0.00','0.00','0.00','0','0.00','0.00','0.00','0.00','0.00','0.00','0.00','1','0','21','2018-11-01 15:03:39','103.36.122.212','1','2021-11-23 03:45:58','172.218.133.220'),('2','0','2018-10-23','0','3','C49','1187.50','475.00','0.00','0.00','0.00','0.00','','','150.00','65.00','','0','','0.00','0.00','0.00','0','0.00','0.00','0.00','0.00','0.00','0.00','0.00','1','0','21','2018-11-01 15:03:39','103.36.122.212','1','2021-11-22 13:05:19','172.218.133.220');
 /*!40000 ALTER TABLE `ft_payroll_prior_payroll_master` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `ft_payroll_review_master`;
@@ -2420,7 +2434,7 @@ CREATE TABLE `ft_payroll_upload` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 /*!40000 ALTER TABLE `ft_payroll_upload` DISABLE KEYS */;
-INSERT INTO `ft_payroll_upload` VALUES ('1','1','2018-10-23','2018-10-23','2018-10-23','1','1','0','21','2018-10-23 17:59:01','103.36.122.212','21','2018-10-25 20:31:31','76.176.130.44','0000-00-00 00:00:00'),('2','0','2018-11-01','2018-11-01','2018-11-01','0','1','0','21','2018-11-01 15:05:35','103.36.122.212','0','0000-00-00 00:00:00','','0000-00-00 00:00:00'),('3','1','2018-12-01','2018-11-01','2018-11-01','0','1','0','21','2018-11-01 15:10:36','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','0000-00-00 00:00:00'),('4','1','2019-01-01','2018-11-15','2018-11-15','0','1','0','21','2018-11-15 17:40:54','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','0000-00-00 00:00:00'),('5','1','2019-06-01','2018-11-23','2018-11-23','0','1','0','21','2018-11-23 15:58:47','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','0000-00-00 00:00:00'),('6','0','2021-11-09','2021-07-09','2021-07-09','0','1','0','1','2021-07-02 22:28:43','107.210.168.81','0','0000-00-00 00:00:00','','0000-00-00 00:00:00');
+INSERT INTO `ft_payroll_upload` VALUES ('1','1','2018-10-23','2018-10-23','2018-10-23','1','1','0','21','2018-10-23 17:59:01','103.36.122.212','21','2018-10-25 20:31:31','76.176.130.44','0000-00-00 00:00:00'),('2','0','2018-11-01','2018-11-01','2018-11-01','0','1','0','21','2018-11-01 15:05:35','103.36.122.212','0','0000-00-00 00:00:00','','0000-00-00 00:00:00'),('3','1','2018-12-01','2018-11-01','2018-11-01','0','1','0','21','2018-11-01 15:10:36','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','2021-11-10 00:32:26'),('4','1','2019-01-01','2018-11-15','2018-11-15','0','1','0','21','2018-11-15 17:40:54','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','2021-11-10 00:32:18'),('5','1','2019-06-01','2018-11-23','2018-11-23','0','1','0','21','2018-11-23 15:58:47','103.36.122.212','1','2021-10-14 23:20:26','107.210.168.81','2021-11-10 00:32:12'),('6','0','2021-11-09','2021-07-09','2021-07-09','0','1','0','1','2021-07-02 22:28:43','107.210.168.81','0','0000-00-00 00:00:00','','0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `ft_payroll_upload` ENABLE KEYS */;
 
 DROP TABLE IF EXISTS `ft_percentage_detail`;
