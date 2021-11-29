@@ -340,7 +340,7 @@ PostResult( msg );
                                                         <td style="width: 10%;"><form method="post">
                                                             <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
                                                             <input type="hidden" name="note" value="save_note" />
-                                                            <input type="text" maxlength="20" value="<?php echo $val['note'];?>" name="note_<?php echo $val['id'];?>">
+                                                            <input type="text" maxlength="20" value="<?php echo isset($val['note'])?$val['note']:'';?>" name="note_<?php echo $val['id'];?>">
                                                             </form>
                                                         </td>
                                                         <td style="width: 25%;">
