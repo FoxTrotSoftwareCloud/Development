@@ -2639,10 +2639,14 @@
                                 $cusipFound = 0;
 
                                 while($productCategoryRow = $this->re_db_fetch_array($res) AND $cusipFound==0){
-                                    $q = "SELECT * FROM `product_category_".$productCategoryRow['id']."` WHERE `is_delete`='0' AND `status`!=0' AND `cusip`='".$check_data_val['CUSIP_number']."'";
+                                    $q = "SELECT * ".
+                                            "FROM `product_category_".$productCategoryRow['id']."`". 
+                                            "WHERE `is_delete`='0'".
+                                            " AND `status`!=0".
+                                            " AND `cusip`='".$check_data_val['CUSIP_number']."'";
                                     $resCusipFind = $this->re_db_query($q);
 
-                                    // CUSIP FOUND 
+                                    // CUSIP found -> CLIENT validation
                                     if($this->re_db_num_rows($resCusipFind)>0){
                                         $cusipFound++;
                                         $foundCusip = $this->re_db_fetch_array($resCusipFind);
@@ -2664,7 +2668,9 @@
                                                 $clientAccount = $this->re_db_fetch_array($resClientAccount);
                                                 $q = "SELECT `co`.*".
                                                         " FROM `".CLIENT_OBJECTIVES."` as `co`".
-                                                        " WHERE `co`.`is_delete`='0' AND `co`.`objectives`='".$foundCusip['objective']."' AND `client_id`='".$row4['id']."'"
+                                                        " WHERE `co`.`is_delete`='0'".
+                                                          " AND `co`.`objectives`='".$foundCusip['objective']."'".
+                                                          " AND `client_id`='".$clientAccount['id']."'"
                                                 ;
                                                 $resClientObjectives = $this->re_db_query($q);
                                                 
@@ -2711,8 +2717,14 @@
                                 }
                             }
                         }
+                        // CLIENT validation
+                        if ($result == 0 AND !empty($cusipFound)){
+                            
+                        }
                     }
 
+                    // 12/14/21 Sponsor searched at the very beginning of this function already
+                    /*
                     if(isset($check_data_val['system_id']) && $check_data_val['system_id'] != ''){
                         $q = "SELECT * FROM `".SPONSOR_MASTER."` WHERE `is_delete`='0' and `dst_system_id`='".$check_data_val['system_id']."' and `dst_mgmt_code`='".$check_data_val['management_code']."'";
         				$res = $this->re_db_query($q);
@@ -2723,6 +2735,7 @@
                             $result=1;
     				    }
                     }
+                    */
 
                     if(isset($check_data_val['customer_account_number'])){
                         $customer_account_number = isset($check_data_val['customer_account_number'])?$this->re_db_input($check_data_val['customer_account_number']):'';
@@ -2827,7 +2840,7 @@
         				$res = $this->re_db_query($q);
 
         				if($this->re_db_num_rows($res)>0){
-        				    while($row = $this->re_db_fetch_array($res))
+        				    while($row = $this->re_db_fetch_array($res)){
                                 $total_check_amount = $row['total_check_amount'];
                             }
                         }
