@@ -2115,6 +2115,7 @@
          * @return string|bool 
          ***************************************************************/
         public function reprocess_current_files($id) {
+            $broker_master = new broker_master();
             $reprocess_status = false;
             
             if($id > 0){
@@ -2550,11 +2551,9 @@
                             $rep_number = isset($check_data_val['representative_number'])?trim($this->re_db_input($check_data_val['representative_number'])):'';
                         
                             if($rep_number != ''){
-                                $q_broker = "SELECT * FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `fund`='".$rep_number."'";
-                                $res_broker = $this->re_db_query($q_broker);
-                                $return = $this->re_db_num_rows($res_broker);
+                                $broker = $broker_master->select_broker_by_fund($rep_number);
             				
-                                if($return <= 0){
+                                if(empty($broker)){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                             ." SET"
                                                 ."`error_code_id`='1'"
@@ -2564,8 +2563,7 @@
                                     $res = $this->re_db_query($q);
                                     $result = 1;
                                 } else {
-                                    $return = $this->re_db_fetch_array($res_broker);
-                                    $broker_id = $return['id'];
+                                    $broker_id = $broker['id'];
                                     $check_broker_termination = $this->broker_termination_date('', $broker_id);
 
                                     $check_hold_commission = $this->get_hold_commission($check_data_val['file_id'],$check_data_val['id']);
@@ -2605,13 +2603,13 @@
                             $result = 1;
                         } else {
                             $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`='0' and `status`='1'";
-                            $res = $this->re_db_query($q);
+                            $resProductType = $this->re_db_query($q);
                             
                             // Product Category Loop
-                            if($this->re_db_num_rows($res)>0){
+                            if($this->re_db_num_rows($resProductType)>0){
                                 $cusipFound = 0;
 
-                                while($productCategoryRow = $this->re_db_fetch_array($res) AND $cusipFound==0){
+                                while($productCategoryRow = $this->re_db_fetch_array($resProductType) AND $cusipFound==0){
                                     $q = "SELECT * ".
                                             "FROM `product_category_".$productCategoryRow['id']."`". 
                                             "WHERE `is_delete`='0'".
@@ -2639,92 +2637,93 @@
                                 }
                             }
                         }
-                    } 
 
-                    // IDC CLIENT validation
-                    if(empty($check_data_val['customer_account_number'])){
-                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                            ." SET `error_code_id`='13'"
-                                .",`field`='customer_account_number'"
-                                .",`file_type`='2'"
-                                .$insert_exception_string;
-                        $resInsert = $this->re_db_query($q);
-                        $result = 1;
-                    } else {
-                        $q = 
-                            "SELECT `cm`.*".
-                                " FROM `".CLIENT_MASTER."` as `cm`".
-                                " LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`".
-                                " WHERE `cm`.`is_delete`='0'".
-                                  " AND `ca`.`account_no`='".$check_data_val['customer_account_number']."'".
-                                  " AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
-                        ;
-                        $res = $this->re_db_query($q);
-                        $clientAccount = ($this->re_db_num_rows($res)>0 ? $clientAccount = $this->re_db_fetch_array($res) : '');
-
-                        // Client Account # Not Found
-                        if($clientAccount == '') {
+                        // IDC CLIENT validation
+                        if(empty($check_data_val['customer_account_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                ." SET `error_code_id`='18'"
+                                ." SET `error_code_id`='13'"
                                     .",`field`='customer_account_number'"
                                     .",`file_type`='2'"
                                     .$insert_exception_string;
                             $resInsert = $this->re_db_query($q);
                             $result = 1;
-                            $client_id = 0;
                         } else {
-                            $client_id = $clientAccount['id'];
-                        }
-                        
-                        // Objectives Check
-                        if (!empty($client_id) AND !empty($foundCusip['objective'])){
-                            $q = "SELECT `co`.`client_id`, `co`.`objectives`".
-                                    " FROM `".CLIENT_OBJECTIVES."` as `co`".
-                                    " WHERE `co`.`is_delete`='0'".
-                                      " AND `co`.`objectives`='".$foundCusip['objective']."'".
-                                      " AND `client_id`='".$client_id."'"
-                            ;
-                            $resClientObjectives = $this->re_db_query($q);
-                                        
-                            if($this->re_db_num_rows($resClientObjectives) == 0){
-                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                        ." SET `error_code_id`='9'"
-                                        .",`field`='objectives'"
-                                        .",`file_type`='2'"
-                                        .$insert_exception_string;
-                                        $resInsert = $this->re_db_query($q);
-                                        $result = 1;
-                            }
-                        }
-
-                        // State License Check
-                        if(!empty($broker_id) && !empty($client_id) && !empty($clientAccount['state'])){
-                            $q = "SELECT `bm`.* ,`bls`.`active_check` AS active_check_security,`blr`.`active_check` AS active_check_ria,`bli`.`active_check` AS active_check_insurance".
-                                    " FROM `".BROKER_MASTER."` AS `bm`".
-                                    " LEFT JOIN `".BROKER_LICENCES_SECURITIES."` AS `bls` on `bls`.`broker_id`=`bm`.`id`".
-                                    " LEFT JOIN `".BROKER_LICENCES_RIA."` AS `blr` on `blr`.`broker_id`=`bm`.`id`".
-                                    " LEFT JOIN `".BROKER_LICENCES_INSURANCE."` AS `bli` on `bli`.`broker_id`=`bm`.`id`".
-                                    " WHERE `bm`.`is_delete`='0'".
-                                      " AND `bm`.`id`='".$broker_id."'". 
-                                      " AND `bls`.`state_id`='".$clientAccount['state']."'". 
-                                      " AND `blr`.`state_id`='".$clientAccount['state']."'". 
-                                      " AND `bli`.`state_id`='".$clientAccount['state']."'"
+                            $q = 
+                                "SELECT `cm`.*".
+                                    " FROM `".CLIENT_MASTER."` as `cm`".
+                                    " LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`".
+                                    " WHERE `cm`.`is_delete`='0'".
+                                    " AND `ca`.`account_no`='".$check_data_val['customer_account_number']."'".
+                                    " AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
                             ;
                             $res = $this->re_db_query($q);
+                            $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
 
-                            if($this->re_db_num_rows($res)>0){
-                                if($clientAccount['active_check_security'] != 1 && $clientAccount['active_check_ria'] != 1 && $clientAccount['active_check_insurance'] != 1){
+                            // Client Account # Not Found
+                            if($clientAccount == '') {
+                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                    ." SET `error_code_id`='18'"
+                                        .",`field`='customer_account_number'"
+                                        .",`file_type`='2'"
+                                        .$insert_exception_string;
+                                $resInsert = $this->re_db_query($q);
+                                $result = 1;
+                                $client_id = 0;
+                            } else {
+                                $client_id = $clientAccount['id'];
+                            }
+                            
+                            // Objectives Check
+                            if (!empty($client_id) AND !empty($foundCusip['objective'])){
+                                $q = "SELECT `co`.`client_id`, `co`.`objectives`".
+                                        " FROM `".CLIENT_OBJECTIVES."` as `co`".
+                                        " WHERE `co`.`is_delete`='0'".
+                                        " AND `co`.`objectives`='".$foundCusip['objective']."'".
+                                        " AND `client_id`='".$client_id."'"
+                                ;
+                                $resClientObjectives = $this->re_db_query($q);
+                                            
+                                if($this->re_db_num_rows($resClientObjectives) == 0){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                            ."SET  `error_code_id`='6'"
-                                                .",`field`='active_check'"
-                                                .",`file_type`='2'"
-                                                .$insert_exception_string;
-                                    $res = $this->re_db_query($q);
-                                    $result = 1;
+                                            ." SET `error_code_id`='9'"
+                                            .",`field`='objectives'"
+                                            .",`file_type`='2'"
+                                            .$insert_exception_string;
+                                            $resInsert = $this->re_db_query($q);
+                                            $result = 1;
+                                }
+                            }
+
+                            // State License Check
+                            if(!empty($broker_id) && !empty($client_id) && !empty($clientAccount['state'])){
+                                $q = "SELECT `bm`.* ,`bls`.`active_check` AS active_check_security,`blr`.`active_check` AS active_check_ria,`bli`.`active_check` AS active_check_insurance".
+                                        " FROM `".BROKER_MASTER."` AS `bm`".
+                                        " LEFT JOIN `".BROKER_LICENCES_SECURITIES."` AS `bls` on `bls`.`broker_id`=`bm`.`id`".
+                                        " LEFT JOIN `".BROKER_LICENCES_RIA."` AS `blr` on `blr`.`broker_id`=`bm`.`id`".
+                                        " LEFT JOIN `".BROKER_LICENCES_INSURANCE."` AS `bli` on `bli`.`broker_id`=`bm`.`id`".
+                                        " WHERE `bm`.`is_delete`='0'".
+                                        " AND `bm`.`id`='".$broker_id."'". 
+                                        " AND `bls`.`state_id`='".$clientAccount['state']."'". 
+                                        " AND `blr`.`state_id`='".$clientAccount['state']."'". 
+                                        " AND `bli`.`state_id`='".$clientAccount['state']."'"
+                                ;
+                                $res = $this->re_db_query($q);
+
+                                if($this->re_db_num_rows($res)>0){
+                                    if($clientAccount['active_check_security'] != 1 && $clientAccount['active_check_ria'] != 1 && $clientAccount['active_check_insurance'] != 1){
+                                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                                ."SET  `error_code_id`='6'"
+                                                    .",`field`='active_check'"
+                                                    .",`file_type`='2'"
+                                                    .$insert_exception_string;
+                                        $res = $this->re_db_query($q);
+                                        $result = 1;
+                                    }
                                 }
                             }
                         }
-                    }
+                    } // TEST MOVE ME: foreach IDC Detail Record (Line 2527 )
+
                     // IDC BATCH for the file
                     if(isset($result) && $result == 0){
                         $total_check_amount = 0;
@@ -2733,11 +2732,12 @@
                         if (empty($batch_id)){
                             $sponsor_name = trim($file_sponsor_array['name']);
                             $sponsor_id = trim($file_sponsor_array['id']);
-                            $batch_description = $sponsor_name.' - '.date('m/d/Y');
+                            
                             $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
-                            $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', $header_record['transmission_date']));
+                            $batch_date = (empty($header_record['transmission_date']) ? date('m/d/Y') : date('m/d/Y', strtotime($header_record['transmission_date'])));
+                            $batch_description = $sponsor_name.' - '.$batch_date;
 
-                            $q = "SELECT SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) as total_check_amount"
+                            $q = "SELECT SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) AS total_check_amount"
                                     ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
                                     ." WHERE `is_delete`='0'"
                                       ." AND `file_id`='".$check_data_val['file_id']."'";
@@ -2765,7 +2765,13 @@
                          ********************/
                         if (isset($_SESSION['batch_id']) && $_SESSION['batch_id'] != ''){
         				    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                    ." SET `file_id`='".$check_data_val['file_id']."'"
+                                    ." SET "
+                                        ." `error_code_id`='0'"
+                                        .",`field`=''"
+                                        .",`file_type`='2'"
+                                        .",`solved`='1'"
+                                        .",`process_completed`='1'"
+                                        .",`file_id`='".$check_data_val['file_id']."'"
                                         .",`temp_data_id`='".$check_data_val['id']."'"
                                         .",`date`='".date('Y-m-d')."'"
                                         .",`rep`='".trim($check_data_val['representative_number'])."'"
@@ -2775,11 +2781,6 @@
                                         .",`cusip`='".$check_data_val['CUSIP_number']."'"
                                         .",`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
                                         .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
-                                        .",`error_code_id`='0'"
-                                        .",`field`=''"
-                                        .",`file_type`='2'"
-                                        .",`solved`='1'"
-                                        .",`process_completed`='1'"
                                         .$this->insert_common_sql()
                             ;
          			        $res = $this->re_db_query($q);
