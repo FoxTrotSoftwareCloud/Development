@@ -2116,6 +2116,7 @@
          ***************************************************************/
         public function reprocess_current_files($id) {
             $broker_master = new broker_master();
+            $batchClass = new batches();
             $reprocess_status = false;
             
             if($id > 0){
@@ -2678,47 +2679,34 @@
                                 $q = "SELECT `co`.`client_id`, `co`.`objectives`".
                                         " FROM `".CLIENT_OBJECTIVES."` as `co`".
                                         " WHERE `co`.`is_delete`='0'".
-                                        " AND `co`.`objectives`='".$foundCusip['objective']."'".
-                                        " AND `client_id`='".$client_id."'"
+                                          " AND `co`.`objectives`='".$foundCusip['objective']."'".
+                                          " AND `client_id`='".$client_id."'"
                                 ;
                                 $resClientObjectives = $this->re_db_query($q);
                                             
                                 if($this->re_db_num_rows($resClientObjectives) == 0){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                             ." SET `error_code_id`='9'"
-                                            .",`field`='objectives'"
-                                            .",`file_type`='2'"
+                                                .",`field`='objectives'"
+                                                .",`file_type`='2'"
                                             .$insert_exception_string;
-                                            $resInsert = $this->re_db_query($q);
-                                            $result = 1;
+                                    $resInsert = $this->re_db_query($q);
+                                    $result = 1;
                                 }
                             }
 
                             // State License Check
-                            if(!empty($broker_id) && !empty($client_id) && !empty($clientAccount['state'])){
-                                $q = "SELECT `bm`.* ,`bls`.`active_check` AS active_check_security,`blr`.`active_check` AS active_check_ria,`bli`.`active_check` AS active_check_insurance".
-                                        " FROM `".BROKER_MASTER."` AS `bm`".
-                                        " LEFT JOIN `".BROKER_LICENCES_SECURITIES."` AS `bls` on `bls`.`broker_id`=`bm`.`id`".
-                                        " LEFT JOIN `".BROKER_LICENCES_RIA."` AS `blr` on `blr`.`broker_id`=`bm`.`id`".
-                                        " LEFT JOIN `".BROKER_LICENCES_INSURANCE."` AS `bli` on `bli`.`broker_id`=`bm`.`id`".
-                                        " WHERE `bm`.`is_delete`='0'".
-                                        " AND `bm`.`id`='".$broker_id."'". 
-                                        " AND `bls`.`state_id`='".$clientAccount['state']."'". 
-                                        " AND `blr`.`state_id`='".$clientAccount['state']."'". 
-                                        " AND `bli`.`state_id`='".$clientAccount['state']."'"
-                                ;
-                                $res = $this->re_db_query($q);
-
-                                if($this->re_db_num_rows($res)>0){
-                                    if($clientAccount['active_check_security'] != 1 && $clientAccount['active_check_ria'] != 1 && $clientAccount['active_check_insurance'] != 1){
-                                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                ."SET  `error_code_id`='6'"
-                                                    .",`field`='active_check'"
-                                                    .",`file_type`='2'"
-                                                    .$insert_exception_string;
-                                        $res = $this->re_db_query($q);
-                                        $result = 1;
-                                    }
+                            if(!empty($broker_id) AND !empty($client_id) AND !empty($clientAccount['state']) AND !empty($product_category_id)){
+                                // 12/17/21 Get the correct product type license
+                                $check_result = $this->checkStateLicense($broker_id, $clientAccount['state'], $product_category_id, $check_data_val['trade_date']);
+                                if($check_result){
+                                    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                            ."SET  `error_code_id`='6'"
+                                                .",`field`='active_check'"
+                                                .",`file_type`='2'"
+                                                .$insert_exception_string;
+                                    $res = $this->re_db_query($q);
+                                    $result = 1;
                                 }
                             }
                         }
@@ -2955,6 +2943,43 @@
             }
 			return $return;
 		}
+
+        /** Check the state licensing for the specified Broker and Product Category 12/17/21
+         * @param int $pBroker_id 
+         * @param int $pClient_state 
+         * @param mixed $pProduct_category_id 
+         * @param string $pTerm_date 
+         * @return bool 
+         */
+        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id, $pTerm_date=''){
+            $BatchClass = new batches();
+            $DbClass = new db();
+
+            $term_date = (empty($pTerm_date) ? date('Y-m-d', strtotime('1900-01-01')) : date('Y-m-d', strtotime($pTerm_date)));
+            $product_category = strtolower($BatchClass->get_product_type($pProduct_category_id));
+
+            if (in_array($product_category, ['ria'])) {
+                $licenseTable = BROKER_LICENCES_RIA;
+            } else if (preg_match('(life|insurance|annuities|annuity)', $product_category)) {
+                $licenseTable = BROKER_LICENCES_INSURANCE;
+            } else {
+                $licenseTable = BROKER_LICENCES_SECURITIES;
+            }
+
+            $q = "SELECT `bm`.`id`, `bm`.`first_name`, `bm`.`last_name`, `bls`.`active_check`, `bls`.`state_id`, '".$licenseTable."' AS `license_table`, '".$product_category."' AS `product_category`".
+                    " FROM `".BROKER_MASTER."` AS `bm`".
+                    " LEFT JOIN `".$licenseTable."` AS `bls` ON `bm`.`id` = `bls`.`broker_id`".
+                        " AND `bls`.`is_delete`='0'".
+                        " AND `bls`.`state_id`='".$pClient_state."'".
+                        " AND `bls`.`terminated`>='".$term_date."'".
+                    " WHERE `bm`.`is_delete`='0'".
+                    " AND `bm`.`id`='".$pBroker_id."'"
+            ;
+            $res = $DbClass->re_db_query($q);
+            $qArray = $DbClass->re_db_fetch_array($res);
+            return !empty($qArray['active_check']);;
+        }
+
         public function select_archive_files(){
 			$return = array();
 			
@@ -3602,12 +3627,9 @@
             }
 			return $return;
 		}
-        public function get_file_batch($file_id, $return_field=''){
+        public function get_file_batch($file_id, $return_field='batch_id'){
 			$return = 0;
             $q = $res = '';
-			
-            if ($return_field != '') {
-            }
 
 			$q = "SELECT `at`.`id` as batch_id, `at`.`*`"
 					." FROM `".BATCH_MASTER."` AS `at`"
@@ -3618,7 +3640,7 @@
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
-    			     $return = $row['batch_id'];
+    			     $return = $row[$return_field];
                 }
             }
 			return $return;
