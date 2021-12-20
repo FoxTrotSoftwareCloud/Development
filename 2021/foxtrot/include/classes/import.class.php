@@ -2537,13 +2537,13 @@
                              ",`file_id`='".$check_data_val['file_id']."'"
                             .",`temp_data_id`='".$check_data_val['id']."'"
                             .",`date`='".date('Y-m-d')."'"
-                            .",`rep`='".trim($check_data_val['representative_number'])."'"
+                            .",`rep`='".$dbins->re_db_input($check_data_val['representative_number'])."'"
                             .",`rep_name`='".$check_data_val['representative_name']."'"
                             .",`account_no`='".$check_data_val['customer_account_number']."'"
                             .",`client`='".$check_data_val['alpha_code']."'"
                             .",`cusip`='".$check_data_val['CUSIP_number']."'"
-                            .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').ltrim($check_data_val['gross_transaction_amount'],0)."'"
-                            .",`commission`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                            .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
+                            .",`commission`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
                             .$this->insert_common_sql()
                         ;
 
@@ -2642,20 +2642,20 @@
                         // IDC CLIENT validation
                         if(empty($check_data_val['customer_account_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                ." SET `error_code_id`='13'"
-                                    .",`field`='customer_account_number'"
-                                    .",`file_type`='2'"
-                                    .$insert_exception_string;
+                                    ." SET `error_code_id`='13'"
+                                        .",`field`='customer_account_number'"
+                                        .",`file_type`='2'"
+                                        .$insert_exception_string;
                             $resInsert = $this->re_db_query($q);
                             $result = 1;
                         } else {
                             $q = 
-                                "SELECT `cm`.*".
-                                    " FROM `".CLIENT_MASTER."` as `cm`".
-                                    " LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`".
-                                    " WHERE `cm`.`is_delete`='0'".
-                                    " AND `ca`.`account_no`='".$check_data_val['customer_account_number']."'".
-                                    " AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
+                                "SELECT `cm`.*"
+                                    ." FROM `".CLIENT_MASTER."` as `cm`"
+                                    ." LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`"
+                                    ." WHERE `cm`.`is_delete`='0'"
+                                    ." AND `ca`.`account_no`='".$check_data_val['customer_account_number']."'"
+                                    ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
                             ;
                             $res = $this->re_db_query($q);
                             $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
@@ -2710,148 +2710,146 @@
                                 }
                             }
                         }
-                    } // TEST MOVE ME: foreach IDC Detail Record (Line 2527 )
-
-                    // IDC BATCH for the file
-                    if(isset($result) && $result == 0){
-                        $total_check_amount = 0;
-                        $batch_id = $this->get_file_batch($check_data_val['file_id']);
                         
-                        if (empty($batch_id)){
-                            $sponsor_name = trim($file_sponsor_array['name']);
-                            $sponsor_id = trim($file_sponsor_array['id']);
+                        // INSERT the IDC record
+                        if(isset($result) && $result == 0){
+                            $total_check_amount = 0;
+                            $batch_id = $this->get_file_batch($check_data_val['file_id']);
                             
-                            $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
-                            $batch_date = (empty($header_record['transmission_date']) ? date('m/d/Y') : date('m/d/Y', strtotime($header_record['transmission_date'])));
-                            $batch_description = $sponsor_name.' - '.$batch_date;
-
-                            $q = "SELECT SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) AS total_check_amount"
-                                    ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
-                                    ." WHERE `is_delete`='0'"
-                                      ." AND `file_id`='".$check_data_val['file_id']."'";
-                            $res = $this->re_db_query($q);
-    
-                            if($this->re_db_num_rows($res)>0){
-                                $row = $this->re_db_fetch_array($res);
-                                $total_check_amount = $row['total_check_amount'];
-                            }
-
-                            $q = "INSERT INTO `".BATCH_MASTER."`"
-                                    ." SET `file_id`='".$check_data_val['file_id']."'"
-                                        .",`pro_category`='".$product_category_id."'"
-                                        .",`batch_desc`='".$batch_description."'"
-                                        .",`sponsor`='".$sponsor_id."'"
-                                        .",`check_amount`='".$total_check_amount."'"
-                                        .",`batch_date`='".$batch_date."'"
-                                        .$this->insert_common_sql();
-                            $res = $this->re_db_query($q);
-                            $batch_id = $this->re_db_insert_id();
-                        }
-
-                        /********************
-                         * Add TRANSACTION 
-                         ********************/
-                        if (isset($_SESSION['batch_id']) && $_SESSION['batch_id'] != ''){
-        				    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                    ." SET "
-                                        ." `error_code_id`='0'"
-                                        .",`field`=''"
-                                        .",`file_type`='2'"
-                                        .",`solved`='1'"
-                                        .",`process_completed`='1'"
-                                        .",`file_id`='".$check_data_val['file_id']."'"
-                                        .",`temp_data_id`='".$check_data_val['id']."'"
-                                        .",`date`='".date('Y-m-d')."'"
-                                        .",`rep`='".trim($check_data_val['representative_number'])."'"
-                                        .",`rep_name`='".$check_data_val['representative_name']."'"
-                                        .",`account_no`='".$check_data_val['customer_account_number']."'"
-                                        .",`client`='".$check_data_val['alpha_code']."'"
-                                        .",`cusip`='".$check_data_val['CUSIP_number']."'"
-                                        .",`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
-                                        .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
-                                        .$this->insert_common_sql()
-                            ;
-         			        $res = $this->re_db_query($q);
-                            $result = 0;
-                            
-                            $broker_class = new broker_master();
-                            $check_broker_commission = $broker_class->check_broker_commission_status($broker_id);
-                            $broker_hold_commission = $check_broker_commission['hold_commissions'];
-                            
-                            $con = '';
-
-                            if ($check_hold_commission==1){
-                                $con .=",`hold_commission`='".$check_hold_commission."',`hold_resoan`='BROKER TERMINATED'";
-                            } else if($broker_hold_commission == 1){
-                                $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
-                            } else {
-                                $con .=",`hold_commission`='2'";
-                            }
-
-                            $trans_ins = new transaction();
-                            $get_branch_company_detail = $trans_ins->select_branch_company_ref($broker_id);
-                            $branch = isset($get_branch_company_detail['branch_id'])?$get_branch_company_detail['branch_id']:'';
-                            $company = isset($get_branch_company_detail['company_id'])?$get_branch_company_detail['company_id']:'';
-                            
-                            $q1 = "INSERT INTO `".TRANSACTION_MASTER."`"
-                                    ."SET `file_id`='".$check_data_val['file_id']."'"
-                                        .",`source`='DS'"
-                                        .",`trade_date`='".$check_data_val['trade_date']."'"
-                                        .",`posting_date`='".date('Y-m-d')."'"
-                                        .",`invest_amount`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').ltrim($check_data_val['gross_transaction_amount'],0)."'"
-                                        .",`gross_amount_sign_code`='".$check_data_val['gross_amount_sign_code']."'"
-                                        .",`dealer_commission_sign_code`='".$check_data_val['dealer_commission_sign_code']."'"
-                                        .",`commission_received`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').ltrim($check_data_val['dealer_commission_amount'],0)."'"
-                                        .",`product_cate`='".$product_category_id."'"
-                                        .",`product`='".$product_id."'"
-                                        .",`batch`='".$_SESSION['batch_id']."'"
-                                        .",`sponsor`='".$sponsor_id."'"
-                                        .",`broker_name`='".$broker_id."'"
-                                        .",`client_name`='".$client_id."'"
-                                        .",`client_number`='".$check_data_val['customer_account_number']."'"
-                                        .",`branch`='".$branch."'"
-                                        .",`company`='".$company."'"
-                                        .",`split`='1'"
-                                        .",`buy_sell`='1'"
-                                        .",`cancel`='2'"
-                                        .$con
-                                        .$this->insert_common_sql();
-         			        $res1 = $this->re_db_query($q1);
-                            $last_inserted_id = $this->re_db_insert_id();
-                            
-                            $get_client_split_rates = $trans_ins->get_client_split_rate($client_id);
-                            
-                            if(isset($get_client_split_rates[0]['split_broker']) && $get_client_split_rates[0]['split_broker'] != ''){
-                                $q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."`"
-                                        ." SET `transaction_id`='".$last_inserted_id."'"
-                                            .",`split_client_id`='".$client_id."'"
-                                            .",`split_broker_id`='0'"
-                                            .",`split_broker`='".$get_client_split_rates[0]['split_broker']."'"
-                                            .",`split_rate`='".$get_client_split_rates[0]['split_rate']."'"
+                            // Create new BATCH
+                            if (empty($batch_id)){
+                                $sponsor_name = $this->re_db_input($file_sponsor_array['name']);
+                                $sponsor_id = $this->re_db_input($file_sponsor_array['id']);
+                                
+                                $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
+                                $batch_date = (empty($header_record['transmission_date']) ? date('m/d/Y') : date('m/d/Y', strtotime($header_record['transmission_date'])));
+                                $batch_description = $sponsor_name.' - '.$batch_date;
+                                
+                                $q = "SELECT SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) AS total_check_amount"
+                                ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
+                                ." WHERE `is_delete`='0'"
+                                ." AND `file_id`='".$check_data_val['file_id']."'";
+                                $res = $this->re_db_query($q);
+                                
+                                if($this->re_db_num_rows($res)>0){
+                                    $row = $this->re_db_fetch_array($res);
+                                    $total_check_amount = $row['total_check_amount'];
+                                }
+                                
+                                $q = "INSERT INTO `".BATCH_MASTER."`"
+                                ." SET `file_id`='".$check_data_val['file_id']."'"
+                                            .",`pro_category`='".$product_category_id."'"
+                                            .",`batch_desc`='".$batch_description."'"
+                                            .",`sponsor`='".$sponsor_id."'"
+                                            .",`check_amount`='".$total_check_amount."'"
+                                            .",`batch_date`='".$batch_date."'"
                                             .$this->insert_common_sql();
-                				$res = $this->re_db_query($q);
+                                $res = $this->re_db_query($q);
+                                $batch_id = $this->re_db_insert_id();
                             }
-
-                            $get_broker_split_rate = $trans_ins->get_broker_split_rate($broker_id);
+                        
+                        
+                            if (!empty($batch_id)){
+                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                        ." SET "
+                                            ." `error_code_id`='0'"
+                                            .",`field`=''"
+                                            .",`file_type`='2'"
+                                            .",`solved`='1'"
+                                            .",`process_completed`='1'"
+                                            .",`file_id`='".$check_data_val['file_id']."'"
+                                            .",`temp_data_id`='".$check_data_val['id']."'"
+                                            .",`date`='".date('Y-m-d')."'"
+                                            .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
+                                            .",`rep_name`='".$check_data_val['representative_name']."'"
+                                            .",`account_no`='".$check_data_val['customer_account_number']."'"
+                                            .",`client`='".$check_data_val['alpha_code']."'"
+                                            .",`cusip`='".$check_data_val['CUSIP_number']."'"
+                                            .",`principal`='".$this->re_db_input($check_data_val['gross_transaction_amount']).$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
+                                            .",`commission`='".$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
+                                            .$this->insert_common_sql()
+                                ;
+                                $res = $this->re_db_query($q);
+                                $result = 0;
+                                
+                                $broker_class = new broker_master();
+                                $check_broker_commission = $broker_class->check_broker_commission_status($broker_id);
+                                $broker_hold_commission = $check_broker_commission['hold_commissions'];
+                                
+                                $con = '';
+                                            
+                                if ($check_hold_commission==1){
+                                    $con .=",`hold_commission`='".$check_hold_commission."',`hold_resoan`='BROKER TERMINATED'";
+                                } else if($broker_hold_commission == 1){
+                                    $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
+                                } else {
+                                    $con .=",`hold_commission`='2'";
+                                }
+                                            
+                                $trans_ins = new transaction();
+                                $get_branch_company_detail = $trans_ins->select_branch_company_ref($broker_id);
+                                $branch = isset($get_branch_company_detail['branch_id'])?$get_branch_company_detail['branch_id']:'';
+                                $company = isset($get_branch_company_detail['company_id'])?$get_branch_company_detail['company_id']:'';
                             
-                            if(isset($get_broker_split_rate[0]['rap']) && $get_broker_split_rate[0]['rap'] != ''){
-                                foreach($get_broker_split_rate as $keyedit_split=>$valedit_split){
+                                $q1 = "INSERT INTO `".TRANSACTION_MASTER."`"
+                                        ."SET `file_id`='".$check_data_val['file_id']."'"
+                                            .",`source`='DS'"
+                                            .",`trade_date`='".$check_data_val['trade_date']."'"
+                                            .",`posting_date`='".date('Y-m-d')."'"
+                                            .",`invest_amount`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                                            .",`gross_amount_sign_code`='".$check_data_val['gross_amount_sign_code']."'"
+                                            .",`dealer_commission_sign_code`='".$check_data_val['dealer_commission_sign_code']."'"
+                                            .",`commission_received`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                                            .",`product_cate`='".$product_category_id."'"
+                                            .",`product`='".$product_id."'"
+                                            .",`batch`='".$_SESSION['batch_id']."'"
+                                            .",`sponsor`='".$sponsor_id."'"
+                                            .",`broker_name`='".$broker_id."'"
+                                            .",`client_name`='".$client_id."'"
+                                            .",`client_number`='".$check_data_val['customer_account_number']."'"
+                                            .",`branch`='".$branch."'"
+                                            .",`company`='".$company."'"
+                                            .",`split`='1'"
+                                            .",`buy_sell`='1'"
+                                            .",`cancel`='2'"
+                                            .$con
+                                            .$this->insert_common_sql();
+                                $res1 = $this->re_db_query($q1);
+                                $last_inserted_id = $this->re_db_insert_id();
+                                            
+                                $get_client_split_rates = $trans_ins->get_client_split_rate($client_id);
+                            
+                                if(isset($get_client_split_rates[0]['split_broker']) && $get_client_split_rates[0]['split_broker'] != ''){
                                     $q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."`"
+                                            ." SET `transaction_id`='".$last_inserted_id."'"
+                                                .",`split_client_id`='".$client_id."'"
+                                                .",`split_broker_id`='0'"
+                                                .",`split_broker`='".$get_client_split_rates[0]['split_broker']."'"
+                                                .",`split_rate`='".$get_client_split_rates[0]['split_rate']."'"
+                                                .$this->insert_common_sql();
+                                    $res = $this->re_db_query($q);
+                                }
+                                            
+                                $get_broker_split_rate = $trans_ins->get_broker_split_rate($broker_id);
+                                
+                                if(isset($get_broker_split_rate[0]['rap']) && $get_broker_split_rate[0]['rap'] != ''){
+                                    foreach($get_broker_split_rate as $keyedit_split=>$valedit_split){
+                                        $q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."`"
                                             ." SET `transaction_id`='".$last_inserted_id."'"
                                                 .",`split_client_id`='0'"
                                                 .",`split_broker_id`='".$broker_id."'"
                                                 .",`split_broker`='".$valedit_split['rap']."'"
                                                 .",`split_rate`='".$valedit_split['rate']."'"
                                                 .$this->insert_common_sql();
-                    				$res = $this->re_db_query($q);
+                                        $res = $this->re_db_query($q);
+                                    }
                                 }
-                            }
-                            
-                            if($res1 == true){
-                                $reprocess_status = true;
-                                unset($_SESSION['batch_id']);
-                            }
-                        }
+                                
+                                if($res1 == true){
+                                    $reprocess_status = true;
+                                }
+                            }   
+                        } // 7th line out - INSERT the IDC record
                     }
                 }
             }
@@ -2951,7 +2949,7 @@
          * @param string $pTerm_date 
          * @return bool 
          */
-        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id, $pTerm_date=''){
+        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTerm_date=''){
             $BatchClass = new batches();
             $DbClass = new db();
 
@@ -2966,12 +2964,13 @@
                 $licenseTable = BROKER_LICENCES_SECURITIES;
             }
 
-            $q = "SELECT `bm`.`id`, `bm`.`first_name`, `bm`.`last_name`, `bls`.`active_check`, `bls`.`state_id`, '".$licenseTable."' AS `license_table`, '".$product_category."' AS `product_category`".
+            $q = "SELECT `bm`.`id`, `bm`.`first_name`, `bm`.`last_name`, `bls`.`active_check`, `bls`.`state_id`, '".$this->re_db_input($licenseTable)."' AS `license_table`, '"
+                         .$this->re_db_input($product_category)."' AS `product_category`".
                     " FROM `".BROKER_MASTER."` AS `bm`".
                     " LEFT JOIN `".$licenseTable."` AS `bls` ON `bm`.`id` = `bls`.`broker_id`".
                         " AND `bls`.`is_delete`='0'".
                         " AND `bls`.`state_id`='".$pClient_state."'".
-                        " AND `bls`.`terminated`>='".$term_date."'".
+                        " AND ('".$term_date."' BETWEEN `bls`.`received` AND `bls`.`terminated`)".
                     " WHERE `bm`.`is_delete`='0'".
                     " AND `bm`.`id`='".$pBroker_id."'"
             ;
@@ -2992,7 +2991,6 @@
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-                     
     			}
             }
 			return $return;

@@ -1999,18 +1999,38 @@
             }
 			return $return;
 		}
-        public function get_state_name($id){
+
+    public function get_state_name($id){
 			$return = array();
-			$q = "SELECT `at`.name as state_name
-					FROM `".STATE_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+			$q = "SELECT `at`.name AS state_name".
+					    " FROM `".STATE_MASTER."` AS `at`".
+              " WHERE `at`.`is_delete`='0'". 
+                " AND `at`.`id`='".$id."'";
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_array($res);
-            }
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_array($res);
+      }
 			return $return;
 		}
-        public function get_payout_schedule(){
+    public function get_state_code($name){
+			$return = 0;
+      $name = strtolower(trim($name));
+      $short_name = strtoupper(trim($name));
+
+			$q = "SELECT `at`.`id`,`name`,`short_name`".
+					    " FROM `".STATE_MASTER."` AS `at`".
+              " WHERE `at`.`is_delete`='0'". 
+                " AND (LOWER(`at`.`name`)='".$name."' OR short_name='".$short_name."')";
+			$res = $this->re_db_query($q);
+      
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_array($res);
+        $return = $return['id'];
+      }
+			return $return;
+		}
+
+    public function get_payout_schedule(){
 			$return = array();
 			$q = "SELECT `at`.*
 					FROM `".BROKER_PAYOUT_SCHEDULE."` AS `at`

@@ -1980,29 +1980,29 @@
             }
 			return $return;
 		}
-        public function get_state_name($id){
-			$return = array();
-			$q = "SELECT `at`.name as state_name
-					FROM `".STATE_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+    public function get_state_name($id){
+		  $return = array();
+			$q = "SELECT `at`.name as state_name".
+					    " FROM `".STATE_MASTER."` AS `at`.".
+              " WHERE `at`.`is_delete`='0'".
+                " AND `at`.`id`='".$id."'";
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_array($res);
-            }
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_array($res);
+      }
 			return $return;
 		}
-        public function get_payout_schedule(){
+    public function get_payout_schedule(){
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".BROKER_PAYOUT_SCHEDULE."` AS `at`
-                    WHERE `at`.`is_delete`='0'";
+			$q = "SELECT `at`.*".
+					    " FROM `".BROKER_PAYOUT_SCHEDULE."` AS `at`".
+              " WHERE `at`.`is_delete`='0'";
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-                     
-    			}
-            }
+      if($this->re_db_num_rows($res)>0){
+    	  while($row = $this->re_db_fetch_array($res)){
+    		  array_push($return,$row);
+        }
+      }
 			return $return;
 		}
         public function get_broker_doc_name(){
