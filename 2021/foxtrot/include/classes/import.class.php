@@ -2548,7 +2548,7 @@
                     /***********************************
                     * IDC PROCESS commission data
                     ************************************/
-                    $check_idc_array = $this->get_idc_detail_data($id);
+                    $check_idc_array = $this->get_idc_detail_data($id, 0);
 
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
                         $batch_id = 0;
@@ -2637,7 +2637,7 @@
                                 $cusipFound = 0;
 
                                 while($productCategoryRow = $this->re_db_fetch_array($resProductType) AND $cusipFound==0){
-                                    $q = "SELECT * ".
+                                    $q = "SELECT `id`,`cusip`,`category`,`objective` ".
                                             "FROM `product_category_".$productCategoryRow['id']."`". 
                                             "WHERE `is_delete`='0'".
                                             " AND `status`!=0".
@@ -2676,12 +2676,12 @@
                             $result = 1;
                         } else {
                             $q = 
-                                "SELECT `cm`.*"
-                                    ." FROM `".CLIENT_MASTER."` as `cm`"
-                                    ." LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`"
-                                    ." WHERE `cm`.`is_delete`='0'"
-                                    ." AND `ca`.`account_no`='".$check_data_val['customer_account_number']."'"
-                                    ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
+                                "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
+                                    ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
+                                    ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0" 
+                                    ." WHERE `ca`.`is_delete`=0"
+                                      ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
+                                      ." AND `ca`.`account_no`='".$check_data_val['customer_account_number']."'"
                             ;
                             $res = $this->re_db_query($q);
                             $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
@@ -2706,7 +2706,7 @@
                                         " FROM `".CLIENT_OBJECTIVES."` as `co`".
                                         " WHERE `co`.`is_delete`='0'".
                                           " AND `co`.`objectives`='".$foundCusip['objective']."'".
-                                          " AND `client_id`='".$client_id."'"
+                                          " AND `client_id`='".$this->re_db_input($client_id)."'"
                                 ;
                                 $resClientObjectives = $this->re_db_query($q);
                                             
@@ -2725,7 +2725,8 @@
                             if(!empty($broker_id) AND !empty($client_id) AND !empty($clientAccount['state']) AND !empty($product_category_id)){
                                 // 12/17/21 Get the correct product type license
                                 $check_result = $this->checkStateLicense($broker_id, $clientAccount['state'], $product_category_id, $check_data_val['trade_date']);
-                                if($check_result){
+                               
+                                if($check_result == 0){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                             ."SET  `error_code_id`='6'"
                                                 .",`field`='StateCode:".$this->re_db_input($clientAccount['state']).", ProdCat:".($this->re_db_input($product_category_id))."'"
@@ -2748,27 +2749,36 @@
                                 $sponsor_id = $this->re_db_input($file_sponsor_array['id']);
                                 
                                 $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
-                                $batch_date = (empty($header_record['transmission_date']) ? date('m/d/Y') : date('m/d/Y', strtotime($header_record['transmission_date'])));
-                                $batch_description = $sponsor_name.' - '.$batch_date;
+                                $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
+                                $batch_description = $sponsor_name.' - '.date('m/d/Y', strtotime($batch_date));
                                 
-                                $q = "SELECT SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) AS total_check_amount"
+                                $q = "SELECT `file_id`"
+                                            ." ,SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) AS total_check_amount"
+                                            ." ,MIN(`trade_date`) AS `trade_start_date`"
+                                            ." , MAX(`trade_date`) AS `trade_end_date`"
                                         ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
                                         ." WHERE `is_delete`='0'"
-                                        ." AND `file_id`='".$check_data_val['file_id']."'";
+                                          ." AND `file_id`='".$check_data_val['file_id']."'"
+                                        ." GROUP BY `file_id`"
+                                ;
                                 $res = $this->re_db_query($q);
                                 
                                 if($this->re_db_num_rows($res)>0){
-                                    $row = $this->re_db_fetch_array($res);
-                                    $total_check_amount = $row['total_check_amount'];
+                                    $batchArray = $this->re_db_fetch_array($res);
+                                    $total_check_amount = $batchArray['total_check_amount'];
+                                } else {
+                                    $batchArray = ["file_id"=>$check_data_val['file_id'], "total_check_amount"=>0, "trade_start_date"=>'', "trade_end_date"=>''];
                                 }
                                 
                                 $q = "INSERT INTO `".BATCH_MASTER."`"
-                                ." SET `file_id`='".$check_data_val['file_id']."'"
+                                        ." SET `file_id`='".$check_data_val['file_id']."'"
                                             .",`pro_category`='".$product_category_id."'"
-                                            .",`batch_desc`='".$batch_description."'"
+                                            .",`batch_desc`='".$this->re_db_input($batch_description)."'"
                                             .",`sponsor`='".$sponsor_id."'"
                                             .",`check_amount`='".$total_check_amount."'"
                                             .",`batch_date`='".$batch_date."'"
+                                            .",`trade_start_date`='".$this->re_db_input($batchArray['trade_start_date'])."'"
+                                            .",`trade_end_date`='".$this->re_db_input($batchArray['trade_end_date'])."'"
                                             .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
                                 $batch_id = $this->re_db_insert_id();
@@ -2838,6 +2848,7 @@
                                             .",`split`='1'"
                                             .",`buy_sell`='1'"
                                             .",`cancel`='2'"
+                                            .",`commission_received_date`='".$batch_date."'"
                                             .$con
                                             .$this->insert_common_sql();
                                 $res1 = $this->re_db_query($q1);
@@ -2861,12 +2872,12 @@
                                 if(isset($get_broker_split_rate[0]['rap']) && $get_broker_split_rate[0]['rap'] != ''){
                                     foreach($get_broker_split_rate as $keyedit_split=>$valedit_split){
                                         $q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."`"
-                                            ." SET `transaction_id`='".$last_inserted_id."'"
-                                                .",`split_client_id`='0'"
-                                                .",`split_broker_id`='".$broker_id."'"
-                                                .",`split_broker`='".$valedit_split['rap']."'"
-                                                .",`split_rate`='".$valedit_split['rate']."'"
-                                                .$this->insert_common_sql();
+                                                ." SET `transaction_id`='".$last_inserted_id."'"
+                                                    .",`split_client_id`='0'"
+                                                    .",`split_broker_id`='".$broker_id."'"
+                                                    .",`split_broker`='".$valedit_split['rap']."'"
+                                                    .",`split_rate`='".$valedit_split['rate']."'"
+                                                    .$this->insert_common_sql();
                                         $res = $this->re_db_query($q);
                                     }
                                 }
@@ -2973,13 +2984,13 @@
          * @param int $pClient_state 
          * @param mixed $pProduct_category_id 
          * @param string $pTerm_date 
-         * @return bool 
+         * @return bool TRUE - good licensing, FALSE - broker license not found or not active
          */
-        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTerm_date=''){
+        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date=''){
             $BatchClass = new batches();
             $DbClass = new db();
 
-            $term_date = (empty($pTerm_date) ? date('Y-m-d', strtotime('1900-01-01')) : date('Y-m-d', strtotime($pTerm_date)));
+            $trade_date = (empty($pTrade_date) ? date('Y-m-d', strtotime('1900-01-01')) : date('Y-m-d', strtotime($pTrade_date)));
             $product_category = strtolower($BatchClass->get_product_type($pProduct_category_id));
 
             if (in_array($product_category, ['ria'])) {
@@ -2992,17 +3003,16 @@
 
             $q = "SELECT `bm`.`id`, `bm`.`first_name`, `bm`.`last_name`, `bls`.`active_check`, `bls`.`state_id`, '".$this->re_db_input($licenseTable)."' AS `license_table`, '"
                          .$this->re_db_input($product_category)."' AS `product_category`".
-                    " FROM `".BROKER_MASTER."` AS `bm`".
-                    " LEFT JOIN `".$licenseTable."` AS `bls` ON `bm`.`id` = `bls`.`broker_id`".
-                        " AND `bls`.`is_delete`='0'".
-                        " AND `bls`.`state_id`='".$pClient_state."'".
-                        " AND ('".$term_date."' BETWEEN `bls`.`received` AND `bls`.`terminated`)".
-                    " WHERE `bm`.`is_delete`='0'".
-                    " AND `bm`.`id`='".$pBroker_id."'"
+                    " FROM `".$licenseTable."` AS `bls`".
+                    " LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`='0'".
+                    " WHERE `bls`.`is_delete`='0'"
+                        ." AND `bls`.`broker_id`='".$pBroker_id."'"
+                        ." AND `bls`.`state_id`='".$pClient_state."'"
+                        ." AND ('".$trade_date."' BETWEEN `bls`.`received` AND `bls`.`terminated`)"
             ;
             $res = $DbClass->re_db_query($q);
             $qArray = $DbClass->re_db_fetch_array($res);
-            return !empty($qArray['active_check']);;
+            return !empty($qArray['active_check']);
         }
 
         public function select_archive_files(){

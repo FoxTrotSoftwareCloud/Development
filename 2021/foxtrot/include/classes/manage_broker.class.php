@@ -55,7 +55,7 @@
 			$q = "SELECT `fbg`.`*`"
 					    ." FROM `" . $this->table . "` AS `fbg`"
               ." WHERE `fbg`.`is_delete`='0'"
-                ." AND `fbg`.`fund`='".trim($brokerFund)."'"
+                ." AND `fbg`.`fund`='".$this->re_db_input($brokerFund)."'"
               ." ORDER BY `fbg`.`id` ASC";
 			$res = $this->re_db_query($q);
 
