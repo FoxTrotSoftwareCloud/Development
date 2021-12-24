@@ -2679,9 +2679,9 @@
                                 "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
                                     ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                     ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0" 
-                                    ." WHERE `ca`.`is_delete`=0"
-                                      ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
-                                      ." AND `ca`.`account_no`='".$check_data_val['customer_account_number']."'"
+                                    ." WHERE `ca`.`account_no`='".$check_data_val['customer_account_number']."'"
+                                        ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
+                                        ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
                             ;
                             $res = $this->re_db_query($q);
                             $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
@@ -2740,17 +2740,16 @@
                         
                         // INSERT the IDC record
                         if(isset($result) && $result == 0){
-                            $total_check_amount = 0;
+                            $total_check_amount = $transaction_master_id = 0;
+                            $commission_received = ($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '') . ($this->re_db_input($check_data_val['dealer_commission_amount']));
+                            $split_trade = 0;
                             $batch_id = $this->get_file_batch($check_data_val['file_id']);
+                            $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
+                            $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
+                            $batch_description = $this->re_db_input($file_sponsor_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
                             
                             // Create new BATCH
                             if (empty($batch_id)){
-                                $sponsor_name = $this->re_db_input($file_sponsor_array['name']);
-                                $sponsor_id = $this->re_db_input($file_sponsor_array['id']);
-                                
-                                $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
-                                $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
-                                $batch_description = $sponsor_name.' - '.date('m/d/Y', strtotime($batch_date));
                                 
                                 $q = "SELECT `file_id`"
                                             ." ,SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) AS total_check_amount"
@@ -2774,7 +2773,7 @@
                                         ." SET `file_id`='".$check_data_val['file_id']."'"
                                             .",`pro_category`='".$product_category_id."'"
                                             .",`batch_desc`='".$this->re_db_input($batch_description)."'"
-                                            .",`sponsor`='".$sponsor_id."'"
+                                            .",`sponsor`='".$this->re_db_input($file_sponsor_array['id'])."'"
                                             .",`check_amount`='".$total_check_amount."'"
                                             .",`batch_date`='".$batch_date."'"
                                             .",`trade_start_date`='".$this->re_db_input($batchArray['trade_start_date'])."'"
@@ -2801,8 +2800,8 @@
                                             .",`account_no`='".$check_data_val['customer_account_number']."'"
                                             .",`client`='".$check_data_val['alpha_code']."'"
                                             .",`cusip`='".$check_data_val['CUSIP_number']."'"
-                                            .",`principal`='".$this->re_db_input($check_data_val['gross_transaction_amount']).$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
-                                            .",`commission`='".$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
+                                            .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
+                                            .",`commission`='".$commission_received."'"
                                             .$this->insert_common_sql()
                                 ;
                                 $res = $this->re_db_query($q);
@@ -2835,7 +2834,7 @@
                                             .",`invest_amount`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').ltrim($check_data_val['gross_transaction_amount'],0)."'"
                                             .",`gross_amount_sign_code`='".$check_data_val['gross_amount_sign_code']."'"
                                             .",`dealer_commission_sign_code`='".$check_data_val['dealer_commission_sign_code']."'"
-                                            .",`commission_received`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                                            .",`commission_received`='".$commission_received."'"
                                             .",`product_cate`='".$product_category_id."'"
                                             .",`product`='".$product_id."'"
                                             .",`batch`='".$batch_id."'"
@@ -2845,7 +2844,7 @@
                                             .",`client_number`='".$check_data_val['customer_account_number']."'"
                                             .",`branch`='".$branch."'"
                                             .",`company`='".$company."'"
-                                            .",`split`='1'"
+                                            .",`split`='2'"
                                             .",`buy_sell`='1'"
                                             .",`cancel`='2'"
                                             .",`commission_received_date`='".$batch_date."'"
@@ -2853,6 +2852,7 @@
                                             .$this->insert_common_sql();
                                 $res1 = $this->re_db_query($q1);
                                 $last_inserted_id = $this->re_db_insert_id();
+                                $transaction_master_id = $last_inserted_id;
                                             
                                 $get_client_split_rates = $trans_ins->get_client_split_rate($client_id);
                             
@@ -2865,8 +2865,10 @@
                                                 .",`split_rate`='".$get_client_split_rates[0]['split_rate']."'"
                                                 .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
+                                    
+                                    $split_trade++;
                                 }
-                                            
+                                
                                 $get_broker_split_rate = $trans_ins->get_broker_split_rate($broker_id);
                                 
                                 if(isset($get_broker_split_rate[0]['rap']) && $get_broker_split_rate[0]['rap'] != ''){
@@ -2880,8 +2882,34 @@
                                                     .$this->insert_common_sql();
                                         $res = $this->re_db_query($q);
                                     }
+                                    
+                                    $split_trade++;
                                 }
                                 
+                                // Update the relevant tables with trade values
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." SET `process_result`='1'"
+                                            .",`transaction_master_id`='$transaction_master_id'"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
+                                ;
+                                $res = $this->re_db_query($q);
+                                
+                                if ($split_trade){
+                                    $q = "UPDATE `".TRANSACTION_MASTER."`"
+                                            ." SET `split`='1'"
+                                                    .$this->update_common_sql()
+                                            ." WHERE `id`='$transaction_master_id'  AND `is_delete`=0";
+                                    $res = $this->re_db_query($q);
+                                }
+
+                                $q = "UPDATE `".BATCH_MASTER."`"
+                                        ." SET `commission_amount`=`commission_amount`+$commission_received"
+                                            .",`posted_amounts`=`posted_amounts`+$commission_received"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`='$batch_id'  AND `is_delete`=0";
+                                $res = $this->re_db_query($q);
+
                                 if($res1 == true){
                                     $reprocess_status = true;
                                 }
@@ -3006,8 +3034,8 @@
                     " FROM `".$licenseTable."` AS `bls`".
                     " LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`='0'".
                     " WHERE `bls`.`is_delete`='0'"
-                        ." AND `bls`.`broker_id`='".$pBroker_id."'"
-                        ." AND `bls`.`state_id`='".$pClient_state."'"
+                        ." AND `bls`.`broker_id`='".$this->re_db_input($pBroker_id)."'"
+                        ." AND `bls`.`state_id`='".$this->re_db_input($pClient_state)."'"
                         ." AND ('".$trade_date."' BETWEEN `bls`.`received` AND `bls`.`terminated`)"
             ;
             $res = $DbClass->re_db_query($q);

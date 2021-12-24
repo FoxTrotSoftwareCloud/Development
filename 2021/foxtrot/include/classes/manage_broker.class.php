@@ -76,7 +76,7 @@
               ." FROM `".BROKER_ALIAS."` AS `alias`"
 					    ." LEFT JOIN `". $this->table ."` AS `fbg` ON `alias`.`broker_id` = `fbg`.`id` AND `fbg`.`is_delete` = 0"
               ." LEFT JOIN `".SPONSOR_MASTER."` AS `sponsors` ON `alias`.`sponsor_company` = `sponsors`.`id` AND `sponsors`.`is_delete` = 0"
-              ." WHERE `alias`.`is_delete`='0'"
+              ." WHERE `alias`.`is_delete`='0' AND `alias`.`broker_id`=`fbg`.`id`"
                 ." AND `alias`.`alias_name`='".$this->re_db_input($aliasName)."'"
                 ." AND `alias`.`sponsor_company`='".$this->re_db_input($sponsorCompany)."'"
               ." ORDER BY `alias`.`created_time` ASC";
