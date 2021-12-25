@@ -2596,9 +2596,10 @@
                                     $check_hold_commission = $this->get_hold_commission($check_data_val['file_id'],$check_data_val['id']);
 
                                     if($check_broker_termination != '' && $check_hold_commission == '0'){
-                                        $current_date = date('Y-m-d');
+                                        // 12/24/21 Use the Trade Date instead of the System Date
+                                        // $current_date = date('Y-m-d');
 
-                                        if($current_date>$check_broker_termination){
+                                        if(date('Y-m-d', strtotime($check_data_val['trade_date'])) > $check_broker_termination){
                                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                     ." SET `error_code_id`='2'"
                                                         .",`field`='".$this->re_db_input($check_broker_termination)."'"
@@ -2827,11 +2828,11 @@
                                 $company = isset($get_branch_company_detail['company_id'])?$get_branch_company_detail['company_id']:'';
                             
                                 $q1 = "INSERT INTO `".TRANSACTION_MASTER."`"
-                                        ."SET `file_id`='".$check_data_val['file_id']."'"
+                                        ." SET `file_id`='".$check_data_val['file_id']."'"
                                             .",`source`='DS'"
                                             .",`trade_date`='".$check_data_val['trade_date']."'"
                                             .",`posting_date`='".date('Y-m-d')."'"
-                                            .",`invest_amount`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                                            .",`invest_amount`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
                                             .",`gross_amount_sign_code`='".$check_data_val['gross_amount_sign_code']."'"
                                             .",`dealer_commission_sign_code`='".$check_data_val['dealer_commission_sign_code']."'"
                                             .",`commission_received`='".$commission_received."'"
@@ -3092,15 +3093,19 @@
         public function get_exception_data($file_id){
 			$return = array();
 			
-			$q = "SELECT `at`.*
-					FROM `".IMPORT_EXCEPTION."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`solved`='0' and `at`.`file_id`='".$file_id."'
-                    ORDER BY `at`.`id` ASC";
-			$res = $this->re_db_query($q);
+            $q = "SELECT `a`.last_id, `a`.last_created, `ex`.*"
+                    ." FROM (SELECT temp_data_id, MAX(id) AS last_id, MAX(created_time) AS last_created "
+                            ." FROM `".IMPORT_EXCEPTION."`"
+                            ." WHERE `is_delete`=0 AND `file_id`='$file_id'"
+                            ." GROUP BY `temp_data_id`) `a`"
+                    ." LEFT JOIN `".IMPORT_EXCEPTION."` `ex` ON `a`.last_id = `ex`.id"
+                    ." WHERE `ex`.`solved`=0"
+            ;
+            $res = $this->re_db_query($q);
+
             if($this->re_db_num_rows($res)>0){
                 while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-                     
     			}
             }
 			return $return;
