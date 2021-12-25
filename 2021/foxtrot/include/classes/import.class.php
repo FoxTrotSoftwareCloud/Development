@@ -3090,23 +3090,31 @@
             }
 			return $return;
 		}
-        public function get_exception_data($file_id){
+        public function get_exception_data($file_id, $exceptionCountOnly=0){
 			$return = array();
-			
-            $q = "SELECT `a`.last_id, `a`.last_created, `ex`.*"
-                    ." FROM (SELECT temp_data_id, MAX(id) AS last_id, MAX(created_time) AS last_created "
+			$countOnlyClause = ($exceptionCountOnly ? ' GROUP BY `temp_data_id`' : '' );
+
+            // MAX(created_time)->last_created - Only return the last set of exceptions
+            $q = "SELECT `ex`.*"
+                    ." FROM (SELECT `temp_data_id`, MAX(`created_time`) AS `last_created` "
                             ." FROM `".IMPORT_EXCEPTION."`"
                             ." WHERE `is_delete`=0 AND `file_id`='$file_id'"
                             ." GROUP BY `temp_data_id`) `a`"
-                    ." LEFT JOIN `".IMPORT_EXCEPTION."` `ex` ON `a`.last_id = `ex`.id"
+                    ." LEFT JOIN `".IMPORT_EXCEPTION."` `ex` ON `a`.temp_data_id=`ex`.temp_data_id AND `a`.`last_created`=`ex`.`created_time`"
                     ." WHERE `ex`.`solved`=0"
+                    .$countOnlyClause
+                    ." ORDER BY `temp_data_id`,`error_code_id`"
             ;
             $res = $this->re_db_query($q);
 
-            if($this->re_db_num_rows($res)>0){
-                while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-    			}
+            if ($exceptionCountOnly){
+                $return = $this->re_db_num_rows($res);
+            } else {
+                if($this->re_db_num_rows($res)>0){
+                    while($row = $this->re_db_fetch_array($res)){
+                         array_push($return,$row);
+                    }
+                }
             }
 			return $return;
 		}

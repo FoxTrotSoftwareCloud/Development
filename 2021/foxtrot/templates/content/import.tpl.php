@@ -265,15 +265,15 @@ PostResult( msg );
                                                         {
                                                             $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
                                                             $count_processed_data = count($total_processed_data);
-                                                            $total_exception_data = $instance->get_exception_data($val['id']);
-                                                            $count_exception_data = count($total_exception_data);
+                                                            $count_exception_data = $instance->get_exception_data($val['id'], 1);
+                                                            // $count_exception_data = count($total_exception_data);
                                                         }
                                                         else
                                                         {
-                                                            $total_processed_data = $instance->get_idc_detail_data($val['id']);
+                                                            $total_processed_data = $instance->get_idc_detail_data($val['id'],1);
                                                             $count_processed_data = count($total_processed_data);
-                                                            $total_exception_data = $instance->get_exception_data($val['id']);
-                                                            $count_exception_data = count($total_exception_data);
+                                                            $count_exception_data = $instance->get_exception_data($val['id'], 1);
+                                                            // $count_exception_data = count($total_exception_data);
                                                         }
                                                         if(isset($count_processed_data) && $count_processed_data>0)
                                                         {
@@ -294,15 +294,15 @@ PostResult( msg );
                                                             {
                                                                 $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                $count_exception_data = count($total_exception_data);
+                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
+                                                                // $count_exception_data = count($total_exception_data);
                                                             }
                                                             else
                                                             {
                                                                 $total_processed_data = $instance->get_idc_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                $count_exception_data = count($total_exception_data);
+                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
+                                                                // $count_exception_data = count($total_exception_data);
                                                             }
                                                             if(isset($count_processed_data) && $count_processed_data>0)
                                                             {
@@ -412,15 +412,17 @@ PostResult( msg );
                                                             {
                                                                 $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                $count_exception_data = count($total_exception_data);
+                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
+                                                                // 12/25/21 Refactored the get_exception_data(fileId) function to return only the exceptions remaining for the file
+                                                                // $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                //$count_exception_data = count($total_exception_data);
                                                             }
                                                             else
                                                             {
                                                                 $total_processed_data = $instance->get_idc_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                $count_exception_data = count($total_exception_data);
+                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
+                                                                // $count_exception_data = count($total_exception_data);
                                                             }
                                                             if(isset($count_processed_data) && $count_processed_data>0)
                                                             {
