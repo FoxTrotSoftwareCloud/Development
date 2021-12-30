@@ -184,7 +184,7 @@
               $fieldsToWatch = array('first_name', 'last_name', 'mi', 'do_not_contact', 'active', 'ofac_check', 'fincen_check', 'long_name', 'client_file_number',
                 'clearing_account', 'client_ssn', 'house_hold', 'split_broker', 'split_rate', 'address1', 'address2', 'city', 'state', 'zip_code', 'citizenship',
                 'birth_date', 'date_established', 'age', 'open_date', 'naf_date', 'last_contacted', 'account_type', 'broker_name', 'telephone', 'contact_status',
-                'reviewed_at', 'reviewed_by', 'is_reviewed', '');
+                'reviewed_at', 'reviewed_by', 'is_reviewed'); //, '');
               $this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
 
                $objectiveDbId=$this->updateClientObjectives($id,$objectives);
