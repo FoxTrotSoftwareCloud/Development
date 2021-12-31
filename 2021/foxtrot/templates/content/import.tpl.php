@@ -253,7 +253,7 @@ PostResult( msg );
                                                     if(isset($val['imported_date']) && $val['imported_date']!= ''){
                                                    ?>
                                                     <tr>
-                                                        <td><?php echo $val['file_type']=='C1'?$file_batch_id:'N/A';?></td>
+                                                        <td><?php echo in_array($val['file_type'], ['C1', 'DST Commission'])?$file_batch_id:'N/A';?></td>
                                                         <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id=".$val['id'];?>"><?php echo $sponsor;?></a></td>
                                                         <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
                                                         <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
