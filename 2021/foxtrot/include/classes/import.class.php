@@ -2218,19 +2218,15 @@
                         $batch_id = 0;
                         $rep_number = isset($check_data_val['representative_number']) ? trim($this->re_db_input($check_data_val['representative_number'])) : '';
     
-                        if($rep_number != '') {
-                            $q_broker = "SELECT * FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `fund`='".$rep_number."'";
-                            $res_broker = $this->re_db_query($q_broker);
-                            $return = $this->re_db_num_rows($res_broker);
+                        if($rep_number != '') {        
+                            $broker_data = $broker_master->select_broker_by_fund($rep_number);                    
+                            $return = count($broker_data);
                             
                             if($return == 0){
-                                $alias_query="SELECT * FROM `".BROKER_ALIAS."` WHERE `is_delete`='0' AND alias_name='".$rep_number."' order by id desc limit 1";
-                                $res_broker1 = $this->re_db_query($alias_query);
-                                $return = $this->re_db_num_rows($res_broker1);
-                                $broker_data=  $this->re_db_fetch_array($res_broker1); 
+                                $broker_data = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
+                                $return = count($broker_data);
                                 $broker_id=$broker_data['broker_id']; 
                             } else {
-                                $broker_data=$this->re_db_fetch_array($res_broker);
                                 $broker_id=$broker_data['id'];
                             }
 
