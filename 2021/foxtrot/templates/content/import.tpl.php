@@ -263,7 +263,7 @@ PostResult( msg );
                                                         <?php 
                                                         if(isset($val['source']) && $val['source'] == 'DSTFANMail')
                                                         {
-                                                            $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
+                                                            $total_processed_data = $instance->get_fanmail_detail_data($val['id'], 1);
                                                             $count_processed_data = count($total_processed_data);
                                                             $count_exception_data = $instance->get_exception_data($val['id'], 1);
                                                             // $count_exception_data = count($total_exception_data);

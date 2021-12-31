@@ -3080,10 +3080,12 @@
         public function check_exception_data($file_id){
 			$return = 0;
 			
-			$q = "SELECT `at`.*
-					FROM `".IMPORT_EXCEPTION."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`solved`='0' and `at`.`file_id`='".$file_id."'
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*"
+					." FROM `".IMPORT_EXCEPTION."` AS `at`"
+                    ." WHERE `at`.`is_delete`='0'"
+                      ." AND `at`.`solved`='0'"
+                      ." AND `at`.`file_id`='".$file_id."'"
+                    ." ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $return = 4;
@@ -3098,10 +3100,12 @@
             $q = "SELECT `ex`.*"
                     ." FROM (SELECT `temp_data_id`, MAX(`created_time`) AS `last_created` "
                             ." FROM `".IMPORT_EXCEPTION."`"
-                            ." WHERE `is_delete`=0 AND `file_id`='$file_id'"
+                            ." WHERE `is_delete`=0"
+                              ." AND `file_id`='$file_id'"
                             ." GROUP BY `temp_data_id`) `a`"
                     ." LEFT JOIN `".IMPORT_EXCEPTION."` `ex` ON `a`.temp_data_id=`ex`.temp_data_id AND `a`.`last_created`=`ex`.`created_time`"
                     ." WHERE `ex`.`solved`=0"
+                        ." AND `ex`.`is_delete`=0"
                     .$countOnlyClause
                     ." ORDER BY `temp_data_id`,`error_code_id`"
             ;
@@ -3153,7 +3157,7 @@
 			$con = '';
             
             if (!is_null($process_result)) {
-                $con = " AND (`at`.`process_result` = '".$process_result."'"
+                $con = " AND (`at`.`process_result` >= '".$process_result."'"
                        .($process_result==0 ? " OR `at`.`process_result` IS NULL" : "")
                        .")"
                 ;
