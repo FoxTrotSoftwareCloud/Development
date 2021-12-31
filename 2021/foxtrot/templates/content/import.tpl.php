@@ -253,7 +253,7 @@ PostResult( msg );
                                                     if(isset($val['imported_date']) && $val['imported_date']!= ''){
                                                    ?>
                                                     <tr>
-                                                        <td><?php echo $file_batch_id;?></td>
+                                                        <td><?php echo $val['file_type']=='C1'?$file_batch_id:'N/A';?></td>
                                                         <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id=".$val['id'];?>"><?php echo $sponsor;?></a></td>
                                                         <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
                                                         <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
@@ -340,7 +340,7 @@ PostResult( msg );
                                                         <td style="width: 10%;"><form method="post">
                                                             <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
                                                             <input type="hidden" name="note" value="save_note" />
-                                                            <input type="text" maxlength="20" value="<?php echo $val['note'];?>" name="note_<?php echo $val['id'];?>">
+                                                            <input type="text" maxlength="20" value="<?php echo isset($val['note'])?$val['note']:'';?>" name="note_<?php echo $val['id'];?>">
                                                             </form>
                                                         </td>
                                                         <td style="width: 25%;">
