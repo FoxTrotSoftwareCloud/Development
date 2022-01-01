@@ -2225,7 +2225,7 @@
                             if($return == 0){
                                 $broker_data = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
                                 $return = count($broker_data);
-                                $broker_id=$broker_data['broker_id']; 
+                                $broker_id= ($return ? $broker_data['broker_id'] : 0); 
                             } else {
                                 $broker_id=$broker_data['id'];
                             }
