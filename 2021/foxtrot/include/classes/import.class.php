@@ -2235,7 +2235,7 @@
                                         ." SET"
                                             ." `file_id`='".$check_data_val['file_id']."'"
                                             .",`error_code_id`='1'"
-                                            .",`field`='representative_number'"
+                                            .",`field`='$rep_number'"
                                             .",`file_type`='1'"
                                             .",`temp_data_id`='".$check_data_val['id']."'"
                                             .",`date`='".date('Y-m-d')."'"
@@ -2259,7 +2259,7 @@
                                                 ." SET"
                                                     ." `file_id`='".$check_data_val['file_id']."'"
                                                     .",`error_code_id`='2'"
-                                                    .",`field`='u5'"
+                                                    .",`field`='$check_broker_termination'"
                                                     .",`file_type`='1'"
                                                     .",`temp_data_id`='".$check_data_val['id']."'"
                                                     .",`date`='".date('Y-m-d')."'"
@@ -2295,13 +2295,13 @@
                                                 
                         if($result == 0) {
                             // Account Number Check
-                            $qAcctClientCheck = "SELECT `id`,`client_id`,`account_no`,`sponsor_company`"
+                            $q = "SELECT `id`,`client_id`,`account_no`,`sponsor_company`"
                                                 ." FROM `".CLIENT_ACCOUNT."`"
                                                 ." WHERE `is_delete`='0'"
                                                   ." AND `account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
                                                   ." AND `sponsor_company`='".$file_sponsor_array['id']."'";
-            				$resAcctClientCheck = $this->re_db_query($qAcctClientCheck);
-            				$acctClientCheck = $this->re_db_num_rows($resAcctClientCheck);
+            				$res = $this->re_db_query($q);
+            				$acctClientCheck = $this->re_db_num_rows($res);
 
                             // Account Number Already Exists
                             if($acctClientCheck > 0){
@@ -2309,7 +2309,7 @@
                                         ." SET"
                                             ." `file_id`='".$check_data_val['file_id']."'"
                                             .",`error_code_id`='12'"
-                                            .",`field`='customer_account_number'"
+                                            .",`field`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
                                             .",`file_type`='1'" 
                                             .",`temp_data_id`='".$check_data_val['id']."'"
                                             .",`date`='".date('Y-m-d')."'"
@@ -2324,15 +2324,55 @@
                             } else {
                                 // SSN Check
                                 $social_security_number = preg_replace("/[^a-zA-Z0-9]/", "", $check_data_val['social_security_number']);
+                                $existingSocialArray = array();
 
-                                $qSsnClientCheck = "SELECT `id`,`last_name`,`first_name`,`client_ssn`,`client_file_number`,`clearing_account`"
-                                                    ." FROM `".CLIENT_MASTER."`"
-                                                    ." WHERE `is_delete`='0'"
-                                                    ." AND `active`='0'"
-                                                    ." AND REPLACE(`client_ssn`,'-','')='".$social_security_number."'"
-                                ;
-                                $resSsnClientCheck = $this->re_db_query($qSsnClientCheck);
-                                $ssnClientCheck = $this->re_db_num_rows($resSsnClientCheck);
+                                if (empty($social_security_number)) {
+                                    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                            ." SET"
+                                                ." `file_id`='".$check_data_val['file_id']."'"
+                                                .",`error_code_id`='13'"
+                                                .",`field`='social_security_number'"
+                                                .",`file_type`='1'" 
+                                                .",`temp_data_id`='".$check_data_val['id']."'"
+                                                .",`date`='".date('Y-m-d')."'"
+                                                .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
+                                                .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
+                                                .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                                .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
+                                                .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
+                                                .$this->insert_common_sql();
+                                    $res = $this->re_db_query($q);
+                                    $result = 1;
+                                } else {
+                                    $q = "SELECT `id`,`last_name`,`first_name`,`client_ssn`,`client_file_number`,`clearing_account`"
+                                                        ." FROM `".CLIENT_MASTER."`"
+                                                        ." WHERE `is_delete`='0'"
+                                                        ." AND `active`='0'"
+                                                        ." AND REPLACE(`client_ssn`,'-','')='".$social_security_number."'"
+                                    ;
+                                    $res = $this->re_db_query($q);
+                                    $existingSocialArray = ($this->re_db_num_rows($res) ? $this->re_db_fetch_array($res) : array());
+                                }
+
+                                if (count($existingSocialArray) > 0) {
+                                    /** Skip exception. Just add the Client Account # to the existing social record - 1/1/21 */ 
+                                    // $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                    //         ." SET"
+                                    //             ." `file_id`='".$check_data_val['file_id']."'"
+                                    //             .",`error_code_id`='19'"
+                                    //             .",`field`='$social_security_number'"
+                                    //             .",`file_type`='1'" 
+                                    //             .",`temp_data_id`='".$check_data_val['id']."'"
+                                    //             .",`date`='".date('Y-m-d')."'"
+                                    //             .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
+                                    //             .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
+                                    //             .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                    //             .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
+                                    //             .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
+                                    //             .$this->insert_common_sql();
+                                    // $res = $this->re_db_query($q);
+                                    // $result = 1;
+                                }
                             }
 
                             // Enter the Client
@@ -2340,7 +2380,7 @@
                                 $res = $last_inserted_id = 0;
                                 
                                 // Add Client if SSN doesn't exist
-                                if ($ssnClientCheck == 0){
+                                if (count($existingSocialArray) == 0){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                             ." SET" 
                                                 ." `file_id`='".$check_data_val['file_id']."'"
@@ -2401,8 +2441,7 @@
                                         $client_id = $last_inserted_id;
                                     } else {
                                         // Assign the Account Number to the already existing SSN
-                                        $client_id = $this->re_db_fetch_array($resSsnClientCheck);
-                                        $client_id = $client_id['id'];
+                                        $client_id = $existingSocialArray['id'];
                                     }
 
                                     $q = "INSERT INTO `".CLIENT_ACCOUNT."`"
@@ -2412,6 +2451,7 @@
                                                 .",`sponsor_company`='".$file_sponsor_array['id']."'"
                                                 .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
+                                    $last_inserted_account_no_id = $this->re_db_insert_id();
                                     
                                     // Update EXCEPTIONS table if CLIENT_MASTER wasn't updated
                                     if ($last_inserted_id == 0){
@@ -2434,6 +2474,16 @@
                                         $res = $this->re_db_query($q);
                                         $reprocess_status = true;
                                     }
+
+                                    // Update the relevant tables with trade values
+                                    $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                            ." SET `process_result`='1'"
+                                                .",`client_master_id`='$client_id'"
+                                                .",`account_no_id`='$last_inserted_account_no_id'"
+                                                .$this->update_common_sql()
+                                            ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
+                                    ;
+                                    $res = $this->re_db_query($q);
                                 }
                             }
                         }  
@@ -3153,10 +3203,12 @@
 			$con = '';
             
             if (!is_null($process_result)) {
-                $con = " AND (`at`.`process_result` >= '".$process_result."'"
-                       .($process_result==0 ? " OR `at`.`process_result` IS NULL" : "")
-                       .")"
-                ;
+                if ($process_result==0){
+                    $con = " AND (`at`.`process_result`='0'"
+                                  ." OR `at`.`process_result` IS NULL)";
+                } else {
+                    $con = " AND (`at`.`process_result`='$process_result'";
+                }
             }
 
 			$q = "SELECT `at`.*"
