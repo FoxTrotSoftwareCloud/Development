@@ -1173,9 +1173,9 @@
                     }
                     $file = fopen($file_path, "r");
                     while (($getData = fgetcsv($file, 10000, ",")) !== FALSE)
-                     {
+                    {
                         array_push($file_string_array,$getData[0]);
-                     }
+                    }
 
                     $data_array = array();
                     $array_key = 0;
@@ -1340,7 +1340,7 @@
                                     }
                                     else if($seq_key == 002)
                                     {
-                                        $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `record_type2`='".$seq_val['record_type2']."',`sequence_number2`='".$seq_val['sequence_number2']."',`mutual_fund_dividend_mail_account`='".$seq_val['mutual_fund_dividend_mail_account']."',`mutual_fund_stop_purchase_account`='".$seq_val['mutual_fund_stop_purchase_account']."',`stop_mail_account`='".$seq_val['stop_mail_account']."',`mutual_fund_fractional_check`='".$seq_val['mutual_fund_fractional_check']."',`registration_line1`='".$seq_val['registration_line1']."',`registration_line2`='".$seq_val['registration_line2']."',`registration_line3`='".$seq_val['registration_line3']."',`registration_line4`='".$seq_val['registration_line4']."',`customer_date_of_birth`='".date('Y-m-d',strtotime($seq_val['customer_date_of_birth']))."',`mutual_fund_account_price_schedule_code`='".$seq_val['mutual_fund_account_price_schedule_code']."',`unused_002_1`='".$seq_val['unused_detail']."'".$this->update_common_sql()." WHERE `id`='".$detail_inserted_id."'";
+                                        $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `record_type2`='".$seq_val['record_type2']."',`sequence_number2`='".$seq_val['sequence_number2']."',`mutual_fund_dividend_mail_account`='".$seq_val['mutual_fund_dividend_mail_account']."',`mutual_fund_stop_purchase_account`='".$seq_val['mutual_fund_stop_purchase_account']."',`stop_mail_account`='".$seq_val['stop_mail_account']."',`mutual_fund_fractional_check`='".$seq_val['mutual_fund_fractional_check']."',`registration_line1`='".$seq_val['registration_line1']."',`registration_line2`='".$seq_val['registration_line2']."',`registration_line3`='".$seq_val['registration_line3']."',`registration_line4`='".$seq_val['registration_line4']."',`customer_date_of_birth`='".(empty(trim($seq_val['customer_date_of_birth'])) ? '' : date('Y-m-d',strtotime($seq_val['customer_date_of_birth'])))."',`mutual_fund_account_price_schedule_code`='".$seq_val['mutual_fund_account_price_schedule_code']."',`unused_002_1`='".$seq_val['unused_detail']."'".$this->update_common_sql()." WHERE `id`='".$detail_inserted_id."'";
                             			$res = $this->re_db_query($q);
                                         $data_status = true;
                                     }
@@ -2246,8 +2246,9 @@
                                             .",`cusip`='".$check_data_val['cusip_number']."'"
                                             .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
-                                $result = 1;
-                            } else {  // $return = $this->re_db_fetch_array($res_broker);
+                                $result++;
+                            } else {  
+                                // $return = $this->re_db_fetch_array($res_broker);
                                 /*$broker_id = $broker_id;*/
                                 $check_broker_termination = $this->broker_termination_date('', $broker_id);
         
@@ -2270,7 +2271,7 @@
                                                     .",`cusip`='".$check_data_val['cusip_number']."'"
                                                     .$this->insert_common_sql();
                                         $res = $this->re_db_query($q);
-                                        $result = 1;
+                                        $result++;
                                     }
                                 }
                             }
@@ -2290,7 +2291,7 @@
                                         .",`cusip`='".$check_data_val['cusip_number']."'"
                                         .$this->insert_common_sql();
                             $res = $this->re_db_query($q);
-                            $result = 1;
+                            $result++;
                         }
                                                 
                         if($result == 0) {
@@ -2320,7 +2321,7 @@
                                             .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                             .$this->insert_common_sql();
             			        $res = $this->re_db_query($q);
-                                $result = 1;
+                                $result++;
                             } else {
                                 // SSN Check
                                 $social_security_number = preg_replace("/[^a-zA-Z0-9]/", "", $check_data_val['social_security_number']);
@@ -2342,7 +2343,7 @@
                                                 .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                                 .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
-                                    $result = 1;
+                                    $result++;
                                 } else {
                                     $q = "SELECT `id`,`last_name`,`first_name`,`client_ssn`,`client_file_number`,`clearing_account`"
                                                         ." FROM `".CLIENT_MASTER."`"
@@ -2371,7 +2372,7 @@
                                     //             .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                     //             .$this->insert_common_sql();
                                     // $res = $this->re_db_query($q);
-                                    // $result = 1;
+                                    // $result++;
                                 }
                             }
 
@@ -2427,13 +2428,20 @@
                                                 .",`zip_code`='".$check_data_val['zip_code']."'"
                                                 .",`broker_name`='".$broker_id."'"
                                                 .",`client_ssn`='".$check_data_val['social_security_number']."'"
+                                                .",`client_file_number`='".$check_data_val['social_security_number']."'"
                                                 .",`last_contacted`='".$check_data_val['last_maintenance_date']."'"
                                                 .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
                                     $last_inserted_id = $this->re_db_insert_id();
                                     $reprocess_status = true;
+                                } else {
+                                        $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
+                                        $updateFields = ['file_id'=>$check_data_val['file_id'],'first_name'=>$first_name,'mi'=>$middle_name,'last_name'=>$last_name,'address1'=>$get_client_data[0]['client_address'],
+                                                         'birth_date'=>$check_data_val['customer_date_of_birth'],'zip_code'=>$check_data_val['zip_code'],'broker_name'=>$broker_id,'client_ssn'=>$check_data_val['social_security_number'],
+                                                         'client_file_number'=>$check_data_val['social_security_number'],'last_contacted'=>$check_data_val['last_maintenance_date']];
                                 }
 
+                                // Client Account #
                                 if($last_inserted_id OR $acctClientCheck==0) {
                                     $client_id = 0;
 
@@ -2475,7 +2483,7 @@
                                         $reprocess_status = true;
                                     }
 
-                                    // Update the relevant tables with trade values
+                                    // Update DETAIL TABLE for added/updated clients
                                     $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
                                             ." SET `process_result`='1'"
                                                 .",`client_master_id`='$client_id'"
@@ -3207,11 +3215,11 @@
                     $con = " AND (`at`.`process_result`='0'"
                                   ." OR `at`.`process_result` IS NULL)";
                 } else {
-                    $con = " AND (`at`.`process_result`='$process_result'";
+                    $con = " AND `at`.`process_result`='$process_result'";
                 }
             }
 
-			$q = "SELECT `at`.*"
+			$q = "SELECT `at`.`*`"
 					." FROM `".IMPORT_DETAIL_DATA."` AS `at`"
                     ." WHERE `at`.`is_delete`='0'"
                     ." AND `at`.`file_id`='".$id."'"
