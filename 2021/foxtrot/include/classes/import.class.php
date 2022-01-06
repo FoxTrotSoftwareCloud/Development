@@ -2120,6 +2120,7 @@
             $broker_master = new broker_master();
             $batchClass = new batches();
             $sponsorClass = new manage_sponsor();
+            $dataClass = new data_interfaces_master();
             $reprocess_status = false;
             
             if($id > 0){
@@ -2302,7 +2303,7 @@
                                                   ." AND `account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
                                                   ." AND `sponsor_company`='".$file_sponsor_array['id']."'";
             				$res = $this->re_db_query($q);
-            				$acctClientCheck = $this->re_db_num_rows($res);
+            				$acctClientCheck = ($res ? $this->re_db_fetch_array($res) : 0);
 
                             // Account Number Already Exists
                             if($acctClientCheck > 0){
@@ -2978,7 +2979,7 @@
              *********************/
             $check_file_exception_process = $this->check_file_exception_process($id);
                 
-            if($reprocess_status == 1 && $check_file_exception_process == 0){
+            if($reprocess_status && $check_file_exception_process == 0){
                 $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
                         ." SET `process_completed`='1'"
                             .",`last_processed_date`='".date('Y-m-d')."'"
