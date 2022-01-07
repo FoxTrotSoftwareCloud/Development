@@ -144,71 +144,43 @@ class db
     	return trim($string);
     }
       
-    public function re_db_perform($table, $data, $action = 'insert', $parameters = '', $link = 'db_link')
+    public function re_db_perform($table, $data, $action = 'insert', $where = '', $link = 'db_link')
     {
-        reset($data);
-        if ($action == 'insert')
-        {
-            $query = 'insert into ' . $table . ' (';
-            while (list($columns, ) = each($data)) {
-                $query .= $columns . ', ';
-            }
-            $query = substr($query, 0, -2) . ') values (';
-            reset($data);
-            while (list(, $value) = each($data))
-            {
-                switch ((string)$value)
-                {
-                    case 'now()':
-                        $query .= 'now(), ';
-                        break;
-                    case 'CURRENT_DATE()':
-                        $query .= 'CURRENT_DATE(), ';
-                        break;		  
-                    case 'null':
-                        $query .= 'null, ';
-                        break;
-                    default:
-                        if(substr($this->re_db_input($value),0,23)=="date_add(CURRENT_DATE()") {
-                            $query .= $this->re_db_input($value) .', ';
-                        }
-                        else {
-                            $query .= '\'' . $this->re_db_input($value) . '\', ';
-                        }
-                        break;
-                }
-            }
-            $query = substr($query, 0, -2) . ')';
+        // Validate where - especially the "where", which can cause serious damage to the data
+        if ( ($action=='update' AND empty($where)) OR empty($table) OR empty($data) OR !in_array($action, ['insert','update']) ){
+            return -1;
         }
-        elseif ($action == 'update')
-        {
-          $query = 'update ' . $table . ' set ';
-          while (list($columns, $value) = each($data)) {
-            switch ((string)$value) {
-              case 'now()':
-                $query .= $columns . ' = now(), ';
-                break;
-    		  case 'CURRENT_DATE()':
-                $query .= 'CURRENT_DATE(), ';
-                break;		  
-              case 'null':
-                $query .= $columns .= ' = null, ';
-                break;
-              default:
-    		  	if(substr($this->re_db_input($value),0,23)=="date_add(CURRENT_DATE()")
-    			{
-    				$query .= $this->re_db_input($value) .', ';
-    			}
-    			else{
-                	$query .= $columns . ' = \'' . $this->re_db_input($value) . '\', ';
-    			}
-                break;
+
+        $commonSql = [];
+        $query = '';
+
+        // Field Name string
+        if ($action == 'insert') {
+            $query = 'INSERT INTO `' . $table . '` SET ';
+            
+            if (!in_array('created_time', $data)){
+                $commonSql = $this->insert_common_sql(2);
             }
-          }
-          $query = substr($query, 0, -2) . ' where ' . $parameters;
+        } else {
+            $query = 'UPDATE `' . $table . '` SET ';
+
+            if (!in_array('modified_time', $data)){
+                $commonSql = $this->update_common_sql(2);
+            }
         }
-    
+
+        foreach ($data AS $column=>$value) {
+            $query .= "`$table`.`$column`='".$this->re_db_input($value)."', ";
+        }
+        // Add "created/modified" fields to the field list
+        foreach ($commonSql AS $column=>$value) {
+            $query .= "`$table`.`$column`='".$this->re_db_input($value)."', ";
+        }
+
+        $query = substr($query, 0, -2) . (empty($where) ? "" : " WHERE " . $where);
+
         return $this->re_db_query($query, $link);
+
     }
     
     public function insert_rows($table, $rows, $link = 'db_link')
@@ -977,10 +949,10 @@ class db
     }
     
     public function insert_common_sql($returnType=1){
-        if ($returnType == 1){
-            $insert_common_sql = " , `created_ip`='".$this->get_client_ip()."', `created_by`='".$_SESSION['user_id']."', `created_time`='".CURRENT_DATETIME."' ";
-        } else {
+        if ($returnType == 2){
             $insert_common_sql = ['created_ip'=>$this->get_client_ip(), 'created_by'=>$_SESSION['user_id'], 'created_time'=>CURRENT_DATETIME];
+        } else {
+            $insert_common_sql = " , `created_ip`='".$this->get_client_ip()."', `created_by`='".$_SESSION['user_id']."', `created_time`='".CURRENT_DATETIME."' ";
         }
         return $insert_common_sql;
     }
