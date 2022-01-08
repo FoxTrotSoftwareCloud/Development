@@ -1015,7 +1015,29 @@
             }
 			return $return;
 		}
-        public function reArrayFiles($file_post) {
+        public function select_account_no($account_no='', $sponsor_company=''){
+			$return = array();
+			$sponsorQuery = (empty(trim($sponsor_company)) ? "" : " AND `at`.`sponsor_company`='".$this->re_db_input($sponsor_company)."'");
+
+			$q = 
+				"SELECT `at`.`id`, `at`.`client_id`, `at`.`account_no`, `at`.`sponsor_company`, `cm`.`first_name`, `cm`.`last_name`"
+				." FROM `".CLIENT_ACCOUNT."` AS `at`"
+				." LEFT JOIN `".CLIENT_MASTER."` `cm` ON `at`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
+				." WHERE `at`.`is_delete`='0'"
+				." AND `at`.`account_no`='".$this->re_db_input($account_no)."'"
+				." AND `at`.`client_id`=`cm`.`id`"
+				.$sponsorQuery
+				." ORDER BY `at`.`id`"
+			;
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)){
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+    			}
+            }
+			return $return;
+		}
+		public function reArrayFiles($file_post) {
            $file_ary = array();print_r($file_post);exit;
            $file_count = count($file_post['name']);
            $file_keys = array_keys($file_post);

@@ -146,26 +146,26 @@ class db
       
     public function re_db_perform($table, $data, $action = 'insert', $where = '', $link = 'db_link')
     {
-        // Validate where - especially the "where", which can cause serious damage to the data
+        // Validate where - especially "$action = 'update'", which can cause serious damage to the data
         if ( ($action=='update' AND empty($where)) OR empty($table) OR empty($data) OR !in_array($action, ['insert','update']) ){
             return -1;
         }
 
-        $commonSql = [];
+        $createdModifiedFields = [];
         $query = '';
 
         // Field Name string
         if ($action == 'insert') {
             $query = 'INSERT INTO `' . $table . '` SET ';
             
-            if (!in_array('created_time', $data)){
-                $commonSql = $this->insert_common_sql(2);
+            if (!array_key_exists('created_time', $data)){
+                $createdModifiedFields = $this->insert_common_sql(2);
             }
         } else {
             $query = 'UPDATE `' . $table . '` SET ';
 
-            if (!in_array('modified_time', $data)){
-                $commonSql = $this->update_common_sql(2);
+            if (!array_key_exists('modified_time', $data)){
+                $createdModifiedFields = $this->update_common_sql(2);
             }
         }
 
@@ -173,7 +173,7 @@ class db
             $query .= "`$table`.`$column`='".$this->re_db_input($value)."', ";
         }
         // Add "created/modified" fields to the field list
-        foreach ($commonSql AS $column=>$value) {
+        foreach ($createdModifiedFields AS $column=>$value) {
             $query .= "`$table`.`$column`='".$this->re_db_input($value)."', ";
         }
 
