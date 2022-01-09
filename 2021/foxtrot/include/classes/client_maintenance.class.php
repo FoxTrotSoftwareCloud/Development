@@ -1015,25 +1015,22 @@
             }
 			return $return;
 		}
-        public function select_account_no($account_no='', $sponsor_company=''){
+        public function select_client_by_account_no($account_no='', $sponsor_company=null){
 			$return = array();
-			$sponsorQuery = (empty(trim($sponsor_company)) ? "" : " AND `at`.`sponsor_company`='".$this->re_db_input($sponsor_company)."'");
+			$sponsorQuery = (is_null($sponsor_company) ? "" : " AND `at`.`sponsor_company`='".$this->re_db_input($sponsor_company)."'");
 
 			$q = 
-				"SELECT `at`.`id`, `at`.`client_id`, `at`.`account_no`, `at`.`sponsor_company`, `cm`.`first_name`, `cm`.`last_name`"
+				"SELECT `at`.`id` AS `account_no_id`, `at`.`client_id`, `at`.`account_no`, `at`.`sponsor_company` AS `sponsor_id`, `cm`.`first_name`, `cm`.`last_name`, `cm`.`broker_name` AS `broker_id`"
 				." FROM `".CLIENT_ACCOUNT."` AS `at`"
-				." LEFT JOIN `".CLIENT_MASTER."` `cm` ON `at`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
+				." INNER JOIN `".CLIENT_MASTER."` `cm` ON `at`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
 				." WHERE `at`.`is_delete`='0'"
 				." AND `at`.`account_no`='".$this->re_db_input($account_no)."'"
-				." AND `at`.`client_id`=`cm`.`id`"
 				.$sponsorQuery
 				." ORDER BY `at`.`id`"
 			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)){
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-    			}
+    			$return = $this->re_db_fetch_all($res);
             }
 			return $return;
 		}
