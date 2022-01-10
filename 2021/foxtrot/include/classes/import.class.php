@@ -2296,7 +2296,7 @@
                             $res = $this->re_db_query($q);
                             $result++;
                         }
-                                                
+                                                  
                         if($result == 0) {
                             // Account Number Check
                             $existingAccountArray = $clientClass->select_client_by_account_no($this->re_db_input($check_data_val['mutual_fund_customer_account_number']),$file_sponsor_array['id']);
@@ -2323,6 +2323,7 @@
                                             .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
                                 $existingAccountExceptionId = $this->re_db_insert_id();
+                                $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingAccountArray[0]["client_id"], "account_no_id"=>$existingAccountArray[0]["account_no_id"]],"update","`id`='".$check_data_val['id']."'");
                                 // Don't increment the exception "result" variable, so this record will be checked for updates in the ADD/UPDATE section below
                                 // $result++;
                             } else {
@@ -2358,22 +2359,23 @@
                                 }
                                 if ($existingSocialArray) {
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                            ." SET"
-                                                ." `file_id`='".$check_data_val['file_id']."'"
-                                                .",`error_code_id`='19'"
-                                                .",`field`='$social_security_number'"
-                                                .",`file_type`='1'" 
-                                                .",`temp_data_id`='".$check_data_val['id']."'"
-                                                .",`date`='".date('Y-m-d')."'"
-                                                .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
-                                                .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
-                                                .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
-                                                .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
-                                                .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
-                                                .$this->insert_common_sql();
+                                        ." SET"
+                                            ." `file_id`='".$check_data_val['file_id']."'"
+                                            .",`error_code_id`='19'"
+                                            .",`field`='$social_security_number'"
+                                            .",`file_type`='1'" 
+                                            .",`temp_data_id`='".$check_data_val['id']."'"
+                                            .",`date`='".date('Y-m-d')."'"
+                                            .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
+                                            .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
+                                            .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                            .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
+                                            .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
+                                            .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
                                     $existingSocialExceptionId = $this->re_db_insert_id();
-                                    // Don't increment the exception "result" variable, so this record will be checked for updates in the ADD/UPDATE section below
+                                    $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingSocialArray["id"]],"update","`id`='".$check_data_val['id']."'");
+                                    // Don't increment the exception "$result" variable, so this record will be checked for updates in the ADD/UPDATE section below
                                     // $result++;
                                 }
                             }
@@ -2399,7 +2401,7 @@
                                     $registration_line1 = isset($check_data_val['registration_line1'])?$this->re_db_input($check_data_val['registration_line1']):'';
                                     $client_name_array = explode(' ',$registration_line1);
                                 
-                                    if(isset($client_name_array[2]) && $client_name_array[2] != '') {
+                                    if(isset($client_name_array[2]) AND $client_name_array[2] != '') {
                                         $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
                                         $middle_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
                                         $last_name = isset($client_name_array[2])?$this->re_db_input($client_name_array[2]):'';
@@ -2413,19 +2415,17 @@
                                 
                                 // UPDATE CLIENT - for existing SSN or Account #
                                 if ($existingSocialArray OR $existingAccountArray){
-                                    $error_code = ($dataSettings['update_client'] ? 0 : 23);
                                     if ($existingSocialArray){
                                         $clientId = $existingSocialArray['id'];
                                         $exceptionId = $existingSocialExceptionId;
                                     } else {
-                                        $clientId = $existingAccountArray['client_id'];
+                                        $clientId = $existingAccountArray[0]['client_id'];
                                         $exceptionId = $existingAccountExceptionId;
                                     }
 
                                     $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                         ." SET" 
-                                            ."`error_code_id`='$error_code'"
-                                            .",`field`=''"
+                                            ."`error_code_id`=".($dataSettings['update_client'] ? '`error_code_id`' : 23)
                                             .",`solved`='".$dataSettings['update_client']."'"
                                             .",`process_completed`='".$dataSettings['update_client']."'"
                                             .$exceptionFields
@@ -2452,16 +2452,19 @@
                                             // Flag the Detail record as "updated", otherwise the update function didn't change anything
                                             $process_result = 2;
                                         }
+                                        // Update DETAIL TABLE for added/updated clients
+                                        $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                                ." SET `process_result`='$process_result'"
+                                                        .$this->update_common_sql()
+                                                ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
+                                        ;
+                                        $res = $this->re_db_query($q);
                                     }
                                 } else {
                                     // --- ADD CLIENT ---
-                                    // Make sure Data Interface settings allow ADD/UPDATE for clients
-                                    $error_code = ($dataSettings['add_client'] ? 0 : 23);
-
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET" 
-                                            ."`error_code_id`='$error_code'"
-                                            .",`field`=''"
+                                            ."`error_code_id`=".($dataSettings['add_client'] ? '`error_code_id' : 23)
                                             .",`solved`='".$dataSettings['add_client']."'"
                                             .",`process_completed`='".$dataSettings['add_client']."'"
                                             .$exceptionFields
@@ -2550,97 +2553,128 @@
                     $check_sfr_array = $this->get_sfr_detail_data($id);
                     
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
-                        $result = 0;
+                        $result = $last_inserted_id = 0;
                         
-                        if(isset($check_data_val['major_security_type']) && $check_data_val['major_security_type'] != '' && isset($check_data_val['product_name']) && $check_data_val['product_name'] != ''){
-                            if($result == 0){
-                                // Check: PRODUCT TYPE/CATEGORY
-                                $q = "SELECT `id` FROM `".PRODUCT_TYPE."`"
-                                        ." WHERE `is_delete`='0'"
-                                            ." AND `status`='1'"
-                                            ." AND `type_code`='".$check_data_val['major_security_type']."'"
+                        if(empty(trim($check_data_val['major_security_type'])) OR (empty(trim($check_data_val['fund_name'])) AND empty(trim($check_data_val['product_name']))) ){
+                            $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                ." SET" 
+                                    ." `file_id`='".$check_data_val['file_id']."'"
+                                    .",`error_code_id`=13"
+                                    .",`field`='security_type/product_name'"
+                                    .",`file_type`='3'"
+                                    .",`temp_data_id`='".$check_data_val['id']."'"
+                                    .",`date`='".date('Y-m-d')."'"
+                                    .",`cusip`='".$check_data_val['cusip_number']."'"
+                                    .$this->insert_common_sql()
+                            ;
+                            $res = $this->re_db_query($q);
+                        } else {
+                            // Check: PRODUCT TYPE/CATEGORY
+                            $q = "SELECT `id` FROM `".PRODUCT_TYPE."`"
+                                    ." WHERE `is_delete`='0'"
+                                        ." AND `status`='1'"
+                                        ." AND `type_code`='".$check_data_val['major_security_type']."'"
+                            ;
+                            $res_ProductCategory = $this->re_db_query($q);
+
+                            if($this->re_db_num_rows($res_ProductCategory)==0){
+                                // EXCEPTION: Product Category not found
+                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                    ." SET" 
+                                        ." `file_id`='".$check_data_val['file_id']."'"
+                                        .",`error_code_id`='17'"
+                                        .",`field`='SECURITY TYPE: ".trim($check_data_val['major_security_type'])."'"
+                                        .",`file_type`='3'"
+                                        .",`temp_data_id`='".$check_data_val['id']."'"
+                                        .",`date`='".date('Y-m-d')."'"
+                                        .",`cusip`='".$check_data_val['cusip_number']."'"
+                                        .$this->insert_common_sql()
                                 ;
-                                $res_ProductCategory = $this->re_db_query($q);
+                                $res = $this->re_db_query($q);
+                            } else {
+                                // Check: CUSIP & SYMBOL
+                                $array_ProductCategory = $this->re_db_fetch_array($res_ProductCategory);
+                                $product_category_X_table = 'product_category_'.$array_ProductCategory['id'];
+                                $tickerSymbol = trim($check_data_val['ticker_symbol']);
+                                $cusipNumber = trim($check_data_val['cusip_number']);
 
-                                if($this->re_db_num_rows($res_ProductCategory)>0){
-                                    // Check: CUSIP & SYMBOL
-                                    $array_ProductCategory = $this->re_db_fetch_array($res_ProductCategory);
+                                $q = "SELECT `id`,`cusip`,`ticker_symbol`,`name`"
+                                    ." FROM `".$product_category_X_table."`"
+                                    ." WHERE `is_delete`='0'"
+                                    ." AND (IF('$tickerSymbol'!='' AND `ticker_symbol`='".$tickerSymbol."',1,0)"
+                                            ." OR "
+                                            ."IF('$cusipNumber'!='' AND `cusip`='".$cusipNumber."',1,0)"
+                                            .")"
+                                ;
+                                $res_SymbolCusipCheck = $this->re_db_query($q);
 
-                                    $product_category_X_table = 'product_category_'.$array_ProductCategory['id'];
-                                    $tickerSymbol = trim($check_data_val['ticker_symbol']);
-                                    $cusipNumber = trim($check_data_val['cusip_number']);
-    
-                                    $q = "SELECT `id`,`cusip`,`ticker_symbol`,`name`"
-                                            ." FROM `".$product_category_X_table."`"
-                                            ." WHERE `is_delete`='0'"
-                                                ." AND (IF('$tickerSymbol'!='' AND `ticker_symbol`='".$tickerSymbol."',1,0)"
-                                                        ." OR "
-                                                        ."IF('$cusipNumber'!='' AND `cusip`='".$cusipNumber."',1,0)"
-                                                        .")"
-                                    ;
-                                    $res_SymbolCusipCheck = $this->re_db_query($q);
-    
-                                    if ($this->re_db_num_rows($res_SymbolCusipCheck) == 0) {
-                                        // Checks Passed: INSERT PRODUCT 
-                                        $q = "INSERT INTO `".$product_category_X_table."`"
-                                                ."SET"
-                                                    ." `category`='".$array_ProductCategory['id']."'"
-                                                    .",`name`='".trim($check_data_val['fund_name']).(trim($check_data_val['product_name'])!='' ? '/' : '').trim($check_data_val['product_name'])."'"
-                                                    .",`ticker_symbol`='".$check_data_val['ticker_symbol']."'"
-                                                    .",`cusip`='".$check_data_val['cusip_number']."'"
-                                                    .",`fund_code`='".$check_data_val['fund_code']."'"
-                                                    .",`sponsor`='".$file_sponsor_array['id']."'"
-                                                    .$this->insert_common_sql()
-                                        ;
-                                        $res_InsertProduct = $this->re_db_query($q);
+                                if ($this->re_db_num_rows($res_SymbolCusipCheck) > 0) {
+                                    // EXCEPTION: CUSIP/SYMBOL already exists - skip it
+                                    $array_SymbolCusipCheck = $this->re_db_fetch_array($res_SymbolCusipCheck);
 
-                                        if($res_InsertProduct == true){
-                                            $reprocess_status = true;
-                                        }
-                                        
-                                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                ."SET"
-                                                    ." `file_id`='".$check_data_val['file_id']."'"
-                                                    .",`error_code_id`='0'"
-                                                    .",`solved`='1'"
-                                                    .",`file_type`='3'"
-                                                    .",`process_completed`='1'"
-                                                    .",`temp_data_id`='".$check_data_val['id']."'"
-                                                    .",`date`='".date('Y-m-d')."'"
-                                                    .",`cusip`='".$check_data_val['cusip_number']."'"
-                                                    .",`field`=''"
-                                                    .$this->insert_common_sql()
-                                        ;
-                                        $res = $this->re_db_query($q);
-                                    } else {
-                                        // EXCEPTION: CUSIP/SYMBOL already exists - skip it
-                                        $array_SymbolCusipCheck = $this->re_db_fetch_array($res_SymbolCusipCheck);
-
-                                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                            ." SET" 
-                                                ." `file_id`='".$check_data_val['file_id']."'"
-                                                .",`error_code_id`='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? '16' : '15')."'"
-                                                .",`field`='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? 'cusip_number' : 'ticker_symbol')."'"
-                                                .",`file_type`='3'"
-                                                .",`temp_data_id`='".$check_data_val['id']."'"
-                                                .",`date`='".date('Y-m-d')."'"
-                                                .",`cusip`='".$cusipNumber."'"
-                                                .$this->insert_common_sql()
-                                        ;
-                                        $res = $this->re_db_query($q);
-                                    }
-                                } else {
-                                    // EXCEPTION: Product Category not found
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                            ." SET" 
+                                        ." SET" 
+                                            ." `file_id`='".$check_data_val['file_id']."'"
+                                            .",`error_code_id`='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? '16' : '15')."'"
+                                            .",`field`='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? 'cusip_number' : 'ticker_symbol')."'"
+                                            .",`file_type`='3'"
+                                            .",`temp_data_id`='".$check_data_val['id']."'"
+                                            .",`date`='".date('Y-m-d')."'"
+                                            .",`cusip`='".$cusipNumber."'"
+                                            .$this->insert_common_sql()
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                                                        // Update DETAIL data TABLE for added/updated clients
+                                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                                        ." SET"
+                                            ." `product_category_id`=".$array_ProductCategory['id']
+                                            .",`product_category_table`='$product_category_X_table'"
+                                            .",`product_id`=".$array_SymbolCusipCheck['id']
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`=".$check_data_val['id']." AND `is_delete`=0"
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                } else {
+                                    // Checks Passed: INSERT PRODUCT 
+                                    $q = "INSERT INTO `".$product_category_X_table."`"
+                                            ."SET"
+                                                ." `category`='".$array_ProductCategory['id']."'"
+                                                .",`name`='".trim($check_data_val['fund_name']).(trim($check_data_val['product_name'])!='' ? '/' : '').trim($check_data_val['product_name'])."'"
+                                                .",`ticker_symbol`='".$check_data_val['ticker_symbol']."'"
+                                                .",`cusip`='".$check_data_val['cusip_number']."'"
+                                                .",`fund_code`='".$check_data_val['fund_code']."'"
+                                                .",`sponsor`='".$file_sponsor_array['id']."'"
+                                                .$this->insert_common_sql()
+                                    ;
+                                    $res_InsertProduct = $this->re_db_query($q);
+                                    $last_inserted_id = $this->re_db_insert_id();
+                                    $reprocess_status = $res_InsertProduct;
+                                    
+                                    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                            ."SET"
                                                 ." `file_id`='".$check_data_val['file_id']."'"
-                                                .",`error_code_id`='17'"
-                                                .",`field`='SECURITY TYPE: ".trim($check_data_val['major_security_type'])."'"
+                                                .",`error_code_id`='0'"
+                                                .",`solved`='1'"
                                                 .",`file_type`='3'"
+                                                .",`process_completed`='1'"
                                                 .",`temp_data_id`='".$check_data_val['id']."'"
                                                 .",`date`='".date('Y-m-d')."'"
                                                 .",`cusip`='".$check_data_val['cusip_number']."'"
+                                                .",`field`=''"
                                                 .$this->insert_common_sql()
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                    // Update DETAIL data TABLE for added/updated clients
+                                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                                        ." SET `process_result`=1"
+                                            .",`product_category_id`=".$array_ProductCategory['id']
+                                            .",`product_category_table`='$product_category_X_table'"
+                                            .",`product_id`=$last_inserted_id"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`=".$check_data_val['id']." AND `is_delete`=0"
                                     ;
                                     $res = $this->re_db_query($q);
                                 }
