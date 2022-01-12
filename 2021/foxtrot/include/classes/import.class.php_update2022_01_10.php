@@ -1377,15 +1377,739 @@
                             
                         }
 
+/*** 01/10/22 Do the processing in "process_current_file() *** 
+                    //      /********************************
+                    //       * DST CLIENT DATA (NAA/NFA/AMP)
+                    //       *******************************/
+                    //      $check_fanmail_array = $this->get_fanmail_detail_data($id, 0);
+                    //      foreach($check_fanmail_array as $check_data_key=>$check_data_val){
+                    //         $result = 0;
+
+                    //         if(isset($check_data_val['representative_number']))
+                    //         {
+                    //             $rep_number = isset($check_data_val['representative_number'])?trim($this->re_db_input($check_data_val['representative_number'])):'';
+                                
+                    //             if($rep_number != '')
+                    //             {
+                    //                 $q_broker = "SELECT * FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `fund`='".$rep_number."'";
+                    //                 $res_broker = $this->re_db_query($q_broker);
+                    //                 $return = $this->re_db_num_rows($res_broker);
+
+                    //                 if($return <= 0){
+                    //                     $alias_query="SELECT * FROM `".BROKER_ALIAS."` WHERE `is_delete`='0' AND `alias_name`='".$rep_number."' ORDER BY `id` DESC LIMIT 1";
+                    //                     $res_broker1 = $this->re_db_query($alias_query);
+                    //                     $return = $this->re_db_num_rows($res_broker1);
+                    //                     $broker_data=  $this->re_db_fetch_array($res_broker1); 
+                    //                     $broker_id=$broker_data['broker_id']; 
+                    //                 }
+                    //                 else{
+                    //                     $broker_data=$this->re_db_fetch_array($res_broker);
+                    //                     $broker_id=$broker_data['id'];
+                    //                 }
+
+                    // 				if($return <= 0)
+                    //                 {
+                    // 				    $qInsertImportException = 
+                    //                         "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                             ."SET"
+                    //                                 ." `file_id`='".$check_data_val['file_id']."'"
+                    //                                 .",`temp_data_id`='".$check_data_val['id']."'"
+                    //                                 .",`date`='".date('Y-m-d')."'"
+                    //                                 .",`rep`='".trim($check_data_val['representative_number'])."'"
+                    //                                 .",`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                 .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                    //                                 .",`client`='".$check_data_val['registration_line1']."'"
+                    //                                 .",`cusip`='".$check_data_val['cusip_number']."'"
+                    //                                 .",`principal`='0'"
+                    //                                 .",`commission`='0'"
+                    //                                 .",`error_code_id`='1'"
+                    //                                 .",`field`='representative_number'"
+                    //                                 .",`file_type`='1'"
+                    //                                 .$this->insert_common_sql()
+                    //                     ;
+                    // 			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                     $result = 1;
+
+                    //                     // 12/08/21 Flag the detail record as not cleared (process_result = 0)
+                    //                     $qInsertImportException = "UPDATE `".IMPORT_DETAIL_DATA."` SET `process_result`='0'".$this->update_common_sql()." WHERE `id`='".$check_data_val['id']."'";
+                    // 			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                	// 			    }   
+                    //                 else
+                    //                 {
+                    //                     $check_broker_termination = $this->broker_termination_date('', $broker_id);
+                    //                     if($check_broker_termination != '')
+                    //                     {
+                    //                         $current_date = date('Y-m-d');
+                    //                         if($current_date>$check_broker_termination)
+                    //                         {
+                    //                             $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['mutual_fund_customer_account_number']."',`client`='".$check_data_val['registration_line1']."',`cusip`='".$check_data_val['cusip_number']."',`principal`='0',`commission`='0',`error_code_id`='2',`field`='u5',`file_type`='1'".$this->insert_common_sql();
+                    //         			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                             $result = 1;
+                                     
+                    //                             // 12/08/21 Flag the detail record as not cleared (process_result = 0)
+                    //                             $qInsertImportException = "UPDATE `".IMPORT_DETAIL_DATA."` SET `process_result`='0'".$this->update_common_sql()." WHERE `id`='".$check_data_val['id']."'";
+                    //                             $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                         }
+                    //                     }
+                    //                 }
+                    //             }
+                    //         }
+                            
+                    //         if(isset($check_data_val['registration_line1']))
+                    //         {
+                    //             $registration_line1 = isset($check_data_val['registration_line1'])?$this->re_db_input($check_data_val['registration_line1']):'';
+                    //             $client_name_array = explode(' ',$registration_line1);
+                    //             if(isset($client_name_array[2]) && $client_name_array[2] != '')
+                    //             {
+                    //                 $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
+                    //                 $middle_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
+                    //                 $last_name = isset($client_name_array[2])?$this->re_db_input($client_name_array[2]):'';
+                    //             }
+                    //             else
+                    //             {
+                    //                 $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
+                    //                 $middle_name = '';
+                    //                 $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
+                    //             }
+                    //             if($registration_line1 != '')
+                    //             {
+                    //                 $qClientMaster = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`='0' AND `first_name`='".$first_name."' AND `mi`='".$middle_name."' AND `last_name`='".$last_name."' AND `zip_code`='".$check_data_val['zip_code']."'";
+                    // 				$resClientMaster = $this->re_db_query($qClientMaster);
+                    // 				$return = $this->re_db_num_rows($resClientMaster);
+                    // 				if($return > 0) {
+                    //                     $qInsertImportException = 
+                    //                         "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                             ." SET"
+                    //                                 ."`file_id`='".$check_data_val['file_id']."'"
+                    //                                 .",`temp_data_id`='".$check_data_val['id']."'"
+                    //                                 .",`date`='".date('Y-m-d')."'"
+                    //                                 .",`rep`='".trim($check_data_val['representative_number'])."'"
+                    //                                 .",`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                 .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                    //                                 .",`client`='".$check_data_val['registration_line1']."'"
+                    //                                 .",`cusip`='".$check_data_val['cusip_number']."'"
+                    //                                 .",`principal`='0'"
+                    //                                 .",`commission`='0'"
+                    //                                 .",`error_code_id`='12'"
+                    //                                 .",`field`='registration_line1'"
+                    //                                 .",`file_type`='1'"
+                    //                                 .$this->insert_common_sql()
+                    //                     ;
+                    // 			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                     $result = 1;
+                                        
+                    //                     // 12/08/21 Flag the detail record as on that can skipped\removed later in Reprocess (process_result=2)
+                    //                     $arrayClientMaster = $this->re_db_fetch_array($resClientMaster);
+                    //                     // Client already exists. Flag the record as skipped(process_result==2) to not create dup record. Mark for deletion so it won't appear in any reports or screens.
+                    //                     $qInsertImportException = 
+                    //                         "UPDATE `".IMPORT_DETAIL_DATA."`"
+                    //                             ." SET"
+                    //                                 ." `process_result`='2'"
+                    //                                 .",`client_master_id`='".$arrayClientMaster['id']."'"
+                    //                                 .$this->update_common_sql()
+                    //                             ." WHERE `id`='".$check_data_val['id']."'"
+                    //                     ;
+                    // 			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                 }
+                    //             }
+                    //             /*else
+                    //             {
+                    //                     $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".$check_data_val['representative_number']."',`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['mutual_fund_customer_account_number']."',`client`='".$check_data_val['registration_line1']."',`cusip`='".$check_data_val['cusip_number']."',`principal`='0',`commission`='0',`error_code_id`='10',`field`='registration_line1',`file_type`='1'".$this->insert_common_sql();
+                    // 			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                     $result = 1;
+                    //             }*/
+                	// 		}
+                            
+                    //         /*if(isset($check_data_val['mutual_fund_customer_account_number']))
+                    //         {
+                    //             $mutual_fund_customer_account_number = isset($check_data_val['mutual_fund_customer_account_number'])?$this->re_db_input($check_data_val['mutual_fund_customer_account_number']):'';
+                                
+                    //             if($mutual_fund_customer_account_number == '')
+                    //             {
+                    //                 $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".$check_data_val['representative_number']."',`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['mutual_fund_customer_account_number']."',`client`='".$check_data_val['registration_line1']."',`cusip`='".$check_data_val['cusip_number']."',`principal`='0',`commission`='0',`error_code_id`='18',`field`='mutual_fund_customer_account_number',`file_type`='1'".$this->insert_common_sql();
+                 	// 		        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                 $result = 1;
+                    //             }
+                    //         }*/
+                            
+                    //         /*if(isset($check_data_val['social_security_number']))
+                    //         {
+                    //             $social_security_number = isset($check_data_val['social_security_number'])?$this->re_db_input($check_data_val['social_security_number']):'';
+                                
+                    //             if($social_security_number != '')
+                    //             {
+                    //                 $qClientMaster = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`='0' AND `client_ssn`='".$social_security_number."' ";
+                    // 				$resClientMaster = $this->re_db_query($qClientMaster);
+                    // 				$return = $this->re_db_num_rows($resClientMaster);
+                    // 				if($return > 0)
+                    //                 {
+                    //                     $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".$check_data_val['representative_number']."',`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['mutual_fund_customer_account_number']."',`client`='".$check_data_val['registration_line1']."',`cusip`='".$check_data_val['cusip_number']."',`principal`='0',`commission`='0',`error_code_id`='19',`field`='social_security_number',`file_type`='1'".$this->insert_common_sql();
+                    // 			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                     $result = 1;
+                    //                 }
+                    //             }
+                    //         }*/
+                    //         if(isset($result) && $result == 0)
+                    //         {
+                    //             $qInsertImportException = 
+                    //                 "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                     ." SET"
+                    //                         ." `file_id`='".$check_data_val['file_id']."'"
+                    //                         .",`temp_data_id`='".$check_data_val['id']."'"
+                    //                         .",`date`='".date('Y-m-d')."'"
+                    //                         .",`rep`='".trim($check_data_val['representative_number'])."'"
+                    //                         .",`rep_name`='".$check_data_val['representative_name']."'"
+                    //                         .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                    //                         .",`client`='".$check_data_val['registration_line1']."'"
+                    //                         .",`cusip`='".$check_data_val['cusip_number']."'"
+                    //                         .",`principal`='0'"
+                    //                         .",`commission`='0'"
+                    //                         .",`error_code_id`='0'"
+                    //                         .",`field`=''"
+                    //                         .",`solved`='1'"
+                    //                         .",`file_type`='1'"
+                    //                         .$this->insert_common_sql()
+                    //             ;
+             		// 	        $resImportException = $this->re_db_query($qInsertImportException);
+
+                    //             // 12/08/21 Flag the detail record as not cleared (process_result = 0)
+                    //             $qInsertImportException = 
+                    //                 "UPDATE `".IMPORT_DETAIL_DATA."`" 
+                    //                     ." SET `process_result`='0'"
+                    //                             .$this->update_common_sql()
+                    //                     ." WHERE `id`='".$check_data_val['id']."'";
+                    //             $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //         }
+                            
+                    //      }
+                        
+                    //      /************************
+                    //       * SFR DATA
+                    //       **************************/
+                    //      $check_sfr_array = $this->get_sfr_detail_data($id);
+                    //      foreach($check_sfr_array as $check_data_key=>$check_data_val) {
+                    //         $result = 0;
+
+                    //         if(isset($check_data_val['major_security_type']) && $check_data_val['major_security_type'] != '' && isset($check_data_val['product_name']) && $check_data_val['product_name'] != '') {
+                    //             $qSelectProductType = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`='0' and `status`='1' and `type_code`='".$check_data_val['major_security_type']."'";
+                	// 			$resSelectProductType = $this->re_db_query($qSelectProductType);
+                				
+                    //             if($this->re_db_num_rows($resSelectProductType)>0){
+                    //                 while($row = $this->re_db_fetch_array($resSelectProductType))
+                    //                 {
+                    //                     $qSelectProductCategory = "SELECT * FROM `product_category_".$row['id']."` WHERE `is_delete`='0' and `cusip`='".$check_data_val['cusip_number']."'";
+                    //     				$resSelectProductCategory = $this->re_db_query($qSelectProductCategory);
+                        		
+                    //                     if($this->re_db_num_rows($resSelectProductCategory)>0){
+                    //                         $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='',`rep_name`='',`account_no`='',`client`='',`cusip`='".$check_data_val['cusip_number']."',`principal`='0',`commission`='0',`error_code_id`='16',`field`='cusip_number',`file_type`='3'".$this->insert_common_sql();
+                    //     			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                         $result = 1;
+
+                    //                         // 12/08/21 Flag the detail record as not cleared (process_result = 0)
+                    //                         $qInsertImportException = 
+                    //                             "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                    //                                     ." SET `process_result`='2'"
+                    //                                             .$this->update_common_sql()
+                    //                                     ." WHERE `id`='".$check_data_val['id']."'";
+                    //                         $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                     }
+                                
+                    //                     $qSelectProductCategory = "SELECT * FROM `product_category_".$row['id']."` WHERE `is_delete`='0' and `ticker_symbol`='".$check_data_val['ticker_symbol']."'";
+                    //     				$resSelectProductCategory = $this->re_db_query($qSelectProductCategory);
+                        		
+                    //                     if($this->re_db_num_rows($resSelectProductCategory)>0){
+                    //                         $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='',`rep_name`='',`account_no`='',`client`='',`cusip`='".$check_data_val['cusip_number']."',`principal`='0',`commission`='0',`error_code_id`='15',`field`='ticker_symbol',`file_type`='3'".$this->insert_common_sql();
+                    //     			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                         $result = 1;
+
+                    //                         // 12/08/21 Flag the detail record as not cleared (process_result = 0)
+                    //                         $qInsertImportException = 
+                    //                             "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                    //                                 ." SET `process_result`='2'"
+                    //                                         .$this->update_common_sql()
+                    //                                 ." WHERE `id`='".$check_data_val['id']."'"
+                    //                         ;
+                    //                         $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                     }
+                    //                 }
+                                
+                    //                 if(isset($result) && $result == 0){
+                    //                     $qInsertImportException = 
+                    //                         "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                             ." SET"
+                    //                                 ."`file_id`='".$check_data_val['file_id']."'"
+                    //                                 .",`temp_data_id`='".$check_data_val['id']."'"
+                    //                                 .",`date`='".date('Y-m-d')."'"
+                    //                                 .",`rep`=''"
+                    //                                 .",`rep_name`=''"
+                    //                                 .",`account_no`=''"
+                    //                                 .",`client`=''"
+                    //                                 .",`cusip`='".$check_data_val['cusip_number']."'"
+                    //                                 .",`principal`='0'"
+                    //                                 .",`commission`='0'"
+                    //                                 .",`error_code_id`='0'"
+                    //                                 .",`field`=''"
+                    //                                 .",`file_type`='3'"
+                    //                                 .",`solved`='1'"
+                    //                                 .$this->insert_common_sql()
+                    //                     ;
+                    //  			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+
+                    //                     // 12/08/21 Flag the detail record as not cleared (process_result = 0)
+                    //                     $qInsertImportException = 
+                    //                         "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                    //                             ." SET `process_result`='0'"
+                    //                                     .$this->update_common_sql()
+                    //                             ." WHERE `id`='".$check_data_val['id']."'"
+                    //                     ;
+                    //                     $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                 }
+                    //             }
+                    //         }
+                    //      }
+                    //  }
+
+
+                    // /*****************************
+                    //  * IMPORT IDC DATA
+                    // *******************************/
+                    //  else if(isset($file_type_check) && $file_type_check == 'C1')
+                    //  {
+                    //      foreach($file_string_array as $key_string=>$val_string)
+                    //      {
+                    //         $record_type = substr($val_string, 0, 3);
+                    //         if(isset($record_type) && $record_type == 'RHR')
+                    //         {
+                    //             $data_array[$array_key][$record_type] = array("record_type" => substr($val_string, 0, 3),"file_type" => substr($val_string, 3, 10),"system_id" => substr($val_string, 13, 3),"management_code" => substr($val_string, 16, 2),"fund_sponsor_id" => substr($val_string, 18, 5),"transmission_date" => substr($val_string, 23, 8),"unused_RHR" => substr($val_string, 31, 169));
+                    //         }
+                    //         else if(isset($record_type) && ($record_type != 'RHR' && $record_type != 'RTR'))
+                    //         {
+                    //             $commission_record_type_code = substr($val_string, 0, 1);
+                    //             if($commission_record_type_code == '1' || $commission_record_type_code == '3')
+                    //             {
+                    //                 $data_array[$array_key]['DETAIL'][$commission_record_type_code][] = array("commission_record_type_code" => substr($val_string, 0, 1),"dealer_number" => substr($val_string, 1, 7),"dealer_branch_number" => substr($val_string, 8, 9),"representative_number" => trim(substr($val_string, 17, 9)),"representative_name" => substr($val_string, 26, 30),"CUSIP_number" => substr($val_string, 56, 9),"alpha_code" => substr($val_string, 65, 10),"trade_date" => substr($val_string, 75, 8),"gross_transaction_amount" => substr($val_string, 83, 15),"gross_amount_sign_code" => substr($val_string, 98, 1),"dealer_commission_amount" => substr($val_string, 99, 15),"commission_rate" => substr($val_string, 114, 5),"customer_account_number" => substr($val_string, 119, 20),"account_number_type_code" => substr($val_string, 139, 1),"purchase_type_code" => substr($val_string, 140, 1),"social_code" => substr($val_string, 141, 3),"cumulative_discount_number" => substr($val_string, 144, 9),"letter_of_intent(LOI)_number" => substr($val_string, 153, 9),"social_security_number" => substr($val_string, 162, 9),"social_security_number_status_code" => substr($val_string, 171, 1),"transaction_share_count" => substr($val_string, 172, 15),"share_price_amount" => substr($val_string, 187, 9),"resident_state_country_code" => substr($val_string, 196, 3),"dealer_commission_sign_code" => substr($val_string, 199, 1));
+                    //             }
+                    //         }
+                    //         else if(isset($record_type) && $record_type == 'RTR')
+                    //         {
+                    //             $data_array[$array_key][$record_type] = array("record_type" => substr($val_string, 0, 3),"file_type" => substr($val_string, 3, 10),"trailer_record_count" => substr($val_string, 13, 7),"unused_RTR" => substr($val_string, 20, 180));
+                    //             $array_key++;
+                    //         }
+                            
+                    //      }
+                    //      foreach($data_array as $main_key=>$main_val)
+                    //      {
+                    //         $RHR = $main_val['RHR'];
+                    //         $q = "INSERT INTO `".IMPORT_IDC_HEADER_DATA."` SET `file_id`='".$id."',`record_type`='".$RHR['record_type']."',`file_type`='".$RHR['file_type']."',`system_id`='".$RHR['system_id']."',`management_code`='".$RHR['management_code']."',`fund_sponsor_id`='".$RHR['fund_sponsor_id']."',`transmission_date`='".date('Y-m-d',strtotime($RHR['transmission_date']))."',`unused_RHR`='".$RHR['unused_RHR']."'".$this->insert_common_sql();
+                	// 		$res = $this->re_db_query($q);
+                    //         $rhr_inserted_id = $this->re_db_insert_id();
+                    //         $data_status = true;
+                    //         //echo '<pre>';print_r($main_val);exit;
+                    //         $DETAIL = $main_val['DETAIL'];
+                    //         foreach($DETAIL as $detail_key=>$detail_val)
+                    //         {
+                    //             if($detail_key == '1' || $detail_key == '3')
+                    //             {
+                    //                 foreach($detail_val as $seq_key=>$seq_val)
+                    //                 {   
+                    //                     $q = "INSERT INTO `".IMPORT_IDC_DETAIL_DATA."` SET `file_id`='".$id."',`idc_header_id`='".$rhr_inserted_id."',`commission_record_type_code`='".$seq_val['commission_record_type_code']."',`dealer_number`='".$seq_val['dealer_number']."',`dealer_branch_number`='".$seq_val['dealer_branch_number']."',`representative_number`='".trim($seq_val['representative_number'])."',`representative_name`='".$seq_val['representative_name']."',`CUSIP_number`='".$seq_val['CUSIP_number']."',`alpha_code`='".$seq_val['alpha_code']."',`trade_date`='".date('Y-m-d',strtotime($seq_val['trade_date']))."',`gross_transaction_amount`='".($seq_val['gross_transaction_amount']/100)."',`gross_amount_sign_code`='".$seq_val['gross_amount_sign_code']."',`dealer_commission_amount`='".($seq_val['dealer_commission_amount']/100)."',`commission_rate`='".$seq_val['commission_rate']."',`customer_account_number`='".$seq_val['customer_account_number']."',`account_number_type_code`='".$seq_val['account_number_type_code']."',`purchase_type_code`='".$seq_val['purchase_type_code']."',`social_code`='".$seq_val['social_code']."',`cumulative_discount_number`='".$seq_val['cumulative_discount_number']."',`letter_of_intent(LOI)_number`='".$seq_val['letter_of_intent(LOI)_number']."',`social_security_number`='".$seq_val['social_security_number']."',`social_security_number_status_code`='".$seq_val['social_security_number_status_code']."',`transaction_share_count`='".$seq_val['transaction_share_count']."',`share_price_amount`='".$seq_val['share_price_amount']."',`resident_state_country_code`='".$seq_val['resident_state_country_code']."',`dealer_commission_sign_code`='".$seq_val['dealer_commission_sign_code']."'".$this->insert_common_sql();
+                    //         			$res = $this->re_db_query($q);
+                    //                     $data_status = true;
+                    //                }
+                    //            }
+                    //         }
+                            
+                    //         $RTR = $main_val['RTR'];
+                    //         $q = "INSERT INTO `".IMPORT_IDC_FOOTER_DATA."` SET `file_id`='".$id."',`idc_header_id`='".$rhr_inserted_id."',`record_type`='".$RTR['record_type']."',`file_type`='".$RTR['file_type']."',`trailer_record_count`='".$RTR['trailer_record_count']."',`unused_RTR`='".$RTR['unused_RTR']."'".$this->insert_common_sql();
+                	// 		$res = $this->re_db_query($q);
+                    //         $data_status = true;
+                    //      }
+
+                    //      /*****************************
+                    //       * PROCESS IDC DATA
+                    //       *******************************/
+                    //      $check_idc_array = $this->get_idc_detail_data($id);
+                    //      foreach($check_idc_array as $check_data_key=>$check_data_val)
+                    //      {
+                    //         $result=0;
+                    //         if(isset($check_data_val['representative_number'])) {
+                    //             $rep_number = isset($check_data_val['representative_number'])?trim($this->re_db_input($check_data_val['representative_number'])):'';
+                                
+                    //             if($rep_number != '') {
+                    //                 /*$q_broker = "SELECT * FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `fund`='".$rep_number."'";
+                    // 				$res_broker = $this->re_db_query($q_broker);
+                    // 				$return = $this->re_db_num_rows($res_broker);*/
+                    //                 $q_broker = "SELECT * FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `fund`='".$rep_number."'";
+                    //                 $res_broker = $this->re_db_query($q_broker);
+                    //                 $return = $this->re_db_num_rows($res_broker);
+                                    
+                    //                 if($return <= 0){
+                    //                     $alias_query="SELECT * FROM `".BROKER_ALIAS."` WHERE `is_delete`='0' AND alias_name='".$rep_number."' order by id desc limit 1";
+                    //                     $res_broker1 = $this->re_db_query($alias_query);
+                    //                     $return = $this->re_db_num_rows($res_broker1);
+                    //                     $broker_data=  $this->re_db_fetch_array($res_broker1); 
+                    //                     $broker_id=$broker_data['broker_id']; 
+                    //                 } else {
+                    //                     $broker_data=$this->re_db_fetch_array($res_broker);
+                    //                     $broker_id=$broker_data['id'];
+                    //                 }
+
+                    //                 if($return <= 0) {
+                    // 				    $qInsertImportException =
+                    //                         "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                             ." SET"
+                    //                                 ." `file_id`='".$check_data_val['file_id']."'"
+                    //                                 .",`temp_data_id`='".$check_data_val['id']."'"
+                    //                                 .",`date`='".date('Y-m-d')."'"
+                    //                                 .",`rep`='".trim($check_data_val['representative_number'])."'"
+                    //                                 .",`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                 .",`account_no`='".$check_data_val['customer_account_number']."'"
+                    //                                 .",`client`='".$check_data_val['alpha_code']."'"
+                    //                                 .",`cusip`='".$check_data_val['CUSIP_number']."'"
+                    //                                 .",`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                                 .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                                 .",`error_code_id`='1'"
+                    //                                 .",`field`='representative_number'"
+                    //                                 .",`file_type`='2'"
+                    //                                 .$this->insert_common_sql()
+                    //                     ;
+                    // 			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                     $result = 1;
+                    // 				} else {
+                    //                     $check_broker_termination = $this->broker_termination_date('', $broker_id);
+                    //                     $check_hold_commission = $this->get_hold_commission($check_data_val['file_id'],$check_data_val['id']);
+                                        
+                    //                     if($check_broker_termination != '' && $check_hold_commission == '0'){
+                    //                         $current_date = date('Y-m-d');
+
+                    //                         if($current_date>$check_broker_termination) {
+                    //                             $qInsertImportException = 
+                    //                                 "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                                     ." SET"
+                    //                                         ." `file_id`='".$check_data_val['file_id']."'"
+                    //                                         .",`temp_data_id`='".$check_data_val['id']."'"
+                    //                                         .",`date`='".date('Y-m-d')."'"
+                    //                                         .",`rep`='".trim($check_data_val['representative_number'])."'"
+                    //                                         .",`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                         .",`account_no`='".$check_data_val['customer_account_number']."'"
+                    //                                         .",`client`='".$check_data_val['alpha_code']."'"
+                    //                                         .",`cusip`='".$check_data_val['CUSIP_number']."'"
+                    //                                         .",`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                                         .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                                         .",`error_code_id`='2'"
+                    //                                         .",`field`='u5'"
+                    //                                         .",`file_type`='2'"
+                    //                                         .$this->insert_common_sql()
+                    //                             ;
+                    //         			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                             $result = 1;
+                    //                         }
+                    //                     }
+                    //                 }
+                    //             } else {
+                    //                 // Missing data(Rep #) 
+                    //                 $qInsertImportException = 
+                    //                     "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                         ." SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."'"
+                    //                                 .",`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                 .",`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."'"
+                    //                                 .",`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                                 .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                                 .",`error_code_id`='13',`field`='representative_number',`file_type`='2'"
+                    //                                 .$this->insert_common_sql()
+                    //                 ;
+                	// 		        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                 $result = 1;
+                    //             }
+                    //         }
+
+                    //         if(isset($check_data_val['CUSIP_number']) && trim($check_data_val['CUSIP_number']) == '') {
+                    //             $qInsertImportException = 
+                    //                 "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                     ." SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".trim($check_data_val['representative_number'])."'"
+                    //                             .",`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."'"
+                    //                             .",`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."',`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                             .",`error_code_id`='13',`field`='CUSIP_number',`file_type`='2'"
+                    //                             .$this->insert_common_sql()
+                    //             ;
+            		// 	        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //             $result = 1;
+                    //         }
+
+                    //         if(isset($check_data_val['CUSIP_number']) && trim($check_data_val['CUSIP_number']) != '') {
+                    //             $y=0;
+                    //             $qSelectProductType = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`='0' and `status`='1'";
+                	// 			$resSelectProductType = $this->re_db_query($qSelectProductType);
+
+                	// 			if($this->re_db_num_rows($resSelectProductType)>0){
+                    //                 while($row = $this->re_db_fetch_array($resSelectProductType))
+                    //                 {
+                    //                     if($y==0)
+                    //                     {
+                    //                         $qSelectProductCategory = "SELECT * FROM `product_category_".$row['id']."` WHERE `is_delete`='0' and `cusip`='".$check_data_val['CUSIP_number']."'";
+                    //         				$resSelectProductCategory = $this->re_db_query($qSelectProductCategory);
+                    //         				if($this->re_db_num_rows($resSelectProductCategory)>0)
+                    //                         {
+                    //                             while($rowSelectProductCategory = $this->re_db_fetch_array($resSelectProductCategory))
+                    //                             {
+                    //                                 if($rowSelectProductCategory['status']==0)
+                    //                                 {
+                    //                                     $qInsertImportException = 
+                    //                                         "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                                             ." SET `file_id`='".$check_data_val['file_id']."'"
+                    //                                                     .",`temp_data_id`='".$check_data_val['id']."'"
+                    //                                                     .",`date`='".date('Y-m-d')."'"
+                    //                                                     .",`rep`='".trim($check_data_val['representative_number'])."'"
+                    //                                                     .",`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                                     .",`account_no`='".$check_data_val['customer_account_number']."'"
+                    //                                                     .",`client`='".$check_data_val['alpha_code']."',`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                                                     .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                                                     .",`error_code_id`='8',`field`='status',`file_type`='2'"
+                    //                                                     .$this->insert_common_sql()
+                    //                                     ;
+                    //                  			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                                     $result=1;
+                    //                                 }
+
+                    //                                 if($rowSelectProductCategory['objective'] > 0 && $check_data_val['customer_account_number'] != '')
+                    //                                 { 
+                    //                                     $qSelectClientMaster = "SELECT `cm`.*".
+                    //                                             " FROM `".CLIENT_MASTER."` as `cm`".
+                    //                                             " LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`".
+                    //                                             " WHERE `cm`.`is_delete`='0' AND `ca`.`account_no`='".$check_data_val['customer_account_number']."'"
+                    //                                     ;
+                    //                                     $resSelectClientMaster = $this->re_db_query($qSelectClientMaster);
+
+                    //                                     if($this->re_db_num_rows($resSelectClientMaster)>0)
+                    //                                     {
+                    //                                         while($rowSelectClientMaster = $this->re_db_fetch_array($resSelectClientMaster))
+                    //                                         {
+                    //                                             $qSelectClientObjectives = "SELECT `co`.*".
+                    //                                                     " FROM `".CLIENT_OBJECTIVES."` as `co`".
+                    //                                                     " WHERE `co`.`is_delete`='0' AND `co`.`objectives`='".$rowSelectProductCategory['objective']."' AND `client_id`='".$rowSelectClientMaster['id']."'"
+                    //                                             ;
+                    //                             				$resSelectClientObjectives = $this->re_db_query($qSelectClientObjectives);
+                                                				
+                    //                                             if($this->re_db_num_rows($resSelectClientObjectives)<=0)
+                    //                                             {
+                    //                                                 $qInsertImportExceptions = 
+                    //                                                     "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                                                         ." SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."'"
+                    //                                                                 .",`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                                                 .",`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."'"
+                    //                                                                 .",`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                                                                 .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                                                                 .",`error_code_id`='9',`field`='objectives',`file_type`='2'"
+                    //                                                                 .$this->insert_common_sql()
+                    //                                                 ;
+                    //                             			        $resInsertImportExceptions = $this->re_db_query($qInsertImportExceptions);
+                    //                                                 $result = 1;
+                    //                                             }
+                    //                                         }
+                    //                                     }
+                    //                                 }
+                    //                                 /*if($rowSelectProductCategory['sponsor']==''||$row2['sponsor']<=0)
+                    //                                 {
+                    //                                     $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".$check_data_val['representative_number']."',`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."',`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."',`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."',`error_code_id`='14',`field`='sponsor',`file_type`='2'".$this->insert_common_sql();
+                    //                  			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                                     $result=1;
+                    //                                 }*/
+                    //                             }
+                    //                             $y++;
+                    //                             break;  
+                    //                         }
+                    //                         else
+                    //                         {
+                    //                             // Cusip not found
+                    //                             $qInsertImportException = 
+                    //                                 "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                                     ." SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."'"
+                    //                                             .",`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                             .",`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."'"
+                    //                                             .",`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                                             .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                                             .",`error_code_id`='11',`field`='CUSIP_number',`file_type`='2'"
+                    //                                             .$this->insert_common_sql()
+                    //                             ;
+                    //         			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                             $result = 1;
+                    //                         }
+                    //                     }
+                    //                 }
+                    //             }
+                    //         }
+                    //         if(isset($check_data_val['system_id']) && $check_data_val['system_id'] != '')
+                    //         {
+                    //             $q = "SELECT * FROM `".SPONSOR_MASTER."` WHERE `is_delete`='0' and `dst_system_id`='".$check_data_val['system_id']."' and `dst_mgmt_code`='".$check_data_val['management_code']."'";
+                	// 			$res = $this->re_db_query($q);
+                	// 			if($this->re_db_num_rows($res)<=0){
+                	// 			    $qInsertImportException = 
+                    //                     "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                         ." SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."'"
+                    //                                 .",`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                 .",`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."'"
+                    //                                 .",`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                                 .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                                 .",`error_code_id`='14',`field`='sponsor',`file_type`='2'"
+                    //                                 .$this->insert_common_sql()
+                    //                 ;
+                 	// 		        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                 $result=1;
+            		// 		    }
+                    //         }
+                    //         if(isset($check_data_val['customer_account_number']))
+                    //         {
+                    //             $customer_account_number = isset($check_data_val['customer_account_number'])?$this->re_db_input($check_data_val['customer_account_number']):'';
+                                
+                    //             if($customer_account_number != '')
+                    //             {
+                    //                 /*$qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".$check_data_val['representative_number']."',`client`='".$check_data_val['alpha_code']."',`broker`='".$check_data_val['representative_name']."',`product`='',`amount`='',`error_code_id`='18',`field`='customer_account_number',`file_type`='2'".$this->insert_common_sql();
+                 	// 		        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                 $result=1;
+                    //             }
+                    //             else
+                    //             {*/
+                    //                 $qClientMaster = "SELECT `cm`.`state`".
+                    //                                     " FROM `".CLIENT_MASTER."` as `cm`".
+                    //                                     " LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`".
+                    //                                     " WHERE `cm`.`is_delete`='0' ".
+                    //                                     " AND `ca`.`account_no`='".$customer_account_number."'".
+                    //                                     " AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
+                    //                 ;
+                    // 				$resClientMaster = $this->re_db_query($qClientMaster);
+
+                    // 				if($this->re_db_num_rows($resClientMaster)>0){
+                    //                     while($row = $this->re_db_fetch_array($resClientMaster)){
+                                            
+                    //                         if(isset($check_data_val['representative_number']) && $check_data_val['representative_number'] != '' && isset($row['state']) && $row['state'] != '')
+                    //                         {
+                    //                             $qBrokerMaster = 
+                    //                                 "SELECT `bm`.* ,`bls`.`active_check` as active_check_security,`blr`.`active_check` as active_check_ria,`bli`.`active_check` as active_check_insurance".
+                    //                                     " FROM `".BROKER_MASTER."` as `bm`".
+                    //                                     " LEFT JOIN `".BROKER_LICENCES_SECURITIES."` as `bls` on `bls`.`broker_id`=`bm`.`id`".
+                    //                                     " LEFT JOIN `".BROKER_LICENCES_RIA."` as `blr` on `blr`.`broker_id`=`bm`.`id`".
+                    //                                     " LEFT JOIN `".BROKER_LICENCES_INSURANCE."` as `bli` on `bli`.`broker_id`=`bm`.`id`".
+                    //                                     " WHERE `bm`.`is_delete`='0' AND `bm`.`fund`='".$check_data_val['representative_number']."' AND `bls`.`state_id`='".$row['state']."' AND `blr`.`state_id`='".$row['state']."' AND `bli`.`state_id`='".$row['state']."' "
+                    //                             ;
+                    //             			    $resBrokerMaster = $this->re_db_query($qBrokerMaster);
+
+                    //             				if($this->re_db_num_rows($resBrokerMaster)>0){
+                    //                                 while($row = $this->re_db_fetch_array($resBrokerMaster))
+                    //                                 {
+                    //                                     if($row['active_check_security'] != 1 && $row['active_check_ria'] != 1 && $row['active_check_insurance'] != 1)
+                    //                                     {
+                    //                                         $qInsertImportException = 
+                    //                                             "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                                                 ." SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."'"
+                    //                                                         .",`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."'"
+                    //                                                         .",`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."'"
+                    //                                                         .",`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                                                         .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                                                         .",`error_code_id`='6',`field`='active_check',`file_type`='2'"
+                    //                                                         .$this->insert_common_sql()
+                    //                                         ;
+                    //                     			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                                         $result = 1;
+                    //                                     }
+                    //                                 }
+                    //                             }
+                    //                         }
+                    //                     }
+                    //                 }
+                    //                 else
+                    //                 {
+                    //                     // Client Account # already exists
+                    //                     $qInsertImportException = 
+                    //                         "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                         ." SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."'"
+                    //                             .",`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."'"
+                    //                             .",`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                             .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                             .",`account_no`='".$check_data_val['customer_account_number']."'"
+                    //                             .",`client`='".$check_data_val['alpha_code']."'"
+                    //                             .",`error_code_id`='18'"
+                    //                             .",`field`='customer_account_number'"
+                    //                             .",`file_type`='2'"
+                    //                             .$this->insert_common_sql()
+                    //                     ;
+                    //  			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                     $result = 1;
+                    //                 }
+                    //             }
+                    //             else
+                    //             {
+                    //                 // Missing Account #
+                    //                 $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."',`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."',`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."',`error_code_id`='13',`field`='customer_account_number',`file_type`='2'".$this->insert_common_sql();
+                	// 		        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                 $result = 1;
+                    //             } 
+                    //         }
+                    //         if(isset($check_data_val['social_security_number']))
+                    //         {
+                    //             $social_security_number = isset($check_data_val['social_security_number'])?$this->re_db_input($check_data_val['social_security_number']):'';
+                                
+                    //             if($social_security_number != '')
+                    //             {
+                    //                 $qClientMaster = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`='0'  AND `active`='0'  AND `client_ssn`='".$social_security_number."' ";
+                    // 				$resClientMaster = $this->re_db_query($qClientMaster);
+                    // 				$return = $this->re_db_num_rows($resClientMaster);
+                    //                 if($return > 0) {
+                    //                     $qInsertImportException = "INSERT INTO `".IMPORT_EXCEPTION."` SET `file_id`='".$check_data_val['file_id']."',`temp_data_id`='".$check_data_val['id']."',`date`='".date('Y-m-d')."',`rep`='".trim($check_data_val['representative_number'])."',`rep_name`='".$check_data_val['representative_name']."',`account_no`='".$check_data_val['customer_account_number']."',`client`='".$check_data_val['alpha_code']."',`cusip`='".$check_data_val['CUSIP_number']."',`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."',`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."',`error_code_id`='7',`field`='active',`file_type`='2'".$this->insert_common_sql();
+                    // 			        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //                 }
+                    //             }
+                    //         }
+
+                    //         if(isset($result) && $result == 0) {
+                    //             $qInsertImportException = 
+                    //                 "INSERT INTO `".IMPORT_EXCEPTION."`"
+                    //                     ." SET `file_id`='".$check_data_val['file_id']."'"
+                    //                         .",`temp_data_id`='".$check_data_val['id']."'"
+                    //                         .",`date`='".date('Y-m-d')."'"
+                    //                         .",`rep`='".trim($check_data_val['representative_number'])."'"
+                    //                         .",`rep_name`='".$check_data_val['representative_name']."'"
+                    //                         .",`account_no`='".$check_data_val['customer_account_number']."'"
+                    //                         .",`client`='".$check_data_val['alpha_code']."'"
+                    //                         .",`cusip`='".$check_data_val['CUSIP_number']."'"
+                    //                         .",`principal`='".ltrim($check_data_val['gross_transaction_amount'],0)."'"
+                    //                         .",`commission`='".ltrim($check_data_val['dealer_commission_amount'],0)."'"
+                    //                         .",`error_code_id`='0'"
+                    //                         .",`field`=''"
+                    //                         .",`file_type`='2'"
+                    //                         .",`solved`='1'"
+                    //                         .$this->insert_common_sql()
+                    //             ;
+             		// 	        $resInsertImportException = $this->re_db_query($qInsertImportException);
+                    //             $result = 0;
+                    //         }
+
+                    //         // 12/08/21 Flag the detail record as not cleared (process_result = 0)
+                    //         $qInsertImportException = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                    //                                     ." SET `process_result`='0'"
+                    //                                            .$this->update_common_sql()
+                    //                                     ." WHERE `id`='".$check_data_val['id']."'";
+                    //         $resInsertImportException = $this->re_db_query($qInsertImportException);
+
+                    //      }
+                    //  }
+
+                    }
+                    if($data_status == 1) {
+                        $qUpdateCurrentFiles = "UPDATE `".IMPORT_CURRENT_FILES."` SET `processed`='1',`last_processed_date`='".date('Y-m-d')."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+                        $resUpdateCurrentFiles = $this->re_db_query($qUpdateCurrentFiles);
+                    } else 
+                    $resUpdateCurrentFiles = false;
+                    
+                    if($resUpdateCurrentFiles == true){
+                        $_SESSION['success'] = 'Data successfully processed.';
+        				return true;
+                    } else {
+                        $_SESSION['warning'] = UNKWON_ERROR;
+        				return false;
                     }
                     /*** 01/10/22 Do the processing in "process_current_file() ***/
-                    if($data_status) {
-                        $this->reprocess_current_files($id);
-                        $resUpdateCurrentFiles = true;
-                    } else 
-                        $resUpdateCurrentFiles = false;
-                    /*** 01/10/22 Do the processing in "process_current_file() ***/
                 }
+                
             }
         }
 
@@ -1908,7 +2632,7 @@
                                     ;
                                     $res = $this->re_db_query($q);
 
-                                    // Update DETAIL data TABLE for added/updated clients
+                                                                        // Update DETAIL data TABLE for added/updated clients
                                     $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
                                         ." SET"
                                             ." `product_category_id`=".$array_ProductCategory['id']
@@ -2346,10 +3070,10 @@
 
             if($reprocess_status && $check_file_exception_process == 0){
                 $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
-                    ." SET `process_completed`='1'"
-                        .",`last_processed_date`='".date('Y-m-d')."'"
-                        .$this->update_common_sql()
-                    ." WHERE `id`=$id";
+                        ." SET `process_completed`='1'"
+                            .",`last_processed_date`='".date('Y-m-d')."'"
+                            .$this->update_common_sql()
+                        ." WHERE `id`='".$id."'";
                 $res = $this->re_db_query($q);
             }
 
