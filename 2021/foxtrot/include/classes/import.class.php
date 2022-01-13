@@ -1377,14 +1377,69 @@
                             
                         }
 
+                    } 
+                    /*****************************
+                     * IMPORT IDC DATA
+                    *******************************/
+                    else if(isset($file_type_check) && $file_type_check == 'C1')
+                    {
+                        foreach($file_string_array as $key_string=>$val_string)
+                        {
+                            $record_type = substr($val_string, 0, 3);
+                            if(isset($record_type) && $record_type == 'RHR')
+                            {
+                                $data_array[$array_key][$record_type] = array("record_type" => substr($val_string, 0, 3),"file_type" => substr($val_string, 3, 10),"system_id" => substr($val_string, 13, 3),"management_code" => substr($val_string, 16, 2),"fund_sponsor_id" => substr($val_string, 18, 5),"transmission_date" => substr($val_string, 23, 8),"unused_RHR" => substr($val_string, 31, 169));
+                            }
+                            else if(isset($record_type) && ($record_type != 'RHR' && $record_type != 'RTR'))
+                            {
+                                $commission_record_type_code = substr($val_string, 0, 1);
+                                if($commission_record_type_code == '1' || $commission_record_type_code == '3')
+                                {
+                                    $data_array[$array_key]['DETAIL'][$commission_record_type_code][] = array("commission_record_type_code" => substr($val_string, 0, 1),"dealer_number" => substr($val_string, 1, 7),"dealer_branch_number" => substr($val_string, 8, 9),"representative_number" => trim(substr($val_string, 17, 9)),"representative_name" => substr($val_string, 26, 30),"CUSIP_number" => substr($val_string, 56, 9),"alpha_code" => substr($val_string, 65, 10),"trade_date" => substr($val_string, 75, 8),"gross_transaction_amount" => substr($val_string, 83, 15),"gross_amount_sign_code" => substr($val_string, 98, 1),"dealer_commission_amount" => substr($val_string, 99, 15),"commission_rate" => substr($val_string, 114, 5),"customer_account_number" => substr($val_string, 119, 20),"account_number_type_code" => substr($val_string, 139, 1),"purchase_type_code" => substr($val_string, 140, 1),"social_code" => substr($val_string, 141, 3),"cumulative_discount_number" => substr($val_string, 144, 9),"letter_of_intent(LOI)_number" => substr($val_string, 153, 9),"social_security_number" => substr($val_string, 162, 9),"social_security_number_status_code" => substr($val_string, 171, 1),"transaction_share_count" => substr($val_string, 172, 15),"share_price_amount" => substr($val_string, 187, 9),"resident_state_country_code" => substr($val_string, 196, 3),"dealer_commission_sign_code" => substr($val_string, 199, 1));
+                                }
+                            }
+                            else if(isset($record_type) && $record_type == 'RTR')
+                            {
+                                $data_array[$array_key][$record_type] = array("record_type" => substr($val_string, 0, 3),"file_type" => substr($val_string, 3, 10),"trailer_record_count" => substr($val_string, 13, 7),"unused_RTR" => substr($val_string, 20, 180));
+                                $array_key++;
+                            }
+                            
+                        }
+                        foreach($data_array as $main_key=>$main_val)
+                        {
+                            $RHR = $main_val['RHR'];
+                            $q = "INSERT INTO `".IMPORT_IDC_HEADER_DATA."` SET `file_id`='".$id."',`record_type`='".$RHR['record_type']."',`file_type`='".$RHR['file_type']."',`system_id`='".$RHR['system_id']."',`management_code`='".$RHR['management_code']."',`fund_sponsor_id`='".$RHR['fund_sponsor_id']."',`transmission_date`='".date('Y-m-d',strtotime($RHR['transmission_date']))."',`unused_RHR`='".$RHR['unused_RHR']."'".$this->insert_common_sql();
+                			$res = $this->re_db_query($q);
+                            $rhr_inserted_id = $this->re_db_insert_id();
+                            $data_status = true;
+                            //echo '<pre>';print_r($main_val);exit;
+                            $DETAIL = $main_val['DETAIL'];
+                            foreach($DETAIL as $detail_key=>$detail_val)
+                            {
+                                if($detail_key == '1' || $detail_key == '3')
+                                {
+                                    foreach($detail_val as $seq_key=>$seq_val)
+                                    {   
+                                        $q = "INSERT INTO `".IMPORT_IDC_DETAIL_DATA."` SET `file_id`='".$id."',`idc_header_id`='".$rhr_inserted_id."',`commission_record_type_code`='".$seq_val['commission_record_type_code']."',`dealer_number`='".$seq_val['dealer_number']."',`dealer_branch_number`='".$seq_val['dealer_branch_number']."',`representative_number`='".trim($seq_val['representative_number'])."',`representative_name`='".$seq_val['representative_name']."',`CUSIP_number`='".$seq_val['CUSIP_number']."',`alpha_code`='".$seq_val['alpha_code']."',`trade_date`='".date('Y-m-d',strtotime($seq_val['trade_date']))."',`gross_transaction_amount`='".($seq_val['gross_transaction_amount']/100)."',`gross_amount_sign_code`='".$seq_val['gross_amount_sign_code']."',`dealer_commission_amount`='".($seq_val['dealer_commission_amount']/100)."',`commission_rate`='".$seq_val['commission_rate']."',`customer_account_number`='".$seq_val['customer_account_number']."',`account_number_type_code`='".$seq_val['account_number_type_code']."',`purchase_type_code`='".$seq_val['purchase_type_code']."',`social_code`='".$seq_val['social_code']."',`cumulative_discount_number`='".$seq_val['cumulative_discount_number']."',`letter_of_intent(LOI)_number`='".$seq_val['letter_of_intent(LOI)_number']."',`social_security_number`='".$seq_val['social_security_number']."',`social_security_number_status_code`='".$seq_val['social_security_number_status_code']."',`transaction_share_count`='".$seq_val['transaction_share_count']."',`share_price_amount`='".$seq_val['share_price_amount']."',`resident_state_country_code`='".$seq_val['resident_state_country_code']."',`dealer_commission_sign_code`='".$seq_val['dealer_commission_sign_code']."'".$this->insert_common_sql();
+                            			$res = $this->re_db_query($q);
+                                        $data_status = true;
+                                   }
+                               }
+                            }
+                            
+                            $RTR = $main_val['RTR'];
+                            $q = "INSERT INTO `".IMPORT_IDC_FOOTER_DATA."` SET `file_id`='".$id."',`idc_header_id`='".$rhr_inserted_id."',`record_type`='".$RTR['record_type']."',`file_type`='".$RTR['file_type']."',`trailer_record_count`='".$RTR['trailer_record_count']."',`unused_RTR`='".$RTR['unused_RTR']."'".$this->insert_common_sql();
+                			$res = $this->re_db_query($q);
+                            $data_status = true;
+                        }
                     }
+
                     /*** 01/10/22 Do the processing in "process_current_file() ***/
                     if($data_status) {
                         $this->reprocess_current_files($id);
                         $resUpdateCurrentFiles = true;
                     } else 
                         $resUpdateCurrentFiles = false;
-                    /*** 01/10/22 Do the processing in "process_current_file() ***/
                 }
             }
         }
@@ -1476,15 +1531,14 @@
 				    //     $res = $this->re_db_query($q);
 				    // } 
                    
-                    // $q = "update `".IMPORT_EXCEPTION."` set `is_delete`='1' WHERE `file_id`='".$id."'";
-				    // $res = $this->re_db_query($q);
                     /*************************************************
                      * END:
                      * REMOVE THIS SECTION. JUST FLAG "detail"
                      * RECORDS AS PROCESSED, AND DON'T RERUN THEM
                      * 12/7/21
                      *************************************************/
-                   
+                    $q = "update `".IMPORT_EXCEPTION."` SET `is_delete`='1' WHERE `file_id`='".$id."'";
+                    $res = $this->re_db_query($q);
 
                     /*************************************************
                      * DST CLIENT DATA (NFA(07) / NAA(08) / AMP(09))
@@ -1493,6 +1547,8 @@
                     $dataSettings = $dataClass->edit(2, $_SESSION['user_id']);
 
                     foreach($check_fanmail_array as $check_data_key=>$check_data_val) {
+                        // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
+                        $this->re_db_perform(IMPORT_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
                         $broker_id = 0;
                         $first_name = '';
                         $middle_name = '';
@@ -1833,6 +1889,9 @@
                     $check_sfr_array = $this->get_sfr_detail_data($id);
                     
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
+                        // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
+                        $this->re_db_perform(IMPORT_SFR_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
+
                         $result = $last_inserted_id = 0;
                         
                         if(empty(trim($check_data_val['major_security_type'])) OR (empty(trim($check_data_val['fund_name'])) AND empty(trim($check_data_val['product_name']))) ){
@@ -1971,6 +2030,9 @@
                     $check_idc_array = $this->get_idc_detail_data($id, 0);
 
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
+                        // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
+                        $this->re_db_perform(IMPORT_IDC_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
+
                         $batch_id = 0;
                         $broker_id = 0;
                         $client_id = 0;
@@ -1978,6 +2040,8 @@
                         $product_id = 0;
                         $check_hold_commission = 0;
                         $result=0;
+                        $transaction_master_id = 0;
+
                         $insert_exception_string =
                              ",`file_id`='".$check_data_val['file_id']."'"
                             .",`temp_data_id`='".$check_data_val['id']."'"
@@ -2331,7 +2395,7 @@
                                         ." WHERE `id`='$batch_id'  AND `is_delete`=0";
                                 $res = $this->re_db_query($q);
 
-                                if($res1 == true){
+                                if($res == true){
                                     $reprocess_status = true;
                                 }
                             }   
@@ -2342,16 +2406,15 @@
             /*********************
              * FILE Update
              *********************/
-            $check_file_exception_process = $this->check_file_exception_process($id);
+            $check_file_exception_process = $this->check_file_exception_process($id,1);
 
-            if($reprocess_status && $check_file_exception_process == 0){
-                $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
-                    ." SET `process_completed`='1'"
-                        .",`last_processed_date`='".date('Y-m-d')."'"
-                        .$this->update_common_sql()
-                    ." WHERE `id`=$id";
-                $res = $this->re_db_query($q);
-            }
+            $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
+                ." SET `processed`='1'"
+                    .",`last_processed_date`='".date('Y-m-d')."'"
+                    .",`process_completed`=".($check_file_exception_process['exceptions'] ? '0' : '1')
+                    .$this->update_common_sql()
+                ." WHERE `id`=$id";
+            $res = $this->re_db_query($q);
 
             if($res){
                 $_SESSION['success'] = 'Data successfully processed.';
@@ -2588,19 +2651,41 @@
             }
 			return $return;
 		}
-        public function check_file_exception_process($file_id){
+        public function check_file_exception_process($file_id,$exceptionCount=0){
 			$return = 0;
 			
-			$q = "SELECT `at`.*
-					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`processed`='1' and `at`.`id`='".$file_id."'
-                    ORDER BY `at`.`id` ASC";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $get_exceptions = $this->get_exception_data($file_id);
-                if($get_exceptions != array())
-                {
-                    $return = 1;
+            if ($exceptionCount==0){
+                $q = "SELECT `at`.*
+                        FROM `".IMPORT_CURRENT_FILES."` AS `at`
+                        WHERE `at`.`is_delete`='0'
+                          AND `at`.`processed`='1' 
+                          AND `at`.`id`='".$file_id."'
+                        ORDER BY `at`.`id` ASC";
+                $res = $this->re_db_query($q);
+                if($this->re_db_num_rows($res)>0){
+                    $get_exceptions = $this->get_exception_data($file_id);
+                    if($get_exceptions != array())
+                    {
+                        $return = 1;
+                    }
+                }
+            } else {
+                $return = ["file_id"=>$file_id, "file_name"=>'', "exceptions"=>0, "processed"=>0];
+
+                foreach ([IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA] AS $table){
+                    $q = "SELECT `a`.`file_id`, `b`.`file_name`, SUM(if(`a`.`process_result`>0,0,1)) AS exceptions, SUM(if(`a`.`process_result`>0,1,0)) AS processed"
+                        ." FROM `$table` `a`"
+                        ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `a`.`file_id`=`b`.`id` AND `b`.`is_delete`=0"
+                        ." WHERE `a`.`is_delete`=0 AND `file_id`=$file_id"
+                        ." GROUP BY `a`.`file_id`, `b`.`file_name`"
+                    ;
+                    $res = $this->re_db_query($q);
+                    if($this->re_db_num_rows($res)>0){
+                        $fileTotals = $this->re_db_fetch_array($res);
+                        $return['file_name'] = $fileTotals['file_name'];
+                        $return['exceptions'] += $fileTotals['exceptions'];
+                        $return['processed'] += $fileTotals['processed'];
+                    }
                 }
             }
 			return $return;
