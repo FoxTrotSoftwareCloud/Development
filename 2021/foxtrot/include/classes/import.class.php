@@ -1530,14 +1530,17 @@
 					//     $q = "update `".CLIENT_MASTER."` set `is_delete`='1' WHERE `file_id`='".$id."'";
 				    //     $res = $this->re_db_query($q);
 				    // } 
-                   
                     /*************************************************
                      * END:
                      * REMOVE THIS SECTION. JUST FLAG "detail"
                      * RECORDS AS PROCESSED, AND DON'T RERUN THEM
                      * 12/7/21
                      *************************************************/
-                    $q = "update `".IMPORT_EXCEPTION."` SET `is_delete`='1' WHERE `file_id`='".$id."'";
+                    $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                          ." SET `is_delete`=1"
+                                .$this->update_common_sql()
+                          ." WHERE `file_id`=$id AND `is_delete`=0 AND `solved`=0"
+                    ;
                     $res = $this->re_db_query($q);
 
                     /*************************************************
@@ -1800,7 +1803,7 @@
                                     // --- ADD CLIENT ---
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET" 
-                                            ."`error_code_id`=".($dataSettings['add_client'] ? '`error_code_id' : 23)
+                                            ."`error_code_id`=".($dataSettings['add_client'] ? '`error_code_id`' : 23)
                                             .",`solved`='".$dataSettings['add_client']."'"
                                             .",`process_completed`='".$dataSettings['add_client']."'"
                                             .$exceptionFields
@@ -2031,7 +2034,7 @@
 
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
-                        $this->re_db_perform(IMPORT_IDC_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
+                        $this->re_db_perform(IMPORT_IDC_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']." AND `is_delete`=0");
 
                         $batch_id = 0;
                         $broker_id = 0;
