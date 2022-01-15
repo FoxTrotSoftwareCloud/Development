@@ -1105,8 +1105,12 @@
                                 else if(isset($file_type_checkkey) && $file_type_checkkey == 'C1'){
                                     $source = 'DSTIDC';
                                 }
-                                
-                                $q = "INSERT INTO `".IMPORT_CURRENT_FILES."` SET `user_id`='".$_SESSION['user_id']."',`imported_date`='".date('Y-m-d')."',`last_processed_date`='',`file_name`='".$ext_filename."',`file_type`='".$file_type_array[$file_type_checkkey]."',`source`='".$source."'".$this->insert_common_sql();
+                                $sponsor_array = $this->get_sponsor_on_system_management_code(substr($ext_filename,0,3),substr($ext_filename,3,2));
+                                if (empty($sponsor_array)){
+                                    $sponsor_array = ['id'=>0, 'name'=>'*Not Found*', 'dst_code'=>substr($ext_filename,0,5)];
+                                }
+
+                                $q = "INSERT INTO `".IMPORT_CURRENT_FILES."` SET `user_id`='".$_SESSION['user_id']."',`imported_date`='".date('Y-m-d')."',`last_processed_date`='',`file_name`='".$ext_filename."',`file_type`='".$file_type_array[$file_type_checkkey]."',`source`='".$source."' `sponsor_id`=".$sponsor_array['id'].$this->insert_common_sql();
                     			$res = $this->re_db_query($q);
                                 $id = $this->re_db_insert_id();
                             }
@@ -1889,7 +1893,7 @@
                     /***********************************
                     * SFR PROCESS security-file data
                     ************************************/
-                    $check_sfr_array = $this->get_sfr_detail_data($id);
+                    $check_sfr_array = $this->get_sfr_detail_data($id, 0);
                     
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
@@ -1976,7 +1980,7 @@
                                             ." `product_category_id`=".$array_ProductCategory['id']
                                             .",`product_category_table`='$product_category_X_table'"
                                             .",`product_id`=".$array_SymbolCusipCheck['id']
-                                            .",`process_result`=1"
+                                            .",`process_result`=2"
                                             .$this->update_common_sql()
                                         ." WHERE `id`=".$check_data_val['id']." AND `is_delete`=0"
                                     ;
@@ -2654,10 +2658,10 @@
             }
 			return $return;
 		}
-        public function check_file_exception_process($file_id,$exceptionCount=0){
+        public function check_file_exception_process($file_id,$exceptionSummary=0){
 			$return = 0;
 			
-            if ($exceptionCount==0){
+            if ($exceptionSummary==0){
                 $q = "SELECT `at`.*
                         FROM `".IMPORT_CURRENT_FILES."` AS `at`
                         WHERE `at`.`is_delete`='0'
@@ -3097,13 +3101,13 @@
             $con = '';
             if($system_id!='')
             {
-                $con = " AND `sp`.`dst_system_id`='".$system_id."'";
+                $con = " AND `sp`.`dst_system_id`='".strtoupper(trim($system_id))."'";
             }
             if($management_code!='')
             {
-                $con .= " AND `sp`.`dst_mgmt_code`='".$management_code."'";
+                $con .= " AND `sp`.`dst_mgmt_code`='".strtoupper(trim($management_code))."'";
             }
-			
+			// 
 			$q = "SELECT `sp`.*
 					FROM `".SPONSOR_MASTER."` AS `sp`
                     WHERE `sp`.`is_delete`='0' ".$con."

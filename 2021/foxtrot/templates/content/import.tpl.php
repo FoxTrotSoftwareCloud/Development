@@ -1375,7 +1375,7 @@ $(document).ready(function() {
                         { "bSearchable": false, "aTargets": [ 6,7 ] }]
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>'+
-                    '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Process All</a>');
+                    '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');
         
         $('#data-table1').DataTable({
         "pageLength": 25,
