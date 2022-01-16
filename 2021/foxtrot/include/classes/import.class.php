@@ -1109,15 +1109,31 @@
                                 if (empty($sponsor_array)){
                                     $sponsor_array = ['id'=>0, 'name'=>'*Not Found*', 'dst_code'=>substr($ext_filename,0,5)];
                                 }
-
-                                $q = "INSERT INTO `".IMPORT_CURRENT_FILES."` SET `user_id`='".$_SESSION['user_id']."',`imported_date`='".date('Y-m-d')."',`last_processed_date`='',`file_name`='".$ext_filename."',`file_type`='".$file_type_array[$file_type_checkkey]."',`source`='".$source."' `sponsor_id`=".$sponsor_array['id'].$this->insert_common_sql();
-                    			$res = $this->re_db_query($q);
+                                $q = "INSERT INTO `".IMPORT_CURRENT_FILES."`"
+                                        ." SET "
+                                        ."`user_id`='".$_SESSION['user_id']."'"
+                                        .",`imported_date`='".date('Y-m-d')."'"
+                                        .",`last_processed_date`=''"
+                                        .",`file_name`='".$ext_filename."'"
+                                        .",`file_type`='".$file_type_array[$file_type_checkkey]."'"
+                                        .",`source`='".$source."'"
+                                        .",`sponsor_id`=".$sponsor_array['id']
+                                        .$this->insert_common_sql();
+                                $res = $this->re_db_query($q);
                                 $id = $this->re_db_insert_id();
                             }
                             else
                             {
-                                $q = "INSERT INTO `".IMPORT_CURRENT_FILES."` SET `user_id`='".$_SESSION['user_id']."',`imported_date`='".date('Y-m-d')."',`last_processed_date`='',`file_name`='".$ext_filename."',`file_type`='-',`source`=''".$this->insert_common_sql();
-                    			$res = $this->re_db_query($q);
+                                $q = "INSERT INTO `".IMPORT_CURRENT_FILES."`"
+                                    ." SET "
+                                        ."`user_id`='".$_SESSION['user_id']."'"
+                                        .",`imported_date`='".date('Y-m-d')."'"
+                                        .",`last_processed_date`=''"
+                                        .",`file_name`='".$ext_filename."'"
+                                        .",`file_type`='-'"
+                                        .",`source`=''"
+                                        .$this->insert_common_sql();
+                                $res = $this->re_db_query($q);
                                 $id = $this->re_db_insert_id();
                             }
                         }
@@ -1148,6 +1164,7 @@
        }
         
         public function process_current_files($id){
+            $sponsorClass = new manage_sponsor();
             $data_status = false;
 
             if($id > 0)
@@ -1159,13 +1176,6 @@
                 $this->errors='';
                 //print_r($return);
 				if($return == 0){
-                    $file_sponsor_array = $this->get_sponsor_on_system_management_code(substr($return['file_name'],0,3), substr($return['file_name'],3,2));
-                        
-                    if (!empty($file_sponsor_array['id'])){
-                        $q = "UPDATE `".IMPORT_CURRENT_FILES."` SET `sponsor_id`='".$file_sponsor_array['id']."' WHERE `is_delete`=0 AND `id`='".$id."'";
-                        $res = $this->re_db_query($q);
-                    }
-
                     $file_string_array = array();
                     $get_file = $this->select_user_files($id);
                     $file_name = $get_file['file_name'];
@@ -1191,12 +1201,18 @@
                     $file_name_array = explode('.',$file_name);
                     $file_type_key = substr($file_name_array[0], -2);
                     $file_type_check = $file_type_key;
-                    $file_sponsor_array = $this->get_sponsor_on_system_management_code(substr($file_name_array[0],0,3), substr($file_name_array[0],3,2));
+                    
+                    // Get SPONSOR INFO for the file - "sponsor_id" should be populated in this class->insert_update_file()
+                    if (empty($get_file['sponsor_id'])) {
+                        $file_sponsor_array = $this->get_sponsor_on_system_management_code(substr($file_name_array[0],0,3), substr($file_name_array[0],3,2));
+                    } else {
+                        $file_sponsor_array = $sponsorClass->select_sponsor_by_id((int)$get_file['sponsor_id']);
+                    }
+                    
                     if (count($file_sponsor_array)==0){
                         $file_sponsor_array['id'] = 0;
                         $file_sponsor_array['name'] = '';
                     } 
-                        
 
                     if(isset($file_type_check) && ($file_type_check == '07' || $file_type_check == '08' || $file_type_check == '09'))
                     {
@@ -3179,10 +3195,12 @@
         public function select_user_files($id){
 			$return = array();
 			
-			$q = "SELECT `at`.*
-					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`user_id`='".$_SESSION['user_id']."' and `at`.`id`='".$id."'
-                    ORDER BY `at`.`imported_date` DESC";
+			$q = "SELECT `at`.`*`"
+                ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
+                ." WHERE `at`.`is_delete`='0'"
+                  ." AND `at`.`id`='".$id."'"
+                ." ORDER BY `at`.`imported_date` DESC"
+            ;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
