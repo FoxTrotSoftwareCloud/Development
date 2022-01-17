@@ -2054,7 +2054,7 @@
 
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
-                        $this->re_db_perform(IMPORT_IDC_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']." AND `is_delete`=0");
+                        $this->re_db_perform(IMPORT_IDC_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']." AND `is_delete` = 0");
 
                         $batch_id = 0;
                         $broker_id = 0;
