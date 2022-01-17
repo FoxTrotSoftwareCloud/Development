@@ -746,6 +746,48 @@
 
 			return $return;
 		}
+
+		public function product_list(){
+             $return=array();
+			$q = "SELECT id, name
+					FROM `".PRODUCT_LIST."` 
+                   
+                    WHERE `is_delete`='0'
+                    ORDER BY `id` ASC";
+                   
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+                     
+    			}
+            }
+            
+
+			return $return;
+		}
+
+		public function product_list_by_name(){
+             $return=array();
+			$q = "SELECT id, name,category
+					FROM `".PRODUCT_LIST."` 
+                   
+                    WHERE `is_delete`='0'
+                    ORDER BY `name` ASC";
+                   
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+                     
+    			}
+            }
+            
+
+			return $return;
+		}
         
         
     }

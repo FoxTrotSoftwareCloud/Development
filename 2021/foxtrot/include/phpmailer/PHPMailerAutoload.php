@@ -42,8 +42,7 @@ if (version_compare(PHP_VERSION, '5.1.2', '>=')) {
      * Fall back to traditional autoload for old PHP versions
      * @param string $classname The name of the class to load
      */
-    // 11/04/21 "function __autoload($classname)" is deprecated replaced with "spl_autoload-register()" instead li
-     function spl_autoload_register($classname)
+    function __autoload($classname)
     {
         PHPMailerAutoload($classname);
     }
