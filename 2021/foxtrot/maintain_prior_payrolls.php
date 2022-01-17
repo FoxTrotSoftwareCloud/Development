@@ -37,10 +37,12 @@
         
         if($return===true){
              if(isset($_GET['redirectto']) && !empty($_GET['redirectto'])){
+
                 header("location:".urldecode($_GET['redirectto']));exit;
              }
             else{
-                header("location:".CURRENT_PAGE."?action=view");exit;
+                             header("location:".CURRENT_PAGE."?action=view");exit;
+
             }
         }
         else{

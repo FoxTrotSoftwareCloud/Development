@@ -247,12 +247,13 @@ $instance_header = new header_class();
 						<?php 
 							foreach($menudata['submenu'] as $subkey=>$subdata)
 							{ 
+								//print_r($subdata);
 							?>
                                 <?php if(empty($subdata['submenu'])){  ?>    
 								<li><a href="<?php echo $subdata['link_page'] ?>"><?php echo $subdata['link_text']; ?></a></li>
                                 <?php }else{  ?>
                                 <li class="dropdown-submenu"><a class="dropdown-toggle" data-toggle="dropdown" href="<?php echo $subdata['link_page'] ?>"><?php echo $subdata['link_text']; ?></a>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu 3333">
                                    <?php 
 									foreach($subdata['submenu'] as $sub_k=>$sub_v)
 									{ 

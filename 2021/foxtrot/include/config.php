@@ -1,18 +1,15 @@
 <?php
     @session_start();
-    date_default_timezone_set ("America/Los_Angeles");
+    date_default_timezone_set ("Asia/Calcutta");
     ini_set('display_errors',1);
     define('HTTP_HOST','http://'.$_SERVER['HTTP_HOST'].'/');
-	// Changed to dynamically find the local path - 11/04/21
-    $localPath = substr(str_replace($_SERVER['DOCUMENT_ROOT'],'',dirname($_SERVER['SCRIPT_FILENAME'])),1)."/";
-	//define('HTTP_SERVER', HTTP_HOST.'Cloudfox/'); 
-	define('HTTP_SERVER', HTTP_HOST.$localPath); 
+	define('HTTP_SERVER', HTTP_HOST.'CloudFox/'); 
 	define('ENABLE_SSL', false);
     define('IS_LIVE',0);
     
-    define('SITE_URL', HTTP_HOST.$localPath);
+    define('SITE_URL', HTTP_HOST.'CloudFox/');
     
-	define('DIR_FS',$_SERVER['DOCUMENT_ROOT']."/".$localPath);
+	define('DIR_FS',$_SERVER['DOCUMENT_ROOT'].'/CloudFox/');
 	define('DIR_FS_INCLUDES',DIR_FS.'include/');
     define('DIR_FS_CLASSES',DIR_FS_INCLUDES.'classes/');
 	define('DIR_WS_TEMPLATES', DIR_FS.'templates/');
@@ -65,23 +62,13 @@
 	define('STORE_SESSIONS', 'mysql');
     */
     
-        // 10/30/21 Use the correct server
-    if ($_SERVER['SERVER_NAME']=='localhost') {
-        // local config -> 10/30/21 LI
-        define('DB_SERVER', 'localhost');
-        define('DB_SERVER_USERNAME', 'root');
-        define('DB_SERVER_PASSWORD', '');
-        define('DB_DATABASE', 'cloudfox');
-        define('USE_PCONNECT', 'false');
-        define('STORE_SESSIONS', 'mysql');
-    } else {
-        define('DB_SERVER', 'sql5c40n.carrierzone.com');
-        define('DB_SERVER_USERNAME', 'jjixgbv9my353010');
-        define('DB_SERVER_PASSWORD', 'We3b2!12');
-        define('DB_DATABASE', 'CloudFox_jjixgbv9my353010');
-        define('USE_PCONNECT', 'false');
-        define('STORE_SESSIONS', 'mysql');
-    }
+    define('DB_SERVER', 'sql5c40n.carrierzone.com');
+	define('DB_SERVER_USERNAME', 'jjixgbv9my353010');
+	define('DB_SERVER_PASSWORD', 'We3b2!12');
+	define('DB_DATABASE', 'CloudFox_jjixgbv9my353010');
+	define('USE_PCONNECT', 'false');
+	define('STORE_SESSIONS', 'mysql');
+
 
     
     
