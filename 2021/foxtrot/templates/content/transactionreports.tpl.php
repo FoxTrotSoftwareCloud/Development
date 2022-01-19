@@ -49,7 +49,7 @@
                                 <select class="form-control" name="broker" id="broker_dropdown">
                                     <option value="0">All Brokers</option>
                                     <?php foreach($get_brokers as $brokerN): ?>
-                                        <option value="<?php echo $brokerN['id']; ?>" <?php echo isset($broker) && $broker==$brokerN['id'] ? 'selected' : '' ?>><?php echo $brokerN['last_name'].' '.$brokerN['first_name']; ?></option>
+                                        <option value="<?php echo $brokerN['id']; ?>" <?php echo isset($broker) && $broker==$brokerN['id'] ? 'selected' : '' ?>><?php echo $brokerN['last_name'].', '.$brokerN['first_name']; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -65,7 +65,7 @@
                                 <select class="form-control sponser" name="sponsor">
                                     <option value="0">All Sponsers</option>
                                     <?php foreach($get_sponsors as $get_sponsor): ?>
-                                        <option value="<?php echo $get_sponsor['id']; ?>" <?php if(isset($sponser) && $sponser==$val['id']){ ?>selected="true"<?php } ?>><?php echo $get_sponsor['name']; ?></option>
+                                        <option value="<?php echo $get_sponsor['id']; ?>" <?php if(isset($sponser) && $sponser==$get_sponsor['id']){ ?>selected="true"<?php } ?>><?php echo $get_sponsor['name']; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -78,7 +78,7 @@
                                 <select class="form-control sponser" name="client">
                                     <option value="0">All Clients</option>
                                     <?php foreach($get_client as $key=>$val){?>
-                                       <option value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['last_name'].' '.$val['mi'].' '.$val['first_name'];?></option>
+                                       <option value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['last_name'].', '.$val['first_name'];?></option>
                                     <?php }; ?>
                                 </select>
                             </div>
@@ -147,7 +147,7 @@
                 <div class="row">
                         <div class="col-md-12">
                                 <div class="form-group">
-                                     <input type="checkbox" value="1" checked="checked"> Exclude 12B1 Trails
+                                     <input type="checkbox" value="1" name="is_trail" <?php echo $is_trail == 1 ? 'checked="checked"': '';  ?>> Exclude 12B1 Trails
                                 </div>
                         </div>
                 </div>
@@ -155,44 +155,45 @@
 
                    
                              
-                              <div class="col-md-4">
+                              <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="radio-inline">
-                                           <input type="radio" class="radio" name="filter_by" id="filter_by" style="display: inline;" value="2" <?php if(isset($filter_by) && ($filter_by == 2)){echo "checked='checked'";}?>/>All Trades 
-                                        </label>
-                                        <label class="radio-inline">   
+                                      
                                             <input type="radio" class="radio" name="filter_by" id="filter_by" style="display: inline;" value="1" <?php if(isset($filter_by) && ($filter_by == 1 || $filter_by == '')){echo "checked='checked'";}?>/>Select Dates
+                                        </label>
+                                          <label class="radio-inline">   
+                                           <input type="radio" class="radio" name="filter_by" id="filter_by" style="display: inline;" value="2" <?php if(isset($filter_by) && ($filter_by == 2)){echo "checked='checked'";}?>/>All Trades 
                                         </label>
                                     </div>
                               </div>      
                                  
-                                  <div class="col-md-8" id="date_filter_block">
-                                        <div class="row">
-                                             <div class="col-md-6">
-                                                <div class="form-group beginning_date">
-                                                    <label>Beginning Date </label>
-                                                    <div id="demo-dp-range">
-                                                        <div class="input-daterange input-group" id="datepicker">
-                                                            <input type="text" name="beginning_date" id="beginning_date" class="form-control" value="<?php if(isset($beginning_date) && $beginning_date != ''){ echo $beginning_date;} else {echo date('m/01/Y');} ?>"/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>    
-                                            <div class="col-md-6">
-                                            <div class="form-group ending_date">
-                                                <label>Ending Date </label>
-                                                <div id="demo-dp-range">
-                                                    <div class="input-daterange input-group" id="datepicker">
-                                                        <input type="text" name="ending_date" id="ending_date" class="form-control" value="<?php if(isset($ending_date) && $ending_date != ''){ echo $ending_date;} else {echo date('m/d/Y');} ?>"/>
-                                                    </div>
-                                                </div>
+                             <div class="col-md-12" id="date_filter_block">
+                                       <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Beginning Date </label>
+                                        <div id="demo-dp-range">
+                                            <div class="input-daterange input-group" id="datepicker">
+                                                <input type="text" name="beginning_date" id="beginning_date" class="form-control" value="<?php if(isset($beginning_date) && $beginning_date != ''){ echo $beginning_date;} else {echo date('m/01/Y');} ?>">
                                             </div>
                                         </div>
-                                    </div>        
-                                       
-                               
-                            </div>   
-                        </div>     
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Ending Date </label>
+                                        <div id="demo-dp-range">
+                                            <div class="input-daterange input-group" id="datepicker">
+                                                <input type="text" name="ending_date" id="ending_date" class="form-control" value="<?php if(isset($ending_date) && $ending_date != ''){ echo $ending_date;} else {echo date('m/d/Y');} ?>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>           
+                             </div>                      
+                                           
+                              
+                            </div>     
                                 <div class="row">
                                    
                                    
@@ -401,7 +402,7 @@ function get_product(cat){
     margin-left: -22px;
     margin-top: 1px;
 }
-#date_filter_block label {
+/*#date_filter_block label {
     width: auto;
     display: inline-block;
     float: left;
@@ -415,5 +416,5 @@ function get_product(cat){
 #date_filter_block #demo-dp-range {
     width: 111px;
     float: left;
-}
+}*/
 </style>

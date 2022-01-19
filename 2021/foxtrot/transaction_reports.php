@@ -19,6 +19,7 @@ $output = '';
 $report_for = '';
 $date_by=1;
 $filter_by=1;
+$is_trail=1;
 $return_from_broker_client = array();
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
@@ -32,6 +33,7 @@ $return_from_broker_client = array();
         $batch_cate= isset($_POST['batch_cate'])?$instance->re_db_input($_POST['batch_cate']):'';
         $date_by= isset($_POST['date_by'])?$instance->re_db_input($_POST['date_by']):1;
         $filter_by= isset($_POST['filter_by'])?$instance->re_db_input($_POST['filter_by']):1;
+        $is_trail= isset($_POST['is_trail'])?$instance->re_db_input($_POST['is_trail']):0;
         
         
             if($output == 1)
@@ -88,6 +90,8 @@ $return_from_broker_client = array();
         $batch_cate= isset($filter_array['batch_cate'])?$instance->re_db_input($filter_array['batch_cate']):'';
         $date_by= isset($filter_array['date_by'])?$instance->re_db_input($filter_array['date_by']):1;
         $filter_by= isset($filter_array['filter_by'])?$instance->re_db_input($filter_array['filter_by']):1;
+        $is_trail= isset($filter_array['is_trail'])?$instance->re_db_input($filter_array['is_trail']):0;
+        
 
     }
 

@@ -76,6 +76,7 @@
         $units = isset($_POST['units'])?$instance->re_db_input($_POST['units']):'';
         $shares = isset($_POST['shares'])?$instance->re_db_input($_POST['shares']):'';
         $is_1035_exchange = isset($_POST['is_1035_exchange']) ? $instance->re_db_input($_POST['is_1035_exchange']):0;
+        $is_trail_trade = isset($_POST['is_trail_trade']) ? $instance->re_db_input($_POST['is_trail_trade']):0;
         
 
         $return = $instance->insert_update($_POST);
@@ -137,7 +138,7 @@
         $charge_amount = isset($return['charge_amount'])?$instance->re_db_output($return['charge_amount']):'';
         $commission_received = isset($return['commission_received'])?$instance->re_db_output($return['commission_received']):'';
         $is_1035_exchange = isset($return['is_1035_exchange']) ? $instance->re_db_input($return['is_1035_exchange']):0;
-
+        $is_trail_trade = isset($return['is_trail_trade']) ? $instance->re_db_input($return['is_trail_trade']):0;
          $ch_date =isset($return['ch_date']) && $return['ch_date']!=''?$instance->re_db_output($return['ch_date']):'';
             $ch_amount =isset($return['ch_amount'])?$instance->re_db_output($return['ch_amount']):'';
             $ch_no =isset($return['ch_no'])?$instance->re_db_output($return['ch_no']):'';

@@ -504,13 +504,13 @@ document.addEventListener("click", function (e) {
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row multi-checkbox-row">
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-4">                              
+                        <div class="col-md-3">                              
                             <a href="#" data-target="#add_cheque_info" data-toggle="modal">Client Check Received</a>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                             <label>Split Commission<span class="text-red">*</span></label><br />
                             <label class="radio-inline">
@@ -519,35 +519,37 @@ document.addEventListener("click", function (e) {
                             <label class="radio-inline">
                               <input type="radio" class="radio" data-required="true"  onclick="close_other()" name="split" id="split_no" <?php if((isset($split) && $split==2) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?>  value="2" />NO
                             </label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Hold Commission <span class="text-red">*</span></label><br />
-                            <label class="radio-inline">
-                              <input type="radio" class="radio" data-required="true" id="hold_commission_1"  name="hold_commission" onclick="open_hold_reason();"<?php if(isset($hold_commission) && $hold_commission==1){ echo'checked="true"'; }?> value="1"/>YES
-                            </label>
-                            <label class="radio-inline">
-                              <input type="radio" class="radio" data-required="true" id="hold_commission_2" name="hold_commission" onclick="hide_hold_reason();" <?php if((isset($hold_commission) && $hold_commission==2) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="2" />NO
-                            </label>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Hold Commission <span class="text-red">*</span></label><br />
+                                <label class="radio-inline">
+                                  <input type="radio" class="radio" data-required="true" id="hold_commission_1"  name="hold_commission" onclick="open_hold_reason();"<?php if(isset($hold_commission) && $hold_commission==1){ echo'checked="true"'; }?> value="1"/>YES
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" class="radio" data-required="true" id="hold_commission_2" name="hold_commission" onclick="hide_hold_reason();" <?php if((isset($hold_commission) && $hold_commission==2) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="2" />NO
+                                </label>
+                            </div>
                         </div>
-                    </div>
+                         <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Buy/Sell </label><br />
+                                <label class="radio-inline">
+                                  <input type="radio" class="radio"  name="buy_sell" <?php if((isset($buy_sell) && $buy_sell==1) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="1"/>Buy    
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" class="radio" name="buy_sell" <?php if(isset($buy_sell) && $buy_sell==2){ echo'checked="true"'; }?> value="2" />Sell
+                                </label>
+                            </div>
+                        </div>
                </div>
            </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label>Buy/Sell </label><br />
-                        <label class="radio-inline">
-                          <input type="radio" class="radio"  name="buy_sell" <?php if((isset($buy_sell) && $buy_sell==1) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="1"/>Buy    
-                        </label>
-                        <label class="radio-inline">
-                          <input type="radio" class="radio" name="buy_sell" <?php if(isset($buy_sell) && $buy_sell==2){ echo'checked="true"'; }?> value="2" />Sell
-                        </label>
-                    </div>
-                </div>
-                <div class="col-md-4">
+               
+                <div class="col-md-6">
                      <div class="row">
-                         <div class="col-md-6">
+                        
+                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Cancel </label><br />
                                 <label class="radio-inline">
@@ -558,7 +560,7 @@ document.addEventListener("click", function (e) {
                                 </label>
                             </div>
                         </div>
-                          <div class="col-md-6">   
+                          <div class="col-md-4">   
                    
                                  <div class="form-group">
                                    <label>1035 Exchange </label><br />
@@ -569,9 +571,21 @@ document.addEventListener("click", function (e) {
                                     <label class="radio-inline">
                                       <input type="radio" class="radio" name="is_1035_exchange" <?php if((isset($is_1035_exchange) && $is_1035_exchange==0) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="0" />NO
                                     </label>
-                                    <!-- <label class="checkbox-inline">
-                                      <input type="checkbox" class="radio" name="is_1035_exchange" <?php if(isset($is_1035_exchange) && $is_1035_exchange==1){ echo'checked="true"'; }?>  value="1"/>&nbsp;&nbsp;Yes
-                                    </label> -->
+                                  
+                                </div>
+                            </div>    
+                             <div class="col-md-4">   
+                   
+                                 <div class="form-group">
+                                   <label> Trail Commission </label><br />
+                                   <label class="radio-inline">
+                                      <input type="radio" class="radio" name="is_trail_trade" <?php if(isset($is_trail_trade) && $is_trail_trade==1){ echo'checked="true"'; }?> value="1"/>YES
+                                     
+                                    </label>
+                                    <label class="radio-inline">
+                                      <input type="radio" class="radio" name="is_trail_trade" <?php if((isset($is_trail_trade) && $is_trail_trade==0) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="0" />NO
+                                    </label>
+                                  
                                 </div>
                             </div>    
                         
@@ -994,6 +1008,9 @@ document.addEventListener("click", function (e) {
   height:400px;
   overflow:auto;  
   margin-top:20px;
+}
+.multi-checkbox-row{
+   font-size: 12px;
 }
 </style>
 <script type="text/javascript">
