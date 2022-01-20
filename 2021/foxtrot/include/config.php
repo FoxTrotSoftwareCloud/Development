@@ -6,6 +6,7 @@
     // 01/18/22 Added for the "localhost" server
     if ($_SERVER['HTTP_HOST']=='localhost'){
         $cloudFox = dirname($_SERVER['SCRIPT_NAME']).'/';
+        
         if (in_array(substr($cloudFox,0,1), ['/', '\\'])){
             $cloudFox = substr($cloudFox,1);
         }
