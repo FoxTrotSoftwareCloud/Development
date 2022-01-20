@@ -89,10 +89,11 @@
                             <div class="form-group wrap">
                                 <label>Product Category <span class="text-red">*</span></label><br />
                                     
-                                <select class="form-control" data-required="true" name="batch_cate" id="batch_cate" onchange="get_product(this.value);">
+                                <select class="form-control" data-required="true" name="product_cate" id="product_cate" onchange="get_product(this.value);">
                                     <option value="0">Select Product category</option>
-                                     <?php foreach($product_category as $key=>$val){      ?>
-                                    <option value="<?php echo $val['id'];?>" <?php if(isset($batch_cate) && $batch_cate==$val['id']){?> selected="true"<?php } ?>><?php echo $val['type'];?></option>
+                                     <?php foreach($product_category as $key=>$val){
+                                          ?>
+                                    <option value="<?php echo $val['id'];?>" <?php if(isset($product_cate) && $product_cate==$val['id']){?> selected="true"<?php } ?>><?php echo $val['type'];?></option>
                                     <?php } ?>
                                 </select>
                             </div>

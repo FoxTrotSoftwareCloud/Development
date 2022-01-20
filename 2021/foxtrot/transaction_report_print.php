@@ -38,6 +38,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $filter_by= isset($filter_array['filter_by'])?$instance->re_db_input($filter_array['filter_by']):1;
      $is_trail= isset($filter_array['is_trail'])?$instance->re_db_input($filter_array['is_trail']):0;
      $batch_cate= isset($filter_array['batch_cate'])?$instance->re_db_input($filter_array['batch_cate']):'';
+     $product_cate= isset($filter_array['product_cate'])?$instance->re_db_input($filter_array['product_cate']):'';
    
 }   
 
@@ -111,15 +112,22 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
     }
     if($report_for == "product"){
+        $branch_instance = new batches();
+        $subheading.="<br/>FOR ";
+        if($product_cate > 0){
+            $type=$branch_instance->select_batches_with_cat($product_cate);
+         
+            $subheading.=strtoupper($type['type']).", ";
+         }
         if($product > 0){
             $product_instance = new product_maintenance();
             $name  = $product_instance->edit_product($product); 
-            $subheading.="<br/> FOR ".strtoupper($name['name']);
-           // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+            $subheading.=strtoupper($name['name']);
+           
         }
         else{
-              $subheading.="<br/> FOR ALL PRODUCTS";
-             // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+              $subheading.=" ALL PRODUCTS";
+            
         }
     }
     if($filter_by == "1"){
