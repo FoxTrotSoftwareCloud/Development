@@ -36,6 +36,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $sponsor = isset($filter_array['sponsor'])?$instance->re_db_input($filter_array['sponsor']):'';
     $date_by= isset($filter_array['date_by'])?$instance->re_db_input($filter_array['date_by']):1;
     $filter_by= isset($filter_array['filter_by'])?$instance->re_db_input($filter_array['filter_by']):1;
+     $is_trail= isset($filter_array['is_trail'])?$instance->re_db_input($filter_array['is_trail']):0;
+     $batch_cate= isset($filter_array['batch_cate'])?$instance->re_db_input($filter_array['batch_cate']):'';
    
 }   
 
@@ -50,11 +52,11 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         if($sponsor > 0){
             $name  = $instance_trans->select_sponsor_by_id($sponsor); 
             $subheading.="<br/> FOR ".strtoupper($name);
-           // $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+           // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="<br/> FOR All SPONSORS";
-            //  $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="<br/> FOR ALL SPONSORS";
+            //  $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
     }
     if($report_for == "branch"){
@@ -62,26 +64,35 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $branch_instance = new branch_maintenance();
             $name  = $branch_instance->select_branch_by_id($branch); 
             $subheading.="<br/> FOR ".strtoupper($name['name']);
-           // $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+           // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="<br/> FOR All BRANCHES";
-            //  $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="<br/> FOR ALL BRANCHES";
+            //  $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
 
     }
     if($report_for == "batch"){
+         $branch_instance = new batches();
+         $subheading.="<br/>FOR ";
+         if($batch_cate > 0){
+            $type=$branch_instance->select_batches_with_cat($batch_cate);
+         
+            $subheading.=strtoupper($type['type']).", ";
+         }
+         
         if($batch > 0){
-            $branch_instance = new batches();
+           
 
             $name  = $branch_instance->edit_batches($batch);
            
-            $subheading.="\r FOR ".strtoupper($name['batch_desc']);
-           // $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+            $subheading.=" ".strtoupper($name['batch_desc']);
+           
         }
         else{
-              $subheading.="\r FOR All BATCHES";
-           //   $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+             
+              $subheading.=" ALL BATCHES";
+           
         }
 
     }
@@ -90,21 +101,33 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $branch_instance = new client_maintenance();
             $name  = $branch_instance->select_client_master($client); 
 
-            $subheading.="\r FOR ".strtoupper($name['last_name'].', '.$name['first_name'])."<br/>";
-            //$subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+            $subheading.="<br/> FOR ".strtoupper($name['last_name'].', '.$name['first_name']);;
+            //$subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="\r FOR All CLIENTS <br/>";
-            //  $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="<br/> FOR ALL CLIENTS";
+            //  $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
 
+    }
+    if($report_for == "product"){
+        if($product > 0){
+            $product_instance = new product_maintenance();
+            $name  = $product_instance->edit_product($product); 
+            $subheading.="<br/> FOR ".strtoupper($name['name']);
+           // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+        }
+        else{
+              $subheading.="<br/> FOR ALL PRODUCTS";
+             // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+        }
     }
     if($filter_by == "1"){
 
-        $subheading.=", Dates: ".$beginning_date." - ".$ending_date;
+        $subheading.=", DATES: ".$beginning_date." - ".$ending_date;
     }
        
-            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by);
+            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail);
            
 
     // create new PDF document

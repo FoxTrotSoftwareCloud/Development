@@ -26,7 +26,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $batch = isset($filter_array['batch'])?$filter_array['batch']:0;
     $branch = isset($filter_array['branch'])?$filter_array['branch']:0;
-    $batch_cate= isset($filter_array['product_cate'])?$instance->re_db_input($filter_array['product_cate']):'';
+    $batch_cate= isset($filter_array['batch_cate'])?$instance->re_db_input($filter_array['batch_cate']):'';
     $broker = isset($filter_array['broker'])?$filter_array['broker']:0;
     $client = isset($filter_array['client'])?$filter_array['client']:0;
     $product = isset($filter_array['product'])?$filter_array['product']:0;
@@ -38,6 +38,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $rep_no = isset($filter_array['rep_no'])?$instance->re_db_input($filter_array['rep_no']):'';
     $date_by= isset($filter_array['date_by'])?$instance->re_db_input($filter_array['date_by']):1;
     $filter_by= isset($filter_array['filter_by'])?$instance->re_db_input($filter_array['filter_by']):1;
+    $is_trail= isset($filter_array['is_trail'])?$instance->re_db_input($filter_array['is_trail']):0;
     $subheading="TRANSACTION BY ".strtoupper($report_for)." REPORT ";
     
    
@@ -45,11 +46,11 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         if($sponsor > 0){
             $name  = $instance_trans->select_sponsor_by_id($sponsor); 
             $subheading.="<br/> FOR ".strtoupper($name);
-           // $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+           // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="<br/> FOR All SPONSORS";
-             // $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="<br/> FOR ALL SPONSORS";
+             // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
     }
     if($report_for == "branch"){
@@ -57,26 +58,35 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $branch_instance = new branch_maintenance();
             $name  = $branch_instance->select_branch_by_id($branch); 
             $subheading.="<br/> FOR ".strtoupper($name['name']);
-           // $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+           // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="<br/> FOR All BRANCHES";
-             // $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="<br/> FOR ALL BRANCHES";
+             // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
 
     }
     if($report_for == "batch"){
+         $branch_instance = new batches();
+         $subheading.="<br/>FOR ";
+         if($batch_cate > 0){
+            $type=$branch_instance->select_batches_with_cat($batch_cate);
+         
+            $subheading.=strtoupper($type['type']).", ";
+         }
+         
         if($batch > 0){
-            $branch_instance = new batches();
+           
 
             $name  = $branch_instance->edit_batches($batch);
            
-            $subheading.="<br/> FOR ".strtoupper($name['batch_desc']);
-           // $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+            $subheading.=" ".strtoupper($name['batch_desc']);
+           
         }
         else{
-              $subheading.="<br/> FOR All BATCHES";
-            //  $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+             
+              $subheading.=" ALL BATCHES";
+           
         }
 
     }
@@ -85,12 +95,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $branch_instance = new client_maintenance();
             $name  = $branch_instance->select_client_master($client); 
 
-            $subheading.="<br/> FOR ".strtoupper($name['last_name'].', '.$name['first_name'])."<br/>";
-            //$subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+            $subheading.="<br/> FOR ".strtoupper($name['last_name'].', '.$name['first_name']);
+            //$subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="<br/> FOR All CLIENTS <br/>";
-            //  $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="<br/> FOR ALL CLIENTS";
+            //  $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
 
     }
@@ -104,21 +114,34 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
           
         }
         else{
-              $subheading.="<br/> FOR All BROKERS";
+              $subheading.="<br/> FOR ALL BROKERS";
              
         }
 
     }
 
+    if($report_for == "product"){
+        if($product > 0){
+            $product_instance = new product_maintenance();
+            $name  = $product_instance->edit_product($product); 
+            $subheading.="<br/> FOR ".strtoupper($name['name']);
+           // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+        }
+        else{
+              $subheading.="<br/> FOR ALL PRODUCTS";
+             // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+        }
+    }
+
     if($filter_by == "1"){
-        $subheading.=", Dates: ".$beginning_date." - ".$ending_date;
+        $subheading.=", DATES: ".$beginning_date." - ".$ending_date;
 
     }
 
     
    
            if($report_for != "broker"):
-            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by);
+            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail);
            
             $batch_desc = isset($get_trans_data[0]['batch_desc'])?$instance->re_db_input($get_trans_data[0]['batch_desc']):'';
             $total_amount_invested = 0;
@@ -214,7 +237,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     </table>
 <?php  
       else:
-         $get_trans_data = $instance_trans->select_transcation_history_by_broker($broker,$beginning_date,$ending_date,$date_by,$filter_by);
+         $get_trans_data = $instance_trans->select_transcation_history_by_broker($broker,$beginning_date,$ending_date,$date_by,$filter_by,$is_trail);
            
             $batch_desc = isset($get_trans_data[0]['batch_desc'])?$instance->re_db_input($get_trans_data[0]['batch_desc']):'';
             $total_amount_invested = 0;
@@ -234,10 +257,10 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         <table border="0" cellpadding="1" width="100%">
                 <thead>
                      <tr style="background-color: #f1f1f1;vertical-align: bottom;">
-                        <td style="text-align:center;width:10%;font-weight:bold;"><h5 style="display: inline-block;">TRADE <br/> NUMBER </h5></td>
-                        <td style="text-align:left;font-weight:bold;"><h5>TRADE /<br/> SETTLE</h5></td>
-                        <td style="text-align:left;font-weight:bold;"><h5>CLIENT / <br/> FILE #</h5></td>
-                         <td style="font-weight:bold;"><h5>AMOUNT<br>INVESTED</h5></td>
+                        <td style="text-align:center;width:10%;font-weight:bold;"><h5 style="display: inline-block;">TRADE #</h5></td>
+                        <td style="text-align:left;font-weight:bold;"><h5>TRADE DATE / SETTLE DATE</h5></td>
+                        <td style="text-align:left;font-weight:bold;"><h5>CLIENT / FILE #</h5></td>
+                         <td style="font-weight:bold;"><h5>AMOUNT INVESTED</h5></td>
                         <td style="text-align:center;font-weight:bold;"><h5>COMM RECD </h5></td>
                         <td style="text-align:center;font-weight:bold;"><h5>COMM PAID </h5></td>
                         <td style="text-align:center;font-weight:bold;"><h5>DATE RECD</h5></td>
@@ -270,8 +293,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $sub_total_commission_received = 0;
                         $sub_total_charges = 0;?>
                         <tr>
-                            <td> </td>
-                           <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="5">
+                            
+                           <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="7">
                              PRODUCT: <?php echo $trans_data_product[0]['product_name']; ?>
                                 
                         </td>

@@ -107,6 +107,17 @@
             }
 			return $return;
 		}
+		public function select_batches_with_cat($id){
+			$return = array();
+			$q = "SELECT type
+					FROM  ft_product_categories as cat 
+                    WHERE `cat`.`is_delete`='0' AND `cat`.`id`='".$id."'";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+    			$return = $this->re_db_fetch_array($res);
+            }
+			return $return;
+		}
         public function select(){
 			$return = array();
 			

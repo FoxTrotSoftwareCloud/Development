@@ -23,6 +23,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
     $filter_array = json_decode($_GET['filter'],true);
     $product_category = isset($filter_array['product_category'])?$filter_array['product_category']:0;
+    $batch_cate= isset($filter_array['batch_cate'])?$instance->re_db_input($filter_array['batch_cate']):'';
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $batch = isset($filter_array['batch'])?$filter_array['batch']:0;
     $branch = isset($filter_array['branch'])?$filter_array['branch']:0;
@@ -36,52 +37,63 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $sponsor = isset($filter_array['sponsor'])?$instance->re_db_input($filter_array['sponsor']):'';
     $date_by= isset($filter_array['date_by'])?$instance->re_db_input($filter_array['date_by']):1;
     $filter_by= isset($filter_array['filter_by'])?$instance->re_db_input($filter_array['filter_by']):1;
+    $is_trail= isset($filter_array['is_trail'])?$instance->re_db_input($filter_array['is_trail']):0;
    
-}   
+}  
+    $enter_char = chr(10) . chr(13); 
 
    
    
+              
    
-   
-    $subheading="TRANSACTION BY".strtoupper($report_for)." REPORT ";
+    $subheading="TRANSACTION BY ".strtoupper($report_for)." REPORT ".$enter_char;
     
    
     if($report_for == "sponsor"){
         if($sponsor > 0){
             $name  = $instance_trans->select_sponsor_by_id($sponsor); 
-            $subheading.="\r FOR ".strtoupper($name);
-            //$subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+            $subheading.="FOR ".strtoupper($name);
+            //$subheading.="\r Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="\r FOR All SPONSOR";
-            //  $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="\r FOR ALL SPONSORS";
+            //  $subheading.="\r Broker: (ALL Brokers), Client: (ALL Clients)";
         }
     }
     if($report_for == "branch"){
         if($branch > 0){
             $branch_instance = new branch_maintenance();
             $name  = $branch_instance->select_branch_by_id($branch); 
-            $subheading.="\r FOR ".strtoupper($name['name']);
-            //$subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+            $subheading.=" FOR ".strtoupper($name['name']);
+            //$subheading.="\r Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="\r FOR All BRANCH";
-            //  $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="FOR ALL BRANCHES";
+            //  $subheading.="\r Broker: (ALL Brokers), Client: (ALL Clients)";
         }
 
     }
-     if($report_for == "batch"){
+    if($report_for == "batch"){
+         $branch_instance = new batches();
+         $subheading.=" FOR ";
+         if($batch_cate > 0){
+            $type=$branch_instance->select_batches_with_cat($batch_cate);
+         
+            $subheading.=strtoupper($type['type']).", ";
+         }
+         
         if($batch > 0){
-            $branch_instance = new batches();
+           
 
             $name  = $branch_instance->edit_batches($batch);
            
-            $subheading.="\r FOR ".strtoupper($name['batch_desc']);
-           // $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+            $subheading.=" ".strtoupper($name['batch_desc']);
+           
         }
         else{
-              $subheading.="\r FOR All BATCHES";
-             // $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+             
+              $subheading.=" ALL BATCHES";
+           
         }
 
     }
@@ -90,12 +102,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $branch_instance = new client_maintenance();
             $name  = $branch_instance->select_client_master($client); 
 
-            $subheading.="\r FOR ".strtoupper($name['last_name'].', '.$name['first_name'])."<br/>";
-            //$subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+            $subheading.=" FOR ".strtoupper($name['last_name'].', '.$name['first_name']);
+            //$subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
-              $subheading.="\r FOR All CLIENTS <br/>";
-            //  $subheading.="<br/>Broker: (All Brokers), Client: (All Clients)";
+              $subheading.=" FOR ALL CLIENTS";
+            //  $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
 
     }
@@ -105,21 +117,33 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
             $name  = $branch_instance->select_broker_by_id($broker);
            
-           // $subheading.="<br/> FOR ".strtoupper($name['last_name']).' '.strtoupper($name['first_name']);
+            $subheading.="<br/> FOR ".strtoupper($name['last_name']).', '.strtoupper($name['first_name']);
           
         }
         else{
-              $subheading.="<br/> FOR All BROKERS";
+              $subheading.="FOR ALL BROKERS";
              
         }
 
     }
+    if($report_for == "product"){
+        if($product > 0){
+            $product_instance = new product_maintenance();
+            $name  = $product_instance->edit_product($product); 
+            $subheading.="<br/> FOR ".strtoupper($name['name']);
+           // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+        }
+        else{
+              $subheading.="<br/> FOR ALL PRODUCTS";
+             // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+        }
+    }
    if($filter_by == "1"){
 
-         $subheading.=", Dates: ".$beginning_date." - ".$ending_date;
+         $subheading.=", DATES: ".$beginning_date." - ".$ending_date;
     }
        
-            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by);
+            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail);
         //echo '<pre>';print_r($return);exit;
         
         
@@ -178,14 +202,15 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     
                         
                         $sheet_data[0]['A'.$i] = array(date('m/d/Y',strtotime($date)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                        $sheet_data[0]['B'.$i] = array($instance->re_db_output($val['product_name']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                        $sheet_data[0]['C'.$i] = array($val['id'],array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                        $sheet_data[0]['B'.$i] = array($report_for == "client" ? $val['client_name'] : $instance->re_db_output($val['product_name']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                        $sheet_data[0]['C'.$i] = array($report_for == "client" ? $val['broker_last_name'].', '.$val['broker_name']: $val['id'],array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                         $sheet_data[0]['D'.$i] = array($instance->re_db_output('$'.number_format($val['invest_amount'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                         $sheet_data[0]['E'.$i] = array($instance->re_db_output('$'.number_format($val['commission_received'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                         $sheet_data[0]['F'.$i] = array($instance->re_db_output('$'.number_format($val['charge_amount'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                         $i++;
                        
                 }
+                $i++;
                  $sheet_data[0]['C'.$i] = array("*** REPORT TOTALS ***  ",array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
                  $sheet_data[0]['E'.$i] = array($instance->re_db_output('$'.number_format($total_comm_received,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
                  $sheet_data[0]['F'.$i] = array($instance->re_db_output('$'.number_format($total_comm_paid,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));

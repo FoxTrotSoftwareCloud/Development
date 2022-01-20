@@ -60,7 +60,7 @@ class transaction extends db{
             $units = isset($data['units'])?$this->re_db_input($data['units']):'';
             $shares = isset($data['shares'])?$this->re_db_input($data['shares']):'';
             $is_1035_exchange= isset($data['is_1035_exchange']) ? $this->re_db_input($data['is_1035_exchange']) : 0;
-            
+            $is_trail_trade = isset($data['is_trail_trade']) ? $this->re_db_input($data['is_trail_trade']):0;
             	
             if($client_name=='0'){
 				$this->errors = 'Please select client name.';
@@ -120,7 +120,7 @@ class transaction extends db{
                         `product_cate`='".$product_cate."',`sponsor`='".$sponsor."',`product`='".$product."',`batch`='".$batch."',
                         `invest_amount`='".$invest_amount."',`commission_received_date`='".$commission_received_date."',`posting_date`='".$posting_date."',`trade_date`='".$trade_date."',`settlement_date`='".$settlement_date."',`charge_amount`='".$charge_amount."',`commission_received`='".$commission_received."',`split`='".$split."',
                         `another_level`='".$another_level."',`cancel`='".$cancel."',`buy_sell`='".$buy_sell."',`ch_no`='".$ch_no."', `ch_pay_to`='".$ch_pay_to."', `ch_date`='".$ch_date."', `ch_amount`='".$ch_amount."',
-                        `hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."'  ,`company`='".$company."'".$this->insert_common_sql();
+                        `hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."'  ,`company`='".$company."'".$this->insert_common_sql();
 						
                         $res = $this->re_db_query($q);
                         $last_inserted_id = $this->re_db_insert_id();
@@ -159,7 +159,7 @@ class transaction extends db{
                         `invest_amount`='".$invest_amount."',`commission_received_date`='".$commission_received_date."',`posting_date`='".$posting_date."',`trade_date`='".$trade_date."',`settlement_date`='".$settlement_date."',`charge_amount`='".$charge_amount."',`commission_received`='".$commission_received."',`split`='".$split."',
                         `another_level`='".$another_level."',`cancel`='".$cancel."',`buy_sell`='".$buy_sell."',
                         `ch_no`='".$ch_no."', `ch_pay_to`='".$ch_pay_to."', `ch_date`='".$ch_date."', `ch_amount`='".$ch_amount."',
-                        `hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."' ,`company`='".$company."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+                        `hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."' ,`company`='".$company."'".$this->update_common_sql()." WHERE `id`='".$id."'";
                         $res = $this->re_db_query($q);
 
                         $this->save_split_commission_data($id,$data);
@@ -393,11 +393,15 @@ class transaction extends db{
             
             if($sponsor != '')
             {
-                $con = "and sponsor='".$sponsor."'";
+                $con = " and sponsor='".$sponsor."'";
+            }
+            if($id != '')
+            {
+                $con = " and category='".$id."'";
             }
 			
 			$q = "SELECT `at`.*
-					FROM `product_category_".$id."` AS `at`
+					FROM `ft_products` AS `at`
                     WHERE `at`.`is_delete`='0' ".$con."
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
@@ -948,7 +952,7 @@ class transaction extends db{
             return $rates;	
         }
 
-        public function select_transcation_history_report($branch=0,$broker='',$rep='',$client='',$product='',$beginning_date='',$ending_date='',$batch=0,$date_by="1",$filter_by="1"){
+        public function select_transcation_history_report($branch=0,$broker='',$rep='',$client='',$product='',$beginning_date='',$ending_date='',$batch=0,$date_by="1",$filter_by="1",$is_trail=0){
 			$return = array();
             $con='';
             
@@ -972,6 +976,10 @@ class transaction extends db{
             {
                 $con.=" AND `at`.`batch` = '".$batch."' ";
             }
+            if($is_trail>0)
+            {
+                $con.=" AND `at`.`trail_trade` = '0' ";
+            }
             if($filter_by == "1" && $beginning_date != '' && $ending_date != '')
             {
                 if($date_by == "2")
@@ -984,7 +992,7 @@ class transaction extends db{
               $con .= " ORDER BY `at`.`trade_date` ASC ";
 
 			
-		      $q = "SELECT `at`.*,bm.first_name as broker_name,bm.last_name as broker_last_name,bm.id as broker_id,cm.first_name as client_name,cm.last_name as client_last_name,bt.batch_desc,br.name as branch_name
+		       $q = "SELECT `at`.*,bm.first_name as broker_name,bm.last_name as broker_last_name,bm.id as broker_id,cm.first_name as client_name,cm.last_name as client_last_name,bt.batch_desc,br.name as branch_name
 					FROM `".$this->table."` AS `at`
                     LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `at`.`batch`
                     LEFT JOIN `ft_branch_master` as `br` on `br`.`id` = `at`.`branch`
@@ -1030,7 +1038,7 @@ class transaction extends db{
 		      }
 			return array();
 		}
-		public function select_transcation_history_by_broker($broker='',$beginning_date='',$ending_date='',$date_by="1",$filter_by="1"){
+		public function select_transcation_history_by_broker($broker='',$beginning_date='',$ending_date='',$date_by="1",$filter_by="1",$is_trail=0){
 			$return = array();
             $con='';
             
@@ -1040,6 +1048,7 @@ class transaction extends db{
                 $con.=" AND `at`.`broker_name` = ".$broker." ";
             }
 
+
             
             if($filter_by == "1" && $beginning_date != '' && $ending_date != '')
             {
@@ -1048,6 +1057,11 @@ class transaction extends db{
             	else
                  $con.=" AND `at`.`trade_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
             }
+            if($is_trail>0)
+            {
+                $con.=" AND `at`.`trail_trade` = '0' ";
+            }
+           
             
 
              $con .= " ORDER BY broker_last_name,bm.first_name ASC ";
@@ -1070,7 +1084,7 @@ class transaction extends db{
     				$row['product_name'] = $this->get_product_name_from($row['product_cate'],$row['product']);
     				$row['client_name'] = $row['client_last_name'].', '.$row['client_name'];
     				if(!isset($return[$row['broker_id']])){
-    					 $return[$row['broker_id']]=array("broker"=>$row['broker_last_name'].' '.$row['broker_name'],"products"=>array());
+    					 $return[$row['broker_id']]=array("broker"=>$row['broker_last_name'].', '.$row['broker_name'],"products"=>array());
     				}
     				if(!isset($return[$row['broker_id']]["products"][$row['product']])){
     					$return[$row['broker_id']]["products"][$row['product']]=array();
