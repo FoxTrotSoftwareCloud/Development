@@ -337,13 +337,13 @@ PostResult( msg );
                                                             <form method="post">
                                                                 <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
                                                                     <option value="0">Select Option</option>
-                                                                    <option value="1" >Delete File</option>
-                                                                    <option value="7" >Preview</option>
                                                                     <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
+                                                                    <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
                                                                     <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
                                                                     <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
-                                                                    <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
                                                                     <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
+                                                                    <option value="1" >Delete File</option>
+                                                                    <!-- <option value="7" >Preview</option> -->
                                                                 </select>
                                                                 <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
                                                                 <input type="hidden" name="go" value="go" />
