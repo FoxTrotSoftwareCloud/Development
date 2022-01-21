@@ -45,7 +45,55 @@
       
       return null;
 		}
-    
+
+    /** 12/16/21 Select by the Fund/Clearing # added for import.class.php broker validation
+		 * @param string $brokerFund, default blank
+		 * @return array()
+    * */
+		public function select_broker_by_fund($brokerFund='')
+    {
+			$q = "SELECT `fbg`.*"
+					    ." FROM `" . $this->table . "` AS `fbg`"
+              ." WHERE `fbg`.`is_delete`='0'"
+                ." AND `fbg`.`fund`='".$this->re_db_input($brokerFund)."'"
+              ." ORDER BY `fbg`.`id` ASC";
+			$res = $this->re_db_query($q);
+
+      if($this->re_db_num_rows($res)>0)
+        return $this->re_db_fetch_array($res);
+      
+      return array();
+		}
+
+        /** 12/21/21 Select by the Alias/Appt # added for import.class.php broker validation
+		 * @param string $alias, default blank
+     * @param int $sponsorCompany ID
+		 * @return array()
+    * */
+		public function select_broker_by_alias($aliasName='', $sponsorCompany = 0)
+    {
+      if (!empty($sponsorCompany))
+        $sponsorSearch = " AND `alias`.`sponsor_company`='".$this->re_db_input($sponsorCompany)."'";
+      else 
+        $sponsorSearch='';
+
+			$q = "SELECT `alias`.`id` AS `alias_id`, `alias`.`alias_name`, `alias`.`sponsor_company` AS `sponsor_id`, `sponsors`.`name` AS `sponsor_name`, `alias`.`broker_id`, `fbg`.`first_name`, `fbg`.`last_name`"
+              ." FROM `".BROKER_ALIAS."` AS `alias`"
+					    ." LEFT JOIN `". $this->table ."` AS `fbg` ON `alias`.`broker_id` = `fbg`.`id` AND `fbg`.`is_delete` = 0"
+              ." LEFT JOIN `".SPONSOR_MASTER."` AS `sponsors` ON `alias`.`sponsor_company` = `sponsors`.`id` AND `sponsors`.`is_delete` = 0"
+              ." WHERE `alias`.`is_delete`='0'"
+                ." AND `alias`.`broker_id`=`fbg`.`id`"
+                ." AND `alias`.`alias_name`='".$this->re_db_input($aliasName)."'"
+                .$sponsorSearch
+              ." ORDER BY `alias`.`created_time` ASC";
+			$res = $this->re_db_query($q);
+
+      if($this->re_db_num_rows($res)>0)
+        return $this->re_db_fetch_array($res);
+      
+      return array();
+		}
+
     /**
 		 * @param int $brokerId, default all
 		 * @return 
@@ -1980,18 +2028,38 @@
             }
 			return $return;
 		}
-        public function get_state_name($id){
+
+    public function get_state_name($id){
 			$return = array();
-			$q = "SELECT `at`.name as state_name
-					FROM `".STATE_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+			$q = "SELECT `at`.name AS state_name".
+					    " FROM `".STATE_MASTER."` AS `at`".
+              " WHERE `at`.`is_delete`='0'". 
+                " AND `at`.`id`='".$id."'";
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_array($res);
-            }
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_array($res);
+      }
 			return $return;
 		}
-        public function get_payout_schedule(){
+    public function get_state_code($name){
+			$return = 0;
+      $name = strtolower(trim($name));
+      $short_name = strtoupper(trim($name));
+
+			$q = "SELECT `at`.`id`,`name`,`short_name`".
+					    " FROM `".STATE_MASTER."` AS `at`".
+              " WHERE `at`.`is_delete`='0'". 
+                " AND (LOWER(`at`.`name`)='".$name."' OR short_name='".$short_name."')";
+			$res = $this->re_db_query($q);
+      
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_array($res);
+        $return = $return['id'];
+      }
+			return $return;
+		}
+
+    public function get_payout_schedule(){
 			$return = array();
 			$q = "SELECT `at`.*
 					FROM `".BROKER_PAYOUT_SCHEDULE."` AS `at`
@@ -2149,7 +2217,7 @@
             }
 			return $return;
 		}
-        public function edit_alias($id){
+    public function edit_alias($id){
 			$return = array();
 			
 			$q = "SELECT `at`.*
@@ -2165,7 +2233,8 @@
             }
 			return $return;
 		}
-        public function edit_override($id){
+
+    public function edit_override($id){
 			$return = array();
 			
 			$q = "SELECT `at`.*
