@@ -52,7 +52,7 @@
     * */
 		public function select_broker_by_fund($brokerFund='')
     {
-			$q = "SELECT `fbg`.`*`"
+			$q = "SELECT `fbg`.*"
 					    ." FROM `" . $this->table . "` AS `fbg`"
               ." WHERE `fbg`.`is_delete`='0'"
                 ." AND `fbg`.`fund`='".$this->re_db_input($brokerFund)."'"
