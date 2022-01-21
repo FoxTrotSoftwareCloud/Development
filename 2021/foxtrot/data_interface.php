@@ -14,7 +14,7 @@
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     $dim_id = isset($_GET['dim'])&&$_GET['dim']!=''?$dbins->re_db_input($_GET['dim']):1;
-    $instance = new date_interfaces_master();
+    $instance = new data_interfaces_master();
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Save'){
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;

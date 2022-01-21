@@ -1,7 +1,7 @@
 <?php
-	class date_interfaces_master extends db{
+	class data_interfaces_master extends db{
 		
-		public $table = DATE_INTERFACES;
+		public $table = DATA_INTERFACES;
 		public $errors = '';
         public $last_inserted_id = '';
         /**
