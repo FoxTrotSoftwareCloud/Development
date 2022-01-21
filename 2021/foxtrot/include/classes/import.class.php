@@ -2721,7 +2721,7 @@
                 }
             }
 
-			$q = "SELECT `at`.`*`"
+			$q = "SELECT `at`.*"
 					." FROM `".IMPORT_DETAIL_DATA."` AS `at`"
                     ." WHERE `at`.`is_delete`='0'"
                     ." AND `at`.`file_id`='".$id."'"
@@ -3188,7 +3188,7 @@
         public function select_user_files($id){
 			$return = array();
 			
-			$q = "SELECT `at`.`*`"
+			$q = "SELECT `at`.*"
                 ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
                 ." WHERE `at`.`is_delete`='0'"
                   ." AND `at`.`id`='".$id."'"
@@ -3270,7 +3270,7 @@
 			$return = 0;
             $q = $res = '';
 
-			$q = "SELECT `at`.`id` as batch_id, `at`.`*`"
+			$q = "SELECT `at`.`id` as batch_id, `at`.*"
 					." FROM `".BATCH_MASTER."` AS `at`"
                     ." WHERE `at`.`is_delete`='0'"
                       ." AND `at`.`file_id`='".$file_id."'"
