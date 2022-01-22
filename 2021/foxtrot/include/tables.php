@@ -23,7 +23,7 @@
     define('PRODUCT_MAINTENANCE','ft_product_maintenance');
     define('SYSTEM_CONFIGURATION','ft_system_configuration');
     define('SPONSOR_MASTER','ft_sponsor_master');
-    define('DATA_INTERFACES_MASTER','ft_date_interfaces_master');
+    define('DATA_INTERFACES_MASTER','ft_data_interfaces_master');
     define('DATA_INTERFACES','ft_data_interfaces');
     define('TABLE_NETWORTH','ft_networth_master');
     define('TABLE_RISK_TOLERANCE','ft_risk_tolerance_master');
