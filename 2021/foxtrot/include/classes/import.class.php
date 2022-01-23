@@ -204,7 +204,7 @@
                                     /*$q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `on_hold`='1' WHERE `file_id`='".$exception_file_id."' and `id`='".$exception_data_id."'";
                                     $res = $this->re_db_query($q);*/
                                     
-                                    $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                    $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                     $res1 = $this->re_db_query($q1);
                                     if($res1)
                                     {
@@ -229,11 +229,11 @@
                                         $broker = $row['id'];
                                     }
                                     
-                                    $q = "UPDATE `".BROKER_GENERAL."` SET `".$exception_field."`='' WHERE `broker_id`='".$broker."'";
+                                    $q = "UPDATE `".BROKER_GENERAL."` SET `".$exception_field."`=''".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
                                     $res = $this->re_db_query($q);
                                     if($res)
                                     {
-                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                         $res1 = $this->re_db_query($q1);
                                         if($res1)
                                         {
@@ -262,11 +262,11 @@
                                         }
                                         if($new_rep != '')
                                         {
-                                            $q1 = "UPDATE `".IMPORT_DETAIL_DATA."` SET `representative_number`='".$new_rep."' WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
+                                            $q1 = "UPDATE `".IMPORT_DETAIL_DATA."` SET `representative_number`='".$new_rep."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
                                             $res1 = $this->re_db_query($q1);
                                             if($res1)
                                             {
-                                                $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `rep`='".$new_rep."',`solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                                $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `rep`='".$new_rep."',`solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                                 $res2 = $this->re_db_query($q2);
                                                 if($res2)
                                                 {
@@ -279,11 +279,11 @@
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 4)
                                 {
-                                    $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `is_delete`='1' WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
+                                    $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
                                     $res = $this->re_db_query($q);
                                     if($res)
                                     {
-                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `is_delete`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."'";
+                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."'";
                                         $res1 = $this->re_db_query($q1);
                                         if($res1)
                                         {
@@ -313,13 +313,13 @@
                                     ;
                                     $res = $this->re_db_query($q);
                                 }
-                                $q = "UPDATE `".BROKER_MASTER."` SET `fund`='".$exception_value."' WHERE `id`='".$rep_for_broker."'";
+                                $q = "UPDATE `".BROKER_MASTER."` SET `fund`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$rep_for_broker."'";
                                 $res = $this->re_db_query($q);
                                 
-                                $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                 $res = $this->re_db_query($q);
                             
-                                $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and  `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and  `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                 /*`error_code_id`='1' and `field`='".$exception_field."' and `rep`='".$exception_value."'*/
                                 $res1 = $this->re_db_query($q1);
                                 if($res1)
@@ -380,12 +380,12 @@
                 			}
                             else
                             {
-                                $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                 $res = $this->re_db_query($q);
                                 
                                 if($res)
                                 {
-                                    $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                    $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                     $res1 = $this->re_db_query($q1);
                                     if($res1)
                                     {
@@ -413,10 +413,10 @@
                                 if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 1)
                                 {
                                     //pending add hold commission true for trade
-                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `on_hold`='1' WHERE `file_id`='".$exception_file_id."' and `id`='".$exception_data_id."'";
+                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `on_hold`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `id`='".$exception_data_id."'";
                                     $res = $this->re_db_query($q);
                                     
-                                    $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                    $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                     $res1 = $this->re_db_query($q1);
                                     if($res1)
                                     {
@@ -441,11 +441,11 @@
                                         $broker = $row['id'];
                                     }
                                     
-                                    $q = "UPDATE `".BROKER_GENERAL."` SET `".$exception_field."`='' WHERE `broker_id`='".$broker."'";
+                                    $q = "UPDATE `".BROKER_GENERAL."` SET `".$exception_field."`=''".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
                                     $res = $this->re_db_query($q);
                                     if($res)
                                     {
-                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                         $res1 = $this->re_db_query($q1);
                                         if($res1)
                                         {
@@ -474,11 +474,11 @@
                                         }
                                         if($new_rep != '')
                                         {
-                                            $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `representative_number`='".$new_rep."' WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
+                                            $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `representative_number`='".$new_rep."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
                                             $res1 = $this->re_db_query($q1);
                                             if($res1)
                                             {
-                                                $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `rep`='".$new_rep."',`solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                                $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `rep`='".$new_rep."',`solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                                 $res2 = $this->re_db_query($q2);
                                                 if($res2)
                                                 {
@@ -491,11 +491,11 @@
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 4)
                                 {
-                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `is_delete`='1' WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
+                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
                                     $res = $this->re_db_query($q);
                                     if($res)
                                     {
-                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `is_delete`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."'";
+                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."'";
                                         $res1 = $this->re_db_query($q1);
                                         if($res1)
                                         {
@@ -520,13 +520,13 @@
                                 `date`='".date('Y-m-d')."' ".$this->insert_common_sql();
                 				        $res = $this->re_db_query($q);
                                 }
-                                $q = "UPDATE `".BROKER_MASTER."` SET `fund`='".$exception_value."' WHERE `id`='".$rep_for_broker."'";
+                                $q = "UPDATE `".BROKER_MASTER."` SET `fund`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$rep_for_broker."'";
                                 $res = $this->re_db_query($q);
                                 
-                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                 $res = $this->re_db_query($q);
                             
-                                $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                 $res1 = $this->re_db_query($q1);
                                 if($res1)
                                 {
@@ -544,17 +544,19 @@
                                         $sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
                                 }
                                 
-                                $q = "INSERT `".CLIENT_ACCOUNT."` SET `account_no`='".$exception_value."',`sponsor_company`='".$sponsor."',`client_id`='".$acc_for_client."' ";
+                                $q = "INSERT `".CLIENT_ACCOUNT."` SET `account_no`='".$exception_value."',`sponsor_company`='".$sponsor."',`client_id`='".$acc_for_client."' ".$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
                                 
-                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                 $res = $this->re_db_query($q);
                             
-                                $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                $res1 = $this->re_db_query($q1);
-                                if($res1)
+                                // $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                // $res1 = $this->re_db_query($q1);
+
+                                //($res1) -> Reprocess the file to see if the exception clears
+                                if ($res) 
                                 {
-                                    $result = 1;
+                                    $result = $this->reprocess_current_files($exception_file_id);
                                 }
                         }
                         else if($exception_field == 'active_check')
@@ -585,25 +587,27 @@
                                 $broker = $row['id'];
                             }
                             
-                            $q = "SELECT `cm`.`state` FROM `".CLIENT_MASTER."` as `cm`
-                            LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`
-                            WHERE `cm`.`is_delete`='0' AND `ca`.`account_no`='".$customer_account_number."' ";
+                            $q = "SELECT `cm`.`state`"
+                                    ." FROM `".CLIENT_MASTER."` as `cm`"
+                                    ." LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`"
+                                    ." WHERE `cm`.`is_delete`='0' AND `ca`.`account_no`='".$customer_account_number."' "
+                            ;
 			                $res = $this->re_db_query($q);
                             while($row = $this->re_db_fetch_array($res))
                             {
                                 $state_id = $row['state'];
                             }
                             
-                            $q = "UPDATE `".BROKER_LICENCES_SECURITIES."` SET `".$exception_field."`='".$exception_value."' WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
+                            $q = "UPDATE `".BROKER_LICENCES_SECURITIES."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
                             $res = $this->re_db_query($q);
                             
-                            $q = "UPDATE `".BROKER_LICENCES_RIA."` SET `".$exception_field."`='".$exception_value."' WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
+                            $q = "UPDATE `".BROKER_LICENCES_RIA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
                             $res = $this->re_db_query($q);
                             
-                            $q = "UPDATE `".BROKER_LICENCES_INSURANCE."` SET `".$exception_field."`='".$exception_value."' WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
+                            $q = "UPDATE `".BROKER_LICENCES_INSURANCE."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
                             $res = $this->re_db_query($q);
                             
-                            $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                            $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                             $res1 = $this->re_db_query($q1);
                             if($res1)
                             {
@@ -624,11 +628,11 @@
             				if($this->re_db_num_rows($res)>0){
                                 while($row = $this->re_db_fetch_array($res))
                                 {
-                                    $q2 = "UPDATE `product_category_".$row['id']."` SET `".$exception_field."`='".$exception_value."'  WHERE `is_delete`='0' and `status`='0' and `cusip`='".$CUSIP_number."'";
+                                    $q2 = "UPDATE `product_category_".$row['id']."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`='0' and `status`='0' and `cusip`='".$CUSIP_number."'";
             				        $res2 = $this->re_db_query($q2);
                                     if($res2 == true)
                                     {
-                                        $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                        $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                         $res3 = $this->re_db_query($q3);
                                         if($res3)
                                         {
@@ -689,7 +693,7 @@
                                         			$res6 = $this->re_db_query($q6);
                                         			$return = $this->re_db_num_rows($res6);
                                         			if($return>0){
-                                        				$q7 = "UPDATE `".CLIENT_OBJECTIVES."` SET `is_delete`='1' WHERE `client_id`='".$client_id."' AND `objectives`='".$exception_value."'";
+                                        				$q7 = "UPDATE `".CLIENT_OBJECTIVES."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `client_id`='".$client_id."' AND `objectives`='".$exception_value."'";
                                                         $res7 = $this->re_db_query($q7);
                                         			}
                                                     
@@ -697,7 +701,7 @@
                                                     $res4 = $this->re_db_query($q4);
                                                     if($res4 == true)
                                                     {
-                                                        $q5 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                                        $q5 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                                         $res5 = $this->re_db_query($q5);
                                                         if($res5)
                                                         {
@@ -734,11 +738,11 @@
                                     $management_code = $row['management_code'];
                                 }
                                 
-                                $q2 = "UPDATE `".SPONSOR_MASTER."` SET `dst_system_id`='".$system_id."',`dst_mgmt_code`='".$management_code."'  WHERE `is_delete`='0' and `id`='".$sponsor."'";
+                                $q2 = "UPDATE `".SPONSOR_MASTER."` SET `dst_system_id`='".$system_id."',`dst_mgmt_code`='".$management_code."'".$this->update_common_sql()."  WHERE `is_delete`='0' and `id`='".$sponsor."'";
         				        $res2 = $this->re_db_query($q2);
                                 if($res2 == true)
                                 {
-                                    $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `field`='".$exception_field."'";
+                                    $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `field`='".$exception_field."'";
                                     $res3 = $this->re_db_query($q3);
                                     if($res3)
                                     {
@@ -749,10 +753,10 @@
                         }
                         else if($exception_field == 'CUSIP_number' && $error_code_id == '13')
                         {
-                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                              $res = $this->re_db_query($q);
                             
-                             $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                             $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                              $res1 = $this->re_db_query($q1);
                              if($res1)
                              {
@@ -775,14 +779,14 @@
                 				 return $this->errors;
                 			 }
                              else
-                             {
-                                 $q = "UPDATE `product_category_".$product_category."` SET `cusip`='".$exception_value."' WHERE `id`='".$product."'";
+                             {".$this->update_common_sql()."
+                                 $q = "UPDATE `product_category_".$product_category."` SET `cusip`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$product."'";
                                  $res = $this->re_db_query($q);
                                  
-                                 $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                 $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                  $res1 = $this->re_db_query($q1);
                                 
-                                 $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                 $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                  $res2 = $this->re_db_query($q2);
                                  if($res2)
                                  {
@@ -792,10 +796,10 @@
                         }
                         else if($exception_field == 'alpha_code')
                         {
-                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                              $res = $this->re_db_query($q);
                             
-                             $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                             $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                              $res1 = $this->re_db_query($q1);
                              if($res1)
                              {
@@ -812,11 +816,11 @@
                                 $ssn_number = $row['social_security_number'];
                             }
                             
-                            $q2 = "UPDATE `".CLIENT_MASTER."` SET `".$exception_field."`='".$exception_value."'  WHERE `is_delete`='0' and `client_ssn`='".$ssn_number."'";
+                            $q2 = "UPDATE `".CLIENT_MASTER."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`='0' and `client_ssn`='".$ssn_number."'";
     				        $res2 = $this->re_db_query($q2);
                             if($res2 == true)
                             {
-                                $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                 $res3 = $this->re_db_query($q3);
                                 if($res3)
                                 {
@@ -843,10 +847,10 @@
                 			}
                             else
                             {*/
-                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                 $res = $this->re_db_query($q);
                                 
-                                $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                 $res1 = $this->re_db_query($q1);
                                 if($res1)
                                 {
@@ -875,10 +879,10 @@
                         			}
                                     else
                                     {
-                                        $q3 = "UPDATE `".IMPORT_SFR_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                        $q3 = "UPDATE `".IMPORT_SFR_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                         $res3 = $this->re_db_query($q3);
                             
-                                        $q4 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                        $q4 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                         $res4 = $this->re_db_query($q4);
                                         if($res4)
                                         {
@@ -906,10 +910,10 @@
                         			}
                                     else
                                     {
-                                        $q3 = "UPDATE `".IMPORT_SFR_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."' WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                        $q3 = "UPDATE `".IMPORT_SFR_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                         $res3 = $this->re_db_query($q3);
                             
-                                        $q4 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                                        $q4 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
                                         $res4 = $this->re_db_query($q4);
                                         if($res4)
                                         {
