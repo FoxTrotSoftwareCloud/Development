@@ -109,7 +109,6 @@
         }
     }  
     else if($action=='view'){
-        
         $return = $instance->select_current_files();//echo '<pre>';print_r($return);exit;
         //print_r($return);exit;
     }
