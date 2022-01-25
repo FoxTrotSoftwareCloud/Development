@@ -1068,7 +1068,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                             foreach($return as $key=>$val){
                                 ?>
             	                   <tr>
-                                        <td><?php echo $val['first_name']." ".$val['last_name']; ?></td>
+                                        <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                         <td><?php echo $val['client_file_number']; ?></td>
                                         <td><?php echo $val['account_type']; ?></td>
                                         <td><?php echo $val['broker_fname']." ".$val['broker_lname']; ?></td>
