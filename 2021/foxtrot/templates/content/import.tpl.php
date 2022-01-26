@@ -562,7 +562,7 @@ PostResult( msg );
                                                                 if($error_val['field'] == 'u5')
                                                                 {
                                                                     $rep_number = $return_idc_existing_data['representative_number'];
-                                                                    $u5_date = $instance->broker_termination_date($rep_number);
+                                                                    $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
                                                             }
@@ -1219,7 +1219,7 @@ PostResult( msg );
                 </div>
                 <div class="col-md-6">
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);"/><label> Hold commission</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Make Broker Active</label><br />
+                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Remove U5 Date</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign trade to a new broker</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Trade</label><br />
                 </div>
@@ -1329,7 +1329,6 @@ PostResult( msg );
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
         	            <button type="submit" style="alignment-adjust: central !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
-
                     </div>
                 </div>
                 <div class="col-md-5" id="link_div">
@@ -1824,7 +1823,6 @@ function check_u5_date(broker)
         if (this.readyState == 4 && this.status == 200) {
             var data = this.responseText;
             if(data != '0'){
-
                $("#broker_terminated").css('display','block');
                document.getElementById("broker_termination_date").value = data;
             }

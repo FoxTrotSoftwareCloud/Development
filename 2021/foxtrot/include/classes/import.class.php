@@ -49,7 +49,7 @@
 			if($id>0){
 				$con = " AND `id`!='".$id."'";
 			}
-			$q = "SELECT * FROM `".IMPORT_FTP_MASTER."` WHERE `is_delete`='0' AND `user_name`='".$user_name."' ".$con;
+			$q = "SELECT * FROM `".IMPORT_FTP_MASTER."` WHERE `is_delete`=0 AND `user_name`='".$user_name."' ".$con;
 			$res = $this->re_db_query($q);
 			$return = $this->re_db_num_rows($res);
 			if($return>0){
@@ -141,7 +141,6 @@
 			if($exception_value==''){
 				$this->errors = 'Please enter field value.';
 			}
-
             if($exception_field == 'representative_number' && $exception_value == '')
             {
                 $this->errors = 'Please enter rep number.';
@@ -182,14 +181,14 @@
                             } else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2){
                                 $rep_number = 0;
                                 $broker = 0;
-                                $q = "SELECT rep FROM `".IMPORT_EXCEPTION."` WHERE `is_delete`='0' AND `solved`='0' AND `temp_data_id`='".$exception_data_id."' ";
+                                $q = "SELECT rep FROM `".IMPORT_EXCEPTION."` WHERE `is_delete`=0 AND `solved`='0' AND `temp_data_id`='".$exception_data_id."' ";
                                 $res = $this->re_db_query($q);
 
                                 while($row = $this->re_db_fetch_array($res)){
                                         $rep_number = $row['rep'];
                                     }
 
-                                    $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `fund`='".$rep_number."' ";
+                                    $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `fund`='".$rep_number."' ";
         			                $res = $this->re_db_query($q);
                                     while($row = $this->re_db_fetch_array($res))
                                     {
@@ -221,7 +220,7 @@
                                     else
                                     {
                                         $new_rep = '';
-                                        $q = "SELECT fund FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `id`='".$rep_for_broker."' ";
+                                        $q = "SELECT fund FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `id`='".$rep_for_broker."' ";
             			                $res = $this->re_db_query($q);
                                         while($row = $this->re_db_fetch_array($res))
                                         {
@@ -299,7 +298,7 @@
                         {
                             if($exception_field == 'social_security_number')
                             {
-                                $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`='0' AND `client_ssn`='".$exception_value."' ";
+                                $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `client_ssn`='".$exception_value."' ";
                 				$res = $this->re_db_query($q);
                 				$return = $this->re_db_num_rows($res);
                                 if($return>0)
@@ -323,7 +322,7 @@
                                     $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
                                 }
 
-                                $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`='0' AND `first_name`='".$first_name."' AND `mi`='".$middle_name."' AND `last_name`='".$last_name."'";
+                                $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `first_name`='".$first_name."' AND `mi`='".$middle_name."' AND `last_name`='".$last_name."'";
                 				$res = $this->re_db_query($q);
                 				$return = $this->re_db_num_rows($res);
                                 if($return>0)
@@ -333,7 +332,7 @@
                             }
                             if($exception_field == 'mutual_fund_customer_account_number')
                             {
-                                $q = "SELECT * FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`='0' AND `account_no`='".$exception_value."' ";
+                                $q = "SELECT * FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`=0 AND `account_no`='".$exception_value."' ";
                 				$res = $this->re_db_query($q);
                 				$return = $this->re_db_num_rows($res);
                                 if($return>0)
@@ -379,8 +378,13 @@
                             {
                                 if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 1)
                                 {
-                                    //pending add hold commission true for trade
-                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `on_hold`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `id`='".$exception_data_id."'";
+                                    // Put HOLD on trade
+                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." SET `on_hold`=1"
+                                                .$this->update_common_sql()
+                                        ." WHERE `file_id`=".$exception_file_id
+                                          ." AND `id`=".$exception_data_id
+                                    ;
                                     $res = $this->re_db_query($q);
                                     // Update Exception Table in reprocess_current_file($id) 01/23/22
                                     // $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
@@ -392,65 +396,64 @@
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2)
                                 {
-                                    $rep_number = 0;
-                                    $broker = 0;
-                                    $q = "SELECT rep FROM `".IMPORT_EXCEPTION."` WHERE `is_delete`='0' AND `solved`='0' AND `temp_data_id`='".$exception_data_id."' ";
+                                    // REMOVE TERMINATED DATE(u5) FOR REP
+                                    $q = "SELECT `broker_id`"
+                                        ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." WHERE `is_delete`=0"
+                                          ." AND `id`=".$exception_data_id
+                                    ;
         			                $res = $this->re_db_query($q);
-                                    while($row = $this->re_db_fetch_array($res))
-                                    {
-                                        $rep_number = $row['rep'];
-                                    }
+                                    $row = $this->re_db_fetch_array($res);
 
-                                    $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `fund`='".$rep_number."' ";
-        			                $res = $this->re_db_query($q);
-                                    while($row = $this->re_db_fetch_array($res))
-                                    {
-                                        $broker = $row['id'];
-                                    }
+                                    if (!empty($row['broker_id'])){
+                                        $q = "UPDATE `".BROKER_GENERAL."`"
+                                             ." SET `".$exception_field."`=''"
+                                                    .$this->update_common_sql()
+                                             ." WHERE `is_delete`=0 AND `broker_id`=".$row['broker_id']
+                                        ;
+                                        $res = $this->re_db_query($q);
 
-                                    $q = "UPDATE `".BROKER_GENERAL."` SET `".$exception_field."`=''".$this->update_common_sql()." WHERE `broker_id`='".$broker."'";
-                                    $res = $this->re_db_query($q);
-                                    if($res)
-                                    {
-                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                        $res1 = $this->re_db_query($q1);
-                                        if($res1)
+                                        if($res)
                                         {
-                                            $result = 1;
+                                            $result = $this->reprocess_current_files($exception_file_id);
                                         }
+                                    } else {
+                                        $result = 0;
                                     }
 
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 3)
                                 {
+                                    // ASSIGN TRADE TO ANOTHER BROKER
                                     if($rep_for_broker == '')
                                     {
-                                        $this->errors = 'Please select new broker for client.';
+                                        $this->errors = 'Please select new broker for the transaction.';
                                     }
                                     if($this->errors!=''){
                         				return $this->errors;
                         			}
                                     else
                                     {
-                                        $new_rep = '';
-                                        $q = "SELECT fund FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `id`='".$rep_for_broker."' ";
+                                        $new_rep = 0;
+                                        $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `id`=".$rep_for_broker;
             			                $res = $this->re_db_query($q);
-                                        while($row = $this->re_db_fetch_array($res))
+
+                                        if($res->num_rows)
                                         {
-                                            $new_rep = trim($row['fund']);
-                                        }
-                                        if($new_rep != '')
-                                        {
-                                            $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `representative_number`='".$new_rep."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
-                                            $res1 = $this->re_db_query($q1);
-                                            if($res1)
+                                            $row = $this->re_db_fetch_array($res);
+                                            $new_rep = $row['id'];
+                                            // Enter the "Broker ID" as a negative to tell reprocess_current_file($file_id) to skip the Alias search, and just force "broker_id" as the broker for the trade
+                                            $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                                ." SET `broker_id` = -".$new_rep
+                                                        .$this->update_common_sql()
+                                                ." WHERE `id`=".$exception_data_id
+                                                  ." AND `file_id`=".$exception_file_id
+                                            ;
+                                            $res = $this->re_db_query($q);
+
+                                            if($res)
                                             {
-                                                $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `rep`='".$new_rep."',`solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                                $res2 = $this->re_db_query($q2);
-                                                if($res2)
-                                                {
-                                                    $result = 1;
-                                                }
+                                                $result = $this->reprocess_current_files($exception_file_id);
                                             }
                                         }
                                     }
@@ -540,14 +543,14 @@
                                 $rep_number = $row['rep'];
                             }
 
-                            $q = "SELECT customer_account_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`='0' AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
+                            $q = "SELECT customer_account_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
 			                $res = $this->re_db_query($q);
                             while($row = $this->re_db_fetch_array($res))
                             {
                                 $customer_account_number = $row['customer_account_number'];
                             }
 
-                            $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`='0' AND `fund`='".$rep_number."' ";
+                            $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `fund`='".$rep_number."' ";
 			                $res = $this->re_db_query($q);
                             while($row = $this->re_db_fetch_array($res))
                             {
@@ -557,7 +560,7 @@
                             $q = "SELECT `cm`.`state`"
                                     ." FROM `".CLIENT_MASTER."` as `cm`"
                                     ." LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`"
-                                    ." WHERE `cm`.`is_delete`='0' AND `ca`.`account_no`='".$customer_account_number."' "
+                                    ." WHERE `cm`.`is_delete`=0 AND `ca`.`account_no`='".$customer_account_number."' "
                             ;
 			                $res = $this->re_db_query($q);
                             while($row = $this->re_db_fetch_array($res))
@@ -584,18 +587,18 @@
                         else if($exception_field == 'status')
                         {
                             $CUSIP_number = 0;
-                            $q = "SELECT CUSIP_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`='0' AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
+                            $q = "SELECT CUSIP_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
 			                $res = $this->re_db_query($q);
                             while($row = $this->re_db_fetch_array($res))
                             {
                                 $CUSIP_number = $row['CUSIP_number'];
                             }
-                            $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`='0' and `status`='1'";
+                            $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
             				$res = $this->re_db_query($q);
             				if($this->re_db_num_rows($res)>0){
                                 while($row = $this->re_db_fetch_array($res))
                                 {
-                                    $q2 = "UPDATE `product_category_".$row['id']."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`='0' and `status`='0' and `cusip`='".$CUSIP_number."'";
+                                    $q2 = "UPDATE `product_category_".$row['id']."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `status`='0' and `cusip`='".$CUSIP_number."'";
             				        $res2 = $this->re_db_query($q2);
                                     if($res2 == true)
                                     {
@@ -616,7 +619,7 @@
                             $client_id = 0;
                             $objective = 0;
 
-                            $q = "SELECT CUSIP_number,customer_account_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`='0' AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
+                            $q = "SELECT CUSIP_number,customer_account_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
 			                $res = $this->re_db_query($q);
                             while($row = $this->re_db_fetch_array($res))
                             {
@@ -624,12 +627,12 @@
                                 $account_number = $row['customer_account_number'];
                             }
 
-                            $q1 = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`='0' and `status`='1'";
+                            $q1 = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
             				$res1 = $this->re_db_query($q1);
             				if($this->re_db_num_rows($res1)>0){
                                 while($row1 = $this->re_db_fetch_array($res1))
                                 {
-                                    $q2 = "SELECT objective FROM `product_category_".$row1['id']."` WHERE `is_delete`='0' and `cusip`='".$CUSIP_number."'";
+                                    $q2 = "SELECT objective FROM `product_category_".$row1['id']."` WHERE `is_delete`=0 and `cusip`='".$CUSIP_number."'";
             				        $res2 = $this->re_db_query($q2);
                                     if($this->re_db_num_rows($res2)>0){
                                         while($row2 = $this->re_db_fetch_array($res2))
@@ -637,7 +640,7 @@
                                             $objective = $row2['objective'];
                                         }
 
-                                        $q3 = "SELECT client_id FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`='0' AND `account_no`='".$account_number."' ";
+                                        $q3 = "SELECT client_id FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`=0 AND `account_no`='".$account_number."' ";
             			                $res3 = $this->re_db_query($q3);
                                         if($this->re_db_num_rows($res3)>0)
                                         {
@@ -656,7 +659,7 @@
                                             {
                                                 if($client_id>0 && $objective>0)
                                                 {
-                                                    $q6 = "SELECT * FROM `".CLIENT_OBJECTIVES."` WHERE `is_delete`='0' AND `client_id`='".$client_id."' AND `objectives`='".$exception_value."'";
+                                                    $q6 = "SELECT * FROM `".CLIENT_OBJECTIVES."` WHERE `is_delete`=0 AND `client_id`='".$client_id."' AND `objectives`='".$exception_value."'";
                                         			$res6 = $this->re_db_query($q6);
                                         			$return = $this->re_db_num_rows($res6);
                                         			if($return>0){
@@ -697,7 +700,7 @@
             			    }
                             else
                             {
-                                $q = "SELECT system_id,management_code FROM `".IMPORT_IDC_HEADER_DATA."` WHERE `is_delete`='0' AND `file_id`='".$exception_file_id."'";
+                                $q = "SELECT system_id,management_code FROM `".IMPORT_IDC_HEADER_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."'";
     			                $res = $this->re_db_query($q);
                                 while($row = $this->re_db_fetch_array($res))
                                 {
@@ -705,7 +708,7 @@
                                     $management_code = $row['management_code'];
                                 }
 
-                                $q2 = "UPDATE `".SPONSOR_MASTER."` SET `dst_system_id`='".$system_id."',`dst_mgmt_code`='".$management_code."'".$this->update_common_sql()."  WHERE `is_delete`='0' and `id`='".$sponsor."'";
+                                $q2 = "UPDATE `".SPONSOR_MASTER."` SET `dst_system_id`='".$system_id."',`dst_mgmt_code`='".$management_code."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `id`='".$sponsor."'";
         				        $res2 = $this->re_db_query($q2);
                                 if($res2 == true)
                                 {
@@ -776,14 +779,14 @@
                         else if($exception_field == 'active')
                         {
                             $ssn_number = 0;
-                            $q = "SELECT social_security_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`='0' AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
+                            $q = "SELECT social_security_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
 			                $res = $this->re_db_query($q);
                             while($row = $this->re_db_fetch_array($res))
                             {
                                 $ssn_number = $row['social_security_number'];
                             }
 
-                            $q2 = "UPDATE `".CLIENT_MASTER."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`='0' and `client_ssn`='".$ssn_number."'";
+                            $q2 = "UPDATE `".CLIENT_MASTER."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `client_ssn`='".$ssn_number."'";
     				        $res2 = $this->re_db_query($q2);
                             if($res2 == true)
                             {
@@ -800,7 +803,7 @@
                         {
                             /*if($exception_field == 'customer_account_number')
                             {
-                                $q = "SELECT * FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`='0' AND `account_no`='".$exception_value."' ";
+                                $q = "SELECT * FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`=0 AND `account_no`='".$exception_value."' ";
                 				$res = $this->re_db_query($q);
                 				$return = $this->re_db_num_rows($res);
                                 if($return<=0)
@@ -832,12 +835,12 @@
                     {
                         if($exception_field == 'cusip_number')
                         {
-                            $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`='0' and `status`='1'";
+                            $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
             				$res = $this->re_db_query($q);
             				if($this->re_db_num_rows($res)>0){
                                 while($row = $this->re_db_fetch_array($res))
                                 {
-                                    $q2 = "SELECT * FROM `product_category_".$row['id']."` WHERE `is_delete`='0' and `cusip`='".$exception_value."'";
+                                    $q2 = "SELECT * FROM `product_category_".$row['id']."` WHERE `is_delete`=0 and `cusip`='".$exception_value."'";
             				        $res2 = $this->re_db_query($q2);
                                     if($this->re_db_num_rows($res2)>0)
                                     {
@@ -863,12 +866,12 @@
                         }
                         if($exception_field == 'ticker_symbol')
                         {
-                            $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`='0' and `status`='1'";
+                            $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
             				$res = $this->re_db_query($q);
             				if($this->re_db_num_rows($res)>0){
                                 while($row = $this->re_db_fetch_array($res))
                                 {
-                                    $q2 = "SELECT * FROM `product_category_".$row['id']."` WHERE `is_delete`='0' and `ticker_symbol`='".$exception_value."'";
+                                    $q2 = "SELECT * FROM `product_category_".$row['id']."` WHERE `is_delete`=0 and `ticker_symbol`='".$exception_value."'";
             				        $res2 = $this->re_db_query($q2);
                                     if($this->re_db_num_rows($res2)>0)
                                     {
@@ -920,7 +923,7 @@
 
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_FTP_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0'
+                    WHERE `at`.`is_delete`=0
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -940,7 +943,7 @@
             {
     			$q = "SELECT `at`.*
     					FROM `".IMPORT_FTP_MASTER."` AS `at`
-                        WHERE `at`.`is_delete`='0' and `at`.`id`='".$id."'
+                        WHERE `at`.`is_delete`=0 and `at`.`id`='".$id."'
                         ORDER BY `at`.`id` ASC";
     			$res = $this->re_db_query($q);
                 if($this->re_db_num_rows($res)>0){
@@ -955,7 +958,7 @@
 			$return = array();
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_FTP_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+                    WHERE `at`.`is_delete`=0 AND `at`.`id`='".$id."'";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
@@ -1142,7 +1145,7 @@
 
             if($id > 0)
             {
-                $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`='0' AND `processed`='1' AND `id`='".$id."'; ";
+                $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `processed`='1' AND `id`='".$id."'; ";
 				$res = $this->re_db_query($q);
 				$return = $this->re_db_num_rows($res);
 
@@ -1457,7 +1460,7 @@
             $reprocess_status = false;
 
             if($id > 0){
-                $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`='0' AND `process_completed`='1' AND `id`='".$id."'";
+                $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `process_completed`='1' AND `id`='".$id."'";
 				$res = $this->re_db_query($q);
 				$return = $this->re_db_num_rows($res);
                 $this->errors='';
@@ -1470,7 +1473,7 @@
 					return $this->errors;
 				} else {
                     // File information
-                    $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`='0' AND `id`='".$id."'";
+                    $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `id`='".$id."'";
                     $res = $this->re_db_query($q);
                     $file_array = $this->re_db_fetch_array($res);
                     $file_sponsor_array = $sponsorClass->edit_sponsor($file_array['sponsor_id']);
@@ -1509,7 +1512,7 @@
                      * 12/7/21
                      *************************************************/
                     // //Remove already exist file trades
-                    // $q = "SELECT * FROM `".TRANSACTION_MASTER."` WHERE `is_delete`='0' AND `file_id`='".$id."'";
+                    // $q = "SELECT * FROM `".TRANSACTION_MASTER."` WHERE `is_delete`=0 AND `file_id`='".$id."'";
 				    // $res = $this->re_db_query($q);
 				    // $return = $this->re_db_num_rows($res);
 
@@ -1519,7 +1522,7 @@
 				    // }
 
                     // //Remove already exist file clients
-                    // $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`='0' AND `file_id`='".$id."'";
+                    // $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `file_id`='".$id."'";
 				    // $res = $this->re_db_query($q);
 				    // $return = $this->re_db_num_rows($res);
 
@@ -1684,7 +1687,7 @@
                                 } else {
                                     $q = "SELECT `id`,`last_name`,`first_name`,`client_ssn`,`client_file_number`,`clearing_account`"
                                         ." FROM `".CLIENT_MASTER."`"
-                                        ." WHERE `is_delete`='0'"
+                                        ." WHERE `is_delete`=0"
                                         ." AND `active`='0'"
                                         ." AND REPLACE(`client_ssn`,'-','')='".$social_security_number."'"
                                     ;
@@ -1908,7 +1911,7 @@
                         } else {
                             // Check: PRODUCT TYPE/CATEGORY
                             $q = "SELECT `id` FROM `".PRODUCT_TYPE."`"
-                                    ." WHERE `is_delete`='0'"
+                                    ." WHERE `is_delete`=0"
                                         ." AND `status`='1'"
                                         ." AND `type_code`='".$check_data_val['major_security_type']."'"
                             ;
@@ -1937,7 +1940,7 @@
 
                                 $q = "SELECT `id`,`cusip`,`ticker_symbol`,`name`"
                                     ." FROM `".PRODUCT_LIST."`"
-                                    ." WHERE `is_delete`='0'"
+                                    ." WHERE `is_delete`=0"
                                     ." AND (IF('$tickerSymbol'!='' AND `ticker_symbol`='".$tickerSymbol."',1,0)"
                                             ." OR "
                                             ."IF('$cusipNumber'!='' AND `cusip`='".$cusipNumber."',1,0)"
@@ -2056,12 +2059,19 @@
                         ;
 
                         // IDC BROKER Validation
-                        if(isset($check_data_val['representative_number'])){
+                        if(isset($check_data_val['representative_number']) OR $check_data_val['broker_id']<0){
                             $rep_number = isset($check_data_val['representative_number'])?trim($this->re_db_input($check_data_val['representative_number'])):'';
+                            $reassignBroker = $check_data_val['broker_id']<0;
 
                             if($rep_number != ''){
-                                $broker = $broker_master->select_broker_by_fund($rep_number);
-                                $brokerAlias = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
+                                // Negative "broker_id" populated in "update_exceptions($data)" for "Reassign trade to another broker" option
+                                if ($reassignBroker) {
+                                    $broker = $broker_master->select_broker_by_id(abs($check_data_val['broker_id']));
+                                    $brokerAlias = [];
+                                } else {
+                                    $broker = $broker_master->select_broker_by_fund($rep_number);
+                                    $brokerAlias = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
+                                }
 
                                 if(empty($broker) AND empty($brokerAlias)){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
@@ -2074,8 +2084,14 @@
                                     $result = 1;
                                 } else {
                                     $broker_id = (!empty($broker) ? $broker['id'] : $brokerAlias['broker_id']);
-                                    $check_broker_termination = $this->broker_termination_date('', $broker_id);
+                                    // Update the Detail table for process checks later in the function
+                                    $q ="UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." SET `broker_id`=".($reassignBroker ? $check_data_val['broker_id'] : $broker_id)
+                                        ." WHERE `is_delete`=0 AND `id`=".$check_data_val['id']
+                                    ;
+                                    $res = $this->re_db_query($q);
 
+                                    $check_broker_termination = $this->broker_termination_date('', $broker_id);
                                     $check_hold_commission = $this->get_hold_commission($check_data_val['file_id'],$check_data_val['id']);
 
                                     if($check_broker_termination != '' && $check_hold_commission == '0'){
@@ -2120,7 +2136,7 @@
 
                             $q = "SELECT `id`,`cusip`,`category`,`objective` ".
                                     "FROM `".PRODUCT_LIST."`".
-                                    "WHERE `is_delete`='0'".
+                                    "WHERE `is_delete`=0".
                                     " AND `status`!=0".
                                     " AND `cusip`='".$check_data_val['CUSIP_number']."'";
                             $resCusipFind = $this->re_db_query($q);
@@ -2182,7 +2198,7 @@
                             if (!empty($client_id) AND !empty($foundCusip['objective'])){
                                 $q = "SELECT `co`.`client_id`, `co`.`objectives`".
                                         " FROM `".CLIENT_OBJECTIVES."` as `co`".
-                                        " WHERE `co`.`is_delete`='0'".
+                                        " WHERE `co`.`is_delete`=0".
                                           " AND `co`.`objectives`='".$foundCusip['objective']."'".
                                           " AND `client_id`='".$this->re_db_input($client_id)."'"
                                 ;
@@ -2234,7 +2250,7 @@
                                             ." ,MIN(`trade_date`) AS `trade_start_date`"
                                             ." , MAX(`trade_date`) AS `trade_end_date`"
                                         ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
-                                        ." WHERE `is_delete`='0'"
+                                        ." WHERE `is_delete`=0"
                                           ." AND `file_id`='".$check_data_val['file_id']."'"
                                         ." GROUP BY `file_id`"
                                 ;
@@ -2446,7 +2462,7 @@
                 foreach ($modifiedArray AS $column=>$value){
                     $updateArray[$column] = $value;
                 }
-                $return = $this->re_db_perform($clientMasterTable, $updateArray, 'update', "`$clientMasterTable`.`is_delete`='0' AND "."`$clientMasterTable`.`id`='$clientId'");
+                $return = $this->re_db_perform($clientMasterTable, $updateArray, 'update', "`$clientMasterTable`.`is_delete`=0 AND "."`$clientMasterTable`.`id`='$clientId'");
             }
 
             return $return;
@@ -2470,7 +2486,7 @@
 
 			 $q = "SELECT `at`.*
 					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`is_archived`='0' and `at`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`is_archived`='0' and `at`.`user_id`='".$_SESSION['user_id']."'
                     ORDER BY `at`.`imported_date` DESC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2489,7 +2505,7 @@
             $q = "SELECT `bg`.`u5`".
 					" FROM `".BROKER_MASTER."` AS `at`".
                     " LEFT JOIN `".BROKER_GENERAL."` AS `bg` ON `bg`.`broker_id`=`at`.`id`".
-                    " WHERE `at`.`is_delete`='0' ".$con
+                    " WHERE `at`.`is_delete`=0 ".$con
             ;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2506,7 +2522,7 @@
 			$q = "SELECT `bg`.`u5`
 					FROM `".BROKER_MASTER."` AS `at`
                     LEFT JOIN `".BROKER_GENERAL."` AS `bg` ON `bg`.`broker_id`=`at`.`id`
-                    WHERE `at`.`is_delete`='0' and `at`.`id`='".$broker_id."'
+                    WHERE `at`.`is_delete`=0 and `at`.`id`='".$broker_id."'
                     ";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2543,8 +2559,8 @@
             $q = "SELECT `bm`.`id`, `bm`.`first_name`, `bm`.`last_name`, `bls`.`active_check`, `bls`.`state_id`, '".$this->re_db_input($licenseTable)."' AS `license_table`, '"
                          .$this->re_db_input($product_category)."' AS `product_category`".
                     " FROM `".$licenseTable."` AS `bls`".
-                    " LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`='0'".
-                    " WHERE `bls`.`is_delete`='0'"
+                    " LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`=0".
+                    " WHERE `bls`.`is_delete`=0"
                         ." AND `bls`.`broker_id`='".$this->re_db_input($pBroker_id)."'"
                         ." AND `bls`.`state_id`='".$this->re_db_input($pClient_state)."'"
                         ." AND ('".$trade_date."' BETWEEN `bls`.`received` AND `bls`.`terminated`)"
@@ -2559,7 +2575,7 @@
 
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`process_completed`='1' and `at`.`is_archived`='1' and `at`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`process_completed`='1' and `at`.`is_archived`='1' and `at`.`user_id`='".$_SESSION['user_id']."'
                     ORDER BY `at`.`imported_date` DESC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2575,7 +2591,7 @@
 
 			$q = "SELECT `at`.`id`
 					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`user_id`='".$_SESSION['user_id']."'
                     ORDER BY `at`.`imported_date` DESC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2592,7 +2608,7 @@
 
 			$q = "SELECT `at`.*"
 					." FROM `".IMPORT_EXCEPTION."` AS `at`"
-                    ." WHERE `at`.`is_delete`='0'"
+                    ." WHERE `at`.`is_delete`=0"
                       ." AND `at`.`solved`='0'"
                       ." AND `at`.`file_id`='".$file_id."'"
                     ." ORDER BY `at`.`id` ASC";
@@ -2637,7 +2653,7 @@
 
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_EXCEPTION."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`solved`='1' and `at`.`file_id`='".$file_id."'
+                    WHERE `at`.`is_delete`=0 and `at`.`solved`='1' and `at`.`file_id`='".$file_id."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2651,7 +2667,7 @@
             if ($exceptionSummary==0){
                 $q = "SELECT `at`.*
                         FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                        WHERE `at`.`is_delete`='0'
+                        WHERE `at`.`is_delete`=0
                           AND `at`.`processed`='1'
                           AND `at`.`id`='".$file_id."'
                         ORDER BY `at`.`id` ASC";
@@ -2701,7 +2717,7 @@
 
 			$q = "SELECT `at`.*"
 					." FROM `".IMPORT_DETAIL_DATA."` AS `at`"
-                    ." WHERE `at`.`is_delete`='0'"
+                    ." WHERE `at`.`is_delete`=0"
                     ." AND `at`.`file_id`='".$id."'"
                     .$con
                     ." ORDER BY `at`.`id` ASC"
@@ -2728,7 +2744,7 @@
 
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_SFR_DETAIL_DATA."` AS `at`
-                    WHERE `at`.`is_delete`='0'
+                    WHERE `at`.`is_delete`=0
                       AND `at`.`file_id`='".$id."'"
                       .$con."
                     ORDER BY `at`.`id` ASC";
@@ -2756,7 +2772,7 @@
 			$q = "SELECT `at`.*,`idch`.`system_id`,`idch`.`management_code`
 					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `at`
                     LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` as `idch` on `idch`.`id`=`at`.`idc_header_id`
-                    WHERE `at`.`is_delete`='0'
+                    WHERE `at`.`is_delete`=0
                       AND `at`.`file_id`='".$file_id."'
                       ".$con."
                     ORDER BY `at`.`id` ASC";
@@ -2946,7 +2962,7 @@
 					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `dtl`
                     LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` AS `hdr` ON `hdr`.`id`=`dtl`.`idc_header_id`
                     LEFT JOIN `".IMPORT_IDC_FOOTER_DATA."` AS `ftr` ON `ftr`.`idc_header_id`=`hdr`.`id`
-                    WHERE `dtl`.`is_delete`='0' and `dtl`.`file_id`='".$file_id."' and `dtl`.`id`='".$data_id."'
+                    WHERE `dtl`.`is_delete`=0 and `dtl`.`file_id`='".$file_id."' and `dtl`.`id`='".$data_id."'
                     ORDER BY `dtl`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2963,7 +2979,7 @@
 
 			$q = "SELECT `dtl`.*
 					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `dtl`
-                    WHERE `dtl`.`is_delete`='0' and `dtl`.`file_id`='".$file_id."' and `dtl`.`id`='".$data_id." and `on_hold`=0'
+                    WHERE `dtl`.`is_delete`=0 and `dtl`.`file_id`='".$file_id."' and `dtl`.`id`='".$data_id." and `on_hold`=0'
                     ORDER BY `dtl`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2980,7 +2996,7 @@
 
 			$q = "SELECT `at`.*
 					FROM `".OBJECTIVE_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0'
+                    WHERE `at`.`is_delete`=0
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -2998,7 +3014,7 @@
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                    WHERE `at`.`is_delete`='0' and `at`.`solved`='1' and `at`.`process_completed`='1' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`solved`='1' and `at`.`process_completed`='1' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3017,7 +3033,7 @@
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`
                     LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                    WHERE `at`.`is_delete`='0' and `at`.`solved`='0' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`solved`='0' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3036,7 +3052,7 @@
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`
                     LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                    WHERE `at`.`is_delete`='0' and `at`.`solved`='0' and `at`.`file_id`='".$file_id."' and `at`.`temp_data_id`='".$exception_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`solved`='0' and `at`.`file_id`='".$file_id."' and `at`.`temp_data_id`='".$exception_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3053,7 +3069,7 @@
 
 			$q = "SELECT `sfr`.*
 					FROM `".IMPORT_SFR_DETAIL_DATA."` AS `sfr`
-                    WHERE `sfr`.`is_delete`='0' and `sfr`.`id`='".$temp_data_id."'
+                    WHERE `sfr`.`is_delete`=0 and `sfr`.`id`='".$temp_data_id."'
                     ORDER BY `sfr`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3070,7 +3086,7 @@
 
 			$q = "SELECT `idc`.*
 					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `idc`
-                    WHERE `idc`.`is_delete`='0' and `idc`.`id`='".$temp_data_id."'
+                    WHERE `idc`.`is_delete`=0 and `idc`.`id`='".$temp_data_id."'
                     ORDER BY `idc`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3097,7 +3113,7 @@
 			//
 			$q = "SELECT `sp`.*
 					FROM `".SPONSOR_MASTER."` AS `sp`
-                    WHERE `sp`.`is_delete`='0' ".$con."
+                    WHERE `sp`.`is_delete`=0 ".$con."
                     ORDER BY `sp`.`id` ASC";
 			$res = $this->re_db_query($q);
             // Just return the first find, instead of an array of arrays, because the
@@ -3115,7 +3131,7 @@
 
 			$q = "SELECT `fan`.*
 					FROM `".IMPORT_DETAIL_DATA."` AS `fan`
-                    WHERE `fan`.`is_delete`='0' and `fan`.`id`='".$temp_data_id."'
+                    WHERE `fan`.`is_delete`=0 and `fan`.`id`='".$temp_data_id."'
                     ORDER BY `fan`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3133,7 +3149,7 @@
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                    WHERE `at`.`is_delete`='0' and `at`.`solved`='1' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`solved`='1' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3151,7 +3167,7 @@
 			$q = "SELECT SUM(`at`.`commission`) as total_commission_amount
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                    WHERE `at`.`is_delete`='0' and `at`.`solved`='1' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`solved`='1' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3168,7 +3184,7 @@
 
 			$q = "SELECT `at`.*"
                 ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
-                ." WHERE `at`.`is_delete`='0'"
+                ." WHERE `at`.`is_delete`=0"
                   ." AND `at`.`id`='".$id."'"
                 ." ORDER BY `at`.`imported_date` DESC"
             ;
@@ -3187,7 +3203,7 @@
 
 			$q = "SELECT `at`.`file_name`
 					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`user_id`='".$user_id."'
+                    WHERE `at`.`is_delete`=0 and `at`.`user_id`='".$user_id."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3203,7 +3219,7 @@
 
 			$q = "SELECT `at`.`source`
 					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`id`='".$file_id."'
+                    WHERE `at`.`is_delete`=0 and `at`.`id`='".$file_id."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3222,7 +3238,7 @@
                 $q = "SELECT `fd`.`header_id`,`fh`.*
 					FROM `".IMPORT_DETAIL_DATA."` AS `fd`
                     LEFT JOIN `".IMPORT_HEADER1_DATA."` AS `fh` on `fh`.`id`=`fd`.`header_id`
-                    WHERE `fd`.`is_delete`='0' and `fd`.`id`='".$record_id."' and `fd`.`file_id`='".$file_id."'
+                    WHERE `fd`.`is_delete`=0 and `fd`.`id`='".$record_id."' and `fd`.`file_id`='".$file_id."'
                     ORDER BY `fd`.`id` ASC";
 			    $res = $this->re_db_query($q);
             }
@@ -3231,7 +3247,7 @@
                 $q = "SELECT `idcd`.`idc_header_id`,`ih`.*
 					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `idcd`
                     LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` AS `ih` on `ih`.`id`=`idcd`.`idc_header_id`
-                    WHERE `idcd`.`is_delete`='0' and `idcd`.`id`='".$record_id."' and `idcd`.`file_id`='".$file_id."'
+                    WHERE `idcd`.`is_delete`=0 and `idcd`.`id`='".$record_id."' and `idcd`.`file_id`='".$file_id."'
                     ORDER BY `idcd`.`id` ASC";
 			    $res = $this->re_db_query($q);
             }
@@ -3250,7 +3266,7 @@
 
 			$q = "SELECT `at`.`id` as batch_id, `at`.*"
 					." FROM `".BATCH_MASTER."` AS `at`"
-                    ." WHERE `at`.`is_delete`='0'"
+                    ." WHERE `at`.`is_delete`=0"
                       ." AND `at`.`file_id`='".$file_id."'"
                     ."ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
@@ -3267,7 +3283,7 @@
 
 			$q = "SELECT `at`.`file_type`
 					FROM `".IMPORT_EXCEPTION."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`file_id`='".$file_id."'
+                    WHERE `at`.`is_delete`=0 and `at`.`file_id`='".$file_id."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3283,7 +3299,7 @@
 
 			$q = "SELECT `at`.`source`
 					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`id`='".$file_id."'
+                    WHERE `at`.`is_delete`=0 and `at`.`id`='".$file_id."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3311,7 +3327,7 @@
                     ELSE ''
                   END) AS client_address
                   FROM `".IMPORT_DETAIL_DATA."`
-                  WHERE file_id='".$file_id."' AND status=1 AND is_delete='0' ".$con."
+                  WHERE file_id='".$file_id."' AND status=1 AND is_delete=0 ".$con."
                   ORDER BY id ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3327,7 +3343,7 @@
 
 			$q = "SELECT `at`.*
 					FROM `".PRODUCT_TYPE."` AS `at`
-                    WHERE `at`.`is_delete`='0'
+                    WHERE `at`.`is_delete`=0
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -3344,7 +3360,7 @@
 
             $q = "SELECT `at`.*
 					FROM `product_category_".$id."` AS `at`
-                    WHERE `at`.`is_delete`='0'
+                    WHERE `at`.`is_delete`=0
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
