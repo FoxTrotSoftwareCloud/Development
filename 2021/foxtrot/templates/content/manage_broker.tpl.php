@@ -1198,7 +1198,7 @@ var waitingDialog = waitingDialog || (function ($) {
                             foreach($return as $key=>$val){
                                 ?>
             	                   <tr>
-                                        <td><?php echo $val['first_name']." ".$val['last_name']; ?></td>
+                                        <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                         <td><?php echo $val['id']; ?></td>
                                         <td><?php echo $val['fund']; ?></td>
                                         <!--td><?php echo $val['internal']; ?></td-->
