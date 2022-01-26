@@ -461,13 +461,14 @@
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 4)
                                 {
-                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
+                                    // DELETE/SKIP TRADE
+                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `is_delete`=1, `process_result`=2".$this->update_common_sql()." WHERE `id`=$exception_data_id AND `file_id`=$exception_file_id";
                                     $res = $this->re_db_query($q);
                                     if($res)
                                     {
-                                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."'";
-                                        $res1 = $this->re_db_query($q1);
-                                        if($res1)
+                                        $q = "UPDATE `".IMPORT_EXCEPTION."` SET `is_delete`=1".$this->update_common_sql()." WHERE `file_id`=$exception_file_id AND `temp_data_id`=$exception_data_id AND `file_type`=2";
+                                        $res = $this->re_db_query($q);
+                                        if($res)
                                         {
                                             $result = 1;
                                         }
@@ -478,30 +479,31 @@
                         }
                         else if($exception_field == 'representative_number')
                         {
-                                $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
-                                if($header_detail != array()){
-                                        $system_id = $header_detail['system_id'];
-                                        $management_code = $header_detail['management_code'];
-                                        $sponsor_detail = $this->get_sponsor_on_system_management_code($system_id,$management_code);
-                                        $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
-                                        $alias_number = $exception_value;
+                            $result = 0;
+                            $sponsorId = $this->get_current_file_type($exception_file_id, 'sponsor_id');
 
-                                        $q = "INSERT INTO `".BROKER_ALIAS."` SET `broker_id`='".$rep_for_broker."' ,`alias_name`='".$alias_number."' ,`sponsor_company`='".$alias_sponsor."' ,
-                                `date`='".date('Y-m-d')."' ".$this->insert_common_sql();
-                				        $res = $this->re_db_query($q);
-                                }
-                                $q = "UPDATE `".BROKER_MASTER."` SET `fund`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$rep_for_broker."'";
-                                $res = $this->re_db_query($q);
+                            $q = "INSERT INTO `".BROKER_ALIAS."`"
+                                ." SET"
+                                    ." `broker_id`=$rep_for_broker"
+                                    .",`alias_name`='$alias_number'"
+                                    .",`sponsor_company`=$sponsorId"
+                                    .",`date`='".date('Y-m-d')."'"
+                                    .$this->insert_common_sql()
+                            ;
+                            $res = $this->re_db_query($q);
 
-                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                                $res = $this->re_db_query($q);
+                            $q = "UPDATE `".BROKER_MASTER."` SET `fund`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$rep_for_broker."'";
+                            $res = $this->re_db_query($q);
 
-                                $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                $res1 = $this->re_db_query($q1);
-                                if($res1)
-                                {
-                                    $result = 1;
-                                }
+                            $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                            $res = $this->re_db_query($q);
+
+                            $q = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                            $res = $this->re_db_query($q);
+
+                            if($res){
+                                $result = 1;
+                            }
                         }
                         else if($exception_field == 'customer_account_number')
                         {
@@ -3294,21 +3296,24 @@
             }
 			return $return;
 		}
-        public function get_current_file_type($file_id){
+        public function get_current_file_type($file_id, $fieldName='source'){
 			$return = '';
 
-			$q = "SELECT `at`.`source`
-					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`=0 and `at`.`id`='".$file_id."'
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.`$fieldName`"
+				    ." FROM `".IMPORT_CURRENT_FILES."` `at`"
+                    ." WHERE `at`.`is_delete`=0"
+                     ." AND `at`.`id`=$file_id"
+                    ." ORDER BY `at`.`id` DESC";
+
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     $return = $row['source'];
-                }
+
+            if($this->re_db_num_rows($res)){
+                // $a = 0;
+    			$row = $this->re_db_fetch_array($res);
+                $return = $row[$fieldName];
             }
-			return $return;
+
+            return $return;
 		}
         public function get_client_data($file_id,$temp_data_id=''){
 			$return = array();
