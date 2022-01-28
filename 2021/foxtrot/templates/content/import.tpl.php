@@ -210,14 +210,13 @@ PostResult( msg );
                             <div class="panel-overlay-wrap">
                                 <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                     <div class="row">
-                                        <!-- <div class="row">
-                                            <div class="col-md-5"></div>
+                                        <!--<div class="row">
+                                        <div class="col-md-5"></div>
                                             <a class="btn btn-sm btn-warning col-md-1" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>
-                                            <a href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"><button type="button"  name="fetch" value="fetch" style="display: inline;"> Fetch</button></a>
-                                            <button type="submit" class="btn btn-sm btn-default col-md-2"  name="progress_all" value="progress_all" style="display: inline;"> Process All</button>
+                                            <!--<a href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"><!--<button type="button"  name="fetch" value="fetch" style="display: inline;"> Fetch</button></a>-->
+                                            <!--<button type="submit" class="btn btn-sm btn-default col-md-2"  name="progress_all" value="progress_all" style="display: inline;"> Process All</button>
                                         </div>
-                                        <br /> -->
-
+                                        <br />-->
                                         <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                             <table id="data-table" class="table table-bordered table-stripped table-hover">
                                                 <thead>
@@ -233,129 +232,137 @@ PostResult( msg );
                                                     <th>Action</th>
                                                 </thead>
                                                 <tbody>
-                                                    <?php
-                                                    $count = 0;
-
-                                                    if(isset($return) && $return != array())
-                                                    {
-                                                        $return = $instance->select_current_files();
-
-                                                        foreach($return as $key=>$val){
-                                                            $return_file_data_array = $instance->get_file_array($val['id']);
-                                                            $isImportCompleted=$val['processed'] == 1 && $val['process_completed']==1;
-                                                            $isImportArchived= $val['is_archived']==1;
-                                                            $isImportNotStart= $val['processed']==0;
-                                                            $isImportStarted= $val['processed']==1 && $val['process_completed']!=1;
-                                                            //print_r($val);
-                                                            $system_id = isset($return_file_data_array[0]['dst_system_id'])?$return_file_data_array[0]['dst_system_id']:'';
-                                                            $management_code = isset($return_file_data_array[0]['dst_management_code'])?$return_file_data_array[0]['dst_management_code']:'';
-                                                            $sponsor_detail = $instance->get_sponsor_on_system_management_code($system_id,$management_code);
-                                                            $sponsor = isset($sponsor_detail['name'])?$sponsor_detail['name']:'';
-                                                            //echo '<pre>';print_r($system_id.','.$management_code);
-                                                            $file_batch_id = $instance->get_file_batch($val['id']);
-                                                            if(isset($val['imported_date']) && $val['imported_date']!= ''){
+                                                <?php
+                                                $count = 0;
+                                                if(isset($return) && $return != array())
+                                                {
+                                                $return = $instance->select_current_files();
+                                                foreach($return as $key=>$val){
+                                                    $return_file_data_array = $instance->get_file_array($val['id']);
+                                                    $isImportCompleted=$val['processed'] == 1 && $val['process_completed']==1;
+                                                    $isImportArchived= $val['is_archived']==1;
+                                                    $isImportNotStart= $val['processed']==0;
+                                                    $isImportStarted= $val['processed']==1 && $val['process_completed']!=1;
+                                                    //print_r($val);
+                                                    $system_id = isset($return_file_data_array[0]['dst_system_id'])?$return_file_data_array[0]['dst_system_id']:'';
+                                                    $management_code = isset($return_file_data_array[0]['dst_management_code'])?$return_file_data_array[0]['dst_management_code']:'';
+                                                    $sponsor_detail = $instance->get_sponsor_on_system_management_code($system_id,$management_code);
+                                                    $sponsor = isset($sponsor_detail['name'])?$sponsor_detail['name']:'';
+                                                    //echo '<pre>';print_r($system_id.','.$management_code);
+                                                    $file_batch_id = $instance->get_file_batch($val['id']);
+                                                    if(isset($val['imported_date']) && $val['imported_date']!= ''){
+                                                   ?>
+                                                    <tr>
+                                                        <td><?php echo in_array($val['file_type'], ['C1', 'DST Commission'])?$file_batch_id:'N/A';?></td>
+                                                        <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id=".$val['id'];?>"><?php echo $sponsor;?></a></td>
+                                                        <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
+                                                        <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
+                                                        <td style="width: 10%;"><?php echo $val['file_name'];?></td>
+                                                        <td style="width: 15%;"><?php echo $val['file_type'];?></td>
+                                                        <td><?php echo $val['source'];?></td>
+                                                        <?php
+                                                        if(isset($val['source']) && $val['source'] == 'DSTFANMail')
+                                                        {
+                                                            $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
+                                                            $count_processed_data = count($total_processed_data);
+                                                            $total_exception_data = $instance->get_exception_data($val['id']);
+                                                            $count_exception_data = count($total_exception_data);
+                                                        }
+                                                        else
+                                                        {
+                                                            $total_processed_data = $instance->get_idc_detail_data($val['id']);
+                                                            $count_processed_data = count($total_processed_data);
+                                                            $total_exception_data = $instance->get_exception_data($val['id']);
+                                                            $count_exception_data = count($total_exception_data);
+                                                        }
+                                                        if(isset($count_processed_data) && $count_processed_data>0)
+                                                        {
+                                                            $total_process = $count_processed_data+$count_exception_data;
+                                                            $total_processed_per = ($count_processed_data*100)/$total_process;
+                                                            //$up = ($u*100)/$t;
+                                                            //$total_uncomplete_process = ($count_exception_data*100)/$count_processed_data;
+                                                            $total_complete_process = round($total_processed_per);
+                                                        }
+                                                        else
+                                                        {
+                                                            $total_complete_process=0;
+                                                        }
+                                                        if($total_complete_process == 100)
+                                                        {
+                                                            $return = $instance->reprocess_current_files($val['id']);
+                                                            if(isset($val['source']) && $val['source'] == 'DSTFANMail')
+                                                            {
+                                                                $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
+                                                                $count_processed_data = count($total_processed_data);
+                                                                $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                $count_exception_data = count($total_exception_data);
+                                                            }
+                                                            else
+                                                            {
+                                                                $total_processed_data = $instance->get_idc_detail_data($val['id']);
+                                                                $count_processed_data = count($total_processed_data);
+                                                                $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                $count_exception_data = count($total_exception_data);
+                                                            }
+                                                            if(isset($count_processed_data) && $count_processed_data>0)
+                                                            {
+                                                                $total_process = $count_processed_data+$count_exception_data;
+                                                                $total_processed_per = ($count_processed_data*100)/$total_process;
+                                                                //$up = ($u*100)/$t;
+                                                                //$total_uncomplete_process = ($count_exception_data*100)/$count_processed_data;
+                                                                $total_complete_process = round($total_processed_per);
+                                                            }
+                                                            else
+                                                            {
+                                                                $total_complete_process=0;
+                                                            }
+                                                        }
                                                         ?>
-                                                            <tr>
-                                                                <td><?php echo in_array($val['file_type'], ['C1', 'DST Commission'])?$file_batch_id:'N/A';?></td>
-                                                                <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id=".$val['id'];?>"><?php echo $sponsor;?></a></td>
-                                                                <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
-                                                                <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
-                                                                <td style="width: 10%;"><?php echo $val['file_name'];?></td>
-                                                                <td style="width: 15%;"><?php echo $val['file_type'];?></td>
-                                                                <td><?php echo $val['source'];?></td>
-                                                                <?php
-                                                                $total_processed_data = $instance->check_file_exception_process($val['id'],1);
-                                                                $count_processed_data = $total_processed_data['processed'];
-                                                                $count_exception_data = $total_processed_data['exceptions'];
-
-                                                                if($count_processed_data + $count_exception_data > 0)
-                                                                {
-                                                                    $total_process = $count_processed_data+$count_exception_data;
-                                                                    $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                                    $total_complete_process = round($total_processed_per);
-                                                                }
-                                                                else
-                                                                {
-                                                                    $total_complete_process=0;
-                                                                }
-                                                                /** 01/13/22 New code "reprocesses" on the process_current_file() calls, so no need to refresh the grid */
-                                                                // if($total_complete_process == 100)
-                                                                // {
-                                                                //     $return = $instance->reprocess_current_files($val['id']);
-                                                                //     if(isset($val['source']) && $val['source'] == 'DSTFANMail')
-                                                                //     {
-                                                                //         $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
-                                                                //         $count_processed_data = count($total_processed_data);
-                                                                //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                //         // $count_exception_data = count($total_exception_data);
-                                                                //     }
-                                                                //     else
-                                                                //     {
-                                                                //         $total_processed_data = $instance->get_idc_detail_data($val['id']);
-                                                                //         $count_processed_data = count($total_processed_data);
-                                                                //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                //         // $count_exception_data = count($total_exception_data);
-                                                                //     }
-                                                                //     if(isset($count_processed_data) && $count_processed_data>0)
-                                                                //     {
-                                                                //         $total_process = $count_processed_data+$count_exception_data;
-                                                                //         $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                                //         //$up = ($u*100)/$t;
-                                                                //         //$total_uncomplete_process = ($count_exception_data*100)/$count_processed_data;
-                                                                //         $total_complete_process = round($total_processed_per);
-                                                                //     }
-                                                                //     else
-                                                                //     {
-                                                                //         $total_complete_process=0;
-                                                                //     }
-                                                                // }
-                                                                ?>
-                                                                <td style="width: 15%;">
-                                                                <div class="progress">
-                                                                    <?php //echo $count_processed_data."/".$count_exception_data;?>
-                                                                <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
-                                                                    <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
-                                                                    <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
-                                                                    <?php echo $total_complete_process.'%';?> Complete
-                                                                    </div>
-                                                                <?php }else{ ?>
-                                                                    <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
-                                                                    <?php echo $total_complete_process.'%';?> Complete
-                                                                    </div>
-                                                                <?php } ?>
-                                                                </div>
-                                                                </td>
-                                                                <?php
-                                                                    $check_exception_data = $instance->check_exception_data($val['id']);
-                                                                    $check_processed_data = $instance->check_processed_data($val['id']);
-                                                                    $check_file_exception_process = $instance->check_file_exception_process($val['id']);
-                                                                ?>
-                                                                <td style="width: 10%;"><form method="post">
-                                                                    <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
-                                                                    <input type="hidden" name="note" value="save_note" />
-                                                                    <input type="text" maxlength="20" value="<?php echo isset($val['note'])?$val['note']:'';?>" name="note_<?php echo $val['id'];?>">
-                                                                    </form>
-                                                                </td>
-                                                                <td style="width: 25%;">
-                                                                    <form method="post">
-                                                                        <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
-                                                                            <option value="0">Select Option</option>
-                                                                            <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
-                                                                            <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
-                                                                            <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
-                                                                            <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
-                                                                            <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
-                                                                            <option value="1" >Delete File</option>
-                                                                            <!-- <option value="7" >Preview</option> -->
-                                                                        </select>
-                                                                        <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
-                                                                        <input type="hidden" name="go" value="go" />
-                                                                    </form>
-                                                                </td>
-                                                            </tr>
-                                                        <?php }}
-                                                    }?>
-                                                </tbody>
+                                                        <td style="width: 15%;">
+                                                        <div class="progress">
+                                                            <?php //echo $count_processed_data."/".$count_exception_data;?>
+                                                        <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
+                                                            <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
+                                                            <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
+                                                              <?php echo $total_complete_process.'%';?> Complete
+                                                            </div>
+                                                        <?php }else{ ?>
+                                                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
+                                                              <?php echo $total_complete_process.'%';?> Complete
+                                                            </div>
+                                                        <?php } ?>
+                                                        </div>
+                                                        </td>
+                                                        <?php $check_exception_data = $instance->check_exception_data($val['id']);
+                                                            $check_processed_data = $instance->check_processed_data($val['id']);
+                                                            $check_file_exception_process = $instance->check_file_exception_process($val['id']);
+                                                        ?>
+                                                        <td style="width: 10%;"><form method="post">
+                                                            <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                            <input type="hidden" name="note" value="save_note" />
+                                                            <input type="text" maxlength="20" value="<?php echo isset($val['note'])?$val['note']:'';?>" name="note_<?php echo $val['id'];?>">
+                                                            </form>
+                                                        </td>
+                                                        <td style="width: 25%;">
+                                                        <form method="post">
+                                                        <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
+                                                            <option value="0">Select Option</option>
+                                                            <option value="1" >Delete File</option>
+                                                            <option value="7" >Preview</option>
+                                                            <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
+                                                            <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
+                                                            <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
+                                                            <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
+                                                            <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
+                                                        </select>
+                                                        <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                        <input type="hidden" name="go" value="go" />
+                                                        </form>
+                                                        </td>
+                                                    </tr>
+                                                <?php }}
+                                                }?>
+                                              </tbody>
                                             </table>
                                         </div>
                                     </div>
@@ -405,17 +412,15 @@ PostResult( msg );
                                                             {
                                                                 $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // 12/25/21 Refactored the get_exception_data(fileId) function to return only the exceptions remaining for the file
-                                                                // $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                //$count_exception_data = count($total_exception_data);
+                                                                $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                $count_exception_data = count($total_exception_data);
                                                             }
                                                             else
                                                             {
                                                                 $total_processed_data = $instance->get_idc_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // $count_exception_data = count($total_exception_data);
+                                                                $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                $count_exception_data = count($total_exception_data);
                                                             }
                                                             if(isset($count_processed_data) && $count_processed_data>0)
                                                             {
@@ -565,7 +570,7 @@ PostResult( msg );
                                                                 if($error_val['field'] == 'u5')
                                                                 {
                                                                     $rep_number = $return_idc_existing_data['representative_number'];
-                                                                    $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
+                                                                    $u5_date = $instance->broker_termination_date($rep_number);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
                                                             }
@@ -754,7 +759,7 @@ PostResult( msg );
 
                         ?>
                         <ul class="nav nav-tabs ">
-                          <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
+                          <li class="<?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
                          </ul> <?php } ?> <br />
                           <!-- Tab 1 is started -->
                             <div class="tab-content">
@@ -1222,7 +1227,7 @@ PostResult( msg );
                 </div>
                 <div class="col-md-6">
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);"/><label> Hold commission</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Remove U5 Date</label><br />
+                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Make Broker Active</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign trade to a new broker</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Trade</label><br />
                 </div>
@@ -1332,6 +1337,7 @@ PostResult( msg );
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
         	            <button type="submit" style="alignment-adjust: central !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
+
                     </div>
                 </div>
                 <div class="col-md-5" id="link_div">
@@ -1360,6 +1366,8 @@ PostResult( msg );
 </style>
 <script type="text/javascript">
 $(document).ready(function() {
+        alert('ready function');
+
         $('.form-go-action').on('onselect change', function(){
             var form = this.closest('form');
             form.submit();
@@ -1376,7 +1384,7 @@ $(document).ready(function() {
                         { "bSearchable": false, "aTargets": [ 6,7 ] }]
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>'+
-                    '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');
+                    '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Process All</a>');
 
         $('#data-table1').DataTable({
         "pageLength": 25,
@@ -1825,6 +1833,7 @@ function check_u5_date(broker)
         if (this.readyState == 4 && this.status == 200) {
             var data = this.responseText;
             if(data != '0'){
+
                $("#broker_terminated").css('display','block');
                document.getElementById("broker_termination_date").value = data;
             }

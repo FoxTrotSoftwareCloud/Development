@@ -3297,8 +3297,9 @@
             }
 			return $return;
 		}
-        public function get_current_file_type($file_id, $fieldName='source'){
+        public function get_current_file_type($file_id=0, $fieldName='source'){
 			$return = '';
+            $file_id = (is_null($file_id) ? 0 : $file_id);
 
 			$q = "SELECT `at`.`$fieldName`"
 				    ." FROM `".IMPORT_CURRENT_FILES."` `at`"
