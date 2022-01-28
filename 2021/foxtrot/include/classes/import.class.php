@@ -481,7 +481,8 @@
                         {
                             $result = 0;
                             $sponsorId = $this->get_current_file_type($exception_file_id, 'sponsor_id');
-
+                            // $alias_number = '';
+                            
                             $q = "INSERT INTO `".BROKER_ALIAS."`"
                                 ." SET"
                                     ." `broker_id`=$rep_for_broker"
@@ -510,10 +511,10 @@
                                 $sponsor = '';
                                 $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
                                 if($header_detail != array()){
-                                        $system_id = $header_detail['system_id'];
-                                        $management_code = $header_detail['management_code'];
-                                        $sponsor_detail = $this->get_sponsor_on_system_management_code($system_id,$management_code);
-                                        $sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
+                                    $system_id = $header_detail['system_id'];
+                                    $management_code = $header_detail['management_code'];
+                                    $sponsor_detail = $this->get_sponsor_on_system_management_code($system_id,$management_code);
+                                    $sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
                                 }
 
                                 $q = "INSERT `".CLIENT_ACCOUNT."` SET `account_no`='".$exception_value."',`sponsor_company`='".$sponsor."',`client_id`='".$acc_for_client."' ".$this->insert_common_sql();
