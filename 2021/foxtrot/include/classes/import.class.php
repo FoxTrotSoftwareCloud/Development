@@ -76,11 +76,13 @@
 				}
 				else if($id>0){
 				    $con = '';
+                    $id = (int)$id;
+
 					if($password!=''){
 						$con .= " , `password`='".$this->encryptor($password)."' ";
 					}
 
-				    $q = "UPDATE `".IMPORT_FTP_MASTER."` SET `host_name`='".$host_name."',`user_name`='".$user_name."',`folder_location`='".$folder_location."',`status`='".$status."',`ftp_file_type`='".$ftp_file_type."' ".$con." ".$this->update_common_sql()." WHERE `id`='".$id."'";
+				    $q = "UPDATE `".IMPORT_FTP_MASTER."` SET `host_name`='".$host_name."',`user_name`='".$user_name."',`folder_location`='".$folder_location."',`status`='".$status."',`ftp_file_type`='".$ftp_file_type."' ".$con." ".$this->update_common_sql()." WHERE `id`=$id";
                     $res = $this->re_db_query($q);
 					if($res){
 					    $_SESSION['success'] = UPDATE_MESSAGE;
@@ -98,6 +100,7 @@
 			}
             }
 		}
+
         public function update_exceptions($data){
             $result = 0;
 			$exception_file_id = isset($data['exception_file_id'])?$this->re_db_input($data['exception_file_id']):0;
@@ -479,31 +482,26 @@
                         }
                         else if($exception_field == 'representative_number')
                         {
+                            // ADD BROKER(user-defined) ALIAS - "Broker not found" exception
                             $result = 0;
-                            $sponsorId = $this->get_current_file_type($exception_file_id, 'sponsor_id');
-                            // $alias_number = '';
-                            
-                            $q = "INSERT INTO `".BROKER_ALIAS."`"
-                                ." SET"
-                                    ." `broker_id`=$rep_for_broker"
-                                    .",`alias_name`='$alias_number'"
-                                    .",`sponsor_company`=$sponsorId"
-                                    .",`date`='".date('Y-m-d')."'"
-                                    .$this->insert_common_sql()
-                            ;
-                            $res = $this->re_db_query($q);
 
-                            $q = "UPDATE `".BROKER_MASTER."` SET `fund`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$rep_for_broker."'";
-                            $res = $this->re_db_query($q);
+                            if (isset($data['exception_value']) AND !empty($data['exception_value']) AND isset($data['rep_for_broker']) AND !empty($data['rep_for_broker'])) {
+                                $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
+                                $broker_id = (int)$data['rep_for_broker'];
 
-                            $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                            $res = $this->re_db_query($q);
+                                $q = "INSERT INTO `".BROKER_ALIAS."`"
+                                    ." SET"
+                                        ." `broker_id`=$broker_id"
+                                        .",`alias_name`='{$this->re_db_input($data['exception_value'])}'"
+                                        .",`sponsor_company`=$sponsorId"
+                                        .",`date`='".date('Y-m-d')."'"
+                                        .$this->insert_common_sql()
+                                ;
+                                $res = $this->re_db_query($q);
 
-                            $q = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                            $res = $this->re_db_query($q);
-
-                            if($res){
-                                $result = 1;
+                                if($res){
+                                    $result = $this->reprocess_current_files($exception_file_id);
+                                }
                             }
                         }
                         else if($exception_field == 'customer_account_number')
@@ -959,9 +957,11 @@
 
         public function edit_ftp($id){
 			$return = array();
+            $id = (int)$id;
+
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_FTP_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`=0 AND `at`.`id`='".$id."'";
+                    WHERE `at`.`is_delete`=0 AND `at`.`id`=$id";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
@@ -970,10 +970,11 @@
 		}
 
         public function ftp_status($id,$status){
-			$id = trim($this->re_db_input($id));
+			$id = (int)($this->re_db_input($id));
 			$status = trim($this->re_db_input($status));
+
 			if($id>0 && ($status==0 || $status==1) ){
-				$q = "UPDATE `".IMPORT_FTP_MASTER."` SET `status`='".$status."' WHERE `id`='".$id."'";
+				$q = "UPDATE `".IMPORT_FTP_MASTER."` SET `status`='".$status."' WHERE `id`=$id";
 				$res = $this->re_db_query($q);
 				if($res){
 				    $_SESSION['success'] = STATUS_MESSAGE;
@@ -991,9 +992,9 @@
 		}
 
         public function ftp_delete($id){
-			$id = trim($this->re_db_input($id));
+			$id = (int)($this->re_db_input($id));
 			if($id>0){
-				$q = "UPDATE `".IMPORT_FTP_MASTER."` SET `is_delete`='1' WHERE `id`='".$id."'";
+				$q = "UPDATE `".IMPORT_FTP_MASTER."` SET `is_delete`='1' WHERE `id`=$id";
 				$res = $this->re_db_query($q);
 				if($res){
 				    $_SESSION['success'] = DELETE_MESSAGE;
@@ -1455,6 +1456,8 @@
          * @return string|bool
          ***************************************************************/
         public function reprocess_current_files($id) {
+            // Cast $id to int, some calling code was sending null and '' arguments from empty "current_file" queries
+            $id = (int)$id;
             $dataClass = new data_interfaces_master();
             $broker_master = new broker_master();
             $batchClass = new batches();
@@ -1463,7 +1466,7 @@
             $reprocess_status = false;
 
             if($id > 0){
-                $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `process_completed`='1' AND `id`='".$id."'";
+                $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `process_completed`='1' AND `id`=$id";
 				$res = $this->re_db_query($q);
 				$return = $this->re_db_num_rows($res);
                 $this->errors='';
@@ -1476,7 +1479,7 @@
 					return $this->errors;
 				} else {
                     // File information
-                    $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `id`='".$id."'";
+                    $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `id`=$id";
                     $res = $this->re_db_query($q);
                     $file_array = $this->re_db_fetch_array($res);
                     $file_sponsor_array = $sponsorClass->edit_sponsor($file_array['sponsor_id']);
@@ -1485,7 +1488,7 @@
                         $file_sponsor_array = $this->get_sponsor_on_system_management_code(substr($file_array['file_name'],0,3), substr($file_array['file_name'],3,2));
 
                         if (!empty($file_sponsor_array['id'])){
-                            $q = "UPDATE `".IMPORT_CURRENT_FILES."` SET `sponsor_id`='".$file_sponsor_array['id']."' WHERE `is_delete`=0 AND `id`='".$id."'";
+                            $q = "UPDATE `".IMPORT_CURRENT_FILES."` SET `sponsor_id`='".$file_sponsor_array['id']."' WHERE `is_delete`=0 AND `id`=$id";
                             $res = $this->re_db_query($q);
 
                             $file_array['sponsor_id'] = $file_sponsor_array['id'];
@@ -3184,11 +3187,12 @@
 		}
         public function select_user_files($id){
 			$return = array();
+            $id = (int)$id;
 
 			$q = "SELECT `at`.*"
                 ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
                 ." WHERE `at`.`is_delete`=0"
-                  ." AND `at`.`id`='".$id."'"
+                  ." AND `at`.`id`=$id"
                 ." ORDER BY `at`.`imported_date` DESC"
             ;
 			$res = $this->re_db_query($q);
@@ -3379,9 +3383,10 @@
 			return $return;
 		}
         public function delete_current_files($id){
-			$id = trim($this->re_db_input($id));
+            $id = (int)$id;
+
 			if($id>0){
-				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
+				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`=$id";
 				$res = $this->re_db_query($q);
 				if($res){
 				    $_SESSION['success'] = DELETE_MESSAGE;
@@ -3409,7 +3414,7 @@
                 return $this->errors;
             }
             $sql = "UPDATE `".IMPORT_CURRENT_FILES."` SET `note`='".$note."' ".$this->update_common_sql().
-                   "WHERE `id`='".$id."'";
+                   "WHERE `id`=".(int)$id;
             $res = $this->re_db_query($sql);
             if($res) {
                 $_SESSION['success'] = UPDATE_MESSAGE;

@@ -1337,7 +1337,6 @@ PostResult( msg );
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
         	            <button type="submit" style="alignment-adjust: central !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
-
                     </div>
                 </div>
                 <div class="col-md-5" id="link_div">
@@ -1366,8 +1365,6 @@ PostResult( msg );
 </style>
 <script type="text/javascript">
 $(document).ready(function() {
-        alert('ready function');
-
         $('.form-go-action').on('onselect change', function(){
             var form = this.closest('form');
             form.submit();
