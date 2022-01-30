@@ -127,8 +127,6 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
         || (isset($_POST['submit'])&& $_POST['submit']=='Next') )
     {
-
-
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $fname = isset($_POST['fname'])?$instance->re_db_input($_POST['fname']):'';
         $lname = isset($_POST['lname'])?$instance->re_db_input($_POST['lname']):'';
@@ -184,7 +182,6 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $state_employe = isset($_POST['state_employe'])?$instance->re_db_input($_POST['state_employe']):'';
         $date_verified = isset($_POST['date_verified'])?$instance->re_db_input($_POST['date_verified']):'';
 
-
         //accounting tab coding
         $id = isset($_POST['account_id'])?$instance->re_db_input($_POST['account_id']):0;
         $account_no = isset($_POST['account_no'])?$_POST['account_no']:array();
@@ -209,15 +206,13 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $tax_id = isset($_POST['tax_id'])?$instance->re_db_input($_POST['tax_id']):'';
 
         //for account no add for import module
-
         $for_import = isset($_POST['for_import'])?$instance->re_db_input($_POST['for_import']):'false';
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
 
-
+        // Update the client table
         $return = $instance->insert_update($_POST);
 
-
-        if($return==true)
+        if($return==true AND gettype($return)!='string')
         {
             $return1 = $instance->insert_update_employment($_POST);
             $return2 = $instance->insert_update_account($_POST);
@@ -665,11 +660,23 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $return = $instance->select();
 
     }
+    else if(isset($_GET['action']) && $_GET['action']=='add_new' && isset($_GET['exception_data_id']) && $_GET['exception_data_id']>0){
+        //--- 01/29/22 Called from import template page -> "Resolve Exceptions" tab
+        $idcDetail = $instance_import->select_existing_idc_data($_GET['exception_data_id']);
+
+        if ($idcDetail){
+            $broker_name = (string)$idcDetail['broker_id'];
+            $client_file_number = $dbins->re_db_input($idcDetail['customer_account_number']);
+            $lname = $dbins->re_db_input($idcDetail['alpha_code']);
+        }
+    }
+
     $get_current_objectives = $instance->select_objectives(isset($_SESSION['client_id'])?$_SESSION['client_id']:0);
     foreach($get_current_objectives as $key=>$val)
     {
         $objectives_check_id[$val['objectives']]=$val['objectives'];
     }
+
     $content = "client_maintenance";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
 ?>

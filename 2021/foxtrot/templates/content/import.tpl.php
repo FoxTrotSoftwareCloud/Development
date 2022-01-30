@@ -261,66 +261,69 @@ PostResult( msg );
                                                         <td style="width: 15%;"><?php echo $val['file_type'];?></td>
                                                         <td><?php echo $val['source'];?></td>
                                                         <?php
-                                                        if(isset($val['source']) && $val['source'] == 'DSTFANMail')
-                                                        {
-                                                            $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
-                                                            $count_processed_data = count($total_processed_data);
-                                                            $total_exception_data = $instance->get_exception_data($val['id']);
-                                                            $count_exception_data = count($total_exception_data);
-                                                        }
-                                                        else
-                                                        {
-                                                            $total_processed_data = $instance->get_idc_detail_data($val['id']);
-                                                            $count_processed_data = count($total_processed_data);
-                                                            $total_exception_data = $instance->get_exception_data($val['id']);
-                                                            $count_exception_data = count($total_exception_data);
-                                                        }
-                                                        if(isset($count_processed_data) && $count_processed_data>0)
-                                                        {
-                                                            $total_process = $count_processed_data+$count_exception_data;
-                                                            $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                            //$up = ($u*100)/$t;
-                                                            //$total_uncomplete_process = ($count_exception_data*100)/$count_processed_data;
-                                                            $total_complete_process = round($total_processed_per);
-                                                        }
-                                                        else
-                                                        {
+                                                        //--- 01/29/22.11:23 - Use new routine to get accurate Processed/Exception counts - old way didn't account for
+                                                        //--- records being in 2 different tables and/or multiple exceptions for the same record (Broker/Cusip/Client exceptions)
+                                                        $countSummary = $instance->check_file_exception_process($val['id'], 1);
+                                                        $count_processed_data = $countSummary['processed'];
+                                                        $count_exception_data = $countSummary['exceptions'];
+                                                        // if(isset($val['source']) && $val['source'] == 'DSTFANMail')
+                                                        // {
+                                                        //     $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
+                                                        //     $count_processed_data = count($total_processed_data);
+                                                        //     $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //     $count_exception_data = count($total_exception_data);
+                                                        // }
+                                                        // else
+                                                        // {
+                                                        //     $total_processed_data = $instance->get_idc_detail_data($val['id']);
+                                                        //     $count_processed_data = count($total_processed_data);
+                                                        //     $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //     $count_exception_data = count($total_exception_data);
+                                                        // }
+                                                        //--- End of 01/29/22.11:23
+
+                                                        if(isset($count_processed_data) && $count_processed_data>0) {
+                                                            // $total_processed_per = ($count_processed_data*100)/($count_processed_data+$count_exception_data);
+                                                            $total_complete_process = round( ($count_processed_data*100)/($count_processed_data+$count_exception_data) );
+                                                        } else{
                                                             $total_complete_process=0;
                                                         }
-                                                        if($total_complete_process == 100)
-                                                        {
-                                                            $return = $instance->reprocess_current_files($val['id']);
-                                                            if(isset($val['source']) && $val['source'] == 'DSTFANMail')
-                                                            {
-                                                                $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
-                                                                $count_processed_data = count($total_processed_data);
-                                                                $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                $count_exception_data = count($total_exception_data);
-                                                            }
-                                                            else
-                                                            {
-                                                                $total_processed_data = $instance->get_idc_detail_data($val['id']);
-                                                                $count_processed_data = count($total_processed_data);
-                                                                $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                $count_exception_data = count($total_exception_data);
-                                                            }
-                                                            if(isset($count_processed_data) && $count_processed_data>0)
-                                                            {
-                                                                $total_process = $count_processed_data+$count_exception_data;
-                                                                $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                                //$up = ($u*100)/$t;
-                                                                //$total_uncomplete_process = ($count_exception_data*100)/$count_processed_data;
-                                                                $total_complete_process = round($total_processed_per);
-                                                            }
-                                                            else
-                                                            {
-                                                                $total_complete_process=0;
-                                                            }
-                                                        }
+
+                                                        //--- 01/29/22.11:31 Removed. Not sure why there is a reprocess just because the all the records were "processed"
+                                                        // if($total_complete_process == 100)
+                                                        // {
+                                                        //     $return = $instance->reprocess_current_files($val['id']);
+                                                        //     if(isset($val['source']) && $val['source'] == 'DSTFANMail')
+                                                        //     {
+                                                        //         $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
+                                                        //         $count_processed_data = count($total_processed_data);
+                                                        //         $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //         $count_exception_data = count($total_exception_data);
+                                                        //     }
+                                                        //     else
+                                                        //     {
+                                                        //         $total_processed_data = $instance->get_idc_detail_data($val['id']);
+                                                        //         $count_processed_data = count($total_processed_data);
+                                                        //         $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //         $count_exception_data = count($total_exception_data);
+                                                        //     }
+                                                        //     if(isset($count_processed_data) && $count_processed_data>0)
+                                                        //     {
+                                                        //         $total_process = $count_processed_data+$count_exception_data;
+                                                        //         $total_processed_per = ($count_processed_data*100)/$total_process;
+                                                        //         //$up = ($u*100)/$t;
+                                                        //         //$total_uncomplete_process = ($count_exception_data*100)/$count_processed_data;
+                                                        //         $total_complete_process = round($total_processed_per);
+                                                        //     }
+                                                        //     else
+                                                        //     {
+                                                        //         $total_complete_process=0;
+                                                        //     }
+                                                        // }
+                                                        //--- 01/29/22.11:31 END: Comment Block
                                                         ?>
                                                         <td style="width: 15%;">
                                                         <div class="progress">
-                                                            <?php //echo $count_processed_data."/".$count_exception_data;?>
                                                         <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
                                                             <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
                                                             <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">

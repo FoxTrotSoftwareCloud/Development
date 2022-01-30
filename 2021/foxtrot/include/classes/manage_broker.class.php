@@ -2492,20 +2492,25 @@
             }
 			return $return;
 		}
-        public function check_broker_commission_status($id){
+
+    public function check_broker_commission_status($id){
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".BROKER_PAYOUT_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."' ";
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_array($res);
-            }
-			return $return;
+
+      $q = "SELECT `at`.*"
+					  ." FROM `".BROKER_PAYOUT_MASTER."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'"
+              ." AND `at`.`broker_id`='".$id."' "
+      ;
+      $res = $this->re_db_query($q);
+
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_array($res);
+      }
+
+      return $return;
 		}
 
-
-        public function search($search_text=''){
+    public function search($search_text=''){
 			$return = array();
 			$con = '';
             if($search_text!='' && $search_text>=0){

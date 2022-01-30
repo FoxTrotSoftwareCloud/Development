@@ -506,25 +506,20 @@
                         }
                         else if($exception_field == 'customer_account_number')
                         {
-                                $sponsor = '';
-                                $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
-                                if($header_detail != array()){
-                                    $system_id = $header_detail['system_id'];
-                                    $management_code = $header_detail['management_code'];
-                                    $sponsor_detail = $this->get_sponsor_on_system_management_code($system_id,$management_code);
-                                    $sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
+                                $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
+                                if($sponsorId == 0){
+                                    $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
+                                    $sponsor_detail = $this->get_sponsor_on_system_management_code($header_detail['system_id'],$header_detail['management_code']);
+                                    $sponsorId = isset($sponsor_detail['id']) ? (int)$sponsor_detail['id'] : 0;
                                 }
 
-                                $q = "INSERT `".CLIENT_ACCOUNT."` SET `account_no`='".$exception_value."',`sponsor_company`='".$sponsor."',`client_id`='".$acc_for_client."' ".$this->insert_common_sql();
+                                $q = "INSERT `".CLIENT_ACCOUNT."` SET `account_no`='".$exception_value."',`sponsor_company`='".$sponsorId."',`client_id`='".$acc_for_client."' ".$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
 
-                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                                $res = $this->re_db_query($q);
+                                //--- 01/29/22.12:13 Not needed - the reprocess should find the acct# and clear the exception
+                                // $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                // $res = $this->re_db_query($q);
 
-                                // $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                // $res1 = $this->re_db_query($q1);
-
-                                //($res1) -> Reprocess the file to see if the exception clears
                                 if ($res)
                                 {
                                     $result = $this->reprocess_current_files($exception_file_id);
@@ -2283,7 +2278,6 @@
                                 $batch_id = $this->re_db_insert_id();
                             }
 
-
                             if (!empty($batch_id)){
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET "
@@ -2309,7 +2303,7 @@
 
                                 $broker_class = new broker_master();
                                 $check_broker_commission = $broker_class->check_broker_commission_status($broker_id);
-                                $broker_hold_commission = $check_broker_commission['hold_commissions'];
+                                $broker_hold_commission = (empty($check_broker_commission) ? 0 : $check_broker_commission['hold_commissions']);
 
                                 $con = '';
 
@@ -2686,7 +2680,7 @@
                     }
                 }
             } else {
-                $return = ["file_id"=>$file_id, "file_name"=>'', "exceptions"=>0, "processed"=>0];
+                $return = ["file_id"=>$file_id, "file_name"=>'*Not Found*', "exceptions"=>0, "processed"=>0];
 
                 foreach ([IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA] AS $table){
                     $q = "SELECT `a`.`file_id`, `b`.`file_name`, SUM(if(`a`.`process_result`>0,0,1)) AS exceptions, SUM(if(`a`.`process_result`>0,1,0)) AS processed"
