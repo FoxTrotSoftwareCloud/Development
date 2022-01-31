@@ -229,24 +229,8 @@
             $_SESSION['last_insert_id'] = $this->re_db_insert_id();
 
             if($res){
+              //--- IMPORT File call ---//
               if($for_import == 'true'){
-                //--- 1/28/22 Called from "Resolve Exceptions" in import.tpl.php. Reprocess will update all the Import Tables (IMPORT_EXCEPTIONS, IMPORT_???_DETAIL_DATA)
-                // $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$file_id."' and `temp_data_id`='".$temp_data_id."'";
-                // $res1 = $this->re_db_query($q1);
-
-                //   $instance_import = new import();
-                //   $get_file_type = $instance_import->check_file_type($file_id);
-                //   if($get_file_type == 'DSTFANMail')
-                //   {
-                //       $q1 = "UPDATE `".IMPORT_DETAIL_DATA."` SET `representative_number`='".$fund."' WHERE `file_id`='".$file_id."' and `id`='".$temp_data_id."'";
-                //       $res1 = $this->re_db_query($q1);
-                //   }
-                //   else
-                //   {
-                //       $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `representative_number`='".$fund."' WHERE `file_id`='".$file_id."' and `id`='".$temp_data_id."'";
-                //       $res1 = $this->re_db_query($q1);
-                //   }
-                // }
                 //--- 1/28/22 Called from "Resolve Exceptions" in import.tpl.php. Reprocess will update all the Import Tables (IMPORT_EXCEPTIONS, IMPORT_???_DETAIL_DATA)
                 $instance_import = new import();
                 $instance_import->reprocess_current_files($file_id);
@@ -910,14 +894,13 @@
             $_SESSION['success'] = INSERT_MESSAGE;
             return true;
           }
-
         }
-        public function insert_update_payout($data)
-        {
 
+        public function insert_update_payout($data) {
             $id = isset($data['id'])?$this->re_db_input($data['id']):'0';
             if ($id > 0)
               $originalInstance = $this->select_broker_payout_by_id($id);
+
             $payout_schedule_id = isset($data['schedule_id'])?$this->re_db_input($data['schedule_id']):'';
             $payout_schedule_name = isset($data['schedule_name'])?$this->re_db_input($data['schedule_name']):'';
             $transaction_type_general = isset($data['transaction_type_general'])?$this->re_db_input($data['transaction_type_general']):'1';
@@ -948,93 +931,106 @@
             $calculate_on = isset($data['calculate_on'])?$this->re_db_input($data['calculate_on']):'';
             $deduct = isset($data['deduct'])?$this->re_db_input($data['deduct']):'';
             $hold_commissions = isset($data['hold_commissions'])?$this->re_db_input($data['hold_commissions']):'';
+
             if(isset($data['hold_commission_until']) && $data['hold_commission_until']!='')
             {
                 $hold_commission_until = date('Y-m-d',strtotime($data['hold_commission_until']));
-            }
-            else
-            {
-                $hold_commission_until = '';
-            }
-            if(isset($data['hold_commission_after']) && $data['hold_commission_after']!='')
-            {
-                $hold_commission_after = date('Y-m-d',strtotime($data['hold_commission_after']));
-            }
-            else
-            {
-                $hold_commission_after = '';
+            } else {
+              $hold_commission_until = '';
             }
 
-            if($id>=0){
+            if(isset($data['hold_commission_after']) && $data['hold_commission_after']!='') {
+              $hold_commission_after = date('Y-m-d',strtotime($data['hold_commission_after']));
+            } else {
+              $hold_commission_after = '';
+            }
 
+            $record = 0;
+            if($id > 0){
                 $qq="select broker_id from ".BROKER_PAYOUT_MASTER." where `broker_id`=".$id."";
                 $re=$this->re_db_query($qq);
                 $record=$this->re_db_num_rows($re);
+            }
 
-				if($record==0){
+				    if($record==0){
+              $q = "INSERT INTO `".BROKER_PAYOUT_MASTER."`"
+                  ." SET"
+                      ." `broker_id`='".$_SESSION['last_insert_id']."'"
+                      .",`payout_schedule_id`='".$payout_schedule_id."'"
+                      .",`payout_schedule_name`='".$payout_schedule_name."'"
+                      .",`transaction_type_general`='".$transaction_type_general."'"
+                      .",`product_category1`='".$product_category1."'"
+                      .",`product_category2`='".$product_category2."'"
+                      .",`product_category3`='".$product_category3."'"
+                      .",`product_category4`='".$product_category4."'"
+                      .",`basis`='".$basis."'"
+                      .",`cumulative`='".$cumulative."'"
+                      .",`year`='".$year."'"
+                      .",`calculation_detail`='".$calculation_detail."'"
+                      .",`clearing_charge_deducted_from`='".$clearing_charge_deducted_from."'"
+                      .",`reset`='".$reset."'"
+                      .",`description_type`='".$description_type."'"
+                      .",`minimum_trade_gross`='".$minimum_trade_gross."'"
+                      .",`minimum_12B1_gross`='".$minimum_12B1_gross."'"
+                      .",`team_member`='".$team_member_string."'"
+                      .",`start`='".$start."'"
+                      .",`until`='".$until."'"
+                      .",`apply_to`='".$apply_to."'"
+                      .",`product_2`='".$product_2."'"
+                      .",`product_3`='".$product_3."'"
+                      .",`product_4`='".$product_4."'"
+                      .",`product_5`='".$product_5."'"
+                      .",`calculate_on`='".$calculate_on."'"
+                      .",`deduct`='".$deduct."'"
+                      .",`hold_commissions`='".$hold_commissions."'"
+                      .",`hold_commission_until`='".$hold_commission_until."'"
+                      .",`hold_commission_after`='".$hold_commission_after."'"
+                      .",`summarize_payroll_adjustments`='".$summarize_payroll_adjustments."'"
+                      .",`summarize_12B1_from_autoposting`='".$summarize_12B1_from_autoposting."'"
+                      .$this->insert_common_sql()
+              ;
 
-                        $q = "INSERT INTO `".BROKER_PAYOUT_MASTER."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`payout_schedule_id`='".$payout_schedule_id."' ,`payout_schedule_name`='".$payout_schedule_name."' ,`transaction_type_general`='".$transaction_type_general."' ,`product_category1`='".$product_category1."' ,
-                        `product_category2`='".$product_category2."' , `product_category3`='".$product_category3."' ,`product_category4`='".$product_category4."' ,`basis`='".$basis."' ,
-                        `cumulative`='".$cumulative."' ,`year`='".$year."' ,`calculation_detail`='".$calculation_detail."' ,`clearing_charge_deducted_from`='".$clearing_charge_deducted_from."',`reset`='".$reset."',`description_type`='".$description_type."',`minimum_trade_gross`='".$minimum_trade_gross."',`minimum_12B1_gross`='".$minimum_12B1_gross."' ,
-                        `team_member`='".$team_member_string."' ,`start`='".$start."',`until`='".$until."',`apply_to`='".$apply_to."',`product_2`='".$product_2."' ,`product_3`='".$product_3."',`product_4`='".$product_4."',
-                        `product_5`='".$product_5."' ,`calculate_on`='".$calculate_on."',`deduct`='".$deduct."',`hold_commissions`='".$hold_commissions."' ,`hold_commission_until`='".$hold_commission_until."',`hold_commission_after`='".$hold_commission_after."',`summarize_payroll_adjustments`='".$summarize_payroll_adjustments."',`summarize_12B1_from_autoposting`='".$summarize_12B1_from_autoposting."'".$this->insert_common_sql();
-    					$res = $this->re_db_query($q);
+              $res = $this->re_db_query($q);
 
-                        if($res){
-
-                            $_SESSION['success'] = INSERT_MESSAGE;
-    						return true;
-    					}
-    					else{
-    						$_SESSION['warning'] = UNKWON_ERROR;
-    						return false;
-    					}
-
-    			}
-                else if($record>0)
-                {
-
-                  $q = "UPDATE `".BROKER_PAYOUT_MASTER."`  SET `broker_id`='".$id."',`payout_schedule_id`='".$payout_schedule_id."' ,`payout_schedule_name`='".$payout_schedule_name."' ,`transaction_type_general`='".$transaction_type_general."' ,`product_category1`='".$product_category1."' ,
+              if($res){
+                $_SESSION['success'] = INSERT_MESSAGE;
+                return true;
+              } else {
+                $_SESSION['warning'] = UNKWON_ERROR;
+                return false;
+              }
+            } else if($record>0) {
+                $q = "UPDATE `".BROKER_PAYOUT_MASTER."` SET `broker_id`='".$id."',`payout_schedule_id`='".$payout_schedule_id."' ,`payout_schedule_name`='".$payout_schedule_name."' ,`transaction_type_general`='".$transaction_type_general."' ,`product_category1`='".$product_category1."' ,
                   `product_category2`='".$product_category2."' , `product_category3`='".$product_category3."' ,`product_category4`='".$product_category4."' ,`basis`='".$basis."' ,
                   `cumulative`='".$cumulative."' ,`year`='".$year."',`calculation_detail`='".$calculation_detail."',`clearing_charge_deducted_from`='".$clearing_charge_deducted_from."',`reset`='".$reset."',`description_type`='".$description_type."',`minimum_trade_gross`='".$minimum_trade_gross."',`minimum_12B1_gross`='".$minimum_12B1_gross."' ,
                   `team_member`='".$team_member_string."' ,`start`='".$start."',`until`='".$until."',`apply_to`='".$apply_to."',`product_2`='".$product_2."' ,`product_3`='".$product_3."',`product_4`='".$product_4."',
                   `product_5`='".$product_5."' ,`calculate_on`='".$calculate_on."',`deduct`='".$deduct."',`hold_commissions`='".$hold_commissions."' ,`hold_commission_until`='".$hold_commission_until."',`hold_commission_after`='".$hold_commission_after."',`summarize_payroll_adjustments`='".$summarize_payroll_adjustments."',`summarize_12B1_from_autoposting`='".$summarize_12B1_from_autoposting."'".$this->update_common_sql()." WHERE  `broker_id`='".$id."'";
 
-                  $res = $this->re_db_query($q);
+                $res = $this->re_db_query($q);
 
-                  if($res)
-                  {
-    					      $newInstance = $this->select_broker_payout_by_id($id);
-                    $fieldsToWatch = array('payout_schedule_id', 'payout_schedule_name', 'transaction_type_general', 'product_category1',
-                      'product_category2', 'product_category3',
-                      'product_category4', 'basis', 'cumulative', 'year', 'calculation_detail', 'clearing_charge_deducted_from',
-                      'reset', 'description_type', 'minimum_trade_gross', 'minimum_12B1_gross', 'team_member',
-                      'start', 'until', 'apply_to', 'product_2', 'product_3', 'product_4', 'product_5', 'calculate_on', 'deduct',
-                      'hold_commissions', 'hold_commission_until', 'hold_commission_after', 'summarize_payroll_adjustments', 'summarize_12B1_from_autoposting');
-                    $this->update_history(BROKER_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
-                    $_SESSION['success'] = UPDATE_MESSAGE;
-                    return true;
-                  }
-                  else
-                  {
-                    $_SESSION['warning'] = UNKWON_ERROR;
-                    return false;
-                  }
+                if($res){
+                  $newInstance = $this->select_broker_payout_by_id($id);
+                  $fieldsToWatch = array('payout_schedule_id', 'payout_schedule_name', 'transaction_type_general', 'product_category1',
+                    'product_category2', 'product_category3',
+                    'product_category4', 'basis', 'cumulative', 'year', 'calculation_detail', 'clearing_charge_deducted_from',
+                    'reset', 'description_type', 'minimum_trade_gross', 'minimum_12B1_gross', 'team_member',
+                    'start', 'until', 'apply_to', 'product_2', 'product_3', 'product_4', 'product_5', 'calculate_on', 'deduct',
+                    'hold_commissions', 'hold_commission_until', 'hold_commission_after', 'summarize_payroll_adjustments', 'summarize_12B1_from_autoposting')
+                  ;
+
+                  $this->update_history(BROKER_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+                  $_SESSION['success'] = UPDATE_MESSAGE;
+                  return true;
+                } else {
+                  $_SESSION['warning'] = UNKWON_ERROR;
+                  return false;
                 }
-                /*if($res){
-                    $_SESSION['success'] = UPDATE_MESSAGE;
-					return true;
-				}
-				/*else{
-							$_SESSION['warning'] = UNKWON_ERROR;
-							return false;
-						}*/
             }
         }
 
         public function load_split_commission($transaction_id){
-			$originalArray=array();
-			$qq1="SELECT * FROM `ft_transaction_split_commissions` WHERE is_delete=0 AND `transaction_id`=".$transaction_id."";
+			      $originalArray=array();
+			      $qq1="SELECT * FROM `ft_transaction_split_commissions` WHERE is_delete=0 AND `transaction_id`=".$transaction_id."";
             $res = $this->re_db_query($qq1);
             $originalArray = array();
             if($this->re_db_num_rows($res)>0)

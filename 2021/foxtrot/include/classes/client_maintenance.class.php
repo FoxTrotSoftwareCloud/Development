@@ -300,7 +300,7 @@
                     {
                         if($val_acc != '' && $sponsor[$key_acc]>0)
                         {
-            				$q = "INSERT INTO `".CLIENT_ACCOUNT."` SET `client_id`='".$_SESSION['client_id']."',`account_no`='".$val_acc."',`sponsor_company`='".$sponsor[$key_acc]."'".$this->insert_common_sql();
+            				$q = "INSERT INTO `".CLIENT_ACCOUNT."` SET `client_id`='".$_SESSION['client_id']."',`account_no`='".$this->re_db_input($val_acc)."',`sponsor_company`='".$sponsor[$key_acc]."'".$this->insert_common_sql();
             				$res = $this->re_db_query($q);
                         }
                     }

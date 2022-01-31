@@ -655,13 +655,11 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         exit;
     }
     else if($action=='view'){
-
         $_SESSION['client_id']='';
         $return = $instance->select();
-
     }
     else if(isset($_GET['action']) && $_GET['action']=='add_new' && isset($_GET['exception_data_id']) && $_GET['exception_data_id']>0){
-        //--- 01/29/22 Called from import template page -> "Resolve Exceptions" tab
+        //--- 01/29/22 Called from import template page -> "Resolve Exceptions" tab ---//
         $idcDetail = $instance_import->select_existing_idc_data($_GET['exception_data_id']);
 
         if ($idcDetail){
@@ -671,6 +669,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         }
     }
 
+    //--- Show the Client Maintenance Page ---//
     $get_current_objectives = $instance->select_objectives(isset($_SESSION['client_id'])?$_SESSION['client_id']:0);
     foreach($get_current_objectives as $key=>$val)
     {

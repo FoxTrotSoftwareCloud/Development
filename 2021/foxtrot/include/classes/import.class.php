@@ -527,11 +527,12 @@
                         }
                         else if($exception_field == 'active_check')
                         {
-
+                            //--- STATE LICENSE EXCEPTION --//
                             $rep_number = 0;
                             $broker = 0;
                             $customer_account_number = 0;
                             $state_id = 0;
+
                             $q = "SELECT rep FROM `".IMPORT_EXCEPTION."` WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
 			                $res = $this->re_db_query($q);
                             while($row = $this->re_db_fetch_array($res))
@@ -2174,7 +2175,7 @@
                                 "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
                                     ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                     ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
-                                    ." WHERE `ca`.`account_no`='".$check_data_val['customer_account_number']."'"
+                                    ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
                                         ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
                                         ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
                             ;
@@ -2193,6 +2194,13 @@
                                 $client_id = 0;
                             } else {
                                 $client_id = $clientAccount['id'];
+
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." SET `client_id`='$client_id'"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
+                                ;
+                                $res = $this->re_db_query($q);
                             }
 
                             // Objectives Check
