@@ -992,12 +992,14 @@ class transaction extends db{
               $con .= " ORDER BY `at`.`trade_date` ASC ";
 
 			
-		       $q = "SELECT `at`.*,bm.first_name as broker_name,bm.last_name as broker_last_name,bm.id as broker_id,cm.first_name as client_name,cm.last_name as client_last_name,bt.batch_desc,br.name as branch_name
+		       $q = "SELECT `at`.*,bm.first_name as broker_name,bm.last_name as broker_last_name,bm.id as broker_id,cm.first_name as client_name,cm.last_name as client_last_name,bt.batch_desc,br.name as branch_name,pt.type as product_category_name,sp.name as sponsor_name
 					FROM `".$this->table."` AS `at`
                     LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `at`.`batch`
+                    LEFT JOIN `".PRODUCT_TYPE."` as `pt` on `pt`.`id` = `at`.`product_cate`
                     LEFT JOIN `ft_branch_master` as `br` on `br`.`id` = `at`.`branch`
                     LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_name`
                     LEFT JOIN `".CLIENT_MASTER."` as `cm` on `cm`.`id` = `at`.`client_name`
+                    left join `".SPONSOR_MASTER."` as `sp` on `sp`.id=`at`.sponsor
                     WHERE `at`.`is_delete`='0' ".$con." ";
 			$res = $this->re_db_query($q);
 

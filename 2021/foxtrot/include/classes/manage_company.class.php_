@@ -161,7 +161,23 @@
             }
 			return $return;
 		}
-        
+        public function select_company_by_id($id){
+			$return = array();
+			
+			$q = "SELECT `at`.*
+					FROM `".$this->table."` AS `at`
+                    WHERE `at`.`is_delete`='0' and `at`.`id`=".$id."
+                    ORDER BY `at`.`id` ASC";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+                     
+    			}
+            }
+			return $return;
+		}
         public function insert_update_company_notes($data){//print_r($data);
 			$notes_id = isset($data['notes_id'])?$this->re_db_input($data['notes_id']):0;
 			$date = isset($data['date'])?$this->re_db_input($data['date']):'';

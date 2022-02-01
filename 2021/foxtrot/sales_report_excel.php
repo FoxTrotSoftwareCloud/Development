@@ -34,17 +34,40 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
     $report_for = isset($filter_array['report_for'])?trim($filter_array['report_for']):'';
     $sponsor = isset($filter_array['sponsor'])?$instance->re_db_input($filter_array['sponsor']):'';
+    $filter_by= isset($filter_array['filter_by'])?$instance->re_db_input($filter_array['filter_by']):1;
     
     $date_by= isset($filter_array['date_by'])?$instance->re_db_input($filter_array['date_by']):1;
    
 }   
 
    
+    if($filter_by == "1"){
+        $subheading2=$beginning_date." thru ".$ending_date;
+
+    }
+    if($sort_by=="1")
+    {
+        $subheading1="Sort by Sponsor";
+    }
+    else if($sort_by=="2")
+    {
+        $subheading1="Sort by Investment Amount";
+    } 
+
    
    
-   
-    $subheading="TRANSACTION BY".strtoupper($report_for);
-    
+    $subheading=strtoupper($report_for);
+    if($company > 0){
+            //$branch_instance = new branch_maintenance();
+            $instance_multi_company = new manage_company();
+            $name  = $instance_multi_company->select_company_by_id($company); 
+            $companyhead=$name['company_name'];
+            //$subheading.="\r Broker: (ALL Brokers), Client: (ALL Clients)";
+        }
+        else{
+              $companyhead="All Companies";
+             // $subheading.="\r Broker: (ALL Brokers), Client: (ALL Clients)";
+        }
    
     if($report_for == "sponsor"){
         if($sponsor > 0){
@@ -57,16 +80,18 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
               $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
         }
     }
-    if($report_for == "branch"){
-        if($branch > 0){
-            $branch_instance = new branch_maintenance();
-            $name  = $branch_instance->select_branch_by_id($branch); 
-            $subheading.="\r FOR ".strtoupper($name['name']);
+    if($report_for == "company"){
+        if($company > 0){
+            //$branch_instance = new branch_maintenance();
+            $instance_multi_company = new manage_company();
+            $name  = $instance_multi_company->select_company_by_id($company); 
+
+            $subheading.="\r FOR ".strtoupper($name['company_name']);
             $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
         }
         else{
-              $subheading.="\r FOR All BRANCH";
-              $subheading.="\r Broker: (All Brokers), Client: (All Clients)";
+              $subheading.="\r FOR All COMPANIES";
+              $subheading.="\r Broker: (All Brokers), Clients)";
         }
 
     }
@@ -99,23 +124,31 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         }
 
     }
-    $subheading.=", Dates: ".$beginning_date." - ".$ending_date;
+   // $subheading.=", Dates: ".$beginning_date." - ".$ending_date;
        
             $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by);
         //echo '<pre>';print_r($return);exit;
-        
+         if(!empty($get_trans_data))
+            {
+                $get_data_by_category = array();
+                foreach($get_trans_data as $key=>$val)
+                {
+                    $get_data_by_category[$val['product_category_name']][] = $val;
+                }
+                $get_trans_data = $get_data_by_category;
+            }
         
     $creator                = "Foxtrot User";
     $last_modified_by       = "Foxtrot User";
-    $title                  = "Transaction History Report";
-    $subject                = "Foxtrot Transaction History Report";
-    $description            = "Foxtrot Transaction History Report. Generated on : ".date('Y-m-d h:i:s');
-    $keywords               = "Foxtrot Transaction History report office 2007";
-    $category               = "Foxtrot Transaction History Report.";
+    $title                  = "Production by Production Category";
+    $subject                = "Foxtrot Production by Production Category";
+    $description            = "Foxtrot Production by Production Category";
+    $keywords               = "Foxtrot Production by Production Category";
+    $category               = "Foxtrot Production by Production Category.";
     $total_sub_sheets       = 1;
-    $sub_sheet_title_array  = array("Transaction History Report");
+    $sub_sheet_title_array  = array("Production by Production Category");
     $default_open_sub_sheet = 0; // 0 means first indexed sub sheets.
-    $excel_name             = 'Foxtrot Transaction History Report';
+    $excel_name             = 'Foxtrot Production by Production Category Report';
     $sheet_data             = array();
     $i=5;
         
@@ -146,35 +179,51 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             
         if(is_array($get_trans_data) && count($get_trans_data)>0)
         {
+            $total_inv = 0;
             $total_comm_received=0;
             $total_comm_paid=0;
-            foreach($get_trans_data as $trans_main_key=>$val)
-            {
+             foreach($get_trans_data as $key => $category_data)
+                    {
+             
+                        $total_comm_received_cat=0;
+                        $total_comm_paid_cat=0;
+                        $total_inv_cat=0;
+                        foreach($category_data as $trans_key=>$trans_data)
+                        {
                 
-                    
-                    $total_comm_received+=$val['commission_received'];
-                    $total_comm_paid+=$val['charge_amount'];
-                    if($val['trade_date'] != '0000-00-00'){ $trade_date = date('m/d/Y',strtotime($val['trade_date'])); }
-                    if($val['commission_received_date'] != '0000-00-00'){ $commission_received_date = date('m/d/Y',strtotime($val['commission_received_date'])); }
+                    $total_comm_received_cat+=$trans_data['commission_received'];
+                    $total_comm_paid_cat+=$trans_data['charge_amount'];
+                    $total_inv_cat+=$trans_data['invest_amount'];
+                    $total_inv+=$trans_data['invest_amount'];
+                    $total_comm_received+=$trans_data['commission_received'];
+                    $total_comm_paid+=$trans_data['charge_amount'];
                     
                         
-                        $sheet_data[0]['A'.$i] = array($trade_date,array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                        $sheet_data[0]['B'.$i] = array($instance->re_db_output($val['product_name']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                        $sheet_data[0]['C'.$i] = array($val['id'],array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                        $sheet_data[0]['D'.$i] = array($instance->re_db_output('$'.number_format($val['invest_amount'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                        $sheet_data[0]['E'.$i] = array($instance->re_db_output('$'.number_format($val['commission_received'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-                        $sheet_data[0]['F'.$i] = array($instance->re_db_output('$'.number_format($val['charge_amount'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                        
+                        $sheet_data[0]['A'.$i] = array($instance->re_db_output($trans_data['product_name']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                         $sheet_data[0]['B'.$i] = array($instance->re_db_output('$'.number_format($trans_data['invest_amount'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                        $sheet_data[0]['C'.$i] = array($instance->re_db_output('$'.number_format($trans_data['commission_received'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+                        $sheet_data[0]['D'.$i] = array($instance->re_db_output('$'.number_format($trans_data['charge_amount'],2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
                         $i++;
                        
                 }
-                 $sheet_data[0]['C'.$i] = array("** TOTAL **",array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
-                 $sheet_data[0]['E'.$i] = array($instance->re_db_output('$'.number_format($total_comm_received,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
-                 $sheet_data[0]['F'.$i] = array($instance->re_db_output('$'.number_format($total_comm_paid,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
+                 $sheet_data[0]['A'.$i] = array("** Product Category TOTAL **",array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
+                 $sheet_data[0]['B'.$i] = array($instance->re_db_output('$'.number_format($total_inv_cat,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
+                 $sheet_data[0]['C'.$i] = array($instance->re_db_output('$'.number_format($total_comm_received_cat,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
+                 $sheet_data[0]['D'.$i] = array($instance->re_db_output('$'.number_format($total_comm_paid_cat,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
 
 
                 
                 $i++;
-           
+            }
+            $sheet_data[0]['A'.$i] = array("** Report TOTAL **",array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
+                 $sheet_data[0]['B'.$i] = array($instance->re_db_output('$'.number_format($total_inv,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
+                 $sheet_data[0]['C'.$i] = array($instance->re_db_output('$'.number_format($total_comm_received,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
+                 $sheet_data[0]['D'.$i] = array($instance->re_db_output('$'.number_format($total_comm_paid,2)),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')),'merge'=>array('C'.$i,'D'.$i));
+
+
+                
+                $i++;
             
         }
         else

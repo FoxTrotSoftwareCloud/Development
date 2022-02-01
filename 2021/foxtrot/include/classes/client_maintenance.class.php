@@ -13,7 +13,7 @@
 			$q = "SELECT `cm`.*
 					FROM `" . $this->table . "` AS `cm`
                     WHERE `cm`.`is_delete`='0' AND `cm`.`id`=$clientId
-                    ORDER BY `cm`.`id` ASC";
+                    ORDER BY `cm`.`last_name` ASC";
 			$res = $this->re_db_query($q);
       if($this->re_db_num_rows($res)>0)
       {
@@ -1017,26 +1017,7 @@
             }
 			return $return;
 		}
-        public function select_client_by_account_no($account_no='', $sponsor_company=null){
-			$return = array();
-			$sponsorQuery = (is_null($sponsor_company) ? "" : " AND `at`.`sponsor_company`='".$this->re_db_input($sponsor_company)."'");
-
-			$q = 
-				"SELECT `at`.`id` AS `account_no_id`, `at`.`client_id`, `at`.`account_no`, `at`.`sponsor_company` AS `sponsor_id`, `cm`.`first_name`, `cm`.`last_name`, `cm`.`broker_name` AS `broker_id`"
-				." FROM `".CLIENT_ACCOUNT."` AS `at`"
-				." INNER JOIN `".CLIENT_MASTER."` `cm` ON `at`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
-				." WHERE `at`.`is_delete`='0'"
-				." AND `at`.`account_no`='".$this->re_db_input($account_no)."'"
-				.$sponsorQuery
-				." ORDER BY `at`.`id`"
-			;
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)){
-    			$return = $this->re_db_fetch_all($res);
-            }
-			return $return;
-		}
-		public function reArrayFiles($file_post) {
+        public function reArrayFiles($file_post) {
            $file_ary = array();print_r($file_post);exit;
            $file_count = count($file_post['name']);
            $file_keys = array_keys($file_post);
