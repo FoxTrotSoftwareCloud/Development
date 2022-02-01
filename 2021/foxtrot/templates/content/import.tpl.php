@@ -223,7 +223,7 @@ PostResult( msg );
                                                     <th>Batch#</th>
                                                     <th>Sponsor</th>
                                                     <!--<th>Imported</th>-->
-                                                    <th>Last Proccessed</th>
+                                                    <th>Last Processed</th>
                                                     <th>File Name</th>
                                                     <th>File Type</th>
                                                     <th>Source</th>
@@ -385,7 +385,7 @@ PostResult( msg );
                                                     <thead>
                                                         <th>Batch#</th>
                                                         <th>Imported</th>
-                                                        <th>Last Proccessed</th>
+                                                        <th>Last Processed</th>
                                                         <th>File Name</th>
                                                         <th>File Type</th>
                                                         <th>Source</th>
@@ -599,11 +599,12 @@ PostResult( msg );
                                                             <td><?php echo $error_val['error'];?></td>
                                                             <td style="width: 20%;">
                                                             <form method="post">
-                                                            <select name="review_action_" id="review_action_" class="form-control" style=" width: 75% !important;display: inline;">
+                                                            <!-- 01/31/22 Remove "ADD" dropdown for "Resolve Exceptions" tab records - no other options available -->
+                                                            <!-- <select name="review_action_" id="review_action_" class="form-control" style=" width: 75% !important;display: inline;">
                                                                 <option value="0">ADD</option>
-                                                            </select>
+                                                            </select> -->
                                                             <input type="hidden" name="id" id="id" value="" />
-                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;"> Go</button></a>
+                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;"> Resolve</button></a>
                                                             </form>
                                                             </td>
                                                         </tr>
@@ -723,7 +724,7 @@ PostResult( msg );
                                                             $return_processed_data = $instance->select_processed_data($file_id);
                                                             foreach($return_processed_data as $process_key=>$process_val)
                                                             {
-                                                                                         ?>
+                                                            ?>
                                                             <tr>
                                                                 <td><?php echo date('m/d/Y',strtotime($process_val['date']));?></td>
                                                                 <td><?php echo $process_val['rep'];?></td>
