@@ -867,7 +867,7 @@ var waitingDialog = waitingDialog || (function ($) {
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>City </label>
-                                                <input type="text" name="city_general" id="city_general" value="<?php if($action=='edit'){ echo $city; } ?>" class="form-control" />
+                                                <input type="text" name="city_general" id="city_general" value="<?php if($action=='edit'){ echo isset($city)?$city:''; } ?>" class="form-control" />
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -884,7 +884,7 @@ var waitingDialog = waitingDialog || (function ($) {
                                          <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Zip code </label>
-                                                    <input type="number" name="zip_code_general" id="zip_code_general" value="<?php if($action=='edit'){echo $zip_code;} ?>" class="form-control" />
+                                                    <input type="number" name="zip_code_general" id="zip_code_general" value="<?php if($action=='edit'){echo isset($zip_code)?$zip_code:'';} ?>" class="form-control" />
                                                 </div>
                                             </div>
                                     </div>

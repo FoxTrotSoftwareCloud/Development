@@ -25,9 +25,9 @@ function GetFileList()
     xmldoc.async = false;
     xmldoc.preserveWhiteSpace = true;
     xmldoc.loadXML(list);
-	
+
     var docelement = xmldoc.documentElement;
-    
+
     if(docelement.hasChildNodes())
     {
             dlist = "<form name=\"Selection\">";
@@ -46,7 +46,7 @@ function GetFileList()
                     //alert(file_type_array);
                     for (var i = 0; i < file_type_array.length; i++) {
                         if (file_type_array[i] === get_file_last_character) {
-                            
+
                             dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
                             dlist += file;
                             dlist += "\">&nbsp;";
@@ -65,7 +65,7 @@ function GetFileList()
                 }
                 node = nodeList.nextNode();
             }
-            //HTTPs Download Guide Product Guide            
+            //HTTPs Download Guide Product Guide
             dlist += "<br>";
             dlist += "<div class=\"panel-footer\">";
             dlist += "<div class=\"selectwrap\">";
@@ -87,7 +87,7 @@ function Download()
     HTTPDL.LocalDirectory = DestDir.value;
 	document.getElementById('subscribe_frm');
 	var selection = document.forms["Selection"].sfile;
-    
+
     //var selection = document.forms[0].sfile;console.log(selection);
     var flist = "";
     for ( index=0; index<selection.length; ++index)
@@ -99,7 +99,7 @@ function Download()
         /*}*/
     }
     PostResult("Begin Download");
-    //HTTPs Download Guide Product Guide    
+    //HTTPs Download Guide Product Guide
     HTTPDL.DownloadFiles( flist );
 }
 function CancelDownload()
@@ -159,7 +159,7 @@ PostResult( msg );
                 <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
                 <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php if(isset($get_file_data['file_type'])){ echo $get_file_data['file_type']; } ?></h4>
                 <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
-                <?php 
+                <?php
                 $get_file_type = $instance->get_file_type($_GET['id']);
                 if($get_file_type == 2){?>
                 <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount,2);?></h4>
@@ -172,9 +172,9 @@ PostResult( msg );
                 <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
                 <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php if(isset($get_file_data['file_type'])){ echo $get_file_data['file_type']; } ?></h4>
                 <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
-                <?php 
+                <?php
                 $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
-                 
+
                 $get_file_type =  '';
                 $get_file_type_source = $instance->get_current_file_type($file_id);
                 if($get_file_type_source == 'DSTFANMail')
@@ -194,7 +194,7 @@ PostResult( msg );
                         $total_amount += $preview_val['dealer_commission_amount'];
                     }
                     $total_commission_amount = $total_amount; ?>
-                             
+
                 <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount/100,2);?></h4>
                 <?php } ?>
                 <?php } ?>
@@ -206,7 +206,7 @@ PostResult( msg );
                       <!-- Tab 1 is started -->
                         <div class="tab-content">
                         <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="current_files"){ echo "active"; }else if(!isset($_GET['tab'])){echo "active";}else{ echo '';} ?>" id="current_files">
-                            
+
                             <div class="panel-overlay-wrap">
                                 <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                     <div class="row">
@@ -260,22 +260,36 @@ PostResult( msg );
                                                         <td style="width: 10%;"><?php echo $val['file_name'];?></td>
                                                         <td style="width: 15%;"><?php echo $val['file_type'];?></td>
                                                         <td><?php echo $val['source'];?></td>
-                                                        <?php 
-                                                        $total_processed_data = $instance->check_file_exception_process($val['id'],1);
-                                                        $count_processed_data = $total_processed_data['processed'];
-                                                        $count_exception_data = $total_processed_data['exceptions'];
+                                                        <?php
+                                                        //--- 01/29/22.11:23 - Use new routine to get accurate Processed/Exception counts - old way didn't account for
+                                                        //--- records being in 2 different tables and/or multiple exceptions for the same record (Broker/Cusip/Client exceptions)
+                                                        $countSummary = $instance->check_file_exception_process($val['id'], 1);
+                                                        $count_processed_data = $countSummary['processed'];
+                                                        $count_exception_data = $countSummary['exceptions'];
+                                                        // if(isset($val['source']) && $val['source'] == 'DSTFANMail')
+                                                        // {
+                                                        //     $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
+                                                        //     $count_processed_data = count($total_processed_data);
+                                                        //     $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //     $count_exception_data = count($total_exception_data);
+                                                        // }
+                                                        // else
+                                                        // {
+                                                        //     $total_processed_data = $instance->get_idc_detail_data($val['id']);
+                                                        //     $count_processed_data = count($total_processed_data);
+                                                        //     $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //     $count_exception_data = count($total_exception_data);
+                                                        // }
+                                                        //--- End of 01/29/22.11:23
 
-                                                        if($count_processed_data + $count_exception_data > 0)
-                                                        {
-                                                            $total_process = $count_processed_data+$count_exception_data;
-                                                            $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                            $total_complete_process = round($total_processed_per);
-                                                        }
-                                                        else
-                                                        {
+                                                        if(isset($count_processed_data) && $count_processed_data>0) {
+                                                            // $total_processed_per = ($count_processed_data*100)/($count_processed_data+$count_exception_data);
+                                                            $total_complete_process = round( ($count_processed_data*100)/($count_processed_data+$count_exception_data) );
+                                                        } else{
                                                             $total_complete_process=0;
                                                         }
-                                                        /** 01/13/22 New code "reprocesses" on the process_current_file() calls, so no need to refresh the grid */
+
+                                                        //--- 01/29/22.11:31 Removed. Not sure why there is a reprocess just because the all the records were "processed"
                                                         // if($total_complete_process == 100)
                                                         // {
                                                         //     $return = $instance->reprocess_current_files($val['id']);
@@ -283,15 +297,15 @@ PostResult( msg );
                                                         //     {
                                                         //         $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
                                                         //         $count_processed_data = count($total_processed_data);
-                                                        //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                        //         // $count_exception_data = count($total_exception_data);
+                                                        //         $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //         $count_exception_data = count($total_exception_data);
                                                         //     }
                                                         //     else
                                                         //     {
                                                         //         $total_processed_data = $instance->get_idc_detail_data($val['id']);
                                                         //         $count_processed_data = count($total_processed_data);
-                                                        //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                        //         // $count_exception_data = count($total_exception_data);
+                                                        //         $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //         $count_exception_data = count($total_exception_data);
                                                         //     }
                                                         //     if(isset($count_processed_data) && $count_processed_data>0)
                                                         //     {
@@ -306,10 +320,10 @@ PostResult( msg );
                                                         //         $total_complete_process=0;
                                                         //     }
                                                         // }
+                                                        //--- 01/29/22.11:31 END: Comment Block
                                                         ?>
                                                         <td style="width: 15%;">
                                                         <div class="progress">
-                                                            <?php //echo $count_processed_data."/".$count_exception_data;?>
                                                         <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
                                                             <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
                                                             <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
@@ -322,10 +336,9 @@ PostResult( msg );
                                                         <?php } ?>
                                                         </div>
                                                         </td>
-                                                        <?php 
-                                                            $check_exception_data = $instance->check_exception_data($val['id']);
-                                                            $check_processed_data = $instance->check_processed_data($val['id']);    
-                                                            $check_file_exception_process = $instance->check_file_exception_process($val['id']);                                                    
+                                                        <?php $check_exception_data = $instance->check_exception_data($val['id']);
+                                                            $check_processed_data = $instance->check_processed_data($val['id']);
+                                                            $check_file_exception_process = $instance->check_file_exception_process($val['id']);
                                                         ?>
                                                         <td style="width: 10%;"><form method="post">
                                                             <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
@@ -334,23 +347,23 @@ PostResult( msg );
                                                             </form>
                                                         </td>
                                                         <td style="width: 25%;">
-                                                            <form method="post">
-                                                                <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
-                                                                    <option value="0">Select Option</option>
-                                                                    <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
-                                                                    <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
-                                                                    <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
-                                                                    <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
-                                                                    <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
-                                                                    <option value="1" >Delete File</option>
-                                                                    <!-- <option value="7" >Preview</option> -->
-                                                                </select>
-                                                                <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
-                                                                <input type="hidden" name="go" value="go" />
-                                                            </form>
+                                                        <form method="post">
+                                                        <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
+                                                            <option value="0">Select Option</option>
+                                                            <option value="1" >Delete File</option>
+                                                            <option value="7" >Preview</option>
+                                                            <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
+                                                            <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
+                                                            <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
+                                                            <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
+                                                            <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
+                                                        </select>
+                                                        <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                        <input type="hidden" name="go" value="go" />
+                                                        </form>
                                                         </td>
                                                     </tr>
-                                                <?php }} 
+                                                <?php }}
                                                 }?>
                                               </tbody>
                                             </table>
@@ -361,7 +374,7 @@ PostResult( msg );
                                         <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span><h4 class="panel-overlay-title"></h4><p></p></div>
                                     </div>
                                  </div>
-                                
+
                             </div>
                             <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="archived_files"){ echo "active"; } ?>" id="archived_files">
                                 <div class="panel-overlay-wrap">
@@ -397,22 +410,20 @@ PostResult( msg );
                                                             <td style="width: 10%;"><?php echo $val['file_name'];?></td>
                                                             <td style="width: 15%;"><?php echo $val['file_type'];?></td>
                                                             <td><?php echo $val['source'];?></td>
-                                                            <?php 
+                                                            <?php
                                                             if(isset($val['source']) && $val['source'] == 'DSTFANMail')
                                                             {
                                                                 $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // 12/25/21 Refactored the get_exception_data(fileId) function to return only the exceptions remaining for the file
-                                                                // $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                //$count_exception_data = count($total_exception_data);
+                                                                $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                $count_exception_data = count($total_exception_data);
                                                             }
                                                             else
                                                             {
                                                                 $total_processed_data = $instance->get_idc_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // $count_exception_data = count($total_exception_data);
+                                                                $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                $count_exception_data = count($total_exception_data);
                                                             }
                                                             if(isset($count_processed_data) && $count_processed_data>0)
                                                             {
@@ -449,7 +460,7 @@ PostResult( msg );
                                                             </form>
                                                             </td>
                                                         </tr>
-                                                    <?php }} 
+                                                    <?php }}
                                                     }?>
                                                     </tbody>
                                                 </table>
@@ -473,7 +484,7 @@ PostResult( msg );
                           <!-- Tab 1 is started -->
                             <div class="tab-content">
                             <div class="tab-pane <?php if(isset($_GET['tab']) &&$_GET['tab']=="review_files" && $_GET['id']>0){ echo "active"; } ?>" id="review_files">
-                                
+
                                 <div class="panel-overlay-wrap">
                                     <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                         <div class="row">
@@ -484,7 +495,7 @@ PostResult( msg );
                                                 <!--<button type="submit" class="btn btn-sm btn-default col-md-2"  name="progress_all" value="progress_all" style="display: inline;"> Process All</button>
                                             </div>
                                             <br />-->
-                                            <?php 
+                                            <?php
                                             $get_file_type = $instance->get_file_type($_GET['id']);
                                             ?>
                                             <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
@@ -498,7 +509,7 @@ PostResult( msg );
                                                         <?php if(isset($get_file_type) && $get_file_type == '1'){
                                                         ?>
                                                         <th>Client Address</th>
-                                                        <?php } 
+                                                        <?php }
                                                         else if(isset($get_file_type) && $get_file_type == '2'){?>
                                                         <th>CUSIP</th>
                                                         <th>Principal</th>
@@ -573,12 +584,12 @@ PostResult( msg );
                                                             <td><?php echo $error_val['rep_name'];?></td>
                                                             <td><?php echo $error_val['account_no'];?></td>
                                                             <td><?php echo $error_val['client'];?></td>
-                                                            <?php 
+                                                            <?php
                                                             if(isset($get_file_type) && $get_file_type == '1'){
                                                             $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']);
                                                             ?>
                                                             <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                            <?php } 
+                                                            <?php }
                                                             else if(isset($get_file_type) && $get_file_type == '2')
                                                             { ?>
                                                             <td><?php echo $error_val['cusip'];?></td>
@@ -606,13 +617,13 @@ PostResult( msg );
                                             <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span><h4 class="panel-overlay-title"></h4><p></p></div>
                                         </div>
                                      </div>
-                                    
+
                                 </div>
                                 <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="processed_files" && $_GET['id']>0){ echo "active"; } ?>" id="processed_files">
                                     <div class="panel-overlay-wrap">
                                         <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                             <div class="row">
-                                            <?php 
+                                            <?php
                                             $get_file_type = $instance->get_file_type($_GET['id']);
                                             ?>
                                                 <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
@@ -626,7 +637,7 @@ PostResult( msg );
                                                             <?php if(isset($get_file_type) && $get_file_type == '1'){
                                                             ?>
                                                             <th>Client Address</th>
-                                                            <?php } 
+                                                            <?php }
                                                             else if(isset($get_file_type) && $get_file_type == '2'){?>
                                                             <th>CUSIP</th>
                                                             <th>Principal</th>
@@ -647,12 +658,12 @@ PostResult( msg );
                                                                 <td><?php echo $process_val['rep_name'];?></td>
                                                                 <td><?php echo $process_val['account_no'];?></td>
                                                                 <td><?php echo $process_val['client'];?></td>
-                                                                <?php 
+                                                                <?php
                                                                 if(isset($get_file_type) && $get_file_type == '1'){
                                                                 $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']);
                                                                 ?>
                                                                 <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                                <?php } 
+                                                                <?php }
                                                                 else if(isset($get_file_type) && $get_file_type == '2')
                                                                 { ?>
                                                                 <td><?php echo $process_val['cusip'];?></td>
@@ -660,7 +671,7 @@ PostResult( msg );
                                                                 <td style="text-align: right;"><?php if($process_val['commission'] > 0){ echo '$'.number_format($process_val['commission'],2);}else{ echo '$0';}?></td>
                                                                 <?php } ?>
                                                             </tr>
-                                                            <?php } ?>                                                        
+                                                            <?php } ?>
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -685,7 +696,7 @@ PostResult( msg );
                                     <div class="panel-overlay-wrap">
                                         <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                             <div class="row">
-                                            <?php 
+                                            <?php
                                             $get_file_type = $instance->get_file_type($_GET['id']);
                                             ?>
                                                 <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
@@ -699,7 +710,7 @@ PostResult( msg );
                                                             <?php if(isset($get_file_type) && $get_file_type == '1'){
                                                             ?>
                                                             <th>Client Address</th>
-                                                            <?php } 
+                                                            <?php }
                                                             else if(isset($get_file_type) && $get_file_type == '2'){?>
                                                             <th>CUSIP</th>
                                                             <th>Principal</th>
@@ -719,12 +730,12 @@ PostResult( msg );
                                                                 <td><?php echo $process_val['rep_name'];?></td>
                                                                 <td><?php echo $process_val['account_no'];?></td>
                                                                 <td><?php echo $process_val['client'];?></td>
-                                                                <?php 
+                                                                <?php
                                                                 if(isset($get_file_type) && $get_file_type == '1'){
                                                                 $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']);
                                                                 ?>
                                                                 <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                                <?php } 
+                                                                <?php }
                                                                 else if(isset($get_file_type) && $get_file_type == '2')
                                                                 { ?>
                                                                 <td><?php echo $process_val['cusip'];?></td>
@@ -732,7 +743,7 @@ PostResult( msg );
                                                                 <td style="text-align: right;"><?php if($process_val['commission'] > 0){ echo '$'.number_format($process_val['commission'],2);}else{ echo '$0';}?></td>
                                                                 <?php } ?>
                                                             </tr>
-                                                            <?php } ?>                                                        
+                                                            <?php } ?>
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -748,10 +759,10 @@ PostResult( msg );
                     </div>
                     <div class="tab-content col-md-12">
                     <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files"){ echo "active"; } ?>" id="tab_view"><?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files" && $_GET['id']>0){
-                        
+
                         ?>
                         <ul class="nav nav-tabs ">
-                          <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
+                          <li class="<?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
                          </ul> <?php } ?> <br />
                           <!-- Tab 1 is started -->
                             <div class="tab-content">
@@ -759,7 +770,7 @@ PostResult( msg );
                                     <div class="panel-overlay-wrap">
                                         <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                             <div class="row">
-                                            <?php 
+                                            <?php
                                             $get_file_type =  '';
                                             $get_file_type_source = $instance->get_current_file_type($_GET['id']);
                                             if($get_file_type_source == 'DSTFANMail')
@@ -782,7 +793,7 @@ PostResult( msg );
                                                             <?php if(isset($get_file_type) && $get_file_type == '1'){
                                                             ?>
                                                             <th>Client Address</th>
-                                                            <?php } 
+                                                            <?php }
                                                             else if(isset($get_file_type) && $get_file_type == '2'){?>
                                                             <th>CUSIP</th>
                                                             <th>Principal</th>
@@ -790,7 +801,7 @@ PostResult( msg );
                                                             <?php }?>
                                                         </thead>
                                                         <tbody>
-                                                            <?php 
+                                                            <?php
                                                             $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
                                                             $return_file_data_array = $instance->get_file_array($file_id);
                                                             foreach($return_file_data_array as $preview_key=>$preview_val)
@@ -799,29 +810,29 @@ PostResult( msg );
                                                                 <td><?php echo date('m/d/Y');?></td>
                                                                 <td><?php echo $preview_val['representative_number'];?></td>
                                                                 <td><?php echo $preview_val['representative_name'];?></td>
-                                                                <?php 
+                                                                <?php
                                                                 if(isset($get_file_type) && $get_file_type == '1'){
                                                                 ?>
                                                                 <td><?php echo $preview_val['mutual_fund_customer_account_number'];?></td>
-                                                                <?php } 
+                                                                <?php }
                                                                 else if(isset($get_file_type) && $get_file_type == '2'){
                                                                 ?>
                                                                 <td><?php echo $preview_val['customer_account_number'];?></td>
                                                                 <?php } ?>
-                                                                <?php 
+                                                                <?php
                                                                 if(isset($get_file_type) && $get_file_type == '1'){
                                                                 ?>
                                                                 <td><?php echo $preview_val['registration_line1'];?></td>
-                                                                <?php } 
+                                                                <?php }
                                                                 else if(isset($get_file_type) && $get_file_type == '2'){
                                                                 ?>
                                                                 <td><?php echo $preview_val['alpha_code'];?></td>
                                                                 <?php } ?>
-                                                                <?php 
+                                                                <?php
                                                                 if(isset($get_file_type) && $get_file_type == '1'){
                                                                 ?>
                                                                 <td>
-                                                                <?php 
+                                                                <?php
                                                                 if($preview_val['line_code'] == 1)
                                                                 {
                                                                     echo $preview_val['registration_line1'].' '.$preview_val['registration_line2'].' '.$preview_val['registration_line3'].' '.$preview_val['registration_line4'];
@@ -844,7 +855,7 @@ PostResult( msg );
                                                                 }
                                                                 ?>
                                                                 </td>
-                                                                <?php } 
+                                                                <?php }
                                                                 else if(isset($get_file_type) && $get_file_type == '2')
                                                                 { ?>
                                                                 <td><?php echo $preview_val['CUSIP_number'];?></td>
@@ -852,7 +863,7 @@ PostResult( msg );
                                                                 <td style="text-align: right;"><?php if($preview_val['dealer_commission_amount'] > 0){ echo '$'.number_format($preview_val['dealer_commission_amount']/100,2);}else{ echo '$0';}?></td>
                                                                 <?php } ?>
                                                              </tr>
-                                                            <?php } ?>                                                        
+                                                            <?php } ?>
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -868,11 +879,11 @@ PostResult( msg );
                     </div>
                     <div class="tab-content col-md-12">
                     <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="open_ftp"){ echo "active"; } ?>" id="ftp">
-                    <?php 
+                    <?php
                     if($action=='add_ftp'||($action=='edit_ftp' && $ftp_id>0)){
                         ?>
                         <form method="POST">
-                        <div class="panel">            
+                        <div class="panel">
                             <div class="panel-heading">
                                 <div class="panel-control" style="float: right;">
                     				<div class="btn-group dropdown">
@@ -946,11 +957,11 @@ PostResult( msg );
                            <div class="panel-footer">
                                 <div class="selectwrap">
                                     <input type="hidden" name="id" id="id" value="<?php echo $ftp_id; ?>" />
-                                    <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save"/>	
+                                    <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save"/>
                                     <a href="<?php echo CURRENT_PAGE.'?tab=open_ftp&action=view_ftp';?>"><input type="button" name="cancel" value="Cancel" /></a>
                                 </div><br />
                            </div>
-                        
+
                         </div>
                         </form>
                         <?php
@@ -1007,7 +1018,7 @@ PostResult( msg );
                                                     <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                                     <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a>
                                                     <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
-                                                    
+
                                                 </td>
                                             </tr>
                                     <?php } } ?>
@@ -1026,12 +1037,12 @@ PostResult( msg );
                                 </div>
                             </div>
                         </form>-->
-                        <?php } ?>                                    
+                        <?php } ?>
                     </div>
                 </div>
                 <div class="tab-content col-md-12">
                     <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="get_ftp" && $ftp_id>0){ echo "active"; } ?> " id="get_ftp_file">
-                        <div class="panel">            
+                        <div class="panel">
                             <div class="panel-heading">
                                 <div class="panel-control" style="float: right;">
                     				<div class="btn-group dropdown">
@@ -1043,13 +1054,13 @@ PostResult( msg );
                     			</div>
                                 <h3 class="panel-title"><i class="fa fa-file"></i> Download Files (Only used with Internet Explorer)</h3>
                     		</div>
-                            
+
                             <div class="panel-body" onunload="TerminateDownload()" id="fetch_file_div" style="display: none;">
-                            
+
                             <object id="HTTPDL" style="height: 0px !important; width: 0px !important;" classid="CLSID:2DEA82A9-7FEF-4F68-8091-B800ECF54C9F" codeBase="./dsthttpdl.dll"></object>
                         	<!--<object style="display:none" id="SOME_ID" classid="clsid:SOME_CLASS_ID" codebase="./somePath.dll"></object>-->
                             <object id="MSXML3" style="DISPLAY: none" codeBase="http:msxml3.cab#version=8,00,7820,0" type="application/x-oleobject" data="data:application/x-oleobject;base64,EQ/Z9nOc0xGzLgDAT5kLtA==" classid="clsid:f5078f32-c551-11d3-89b9-0000f81fe221"></object>
-                                
+
                             <div id="Main">
                             <div class="row">
                             <div class="col-md-6">
@@ -1071,7 +1082,7 @@ PostResult( msg );
                             <div class="panel-footer">
                                 <div class="selectwrap">
                                     <input type="button" value="Download Files" onclick="GetFileList()"/>
-                                    <input type="button" value="Cancel Download" onclick="CancelDownload()"/>                                    
+                                    <input type="button" value="Cancel Download" onclick="CancelDownload()"/>
                                     <!--<a href="<?php echo CURRENT_PAGE.'?tab=open_ftp&action=view_ftp';?>"><input type="button" name="cancel" value="Cancel" /></a>-->
                                     <a href="#upload_zip_import" data-toggle="modal"><input type="button" name="import_files" value="Import Files" /></a>
                                 </div><br />
@@ -1089,7 +1100,7 @@ PostResult( msg );
                                     <div id="FileList">
                                     </div>
                             </div>
-                           </div>      
+                           </div>
                            </div>
                            <!--<div class="panel-footer">
                                 <div class="selectwrap">
@@ -1097,7 +1108,7 @@ PostResult( msg );
                                     <a href="<?php echo CURRENT_PAGE.'?tab=open_ftp&action=view_ftp';?>"><input type="button" name="cancel" value="Cancel" /></a>
                                 </div><br />
                            </div>-->
-                        
+
                         </div>
                     </div>
                     <!-- Modal for add files -->
@@ -1122,7 +1133,7 @@ PostResult( msg );
                                 <input type="hidden" name="fetch_files" value="Fetch Files"  />
     							<button type="submit" class="btn btn-sm btn-warning" id="fetch_files" name="fetch_files" value="Fetch Files"><i class="fa fa-save"></i> Save</button>
     						</div>
-                            </form>			
+                            </form>
                             </div><!-- End of Modal body -->
                     		</div><!-- End of Modal content -->
                     		</div><!-- End of Modal dialog -->
@@ -1131,11 +1142,11 @@ PostResult( msg );
             </div>
             </div>
         </div>
-        
+
 		</div>
     </div>
   </div>
-<!-- Lightbox strart -->							
+<!-- Lightbox strart -->
 	<!-- Modal for add client notes -->
 	<div id="solve_exception_model" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 		<div class="modal-dialog">
@@ -1329,11 +1340,10 @@ PostResult( msg );
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
         	            <button type="submit" style="alignment-adjust: central !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
-                    
                     </div>
                 </div>
                 <div class="col-md-5" id="link_div">
-                    
+
                 </div>
                 </div>
             </form>
@@ -1343,11 +1353,11 @@ PostResult( msg );
 		</div><!-- End of Modal content -->
 		</div><!-- End of Modal dialog -->
     </div>
-<!-- End of Modal --> 
+<!-- End of Modal -->
 <style>
 #table-scroll {
   height:500px;
-  overflow:auto;  
+  overflow:auto;
   margin-top:20px;
 }
 .btn-primary {
@@ -1358,7 +1368,6 @@ PostResult( msg );
 </style>
 <script type="text/javascript">
 $(document).ready(function() {
-
         $('.form-go-action').on('onselect change', function(){
             var form = this.closest('form');
             form.submit();
@@ -1371,12 +1380,12 @@ $(document).ready(function() {
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] }, 
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] },
                         { "bSearchable": false, "aTargets": [ 6,7 ] }]
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>'+
-                    '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');
-        
+                    '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Process All</a>');
+
         $('#data-table1').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -1384,10 +1393,10 @@ $(document).ready(function() {
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar1">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] }, 
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] },
                         { "bSearchable": false, "aTargets": [ 6,7 ] }]
         });
-        
+
         $('#data-table2').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -1395,7 +1404,7 @@ $(document).ready(function() {
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar2">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 3 ] }, 
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 3 ] },
                         { "bSearchable": false, "aTargets": [ 3 ] }]
         });
         $("div.toolbar2").html('<div class="panel-control">'+
@@ -1407,7 +1416,7 @@ $(document).ready(function() {
                         '</ul>'+
     				'</div>'+
     			'</div>');
-                
+
        $('#data-table3').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -1416,10 +1425,10 @@ $(document).ready(function() {
         //"bSort" : false,
         "bAutoWidth": false,
         "dom": '<"toolbar3">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ -1 ] }, 
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ -1 ] },
                         { "bSearchable": false, "aTargets": [ -1 ] }]
         });
-        
+
         $("div.toolbar3").html('<div class="panel-control">'+
                     '<div class="btn-group dropdown" style="float: right;">'+
                         '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
@@ -1429,7 +1438,7 @@ $(document).ready(function() {
                         '</ul>'+
     				'</div>'+
     			'</div>');
-                
+
        $('#data-table4').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -1448,7 +1457,7 @@ $(document).ready(function() {
                         '</ul>'+
     				'</div>'+
     			'</div>');
-                
+
        $('#data-table5').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -1467,7 +1476,7 @@ $(document).ready(function() {
                         '</ul>'+
     				'</div>'+
     			'</div>');
-                
+
        $('#data-table6').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -1489,10 +1498,10 @@ $(document).ready(function() {
 });
 function get_product(category_id){
         category_id = document.getElementById("assign_cusip_product_category").value;
-        
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("assign_cusip_product").innerHTML = this.responseText;
             }
@@ -1552,7 +1561,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     document.getElementById("exception_file_id").value = exception_file_id;
     document.getElementById("exception_file_type").value = exception_file_type;
     document.getElementById("error_code_id").value = error_code_id;
-    
+
     if(exception_file_type == '3')
     {
         $("#exception_value_date").css('display','none');
@@ -1565,7 +1574,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#cusip_number").css('display','none');
         $("#alpha_code").css('display','none');
         $("#assign_rep_to_broker").css('display','none');
-        
+
         if(exception_field == 'cusip_number')
         {
             document.getElementById("field_label").innerHTML = 'Change Cusip Number:';
@@ -1590,7 +1599,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         }
     }
     else
-    { 
+    {
         $("#existing_cusip_number").css('display','none');
         $("#existing_ticker_symbol").css('display','none');
         if(exception_field == 'u5')
@@ -1655,7 +1664,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             document.getElementById("exception_value").value = '';
         }
-        
+
         if(exception_field == 'customer_account_number')
         {
             document.getElementById("field_label").innerHTML = 'Account# to Add:';
@@ -1666,7 +1675,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#assign_client_to_account").css('display','block');
             $("#exception_value").css('display','none');
             $("#exception_value_dis").css('display','block');
-            
+
         }
         else
         {
@@ -1675,13 +1684,13 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#assign_client_to_account").css('display','none');
             $("#exception_value_dis").css('display','none');
         }
-        
+
         if(exception_field == 'registration_line1')
         {
             document.getElementById("field_label").innerHTML = 'Enter Client Name:';
             document.getElementById("exception_value").value = existing_field_value;
         }
-        
+
         if(exception_field == 'social_security_number')
         {
             document.getElementById("field_label").innerHTML = 'Change Social Security Number: ';
@@ -1765,13 +1774,13 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             //document.getElementById("exception_value_dis").value = rep_number;
             $("#assign_rep_to_broker").css('display','block');
             //$("#exception_value").css('display','none');
-            
+
         }
         else{
             $("#assign_rep_to_broker").css('display','none');
         }
     }
-    
+
 }
 function exception_submit()
 {
@@ -1785,36 +1794,36 @@ function exception_submit()
       data: $("#resolve_exception_form").serialize(), // serializes the form's elements.
       success: function(data){
           if(data=='1'){
-               window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>;//get_client_notes();   
+               window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>;//get_client_notes();
           }
           else{
                $('#msg_exception').html('<div class="alert alert-danger">'+data+'</div>');
           }
-          
+
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
            $('#msg_exception').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
       }
-      
+
    });
 
    //e.preventDefault(); // avoid to execute the actual submit of the form.
    return false;
-       
+
 }
 function open_product_link(category_id)
 {
     cusip_number = document.getElementById("assign_cusip_number").value;
     exception_file_id = document.getElementById("exception_file_id").value;
     temp_data_id = document.getElementById("exception_data_id").value;
-    
+
     if(category_id>0)
     {
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_product&category=';?>'+category_id+'&cusip_number='+cusip_number+'&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_product_for_cusip">Add New Product.</a>';
     }
     else
     {
-       document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_product&category=';?>'+category_id+'&cusip_number='+cusip_number+'" style="display: none; float: right;" id="add_product_for_cusip">Add New Product.</a>'; 
+       document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_product&category=';?>'+category_id+'&cusip_number='+cusip_number+'" style="display: none; float: right;" id="add_product_for_cusip">Add New Product.</a>';
     }
 }
 function check_u5_date(broker)
@@ -1824,13 +1833,13 @@ function check_u5_date(broker)
         if (this.readyState == 4 && this.status == 200) {
             var data = this.responseText;
             if(data != '0'){
-                
+
                $("#broker_terminated").css('display','block');
                document.getElementById("broker_termination_date").value = data;
             }
             else
             {
-               $("#broker_terminated").css('display','none'); 
+               $("#broker_terminated").css('display','none');
             }
         }
     };
@@ -1901,7 +1910,7 @@ var waitingDialog = waitingDialog || (function ($) {
 		/**
 		 * Closes dialog
 		 */
-	
+
 	};
 
 })(jQuery);
@@ -1916,38 +1925,38 @@ function formsubmitfiles()
     var myForm = document.getElementById('form_import_files');
     form_data = new FormData(myForm);
     $.ajax({
-        url: 'import.php', // point to server-side PHP script 
-        
+        url: 'import.php', // point to server-side PHP script
+
         cache: false,
         contentType: false,
         processData: false,
         data: form_data,
         type: 'post',
         success: function(data){
-    
+
            if(data=='1'){
                 window.location.href = "import.php";
-                
+
                 /*$('#msgnotes').html('<div class="alert alert-success">Thank you.</div>');
                 $('#add_notes')[0].reset();
                 setTimeout(function(){
-    				$('#myModalShare').modal('hide');				
+    				$('#myModalShare').modal('hide');
     			}, 2000);*/
-                
+
            }
            else{
                 $('#msg_files').html('<div class="alert alert-danger">'+data+'</div>');
            }
-           
+
        },
        error: function(XMLHttpRequest, textStatus, errorThrown) {
             $('#msg_files').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
        }
-       
+
     });
 
     //e.preventDefault(); // avoid to execute the actual submit of the form.
     return false;
-        
+
 }
 </script>

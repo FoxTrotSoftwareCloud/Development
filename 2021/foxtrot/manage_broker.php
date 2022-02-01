@@ -218,7 +218,7 @@
         //security tab
         $return6 = $instance->insert_update_licences($_POST);
         
-        //insaurance tab
+        //insurance tab
         $return7 = $instance->insert_update_licences1($_POST);
         
         //ria tab

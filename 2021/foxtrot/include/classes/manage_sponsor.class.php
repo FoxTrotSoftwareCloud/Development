@@ -389,50 +389,53 @@
 			return $return;
 		}
     
-    public function select_sponsor_by_id($id){
+		public function select_sponsor_by_id($id){
 			$return = array();
 			
-			$q = "SELECT `sm`.*
-					FROM `".SPONSOR_MASTER."` AS `sm`
-                    WHERE `sm`.`is_delete`='0'
-                    AND `sm`.`id`=$id
-                    ORDER BY `sm`.`id` ASC";
+			$q = "SELECT `sm`.*"
+					." FROM `".SPONSOR_MASTER."` AS `sm`"
+					." WHERE `sm`.`is_delete`='0'"
+					  ." AND `sm`.`id`=$id"
+					." ORDER BY `sm`.`id` ASC"
+			;
 			$res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0)
-      {
-        $row = $this->re_db_fetch_array($res);
-        return $row;
-      }
-			return null;
+
+			if($this->re_db_num_rows($res)>0) {
+				$return = $this->re_db_fetch_array($res);
+			}	
+
+			return $return;
 		}
-        public function get_sponsor_on_system_management_code($system_id='',$management_code=''){
+    
+		public function get_sponsor_on_system_management_code($system_id='',$management_code=''){
 			$return = array();
-            
-            $con = '';
-            if($system_id!='')
-            {
-                $con = " AND `sp`.`dst_system_id`='".$system_id."'";
-            }
-            if($management_code!='')
-            {
-                $con .= " AND `sp`.`dst_mgmt_code`='".$management_code."'";
-            }
+			
+			$con = '';
+			if($system_id!='')
+			{
+				$con = " AND `sp`.`dst_system_id`='".$system_id."'";
+			}
+			if($management_code!='')
+			{
+				$con .= " AND `sp`.`dst_mgmt_code`='".$management_code."'";
+			}
 			
 			$q = "SELECT `sp`.*
 					FROM `".SPONSOR_MASTER."` AS `sp`
-                    WHERE `sp`.`is_delete`='0' ".$con."
-                    ORDER BY `sp`.`id` ASC";
+					WHERE `sp`.`is_delete`='0' ".$con."
+					ORDER BY `sp`.`id` ASC";
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     $return = $row;
-                     
-    			}
-            }
+			if($this->re_db_num_rows($res)>0){
+				$a = 0;
+				while($row = $this->re_db_fetch_array($res)){
+						$return = $row;
+						
+				}
+			}
 			return $return;
 		}
-        public function search_sponsor($search_text=''){
+
+		public function search_sponsor($search_text=''){
 			$return = array();
 			$con = '';
             if($search_text!='' && $search_text>=0){

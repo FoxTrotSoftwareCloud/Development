@@ -1,12 +1,12 @@
 <?php
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
-	
+
     $error = '';
     $return_account = array();
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
-    
+
     $fname = '';
     $mi = '';
     $lname = '';
@@ -41,9 +41,9 @@
     $sponsor_company = '';
     $is_reviewed = '';
     $reviewed_at = '';
-    
+
     //employment variable
-    
+
     $occupation = '';
     $employer = '';
     $address_employement = '';
@@ -61,16 +61,16 @@
     $expiration = '';
     $state_employe = '';
     $date_verified = '';
-    
+
     //account variable
-    
+
     $account_no = '';
     $sponsor_company = '';
     $management_code = 0;
     $system_id = 0;
-    
+
     //suitability variables
-    
+
     $income = '';
     $goal_horizone = '';
     $net_worth = '';
@@ -86,17 +86,17 @@
     $sign_date = '';
     $tax_bracket = '';
     $tax_id = '';
-    
+
     $objectives_check_id = array();
     $allobjectives = array();
-    
+
     $instance = new client_maintenance();
     $instance_account_type = new account_master();
     $get_account_type = $instance_account_type->select_account_type();
     $get_state = $instance->select_state();
     $get_notes = $instance->select_notes();
     $notes_id = 0;
-    
+
     $instance_import = new import();
     $instance_sponsor = new manage_sponsor();
     $instance_product = new product_maintenance();
@@ -122,13 +122,11 @@
     $redirect = isset($_GET['redirect'])&&$_GET['redirect']!=''?$instance->re_db_input($_GET['redirect']):'';
 
 
-    
-if((isset($_POST['submit'])&& $_POST['submit']=='Save') 
+
+if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
         || (isset($_POST['submit'])&& $_POST['submit']=='Next') )
     {
-
-        
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $fname = isset($_POST['fname'])?$instance->re_db_input($_POST['fname']):'';
         $lname = isset($_POST['lname'])?$instance->re_db_input($_POST['lname']):'';
@@ -163,7 +161,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $open_date = isset($_POST['open_date'])?$instance->re_db_input($_POST['open_date']):'';
         $naf_date = isset($_POST['naf_date'])?$instance->re_db_input($_POST['naf_date']):'';
         $last_contacted = isset($_POST['last_contacted'])?$instance->re_db_input($_POST['last_contacted']):'';
-        
+
         //Employee tab coding
         $id = isset($_POST['employment_id'])?$instance->re_db_input($_POST['employment_id']):0;
         $occupation = isset($_POST['occupation'])?$instance->re_db_input($_POST['occupation']):'';
@@ -182,14 +180,13 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $number = isset($_POST['number'])?$instance->re_db_input($_POST['number']):'';
         $expiration = isset($_POST['expiration'])?$instance->re_db_input($_POST['expiration']):'';
         $state_employe = isset($_POST['state_employe'])?$instance->re_db_input($_POST['state_employe']):'';
-        $date_verified = isset($_POST['date_verified'])?$instance->re_db_input($_POST['date_verified']):''; 
-        
-        
+        $date_verified = isset($_POST['date_verified'])?$instance->re_db_input($_POST['date_verified']):'';
+
         //accounting tab coding
         $id = isset($_POST['account_id'])?$instance->re_db_input($_POST['account_id']):0;
         $account_no = isset($_POST['account_no'])?$_POST['account_no']:array();
         $sponsor_company = isset($_POST['sponsor'])?$_POST['sponsor']:array();
-        
+
         //suitability tab coding
         $id = isset($_POST['suitability_id'])?$instance->re_db_input($_POST['suitability_id']):0;
         $income = isset($_POST['income'])?$instance->re_db_input($_POST['income']):'';
@@ -207,23 +204,21 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $sign_date = isset($_POST['sign_date'])?$instance->re_db_input($_POST['sign_date']):'';
         $tax_bracket = isset($_POST['tax_bracket'])?$instance->re_db_input($_POST['tax_bracket']):'';
         $tax_id = isset($_POST['tax_id'])?$instance->re_db_input($_POST['tax_id']):'';
-        
+
         //for account no add for import module
-        
         $for_import = isset($_POST['for_import'])?$instance->re_db_input($_POST['for_import']):'false';
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
-        
-               
+
+        // Update the client table
         $return = $instance->insert_update($_POST);
 
-        
-        if($return==true)
+        if($return==true AND gettype($return)!='string')
         {
             $return1 = $instance->insert_update_employment($_POST);
             $return2 = $instance->insert_update_account($_POST);
             $return3 = $instance->insert_update_suitability($_POST);
         }
-        
+
         if($return===true && $_POST['submit']=='Save')
         {
             if($redirect=='add_client_from_trans')
@@ -256,7 +251,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         else if($return===true && $_POST['submit']=='Next')
         {
             $return = $instance->get_next_client($id);
-            
+
             if($return!=false){
                 $id=$return['id'];
                 header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
@@ -268,7 +263,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         else if($return===true && $_POST['submit']=='Previous')
         {
             $return = $instance->get_previous_client($id);
-            
+
             if($return!=false)
             {
 
@@ -282,7 +277,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
 
         else
         {
-           
+
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
@@ -305,9 +300,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $expiration = isset($_POST['expiration'])?$instance->re_db_input($_POST['expiration']):'';
         $state_employe = isset($_POST['state_employe'])?$instance->re_db_input($_POST['state_employe']):'';
         $date_verified = isset($_POST['date_verified'])?$instance->re_db_input($_POST['date_verified']):'';
-        
+
         $return = $instance->insert_update_employment($_POST);
-        
+
         if($return===true){
             if($action == 'edit')
             {
@@ -326,9 +321,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $id = isset($_POST['account_id'])?$instance->re_db_input($_POST['account_id']):0;
         $account_no = isset($_POST['account_no'])?$instance->re_db_input($_POST['account_no']):array();
         $sponsor_company = isset($_POST['sponsor'])?$instance->re_db_input($_POST['sponsor']):array();
-        
+
         $return = $instance->insert_update_account($_POST);
-        
+
         if($return===true){
             if($action == 'edit')
             {
@@ -360,9 +355,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $sign_date = isset($_POST['sign_date'])?$instance->re_db_input($_POST['sign_date']):'';
         $tax_bracket = isset($_POST['tax_bracket'])?$instance->re_db_input($_POST['tax_bracket']):'';
         $tax_id = isset($_POST['tax_id'])?$instance->re_db_input($_POST['tax_id']):'';
-        
+
         $return = $instance->insert_update_suitability($_POST);
-        
+
         if($return===true){
             if($action == 'edit')
             {
@@ -378,9 +373,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         }
     }*/
     else if(isset($_POST['add_objective'])&& $_POST['add_objective']=='Add_Objectives'){
-        
+
         $return = $instance->insert_update_objectives($_POST);
-        
+
         if($return===true){
             if($action == 'edit')
             {
@@ -398,9 +393,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
     else if(isset($_POST['add_allobjectives'])&& $_POST['add_allobjectives']=='Add_AllObjectives'){ echo '<pre>';print_r($_POST);exit;
         $id = isset($_POST['allobjectives_id'])?$instance->re_db_input($_POST['allobjectives_id']):0;
         $allobjectives = isset($_POST['allobjectives'])?$_POST['allobjectives']:array();
-        
+
         $return = $instance->insert_update_allobjectives($_POST);
-        
+
         if($return===true){
             if($action == 'edit')
             {
@@ -418,9 +413,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
     else if(isset($_POST['add_notes'])&& $_POST['add_notes']=='Add Notes'){
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
-       
+
         $return = $instance->insert_update_client_notes($_POST);
-        
+
         if($return===true){
             echo '1';exit;
         }
@@ -431,9 +426,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         exit;
     }
     else if(isset($_POST['submit_account']) && $_POST['submit_account']=='Ok'){
-        
+
         $return = $instance->insert_update_client_account($_POST);
-        
+
         if($return===true){
             echo '1';exit;
         }
@@ -447,9 +442,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
         $file = isset($_FILES['add_attach'])?$_FILES['add_attach']:array();
-        
+
         $return = $instance->insert_update_client_attach($_POST);
-        
+
         if($return===true){
             echo '1';exit;
         }
@@ -473,8 +468,8 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         exit;
     }
     else if(isset($_POST['submit'])&&$_POST['submit']=='Search'){
-        
-       $search_text = isset($_POST['search_text'])?$instance->re_db_input($_POST['search_text']):''; 
+
+       $search_text = isset($_POST['search_text'])?$instance->re_db_input($_POST['search_text']):'';
        $return = $instance->search($search_text);
     }
     else if($action=='edit' && $id>0){
@@ -516,7 +511,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $_SESSION['client_full_name'] = $return['first_name'].' '.$return['mi'].' '.$return['last_name'];
         $_SESSION['client_id'] = $id;
         $return_account = $instance->edit_account($id);
-        
+
         $return_employment = $instance->edit_employment($id);
         $occupation = isset($return_employment['occupation'])?$instance->re_db_output($return_employment['occupation']):'';
         $employer = isset($return_employment['employer'])?$instance->re_db_output($return_employment['employer']):'';
@@ -535,7 +530,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $expiration = isset($return_employment['expiration'])?$instance->re_db_output($return_employment['expiration']):'';
         $state_employe = isset($return_employment['state'])?$instance->re_db_output($return_employment['state']):'';
         $date_verified = isset($return_employment['date_verified'])?$instance->re_db_output($return_employment['date_verified']):'';
-        
+
         $return_suitability = $instance->edit_suitability($id);
         $income = isset($return_suitability['income'])?$instance->re_db_output($return_suitability['income']):'';
         $goal_horizone = isset($return_suitability['goal_horizon'])?$instance->re_db_output($return_suitability['goal_horizon']):'';
@@ -552,7 +547,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $sign_date = isset($return_suitability['sign_date'])?$instance->re_db_output($return_suitability['sign_date']):'';
         $tax_bracket = isset($return_suitability['tax_bracket'])?$instance->re_db_output($return_suitability['tax_bracket']):'';
         $tax_id = isset($return_suitability['tax_id'])?$instance->re_db_output($return_suitability['tax_id']):'';
-        
+
     }
     else if(isset($_GET['action'])&&$_GET['action']=='status'&&isset($_GET['id'])&&$_GET['id']>0&&isset($_GET['status'])&&($_GET['status']==0 || $_GET['status']==1))
     {
@@ -569,9 +564,9 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
     else if(isset($_GET['send'])&&$_GET['send']=='previous' && isset($_GET['id'])&&$_GET['id']>0 && $_GET['id']!='')
     {
         $id = $instance->re_db_input($_GET['id']);
-        
+
         $return = $instance->get_previous_client($id);
-            
+
         if($return!=false){
             $id=$return['id'];
             header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
@@ -579,14 +574,14 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         else{
             header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
         }
-        
+
     }
     else if(isset($_GET['send'])&&$_GET['send']=='next' && isset($_GET['id'])&&$_GET['id']>0 && $_GET['id']!='')
     {
         $id = $instance->re_db_input($_GET['id']);
-        
+
         $return = $instance->get_next_client($id);
-            
+
         if($return!=false){
             $id=$return['id'];
             header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
@@ -594,8 +589,8 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         else{
             header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
         }
-        
-    }    
+
+    }
     else if(isset($_GET['delete_action'])&&$_GET['delete_action']=='delete_objectives'&&isset($_GET['objectives_id'])&&$_GET['objectives_id']>0)
     {
         $objectives_id = $instance->re_db_input($_GET['objectives_id']);
@@ -611,7 +606,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
             }
          }
         else{
-            
+
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
@@ -619,8 +614,8 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
     {
         $delete_id = $_GET['delete_id'];
         $return = $instance->delete_allobjectives($delete_id);
-        if($return==true){ 
-           
+        if($return==true){
+
             if($id>0)
             {
                 header("location:".CURRENT_PAGE."?action=edit&id=".$id."&tab=objectives");exit;
@@ -630,11 +625,11 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
                 header("location:".CURRENT_PAGE."?action=add_new&tab=objectives");exit;
             }
         }
-        else{ 
-                        
+        else{
+
            $error = !isset($_SESSION['warning'])?$return:'';
         }
-    } 
+    }
     else if(isset($_GET['action'])&&$_GET['action']=='delete'&&isset($_GET['id'])&&$_GET['id']>0)
     {
         $id = $instance->re_db_input($_GET['id']);
@@ -660,16 +655,27 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         exit;
     }
     else if($action=='view'){
-        
         $_SESSION['client_id']='';
         $return = $instance->select();
-        
     }
+    else if(isset($_GET['action']) && $_GET['action']=='add_new' && isset($_GET['exception_data_id']) && $_GET['exception_data_id']>0){
+        //--- 01/29/22 Called from import template page -> "Resolve Exceptions" tab ---//
+        $idcDetail = $instance_import->select_existing_idc_data($_GET['exception_data_id']);
+
+        if ($idcDetail){
+            $broker_name = (string)$idcDetail['broker_id'];
+            $client_file_number = $dbins->re_db_input($idcDetail['customer_account_number']);
+            $lname = $dbins->re_db_input($idcDetail['alpha_code']);
+        }
+    }
+
+    //--- Show the Client Maintenance Page ---//
     $get_current_objectives = $instance->select_objectives(isset($_SESSION['client_id'])?$_SESSION['client_id']:0);
     foreach($get_current_objectives as $key=>$val)
     {
         $objectives_check_id[$val['objectives']]=$val['objectives'];
     }
+
     $content = "client_maintenance";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
 ?>

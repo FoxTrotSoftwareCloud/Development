@@ -786,37 +786,37 @@ class payroll extends db{
     * @param mixed $transaction_id 
     * @return array 
     */
-   public function edit_review_trade_overrides($id,$transaction_id){
-		$return = array();
-		$q = "SELECT `pto`.*
-				FROM ".PAYROLL_TRADE_OVERRIDES." AS `pto`
-                WHERE `pto`.`is_delete`='0' AND `pto`.`transaction_id`='".$transaction_id."'";
-		$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-			while($row = $this->re_db_fetch_array($res)){
-    		     array_push($return,$row);
-    		}
-        }
-		return $return;
-   }
-   /** INVALID: Table PAYROLL_TRADE_SPLITS doesn't exist, but may be added later - 10/29/21 li
-    * @param mixed $id 
-    * @param mixed $transaction_id 
-    * @return array 
-    */
-   public function edit_review_trade_splits($id,$transaction_id){
-		$return = array();
-		$q = "SELECT `pts`.*
-				FROM ".PAYROLL_TRADE_SPLITS." AS `pts`
-                WHERE `pts`.`is_delete`='0' AND `pts`.`transaction_id`='".$transaction_id."'";
-		$res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-			while($row = $this->re_db_fetch_array($res)){
-    		     array_push($return,$row);
-    		}
-        }
-		return $return;
-   }
+//    public function edit_review_trade_overrides($id,$transaction_id){
+// 		$return = array();
+// 		$q = "SELECT `pto`.*
+// 				FROM ".PAYROLL_TRADE_OVERRIDES." AS `pto`
+//                 WHERE `pto`.`is_delete`='0' AND `pto`.`transaction_id`='".$transaction_id."'";
+// 		$res = $this->re_db_query($q);
+//         if($this->re_db_num_rows($res)>0){
+// 			while($row = $this->re_db_fetch_array($res)){
+//     		     array_push($return,$row);
+//     		}
+//         }
+// 		return $return;
+//    }
+//    /** INVALID: Table PAYROLL_TRADE_SPLITS doesn't exist, but may be added later - 10/29/21 li
+//     * @param mixed $id 
+//     * @param mixed $transaction_id 
+//     * @return array 
+//     */
+//    public function edit_review_trade_splits($id,$transaction_id){
+// 		$return = array();
+// 		$q = "SELECT `pts`.*
+// 				FROM ".PAYROLL_TRADE_SPLITS." AS `pts`
+//                 WHERE `pts`.`is_delete`='0' AND `pts`.`transaction_id`='".$transaction_id."'";
+// 		$res = $this->re_db_query($q);
+//         if($this->re_db_num_rows($res)>0){
+// 			while($row = $this->re_db_fetch_array($res)){
+//     		     array_push($return,$row);
+//     		}
+//         }
+// 		return $return;
+//    }
    public function edit_adjustments_master($id){
 		$return = array();
 		$q = "SELECT `ad`.*
