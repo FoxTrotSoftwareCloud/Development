@@ -1306,7 +1306,7 @@ PostResult( msg );
                 <div class="row" id="assign_client_to_account" style="display: none;">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label>Add Account# to Existing Client: </label>
+                        <label>Assign to Existing Client</label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -1658,10 +1658,10 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'customer_account_number')
         {
-            document.getElementById("field_label").innerHTML = 'Account# to Add:';
+            document.getElementById("field_label").innerHTML = 'Account# to Add';
             document.getElementById("exception_value").value = existing_field_value;
             document.getElementById("exception_value_dis").value = existing_field_value;
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client.</a>';
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
             $("#exception_value_dis").prop( "disabled", true );
             $("#assign_client_to_account").css('display','block');
             $("#exception_value").css('display','none');
@@ -1718,7 +1718,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
             $("#sponsor").css('display','block');
             $("#exception_value").css('display','none');
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor.</a>';
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
         }
         else
         {
@@ -1810,11 +1810,11 @@ function open_product_link(category_id)
 
     if(category_id>0)
     {
-        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_product&category=';?>'+category_id+'&cusip_number='+cusip_number+'&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_product_for_cusip">Add New Product.</a>';
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_product&category=';?>'+category_id+'&cusip_number='+cusip_number+'&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_product_for_cusip">Add New Product</a>';
     }
     else
     {
-       document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_product&category=';?>'+category_id+'&cusip_number='+cusip_number+'" style="display: none; float: right;" id="add_product_for_cusip">Add New Product.</a>';
+       document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_product&category=';?>'+category_id+'&cusip_number='+cusip_number+'" style="display: none; float: right;" id="add_product_for_cusip">Add New Product</a>';
     }
 }
 function check_u5_date(broker)
