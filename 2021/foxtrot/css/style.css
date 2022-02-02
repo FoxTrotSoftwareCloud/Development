@@ -194,9 +194,10 @@ select::-ms-expand {
 	width: 100%;
 	max-width: 200px;
 	float: left;
-	margin: 6px 14px 0 0;
+	margin: 10px -25px 0 0;
 	/* margin: 6px 0 0 0; */
 	text-align: right;
+	justify-content: flex-end;
 	font-weight: 600;
 	font-size: 14px;
 	font-family: 'Poppins', sans-serif;
