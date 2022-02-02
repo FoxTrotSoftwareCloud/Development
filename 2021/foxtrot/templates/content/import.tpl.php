@@ -1159,8 +1159,8 @@ PostResult( msg );
                         <label id="field_label" class="pull-right">Add Exception value</label>
                     </div>
                 </div>
-                <div class="col-md-4 pull-left float-left">
-                    <div class="inputpopup pull-left float-left">
+                <div class="col-md-4">
+                    <div class="inputpopup">
                         <input type="text" name="exception_value" class="default_value" id="exception_value" value="" style="display: block;"/>
                         <input type="text" name="exception_value_dis" class="default_value" id="exception_value_dis" value="" style="display: none;"/>
                         <input type="checkbox" class="checkbox" name="active_state" id="active_state" value="1" style="display: none;"/>
