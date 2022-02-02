@@ -223,7 +223,7 @@ PostResult( msg );
                                                     <th>Batch#</th>
                                                     <th>Sponsor</th>
                                                     <!--<th>Imported</th>-->
-                                                    <th>Last Proccessed</th>
+                                                    <th>Last Processed</th>
                                                     <th>File Name</th>
                                                     <th>File Type</th>
                                                     <th>Source</th>
@@ -372,7 +372,7 @@ PostResult( msg );
                                                     <thead>
                                                         <th>Batch#</th>
                                                         <th>Imported</th>
-                                                        <th>Last Proccessed</th>
+                                                        <th>Last Processed</th>
                                                         <th>File Name</th>
                                                         <th>File Type</th>
                                                         <th>Source</th>
@@ -591,8 +591,7 @@ PostResult( msg );
                                                             <!-- 02/01/22 Remove "ADD" dropdown, only has one option
                                                             <select name="review_action_" id="review_action_" class="form-control" style=" width: 75% !important;display: inline;">
                                                                 <option value="0">ADD</option>
-                                                            </select>
-                                                            -->
+                                                            </select> -->
                                                             <input type="hidden" name="id" id="id" value="" />
                                                             <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
                                                             </form>
@@ -714,7 +713,7 @@ PostResult( msg );
                                                             $return_processed_data = $instance->select_processed_data($file_id);
                                                             foreach($return_processed_data as $process_key=>$process_val)
                                                             {
-                                                                                         ?>
+                                                            ?>
                                                             <tr>
                                                                 <td><?php echo date('m/d/Y',strtotime($process_val['date']));?></td>
                                                                 <td><?php echo $process_val['rep'];?></td>
@@ -753,7 +752,7 @@ PostResult( msg );
 
                         ?>
                         <ul class="nav nav-tabs ">
-                          <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
+                          <li class="<?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
                          </ul> <?php } ?> <br />
                           <!-- Tab 1 is started -->
                             <div class="tab-content">
@@ -1154,14 +1153,14 @@ PostResult( msg );
         <br />
         <div class="col-md-12" style="alignment-adjust: central;">
             <form method="post" id="resolve_exception_form" name="resolve_exception_form" onsubmit="return exception_submit();">
-                <div class="row">
+                <div class="row"> <!--text-right"-->
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label id="field_label">Add Exception value</label>
+                        <label id="field_label" class="pull-right">Add Exception value</label>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="inputpopup">
+                <div class="col-md-4 pull-left float-left">
+                    <div class="inputpopup pull-left float-left">
                         <input type="text" name="exception_value" class="default_value" id="exception_value" value="" style="display: block;"/>
                         <input type="text" name="exception_value_dis" class="default_value" id="exception_value_dis" value="" style="display: none;"/>
                         <input type="checkbox" class="checkbox" name="active_state" id="active_state" value="1" style="display: none;"/>
@@ -1216,7 +1215,7 @@ PostResult( msg );
                 <div class="row" style="display: none;" id="broker_termination_options_trades">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label id="broker_termination_label">Select Option</label>d
+                        <label id="broker_termination_label">Select Option</label>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -1241,7 +1240,7 @@ PostResult( msg );
                 <div class="row" id="assign_rep_to_broker" style="display: none;">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label>Select Broker: </label>
+                        <label class="pull-right">Select Broker: </label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -1306,7 +1305,7 @@ PostResult( msg );
                 <div class="row" id="assign_client_to_account" style="display: none;">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label>Assign to Existing Client</label>
+                        <label class="pull-right">Assign to Existing Client</label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -1314,7 +1313,7 @@ PostResult( msg );
                         <select name="acc_for_client" id="acc_for_client" class="form-control">
                             <option value="">Select Client</option>
                             <?php foreach($get_client as $key=>$val){ ?>
-                            <option value="<?php echo $val['id'];?>"><?php echo $val['first_name'].' '.$val['last_name'];?></option>
+                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -1648,7 +1647,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         }
         if(exception_field == 'mutual_fund_customer_account_number')
         {
-            document.getElementById("field_label").innerHTML = 'Account# to Add:';
+            document.getElementById("field_label").innerHTML = 'Account# to Add';
             document.getElementById("exception_value").value = '';
         }
         else
