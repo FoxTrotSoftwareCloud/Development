@@ -1314,7 +1314,7 @@ PostResult( msg );
                         <select name="acc_for_client" id="acc_for_client" class="form-control">
                             <option value="">Select Client</option>
                             <?php foreach($get_client as $key=>$val){ ?>
-                            <option value="<?php echo $val['id'];?>"><?php echo $val['first_name'].' '.$val['last_name'];?></option>
+                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
                             <?php } ?>
                         </select>
                     </div>
