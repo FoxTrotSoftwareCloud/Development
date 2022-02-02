@@ -23,9 +23,9 @@
     $get_product_category = $instance->select_category();
     $get_objective = $instance->get_objectives_data();
     $instance_broker = new broker_master();
-    $get_broker = $instance_broker->select();
+    $get_broker = $instance_broker->select(1);
     $instance_client = new client_maintenance();
-    $get_client = $instance_client->select();
+    $get_client = $instance_client->select(1);
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor();
 

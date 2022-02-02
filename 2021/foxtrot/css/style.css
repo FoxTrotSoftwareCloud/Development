@@ -195,6 +195,7 @@ select::-ms-expand {
 	max-width: 200px;
 	float: left;
 	margin: 6px 14px 0 0;
+	/* margin: 6px 0 0 0; */
 	text-align: right;
 	font-weight: 600;
 	font-size: 14px;

@@ -416,14 +416,22 @@
                                         ;
                                         $res = $this->re_db_query($q);
 
-                                        if($res)
-                                        {
+                                        // Program Inconsistent on checking the "Status" of the rep, but change the rep's status to Active(1) to make sure
+                                        if($res) {
+                                            $q = "UPDATE `".BROKER_MASTER."`"
+                                                ." SET `active_status`=1"
+                                                        .$this->update_common_sql()
+                                                ." WHERE `is_delete`=0 AND `id`=".$row['broker_id']
+                                            ;
+                                            $res = $this->re_db_query($q);
+                                        }
+
+                                        if($res) {
                                             $result = $this->reprocess_current_files($exception_file_id);
                                         }
                                     } else {
                                         $result = 0;
                                     }
-
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 3)
                                 {

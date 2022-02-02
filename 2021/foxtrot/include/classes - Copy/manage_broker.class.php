@@ -2055,14 +2055,23 @@
 			return $return;
 		} 
          
-		public function select(){
+		/** @return array
+    *   02/01/22 Add argument to sort by name => $orderByID
+    */
+		public function select($orderById=0){
 			$return = array();
-			
+
+      if ($orderById==1){
+        $orderBy = "`at`.`last_name`, `at`.`first_name`, `at`.`id`";
+      } else {
+        $orderBy = "`at`.`id` ASC";
+      }
+
 			$q = "SELECT `at`.*,`bg`.`u4`
 					FROM `".$this->table."` AS `at`
                     LEFT JOIN `".BROKER_GENERAL."` AS `bg` on `bg`.`broker_id`=`at`.`id`
                     WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                    ORDER BY $orderBy";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
