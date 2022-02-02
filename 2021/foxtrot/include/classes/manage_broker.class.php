@@ -1374,100 +1374,104 @@
                return $file_ary;
            }
 
-        public function insert_update_req_doc($data ,$id1){
-           //echo '<pre>';print_r($data);exit;
-           $id = isset($id1)?$this->re_db_input($id1):0;
-           $flag4=0;
-           /*foreach($data as $key=>$val)
-            {
-                $docs_receive=isset($val['docs_receive'])?$this->re_db_input($val['docs_receive']):'';
-                $docs_description=isset($val['docs_description'])?$this->re_db_input($val['docs_description']):'';
-                $docs_date=isset($val['docs_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['docs_date']))):'0000-00-00';
-                $docs_required = isset($val['docs_required'])?$this->re_db_input($val['docs_required']):'';
+    public function insert_update_req_doc($data ,$id1){
+      //echo '<pre>';print_r($data);exit;
+      $id = isset($id1)?$this->re_db_input($id1):0;
+      $flag4 = $res = 0;
 
-                if( $docs_description!=''){
-                    if($flag4==0){
-                        $qq="update `".BROKER_REQ_DOC."` SET is_delete=1 where `broker_id`=".$id."";
-                        $res = $this->re_db_query($qq);
-                        $flag4=1;
-                    }
-                    $q = "INSERT INTO `".BROKER_REQ_DOC."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`received`='".$docs_receive."' ,`description`='".$docs_description."' ,
-                    `date`='".$docs_date."' , `required`='".$docs_required."' ".$this->insert_common_sql();
-    				$res = $this->re_db_query($q);
-                }
-                else
-                {
-                    $res='';
-                }
-            }
-            if($res){
+      // foreach($data as $key=>$val) {
+      //   $docs_receive=isset($val['docs_receive'])?$this->re_db_input($val['docs_receive']):'';
+      //   $docs_description=isset($val['docs_description'])?$this->re_db_input($val['docs_description']):'';
+      //   $docs_date=isset($val['docs_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['docs_date']))):'0000-00-00';
+      //   $docs_required = isset($val['docs_required'])?$this->re_db_input($val['docs_required']):'';
 
-                $_SESSION['success'] = INSERT_MESSAGE;
-				return true;
-			}*/
-			/*else{
-							$_SESSION['warning'] = UNKWON_ERROR;
-							return false;
-						}*/
-           if($id>=0){
-				if($id==0){
-    			    foreach($data as $key=>$val)
-                    {
-                        $docs_receive=isset($val['docs_receive'])?$this->re_db_input($val['docs_receive']):'';
-                        $docs_description=isset($val['docs_description'])?$this->re_db_input($val['docs_description']):'';
-                        $docs_date=isset($val['docs_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['docs_date']))):'';
-                        $docs_required = isset($val['docs_required'])?$this->re_db_input($val['docs_required']):'';
+      //   if($docs_description!='') {
+      //     if($flag4==0) {
+      //       $qq="update `".BROKER_REQ_DOC."` SET is_delete=1 where `broker_id`=".$id."";
+      //       $res = $this->re_db_query($qq);
+      //       $flag4=1;
+      //     }
 
-                        if( $docs_description!=''){
+      //     $q = "INSERT INTO `".BROKER_REQ_DOC."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`received`='".$docs_receive."' ,`description`='".$docs_description."' ,
+      //     `date`='".$docs_date."' , `required`='".$docs_required."' ".$this->insert_common_sql();
+      //     $res = $this->re_db_query($q);
+      //   } else {
+      //     $res='';
+      //   }
+      // }
 
-                            $q = "INSERT INTO `".BROKER_REQ_DOC."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`received`='".$docs_receive."' ,`description`='".$docs_description."' ,
-                            `date`='".$docs_date."' , `required`='".$docs_required."' ".$this->insert_common_sql();
-        					$res = $this->re_db_query($q);
-                        }
-                    }
-                    if($res){
+      // if($res){
+      //   $_SESSION['success'] = INSERT_MESSAGE;
+			// 	return true;
+			// } else {
+      //   $_SESSION['warning'] = UNKWON_ERROR;
+      //   return false;
+      // }
 
-                        $_SESSION['success'] = INSERT_MESSAGE;
-    					return true;
-    				}
-    		    }
-                else if($id>0){
+      if($id==0){
+        $res = 0;
 
-                    foreach($data as $key=>$val)
-                    {
-                        $docs_receive=isset($val['docs_receive'])?$this->re_db_input($val['docs_receive']):'';
-                        $docs_description=isset($val['docs_description'])?$this->re_db_input($val['docs_description']):'';
-                        $docs_date=isset($val['docs_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['docs_date']))):'';
-                        $docs_required = isset($val['docs_required'])?$this->re_db_input($val['docs_required']):'';
+        foreach($data as $key=>$val){
+          $docs_receive=isset($val['docs_receive'])?$this->re_db_input($val['docs_receive']):'';
+          $docs_description=isset($val['docs_description'])?$this->re_db_input($val['docs_description']):'';
+          $docs_date=isset($val['docs_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['docs_date']))):'';
+          $docs_required = isset($val['docs_required'])?$this->re_db_input($val['docs_required']):'';
 
-    				    if( $docs_description!=''){
-
-                            if($flag4==0){
-                                $qq="update `".BROKER_REQ_DOC."` SET is_delete=1 where `broker_id`=".$id."";
-                                $res = $this->re_db_query($qq);
-                                $flag4=1;
-                            }
-
-                            $q = "INSERT INTO `".BROKER_REQ_DOC."` SET `broker_id`='".$id."' ,`received`='".$docs_receive."' ,`description`='".$docs_description."' ,
-                            `date`='".$docs_date."' , `required`='".$docs_required."' ".$this->insert_common_sql();
-        					$res = $this->re_db_query($q);
-                        }
-
-                        /*$q = "UPDATE `".BROKER_REQ_DOC."` SET `broker_id`='".$id."' ,`received`='".$docs_receive."' ,`description`='".$docs_description."' ,
-                        `date`='".$docs_date."' , `required`='".$docs_required."'  ".$this->update_common_sql()." WHERE `broker_id`='".$id."'";
-
-                        $res = $this->re_db_query($q);*/
-                    }
-                	if($res){
-
-                        $_SESSION['success'] = UPDATE_MESSAGE;
-						return true;
-					}
- 				}
-
-            }
+          if( $docs_description!=''){
+            $q = "INSERT INTO `".BROKER_REQ_DOC."`"
+                ." SET"
+                    ." `broker_id`='".$_SESSION['last_insert_id']."'"
+                    .",`received`='".$docs_receive."'"
+                    ."`description`='".$docs_description."'"
+                    .",`date`='".$docs_date."'"
+                    .",`required`='".$docs_required."'"
+                    .$this->insert_common_sql()
+            ;
+            $res = $this->re_db_query($q);
+          }
         }
-        public function reArrayFiles_alias($file_post){
+
+        if($res){
+          $_SESSION['success'] = INSERT_MESSAGE;
+          return true;
+        }
+      } else if($id>0){
+        $res = 0;
+
+        foreach($data as $key=>$val){
+          $docs_receive=isset($val['docs_receive'])?$this->re_db_input($val['docs_receive']):'';
+          $docs_description=isset($val['docs_description'])?$this->re_db_input($val['docs_description']):'';
+          $docs_date=isset($val['docs_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['docs_date']))):'';
+          $docs_required = isset($val['docs_required'])?$this->re_db_input($val['docs_required']):'';
+
+          if( $docs_description!=''){
+            if($flag4==0){
+              $qq="update `".BROKER_REQ_DOC."` SET is_delete=1 where `broker_id`=".$id."";
+              $res = $this->re_db_query($qq);
+              $flag4=1;
+            }
+
+            $q = "INSERT INTO `".BROKER_REQ_DOC."`"
+                ." SET"
+                      ."`broker_id`='".$id."'"
+                      .",`received`='".$docs_receive."'"
+                      .",`description`='".$docs_description."'"
+                      .",`date`='".$docs_date."'"
+                      .",`required`='".$docs_required."'"
+                      .$this->insert_common_sql()
+            ;
+            $res = $this->re_db_query($q);
+          }
+        }
+
+        if($res){
+          $_SESSION['success'] = UPDATE_MESSAGE;
+          return true;
+        }
+      }
+    }
+
+    public function reArrayFiles_alias($file_post){
                $file_ary = array();
                foreach($file_post as $key=>$val)
                {
@@ -2118,14 +2122,23 @@
 			return $return;
 		}
 
-		public function select(){
+		/** @return array
+    *   02/01/22 Add argument to sort by name => $orderByID
+    */
+		public function select($orderById=0){
 			$return = array();
+
+      if ($orderById==1){
+        $orderBy = "`at`.`last_name`, `at`.`first_name`, `at`.`id`";
+      } else {
+        $orderBy = "`at`.`id` ASC";
+      }
 
 			$q = "SELECT `at`.*,`bg`.`u4`
 					FROM `".$this->table."` AS `at`
                     LEFT JOIN `".BROKER_GENERAL."` AS `bg` on `bg`.`broker_id`=`at`.`id`
                     WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                    ORDER BY $orderBy";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;

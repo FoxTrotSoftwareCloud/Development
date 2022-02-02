@@ -223,7 +223,7 @@ PostResult( msg );
                                                     <th>Batch#</th>
                                                     <th>Sponsor</th>
                                                     <!--<th>Imported</th>-->
-                                                    <th>Last Proccessed</th>
+                                                    <th>Last Processed</th>
                                                     <th>File Name</th>
                                                     <th>File Type</th>
                                                     <th>Source</th>
@@ -261,21 +261,35 @@ PostResult( msg );
                                                         <td style="width: 15%;"><?php echo $val['file_type'];?></td>
                                                         <td><?php echo $val['source'];?></td>
                                                         <?php
-                                                        $total_processed_data = $instance->check_file_exception_process($val['id'],1);
-                                                        $count_processed_data = $total_processed_data['processed'];
-                                                        $count_exception_data = $total_processed_data['exceptions'];
+                                                        //--- 01/29/22.11:23 - Use new routine to get accurate Processed/Exception counts - old way didn't account for
+                                                        //--- records being in 2 different tables and/or multiple exceptions for the same record (Broker/Cusip/Client exceptions)
+                                                        $countSummary = $instance->check_file_exception_process($val['id'], 1);
+                                                        $count_processed_data = $countSummary['processed'];
+                                                        $count_exception_data = $countSummary['exceptions'];
+                                                        // if(isset($val['source']) && $val['source'] == 'DSTFANMail')
+                                                        // {
+                                                        //     $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
+                                                        //     $count_processed_data = count($total_processed_data);
+                                                        //     $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //     $count_exception_data = count($total_exception_data);
+                                                        // }
+                                                        // else
+                                                        // {
+                                                        //     $total_processed_data = $instance->get_idc_detail_data($val['id']);
+                                                        //     $count_processed_data = count($total_processed_data);
+                                                        //     $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //     $count_exception_data = count($total_exception_data);
+                                                        // }
+                                                        //--- End of 01/29/22.11:23
 
-                                                        if($count_processed_data + $count_exception_data > 0)
-                                                        {
-                                                            $total_process = $count_processed_data+$count_exception_data;
-                                                            $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                            $total_complete_process = round($total_processed_per);
-                                                        }
-                                                        else
-                                                        {
+                                                        if(isset($count_processed_data) && $count_processed_data>0) {
+                                                            // $total_processed_per = ($count_processed_data*100)/($count_processed_data+$count_exception_data);
+                                                            $total_complete_process = round( ($count_processed_data*100)/($count_processed_data+$count_exception_data) );
+                                                        } else{
                                                             $total_complete_process=0;
                                                         }
-                                                        /** 01/13/22 New code "reprocesses" on the process_current_file() calls, so no need to refresh the grid */
+
+                                                        //--- 01/29/22.11:31 Removed. Not sure why there is a reprocess just because the all the records were "processed"
                                                         // if($total_complete_process == 100)
                                                         // {
                                                         //     $return = $instance->reprocess_current_files($val['id']);
@@ -283,15 +297,15 @@ PostResult( msg );
                                                         //     {
                                                         //         $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
                                                         //         $count_processed_data = count($total_processed_data);
-                                                        //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                        //         // $count_exception_data = count($total_exception_data);
+                                                        //         $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //         $count_exception_data = count($total_exception_data);
                                                         //     }
                                                         //     else
                                                         //     {
                                                         //         $total_processed_data = $instance->get_idc_detail_data($val['id']);
                                                         //         $count_processed_data = count($total_processed_data);
-                                                        //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                        //         // $count_exception_data = count($total_exception_data);
+                                                        //         $total_exception_data = $instance->get_exception_data($val['id']);
+                                                        //         $count_exception_data = count($total_exception_data);
                                                         //     }
                                                         //     if(isset($count_processed_data) && $count_processed_data>0)
                                                         //     {
@@ -306,10 +320,10 @@ PostResult( msg );
                                                         //         $total_complete_process=0;
                                                         //     }
                                                         // }
+                                                        //--- 01/29/22.11:31 END: Comment Block
                                                         ?>
                                                         <td style="width: 15%;">
                                                         <div class="progress">
-                                                            <?php //echo $count_processed_data."/".$count_exception_data;?>
                                                         <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
                                                             <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
                                                             <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
@@ -322,8 +336,7 @@ PostResult( msg );
                                                         <?php } ?>
                                                         </div>
                                                         </td>
-                                                        <?php
-                                                            $check_exception_data = $instance->check_exception_data($val['id']);
+                                                        <?php $check_exception_data = $instance->check_exception_data($val['id']);
                                                             $check_processed_data = $instance->check_processed_data($val['id']);
                                                             $check_file_exception_process = $instance->check_file_exception_process($val['id']);
                                                         ?>
@@ -334,20 +347,20 @@ PostResult( msg );
                                                             </form>
                                                         </td>
                                                         <td style="width: 25%;">
-                                                            <form method="post">
-                                                                <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
-                                                                    <option value="0">Select Option</option>
-                                                                    <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
-                                                                    <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
-                                                                    <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
-                                                                    <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
-                                                                    <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
-                                                                    <option value="1" >Delete File</option>
-                                                                    <!-- <option value="7" >Preview</option> -->
-                                                                </select>
-                                                                <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
-                                                                <input type="hidden" name="go" value="go" />
-                                                            </form>
+                                                        <form method="post">
+                                                        <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
+                                                            <option value="0">Select Option</option>
+                                                            <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
+                                                            <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
+                                                            <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
+                                                            <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
+                                                            <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
+                                                            <option value="1" >Delete File</option>
+                                                            <!-- <option value="7" >Preview</option> -->
+                                                        </select>
+                                                        <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                        <input type="hidden" name="go" value="go" />
+                                                        </form>
                                                         </td>
                                                     </tr>
                                                 <?php }}
@@ -372,7 +385,7 @@ PostResult( msg );
                                                     <thead>
                                                         <th>Batch#</th>
                                                         <th>Imported</th>
-                                                        <th>Last Proccessed</th>
+                                                        <th>Last Processed</th>
                                                         <th>File Name</th>
                                                         <th>File Type</th>
                                                         <th>Source</th>
@@ -402,17 +415,15 @@ PostResult( msg );
                                                             {
                                                                 $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // 12/25/21 Refactored the get_exception_data(fileId) function to return only the exceptions remaining for the file
-                                                                // $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                //$count_exception_data = count($total_exception_data);
+                                                                $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                $count_exception_data = count($total_exception_data);
                                                             }
                                                             else
                                                             {
                                                                 $total_processed_data = $instance->get_idc_detail_data($val['id']);
                                                                 $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // $count_exception_data = count($total_exception_data);
+                                                                $total_exception_data = $instance->get_exception_data($val['id']);
+                                                                $count_exception_data = count($total_exception_data);
                                                             }
                                                             if(isset($count_processed_data) && $count_processed_data>0)
                                                             {
@@ -562,7 +573,7 @@ PostResult( msg );
                                                                 if($error_val['field'] == 'u5')
                                                                 {
                                                                     $rep_number = $return_idc_existing_data['representative_number'];
-                                                                    $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
+                                                                    $u5_date = $instance->broker_termination_date($rep_number);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
                                                             }
@@ -588,13 +599,12 @@ PostResult( msg );
                                                             <td><?php echo $error_val['error'];?></td>
                                                             <td style="width: 20%;">
                                                             <form method="post">
-                                                            <!-- 02/01/22 Remove "ADD" dropdown, only has one option
-                                                            <select name="review_action_" id="review_action_" class="form-control" style=" width: 75% !important;display: inline;">
+                                                            <!-- 01/31/22 Remove "ADD" dropdown for "Resolve Exceptions" tab records - no other options available -->
+                                                            <!-- <select name="review_action_" id="review_action_" class="form-control" style=" width: 75% !important;display: inline;">
                                                                 <option value="0">ADD</option>
-                                                            </select>
-                                                            -->
+                                                            </select> -->
                                                             <input type="hidden" name="id" id="id" value="" />
-                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
+                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;"> Resolve</button></a>
                                                             </form>
                                                             </td>
                                                         </tr>
@@ -714,7 +724,7 @@ PostResult( msg );
                                                             $return_processed_data = $instance->select_processed_data($file_id);
                                                             foreach($return_processed_data as $process_key=>$process_val)
                                                             {
-                                                                                         ?>
+                                                            ?>
                                                             <tr>
                                                                 <td><?php echo date('m/d/Y',strtotime($process_val['date']));?></td>
                                                                 <td><?php echo $process_val['rep'];?></td>
@@ -753,7 +763,7 @@ PostResult( msg );
 
                         ?>
                         <ul class="nav nav-tabs ">
-                          <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
+                          <li class="<?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
                          </ul> <?php } ?> <br />
                           <!-- Tab 1 is started -->
                             <div class="tab-content">
@@ -1038,7 +1048,7 @@ PostResult( msg );
                                 <div class="panel-control" style="float: right;">
                     				<div class="btn-group dropdown">
                     					<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-                    					<ul class="dropdown-menu dropdown-menu-right"> <!--style="">-->
+                    					<ul class="dropdown-menu dropdown-menu-right" style="">
                     						<li><a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=view_ftp"><i class="fa fa-eye"></i> View List</a></li>
                     					</ul>
                     				</div>
@@ -1216,12 +1226,12 @@ PostResult( msg );
                 <div class="row" style="display: none;" id="broker_termination_options_trades">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label id="broker_termination_label">Select Option</label>d
+                        <label id="broker_termination_label">Select Option</label>
                     </div>
                 </div>
                 <div class="col-md-6">
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);"/><label> Hold commission</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Remove U5 Date</label><br />
+                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Make Broker Active</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign trade to a new broker</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Trade</label><br />
                 </div>
@@ -1249,7 +1259,7 @@ PostResult( msg );
                         <select name="rep_for_broker" id="rep_for_broker" class="form-control">
                             <option value="">Select Broker</option>
                             <?php foreach($get_broker as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['first_name']) AND !empty($val['last_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
+                            <option value="<?php echo $val['id'];?>"><?php echo $val['first_name'].' '.$val['last_name'];?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -1304,21 +1314,21 @@ PostResult( msg );
                     </div>
                 </div>
                 <div class="row" id="assign_client_to_account" style="display: none;">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label>Add Account# to Existing Client: </label>
+                    <div class="col-md-5 text-right text-end">
+                        <div class="inputpopup text-right text-end">
+                            <label class="text-right text-end">Assign to Client</label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="inputpopup">
-                        <select name="acc_for_client" id="acc_for_client" class="form-control">
-                            <option value="">Select Client</option>
-                            <?php foreach($get_client as $key=>$val){ ?>
-                            <option value="<?php echo $val['id'];?>"><?php echo $val['first_name'].' '.$val['last_name'];?></option>
-                            <?php } ?>
-                        </select>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="acc_for_client" id="acc_for_client" class="form-control float-end">
+                                <option value="">Select Client</option>
+                                <?php foreach($get_client as $key=>$val){ ?>
+                                    <option value="<?php echo $val['id'];?>"><?php echo $val['last_name'].((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').$val['first_name'];?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="row">
                 <div class="col-md-5"></div>
@@ -1375,7 +1385,7 @@ $(document).ready(function() {
                         { "bSearchable": false, "aTargets": [ 6,7 ] }]
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>'+
-                    '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');
+                    '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Process All</a>');
 
         $('#data-table1').DataTable({
         "pageLength": 25,
@@ -1648,7 +1658,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         }
         if(exception_field == 'mutual_fund_customer_account_number')
         {
-            document.getElementById("field_label").innerHTML = 'Account# to Add:';
+            document.getElementById("field_label").innerHTML = 'Account# to Add';
             document.getElementById("exception_value").value = '';
         }
         else
@@ -1658,10 +1668,10 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'customer_account_number')
         {
-            document.getElementById("field_label").innerHTML = 'Account# to Add:';
+            document.getElementById("field_label").innerHTML = 'Account# to Add';
             document.getElementById("exception_value").value = existing_field_value;
             document.getElementById("exception_value_dis").value = existing_field_value;
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client.</a>';
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
             $("#exception_value_dis").prop( "disabled", true );
             $("#assign_client_to_account").css('display','block');
             $("#exception_value").css('display','none');
@@ -1761,7 +1771,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             document.getElementById("field_label").innerHTML = 'Broker Alias to Add:';
             document.getElementById("exception_value").value = rep_number;
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker.</a>';
             //document.getElementById("exception_value_dis").value = rep_number;
             $("#assign_rep_to_broker").css('display','block');
             //$("#exception_value").css('display','none');
@@ -1824,6 +1834,7 @@ function check_u5_date(broker)
         if (this.readyState == 4 && this.status == 200) {
             var data = this.responseText;
             if(data != '0'){
+
                $("#broker_terminated").css('display','block');
                document.getElementById("broker_termination_date").value = data;
             }
