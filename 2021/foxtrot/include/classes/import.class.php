@@ -2240,7 +2240,7 @@
                                 if($check_result == 0){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                             ."SET  `error_code_id`='6'"
-                                                .",`field`='state'"
+                                                .",`field`='active_check'"
                                                 .",`file_type`='2'"
                                                 .$insert_exception_string;
                                     $res = $this->re_db_query($q);

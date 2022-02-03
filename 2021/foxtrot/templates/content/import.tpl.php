@@ -146,7 +146,7 @@ PostResult( msg );
   <div class="container">
   <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
     <div class="row">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-left">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		  <div class="graphbox">
 		        <div class="graphboxtitle">Import </div>
 				<div class="graphboxcontent">
@@ -1215,12 +1215,12 @@ PostResult( msg );
                 <div class="row" style="display: none;" id="broker_termination_options_trades">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label id="broker_termination_label">Select Option</label>
+                        <label id="broker_termination_label" class="pull-right">Select Option</label>
                     </div>
                 </div>
                 <div class="col-md-6">
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);"/><label> Hold commission</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Remove U5 Date</label><br />
+                   <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/><label> Hold commission</label><br />
+                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label id="label_broker_active"> Remove U5 Date</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign trade to a new broker</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Trade</label><br />
                 </div>
@@ -1592,6 +1592,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     {
         $("#existing_cusip_number").css('display','none');
         $("#existing_ticker_symbol").css('display','none');
+
         if(exception_field == 'u5')
         {
             document.getElementById("field_label").innerHTML = 'Broker Termination Date:';
@@ -1625,16 +1626,28 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("exception_value_date").value = '';
             $("#exception_value").css('display','block');
         }
+
         if(exception_field == 'active_check')
         {
-            document.getElementById("field_label").innerHTML = 'Check License State:';
-            $("#active_state").css('display','block');
+            document.getElementById("field_label").innerHTML = 'Broker LicenseX';
+            // $("#active_state").css('display','block');
+
+            $("#exception_value").css('display','none');
+            $("#exception_value_date").css('display','none');
+            $("#exception_value_date_display").css('display','block');
+            $("#broker_termination_options_trades").css('display','block');
+
+            document.getElementById("exception_value_date").value = existing_field_value;
+            document.getElementById("exception_value_date_display").value = existing_field_value;
+            document.getElementById("broker_active").label.innerHTML = 'License broker in client state';
+            $("#exception_value_date_display").prop('disabled','true');
             $("#exception_value").css('display','none');
         }
         else
         {
             $("#active_state").css('display','none');
         }
+
         if(exception_field == 'status')
         {
             document.getElementById("field_label").innerHTML = 'Product Terminated:';
@@ -1645,6 +1658,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#status").css('display','none');
         }
+
         if(exception_field == 'mutual_fund_customer_account_number')
         {
             document.getElementById("field_label").innerHTML = 'Account# to Add';
@@ -1692,6 +1706,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#social_security_number").css('display','none');
         }
+
         if(exception_field == 'active')
         {
             document.getElementById("field_label").innerHTML = 'Active Client:';
@@ -1702,6 +1717,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#active").css('display','none');
         }
+
         if(exception_field == 'objectives')
         {
             document.getElementById("field_label").innerHTML = 'Assign Product Objective:';
@@ -1712,6 +1728,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#objectives").css('display','none');
         }
+
         if(exception_field == 'sponsor')
         {
             document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
@@ -1723,6 +1740,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#sponsor").css('display','none');
         }
+
         if(exception_field == 'CUSIP_number' && error_code_id == '13' )
         {
             document.getElementById("field_label").innerHTML = 'Enter CUSIP Number';
@@ -1733,6 +1751,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#cusip_number").css('display','none');
         }
+
         if(exception_field == 'CUSIP_number' && error_code_id == '11')
         {
             //document.getElementById("field_label").innerHTML = 'CUSIP Number';
@@ -1746,6 +1765,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#assign_cusip_to_product").css('display','none');
         }
+
         if(exception_field == 'alpha_code')
         {
             document.getElementById("field_label").innerHTML = 'Enter Client Name';
@@ -1756,6 +1776,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#alpha_code").css('display','none');
         }
+
         if(exception_field == 'representative_number')
         {
             document.getElementById("field_label").innerHTML = 'Broker Alias to Add:';
@@ -1947,5 +1968,19 @@ function formsubmitfiles()
     //e.preventDefault(); // avoid to execute the actual submit of the form.
     return false;
 
+}
+function changeClass() {
+    var pullRights = document.getElementsByClassName('pull-right');
+    var width = (window.innerHeight > 0) ? window.innerHeight : screen.Height;
+    // console.log(width);
+    if(width <= 992) {
+        while(pullRights.length > 0) {
+            pullRights[1].className ='';
+        }
+    } else {
+        while(pullRights.length > 0) {
+            pullRights[0].className = "pull-right";
+        }
+    }
 }
 </script>
