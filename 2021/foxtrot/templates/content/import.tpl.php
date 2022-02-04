@@ -550,21 +550,38 @@ PostResult( msg );
                                                             }
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '2')
                                                             {
-                                                                $return_idc_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);//print_r($return_idc_existing_data);exit;
+                                                                $return_idc_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);//---Test Purposes---print_r($return_idc_existing_data);exit;
+
                                                                 if($error_val['field'] == 'customer_account_number')
                                                                 {
                                                                     $existing_field_value = $return_idc_existing_data['customer_account_number'];
                                                                 }
+
                                                                 if($error_val['field'] == 'CUSIP_number')
                                                                 {
                                                                     $existing_field_value = $return_idc_existing_data['CUSIP_number'];
                                                                 }
+
                                                                 if($error_val['field'] == 'u5')
                                                                 {
                                                                     $rep_number = $return_idc_existing_data['representative_number'];
                                                                     $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
+
+                                                                if($error_val['field'] == 'active_check')
+                                                                {
+                                                                    $instance_client = new client_maintenance();
+                                                                    $instance_product = new product_maintenance();
+                                                                    $instance_import = new import();
+                                                                    // 1.State / 2.ProdCat / 3.TermDate
+                                                                    $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
+                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['CUSIP_number'])."'");
+                                                                    $licenseDetail = $instance_import->checkStateLicense($return_idc_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_idc_existing_data['trade_date'], 1);
+                                                                    $category = substr($licenseDetail['license_table'], strrpos($licenseDetail['license_table'], '_') +1 );
+                                                                    $existing_field_value = trim($category).' / '.trim($licenseDetail['state_name']);
+                                                                }
+
                                                             }
                                                         ?>
                                                         <tr>
@@ -1220,7 +1237,7 @@ PostResult( msg );
                 </div>
                 <div class="col-md-6">
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/><label> Hold commission</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label id="label_broker_active"> Remove U5 Date</label><br />
+                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign trade to a new broker</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Trade</label><br />
                 </div>
@@ -1629,19 +1646,17 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'active_check')
         {
-            document.getElementById("field_label").innerHTML = 'Broker LicenseX';
+            document.getElementById("field_label").innerHTML = 'License Category / State';
             // $("#active_state").css('display','block');
-
-            $("#exception_value").css('display','none');
-            $("#exception_value_date").css('display','none');
-            $("#exception_value_date_display").css('display','block');
+            $("#exception_value").css('display','block');
             $("#broker_termination_options_trades").css('display','block');
-
-            document.getElementById("exception_value_date").value = existing_field_value;
-            document.getElementById("exception_value_date_display").value = existing_field_value;
-            document.getElementById("broker_active").label.innerHTML = 'License broker in client state';
-            $("#exception_value_date_display").prop('disabled','true');
+            document.getElementById("exception_value").value = existing_field_value;
+            document.getElementById("exception_value_dis").value = existing_field_value;
+            document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker License';
+            $("#exception_value").prop( "disabled", true );
+            $("#exception_value_dis").prop( "disabled", true );
             $("#exception_value").css('display','none');
+            $("#exception_value_dis").css('display','block');s
         }
         else
         {

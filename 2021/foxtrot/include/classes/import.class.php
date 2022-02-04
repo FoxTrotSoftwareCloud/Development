@@ -117,7 +117,7 @@
             } else if($exception_field == 'active'){
                 $exception_value = isset($data['active'])?$this->re_db_input($data['active']):'';
             } else if($exception_field == 'active_check'){
-                $exception_value = isset($data['active_state'])?$this->re_db_input($data['active_state']):'';
+                $exception_value = isset($data['exception_field'])?$this->re_db_input($data['exception_field']):'';
             } else if($exception_field == 'status'){
                 $exception_value = isset($data['status'])?$this->re_db_input($data['status']):'';
             } else if($exception_field == 'objectives'){
@@ -368,7 +368,8 @@
                     //--- IDC EXCEPTIONS ---//
                     else if(isset($exception_file_type) && $exception_file_type == '2')
                     {
-                        if($exception_field == 'u5')
+                        //-- 02/03/22 Active License check added to this section. Only Re-activate Rep (resolve_broker_terminated==2) is different --//
+                        if(in_array($exception_field, ['u5', 'active_check']))
                         {
                             if(!isset($data['resolve_broker_terminated'])||$data['resolve_broker_terminated']=='')
                             {
@@ -397,7 +398,7 @@
                                         $result = $this->reprocess_current_files($exception_file_id);
                                     }
                                 }
-                                else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2)
+                                else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2 && $exception_field=='u5')
                                 {
                                     // REMOVE TERMINATED DATE(u5) FOR REP
                                     $q = "SELECT `broker_id`"
@@ -432,6 +433,24 @@
                                     } else {
                                         $result = 0;
                                     }
+                                }
+                                else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2 && $exception_field=='active_check')
+                                {
+                                    //--- Broker License Error - Activate License ---//
+                                    $instance_client = new client_maintenance();
+                                    $instance_product = new product_maintenance();
+                                    $instance_import = new import();
+                                    $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
+                                    $clientDetail = $instance_client->get_client_name($idcDetailRow['client_id']);
+                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['CUSIP_number'])."'");
+                                    $licenseDetail = $this->checkStateLicense($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1);
+
+                                    if ($licenseDetail > 0){
+
+                                    } else {
+
+                                    }
+
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 3)
                                 {
@@ -533,62 +552,63 @@
                                     $result = $this->reprocess_current_files($exception_file_id);
                                 }
                         }
-                        else if($exception_field == 'active_check')
-                        {
-                            //--- STATE LICENSE EXCEPTION --//
-                            $rep_number = 0;
-                            $broker = 0;
-                            $customer_account_number = 0;
-                            $state_id = 0;
+                        //--- 02/03/22 Same options are available to "terminated reps" - code moved there ->  if($data['resolve_broker_terminated'] > 0)
+                        // else if($exception_field == 'active_check')
+                        // {
+                            // //--- STATE LICENSE EXCEPTION --//
+                            // $rep_number = 0;
+                            // $broker = 0;
+                            // $customer_account_number = 0;
+                            // $state_id = 0;
 
-                            $q = "SELECT rep FROM `".IMPORT_EXCEPTION."` WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $rep_number = $row['rep'];
-                            }
+                            // $q = "SELECT rep FROM `".IMPORT_EXCEPTION."` WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+			                // $res = $this->re_db_query($q);
+                            // while($row = $this->re_db_fetch_array($res))
+                            // {
+                            //     $rep_number = $row['rep'];
+                            // }
 
-                            $q = "SELECT customer_account_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $customer_account_number = $row['customer_account_number'];
-                            }
+                            // $q = "SELECT customer_account_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
+			                // $res = $this->re_db_query($q);
+                            // while($row = $this->re_db_fetch_array($res))
+                            // {
+                            //     $customer_account_number = $row['customer_account_number'];
+                            // }
 
-                            $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `fund`='".$rep_number."' ";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $broker = $row['id'];
-                            }
+                            // $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `fund`='".$rep_number."' ";
+			                // $res = $this->re_db_query($q);
+                            // while($row = $this->re_db_fetch_array($res))
+                            // {
+                            //     $broker = $row['id'];
+                            // }
 
-                            $q = "SELECT `cm`.`state`"
-                                    ." FROM `".CLIENT_MASTER."` as `cm`"
-                                    ." LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`"
-                                    ." WHERE `cm`.`is_delete`=0 AND `ca`.`account_no`='".$customer_account_number."' "
-                            ;
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $state_id = $row['state'];
-                            }
+                            // $q = "SELECT `cm`.`state`"
+                            //         ." FROM `".CLIENT_MASTER."` as `cm`"
+                            //         ." LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`"
+                            //         ." WHERE `cm`.`is_delete`=0 AND `ca`.`account_no`='".$customer_account_number."' "
+                            // ;
+			                // $res = $this->re_db_query($q);
+                            // while($row = $this->re_db_fetch_array($res))
+                            // {
+                            //     $state_id = $row['state'];
+                            // }
 
-                            $q = "UPDATE `".BROKER_LICENCES_SECURITIES."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
-                            $res = $this->re_db_query($q);
+                            // $q = "UPDATE `".BROKER_LICENCES_SECURITIES."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
+                            // $res = $this->re_db_query($q);
 
-                            $q = "UPDATE `".BROKER_LICENCES_RIA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
-                            $res = $this->re_db_query($q);
+                            // $q = "UPDATE `".BROKER_LICENCES_RIA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
+                            // $res = $this->re_db_query($q);
 
-                            $q = "UPDATE `".BROKER_LICENCES_INSURANCE."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
-                            $res = $this->re_db_query($q);
+                            // $q = "UPDATE `".BROKER_LICENCES_INSURANCE."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
+                            // $res = $this->re_db_query($q);
 
-                            $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                            $res1 = $this->re_db_query($q1);
-                            if($res1)
-                            {
-                                $result = 1;
-                            }
-                        }
+                            // $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                            // $res1 = $this->re_db_query($q1);
+                            // if($res1)
+                            // {
+                            //     $result = 1;
+                            // }
+                        // }
                         else if($exception_field == 'status')
                         {
                             $CUSIP_number = 0;
@@ -2557,7 +2577,9 @@
          * @param string $pTerm_date
          * @return bool TRUE - good licensing, FALSE - broker license not found or not active
          */
-        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date=''){
+        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date='',$pDetail=0){
+            $return = ['license_id'=>0, 'broker_id'=>$pBroker_id, 'first_name'=>'', 'last_name'=>'', 'active_check'=>0, 'state_id'=>(int)$pClient_state, 'state_name'=>'',
+                       'received'=>'', 'terminated'=>'', 'license_table'=>'', 'product_category'=>'', 'trade_date'=>'', 'result'=>0];
             $BatchClass = new batches();
             $DbClass = new db();
 
@@ -2572,18 +2594,35 @@
                 $licenseTable = BROKER_LICENCES_SECURITIES;
             }
 
-            $q = "SELECT `bm`.`id`, `bm`.`first_name`, `bm`.`last_name`, `bls`.`active_check`, `bls`.`state_id`, '".$this->re_db_input($licenseTable)."' AS `license_table`, '"
-                         .$this->re_db_input($product_category)."' AS `product_category`".
-                    " FROM `".$licenseTable."` AS `bls`".
-                    " LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`=0".
-                    " WHERE `bls`.`is_delete`=0"
-                        ." AND `bls`.`broker_id`='".$this->re_db_input($pBroker_id)."'"
-                        ." AND `bls`.`state_id`='".$this->re_db_input($pClient_state)."'"
-                        ." AND ('".$trade_date."' BETWEEN `bls`.`received` AND `bls`.`terminated`)"
+            $return['product_category'] = $product_category;
+            $return['license_table'] = $licenseTable;
+            $return['trade_date'] = $trade_date;
+
+            $q = "SELECT `bls`.`id` AS `license_id`, `bm`.`id` AS `broker_id`, `bm`.`first_name`, `bm`.`last_name`"
+                         .", `bls`.`active_check`, `bls`.`state_id`, `st`.`name` AS `state_name`, `bls`.`received`, `bls`.`terminated`"
+                         .", '$licenseTable' AS `license_table`"
+                         .", '$product_category' AS `product_category`"
+                         .", '$trade_date' AS `trade_date`"
+                    ." FROM `".$licenseTable."` AS `bls`"
+                    ." LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`=0"
+                    ." LEFT JOIN `".STATE_MASTER."` `st` ON `bls`.`state_id`=`st`.`id` AND `st`.`is_delete`=0"
+                    ." WHERE `bls`.`is_delete`=0"
+                    ." AND `bls`.`broker_id`='".$this->re_db_input($pBroker_id)."'"
+                    ." AND `bls`.`state_id`='".$this->re_db_input($pClient_state)."'"
             ;
             $res = $DbClass->re_db_query($q);
-            $qArray = $DbClass->re_db_fetch_array($res);
-            return !empty($qArray['active_check']);
+
+            if ($this->re_db_num_rows($res))
+                $return = $this->re_db_fetch_array($res);
+            $return['result'] = ($return['active_check'] AND $trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR in_array($return['terminated'], ['1969-12-31', '1970-01-01'])));
+
+            if ($pDetail){
+                // Just return $return
+            } else {
+                $return = $return['result'];
+            }
+
+            return $return;
         }
 
         public function select_archive_files(){
