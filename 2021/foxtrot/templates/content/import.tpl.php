@@ -275,37 +275,6 @@ PostResult( msg );
                                                         {
                                                             $total_complete_process=0;
                                                         }
-                                                        /** 01/13/22 New code "reprocesses" on the process_current_file() calls, so no need to refresh the grid */
-                                                        // if($total_complete_process == 100)
-                                                        // {
-                                                        //     $return = $instance->reprocess_current_files($val['id']);
-                                                        //     if(isset($val['source']) && $val['source'] == 'DSTFANMail')
-                                                        //     {
-                                                        //         $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
-                                                        //         $count_processed_data = count($total_processed_data);
-                                                        //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                        //         // $count_exception_data = count($total_exception_data);
-                                                        //     }
-                                                        //     else
-                                                        //     {
-                                                        //         $total_processed_data = $instance->get_idc_detail_data($val['id']);
-                                                        //         $count_processed_data = count($total_processed_data);
-                                                        //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                        //         // $count_exception_data = count($total_exception_data);
-                                                        //     }
-                                                        //     if(isset($count_processed_data) && $count_processed_data>0)
-                                                        //     {
-                                                        //         $total_process = $count_processed_data+$count_exception_data;
-                                                        //         $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                        //         //$up = ($u*100)/$t;
-                                                        //         //$total_uncomplete_process = ($count_exception_data*100)/$count_processed_data;
-                                                        //         $total_complete_process = round($total_processed_per);
-                                                        //     }
-                                                        //     else
-                                                        //     {
-                                                        //         $total_complete_process=0;
-                                                        //     }
-                                                        // }
                                                         ?>
                                                         <td style="width: 15%;">
                                                         <div class="progress">
@@ -398,23 +367,11 @@ PostResult( msg );
                                                             <td style="width: 15%;"><?php echo $val['file_type'];?></td>
                                                             <td><?php echo $val['source'];?></td>
                                                             <?php
-                                                            if(isset($val['source']) && $val['source'] == 'DSTFANMail')
-                                                            {
-                                                                $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
-                                                                $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // 12/25/21 Refactored the get_exception_data(fileId) function to return only the exceptions remaining for the file
-                                                                // $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                //$count_exception_data = count($total_exception_data);
-                                                            }
-                                                            else
-                                                            {
-                                                                $total_processed_data = $instance->get_idc_detail_data($val['id']);
-                                                                $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // $count_exception_data = count($total_exception_data);
-                                                            }
-                                                            if(isset($count_processed_data) && $count_processed_data>0)
+                                                            $total_processed_data = $instance->check_file_exception_process($val['id'],1);
+                                                            $count_processed_data = $total_processed_data['processed'];
+                                                            $count_exception_data = $total_processed_data['exceptions'];
+
+                                                            if($count_processed_data + $count_exception_data > 0)
                                                             {
                                                                 $total_process = $count_processed_data+$count_exception_data;
                                                                 $total_processed_per = ($count_processed_data*100)/$total_process;
@@ -565,7 +522,7 @@ PostResult( msg );
                                                                 if($error_val['field'] == 'u5')
                                                                 {
                                                                     $rep_number = $return_idc_existing_data['representative_number'];
-                                                                    $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
+                                                                    $u5_date = $instance->broker_termination_date($rep_number, abs($return_idc_existing_data['broker_id']));
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
 
@@ -577,9 +534,9 @@ PostResult( msg );
                                                                     // 1.State / 2.ProdCat / 3.TermDate
                                                                     $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
                                                                     $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['CUSIP_number'])."'");
-                                                                    $licenseDetail = $instance_import->checkStateLicense($return_idc_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_idc_existing_data['trade_date'], 1);
-                                                                    $category = substr($licenseDetail['license_table'], strrpos($licenseDetail['license_table'], '_') +1 );
-                                                                    $existing_field_value = trim($category).' / '.trim($licenseDetail['state_name']);
+                                                                    $licenceDetail = $instance_import->checkStateLicence(abs($return_idc_existing_data['broker_id']), $clientDetail[0]['state'], $productDetail['category'], $return_idc_existing_data['trade_date'], 1);
+                                                                    $category = substr($licenceDetail['licence_table'], strrpos($licenceDetail['licence_table'], '_') +1 );
+                                                                    $existing_field_value = trim($category).' / '.trim($licenceDetail['state_name']);
                                                                 }
 
                                                             }
@@ -1646,13 +1603,13 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'active_check')
         {
-            document.getElementById("field_label").innerHTML = 'License Category / State';
+            document.getElementById("field_label").innerHTML = 'Licence Category / State';
             // $("#active_state").css('display','block');
             $("#exception_value").css('display','block');
             $("#broker_termination_options_trades").css('display','block');
             document.getElementById("exception_value").value = existing_field_value;
             document.getElementById("exception_value_dis").value = existing_field_value;
-            document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker License';
+            document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
             $("#exception_value").prop( "disabled", true );
             $("#exception_value_dis").prop( "disabled", true );
             $("#exception_value").css('display','none');

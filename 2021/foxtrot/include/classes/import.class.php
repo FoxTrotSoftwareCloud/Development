@@ -368,7 +368,8 @@
                     //--- IDC EXCEPTIONS ---//
                     else if(isset($exception_file_type) && $exception_file_type == '2')
                     {
-                        //-- 02/03/22 Active License check added to this section. Only Re-activate Rep (resolve_broker_terminated==2) is different --//
+                        //--- 02/03/22 Active Broker Licence check added to this section($exception_field=='active_check').
+                        //--- Populates the "resolve_broker_terminated" elements in "import.tpl.php". Re-activate Rep (resolve_broker_terminated==2) is compleletely different --//
                         if(in_array($exception_field, ['u5', 'active_check']))
                         {
                             if(!isset($data['resolve_broker_terminated'])||$data['resolve_broker_terminated']=='')
@@ -384,15 +385,13 @@
                                 {
                                     // Put HOLD on trade
                                     $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                        ." SET `on_hold`=1"
+                                        ." SET `on_hold`=".($exception_field=='u5' ? '1' : '3')
                                                 .$this->update_common_sql()
                                         ." WHERE `file_id`=".$exception_file_id
                                           ." AND `id`=".$exception_data_id
                                     ;
                                     $res = $this->re_db_query($q);
-                                    // Update Exception Table in reprocess_current_file($id) 01/23/22
-                                    // $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                    // $res1 = $this->re_db_query($q1);
+
                                     if($res)
                                     {
                                         $result = $this->reprocess_current_files($exception_file_id);
@@ -434,23 +433,78 @@
                                         $result = 0;
                                     }
                                 }
-                                else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2 && $exception_field=='active_check')
+                                else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated']==2 && $exception_field=='active_check')
                                 {
-                                    //--- Broker License Error - Activate License ---//
+                                    $result = 0;
+                                    //--- Broker Licence Error - Activate Licence ---//
                                     $instance_client = new client_maintenance();
                                     $instance_product = new product_maintenance();
-                                    $instance_import = new import();
+                                    $instance_broker = new broker_master();
                                     $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
                                     $clientDetail = $instance_client->get_client_name($idcDetailRow['client_id']);
                                     $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['CUSIP_number'])."'");
-                                    $licenseDetail = $this->checkStateLicense($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1);
+                                    $licenceDetail = $this->checkStateLicence(abs($idcDetailRow['broker_id']), $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1);
 
-                                    if ($licenseDetail > 0){
+                                    if (!empty($licenceDetail['licence_table']) AND !empty($licenceDetail['state_id'])){
+                                        // ADD/UPDATE the existing licence record
+                                        $licenceDetail['id'] = $licenceDetail['licence_id'];
+                                        $licenceDetail['active_check'] = 1;
+                                        // Date checks - Received & Terminated
+                                        if ($idcDetailRow['trade_date']<$licenceDetail['received']){
+                                            $licenceDetail['received'] = $idcDetailRow['trade_date'];
+                                        }
+
+                                        if ($idcDetailRow['trade_date']>$licenceDetail['terminated']){
+                                            $licenceDetail['terminated'] = $idcDetailRow['trade_date'];
+                                        }
+
+                                        // Product Type field
+                                        switch ($licenceDetail['licence_table']) {
+                                            case 'BROKER_LICENCES_SECURITIES':
+                                                $licenceDetail['type_of_licences'] = 1;
+                                                break;
+                                            case 'BROKER_LICENCES_INSURANCE':
+                                                $licenceDetail['type_of_licences'] = 2;
+                                                break;
+                                            default:
+                                                $licenceDetail['type_of_licences'] = 3;
+                                                break;
+                                        }
+                                        // Do the Deed!
+                                        if ($licenceDetail['id']){
+                                            $q = "UPDATE `".constant($licenceDetail['licence_table'])."`"
+                                                    ." SET"
+                                                        ." `broker_id`=".$licenceDetail['broker_id']
+                                                        .",`type_of_licences`=".$licenceDetail['type_of_licences']
+                                                        .",`state_id`=".$licenceDetail['state_id']
+                                                        .",`active_check`=".$licenceDetail['active_check']
+                                                        .",`received` = '".$licenceDetail['received']."'"
+                                                        .",`terminated`= '".$licenceDetail['terminated']."'"
+                                                        .$this->update_common_sql()
+                                                    ." WHERE `id`=".$licenceDetail['id']
+                                            ;
+                                            $result = $this->re_db_query($q);
+                                        } else {
+                                            $q = "INSERT INTO `".constant($licenceDetail['licence_table'])."`"
+                                                    ." SET"
+                                                        ." `broker_id`=".$licenceDetail['broker_id']
+                                                        .",`type_of_licences`=".$licenceDetail['type_of_licences']
+                                                        .",`state_id`=".$licenceDetail['state_id']
+                                                        .",`active_check`=".$licenceDetail['active_check']
+                                                        .",`received` = '".$licenceDetail['received']."'"
+                                                        .",`terminated` = '".$licenceDetail['terminated']."'"
+                                                        .$this->insert_common_sql()
+                                            ;
+                                            $result = $this->re_db_query($q);
+                                        }
+
+                                        if ($result){
+                                            $result = $this->reprocess_current_files($exception_file_id);
+                                        }
 
                                     } else {
-
+                                        $this->errors = 'Licence update failed - Product Category not found.';
                                     }
-
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 3)
                                 {
@@ -465,16 +519,19 @@
                                     else
                                     {
                                         $new_rep = 0;
-                                        $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `id`=".$rep_for_broker;
+                                        $q = "SELECT id,first_name,last_name FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `id`=".$rep_for_broker;
             			                $res = $this->re_db_query($q);
 
                                         if($res->num_rows)
                                         {
                                             $row = $this->re_db_fetch_array($res);
                                             $new_rep = $row['id'];
+                                            $rep_name = $row['first_name'].' '.$row['last_name'];
+
                                             // Enter the "Broker ID" as a negative to tell reprocess_current_file($file_id) to skip the Alias search, and just force "broker_id" as the broker for the trade
                                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
                                                 ." SET `broker_id` = -".$new_rep
+                                                        .",`representative_name`='$rep_name'"
                                                         .$this->update_common_sql()
                                                 ." WHERE `id`=".$exception_data_id
                                                   ." AND `file_id`=".$exception_file_id
@@ -555,7 +612,7 @@
                         //--- 02/03/22 Same options are available to "terminated reps" - code moved there ->  if($data['resolve_broker_terminated'] > 0)
                         // else if($exception_field == 'active_check')
                         // {
-                            // //--- STATE LICENSE EXCEPTION --//
+                            // //--- STATE LICENCE EXCEPTION --//
                             // $rep_number = 0;
                             // $broker = 0;
                             // $customer_account_number = 0;
@@ -923,23 +980,22 @@
                         }
                      }
 
-                     if($result == 1){
+                    if($result == 1){
                         if($exception_field == 'customer_account_number')
                         {
                             $_SESSION['success'] = $exception_value.' Added.';
-    					    return true;
+                            return true;
                         }
                         else
                         {
                             $_SESSION['success'] = 'Exception solved successfully.';
-    					    return true;
+                            return true;
                         }
-
-     				 }
-    				 else{
-    					$_SESSION['warning'] = UNKWON_ERROR;
-    					return false;
-    				 }
+                    }
+                    else{
+                        $_SESSION['warning'] = (empty($resultMessage) ? UNKWON_ERROR : $resultMessage);
+                        return false;
+                    }
     		}
 		}
 
@@ -2252,10 +2308,11 @@
                                 }
                             }
 
-                            // State License Check
-                            if(!empty($broker_id) AND !empty($client_id) AND !empty($clientAccount['state']) AND !empty($product_category_id)){
-                                // 12/17/21 Get the correct product type license
-                                $check_result = $this->checkStateLicense($broker_id, $clientAccount['state'], $product_category_id, $check_data_val['trade_date']);
+                            // State Licence Check
+                            // "on_hold" populated in resolve_exceptions($data) - (1)Broker Terminated, (3)Broker Licence
+                            if(!in_array($check_data_val['on_hold'], ['1', '3']) AND !empty($broker_id) AND !empty($client_id) AND !empty($clientAccount['state']) AND !empty($product_category_id)){
+                                // 12/17/21 Get the correct product type licence
+                                $check_result = $this->checkStateLicence($broker_id, $clientAccount['state'], $product_category_id, $check_data_val['trade_date']);
 
                                 if($check_result == 0){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
@@ -2347,6 +2404,8 @@
                                     $con .=",`hold_commission`='".$check_hold_commission."',`hold_resoan`='BROKER TERMINATED'";
                                 } else if($broker_hold_commission == 1){
                                     $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
+                                } else if(in_array($check_data_val['on_hold'], ['3', '4'])){
+                                    $con .=",`hold_commission`=1, `hold_resoan`='BROKER LICENCE ERROR'";
                                 } else {
                                     $con .=",`hold_commission`='2'";
                                 }
@@ -2575,42 +2634,49 @@
          * @param int $pClient_state
          * @param mixed $pProduct_category_id
          * @param string $pTerm_date
-         * @return bool TRUE - good licensing, FALSE - broker license not found or not active
+         * @return bool TRUE - good licensing, FALSE - broker licence not found or not active
          */
-        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date='',$pDetail=0){
-            $return = ['license_id'=>0, 'broker_id'=>$pBroker_id, 'first_name'=>'', 'last_name'=>'', 'active_check'=>0, 'state_id'=>(int)$pClient_state, 'state_name'=>'',
-                       'received'=>'', 'terminated'=>'', 'license_table'=>'', 'product_category'=>'', 'trade_date'=>'', 'result'=>0];
+        function checkStateLicence($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date='',$pDetail=0){
+            $return = ['licence_id'=>0, 'broker_id'=>$pBroker_id, 'first_name'=>'', 'last_name'=>'', 'active_check'=>0, 'state_id'=>(int)$pClient_state, 'state_name'=>'',
+                       'received'=>'', 'terminated'=>'', 'licence_table'=>'', 'product_category_id'=>$pProduct_category_id, 'product_category'=>'', 'trade_date'=>'', 'result'=>0];
             $BatchClass = new batches();
-            $DbClass = new db();
+            $ClientClass = new client_maintenance();
 
             $trade_date = (empty($pTrade_date) ? date('Y-m-d', strtotime('1900-01-01')) : date('Y-m-d', strtotime($pTrade_date)));
             $product_category = strtolower($BatchClass->get_product_type($pProduct_category_id));
+            $state_name = $ClientClass->get_state_name($pClient_state);
+            if ($state_name){
+                $state_name = $state_name['state_name'];
+            } else {
+                $state_name = '';
+            }
 
             if (in_array($product_category, ['ria'])) {
-                $licenseTable = BROKER_LICENCES_RIA;
+                $licenceTable = 'BROKER_LICENCES_RIA';
             } else if (preg_match('(life|insurance|annuities|annuity)', $product_category)) {
-                $licenseTable = BROKER_LICENCES_INSURANCE;
+                $licenceTable = 'BROKER_LICENCES_INSURANCE';
             } else {
-                $licenseTable = BROKER_LICENCES_SECURITIES;
+                $licenceTable = 'BROKER_LICENCES_SECURITIES';
             }
 
             $return['product_category'] = $product_category;
-            $return['license_table'] = $licenseTable;
+            $return['licence_table'] = $licenceTable;
             $return['trade_date'] = $trade_date;
+            $return['state_name'] = $state_name;
 
-            $q = "SELECT `bls`.`id` AS `license_id`, `bm`.`id` AS `broker_id`, `bm`.`first_name`, `bm`.`last_name`"
-                         .", `bls`.`active_check`, `bls`.`state_id`, `st`.`name` AS `state_name`, `bls`.`received`, `bls`.`terminated`"
-                         .", '$licenseTable' AS `license_table`"
+            $q = "SELECT `bls`.`id` AS `licence_id`, `bm`.`id` AS `broker_id`, `bm`.`first_name`, `bm`.`last_name`"
+                         .", `bls`.`active_check`, `bls`.`state_id`, '$state_name' AS `state_name`, `bls`.`received`, `bls`.`terminated`"
+                         .", '$licenceTable' AS `licence_table`"
+                         .", '$pProduct_category_id' AS `product_category_id`"
                          .", '$product_category' AS `product_category`"
                          .", '$trade_date' AS `trade_date`"
-                    ." FROM `".$licenseTable."` AS `bls`"
+                    ." FROM `".constant($licenceTable)."` AS `bls`"
                     ." LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`=0"
-                    ." LEFT JOIN `".STATE_MASTER."` `st` ON `bls`.`state_id`=`st`.`id` AND `st`.`is_delete`=0"
                     ." WHERE `bls`.`is_delete`=0"
                     ." AND `bls`.`broker_id`='".$this->re_db_input($pBroker_id)."'"
                     ." AND `bls`.`state_id`='".$this->re_db_input($pClient_state)."'"
             ;
-            $res = $DbClass->re_db_query($q);
+            $res = $this->re_db_query($q);
 
             if ($this->re_db_num_rows($res))
                 $return = $this->re_db_fetch_array($res);
