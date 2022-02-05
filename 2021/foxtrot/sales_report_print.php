@@ -127,7 +127,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     }
     //$subheading.=", Dates: ".$beginning_date." - ".$ending_date;
        
-            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by);
+            $get_trans_data = $instance_trans->select_transcation_history_report_v2($report_for,$sort_by,$branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail,$prod_cat);
            if(!empty($get_trans_data))
             {
                 $get_data_by_category = array();

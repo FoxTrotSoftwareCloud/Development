@@ -34,6 +34,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $ending_date = isset($filter_array['ending_date'])?$filter_array['ending_date']:'';
     $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
     $report_for = isset($filter_array['report_for'])?trim($filter_array['report_for']):'';
+    $prod_cat = isset($filter_array['prod_cat'])?$filter_array['prod_cat']:array();
     $sponsor = isset($filter_array['sponsor'])?$instance->re_db_input($filter_array['sponsor']):'';
     $rep_no = isset($filter_array['rep_no'])?$instance->re_db_input($filter_array['rep_no']):'';
     $date_by= isset($filter_array['date_by'])?$instance->re_db_input($filter_array['date_by']):1;
@@ -172,7 +173,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     
    
            if($report_for != "broker"):
-            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail);
+            $get_trans_data = $instance_trans->select_transcation_history_report_v2($report_for,$sort_by,$branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail,$prod_cat);
             if(!empty($get_trans_data))
             {
                 $get_data_by_category = array();
@@ -261,7 +262,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $total_comm_received_cat+=$trans_data['commission_received'];
                         $total_comm_paid_cat+=$trans_data['charge_amount'];
                         $total_inv_cat+=$trans_data['invest_amount'];
-                        $date = ($date_by == "1") ? $trans_data['trade_date'] : $trans_data['commission_received_date'];
+                        // $date = ($date_by == "1") ? $trans_data['trade_date'] : $trans_data['commission_received_date'];
                         ?>
                         <?php if($report_for != "Category Summary Report") : ?> 
                         <tr>
@@ -338,7 +339,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     </table>
 <?php  
       else:
-         $get_trans_data = $instance_trans->select_transcation_history_by_broker($broker,$beginning_date,$ending_date,$date_by,$filter_by,$is_trail);
+
+         $get_trans_data = $instance_trans->select_transcation_history_by_broker_v2($broker,$beginning_date,$ending_date,$date_by,$filter_by,$is_trail);
            
             $batch_desc = isset($get_trans_data[0]['batch_desc'])?$instance->re_db_input($get_trans_data[0]['batch_desc']):'';
             $total_amount_invested = 0;
@@ -421,7 +423,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                             ?>
                             <tr>
                                 <td STYLE="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['id'] ?></td>
-                                <td STYLE="font-size:10px;font-weight:normal;text-align:left;"><?php echo  date("m/d/Y",strtotime($trans_data['trade_date'])) ."<br/>" . date("m/d/Y",strtotime($trans_data['settlement_date'])); ?></td>
+                                <td STYLE="font-size:10px;font-weight:normal;text-align:left;"><!-- <?php echo  date("m/d/Y",strtotime($trans_data['trade_date'])) ."<br/>" . date("m/d/Y",strtotime($trans_data['settlement_date'])); ?> -->
+                                    
+                                </td>
                                 <td STYLE="font-size:10px;font-weight:normal;text-align:left;"> <?php  echo $trans_data['client_name']. "<br/>" .$trans_data['client_number'] ?></td>
                                 <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['invest_amount'],2); ?></td>
                                 <td STYLE="font-size:10px;font-weight:normal;text-align:right;"> <?php echo '$'.number_format($trans_data['commission_received'],2); ?></td>
