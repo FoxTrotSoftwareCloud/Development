@@ -1,15 +1,25 @@
 <?php
     @session_start();
-    date_default_timezone_set ("Asia/Calcutta");
+    date_default_timezone_set ("America/Los_Angeles");
     ini_set('display_errors',1);
     define('HTTP_HOST','http://'.$_SERVER['HTTP_HOST'].'/');
-	define('HTTP_SERVER', HTTP_HOST.'CloudFox/'); 
+    // 01/18/22 Added for the "localhost" server
+    if ($_SERVER['HTTP_HOST']=='localhost'){
+        $cloudFox = dirname($_SERVER['SCRIPT_NAME']).'/';
+        
+        if (in_array(substr($cloudFox,0,1), ['/', '\\'])){
+            $cloudFox = substr($cloudFox,1);
+        }
+    } else {
+        $cloudFox = "CloudFox/";
+    }
+	define('HTTP_SERVER', HTTP_HOST.$cloudFox); 
 	define('ENABLE_SSL', false);
     define('IS_LIVE',0);
     
-    define('SITE_URL', HTTP_HOST.'CloudFox/');
+    define('SITE_URL', HTTP_HOST.$cloudFox);
     
-	define('DIR_FS',$_SERVER['DOCUMENT_ROOT'].'/CloudFox/');
+	define('DIR_FS',$_SERVER['DOCUMENT_ROOT'].'/'.$cloudFox);
 	define('DIR_FS_INCLUDES',DIR_FS.'include/');
     define('DIR_FS_CLASSES',DIR_FS_INCLUDES.'classes/');
 	define('DIR_WS_TEMPLATES', DIR_FS.'templates/');
@@ -52,25 +62,39 @@
     include(DIR_FS_INCLUDES.'phpmailer/PHPMailerAutoload.php');
     
     
-    // local config
-    /*
+    /* local config - I don't know for who
 	define('DB_SERVER', '97.74.232.123');
 	define('DB_SERVER_USERNAME', 'iipldemo_foxtrot');
 	define('DB_SERVER_PASSWORD', 'Ij5Xyv{A}Ati');
 	define('DB_DATABASE', 'iipldemo_foxtrot');
 	define('USE_PCONNECT', 'false');
 	define('STORE_SESSIONS', 'mysql');
-    */
-    
+    */ 
+    /* PRODUCTION SITE SERVER 
     define('DB_SERVER', 'sql5c40n.carrierzone.com');
 	define('DB_SERVER_USERNAME', 'jjixgbv9my353010');
 	define('DB_SERVER_PASSWORD', 'We3b2!12');
 	define('DB_DATABASE', 'CloudFox_jjixgbv9my353010');
 	define('USE_PCONNECT', 'false');
 	define('STORE_SESSIONS', 'mysql');
-
-
-    
+    */
+       // 10/30/21 Use the correct server
+    if ($_SERVER['SERVER_NAME']=='localhost') {
+        // local config -> 10/30/21 LI
+        define('DB_SERVER', 'localhost');
+        define('DB_SERVER_USERNAME', 'root');
+        define('DB_SERVER_PASSWORD', '');
+        define('DB_DATABASE', 'cloudfox');
+        define('USE_PCONNECT', 'false');
+        define('STORE_SESSIONS', 'mysql');
+    } else {
+        define('DB_SERVER', 'sql5c40n.carrierzone.com');
+        define('DB_SERVER_USERNAME', 'jjixgbv9my353010');
+        define('DB_SERVER_PASSWORD', 'We3b2!12');
+        define('DB_DATABASE', 'CloudFox_jjixgbv9my353010');
+        define('USE_PCONNECT', 'false');
+        define('STORE_SESSIONS', 'mysql');
+    }
     
     include(DIR_FS_INCLUDES.'tables.php');
     include(DIR_FS_INCLUDES.'db.class.php');

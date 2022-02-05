@@ -45,7 +45,7 @@
 			return $return;
 		}
         public function select_daily_import_process_files_0($con=''){//for all process files
-           
+            $return = array();
 			$ins = new import();
             $files_array = array();
             $total_complete_process = 0;
@@ -69,6 +69,8 @@
                 }
                 $result['total_processed_files_at_0'] = count($files_array);
     			$return = $result;
+            } else {
+                $return['total_processed_files_at_0'] = 0;
             }
 			return $return;
 		}
@@ -96,6 +98,8 @@
                 }
                 $result['total_processed_files'] = count($files_array);
     			$return = $result;
+            } else {
+              $return['total_processed_files'] = 0;
             }
 			return $return;
 		}

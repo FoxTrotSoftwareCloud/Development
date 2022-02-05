@@ -36,3 +36,4 @@ dwsync.xml
 *.php_backup_*
 loren*.*
 config*.*
+*_localLoren.*

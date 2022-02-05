@@ -6,7 +6,9 @@
     define('USER_MENU_RIGHTS','ft_user_menu_rights');
     define('ADMIN_MASTER','admin_master');
     define('ACCOUNT_TYPE','ft_account_type');
-    define('PRODUCT_TYPE','ft_product_type');
+    // 12/11/21 Not sure if this file is used (should be "./include/tables.php"), but change the table name to match the newer version, and deprecate 'ft_product_type'
+    //define('PRODUCT_TYPE','ft_product_type');
+    define('PRODUCT_TYPE','ft_product_categories');
     define('PAYROLL_TYPE','ft_payroll_master');
     define('CLIENT_MASTER','ft_client_master');
     define('BROKER_MASTER','ft_broker_master');

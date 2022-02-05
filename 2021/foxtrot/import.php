@@ -23,9 +23,9 @@
     $get_product_category = $instance->select_category();
     $get_objective = $instance->get_objectives_data();
     $instance_broker = new broker_master();
-    $get_broker = $instance_broker->select();
+    $get_broker = $instance_broker->select(1);
     $instance_client = new client_maintenance();
-    $get_client = $instance_client->select();
+    $get_client = $instance_client->select(1);
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor();
 
@@ -34,9 +34,9 @@
         $get_total_commission = $instance->get_total_commission_amount($_GET['id']);
         $total_commission_amount = $get_total_commission;
     }
-   
+
     if(isset($_POST['go'])&& $_POST['go']=='go'){
-       
+
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $process_file = isset($_POST['process_file_'.$id])?$instance->re_db_input($_POST['process_file_'.$id]):'';
         if(isset($process_file) && $process_file == 1)
@@ -44,8 +44,8 @@
             $return = $instance->delete_current_files($id);
         }
         else if(isset($process_file) && $process_file == 2)
-        {   
-          
+        {
+
             $return = $instance->process_current_files($id);
             if($return == '')
             {
@@ -145,31 +145,30 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
-    else if(isset($_POST['resolve_exception'])&& $_POST['resolve_exception']=='Resolve Exception'){
-        //echo '<pre>';print_r($_POST);exit;
+    else if(isset($_POST['resolve_exception']) && $_POST['resolve_exception']=='Resolve Exception'){
         $exception_file_id = isset($_POST['exception_file_id'])?$instance->re_db_input($_POST['exception_file_id']):0;
         $exception_data_id = isset($_POST['exception_data_id'])?$instance->re_db_input($_POST['exception_data_id']):0;
         $exception_field = isset($_POST['exception_field'])?$instance->re_db_input($_POST['exception_field']):'';
-        if($exception_field == 'u5')
-        {
+
+        if($exception_field == 'u5'){
             $exception_value = isset($_POST['exception_value_date'])?$instance->re_db_input($_POST['exception_value_date']):'';
-        }
-        else
-        {
+        }else{
             $exception_value = isset($_POST['exception_value'])?$instance->re_db_input($_POST['exception_value']):'';
         }
+
         $return = $instance->update_exceptions($_POST);
+
         if($return===true){
             echo '1';exit;
-        }
-        else{
+        }else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }
+
         echo $error;
         exit;
     }
     else if(isset($_POST['fetch_files']) && $_POST['fetch_files']== 'Fetch Files')
-    {//print_r($_FILES['files']);exit;
+    {
         $return = $instance->insert_update_files($_POST);
         if($return===true){
             echo '1';exit;
@@ -209,8 +208,7 @@
         $return = $instance->ftp_status($ftp_id,$status);
         if($return==true){
             header('location:'.CURRENT_PAGE."?tab=open_ftp");exit;
-        }
-        else{
+        }else{
             header('location:'.CURRENT_PAGE."?tab=open_ftp");exit;
         }
     }
@@ -219,8 +217,7 @@
         $return = $instance->ftp_delete($ftp_id);
         if($return==true){
             header('location:'.CURRENT_PAGE."?tab=open_ftp");exit;
-        }
-        else{
+        }else{
             header('location:'.CURRENT_PAGE."?tab=open_ftp");exit;
         }
     }
@@ -228,26 +225,18 @@
     {
         $broker_id = $instance->re_db_input($_GET['broker_termination']);
         $return = $instance->check_u5_termination($broker_id);
-        if($return != '')
-        {
+        if($return != ''){
             $current_date = date('Y-m-d');
 
-            if($current_date>$return)
-            {
+            if($current_date>$return){
                 echo date('m/d/Y',strtotime($return));exit;
-            }
-            else
-            {
+            }else{
                 echo '0';exit;
             }
-        }
-        else
-        {
+        }else{
             echo '0';exit;
         }
-    }
-    else if($action=='view'){
-        
+    }else if($action=='view'){
         $return = $instance->select_current_files();//echo '<pre>';print_r($return);exit;
     }
 
