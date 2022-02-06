@@ -1666,7 +1666,11 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("exception_value").value = existing_field_value;
             document.getElementById("exception_value_dis").value = existing_field_value;
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
-            $("#exception_value_dis").prop( "disabled", true );
+            // if (existing_field_value == "") {
+            //     $("#exception_value_dis").prop( "disabled", false );
+            // } else {
+                $("#exception_value_dis").prop( "disabled", true );
+            // }
             $("#assign_client_to_account").css('display','block');
             $("#exception_value").css('display','none');
             $("#exception_value_dis").css('display','block');

@@ -108,6 +108,7 @@
             $error_code_id = isset($data['error_code_id'])?$this->re_db_input($data['error_code_id']):0;
             $exception_data_id = isset($data['exception_data_id'])?$this->re_db_input($data['exception_data_id']):0;
             $exception_field = isset($data['exception_field'])?$this->re_db_input($data['exception_field']):'';
+            $resultMessage = '';
 
             if($exception_field == 'u5'){
                 $exception_value = isset($data['exception_value_date'])?$this->re_db_input($data['exception_value_date']):'';
@@ -385,7 +386,7 @@
                                     // Put HOLD on trade
                                     $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
                                         ." SET `on_hold`=1"
-                                                .", `action`=".($exception_field=='u5' ? '100' : '101')
+                                                .", `resolve_exception`=".($exception_field=='u5' ? '100' : '101')
                                                 .$this->update_common_sql()
                                         ." WHERE `file_id`=".$exception_file_id
                                           ." AND `id`=".$exception_data_id
@@ -394,9 +395,9 @@
 
                                     if($res)
                                     {
-                                        // Update "action" field to flag detail as "special handling" record
+                                        // Update "resolve_exception" field to flag detail as "special handling" record
                                         $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                            ." SET `action`=".($exception_field=='u5' ? '100' : '101')
+                                            ." SET `resolve_exception`=".($exception_field=='u5' ? '100' : '101')
                                                 .$this->update_common_sql()
                                             ." WHERE `file_id`=".$exception_file_id
                                             ." AND `id`=".$exception_data_id
@@ -438,9 +439,9 @@
 
                                             // Reprocess the updated record
                                             if($res) {
-                                                // Update "action" field to flag detail as "special handling" record
+                                                // Update "resolve_exception" field to flag detail as "special handling" record
                                                 $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                                    ." SET `action`=2"
+                                                    ." SET `resolve_exception`=2"
                                                             .$this->update_common_sql()
                                                     ." WHERE `file_id`=".$exception_file_id
                                                     ." AND `id`=".$exception_data_id
@@ -518,9 +519,9 @@
                                             }
 
                                             if ($result){
-                                                // Update "action" field to flag detail as "special handling" record
+                                                // Update "resolve_exception" field to flag detail as "special handling" record
                                                 $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                                    ." SET `action`=2"
+                                                    ." SET `resolve_exception`=2"
                                                             .$this->update_common_sql()
                                                     ." WHERE `file_id`=".$exception_file_id
                                                     ." AND `id`=".$exception_data_id
@@ -559,9 +560,9 @@
 
                                         if($res)
                                         {
-                                            // Update "action" field to flag detail as "special handling" record
+                                            // Update "resolve_exception" field to flag detail as "special handling" record
                                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                                ." SET `action`=3"
+                                                ." SET `resolve_exception`=3"
                                                         .$this->update_common_sql()
                                                 ." WHERE `file_id`=".$exception_file_id
                                                 ." AND `id`=".$exception_data_id
@@ -590,9 +591,9 @@
 
                                         if($res)
                                         {
-                                            // Update "action" field to flag detail as "special handling" record
+                                            // Update "resolve_exception" field to flag detail as "special handling" record
                                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                                ." SET `action`=4"
+                                                ." SET `resolve_exception`=4"
                                                         .$this->update_common_sql()
                                                 ." WHERE `file_id`=".$exception_file_id
                                                 ." AND `id`=".$exception_data_id
@@ -626,9 +627,9 @@
                                 $res = $this->re_db_query($q);
 
                                 if($res){
-                                    // Update "action" field to flag detail as "special handling" record
+                                    // Update "resolve_exception" field to flag detail as "special handling" record
                                     $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                        ." SET `action`=2"
+                                        ." SET `resolve_exception`=2"
                                                 .$this->update_common_sql()
                                         ." WHERE `file_id`=".$exception_file_id
                                         ." AND `id`=".$exception_data_id
@@ -654,9 +655,9 @@
 
                                 if ($res)
                                 {
-                                    // Update "action" field to flag detail as "special handling" record
+                                    // Update "resolve_exception" field to flag detail as "special handling" record
                                     $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                        ." SET `action`=2"
+                                        ." SET `resolve_exception`=2"
                                                 .$this->update_common_sql()
                                         ." WHERE `file_id`=".$exception_file_id
                                         ." AND `id`=".$exception_data_id
@@ -1580,7 +1581,7 @@
                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
                                     ." `file_id`='".$id."'"
-                                    .",`error_code_id`='1'"
+                                    .",`error_code_id`='14'"
                                     .",`field`='sponsor_id'"
                                     .",`file_type`='1'"
                                     .",`temp_data_id`='0'"
@@ -1593,36 +1594,6 @@
                         $result = 1;
                     }
 
-                    /*************************************************
-                     * REMOVE THIS SECTION. JUST FLAG "detail"
-                     * RECORDS AS PROCESSED, AND DON'T RERUN THEM
-                     * 12/7/21
-                     *************************************************/
-                    // //Remove already exist file trades
-                    // $q = "SELECT * FROM `".TRANSACTION_MASTER."` WHERE `is_delete`=0 AND `file_id`='".$id."'";
-				    // $res = $this->re_db_query($q);
-				    // $return = $this->re_db_num_rows($res);
-
-                    // if($return>0){
-					//     $q = "update `".TRANSACTION_MASTER."` set `is_delete`='1' WHERE `file_id`='".$id."'";
-				    //     $res = $this->re_db_query($q);
-				    // }
-
-                    // //Remove already exist file clients
-                    // $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `file_id`='".$id."'";
-				    // $res = $this->re_db_query($q);
-				    // $return = $this->re_db_num_rows($res);
-
-                    // if($return>0){
-					//     $q = "update `".CLIENT_MASTER."` set `is_delete`='1' WHERE `file_id`='".$id."'";
-				    //     $res = $this->re_db_query($q);
-				    // }
-                    /*************************************************
-                     * END:
-                     * REMOVE THIS SECTION. JUST FLAG "detail"
-                     * RECORDS AS PROCESSED, AND DON'T RERUN THEM
-                     * 12/7/21
-                     *************************************************/
                     $q = "UPDATE `".IMPORT_EXCEPTION."`"
                           ." SET `is_delete`=1"
                                 .$this->update_common_sql()
@@ -2129,8 +2100,8 @@
                         $product_id = 0;
                         $result=0;
                         $transaction_master_id = 0;
-                        $reassignBroker = $check_data_val['action']==3;
-                        $resolveHoldCommission = in_array($check_data_val['action'], [100, 101]);
+                        $reassignBroker = $check_data_val['resolve_exception']==3;
+                        $resolveHoldCommission = in_array($check_data_val['resolve_exception'], [100, 101]);
 
                         $insert_exception_string =
                              ",`file_id`='".$check_data_val['file_id']."'"
@@ -2400,9 +2371,9 @@
 
                                 $con = '';
 
-                                if ($check_data_val['on_hold'] AND $check_data_val['action']==100){
+                                if ($check_data_val['on_hold'] AND $check_data_val['resolve_exception']==100){
                                     $con .=",`hold_commission`=1,`hold_resoan`='BROKER TERMINATED'";
-                                } else if($check_data_val['on_hold'] AND $check_data_val['action']==101){
+                                } else if($check_data_val['on_hold'] AND $check_data_val['resolve_exception']==101){
                                     $con .=",`hold_commission`=1, `hold_resoan`='BROKER LICENCE ERROR'";
                                 } else if($broker_hold_commission == 1){
                                     $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
