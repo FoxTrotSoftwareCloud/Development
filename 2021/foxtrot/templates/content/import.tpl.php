@@ -507,8 +507,30 @@ PostResult( msg );
                                                             }
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '2')
                                                             {
-                                                                $return_idc_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);//---Test Purposes---print_r($return_idc_existing_data);exit;
+                                                                $return_idc_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);
+                                                                // Display the names found during the processing of the data. Sometimes they don't match what was sent in the data fields (alpha_code & rep_name), or the
+                                                                // the descrtiptions are vague, i.e. "Trust Account 123"
+                                                                $instance_client = new client_maintenance();
+                                                                $instance_product = new product_maintenance();
+                                                                $instance_broker = new broker_master();
+                                                                $instance_import = new import();
 
+                                                                if (!empty($return_idc_existing_data['broker_id'])){
+                                                                    $brokerRow = $instance_broker->select_broker_by_id($return_idc_existing_data['broker_id']);
+
+                                                                    if ($brokerRow) {
+                                                                        $error_val['rep_name'] = trim($brokerRow['last_name']).(($brokerRow['last_name']!='' AND $brokerRow['last_name']!='') ? ', ' : '').trim($brokerRow['first_name']);
+                                                                    }
+                                                                }
+                                                                if (!empty($return_idc_existing_data['client_id'])){
+                                                                    $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
+
+                                                                    if ($clientDetail) {
+                                                                        $error_val['client'] = trim($clientDetail[0]['last_name']).(($clientDetail[0]['first_name']!='' AND $clientDetail[0]['last_name']!='') ? ', ' : '').trim($clientDetail[0]['first_name']);
+                                                                    }
+                                                                }
+
+                                                                // Exception Types
                                                                 if($error_val['field'] == 'customer_account_number')
                                                                 {
                                                                     $existing_field_value = $return_idc_existing_data['customer_account_number'];
@@ -522,19 +544,16 @@ PostResult( msg );
                                                                 if($error_val['field'] == 'u5')
                                                                 {
                                                                     $rep_number = $return_idc_existing_data['representative_number'];
-                                                                    $u5_date = $instance->broker_termination_date($rep_number, abs($return_idc_existing_data['broker_id']));
+                                                                    $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
 
                                                                 if($error_val['field'] == 'active_check')
                                                                 {
-                                                                    $instance_client = new client_maintenance();
-                                                                    $instance_product = new product_maintenance();
-                                                                    $instance_import = new import();
                                                                     // 1.State / 2.ProdCat / 3.TermDate
                                                                     $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
                                                                     $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['CUSIP_number'])."'");
-                                                                    $licenceDetail = $instance_import->checkStateLicence(abs($return_idc_existing_data['broker_id']), $clientDetail[0]['state'], $productDetail['category'], $return_idc_existing_data['trade_date'], 1);
+                                                                    $licenceDetail = $instance_import->checkStateLicence($return_idc_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_idc_existing_data['trade_date'], 1);
                                                                     $category = substr($licenceDetail['licence_table'], strrpos($licenceDetail['licence_table'], '_') +1 );
                                                                     $existing_field_value = trim($category).' / '.trim($licenceDetail['state_name']);
                                                                 }
