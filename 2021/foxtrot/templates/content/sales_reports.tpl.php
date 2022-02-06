@@ -5,15 +5,24 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Select Report </label>
+                    <label>Select Report</label>
                     <select class="form-control" name="report_for" id="report_for">
-                        <option <?php  echo ($report_for == 'branch') ? "selected='selected'": ''; ?> value="branch">By Branch</option>
-                         <option <?php  echo ($report_for == 'sponsor') ? "selected='selected'": ''; ?> value="sponsor">By Sponsor</option>
-                        <option <?php  echo ($report_for == 'client') ? "selected='selected'": ''; ?> value="client">By Client</option>
-                        <option <?php  echo ($report_for == 'product') ? "selected='selected'": ''; ?> value="product">By Product</option>
-                        <option <?php  echo ($report_for == 'broker') ? "selected='selected'": ''; ?> value="broker">By Broker</option>
-                        <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">By Batch</option>
-                       
+                        <option <?php  echo ($report_for == 'Production by Product Category') ? "selected='selected'": ''; ?> value="Production by Product Category">Production by Product Category</option>
+                         <option <?php  echo ($report_for == 'Category Summary Report') ? "selected='selected'": ''; ?> value="Category Summary Report">Category Summary Report</option>
+                        <option <?php  echo ($report_for == 'Production by Sponsor Report') ? "selected='selected'": ''; ?> value="Production by Sponsor Report">Production by Sponsor Report</option>
+                        <option <?php  echo ($report_for == 'product') ? "selected='selected'": ''; ?> value="product">Year-to-Date Earnings Report</option>
+                        <option <?php  echo ($report_for == 'broker') ? "selected='selected'": ''; ?> value="broker">Broker Rankings by Production</option>
+                        <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Monthly Broker Production Report</option>
+                       <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Monthly Branch Office Production</option>
+                       <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Annual Broker Production</option>
+                       <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Client Rankings Report`</option>
+                       <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Broker State Production Report</option>
+                       <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Broker Monthly Production by Product Category</option>
+                       <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Broker Gross Production by Category</option>
+                    <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Brokers without Production</option>
+                    <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Broker-Dealer Retention</option>
+                    <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Broker Gross Production by Product Category</option>
+                    <option <?php  echo ($report_for == 'batch') ? "selected='selected'": ''; ?> value="batch">Broker Production by Product</option>
                     </select> 
                 </div>
              </div>
@@ -27,15 +36,15 @@
                     <div class="row" id="branch_filter_wrap">
                         <div class="col-md-12">
                             <div class="form-group wrap">
-                                <label>Branch </label>
-                                <select class="form-control state" name="branch">
-                                    <option value="0">All Branches</option>
+                                <label>Company </label>
+                                <select class="form-control state" name="company">
+                                    <option value="0">All Companies</option>
                                     <?php
                                             
-                                     foreach($get_branch as $branch_row):
+                                     foreach($get_multi_company as $company_row):
                             
                                      ?>
-                                        <option value="<?php echo $branch_row['id']; ?>" <?php echo isset($branch) && $branch==$branch_row['id'] ? 'selected' : '' ?>><?php echo $branch_row['name']; ?></option>
+                                        <option value="<?php echo $company_row['id']; ?>" <?php echo isset($company) && $company==$company_row['id'] ? 'selected' : '' ?>><?php echo $company_row['company_name']; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -57,96 +66,26 @@
                             
                         
                     </div>
-                    <div class="row" id="sponsor_filter_wrap">
-                        <div class="col-md-12">
-                            <div class="form-group wrap">
-                                <label>Sponser </label>
-                                <select class="form-control sponser" name="sponsor">
-                                    <option value="0">All Sponsers</option>
-                                    <?php foreach($get_sponsors as $get_sponsor): ?>
-                                        <option value="<?php echo $get_sponsor['id']; ?>" <?php if(isset($sponser) && $sponser==$val['id']){ ?>selected="true"<?php } ?>><?php echo $get_sponsor['name']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row" id="client_filter_wrap">
-                        <div class="col-md-12">
-                            <div class="form-group wrap">
-                                <label>Clients </label>
-                                <select class="form-control sponser" name="client">
-                                    <option value="0">All Clients</option>
-                                    <?php foreach($get_client as $key=>$val){?>
-                                       <option value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['last_name'].' '.$val['mi'].' '.$val['first_name'];?></option>
-                                    <?php }; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row" id="product_filter_wrap">
-                         <div class="col-md-12">
-                            <div class="form-group wrap">
-                                <label>Product Category <span class="text-red">*</span></label><br />
-                                    
-                                <select class="form-control" data-required="true" name="batch_cate" id="batch_cate" onchange="get_product(this.value);">
-                                    <option value="0">Select Product category</option>
-                                     <?php foreach($product_category as $key=>$val){?>
-                                    <option value="<?php echo $val['id'];?>" <?php if(isset($batch_cate) && $batch_cate==$val['id']){?> selected="true"<?php } ?>><?php echo $val['type'];?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div> 
-                        <div class="col-md-12">
-                            <div class="form-group wrap">
-                                <label>Product </label>
+                       
 
-                                <select class="form-control sponser" id="product_dropdown" name="product">
-                                    <option value="0">All Products</option>
-                                    <?php foreach($products as $key=>$val){
-                                                if(empty($val['name'])) continue;
-                                        ?>
-                                       <option  data-cat="<?php echo $val['category'] ?>" value="<?php echo $val['id'];?>" <?php if(isset($product) && $product==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['name'];?></option>
-                                    <?php }; ?>
-                                </select>
+                       <div class="row" id="div_PROD_CAT">
+                        <div class="col-md-12">                                   
+                            <label id="CAT_label">Product Category</label> 
+                            <div class="form-group">
+                            <select name="prod_cat[]" id="prod_cat" class="form-control chosen-select" multiple="true">
+                                <option value="" >Select Category</option>
+                                <?php foreach($product_category as $key => $val) {?>
+                                        <option <?php echo in_array($val['id'],$prod_cat)?'selected="selected"':''; ?> value="<?php echo $val['id'];?>"><?php echo $val['type']?></a></option>
+                                <?php } ?>
+                            </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="row" id="batch_filter_wrap">
-                        <div class="col-md-12">
-                            <div class="form-group wrap">
-                                <label>Product Category <span class="text-red">*</span></label><br />
-                                    
-                                <select class="form-control" data-required="true" name="batch_cate" id="batch_cate" onchange="get_batches(this.value);">
-                                    <option value="0">Select Product category</option>
-                                     <?php foreach($product_category as $key=>$val){?>
-                                    <option value="<?php echo $val['id'];?>" <?php if(isset($batch_cate) && $batch_cate==$val['id']){?> selected="true"<?php } ?>><?php echo $val['type'];?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>     
-                        <div class="col-md-12">
-                            <div class="form-group wrap">
-                                <label>Batches </label>
-                                <select class="form-control sponser" id="batch_dropdown" name="batch">
-                                    <option value="0">All Batches</option>
-                                    <?php 
-                                         
-                                    foreach($get_batches as $get_batch): ?>
-                                        <option value="<?php echo $get_batch['id']; ?>" <?php if(isset($batch) && $batch==$get_batch['id']){ ?>selected="true"<?php } ?> data-cat="<?php echo $get_batch['pro_category'] ?>"><?php echo $get_batch['batch_desc']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
+                    </div>           
+                                      
                 </div>
                 
                 <div class="row">
-                        <div class="col-md-12">
-                                <div class="form-group">
-                                     <input type="checkbox" value="1" checked="checked"> Exclude 12B1 Trails
-                                </div>
-                        </div>
+                      
 
                         <div class="col-md-6">
                             <div class="form-group beginning_date">
@@ -170,12 +109,24 @@
                         </div>
 
                     </div>
-                    <div class="row">
+                    <div class="row" id="div_sort_by">
                         <div class="col-md-12">
                                 <div class="form-group">
                                      
-                                      <input type="radio" class="radio" name="date_by" id="date_by" style="display: inline;" value="1" <?php if(isset($date_by) && ($date_by == 1 || $date_by == '')){echo "checked='checked'";}?>/> Trade Date&nbsp;&nbsp;&nbsp;
-                                       <input type="radio" class="radio" name="date_by" id="date_by" style="display: inline;" value="2" <?php if(isset($date_by) && ($date_by == 2)){echo "checked='checked'";}?>/> Commission Recevied Date
+                                      <input type="radio" class="radio" name="sort_by" id="sort_by" style="display: inline;" value="1" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "checked='checked'";}?>/> Sort by Sponsor&nbsp;&nbsp;&nbsp;
+                                       <input type="radio" class="radio" name="sort_by" id="sort_by" style="display: inline;" value="2" <?php if(isset($sort_by) && ($sort_by == 2)){echo "checked='checked'";}?>/> Sort by Investment Amount
+                                </div>
+                        </div>
+                    </div>
+
+
+
+                     <div class="row" id="div_date_by">
+                        <div class="col-md-12">
+                                <div class="form-group">
+                                     
+                                      <input type="radio" class="radio" name="date_by" id="date_by" style="display: inline;" value="1" <?php if(isset($date_by) && ($date_by == 1 || $date_by == '')){echo "checked='checked'";}?>/> Transaction Date&nbsp;&nbsp;&nbsp;
+                                       <input type="radio" class="radio" name="date_by" id="date_by" style="display: inline;" value="2" <?php if(isset($date_by) && ($date_by == 2)){echo "checked='checked'";}?>/>Commission Received Date
                                 </div>
                         </div>
                     </div>
@@ -184,7 +135,7 @@
                         <div class="form-group">
                             <input type="radio" class="radio" name="output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/> Output to Screen&nbsp;&nbsp;&nbsp;
                             <input type="radio" class="radio" name="output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Output to Printer&nbsp;&nbsp;&nbsp; 
-                         <input type="radio" class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Output to Excel&nbsp;&nbsp;&nbsp;
+                         <!-- <input type="radio"  class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Output to Excel&nbsp;&nbsp;&nbsp; -->
                             <input type="radio" class="radio" name="output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/> Output to PDF
                         </div>
                     </div>
@@ -232,7 +183,7 @@ $(document).ready(function(){
             document.getElementById("output_screen_content").innerHTML = this.responseText;
         }
     };
-    xmlhttp.open('GET', 'ajax_transaction_report.php?filter=<?php echo $_GET['filter']; ?>', true);
+    xmlhttp.open('GET', 'ajax_sales_report.php?filter=<?php echo $_GET['filter']; ?>', true);
     xmlhttp.send();
 
 
@@ -283,12 +234,47 @@ function get_product(cat){
 }
 
  $(function() {
+
+             $("input[name='filter_by']").change(function(){
+                  console.log(this.value)
+                   if($("input[name='filter_by']:checked").val() == "2"){
+                            $('#div_sort_by').hide();
+                            $('#broker_filter_wrap').hide();                            
+                            $('#div_trade_by').show();
+                   }
+                   else{
+                            $('#div_sort_by').show();
+                            $('#broker_filter_wrap').show();
+                            $('#div_trade_by').hide();
+                   }
+            }).trigger('change');
             $("#report_for").on('change', function(event) {
                 event.preventDefault();
                 let _option=$(this).children('option:selected').val();
                  var siblings= $('#'+_option+"_filter_wrap").siblings();
                    siblings.find("input,select").attr("disabled","disabled").end().hide();;
-
+                   if(_option=="Category Summary Report")
+                   {
+                        $('#div_sort_by').hide();
+                        $('#broker_filter_wrap').hide();  
+                        $('#div_date_by').show();
+                   }
+                   else
+                   {
+                        $('#div_sort_by').show();
+                        $('#broker_filter_wrap').show();
+                        $('#div_date_by').hide();
+                   }
+                    if(_option=="Production by Sponsor Report")
+                    {
+                        $('#div_PROD_CAT').show();
+                        $('#div_sort_by').hide();
+                        $('#broker_filter_wrap').hide();
+                    }
+                    else
+                    {
+                        $('#div_PROD_CAT').hide();
+                    }
                    $('#'+_option+"_filter_wrap").find("input,select").removeAttr("disabled").end().show();
             }).trigger('change');
 
@@ -304,10 +290,10 @@ function get_product(cat){
                       
                         if( $("#report_for").val() == "broker"){
 
-                            url = "http://foxtrotsoftware.com/CloudFox/transaction_broker_report_print.php?filter="+JSON.stringify(value);
+                            url = "http://foxtrotsoftware.com/CloudFox/sales_broker_report_print.php?filter="+JSON.stringify(value);
                         }
                         else{
-                              url = "http://foxtrotsoftware.com/CloudFox/transaction_report_print.php?filter="+JSON.stringify(value);
+                              url = "http://foxtrotsoftware.com/CloudFox/sales_report_print.php?filter="+JSON.stringify(value);
                         }
                         
                        
@@ -322,6 +308,30 @@ function get_product(cat){
          });
         });       
 </script>
+<link href="<?php echo SITE_PLUGINS; ?>chosen/chosen.min.css" rel="stylesheet" />
+<script src="<?php echo SITE_PLUGINS; ?>chosen/chosen.jquery.min.js"></script>
+
+<script type="text/javascript">         
+    $(document).ready(function(e){
+        $( document ).on( 'click', '.bs-dropdown-to-select-group .dropdown-menu li', function( event ) {
+            var $target = $( event.currentTarget );
+            $target.closest('.bs-dropdown-to-select-group')
+                .find('[data-bind="bs-drp-sel-value"]').val($target.attr('data-value'))
+                .end()
+                .children('.dropdown-toggle').dropdown('toggle');
+            $target.closest('.bs-dropdown-to-select-group')
+                .find('[data-bind="bs-drp-sel-label"]').text($(this).find('a').html());
+            return false;
+        });
+        
+        $('.sel').trigger('click');
+        $('.bs-dropdown-to-select-group').removeClass('open');
+        
+        $('.chosen-select').chosen();
+        
+    });
+</script>
+
 <style>
 .btn-primary {
     color: #fff;
@@ -338,5 +348,9 @@ function get_product(cat){
     padding:0 5px;
     margin:-20px 0 0 30px;
     background:#fff;
+}
+.chosen-container
+{
+    width: 100% !important;
 }
 </style>

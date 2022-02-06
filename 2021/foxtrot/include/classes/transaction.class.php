@@ -992,9 +992,10 @@ class transaction extends db{
               $con .= " ORDER BY `at`.`trade_date` ASC ";
 
 			
-		       $q = "SELECT `at`.*,bm.first_name as broker_name,bm.last_name as broker_last_name,bm.id as broker_id,cm.first_name as client_name,cm.last_name as client_last_name,bt.batch_desc,br.name as branch_name
+		       $q = "SELECT `at`.*,bm.first_name as broker_name,bm.last_name as broker_last_name,bm.id as broker_id,cm.first_name as client_name,cm.last_name as client_last_name,bt.batch_desc,br.name as branch_name,pt.type as product_category_name
 					FROM `".$this->table."` AS `at`
                     LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `at`.`batch`
+                    LEFT JOIN `".PRODUCT_TYPE."` as `pt` on `pt`.`id` = `at`.`product_cate`
                     LEFT JOIN `ft_branch_master` as `br` on `br`.`id` = `at`.`branch`
                     LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_name`
                     LEFT JOIN `".CLIENT_MASTER."` as `cm` on `cm`.`id` = `at`.`client_name`
@@ -1022,6 +1023,107 @@ class transaction extends db{
             
 			return $return;
 		}
+
+ public function select_transcation_history_report_v2($report_for,$sort_by=1,$branch=0,$broker='',$rep='',$client='',$product='',$beginning_date='',$ending_date='',$batch=0,$date_by="1",$filter_by="1",$is_trail=0,$prod_cat=array())
+ 	{
+			$return = array();
+            $con='';
+            
+            if($branch>0)
+            {
+                $con.=" AND `at`.`branch` = ".$branch." ";
+            }
+            if($broker>0)
+            {
+                $con.=" AND `at`.`broker_name` = ".$broker." ";
+            }
+            if($client>0)
+            {
+                $con.=" AND `at`.`client_name` = ".$client." ";
+            }
+            if($product>0)
+            {
+                $con.=" AND `at`.`product` = ".$product." ";
+            }
+            if($batch>0)
+            {
+                $con.=" AND `at`.`batch` = '".$batch."' ";
+            }
+            if($is_trail>0)
+            {
+                $con.=" AND `at`.`trail_trade` = '0' ";
+            }
+            //print(implode(',',$prod_cat));exit;
+            if($filter_by == "1" && $beginning_date != '' && $ending_date != '')
+            {
+                if($date_by == "2")
+                   $con.=" AND `at`.`commission_received_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+            	else
+                 $con.=" AND `at`.`trade_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+            }
+            if($report_for=="Production by Product Category")
+            {
+            	$con.=" Group by `at`.product_cate,`at`.product";
+            }
+            else if($report_for=="Category Summary Report")
+            {
+            	$con.=" Group by `at`.product_cate,`at`.product";
+            }
+            else if($report_for=="Production by Sponsor Report")
+            {
+            	if(implode(',',$prod_cat)!='')
+            	{
+            		$con.=" and at.product_cate in ('".implode(',',$prod_cat)."') Group by sm.name";
+            	}
+            	else
+            	{
+            		$con.=" Group by sm.name";
+            	}
+            	
+            }
+
+            if($sort_by==1)
+            {
+            	$con.= " ORDER BY sm.name ASC ";
+            }
+            else
+            {
+            	$con.= " ORDER BY `at`.invest_amount ASC ";
+            }
+            	       
+                $q="SELECT `at`.product_cate,`at`.sponsor,`at`.product_cate,`at`.product,sum(`at`.invest_amount) as invest_amount,sum(`at`.charge_amount) as charge_amount,sum(`at`.commission_received) as commission_received,bm.first_name as broker_name,bm.last_name as broker_last_name,bm.id as broker_id,cm.first_name as client_name,cm.last_name as client_last_name,bt.batch_desc,br.name as branch_name,pt.type as product_category_name,sm.name as sponsor_name FROM `".$this->table."` AS `at`
+                    LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `at`.`batch`
+                    LEFT JOIN `".PRODUCT_TYPE."` as `pt` on `pt`.`id` = `at`.`product_cate`
+                    LEFT JOIN `ft_branch_master` as `br` on `br`.`id` = `at`.`branch`
+                    LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_name`
+                    LEFT JOIN `".CLIENT_MASTER."` as `cm` on `cm`.`id` = `at`.`client_name`
+                    LEFT JOIN `".SPONSOR_MASTER."` as `sm` on `sm`.`id` = `at`.`sponsor`
+                    WHERE `at`.`is_delete`='0' ".$con;
+            
+			$res = $this->re_db_query($q);
+
+
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    				$brokder_id=$row['broker_id'];
+    				$row['product_name'] = $this->get_product_name_from($row['product_cate'],$row['product']);
+    				$row['client_name'] = $row['client_last_name'].', '.$row['client_name'];
+    				$return[]=$row;
+    				/*if(isset($return[$row['broker_id']])){
+    			     //array_push($return,$row);
+    					 $return[$row['broker_id']][]=$row;
+    				}
+    				else{
+    					  $return[$row['broker_id']]=array();
+    					 $return[$row['broker_id']][]=$row;
+    				}*/
+    			}
+            }
+            
+			return $return;
+		}
+
 		public function select_sponsor_by_id($id){ 
 			$return = array();
 			
@@ -1040,16 +1142,12 @@ class transaction extends db{
 		}
 		public function select_transcation_history_by_broker($broker='',$beginning_date='',$ending_date='',$date_by="1",$filter_by="1",$is_trail=0){
 			$return = array();
-            $con='';
-            
+            $con='';            
             
             if($broker>0)
             {
                 $con.=" AND `at`.`broker_name` = ".$broker." ";
-            }
-
-
-            
+            }            
             if($filter_by == "1" && $beginning_date != '' && $ending_date != '')
             {
             	if($date_by == "2")
@@ -1117,5 +1215,83 @@ class transaction extends db{
             
 			return $return;
 		}
+
+		public function select_transcation_history_by_broker_v2($broker='',$beginning_date='',$ending_date='',$date_by="1",$filter_by="1",$is_trail=0){
+			$return = array();
+            $con='';            
+            
+            if($broker>0)
+            {
+                $con.=" AND `at`.`broker_name` = ".$broker." ";
+            }            
+            if($filter_by == "1" && $beginning_date != '' && $ending_date != '')
+            {
+            	if($date_by == "2")
+                   $con.=" AND `at`.`commission_received_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+            	else
+                 $con.=" AND `at`.`trade_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+            }
+            if($is_trail>0)
+            {
+                $con.=" AND `at`.`trail_trade` = '0' ";
+            }
+           
+            
+
+             $con .= " ORDER BY broker_last_name,bm.first_name ASC ";
+
+			
+		     $q = "SELECT `at`.*,bm.first_name as broker_name,bm.last_name as broker_last_name,bm.id as broker_id,cm.first_name as client_name,cm.last_name as client_last_name,bt.batch_desc,br.name as branch_name
+					FROM `".$this->table."` AS `at`
+                    LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `at`.`batch`
+                    LEFT JOIN `ft_branch_master` as `br` on `br`.`id` = `at`.`branch`
+                    LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_name`
+                    LEFT JOIN `".CLIENT_MASTER."` as `cm` on `cm`.`id` = `at`.`client_name`
+                    WHERE `at`.`is_delete`='0' ".$con." ";
+            print($q);exit;
+			$res = $this->re_db_query($q);
+
+
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    				$brokder_id=$row['broker_id'];
+    				$row['product_name'] = $this->get_product_name_from($row['product_cate'],$row['product']);
+    				$row['client_name'] = $row['client_last_name'].', '.$row['client_name'];
+    				if(!isset($return[$row['broker_id']])){
+    					 $return[$row['broker_id']]=array("broker"=>$row['broker_last_name'].', '.$row['broker_name'],"products"=>array());
+    				}
+    				if(!isset($return[$row['broker_id']]["products"][$row['product']])){
+    					$return[$row['broker_id']]["products"][$row['product']]=array();
+    				}
+
+    				/*if(!isset($return[$row['broker_id']][$row['product']])){
+                        $return[$row['broker_id']][$row['product']]=array();
+    				}*/
+    				
+    				$return[$row['broker_id']]["products"][$row['product']][]=$row;
+    				
+
+    				
+    				/*if(isset($return[$row['product']])){
+    			     //array_push($return,$row);
+    					 $return[$row['product']][]=$row;
+    				}
+    				else{
+    					  $return[$row['product']]=array();
+    					 $return[$row['product']][]=$row;
+    				}*/
+    			}
+            }
+           
+            /*foreach($return as $broker=>$value){
+            	$col = array_column( $value, "product" );
+				array_multisort( $col, SORT_ASC, $value );
+            	$return[$broker]=$value;
+            }*/
+            
+			return $return;
+		}
+
 }
 ?>
