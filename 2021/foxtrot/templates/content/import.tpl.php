@@ -1252,7 +1252,7 @@ PostResult( msg );
                     <div class="row">
                         <div class="col-md-5">
                             <div class="inputpopup">
-                                <label>CUSIP Number: </label>
+                                <label class="pull-right">CUSIP # to Assign: </label>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -1265,7 +1265,7 @@ PostResult( msg );
                     <div class="row">
                         <div class="col-md-5">
                             <div class="inputpopup">
-                                <label>Product Category: </label>
+                                <label class="pull-right">Product Category: </label>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -1282,7 +1282,7 @@ PostResult( msg );
                     <div class="row">
                         <div class="col-md-5">
                             <div class="inputpopup">
-                                <label>Product: </label>
+                                <label class="pull-right">Product: </label>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -1298,7 +1298,7 @@ PostResult( msg );
                 <div class="row" id="assign_client_to_account" style="display: none;">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label class="pull-right">Assign to Existing Client</label>
+                        <label class="pull-right" id="label_assign_to_existing_client">Assign to Existing Client</label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -1662,19 +1662,17 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'customer_account_number')
         {
-            document.getElementById("field_label").innerHTML = 'Account# to Add';
-            document.getElementById("exception_value").value = existing_field_value;
-            document.getElementById("exception_value_dis").value = existing_field_value;
+            document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Account # to Add');
+            document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
+            document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
-            // if (existing_field_value == "") {
-            //     $("#exception_value_dis").prop( "disabled", false );
-            // } else {
-                $("#exception_value_dis").prop( "disabled", true );
-            // }
+            $("#exception_value_dis").prop( "disabled", true );
             $("#assign_client_to_account").css('display','block');
             $("#exception_value").css('display','none');
             $("#exception_value_dis").css('display','block');
-
+            if (error_code_id == 13){
+                document.getElementById("label_assign_to_existing_client").innerHTML = 'Assign Trade to Client';
+            }
         }
         else
         {

@@ -641,7 +641,7 @@
                             }
                         }
     // Loren Inada - Exceptions not done yet - 02/05/22 12:00 PM
-                        else if($exception_field == 'customer_account_number')
+                        else if($exception_field == 'customer_account_number' AND $error_code_id == 7)
                         {
                                 $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
                                 if($sponsorId == 0){
@@ -650,7 +650,12 @@
                                     $sponsorId = isset($sponsor_detail['id']) ? (int)$sponsor_detail['id'] : 0;
                                 }
 
-                                $q = "INSERT `".CLIENT_ACCOUNT."` SET `account_no`='".$exception_value."',`sponsor_company`='".$sponsorId."',`client_id`='".$acc_for_client."' ".$this->insert_common_sql();
+                                $q = "INSERT `".CLIENT_ACCOUNT."`"
+                                      ." SET"
+                                            ." `account_no`='".$exception_value."'"
+                                            .",`sponsor_company`='".$sponsorId."'"
+                                            .",`client_id`='".$acc_for_client."'"
+                                            .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
 
                                 if ($res)
@@ -667,34 +672,71 @@
                                     $result = $this->reprocess_current_files($exception_file_id);
                                 }
                         }
+                        else if($exception_field == 'customer_account_number' AND $error_code_id == '13')
+                        {
+                            // No Customer Account Number in the file
+                            // ASSIGN TRADE TO CLIENT
+                            $new_client = 0;
+                            $q = "SELECT id,first_name,last_name FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `id`=".$acc_for_client;
+                            $res = $this->re_db_query($q);
+
+                            if($res->num_rows)
+                            {
+                                $row = $this->re_db_fetch_array($res);
+                                $new_client = $row['id'];
+
+                                // Resolve Exception - code 30 Assign user-defined client to trade
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                    ." SET `client_id` = $new_client"
+                                            .$this->update_common_sql()
+                                    ." WHERE `id`=".$exception_data_id
+                                    ." AND `file_id`=".$exception_file_id
+                                ;
+                                $res = $this->re_db_query($q);
+
+                                if($res)
+                                {
+                                    // Update "resolve_exception" field to flag detail as "special handling" record
+                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." SET `resolve_exception`=30"
+                                                .$this->update_common_sql()
+                                        ." WHERE `file_id`=".$exception_file_id
+                                        ." AND `id`=".$exception_data_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                    $result = $this->reprocess_current_files($exception_file_id);
+                                }
+                            }
+                        }
                         else if($exception_field == 'status')
                         {
-                            // PRODUCT TERMINATED
-                            $CUSIP_number = 0;
-                            $q = "SELECT CUSIP_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $CUSIP_number = $row['CUSIP_number'];
-                            }
-                            $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
-            				$res = $this->re_db_query($q);
-            				if($this->re_db_num_rows($res)>0){
-                                while($row = $this->re_db_fetch_array($res))
-                                {
-                                    $q2 = "UPDATE `product_category_".$row['id']."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `status`='0' and `cusip`='".$CUSIP_number."'";
-            				        $res2 = $this->re_db_query($q2);
-                                    if($res2 == true)
-                                    {
-                                        $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                        $res3 = $this->re_db_query($q3);
-                                        if($res3)
-                                        {
-                                            $result = 1;
-                                        }
-                                    }
-                        		}
-                            }
+                            // PRODUCT TERMINATED - can't find this Exception being created in Reprocess Current File function, but kept just in case it is needed later
+                        //     $CUSIP_number = 0;
+                        //     $q = "SELECT CUSIP_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
+			            //     $res = $this->re_db_query($q);
+                        //     while($row = $this->re_db_fetch_array($res))
+                        //     {
+                        //         $CUSIP_number = $row['CUSIP_number'];
+                        //     }
+                        //     $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
+            			// 	$res = $this->re_db_query($q);
+            			// 	if($this->re_db_num_rows($res)>0){
+                        //         while($row = $this->re_db_fetch_array($res))
+                        //         {
+                        //             $q2 = "UPDATE `product_category_".$row['id']."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `status`='0' and `cusip`='".$CUSIP_number."'";
+            			// 	        $res2 = $this->re_db_query($q2);
+                        //             if($res2 == true)
+                        //             {
+                        //                 $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                        //                 $res3 = $this->re_db_query($q3);
+                        //                 if($res3)
+                        //                 {
+                        //                     $result = 1;
+                        //                 }
+                        //             }
+                        // 		}
+                        //     }
                         }
                         else if($exception_field == 'objectives')
                         {
@@ -771,82 +813,74 @@
                         }
                         else if($exception_field == 'sponsor')
                         {
-                            $system_id = '';
-                            $management_code = '';
-                            $sponsor = isset($data['sponsor'])?$data['sponsor']:'';
+                            // Not populated in Reprocess Current File
+                            // $system_id = '';
+                            // $management_code = '';
+                            // $sponsor = isset($data['sponsor'])?$data['sponsor']:'';
 
-                            if(isset($sponsor) && $sponsor == '')
-                            {
-                               $this->errors = 'Please select sponsor.';
-                            }
-                            if($this->errors!=''){
-           				       return $this->errors;
-            			    }
-                            else
-                            {
-                                $q = "SELECT system_id,management_code FROM `".IMPORT_IDC_HEADER_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."'";
-    			                $res = $this->re_db_query($q);
-                                while($row = $this->re_db_fetch_array($res))
-                                {
-                                    $system_id = $row['system_id'];
-                                    $management_code = $row['management_code'];
-                                }
+                            // if(isset($sponsor) && $sponsor == '')
+                            // {
+                            //    $this->errors = 'Please select sponsor.';
+                            // }
+                            // if($this->errors!=''){
+           				    //    return $this->errors;
+            			    // }
+                            // else
+                            // {
+                            //     $q = "SELECT system_id,management_code FROM `".IMPORT_IDC_HEADER_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."'";
+    			            //     $res = $this->re_db_query($q);
+                            //     while($row = $this->re_db_fetch_array($res))
+                            //     {
+                            //         $system_id = $row['system_id'];
+                            //         $management_code = $row['management_code'];
+                            //     }
 
-                                $q2 = "UPDATE `".SPONSOR_MASTER."` SET `dst_system_id`='".$system_id."',`dst_mgmt_code`='".$management_code."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `id`='".$sponsor."'";
-        				        $res2 = $this->re_db_query($q2);
-                                if($res2 == true)
-                                {
-                                    $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `field`='".$exception_field."'";
-                                    $res3 = $this->re_db_query($q3);
-                                    if($res3)
-                                    {
-                                        $result = 1;
-                                    }
-                                }
-                            }
+                            //     $q2 = "UPDATE `".SPONSOR_MASTER."` SET `dst_system_id`='".$system_id."',`dst_mgmt_code`='".$management_code."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `id`='".$sponsor."'";
+        				    //     $res2 = $this->re_db_query($q2);
+                            //     if($res2 == true)
+                            //     {
+                            //         $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `field`='".$exception_field."'";
+                            //         $res3 = $this->re_db_query($q3);
+                            //         if($res3)
+                            //         {
+                            //             $result = 1;
+                            //         }
+                            //     }
+                            // }
                         }
-                        else if($exception_field == 'CUSIP_number' && $error_code_id == '13')
+                        else if($exception_field == 'CUSIP_number')
                         {
-                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                             $res = $this->re_db_query($q);
+                            // Missing CUSIP
+                            if ($error_code_id == '13'){
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                $res = $this->re_db_query($q);
+                            } else {
+                                //if($error_code_id == '11')
+                                // 11 = Cusip not found
+                                $product_category = isset($data['assign_cusip_product_category'])?$data['assign_cusip_product_category']:0;
+                                $product = isset($data['assign_cusip_product'])?$data['assign_cusip_product']:0;
+                                if($product_category <=0)
+                                {
+                                    $this->errors = 'Please select product category.';
+                                }
+                                else if($product<=0)
+                                {
+                                    $this->errors = 'Please select product.';
+                                }
+                                if($this->errors!=''){
+                                    return $this->errors;
+                                }
+                                else
+                                {
+                                    $q = "UPDATE `".PRODUCT_LIST."` SET `cusip`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$product."'";
+                                    $res = $this->re_db_query($q);
+                                }
+                            }
 
-                             $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                             $res1 = $this->re_db_query($q1);
-                             if($res1)
-                             {
-                                 $result = 1;
-                             }
-                        }
-                        else if($exception_field == 'CUSIP_number' && $error_code_id == '11')
-                        {
-                             $product_category = isset($data['assign_cusip_product_category'])?$data['assign_cusip_product_category']:0;
-                             $product = isset($data['assign_cusip_product'])?$data['assign_cusip_product']:0;
-                             if($product_category <=0)
-                             {
-                                 $this->errors = 'Please select product category.';
-                             }
-                             else if($product<=0)
-                             {
-                                $this->errors = 'Please select product.';
-                             }
-                             if($this->errors!=''){
-                				 return $this->errors;
-                			 }
-                             else
-                             {
-                                 $q = "UPDATE `product_category_".$product_category."` SET `cusip`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$product."'";
-                                 $res = $this->re_db_query($q);
-
-                                 $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                                 $res1 = $this->re_db_query($q1);
-
-                                 $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                 $res2 = $this->re_db_query($q2);
-                                 if($res2)
-                                 {
-                                     $result = 1;
-                                 }
-                             }
+                            if($res)
+                            {
+                                $result = $this->reprocess_current_files($exception_file_id);
+                            }
                         }
                         else if($exception_field == 'alpha_code')
                         {
@@ -2101,6 +2135,7 @@
                         $result=0;
                         $transaction_master_id = 0;
                         $reassignBroker = $check_data_val['resolve_exception']==3;
+                        $reassignClient = $check_data_val['resolve_exception']==30;
                         $resolveHoldCommission = in_array($check_data_val['resolve_exception'], [100, 101]);
 
                         $insert_exception_string =
@@ -2182,7 +2217,7 @@
                         // IDC PRODUCT Validation
                         if(empty($check_data_val['CUSIP_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                    ." SET error_code_id`='13'"
+                                    ." SET `error_code_id`='13'"
                                         .",`field`='CUSIP_number'"
                                         .",`file_type`='2'"
                                         .$insert_exception_string;
@@ -2217,7 +2252,7 @@
                         }
 
                         // IDC CLIENT validation
-                        if(empty($check_data_val['customer_account_number'])){
+                        if(!$reassignClient AND empty($check_data_val['customer_account_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='13'"
                                         .",`field`='customer_account_number'"
@@ -2226,16 +2261,20 @@
                             $resInsert = $this->re_db_query($q);
                             $result = 1;
                         } else {
-                            $q =
-                                "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
-                                    ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
-                                    ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
-                                    ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
-                                        ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
-                                        ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
-                            ;
-                            $res = $this->re_db_query($q);
-                            $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
+                            if ($reassignClient){
+                                $clientAccount['id'] = $check_data_val['client_id'];
+                            } else {
+                                $q =
+                                    "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
+                                        ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
+                                        ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
+                                        ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
+                                            ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
+                                            ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
+                                ;
+                                $res = $this->re_db_query($q);
+                                $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
+                            }
 
                             // Client Account # Not Found
                             if($clientAccount == '') {
