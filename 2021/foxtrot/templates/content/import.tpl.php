@@ -146,7 +146,7 @@ PostResult( msg );
   <div class="container">
   <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
     <div class="row">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-left">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		  <div class="graphbox">
 		        <div class="graphboxtitle">Import </div>
 				<div class="graphboxcontent">
@@ -275,37 +275,6 @@ PostResult( msg );
                                                         {
                                                             $total_complete_process=0;
                                                         }
-                                                        /** 01/13/22 New code "reprocesses" on the process_current_file() calls, so no need to refresh the grid */
-                                                        // if($total_complete_process == 100)
-                                                        // {
-                                                        //     $return = $instance->reprocess_current_files($val['id']);
-                                                        //     if(isset($val['source']) && $val['source'] == 'DSTFANMail')
-                                                        //     {
-                                                        //         $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
-                                                        //         $count_processed_data = count($total_processed_data);
-                                                        //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                        //         // $count_exception_data = count($total_exception_data);
-                                                        //     }
-                                                        //     else
-                                                        //     {
-                                                        //         $total_processed_data = $instance->get_idc_detail_data($val['id']);
-                                                        //         $count_processed_data = count($total_processed_data);
-                                                        //         $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                        //         // $count_exception_data = count($total_exception_data);
-                                                        //     }
-                                                        //     if(isset($count_processed_data) && $count_processed_data>0)
-                                                        //     {
-                                                        //         $total_process = $count_processed_data+$count_exception_data;
-                                                        //         $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                        //         //$up = ($u*100)/$t;
-                                                        //         //$total_uncomplete_process = ($count_exception_data*100)/$count_processed_data;
-                                                        //         $total_complete_process = round($total_processed_per);
-                                                        //     }
-                                                        //     else
-                                                        //     {
-                                                        //         $total_complete_process=0;
-                                                        //     }
-                                                        // }
                                                         ?>
                                                         <td style="width: 15%;">
                                                         <div class="progress">
@@ -398,23 +367,11 @@ PostResult( msg );
                                                             <td style="width: 15%;"><?php echo $val['file_type'];?></td>
                                                             <td><?php echo $val['source'];?></td>
                                                             <?php
-                                                            if(isset($val['source']) && $val['source'] == 'DSTFANMail')
-                                                            {
-                                                                $total_processed_data = $instance->get_fanmail_detail_data($val['id']);
-                                                                $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // 12/25/21 Refactored the get_exception_data(fileId) function to return only the exceptions remaining for the file
-                                                                // $total_exception_data = $instance->get_exception_data($val['id']);
-                                                                //$count_exception_data = count($total_exception_data);
-                                                            }
-                                                            else
-                                                            {
-                                                                $total_processed_data = $instance->get_idc_detail_data($val['id']);
-                                                                $count_processed_data = count($total_processed_data);
-                                                                $count_exception_data = $instance->get_exception_data($val['id'], 1);
-                                                                // $count_exception_data = count($total_exception_data);
-                                                            }
-                                                            if(isset($count_processed_data) && $count_processed_data>0)
+                                                            $total_processed_data = $instance->check_file_exception_process($val['id'],1);
+                                                            $count_processed_data = $total_processed_data['processed'];
+                                                            $count_exception_data = $total_processed_data['exceptions'];
+
+                                                            if($count_processed_data + $count_exception_data > 0)
                                                             {
                                                                 $total_process = $count_processed_data+$count_exception_data;
                                                                 $total_processed_per = ($count_processed_data*100)/$total_process;
@@ -550,21 +507,57 @@ PostResult( msg );
                                                             }
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '2')
                                                             {
-                                                                $return_idc_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);//print_r($return_idc_existing_data);exit;
+                                                                $return_idc_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);
+                                                                // Display the names found during the processing of the data. Sometimes they don't match what was sent in the data fields (alpha_code & rep_name), or the
+                                                                // the descrtiptions are vague, i.e. "Trust Account 123"
+                                                                $instance_client = new client_maintenance();
+                                                                $instance_product = new product_maintenance();
+                                                                $instance_broker = new broker_master();
+                                                                $instance_import = new import();
+
+                                                                if (!empty($return_idc_existing_data['broker_id'])){
+                                                                    $brokerRow = $instance_broker->select_broker_by_id($return_idc_existing_data['broker_id']);
+
+                                                                    if ($brokerRow) {
+                                                                        $error_val['rep_name'] = trim($brokerRow['last_name']).(($brokerRow['last_name']!='' AND $brokerRow['last_name']!='') ? ', ' : '').trim($brokerRow['first_name']);
+                                                                    }
+                                                                }
+                                                                if (!empty($return_idc_existing_data['client_id'])){
+                                                                    $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
+
+                                                                    if ($clientDetail) {
+                                                                        $error_val['client'] = trim($clientDetail[0]['last_name']).(($clientDetail[0]['first_name']!='' AND $clientDetail[0]['last_name']!='') ? ', ' : '').trim($clientDetail[0]['first_name']);
+                                                                    }
+                                                                }
+
+                                                                // Exception Types
                                                                 if($error_val['field'] == 'customer_account_number')
                                                                 {
                                                                     $existing_field_value = $return_idc_existing_data['customer_account_number'];
                                                                 }
+
                                                                 if($error_val['field'] == 'CUSIP_number')
                                                                 {
                                                                     $existing_field_value = $return_idc_existing_data['CUSIP_number'];
                                                                 }
+
                                                                 if($error_val['field'] == 'u5')
                                                                 {
                                                                     $rep_number = $return_idc_existing_data['representative_number'];
                                                                     $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
+
+                                                                if($error_val['field'] == 'active_check')
+                                                                {
+                                                                    // 1.State / 2.ProdCat / 3.TermDate
+                                                                    $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
+                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['CUSIP_number'])."'");
+                                                                    $licenceDetail = $instance_import->checkStateLicence($return_idc_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_idc_existing_data['trade_date'], 1);
+                                                                    $category = substr($licenceDetail['licence_table'], strrpos($licenceDetail['licence_table'], '_') +1 );
+                                                                    $existing_field_value = trim($category).' / '.trim($licenceDetail['state_name']);
+                                                                }
+
                                                             }
                                                         ?>
                                                         <tr>
@@ -1159,8 +1152,8 @@ PostResult( msg );
                         <label id="field_label" class="pull-right">Add Exception value</label>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="inputpopup">
+                <div class="col-md-4 pull-left float-left">
+                    <div class="inputpopup pull-left float-left">
                         <input type="text" name="exception_value" class="default_value" id="exception_value" value="" style="display: block;"/>
                         <input type="text" name="exception_value_dis" class="default_value" id="exception_value_dis" value="" style="display: none;"/>
                         <input type="checkbox" class="checkbox" name="active_state" id="active_state" value="1" style="display: none;"/>
@@ -1215,12 +1208,12 @@ PostResult( msg );
                 <div class="row" style="display: none;" id="broker_termination_options_trades">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label id="broker_termination_label">Select Option</label>
+                        <label id="broker_termination_label" class="pull-right">Select Option</label>
                     </div>
                 </div>
                 <div class="col-md-6">
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);"/><label> Hold commission</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Remove U5 Date</label><br />
+                   <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/><label> Hold commission</label><br />
+                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign trade to a new broker</label><br />
                    <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Trade</label><br />
                 </div>
@@ -1259,7 +1252,7 @@ PostResult( msg );
                     <div class="row">
                         <div class="col-md-5">
                             <div class="inputpopup">
-                                <label>CUSIP Number: </label>
+                                <label class="pull-right">CUSIP # to Assign: </label>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -1272,7 +1265,7 @@ PostResult( msg );
                     <div class="row">
                         <div class="col-md-5">
                             <div class="inputpopup">
-                                <label>Product Category: </label>
+                                <label class="pull-right">Product Category: </label>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -1289,7 +1282,7 @@ PostResult( msg );
                     <div class="row">
                         <div class="col-md-5">
                             <div class="inputpopup">
-                                <label>Product: </label>
+                                <label class="pull-right">Product: </label>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -1305,7 +1298,7 @@ PostResult( msg );
                 <div class="row" id="assign_client_to_account" style="display: none;">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label class="pull-right">Assign to Existing Client</label>
+                        <label class="pull-right" id="label_assign_to_existing_client">Assign to Existing Client</label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -1592,6 +1585,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     {
         $("#existing_cusip_number").css('display','none');
         $("#existing_ticker_symbol").css('display','none');
+
         if(exception_field == 'u5')
         {
             document.getElementById("field_label").innerHTML = 'Broker Termination Date:';
@@ -1625,16 +1619,26 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("exception_value_date").value = '';
             $("#exception_value").css('display','block');
         }
+
         if(exception_field == 'active_check')
         {
-            document.getElementById("field_label").innerHTML = 'Check License State:';
-            $("#active_state").css('display','block');
+            document.getElementById("field_label").innerHTML = 'Licence Category / State';
+            // $("#active_state").css('display','block');
+            $("#exception_value").css('display','block');
+            $("#broker_termination_options_trades").css('display','block');
+            document.getElementById("exception_value").value = existing_field_value;
+            document.getElementById("exception_value_dis").value = existing_field_value;
+            document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
+            $("#exception_value").prop( "disabled", true );
+            $("#exception_value_dis").prop( "disabled", true );
             $("#exception_value").css('display','none');
+            $("#exception_value_dis").css('display','block');s
         }
         else
         {
             $("#active_state").css('display','none');
         }
+
         if(exception_field == 'status')
         {
             document.getElementById("field_label").innerHTML = 'Product Terminated:';
@@ -1645,6 +1649,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#status").css('display','none');
         }
+
         if(exception_field == 'mutual_fund_customer_account_number')
         {
             document.getElementById("field_label").innerHTML = 'Account# to Add';
@@ -1657,15 +1662,17 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'customer_account_number')
         {
-            document.getElementById("field_label").innerHTML = 'Account# to Add';
-            document.getElementById("exception_value").value = existing_field_value;
-            document.getElementById("exception_value_dis").value = existing_field_value;
+            document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Account # to Add');
+            document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
+            document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
             $("#exception_value_dis").prop( "disabled", true );
             $("#assign_client_to_account").css('display','block');
             $("#exception_value").css('display','none');
             $("#exception_value_dis").css('display','block');
-
+            if (error_code_id == 13){
+                document.getElementById("label_assign_to_existing_client").innerHTML = 'Assign Trade to Client';
+            }
         }
         else
         {
@@ -1692,6 +1699,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#social_security_number").css('display','none');
         }
+
         if(exception_field == 'active')
         {
             document.getElementById("field_label").innerHTML = 'Active Client:';
@@ -1702,6 +1710,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#active").css('display','none');
         }
+
         if(exception_field == 'objectives')
         {
             document.getElementById("field_label").innerHTML = 'Assign Product Objective:';
@@ -1712,6 +1721,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#objectives").css('display','none');
         }
+
         if(exception_field == 'sponsor')
         {
             document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
@@ -1723,6 +1733,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#sponsor").css('display','none');
         }
+
         if(exception_field == 'CUSIP_number' && error_code_id == '13' )
         {
             document.getElementById("field_label").innerHTML = 'Enter CUSIP Number';
@@ -1733,6 +1744,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#cusip_number").css('display','none');
         }
+
         if(exception_field == 'CUSIP_number' && error_code_id == '11')
         {
             //document.getElementById("field_label").innerHTML = 'CUSIP Number';
@@ -1746,6 +1758,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#assign_cusip_to_product").css('display','none');
         }
+
         if(exception_field == 'alpha_code')
         {
             document.getElementById("field_label").innerHTML = 'Enter Client Name';
@@ -1756,6 +1769,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         {
             $("#alpha_code").css('display','none');
         }
+
         if(exception_field == 'representative_number')
         {
             document.getElementById("field_label").innerHTML = 'Broker Alias to Add:';
@@ -1947,5 +1961,19 @@ function formsubmitfiles()
     //e.preventDefault(); // avoid to execute the actual submit of the form.
     return false;
 
+}
+function changeClass() {
+    var pullRights = document.getElementsByClassName('pull-right');
+    var width = (window.innerHeight > 0) ? window.innerHeight : screen.Height;
+    // console.log(width);
+    if(width <= 992) {
+        while(pullRights.length > 0) {
+            pullRights[1].className ='';
+        }
+    } else {
+        while(pullRights.length > 0) {
+            pullRights[0].className = "pull-right";
+        }
+    }
 }
 </script>

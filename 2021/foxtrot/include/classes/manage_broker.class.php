@@ -1048,7 +1048,6 @@
           $type_of_licences =isset($data['type'])?$this->re_db_input($data['type']):'';
           $waive_home_state_fee = isset($data['pass_through'])?$this->re_db_input($data['pass_through']):'0';
           $product_category = (isset($data['product_category']) && strlen($data['product_category'] > 0))?$this->re_db_input($data['product_category']):'0';
-          if($id>=0){
 
           if($id==0){
 				    foreach($data['data1'] as $key=>$val)
@@ -1061,7 +1060,7 @@
 
               $q = "INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$type_of_licences."' ,`state_id`='".$key."' ,
               `waive_home_state_fee`='".$waive_home_state_fee."' , `product_category`='".$product_category."' ,`active_check`='".$active_check."' ,`fee`='".$fee."' ,
-              `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."' ".$this->insert_common_sql();
+              `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."', `status`=1".$this->insert_common_sql();
               $res = $this->re_db_query($q);
             }
 
@@ -1145,9 +1144,8 @@
 							return false;
 						}*/
           }
-            }
-            //echo $id;
-            //exit;
+          //echo $id;
+          //exit;
         }
         public function insert_update_licences1($data)
         {

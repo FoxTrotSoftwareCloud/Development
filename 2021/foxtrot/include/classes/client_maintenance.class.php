@@ -731,11 +731,16 @@
             }
 			return $return;
 		}
-        public function get_state_name($id){
+        public function get_state_name($id,$returnShortName=0){
 			$return = array();
-			$q = "SELECT `at`.name as state_name
-					FROM `".STATE_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+			$fieldName = ($returnShortName ? 'short_name' : 'name');
+			$id = (int)$id;
+
+			$q = "SELECT `at`.`$fieldName` AS `state_name`"
+					." FROM `".STATE_MASTER."` AS `at`"
+                    ." WHERE `at`.`is_delete`=0"
+					." AND `at`.`id`=$id"
+			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
@@ -1154,7 +1159,7 @@
 		 * */
          public function delete_objectives($id){
 			$id = trim($this->re_db_input($id));
-			if($id>0 && ($status==0 || $status==1) ){
+			if($id>0) {
 				$q = "UPDATE `".CLIENT_OBJECTIVES."` SET `is_delete`='1' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){
@@ -1184,7 +1189,7 @@
 		}
 		public function delete($id){
 			$id = trim($this->re_db_input($id));
-			if($id>0 && ($status==0 || $status==1) ){
+			if($id>0){
 				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){

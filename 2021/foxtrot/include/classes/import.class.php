@@ -108,7 +108,7 @@
             $error_code_id = isset($data['error_code_id'])?$this->re_db_input($data['error_code_id']):0;
             $exception_data_id = isset($data['exception_data_id'])?$this->re_db_input($data['exception_data_id']):0;
             $exception_field = isset($data['exception_field'])?$this->re_db_input($data['exception_field']):'';
-            $broker_termination_date = isset($data['broker_termination_date'])?$this->re_db_input($data['broker_termination_date']):'';
+            $resultMessage = '';
 
             if($exception_field == 'u5'){
                 $exception_value = isset($data['exception_value_date'])?$this->re_db_input($data['exception_value_date']):'';
@@ -117,7 +117,7 @@
             } else if($exception_field == 'active'){
                 $exception_value = isset($data['active'])?$this->re_db_input($data['active']):'';
             } else if($exception_field == 'active_check'){
-                $exception_value = isset($data['active_state'])?$this->re_db_input($data['active_state']):'';
+                $exception_value = isset($data['exception_field'])?$this->re_db_input($data['exception_field']):'';
             } else if($exception_field == 'status'){
                 $exception_value = isset($data['status'])?$this->re_db_input($data['status']):'';
             } else if($exception_field == 'objectives'){
@@ -368,7 +368,9 @@
                     //--- IDC EXCEPTIONS ---//
                     else if(isset($exception_file_type) && $exception_file_type == '2')
                     {
-                        if($exception_field == 'u5')
+                        //--- 02/03/22 Active Broker Licence check added to this section($exception_field=='active_check').
+                        //--- Populates the "resolve_broker_terminated" elements in "import.tpl.php". Re-activate Rep (resolve_broker_terminated==2) is compleletely different --//
+                        if(in_array($exception_field, ['u5', 'active_check']))
                         {
                             if(!isset($data['resolve_broker_terminated'])||$data['resolve_broker_terminated']=='')
                             {
@@ -384,103 +386,220 @@
                                     // Put HOLD on trade
                                     $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
                                         ." SET `on_hold`=1"
+                                                .", `resolve_exception`=".($exception_field=='u5' ? '100' : '101')
                                                 .$this->update_common_sql()
                                         ." WHERE `file_id`=".$exception_file_id
                                           ." AND `id`=".$exception_data_id
                                     ;
                                     $res = $this->re_db_query($q);
-                                    // Update Exception Table in reprocess_current_file($id) 01/23/22
-                                    // $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                    // $res1 = $this->re_db_query($q1);
+
                                     if($res)
                                     {
+                                        // Update "resolve_exception" field to flag detail as "special handling" record
+                                        $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                            ." SET `resolve_exception`=".($exception_field=='u5' ? '100' : '101')
+                                                .$this->update_common_sql()
+                                            ." WHERE `file_id`=".$exception_file_id
+                                            ." AND `id`=".$exception_data_id
+                                        ;
+                                        $res = $this->re_db_query($q);
+
                                         $result = $this->reprocess_current_files($exception_file_id);
                                     }
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2)
-                                {
-                                    // REMOVE TERMINATED DATE(u5) FOR REP
-                                    $q = "SELECT `broker_id`"
-                                        ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
-                                        ." WHERE `is_delete`=0"
-                                          ." AND `id`=".$exception_data_id
-                                    ;
-        			                $res = $this->re_db_query($q);
-                                    $row = $this->re_db_fetch_array($res);
-
-                                    if (!empty($row['broker_id'])){
-                                        $q = "UPDATE `".BROKER_GENERAL."`"
-                                             ." SET `".$exception_field."`=''"
-                                                    .$this->update_common_sql()
-                                             ." WHERE `is_delete`=0 AND `broker_id`=".$row['broker_id']
+                                {   // UPDATE TERMINATION DATE
+                                    if ($exception_field=='u5'){
+                                        // REMOVE TERMINATED DATE(u5) FOR REP
+                                        $q = "SELECT `broker_id`"
+                                            ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
+                                            ." WHERE `is_delete`=0"
+                                            ." AND `id`=".$exception_data_id
                                         ;
                                         $res = $this->re_db_query($q);
+                                        $row = $this->re_db_fetch_array($res);
 
-                                        // Program Inconsistent on checking the "Status" of the rep, but change the rep's status to Active(1) to make sure
-                                        if($res) {
-                                            $q = "UPDATE `".BROKER_MASTER."`"
-                                                ." SET `active_status`=1"
+                                        if (!empty($row['broker_id'])){
+                                            $q = "UPDATE `".BROKER_GENERAL."`"
+                                                ." SET `".$exception_field."`=''"
                                                         .$this->update_common_sql()
-                                                ." WHERE `is_delete`=0 AND `id`=".$row['broker_id']
+                                                ." WHERE `is_delete`=0 AND `broker_id`=".$row['broker_id']
                                             ;
                                             $res = $this->re_db_query($q);
-                                        }
 
-                                        if($res) {
-                                            $result = $this->reprocess_current_files($exception_file_id);
+                                            // Program Inconsistent on checking the "Status" of the rep, but change the rep's status to Active(1) to make sure
+                                            if($res) {
+                                                $q = "UPDATE `".BROKER_MASTER."`"
+                                                    ." SET `active_status`=1"
+                                                            .$this->update_common_sql()
+                                                    ." WHERE `is_delete`=0 AND `id`=".$row['broker_id']
+                                                ;
+                                                $res = $this->re_db_query($q);
+                                            }
+
+                                            // Reprocess the updated record
+                                            if($res) {
+                                                // Update "resolve_exception" field to flag detail as "special handling" record
+                                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                                    ." SET `resolve_exception`=2"
+                                                            .$this->update_common_sql()
+                                                    ." WHERE `file_id`=".$exception_file_id
+                                                    ." AND `id`=".$exception_data_id
+                                                ;
+                                                $res = $this->re_db_query($q);
+
+                                                $result = $this->reprocess_current_files($exception_file_id);
+                                            }
+                                        } else {
+                                            $result = 0;
                                         }
                                     } else {
+                                        // UPDATE BROKER LICENSING: Broker License Error
                                         $result = 0;
+                                        //--- Broker Licence Error - Activate Licence ---//
+                                        $instance_client = new client_maintenance();
+                                        $instance_product = new product_maintenance();
+                                        $instance_broker = new broker_master();
+                                        $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
+                                        $clientDetail = $instance_client->get_client_name($idcDetailRow['client_id']);
+                                        $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['CUSIP_number'])."'");
+                                        $licenceDetail = $this->checkStateLicence($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1);
+
+                                        if (!empty($licenceDetail['licence_table']) AND !empty($licenceDetail['state_id'])){
+                                            // ADD/UPDATE the existing licence record
+                                            $licenceDetail['id'] = $licenceDetail['licence_id'];
+                                            $licenceDetail['active_check'] = 1;
+                                            // Date checks - Received & Terminated
+                                            if ($idcDetailRow['trade_date']<$licenceDetail['received']){
+                                                $licenceDetail['received'] = $idcDetailRow['trade_date'];
+                                            }
+
+                                            if ($idcDetailRow['trade_date']>$licenceDetail['terminated']){
+                                                $licenceDetail['terminated'] = $idcDetailRow['trade_date'];
+                                            }
+
+                                            // Product Type field
+                                            switch ($licenceDetail['licence_table']) {
+                                                case 'BROKER_LICENCES_SECURITIES':
+                                                    $licenceDetail['type_of_licences'] = 1;
+                                                    break;
+                                                case 'BROKER_LICENCES_INSURANCE':
+                                                    $licenceDetail['type_of_licences'] = 2;
+                                                    break;
+                                                default:
+                                                    $licenceDetail['type_of_licences'] = 3;
+                                                    break;
+                                            }
+                                            // Do the Deed!
+                                            if ($licenceDetail['id']){
+                                                $q = "UPDATE `".constant($licenceDetail['licence_table'])."`"
+                                                        ." SET"
+                                                            ." `broker_id`=".$licenceDetail['broker_id']
+                                                            .",`type_of_licences`=".$licenceDetail['type_of_licences']
+                                                            .",`state_id`=".$licenceDetail['state_id']
+                                                            .",`active_check`=".$licenceDetail['active_check']
+                                                            .",`received` = '".$licenceDetail['received']."'"
+                                                            .",`terminated`= '".$licenceDetail['terminated']."'"
+                                                            .$this->update_common_sql()
+                                                        ." WHERE `id`=".$licenceDetail['id']
+                                                ;
+                                                $result = $this->re_db_query($q);
+                                            } else {
+                                                $q = "INSERT INTO `".constant($licenceDetail['licence_table'])."`"
+                                                        ." SET"
+                                                            ." `broker_id`=".$licenceDetail['broker_id']
+                                                            .",`type_of_licences`=".$licenceDetail['type_of_licences']
+                                                            .",`state_id`=".$licenceDetail['state_id']
+                                                            .",`active_check`=".$licenceDetail['active_check']
+                                                            .",`received` = '".$licenceDetail['received']."'"
+                                                            .",`terminated` = '".$licenceDetail['terminated']."'"
+                                                            .$this->insert_common_sql()
+                                                ;
+                                                $result = $this->re_db_query($q);
+                                            }
+
+                                            if ($result){
+                                                // Update "resolve_exception" field to flag detail as "special handling" record
+                                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                                    ." SET `resolve_exception`=2"
+                                                            .$this->update_common_sql()
+                                                    ." WHERE `file_id`=".$exception_file_id
+                                                    ." AND `id`=".$exception_data_id
+                                                ;
+                                                $res = $this->re_db_query($q);
+
+                                                $result = $this->reprocess_current_files($exception_file_id);
+                                            }
+
+                                        } else {
+                                            $this->errors = 'Licence update failed - Product Category not found.';
+                                        }
                                     }
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 3)
                                 {
                                     // ASSIGN TRADE TO ANOTHER BROKER
-                                    if($rep_for_broker == '')
-                                    {
-                                        $this->errors = 'Please select new broker for the transaction.';
-                                    }
-                                    if($this->errors!=''){
-                        				return $this->errors;
-                        			}
-                                    else
-                                    {
-                                        $new_rep = 0;
-                                        $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `id`=".$rep_for_broker;
-            			                $res = $this->re_db_query($q);
+                                    $new_rep = 0;
+                                    $q = "SELECT id,first_name,last_name FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `id`=".$rep_for_broker;
+                                    $res = $this->re_db_query($q);
 
-                                        if($res->num_rows)
+                                    if($res->num_rows)
+                                    {
+                                        $row = $this->re_db_fetch_array($res);
+                                        $new_rep = $row['id'];
+                                        $rep_name = $row['first_name'].' '.$row['last_name'];
+
+                                        // Enter the "Broker ID" as a negative to tell reprocess_current_file($file_id) to skip the Alias search, and just force "broker_id" as the broker for the trade
+                                        $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                            ." SET `broker_id` = ".$new_rep
+                                                    .$this->update_common_sql()
+                                            ." WHERE `id`=".$exception_data_id
+                                            ." AND `file_id`=".$exception_file_id
+                                        ;
+                                        $res = $this->re_db_query($q);
+
+                                        if($res)
                                         {
-                                            $row = $this->re_db_fetch_array($res);
-                                            $new_rep = $row['id'];
-                                            // Enter the "Broker ID" as a negative to tell reprocess_current_file($file_id) to skip the Alias search, and just force "broker_id" as the broker for the trade
+                                            // Update "resolve_exception" field to flag detail as "special handling" record
                                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
-                                                ." SET `broker_id` = -".$new_rep
+                                                ." SET `resolve_exception`=3"
                                                         .$this->update_common_sql()
-                                                ." WHERE `id`=".$exception_data_id
-                                                  ." AND `file_id`=".$exception_file_id
+                                                ." WHERE `file_id`=".$exception_file_id
+                                                ." AND `id`=".$exception_data_id
                                             ;
                                             $res = $this->re_db_query($q);
 
-                                            if($res)
-                                            {
-                                                $result = $this->reprocess_current_files($exception_file_id);
-                                            }
+                                            $result = $this->reprocess_current_files($exception_file_id);
                                         }
                                     }
-
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 4)
                                 {
                                     // DELETE/SKIP TRADE
                                     $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `is_delete`=1, `process_result`=2".$this->update_common_sql()." WHERE `id`=$exception_data_id AND `file_id`=$exception_file_id";
                                     $res = $this->re_db_query($q);
-                                    if($res)
-                                    {
-                                        $q = "UPDATE `".IMPORT_EXCEPTION."` SET `is_delete`=1".$this->update_common_sql()." WHERE `file_id`=$exception_file_id AND `temp_data_id`=$exception_data_id AND `file_type`=2";
+
+                                    if($res) {
+                                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                                ." SET `is_delete`=1"
+                                                        .$this->update_common_sql()
+                                                ." WHERE `file_id`=".$exception_file_id
+                                                ." AND `temp_data_id`=".$exception_data_id
+                                                ." AND `file_type`=2"
+                                        ;
                                         $res = $this->re_db_query($q);
+
                                         if($res)
                                         {
+                                            // Update "resolve_exception" field to flag detail as "special handling" record
+                                            $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                                ." SET `resolve_exception`=4"
+                                                        .$this->update_common_sql()
+                                                ." WHERE `file_id`=".$exception_file_id
+                                                ." AND `id`=".$exception_data_id
+                                            ;
+                                            $res = $this->re_db_query($q);
+
                                             $result = 1;
                                         }
                                     }
@@ -508,11 +627,21 @@
                                 $res = $this->re_db_query($q);
 
                                 if($res){
+                                    // Update "resolve_exception" field to flag detail as "special handling" record
+                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." SET `resolve_exception`=2"
+                                                .$this->update_common_sql()
+                                        ." WHERE `file_id`=".$exception_file_id
+                                        ." AND `id`=".$exception_data_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
                                     $result = $this->reprocess_current_files($exception_file_id);
                                 }
                             }
                         }
-                        else if($exception_field == 'customer_account_number')
+    // Loren Inada - Exceptions not done yet - 02/05/22 12:00 PM
+                        else if($exception_field == 'customer_account_number' AND $error_code_id == 7)
                         {
                                 $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
                                 if($sponsorId == 0){
@@ -521,101 +650,93 @@
                                     $sponsorId = isset($sponsor_detail['id']) ? (int)$sponsor_detail['id'] : 0;
                                 }
 
-                                $q = "INSERT `".CLIENT_ACCOUNT."` SET `account_no`='".$exception_value."',`sponsor_company`='".$sponsorId."',`client_id`='".$acc_for_client."' ".$this->insert_common_sql();
+                                $q = "INSERT `".CLIENT_ACCOUNT."`"
+                                      ." SET"
+                                            ." `account_no`='".$exception_value."'"
+                                            .",`sponsor_company`='".$sponsorId."'"
+                                            .",`client_id`='".$acc_for_client."'"
+                                            .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
-
-                                //--- 01/29/22.12:13 Not needed - the reprocess should find the acct# and clear the exception
-                                // $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                                // $res = $this->re_db_query($q);
 
                                 if ($res)
                                 {
+                                    // Update "resolve_exception" field to flag detail as "special handling" record
+                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." SET `resolve_exception`=2"
+                                                .$this->update_common_sql()
+                                        ." WHERE `file_id`=".$exception_file_id
+                                        ." AND `id`=".$exception_data_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
                                     $result = $this->reprocess_current_files($exception_file_id);
                                 }
                         }
-                        else if($exception_field == 'active_check')
+                        else if($exception_field == 'customer_account_number' AND $error_code_id == '13')
                         {
-                            //--- STATE LICENSE EXCEPTION --//
-                            $rep_number = 0;
-                            $broker = 0;
-                            $customer_account_number = 0;
-                            $state_id = 0;
-
-                            $q = "SELECT rep FROM `".IMPORT_EXCEPTION."` WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $rep_number = $row['rep'];
-                            }
-
-                            $q = "SELECT customer_account_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $customer_account_number = $row['customer_account_number'];
-                            }
-
-                            $q = "SELECT id FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `fund`='".$rep_number."' ";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $broker = $row['id'];
-                            }
-
-                            $q = "SELECT `cm`.`state`"
-                                    ." FROM `".CLIENT_MASTER."` as `cm`"
-                                    ." LEFT JOIN `".CLIENT_ACCOUNT."` as `ca` on `ca`.`client_id`=`cm`.`id`"
-                                    ." WHERE `cm`.`is_delete`=0 AND `ca`.`account_no`='".$customer_account_number."' "
-                            ;
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $state_id = $row['state'];
-                            }
-
-                            $q = "UPDATE `".BROKER_LICENCES_SECURITIES."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
+                            // No Customer Account Number in the file
+                            // ASSIGN TRADE TO CLIENT
+                            $new_client = 0;
+                            $q = "SELECT id,first_name,last_name FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `id`=".$acc_for_client;
                             $res = $this->re_db_query($q);
 
-                            $q = "UPDATE `".BROKER_LICENCES_RIA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
-                            $res = $this->re_db_query($q);
-
-                            $q = "UPDATE `".BROKER_LICENCES_INSURANCE."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `broker_id`='".$broker."' AND `state_id`='".$state_id."'";
-                            $res = $this->re_db_query($q);
-
-                            $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                            $res1 = $this->re_db_query($q1);
-                            if($res1)
+                            if($res->num_rows)
                             {
-                                $result = 1;
+                                $row = $this->re_db_fetch_array($res);
+                                $new_client = $row['id'];
+
+                                // Resolve Exception - code 30 Assign user-defined client to trade
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                    ." SET `client_id` = $new_client"
+                                            .$this->update_common_sql()
+                                    ." WHERE `id`=".$exception_data_id
+                                    ." AND `file_id`=".$exception_file_id
+                                ;
+                                $res = $this->re_db_query($q);
+
+                                if($res)
+                                {
+                                    // Update "resolve_exception" field to flag detail as "special handling" record
+                                    $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                        ." SET `resolve_exception`=30"
+                                                .$this->update_common_sql()
+                                        ." WHERE `file_id`=".$exception_file_id
+                                        ." AND `id`=".$exception_data_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                    $result = $this->reprocess_current_files($exception_file_id);
+                                }
                             }
                         }
                         else if($exception_field == 'status')
                         {
-                            $CUSIP_number = 0;
-                            $q = "SELECT CUSIP_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
-                            {
-                                $CUSIP_number = $row['CUSIP_number'];
-                            }
-                            $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
-            				$res = $this->re_db_query($q);
-            				if($this->re_db_num_rows($res)>0){
-                                while($row = $this->re_db_fetch_array($res))
-                                {
-                                    $q2 = "UPDATE `product_category_".$row['id']."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `status`='0' and `cusip`='".$CUSIP_number."'";
-            				        $res2 = $this->re_db_query($q2);
-                                    if($res2 == true)
-                                    {
-                                        $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                        $res3 = $this->re_db_query($q3);
-                                        if($res3)
-                                        {
-                                            $result = 1;
-                                        }
-                                    }
-                        		}
-                            }
+                            // PRODUCT TERMINATED - can't find this Exception being created in Reprocess Current File function, but kept just in case it is needed later
+                        //     $CUSIP_number = 0;
+                        //     $q = "SELECT CUSIP_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
+			            //     $res = $this->re_db_query($q);
+                        //     while($row = $this->re_db_fetch_array($res))
+                        //     {
+                        //         $CUSIP_number = $row['CUSIP_number'];
+                        //     }
+                        //     $q = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
+            			// 	$res = $this->re_db_query($q);
+            			// 	if($this->re_db_num_rows($res)>0){
+                        //         while($row = $this->re_db_fetch_array($res))
+                        //         {
+                        //             $q2 = "UPDATE `product_category_".$row['id']."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `status`='0' and `cusip`='".$CUSIP_number."'";
+            			// 	        $res2 = $this->re_db_query($q2);
+                        //             if($res2 == true)
+                        //             {
+                        //                 $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                        //                 $res3 = $this->re_db_query($q3);
+                        //                 if($res3)
+                        //                 {
+                        //                     $result = 1;
+                        //                 }
+                        //             }
+                        // 		}
+                        //     }
                         }
                         else if($exception_field == 'objectives')
                         {
@@ -692,82 +813,74 @@
                         }
                         else if($exception_field == 'sponsor')
                         {
-                            $system_id = '';
-                            $management_code = '';
-                            $sponsor = isset($data['sponsor'])?$data['sponsor']:'';
+                            // Not populated in Reprocess Current File
+                            // $system_id = '';
+                            // $management_code = '';
+                            // $sponsor = isset($data['sponsor'])?$data['sponsor']:'';
 
-                            if(isset($sponsor) && $sponsor == '')
-                            {
-                               $this->errors = 'Please select sponsor.';
-                            }
-                            if($this->errors!=''){
-           				       return $this->errors;
-            			    }
-                            else
-                            {
-                                $q = "SELECT system_id,management_code FROM `".IMPORT_IDC_HEADER_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."'";
-    			                $res = $this->re_db_query($q);
-                                while($row = $this->re_db_fetch_array($res))
-                                {
-                                    $system_id = $row['system_id'];
-                                    $management_code = $row['management_code'];
-                                }
+                            // if(isset($sponsor) && $sponsor == '')
+                            // {
+                            //    $this->errors = 'Please select sponsor.';
+                            // }
+                            // if($this->errors!=''){
+           				    //    return $this->errors;
+            			    // }
+                            // else
+                            // {
+                            //     $q = "SELECT system_id,management_code FROM `".IMPORT_IDC_HEADER_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."'";
+    			            //     $res = $this->re_db_query($q);
+                            //     while($row = $this->re_db_fetch_array($res))
+                            //     {
+                            //         $system_id = $row['system_id'];
+                            //         $management_code = $row['management_code'];
+                            //     }
 
-                                $q2 = "UPDATE `".SPONSOR_MASTER."` SET `dst_system_id`='".$system_id."',`dst_mgmt_code`='".$management_code."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `id`='".$sponsor."'";
-        				        $res2 = $this->re_db_query($q2);
-                                if($res2 == true)
-                                {
-                                    $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `field`='".$exception_field."'";
-                                    $res3 = $this->re_db_query($q3);
-                                    if($res3)
-                                    {
-                                        $result = 1;
-                                    }
-                                }
-                            }
+                            //     $q2 = "UPDATE `".SPONSOR_MASTER."` SET `dst_system_id`='".$system_id."',`dst_mgmt_code`='".$management_code."'".$this->update_common_sql()."  WHERE `is_delete`=0 and `id`='".$sponsor."'";
+        				    //     $res2 = $this->re_db_query($q2);
+                            //     if($res2 == true)
+                            //     {
+                            //         $q3 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `field`='".$exception_field."'";
+                            //         $res3 = $this->re_db_query($q3);
+                            //         if($res3)
+                            //         {
+                            //             $result = 1;
+                            //         }
+                            //     }
+                            // }
                         }
-                        else if($exception_field == 'CUSIP_number' && $error_code_id == '13')
+                        else if($exception_field == 'CUSIP_number')
                         {
-                             $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                             $res = $this->re_db_query($q);
+                            // Missing CUSIP
+                            if ($error_code_id == '13'){
+                                $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
+                                $res = $this->re_db_query($q);
+                            } else {
+                                //if($error_code_id == '11')
+                                // 11 = Cusip not found
+                                $product_category = isset($data['assign_cusip_product_category'])?$data['assign_cusip_product_category']:0;
+                                $product = isset($data['assign_cusip_product'])?$data['assign_cusip_product']:0;
+                                if($product_category <=0)
+                                {
+                                    $this->errors = 'Please select product category.';
+                                }
+                                else if($product<=0)
+                                {
+                                    $this->errors = 'Please select product.';
+                                }
+                                if($this->errors!=''){
+                                    return $this->errors;
+                                }
+                                else
+                                {
+                                    $q = "UPDATE `".PRODUCT_LIST."` SET `cusip`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$product."'";
+                                    $res = $this->re_db_query($q);
+                                }
+                            }
 
-                             $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                             $res1 = $this->re_db_query($q1);
-                             if($res1)
-                             {
-                                 $result = 1;
-                             }
-                        }
-                        else if($exception_field == 'CUSIP_number' && $error_code_id == '11')
-                        {
-                             $product_category = isset($data['assign_cusip_product_category'])?$data['assign_cusip_product_category']:0;
-                             $product = isset($data['assign_cusip_product'])?$data['assign_cusip_product']:0;
-                             if($product_category <=0)
-                             {
-                                 $this->errors = 'Please select product category.';
-                             }
-                             else if($product<=0)
-                             {
-                                $this->errors = 'Please select product.';
-                             }
-                             if($this->errors!=''){
-                				 return $this->errors;
-                			 }
-                             else
-                             {
-                                 $q = "UPDATE `product_category_".$product_category."` SET `cusip`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$product."'";
-                                 $res = $this->re_db_query($q);
-
-                                 $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                                 $res1 = $this->re_db_query($q1);
-
-                                 $q2 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                 $res2 = $this->re_db_query($q2);
-                                 if($res2)
-                                 {
-                                     $result = 1;
-                                 }
-                             }
+                            if($res)
+                            {
+                                $result = $this->reprocess_current_files($exception_file_id);
+                            }
                         }
                         else if($exception_field == 'alpha_code')
                         {
@@ -903,23 +1016,22 @@
                         }
                      }
 
-                     if($result == 1){
+                    if($result == 1){
                         if($exception_field == 'customer_account_number')
                         {
                             $_SESSION['success'] = $exception_value.' Added.';
-    					    return true;
+                            return true;
                         }
                         else
                         {
                             $_SESSION['success'] = 'Exception solved successfully.';
-    					    return true;
+                            return true;
                         }
-
-     				 }
-    				 else{
-    					$_SESSION['warning'] = UNKWON_ERROR;
-    					return false;
-    				 }
+                    }
+                    else{
+                        $_SESSION['warning'] = (empty($resultMessage) ? UNKWON_ERROR : $resultMessage);
+                        return false;
+                    }
     		}
 		}
 
@@ -1503,7 +1615,7 @@
                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
                                     ." `file_id`='".$id."'"
-                                    .",`error_code_id`='1'"
+                                    .",`error_code_id`='14'"
                                     .",`field`='sponsor_id'"
                                     .",`file_type`='1'"
                                     .",`temp_data_id`='0'"
@@ -1516,36 +1628,6 @@
                         $result = 1;
                     }
 
-                    /*************************************************
-                     * REMOVE THIS SECTION. JUST FLAG "detail"
-                     * RECORDS AS PROCESSED, AND DON'T RERUN THEM
-                     * 12/7/21
-                     *************************************************/
-                    // //Remove already exist file trades
-                    // $q = "SELECT * FROM `".TRANSACTION_MASTER."` WHERE `is_delete`=0 AND `file_id`='".$id."'";
-				    // $res = $this->re_db_query($q);
-				    // $return = $this->re_db_num_rows($res);
-
-                    // if($return>0){
-					//     $q = "update `".TRANSACTION_MASTER."` set `is_delete`='1' WHERE `file_id`='".$id."'";
-				    //     $res = $this->re_db_query($q);
-				    // }
-
-                    // //Remove already exist file clients
-                    // $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `file_id`='".$id."'";
-				    // $res = $this->re_db_query($q);
-				    // $return = $this->re_db_num_rows($res);
-
-                    // if($return>0){
-					//     $q = "update `".CLIENT_MASTER."` set `is_delete`='1' WHERE `file_id`='".$id."'";
-				    //     $res = $this->re_db_query($q);
-				    // }
-                    /*************************************************
-                     * END:
-                     * REMOVE THIS SECTION. JUST FLAG "detail"
-                     * RECORDS AS PROCESSED, AND DON'T RERUN THEM
-                     * 12/7/21
-                     *************************************************/
                     $q = "UPDATE `".IMPORT_EXCEPTION."`"
                           ." SET `is_delete`=1"
                                 .$this->update_common_sql()
@@ -2050,9 +2132,11 @@
                         $client_id = 0;
                         $product_category_id = 0;
                         $product_id = 0;
-                        $check_hold_commission = 0;
                         $result=0;
                         $transaction_master_id = 0;
+                        $reassignBroker = $check_data_val['resolve_exception']==3;
+                        $reassignClient = $check_data_val['resolve_exception']==30;
+                        $resolveHoldCommission = in_array($check_data_val['resolve_exception'], [100, 101]);
 
                         $insert_exception_string =
                              ",`file_id`='".$check_data_val['file_id']."'"
@@ -2071,12 +2155,11 @@
                         // IDC BROKER Validation
                         if(isset($check_data_val['representative_number']) OR $check_data_val['broker_id']<0){
                             $rep_number = isset($check_data_val['representative_number'])?trim($this->re_db_input($check_data_val['representative_number'])):'';
-                            $reassignBroker = $check_data_val['broker_id']<0;
 
                             if($rep_number != ''){
                                 // Negative "broker_id" populated in "update_exceptions($data)" for "Reassign trade to another broker" option
                                 if ($reassignBroker) {
-                                    $broker = $broker_master->select_broker_by_id(abs($check_data_val['broker_id']));
+                                    $broker = $broker_master->select_broker_by_id($check_data_val['broker_id']);
                                     $brokerAlias = [];
                                 } else {
                                     $broker = $broker_master->select_broker_by_fund($rep_number);
@@ -2102,9 +2185,8 @@
                                     $res = $this->re_db_query($q);
 
                                     $check_broker_termination = $this->broker_termination_date('', $broker_id);
-                                    $check_hold_commission = $this->get_hold_commission($check_data_val['file_id'],$check_data_val['id']);
 
-                                    if($check_broker_termination != '' && $check_hold_commission == '0'){
+                                    if($check_broker_termination != '' && $check_data_val['on_hold'] == '0'){
                                         if(date('Y-m-d', strtotime($check_data_val['trade_date'])) > $check_broker_termination){
                                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                     ." SET `error_code_id`='2'"
@@ -2113,9 +2195,9 @@
                                                         .$insert_exception_string;
                                             $res = $this->re_db_query($q);
 
-                                            // 'on_hold' resolved by user. Enter the tx and place a hold on it
-                                            if ($check_data_val['on_hold']){
-                                                $check_hold_commission = 1;
+                                            // 'on_hold' updated by user ($this->update exception()). Enter the tx and place a hold on it
+                                            if ($resolveHoldCommission){
+                                                $check_data_val['on_hold'] = 1;
                                             } else{
                                                 $result = 1;
                                             }
@@ -2135,7 +2217,7 @@
                         // IDC PRODUCT Validation
                         if(empty($check_data_val['CUSIP_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                    ." SET error_code_id`='13'"
+                                    ." SET `error_code_id`='13'"
                                         .",`field`='CUSIP_number'"
                                         .",`file_type`='2'"
                                         .$insert_exception_string;
@@ -2170,7 +2252,7 @@
                         }
 
                         // IDC CLIENT validation
-                        if(empty($check_data_val['customer_account_number'])){
+                        if(!$reassignClient AND empty($check_data_val['customer_account_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='13'"
                                         .",`field`='customer_account_number'"
@@ -2179,16 +2261,20 @@
                             $resInsert = $this->re_db_query($q);
                             $result = 1;
                         } else {
-                            $q =
-                                "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
-                                    ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
-                                    ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
-                                    ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
-                                        ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
-                                        ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
-                            ;
-                            $res = $this->re_db_query($q);
-                            $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
+                            if ($reassignClient){
+                                $clientAccount['id'] = $check_data_val['client_id'];
+                            } else {
+                                $q =
+                                    "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
+                                        ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
+                                        ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
+                                        ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
+                                            ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
+                                            ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
+                                ;
+                                $res = $this->re_db_query($q);
+                                $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
+                            }
 
                             // Client Account # Not Found
                             if($clientAccount == '') {
@@ -2232,15 +2318,16 @@
                                 }
                             }
 
-                            // State License Check
-                            if(!empty($broker_id) AND !empty($client_id) AND !empty($clientAccount['state']) AND !empty($product_category_id)){
-                                // 12/17/21 Get the correct product type license
-                                $check_result = $this->checkStateLicense($broker_id, $clientAccount['state'], $product_category_id, $check_data_val['trade_date']);
+                            // State Licence Check
+                            // "on_hold" populated in resolve_exceptions($data) - (1)Broker Terminated, (3)Broker Licence
+                            if(!$resolveHoldCommission AND !empty($broker_id) AND !empty($client_id) AND !empty($clientAccount['state']) AND !empty($product_category_id)){
+                                // 12/17/21 Get the correct product type licence
+                                $check_result = $this->checkStateLicence($broker_id, $clientAccount['state'], $product_category_id, $check_data_val['trade_date']);
 
                                 if($check_result == 0){
                                     $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                             ."SET  `error_code_id`='6'"
-                                                .",`field`='state'"
+                                                .",`field`='active_check'"
                                                 .",`file_type`='2'"
                                                 .$insert_exception_string;
                                     $res = $this->re_db_query($q);
@@ -2323,8 +2410,10 @@
 
                                 $con = '';
 
-                                if ($check_hold_commission==1){
-                                    $con .=",`hold_commission`='".$check_hold_commission."',`hold_resoan`='BROKER TERMINATED'";
+                                if ($check_data_val['on_hold'] AND $check_data_val['resolve_exception']==100){
+                                    $con .=",`hold_commission`=1,`hold_resoan`='BROKER TERMINATED'";
+                                } else if($check_data_val['on_hold'] AND $check_data_val['resolve_exception']==101){
+                                    $con .=",`hold_commission`=1, `hold_resoan`='BROKER LICENCE ERROR'";
                                 } else if($broker_hold_commission == 1){
                                     $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
                                 } else {
@@ -2555,35 +2644,61 @@
          * @param int $pClient_state
          * @param mixed $pProduct_category_id
          * @param string $pTerm_date
-         * @return bool TRUE - good licensing, FALSE - broker license not found or not active
+         * @return bool TRUE - good licensing, FALSE - broker licence not found or not active
          */
-        function checkStateLicense($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date=''){
+        function checkStateLicence($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date='',$pDetail=0){
+            $return = ['licence_id'=>0, 'broker_id'=>$pBroker_id, 'first_name'=>'', 'last_name'=>'', 'active_check'=>0, 'state_id'=>(int)$pClient_state, 'state_name'=>'',
+                       'received'=>'', 'terminated'=>'', 'licence_table'=>'', 'product_category_id'=>$pProduct_category_id, 'product_category'=>'', 'trade_date'=>'', 'result'=>0];
             $BatchClass = new batches();
-            $DbClass = new db();
+            $ClientClass = new client_maintenance();
 
             $trade_date = (empty($pTrade_date) ? date('Y-m-d', strtotime('1900-01-01')) : date('Y-m-d', strtotime($pTrade_date)));
             $product_category = strtolower($BatchClass->get_product_type($pProduct_category_id));
-
-            if (in_array($product_category, ['ria'])) {
-                $licenseTable = BROKER_LICENCES_RIA;
-            } else if (preg_match('(life|insurance|annuities|annuity)', $product_category)) {
-                $licenseTable = BROKER_LICENCES_INSURANCE;
+            $state_name = $ClientClass->get_state_name($pClient_state);
+            if ($state_name){
+                $state_name = $state_name['state_name'];
             } else {
-                $licenseTable = BROKER_LICENCES_SECURITIES;
+                $state_name = '';
             }
 
-            $q = "SELECT `bm`.`id`, `bm`.`first_name`, `bm`.`last_name`, `bls`.`active_check`, `bls`.`state_id`, '".$this->re_db_input($licenseTable)."' AS `license_table`, '"
-                         .$this->re_db_input($product_category)."' AS `product_category`".
-                    " FROM `".$licenseTable."` AS `bls`".
-                    " LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`=0".
-                    " WHERE `bls`.`is_delete`=0"
-                        ." AND `bls`.`broker_id`='".$this->re_db_input($pBroker_id)."'"
-                        ." AND `bls`.`state_id`='".$this->re_db_input($pClient_state)."'"
-                        ." AND ('".$trade_date."' BETWEEN `bls`.`received` AND `bls`.`terminated`)"
+            if (in_array($product_category, ['ria'])) {
+                $licenceTable = 'BROKER_LICENCES_RIA';
+            } else if (preg_match('(life|insurance|annuities|annuity)', $product_category)) {
+                $licenceTable = 'BROKER_LICENCES_INSURANCE';
+            } else {
+                $licenceTable = 'BROKER_LICENCES_SECURITIES';
+            }
+
+            $return['product_category'] = $product_category;
+            $return['licence_table'] = $licenceTable;
+            $return['trade_date'] = $trade_date;
+            $return['state_name'] = $state_name;
+
+            $q = "SELECT `bls`.`id` AS `licence_id`, `bm`.`id` AS `broker_id`, `bm`.`first_name`, `bm`.`last_name`"
+                         .", `bls`.`active_check`, `bls`.`state_id`, '$state_name' AS `state_name`, `bls`.`received`, `bls`.`terminated`"
+                         .", '$licenceTable' AS `licence_table`"
+                         .", '$pProduct_category_id' AS `product_category_id`"
+                         .", '$product_category' AS `product_category`"
+                         .", '$trade_date' AS `trade_date`"
+                    ." FROM `".constant($licenceTable)."` AS `bls`"
+                    ." LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`=0"
+                    ." WHERE `bls`.`is_delete`=0"
+                    ." AND `bls`.`broker_id`='".$this->re_db_input($pBroker_id)."'"
+                    ." AND `bls`.`state_id`='".$this->re_db_input($pClient_state)."'"
             ;
-            $res = $DbClass->re_db_query($q);
-            $qArray = $DbClass->re_db_fetch_array($res);
-            return !empty($qArray['active_check']);
+            $res = $this->re_db_query($q);
+
+            if ($this->re_db_num_rows($res))
+                $return = $this->re_db_fetch_array($res);
+            $return['result'] = ($return['active_check'] AND $trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR in_array($return['terminated'], ['1969-12-31', '1970-01-01'])));
+
+            if ($pDetail){
+                // Just return $return
+            } else {
+                $return = $return['result'];
+            }
+
+            return $return;
         }
 
         public function select_archive_files(){
