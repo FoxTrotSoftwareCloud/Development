@@ -558,6 +558,15 @@ PostResult( msg );
                                                                     $existing_field_value = trim($category).' / '.trim($licenceDetail['state_name']);
                                                                 }
 
+                                                                if($error_val['field'] == 'objectives')
+                                                                {
+                                                                    $productObjective = 0;
+
+                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['CUSIP_number'])."'");
+                                                                    if ($productDetail){
+                                                                        $productObjective = (int)$productDetail['objective'];
+                                                                    }
+                                                                }
                                                             }
                                                         ?>
                                                         <tr>
@@ -586,7 +595,7 @@ PostResult( msg );
                                                                 <option value="0">ADD</option>
                                                             </select> -->
                                                             <input type="hidden" name="id" id="id" value="" />
-                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
+                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>,<?php echo $error_val['id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
                                                             </form>
                                                             </td>
                                                         </tr>
@@ -1171,7 +1180,7 @@ PostResult( msg );
                         <select name="objectives" id="objectives" class="form-control" style="display: none;">
                             <option value="">Select Objective</option>
                             <?php foreach($get_objective as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>"><?php echo $val['option'];?></option>
+                            <option value="<?php echo $val['id'];?> <?php echo ($productObjective==$val['id'] ? 'selected' : '');?>><?php echo $val['option'];?></option>
                             <?php } ?>
                         </select>
                         <div id="demo-dp-range">
@@ -1321,6 +1330,7 @@ PostResult( msg );
                         <input type="hidden" name="exception_file_id" id="exception_file_id" value=""/>
                         <input type="hidden" name="exception_file_type" id="exception_file_type" value=""/>
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
+                        <input type="hidden" name="exception_record_id" id="exception_record_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
         	            <button type="submit" style="alignment-adjust: central !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
                     </div>
@@ -1537,13 +1547,14 @@ function reassign_broker_(value)
     }
 }
 
-function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id)
+function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id)
 {
     document.getElementById("exception_data_id").value = temp_data_id;
     document.getElementById("exception_field").value = exception_field;
     document.getElementById("exception_file_id").value = exception_file_id;
     document.getElementById("exception_file_type").value = exception_file_type;
     document.getElementById("error_code_id").value = error_code_id;
+    document.getElementById("exception_record_id").value = exception_record_id;
 
     if(exception_file_type == '3')
     {
@@ -1713,7 +1724,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'objectives')
         {
-            document.getElementById("field_label").innerHTML = 'Assign Product Objective:';
+            document.getElementById("field_label").innerHTML = 'Add Client Objective:';
             $("#objectives").css('display','block');
             $("#exception_value").css('display','none');
         }

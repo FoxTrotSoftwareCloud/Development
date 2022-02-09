@@ -108,6 +108,7 @@
             $error_code_id = isset($data['error_code_id'])?$this->re_db_input($data['error_code_id']):0;
             $exception_data_id = isset($data['exception_data_id'])?$this->re_db_input($data['exception_data_id']):0;
             $exception_field = isset($data['exception_field'])?$this->re_db_input($data['exception_field']):'';
+            $exception_record_id = isset($data['exception_record_id'])?$this->re_db_input($data['exception_record_id']):'';
             $resultMessage = '';
 
             if($exception_field == 'u5'){
@@ -404,6 +405,13 @@
                                         ;
                                         $res = $this->re_db_query($q);
 
+                                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                            ." SET `resolve_exception`=".($exception_field=='u5' ? '100' : '101')
+                                                .$this->update_common_sql()
+                                            ." WHERE `id`=".$exception_record_id
+                                        ;
+                                        $res = $this->re_db_query($q);
+
                                         $result = $this->reprocess_current_files($exception_file_id);
                                     }
                                 }
@@ -445,6 +453,13 @@
                                                             .$this->update_common_sql()
                                                     ." WHERE `file_id`=".$exception_file_id
                                                     ." AND `id`=".$exception_data_id
+                                                ;
+                                                $res = $this->re_db_query($q);
+
+                                                $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                                    ." SET `resolve_exception`=2"
+                                                        .$this->update_common_sql()
+                                                    ." WHERE `id`=".$exception_record_id
                                                 ;
                                                 $res = $this->re_db_query($q);
 
@@ -528,6 +543,13 @@
                                                 ;
                                                 $res = $this->re_db_query($q);
 
+                                                $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                                        ." SET `resolve_exception`=2"
+                                                                .$this->update_common_sql()
+                                                        ." WHERE `id`=".$exception_record_id
+                                                ;
+                                                $res = $this->re_db_query($q);
+
                                                 $result = $this->reprocess_current_files($exception_file_id);
                                             }
 
@@ -569,6 +591,13 @@
                                             ;
                                             $res = $this->re_db_query($q);
 
+                                            $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                                    ." SET `resolve_exception`=3"
+                                                            .$this->update_common_sql()
+                                                    ." WHERE `id`=".$exception_record_id
+                                            ;
+                                            $res = $this->re_db_query($q);
+
                                             $result = $this->reprocess_current_files($exception_file_id);
                                         }
                                     }
@@ -597,6 +626,13 @@
                                                         .$this->update_common_sql()
                                                 ." WHERE `file_id`=".$exception_file_id
                                                 ." AND `id`=".$exception_data_id
+                                            ;
+                                            $res = $this->re_db_query($q);
+
+                                            $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                                    ." SET `resolve_exception`=4"
+                                                            .$this->update_common_sql()
+                                                    ." WHERE `id`=".$exception_record_id
                                             ;
                                             $res = $this->re_db_query($q);
 
@@ -636,11 +672,17 @@
                                     ;
                                     $res = $this->re_db_query($q);
 
+                                    $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                            ." SET `resolve_exception`=2"
+                                                    .$this->update_common_sql()
+                                            ." WHERE `id`=".$exception_record_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
                                     $result = $this->reprocess_current_files($exception_file_id);
                                 }
                             }
                         }
-    // Loren Inada - Exceptions not done yet - 02/05/22 12:00 PM
                         else if($exception_field == 'customer_account_number' AND $error_code_id == 7)
                         {
                                 $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
@@ -669,6 +711,13 @@
                                     ;
                                     $res = $this->re_db_query($q);
 
+                                    $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                            ." SET `resolve_exception`=2"
+                                                    .$this->update_common_sql()
+                                            ." WHERE `id`=".$exception_record_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+    
                                     $result = $this->reprocess_current_files($exception_file_id);
                                 }
                         }
@@ -702,6 +751,13 @@
                                                 .$this->update_common_sql()
                                         ." WHERE `file_id`=".$exception_file_id
                                         ." AND `id`=".$exception_data_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                    $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                            ." SET `resolve_exception`=30"
+                                                    .$this->update_common_sql()
+                                            ." WHERE `id`=".$exception_record_id
                                     ;
                                     $res = $this->re_db_query($q);
 
@@ -740,76 +796,76 @@
                         }
                         else if($exception_field == 'objectives')
                         {
+                            // IDC Client Objectives <> Product Objectives - add Objective to Client??
                             $CUSIP_number = 0;
                             $account_number = 0;
                             $client_id = 0;
                             $objective = 0;
 
-                            $q = "SELECT CUSIP_number,customer_account_number FROM `".IMPORT_IDC_DETAIL_DATA."` WHERE `is_delete`=0 AND `file_id`='".$exception_file_id."' AND `id`='".$exception_data_id."' ";
-			                $res = $this->re_db_query($q);
-                            while($row = $this->re_db_fetch_array($res))
+                            $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
+
+                            if ($idcDetailRow)
                             {
-                                $CUSIP_number = $row['CUSIP_number'];
-                                $account_number = $row['customer_account_number'];
+                                $CUSIP_number = $idcDetailRow['CUSIP_number'];
+                                $account_number = $idcDetailRow['customer_account_number'];
                             }
+                            //
+            				// if($this->re_db_num_rows($res)>0){
+                            //     while($row = $this->re_db_fetch_array($res))
+                            //     {
+                            //         $q2 = "SELECT objective FROM `product_category_".$row['id']."` WHERE `is_delete`=0 and `cusip`='".$CUSIP_number."'";
+            				//         $res2 = $this->re_db_query($q2);
 
-                            $q1 = "SELECT * FROM `".PRODUCT_TYPE."` WHERE `is_delete`=0 and `status`='1'";
-            				$res1 = $this->re_db_query($q1);
-            				if($this->re_db_num_rows($res1)>0){
-                                while($row1 = $this->re_db_fetch_array($res1))
-                                {
-                                    $q2 = "SELECT objective FROM `product_category_".$row1['id']."` WHERE `is_delete`=0 and `cusip`='".$CUSIP_number."'";
-            				        $res2 = $this->re_db_query($q2);
-                                    if($this->re_db_num_rows($res2)>0){
-                                        while($row2 = $this->re_db_fetch_array($res2))
-                                        {
-                                            $objective = $row2['objective'];
-                                        }
+                            //         if($this->re_db_num_rows($res2)>0){
+                            //             while($row2 = $this->re_db_fetch_array($res2))
+                            //             {
+                            //                 $objective = $row2['objective'];
+                            //             }
 
-                                        $q3 = "SELECT client_id FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`=0 AND `account_no`='".$account_number."' ";
-            			                $res3 = $this->re_db_query($q3);
-                                        if($this->re_db_num_rows($res3)>0)
-                                        {
-                                            while($row3 = $this->re_db_fetch_array($res3))
-                                            {
-                                                $client_id = $row3['client_id'];
-                                            }
-                                            if($objective != $exception_value)
-                                            {
-                                                $this->errors = 'Objective does not match, Please select another objective.';
-                                            }
-                                            if($this->errors!=''){
-                                				return $this->errors;
-                                			}
-                                            else
-                                            {
-                                                if($client_id>0 && $objective>0)
-                                                {
-                                                    $q6 = "SELECT * FROM `".CLIENT_OBJECTIVES."` WHERE `is_delete`=0 AND `client_id`='".$client_id."' AND `objectives`='".$exception_value."'";
-                                        			$res6 = $this->re_db_query($q6);
-                                        			$return = $this->re_db_num_rows($res6);
-                                        			if($return>0){
-                                        				$q7 = "UPDATE `".CLIENT_OBJECTIVES."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `client_id`='".$client_id."' AND `objectives`='".$exception_value."'";
-                                                        $res7 = $this->re_db_query($q7);
-                                        			}
+                            //             $q3 = "SELECT client_id FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`=0 AND `account_no`='".$account_number."' ";
+            			    //             $res3 = $this->re_db_query($q3);
+                            //             if($this->re_db_num_rows($res3)>0)
+                            //             {
+                            //                 while($row3 = $this->re_db_fetch_array($res3))
+                            //                 {
+                            //                     $client_id = $row3['client_id'];
+                            //                 }
+                            //                 if($objective != $exception_value)
+                            //                 {
+                            //                     $this->errors = 'Objective does not match, Please select another objective.';
+                            //                 }
+                            //                 if($this->errors!=''){
+                            //     				return $this->errors;
+                            //     			}
+                            //                 else
+                            //                 {
+                            //                     if($client_id>0 && $objective>0)
+                            //                     {
+                            //                         $q6 = "SELECT * FROM `".CLIENT_OBJECTIVES."` WHERE `is_delete`=0 AND `client_id`='".$client_id."' AND `objectives`='".$exception_value."'";
+                            //             			$res6 = $this->re_db_query($q6);
+                            //             			$return = $this->re_db_num_rows($res6);
+                            //             			if($return>0){
+                            //             				$q7 = "UPDATE `".CLIENT_OBJECTIVES."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `client_id`='".$client_id."' AND `objectives`='".$exception_value."'";
+                            //                             $res7 = $this->re_db_query($q7);
+                            //             			}
 
-                                                    $q4 = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`='".$client_id."',`objectives`='".$exception_value."' ".$this->insert_common_sql();
-                                                    $res4 = $this->re_db_query($q4);
-                                                    if($res4 == true)
-                                                    {
-                                                        $q5 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                                                        $res5 = $this->re_db_query($q5);
-                                                        if($res5)
-                                                        {
-                                                            $result = 1;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            //                         $q4 = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`='".$client_id."',`objectives`='".$exception_value."' ".$this->insert_common_sql();
+                            //                         $res4 = $this->re_db_query($q4);
+                            //                         if($res4 == true)
+                            //                         {
+                            //                             $q5 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
+                            //                             $res5 = $this->re_db_query($q5);
+                            //                             if($res5)
+                            //                             {
+                            //                                 $result = 1;
+                            //                             }
+                            //                         }
+                            //                     }
+                            //                 }
+                            //             }
+                            //         }
+                            //     }
+                            // }
                         }
                         else if($exception_field == 'sponsor')
                         {
