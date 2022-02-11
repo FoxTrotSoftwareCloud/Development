@@ -156,7 +156,7 @@
             $exception_value = isset($_POST['exception_value'])?$instance->re_db_input($_POST['exception_value']):'';
         }
 
-        $return = $instance->update_exceptions($_POST);
+        $return = $instance->resolve_exceptions($_POST);
 
         if($return===true){
             echo '1';exit;

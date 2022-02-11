@@ -1180,7 +1180,7 @@ PostResult( msg );
                         <select name="objectives" id="objectives" class="form-control" style="display: none;">
                             <option value="">Select Objective</option>
                             <?php foreach($get_objective as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?> <?php echo ($productObjective==$val['id'] ? 'selected' : '');?>><?php echo $val['option'];?></option>
+                                <option value="<?php echo $val['id'];?>" <?php echo $productObjective==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
                             <?php } ?>
                         </select>
                         <div id="demo-dp-range">

@@ -418,11 +418,15 @@
 				}
 			}
 		}
-        public function insert_update_objectives($data){
+        public function insert_update_objectives($data, $useDataArray=0){
 
             $objectives = isset($data['objectives'])?$this->re_db_input($data['objectives']):'';
 
-            $q = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`='".$_SESSION['client_id']."',`objectives`='".$objectives."'".$this->insert_common_sql();
+			if ($useDataArray){
+				$q = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`=".$data['client_id'].",`objectives`='".$objectives."', `status`=1".$this->insert_common_sql();
+			} else {
+				$q = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`='".$_SESSION['client_id']."',`objectives`='".$objectives."'".$this->insert_common_sql();
+			}
 			$res = $this->re_db_query($q);
             $id = $this->re_db_insert_id();
 			if($res){
