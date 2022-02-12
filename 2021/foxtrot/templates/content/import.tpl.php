@@ -1242,7 +1242,7 @@ PostResult( msg );
                 <div class="row" id="assign_rep_to_broker" style="display: none;">
                 <div class="col-md-5">
                     <div class="inputpopup">
-                        <label class="pull-right">Select Broker: </label>
+                        <label class="pull-right" id="label_assign_to_existing_broker">Select Broker: </label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -1783,12 +1783,15 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'representative_number')
         {
-            document.getElementById("field_label").innerHTML = 'Broker Alias to Add:';
-            document.getElementById("exception_value").value = rep_number;
+            document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Broker Alias to Add:');
+            document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
             //document.getElementById("exception_value_dis").value = rep_number;
             $("#assign_rep_to_broker").css('display','block');
             //$("#exception_value").css('display','none');
+            if (error_code_id == 13){
+                document.getElementById("label_assign_to_existing_broker").innerHTML = 'Assign Trade to Broker';
+            }
 
         }
         else{
