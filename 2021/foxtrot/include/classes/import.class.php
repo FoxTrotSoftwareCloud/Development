@@ -1584,17 +1584,12 @@
 
         /***************************************************************
          * Reprocess EXCEPTIONS for a specific file $id
-         * 12/13/21 Change to only reprocess exceptions
+         * 12/13/21 Change to process all records coming into CloudFox
          *      - don't delete Client_Master & Transactions_Master that match the file $id
          * @param int $id
          * @return string|bool
          ***************************************************************/
         public function reprocess_current_files($id) {
-// DELETE ME DELETE ME TEST FOR RESOLVING EXCEPTIONS
-return true;
-// DELETE ME DELETE ME TEST FOR RESOLVING EXCEPTIONS
-
-
             // Cast $id to int, some calling code was sending null and '' arguments from empty "current_file" queries
             $id = (int)$id;
             $dataClass = new data_interfaces_master();
@@ -2157,10 +2152,6 @@ return true;
                         $product_id = 0;
                         $result=0;
                         $transaction_master_id = 0;
-                        $reassignBroker = $check_data_val['resolve_exception']==3;
-                        $reassignClient = $check_data_val['resolve_exception']==30;
-                        $resolveHoldCommission = in_array($check_data_val['resolve_exception'], [100, 101]);
-
                         $insert_exception_string =
                              ",`file_id`='".$check_data_val['file_id']."'"
                             .",`temp_data_id`='".$check_data_val['id']."'"
@@ -2174,6 +2165,31 @@ return true;
                             .",`commission`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
                             .$this->insert_common_sql()
                         ;
+
+                        // Exception intervention in resolve exception() by user(reassign client OR broker)
+                        $reassignBroker = $reassignClient = $resolveHoldCommission = 0;
+                        $errorArray = [];
+
+                        if ($check_data_val['resolve_exceptions'] != ''){
+                            $errorArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
+
+                            foreach ($errorArray AS $errorKey=>$errorRow){
+                                if ($errorArray[$errorKey]['resolve_action']=='reassign' AND in_array($errorArray[$errorKey]['field'], ['representative_number', 'u5', 'active_check'])){
+                                    // Assign error code so the program knows way it's skipping the Rep #alias search
+                                    $reassignBroker = $errorKey;
+                                }
+
+                                if ($errorArray[$errorKey]['resolve_action']=='reassign' AND in_array($errorArray[$errorKey]['field'], ['customer_account_number'])){
+                                    // Assign error code so the program knows way it's skipping the Rep #alias search
+                                    $reassignClient = $errorKey;
+                                }
+
+                                if ($errorArray[$errorKey]['resolve_action']=='hold'){
+                                    // Assign error code so the program knows way it's skipping the Rep #alias search
+                                    $resolveHoldCommission  = $errorKey;
+                                }
+                            }
+                        }
 
                         // IDC BROKER Validation
                         if(isset($check_data_val['representative_number']) OR $check_data_val['broker_id']<0){
@@ -3593,5 +3609,37 @@ return true;
 
         }
 
+        /** Iterate through array of Id's from IMPORT EXCEPTIONS table and return detail of the exception
+         * @param string $serialValue -> serialize()'d array taken from IMPORT DETAIL (client, IDC, SFR) tables ("resolve exceptions")
+         * @return array -> $key=Error Code Id, sub-array['field'=populated in resolve exception(), 'error'=description, 'resolve_action'=action code user chose, 'resolve_assign_to'->client, broker, or product assigned to a trade or table ]
+         */
+        function getDetailExceptions($serialValue=''){
+            $return = [];
+            $excArray = $excDetail = 0;
+            $actionArray = [1=>'hold', 2=>'add', 3=>'reassign', 4=>'delete'];
+
+            if (!empty($serialValue) AND !is_array($serialValue)){
+                $excArray = unserialize($serialValue);
+            } else if (is_array($serialValue)){
+                $excArray = $serialValue;
+            }
+
+            if (is_array($excArray)){
+                foreach ($excArray AS $excId){
+                    $excDetail = $this->select_exception_data(0, $excId);
+
+                    if (count($excDetail)){
+                        $return[$excDetail[0]['error_code_id']] = [
+                            'field'=>$excDetail[0]['field'],
+                            'error'=>$excDetail[0]['error_description'],
+                            'resolve_action'=>(array_key_exists($excDetail[0]['resolve_action'], $actionArray) ? $actionArray[$excDetail[0]['resolve_action']] : (string)$excDetail[0]['resolve_action']),
+                            'resolve_assign_to'=>$excDetail[0]['resolve_assign_to']
+                        ];
+                    }
+                }
+            }
+
+            return $return;
+        }
     }
 ?>

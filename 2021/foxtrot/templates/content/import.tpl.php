@@ -1631,25 +1631,6 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#exception_value").css('display','block');
         }
 
-        if(exception_field == 'active_check')
-        {
-            document.getElementById("field_label").innerHTML = 'Licence Category / State';
-            // $("#active_state").css('display','block');
-            $("#exception_value").css('display','block');
-            $("#broker_termination_options_trades").css('display','block');
-            document.getElementById("exception_value").value = existing_field_value;
-            document.getElementById("exception_value_dis").value = existing_field_value;
-            document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
-            $("#exception_value").prop( "disabled", true );
-            $("#exception_value_dis").prop( "disabled", true );
-            $("#exception_value").css('display','none');
-            $("#exception_value_dis").css('display','block');s
-        }
-        else
-        {
-            $("#active_state").css('display','none');
-        }
-
         if(exception_field == 'status')
         {
             document.getElementById("field_label").innerHTML = 'Product Terminated:';
@@ -1682,7 +1663,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#exception_value").css('display','none');
             $("#exception_value_dis").css('display','block');
             if (error_code_id == 13){
-                document.getElementById("label_assign_to_existing_client").innerHTML = 'Assign Trade to Client';
+                document.getElementById("label_assign_to_existing_client").innerHTML = 'Assign Client to Trade';
             }
         }
         else
@@ -1691,6 +1672,25 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("link_div").innerHTML = '';
             $("#assign_client_to_account").css('display','none');
             $("#exception_value_dis").css('display','none');
+        }
+
+        if(exception_field == 'active_check')
+        {
+            document.getElementById("field_label").innerHTML = 'Licence Category / State';
+            // $("#active_state").css('display','block');
+            $("#exception_value").css('display','block');
+            $("#broker_termination_options_trades").css('display','block');
+            document.getElementById("exception_value").value = existing_field_value;
+            document.getElementById("exception_value_dis").value = existing_field_value;
+            document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
+            $("#exception_value").prop( "disabled", true );
+            $("#exception_value_dis").prop( "disabled", true );
+            $("#exception_value").css('display','none');
+            $("#exception_value_dis").css('display','block');
+        }
+        else
+        {
+            $("#active_state").css('display','none');
         }
 
         if(exception_field == 'registration_line1')
@@ -1747,7 +1747,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'CUSIP_number' && error_code_id == '13' )
         {
-            document.getElementById("field_label").innerHTML = 'Enter CUSIP Number';
+            document.getElementById("field_label").innerHTML = 'Enter Missing CUSIP #';
             $("#cusip_number").css('display','block');
             $("#exception_value").css('display','none');
         }
@@ -1758,10 +1758,10 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'CUSIP_number' && error_code_id == '11')
         {
-            //document.getElementById("field_label").innerHTML = 'CUSIP Number';
+            document.getElementById("field_label").innerHTML = 'Assign CUSIP to Product';
             $("#assign_cusip_to_product").css('display','block');
             $("#exception_value").css('display','none');
-            $("#field_label").css('display','none');
+            $("#field_label").css('display','block');
             document.getElementById("assign_cusip_number").value = existing_field_value;
             document.getElementById("CUSIP_number").value = existing_field_value;
         }
