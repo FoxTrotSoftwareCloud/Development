@@ -416,7 +416,7 @@
                                         ;
                                         $res = $this->re_db_query($q);
 
-                                        $result = $this->reprocess_current_files($exception_file_id);
+                                        $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                                     }
                                 }
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2)
@@ -461,7 +461,7 @@
                                                 ;
                                                 $res = $this->re_db_query($q);
 
-                                                $result = $this->reprocess_current_files($exception_file_id);
+                                                $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                                             }
                                         } else {
                                             $result = 0;
@@ -543,7 +543,7 @@
                                                 ;
                                                 $res = $this->re_db_query($q);
 
-                                                $result = $this->reprocess_current_files($exception_file_id);
+                                                $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                                             }
 
                                         } else {
@@ -586,7 +586,7 @@
                                             ;
                                             $res = $this->re_db_query($q);
 
-                                            $result = $this->reprocess_current_files($exception_file_id);
+                                            $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                                         }
                                     }
                                 }
@@ -662,7 +662,7 @@
                                             ;
                                             $res = $this->re_db_query($q);
 
-                                            $result = $this->reprocess_current_files($exception_file_id);
+                                            $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                                         }
                                     }
                                     break;
@@ -696,7 +696,7 @@
                                             ;
                                             $res = $this->re_db_query($q);
 
-                                            $result = $this->reprocess_current_files($exception_file_id);
+                                            $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                                         }
                                     }
                                     break;
@@ -739,7 +739,7 @@
                                             ;
                                             $res = $this->re_db_query($q);
 
-                                            $result = $this->reprocess_current_files($exception_file_id);
+                                            $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                                         }
                                     }
                                     break;
@@ -774,7 +774,7 @@
                                         $res = $this->re_db_query($q);
 
                                         if ($res){
-                                            $result = $this->reprocess_current_files($exception_file_id);
+                                            $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                                         }
                                     }
                                     break;
@@ -829,7 +829,7 @@
                                 $res = $this->re_db_query($q);
 
                                 if ($res)
-                                    $result = $this->reprocess_current_files($exception_file_id);
+                                    $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                             }
 
                         }
@@ -926,7 +926,7 @@
                             }
 
                             if($res){
-                                $result = $this->reprocess_current_files($exception_file_id);
+                                $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
                             }
                         }
                             //--- REMOVED: NOT AN EXCEPTION IN REPROCESS CURRENT FILE() - 02/11/22 ---//
@@ -1583,15 +1583,16 @@
         }
 
         /***************************************************************
-         * Reprocess EXCEPTIONS for a specific file $id
+         * Reprocess EXCEPTIONS for a specific file $file_id
          * 12/13/21 Change to process all records coming into CloudFox
-         *      - don't delete Client_Master & Transactions_Master that match the file $id
-         * @param int $id
+         *      - don't delete Client_Master & Transactions_Master that match the file $file_id
+         * 02/15/22 Parameters to pull individual records. Called from this>resolve exception($data) function
+         * @param int $file_id
          * @return string|bool
          ***************************************************************/
-        public function reprocess_current_files($id) {
-            // Cast $id to int, some calling code was sending null and '' arguments from empty "current_file" queries
-            $id = (int)$id;
+        public function reprocess_current_files($file_id, $file_type=0, $detail_record_id=0) {
+            // Cast $file_id to int, some calling code was sending null and '' arguments from empty "current_file" queries
+            $file_id = (int)$file_id;
             $dataClass = new data_interfaces_master();
             $broker_master = new broker_master();
             $batchClass = new batches();
@@ -1599,8 +1600,8 @@
             $clientClass = new client_maintenance();
             $reprocess_status = false;
 
-            if($id > 0){
-                $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `process_completed`='1' AND `id`=$id";
+            if($file_id > 0){
+                $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `process_completed`='1' AND `id`=$file_id";
 				$res = $this->re_db_query($q);
 				$return = $this->re_db_num_rows($res);
                 $this->errors='';
@@ -1613,7 +1614,7 @@
 					return $this->errors;
 				} else {
                     // File information
-                    $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `id`=$id";
+                    $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `id`=$file_id";
                     $res = $this->re_db_query($q);
                     $file_array = $this->re_db_fetch_array($res);
                     $file_sponsor_array = $sponsorClass->edit_sponsor($file_array['sponsor_id']);
@@ -1622,7 +1623,7 @@
                         $file_sponsor_array = $this->get_sponsor_on_system_management_code(substr($file_array['file_name'],0,3), substr($file_array['file_name'],3,2));
 
                         if (!empty($file_sponsor_array['id'])){
-                            $q = "UPDATE `".IMPORT_CURRENT_FILES."` SET `sponsor_id`='".$file_sponsor_array['id']."' WHERE `is_delete`=0 AND `id`=$id";
+                            $q = "UPDATE `".IMPORT_CURRENT_FILES."` SET `sponsor_id`='".$file_sponsor_array['id']."' WHERE `is_delete`=0 AND `id`=$file_id";
                             $res = $this->re_db_query($q);
 
                             $file_array['sponsor_id'] = $file_sponsor_array['id'];
@@ -1632,7 +1633,7 @@
                     if (empty($file_array['sponsor_id'])){
                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
-                                    ." `file_id`='".$id."'"
+                                    ." `file_id`='".$file_id."'"
                                     .",`error_code_id`='14'"
                                     .",`field`='sponsor_id'"
                                     .",`file_type`='1'"
@@ -1646,17 +1647,28 @@
                         $result = 1;
                     }
 
+                    // Remove prior exceptions
+                    // 02/15/22 Only remove for a specific record, if called from Resolve Exceptions function. So the other exceptions will remain on the Resolve Exceptions page.
+                    $detailIdQuery = "";
+                    if ($file_type > 0 AND $detail_record_id > 0){
+                        $detailIdQuery = " AND `file_type`=$file_type AND `temp_data_id`=$detail_record_id";
+                    }
+
                     $q = "UPDATE `".IMPORT_EXCEPTION."`"
                           ." SET `is_delete`=1"
                                 .$this->update_common_sql()
-                          ." WHERE `file_id`=$id AND `is_delete`=0 AND `solved`=0"
+                          ." WHERE `file_id`=$file_id"
+                          ." AND `is_delete`=0"
+                          ." AND `solved`=0"
+                          .$detailIdQuery
                     ;
                     $res = $this->re_db_query($q);
 
+                    $detailIdQuery = '';
                     /*************************************************
                      * DST CLIENT DATA (NFA(07) / NAA(08) / AMP(09))
                      *************************************************/
-                    $check_fanmail_array = $this->get_fanmail_detail_data($id, 0);
+                    $check_fanmail_array = $this->get_fanmail_detail_data($file_id, 0);
                     $dataSettings = $dataClass->edit(2, $_SESSION['user_id']);
 
                     foreach($check_fanmail_array as $check_data_key=>$check_data_val) {
@@ -1997,7 +2009,7 @@
                     /***********************************
                     * SFR PROCESS security-file data
                     ************************************/
-                    $check_sfr_array = $this->get_sfr_detail_data($id, 0);
+                    $check_sfr_array = $this->get_sfr_detail_data($file_id, 0);
 
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
@@ -2139,7 +2151,7 @@
                     /***********************************
                     * IDC PROCESS commission data
                     ************************************/
-                    $check_idc_array = $this->get_idc_detail_data($id, 0);
+                    $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($file_type==2 AND $detail_record_id>0) ? $detail_record_id : 0);
 
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
@@ -2180,7 +2192,7 @@
                                 }
 
                                 if ($errorArray[$errorKey]['resolve_action']=='reassign' AND in_array($errorArray[$errorKey]['field'], ['customer_account_number'])){
-                                    // Assign error code so the program knows way it's skipping the Rep #alias search
+                                    // Assign error code so the program knows way it's skipping the Client Account # search
                                     $reassignClient = $errorKey;
                                 }
 
@@ -2226,17 +2238,17 @@
 
                                     if($check_broker_termination != '' && $check_data_val['on_hold'] == '0'){
                                         if(date('Y-m-d', strtotime($check_data_val['trade_date'])) > $check_broker_termination){
-                                            $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                    ." SET `error_code_id`='2'"
-                                                        .",`field`='u5'"
-                                                        .",`file_type`='2'"
-                                                        .$insert_exception_string;
-                                            $res = $this->re_db_query($q);
-
-                                            // 'on_hold' updated by user ($this->update exception()). Enter the tx and place a hold on it
-                                            if ($resolveHoldCommission){
+                                            // User placed a hold on "Exception 2: Broker Terminated"
+                                            if ($resolveHoldCommission == 2){
                                                 $check_data_val['on_hold'] = 1;
-                                            } else{
+                                            } else {
+                                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                                        ." SET `error_code_id`='2'"
+                                                            .",`field`='u5'"
+                                                            .",`file_type`='2'"
+                                                            .$insert_exception_string;
+                                                $res = $this->re_db_query($q);
+
                                                 $result = 1;
                                             }
                                         }
@@ -2363,13 +2375,19 @@
                                 $check_result = $this->checkStateLicence($broker_id, $clientAccount['state'], $product_category_id, $check_data_val['trade_date']);
 
                                 if($check_result == 0){
-                                    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                            ."SET  `error_code_id`='6'"
-                                                .",`field`='active_check'"
-                                                .",`file_type`='2'"
-                                                .$insert_exception_string;
-                                    $res = $this->re_db_query($q);
-                                    $result = 1;
+                                    // User placed a hold in "Resolve Exception" (Exception #6: Broker License Error)
+                                    if ($resolveHoldCommission == 6){
+                                        $check_data_val['on_hold'] = 1;
+                                    } else {
+                                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                                ."SET  `error_code_id`='6'"
+                                                    .",`field`='active_check'"
+                                                    .",`file_type`='2'"
+                                                    .$insert_exception_string;
+                                        $res = $this->re_db_query($q);
+
+                                        $result = 1;
+                                    }
                                 }
                             }
                         }
@@ -2448,9 +2466,9 @@
 
                                 $con = '';
 
-                                if ($check_data_val['on_hold'] AND $check_data_val['resolve_exception']==100){
+                                if ($check_data_val['on_hold'] AND $resolveHoldCommission==2){
                                     $con .=",`hold_commission`=1,`hold_resoan`='BROKER TERMINATED'";
-                                } else if($check_data_val['on_hold'] AND $check_data_val['resolve_exception']==101){
+                                } else if($check_data_val['on_hold'] AND $resolveHoldCommission==6){
                                     $con .=",`hold_commission`=1, `hold_resoan`='BROKER LICENCE ERROR'";
                                 } else if($broker_hold_commission == 1){
                                     $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
@@ -2559,14 +2577,14 @@
             /*********************
              * FILE Update
              *********************/
-            $check_file_exception_process = $this->check_file_exception_process($id,1);
+            $check_file_exception_process = $this->check_file_exception_process($file_id,1);
 
             $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
                 ." SET `processed`='1'"
                     .",`last_processed_date`='".date('Y-m-d')."'"
                     .",`process_completed`=".($check_file_exception_process['exceptions'] ? '0' : '1')
                     .$this->update_common_sql()
-                ." WHERE `id`=$id";
+                ." WHERE `id`=$file_id";
             $res = $this->re_db_query($q);
 
             if($res){
@@ -2927,7 +2945,7 @@
             }
 			return $return;
 		}
-        public function get_idc_detail_data($file_id, $process_result=null){
+        public function get_idc_detail_data($file_id, $process_result=null, $record_id=0){
 			$return = array();
             $con = '';
 
@@ -2936,6 +2954,11 @@
                        .($process_result==0 ? " OR `at`.`process_result` IS NULL" : "")
                        .")"
                 ;
+            }
+
+            if ($record_id){
+                $record_id = (int)$record_id;
+                $con .= " AND `id`=$record_id";
             }
 
 			$q = "SELECT `at`.*,`idch`.`system_id`,`idch`.`management_code`
