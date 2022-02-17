@@ -422,6 +422,8 @@
                                 else if(isset($data['resolve_broker_terminated']) && $data['resolve_broker_terminated'] == 2)
                                 {   // UPDATE TERMINATION DATE
                                     if ($exception_field=='u5'){
+                                        $excArray = $excRow = 0;
+
                                         // REMOVE TERMINATED DATE(u5) FOR REP
                                         $q = "SELECT `broker_id`"
                                             ." FROM `".IMPORT_IDC_DETAIL_DATA."`"
@@ -462,6 +464,27 @@
                                                 $res = $this->re_db_query($q);
 
                                                 $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
+
+                                                // Check if this update can clear other exceptions in the file
+                                                // Clear all the Exceptions for the same Exception and Broker #
+                                                $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`broker_id`"
+                                                    ." FROM `".IMPORT_EXCEPTION."` `ex`"
+                                                    ." LEFT JOIN `".IMPORT_IDC_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
+                                                    ." WHERE `ex`.`file_id`=$exception_file_id"
+                                                    ." AND `ex`.`file_type`=$exception_file_type"
+                                                    ." AND `ex`.`error_code_id`=$error_code_id"
+                                                    ." AND `ex`.`is_delete`=0"
+                                                    ." AND `det`.`broker_id`=".$row['broker_id']
+                                                ;
+                                                $res = $this->re_db_query($q);
+
+                                                if ($this->re_db_num_rows($res)) {
+                                                    $excArray = $this->re_db_fetch_all($res);
+
+                                                    foreach ($excArray AS $excRow){
+                                                        $result = $this->reprocess_current_files($exception_file_id, 2, $excRow['temp_data_id']);
+                                                    }
+                                                }
                                             }
                                         } else {
                                             $result = 0;
@@ -544,6 +567,27 @@
                                                 $res = $this->re_db_query($q);
 
                                                 $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
+
+                                                // Check if this update can clear other exceptions in the file
+                                                // Clear all the Exceptions for the same Exception and Broker #
+                                                $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`broker_id`"
+                                                    ." FROM `".IMPORT_EXCEPTION."` `ex`"
+                                                    ." LEFT JOIN `".IMPORT_IDC_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
+                                                    ." WHERE `ex`.`file_id`=$exception_file_id"
+                                                    ." AND `ex`.`file_type`=$exception_file_type"
+                                                    ." AND `ex`.`error_code_id`=$error_code_id"
+                                                    ." AND `ex`.`is_delete`=0"
+                                                    ." AND `det`.`broker_id`=".$licenceDetail['broker_id']
+                                                ;
+                                                $res = $this->re_db_query($q);
+
+                                                if ($this->re_db_num_rows($res)) {
+                                                    $excArray = $this->re_db_fetch_all($res);
+
+                                                    foreach ($excArray AS $excRow){
+                                                        $result = $this->reprocess_current_files($exception_file_id, 2, $excRow['temp_data_id']);
+                                                    }
+                                                }
                                             }
 
                                         } else {
@@ -704,11 +748,12 @@
                         }
                         else if($exception_field == 'customer_account_number')
                         {
+                            $result = $new_client = 0;
+
                             switch ($error_code_id) {
                                 case 13:
                                     // MISSING DATA: "Client Account Number"
                                     // -> Assign trade to existing(or newly added) client
-                                    $new_client = 0;
                                     $q = "SELECT id,first_name,last_name FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `id`=".$acc_for_client;
                                     $res = $this->re_db_query($q);
 
@@ -745,6 +790,7 @@
                                     break;
                                 default:
                                     // ACCOUNT NUMBER NOT FOUND - Add Account # to existing client (Error Code: 13)
+                                    $new_client = $acc_for_client;
                                     $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
                                     if($sponsorId == 0){
                                         $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
@@ -756,7 +802,7 @@
                                         ." SET"
                                             ." `account_no`='".$exception_value."'"
                                             .",`sponsor_company`='".$sponsorId."'"
-                                            .",`client_id`='".$acc_for_client."'"
+                                            .",`client_id`='".$new_client."'"
                                             .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
 
@@ -767,7 +813,7 @@
 
                                         $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                                 ." SET `resolve_action`=2"
-                                                    .",`resolve_assign_to`='".$acc_for_client."'"
+                                                    .",`resolve_assign_to`='".$new_client."'"
                                                         .$this->update_common_sql()
                                                 ." WHERE `id`=".$exception_record_id
                                         ;
@@ -775,6 +821,27 @@
 
                                         if ($res){
                                             $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
+
+                                            // Check if this update can clear other exceptions in the file
+                                            // Clear all the Exceptions for the same Exception and Broker #
+                                            $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`customer_account_number`"
+                                                    ." FROM `".IMPORT_EXCEPTION."` `ex`"
+                                                    ." LEFT JOIN `".IMPORT_IDC_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
+                                                    ." WHERE `ex`.`file_id`=$exception_file_id"
+                                                    ." AND `ex`.`file_type`=$exception_file_type"
+                                                    ." AND `ex`.`error_code_id`=$error_code_id"
+                                                    ." AND `ex`.`is_delete`=0"
+                                                    ." AND `det`.`customer_account_number`='".$exception_value."'"
+                                            ;
+                                            $res = $this->re_db_query($q);
+
+                                            if ($this->re_db_num_rows($res)) {
+                                                $excArray = $this->re_db_fetch_all($res);
+
+                                                foreach ($excArray AS $excRow){
+                                                    $result = $this->reprocess_current_files($exception_file_id, 2, $excRow['temp_data_id']);
+                                                }
+                                            }
                                         }
                                     }
                                     break;
@@ -828,8 +895,30 @@
                                 ;
                                 $res = $this->re_db_query($q);
 
-                                if ($res)
+                                if ($res){
                                     $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
+                                    
+                                    // Check if this update can clear other exceptions in the file
+                                    // Clear all the Exceptions for the same Exception and Client #
+                                    $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`client_id`"
+                                            ." FROM `".IMPORT_EXCEPTION."` `ex`"
+                                            ." LEFT JOIN `".IMPORT_IDC_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
+                                            ." WHERE `ex`.`file_id`=$exception_file_id"
+                                            ." AND `ex`.`file_type`=$exception_file_type"
+                                            ." AND `ex`.`error_code_id`=$error_code_id"
+                                            ." AND `ex`.`is_delete`=0"
+                                            ." AND `det`.`client_id`=".$idcDetail['client_id']
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                    if ($this->re_db_num_rows($res)) {
+                                        $excArray = $this->re_db_fetch_all($res);
+
+                                        foreach ($excArray AS $excRow){
+                                            $result = $this->reprocess_current_files($exception_file_id, 2, $excRow['temp_data_id']);
+                                        }
+                                    }
+                                }
                             }
 
                         }
@@ -927,6 +1016,27 @@
 
                             if($res){
                                 $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
+                                
+                                // Check if this update can clear other exceptions in the file
+                                // Clear all the Exceptions for the same Exception and Client #
+                                $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`CUSIP_number`"
+                                        ." FROM `".IMPORT_EXCEPTION."` `ex`"
+                                        ." LEFT JOIN `".IMPORT_IDC_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
+                                        ." WHERE `ex`.`file_id`=$exception_file_id"
+                                        ." AND `ex`.`file_type`=$exception_file_type"
+                                        ." AND `ex`.`error_code_id`=$error_code_id"
+                                        ." AND `ex`.`is_delete`=0"
+                                        ." AND `det`.`CUSIP_number`='".$exception_value."'"
+                                ;
+                                $res = $this->re_db_query($q);
+
+                                if ($this->re_db_num_rows($res)) {
+                                    $excArray = $this->re_db_fetch_all($res);
+
+                                    foreach ($excArray AS $excRow){
+                                        $result = $this->reprocess_current_files($exception_file_id, 2, $excRow['temp_data_id']);
+                                    }
+                                }
                             }
                         }
                             //--- REMOVED: NOT AN EXCEPTION IN REPROCESS CURRENT FILE() - 02/11/22 ---//
@@ -2958,7 +3068,7 @@
 
             if ($record_id){
                 $record_id = (int)$record_id;
-                $con .= " AND `id`=$record_id";
+                $con .= " AND `at`.`id`=$record_id";
             }
 
 			$q = "SELECT `at`.*,`idch`.`system_id`,`idch`.`management_code`
@@ -3220,11 +3330,13 @@
 		}
         /**
          * 02/11/22 "$record_id" parmater added to pull just one record at a time
+         * 02/16/22 Free form "WHERE" query parameter for Resolve Exceptions, looking for specific exceptions
          * @param mixed $file_id
          * @return array
          */
-        public function select_exception_data($file_id=0, $record_id=0){
+        public function select_exception_data($file_id=0, $record_id=0, $customWhere=''){
 			$return = array();
+            $con = '';
 
             if (empty($file_id) AND $record_id > 0){
                 $q = "SELECT `at`.*,`em`.`error` AS `error_description`"
@@ -3232,6 +3344,12 @@
                         ." LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`"
                         ." WHERE `at`.`id` = $record_id"
                         ." ORDER BY `at`.`id` ASC"
+                ;
+            } else if($customWhere != '') {
+                $q = "SELECT *"
+                        ." FROM `".IMPORT_EXCEPTION."`"
+                        ." WHERE $customWhere"
+                        ." ORDER BY `id` ASC"
                 ;
             } else {
                 $q = "SELECT `at`.*,`em`.`error`
