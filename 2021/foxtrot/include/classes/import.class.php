@@ -897,7 +897,7 @@
 
                                 if ($res){
                                     $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
-                                    
+
                                     // Check if this update can clear other exceptions in the file
                                     // Clear all the Exceptions for the same Exception and Client #
                                     $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`client_id`"
@@ -2294,7 +2294,7 @@
 
                         if ($check_data_val['resolve_exceptions'] != ''){
                             $errorArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
-
+                            // Cycle through the "resolves" the user entered to flag any defaults to rep, client, or hold(i.e. pass the exception through)
                             foreach ($errorArray AS $errorKey=>$errorRow){
                                 if ($errorArray[$errorKey]['resolve_action']=='reassign' AND in_array($errorArray[$errorKey]['field'], ['representative_number', 'u5', 'active_check'])){
                                     // Assign error code so the program knows way it's skipping the Rep #alias search
@@ -2307,7 +2307,7 @@
                                 }
 
                                 if ($errorArray[$errorKey]['resolve_action']=='hold'){
-                                    // Assign error code so the program knows way it's skipping the Rep #alias search
+                                    // Assign error code so the program knows way it's skipping exception entry, and entering the trade into the system with a hold, and "hold reason" corresponds to $errorKey(Exception Master ID)
                                     $resolveHoldCommission  = $errorKey;
                                 }
                             }
@@ -2346,21 +2346,28 @@
 
                                     $check_broker_termination = $this->broker_termination_date('', $broker_id);
 
-                                    if($check_broker_termination != '' && $check_data_val['on_hold'] == '0'){
-                                        if(date('Y-m-d', strtotime($check_data_val['trade_date'])) > $check_broker_termination){
-                                            // User placed a hold on "Exception 2: Broker Terminated"
-                                            if ($resolveHoldCommission == 2){
+                                    if($check_broker_termination!='' AND date('Y-m-d', strtotime($check_data_val['trade_date'])) > $check_broker_termination){
+                                        // User placed a hold on "Exception 2: Broker Terminated"
+                                        if ($resolveHoldCommission == 2){
+                                            // Should already be done in Resolve Exception, but switch the "hold" flag just in case in the Detail table
+                                            if ($check_data_val['on_hold'] != 1){
                                                 $check_data_val['on_hold'] = 1;
-                                            } else {
-                                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                        ." SET `error_code_id`='2'"
-                                                            .",`field`='u5'"
-                                                            .",`file_type`='2'"
-                                                            .$insert_exception_string;
-                                                $res = $this->re_db_query($q);
 
-                                                $result = 1;
+                                                $q ="UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                                    ." SET `on_hold`=1"
+                                                    ." WHERE `is_delete`=0 AND `id`=".$check_data_val['id']
+                                                ;
+                                                $res = $this->re_db_query($q);
                                             }
+                                        } else {
+                                            $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                                    ." SET `error_code_id`='2'"
+                                                        .",`field`='u5'"
+                                                        .",`file_type`='2'"
+                                                        .$insert_exception_string;
+                                            $res = $this->re_db_query($q);
+
+                                            $result = 1;
                                         }
                                     }
                                 }
@@ -2480,14 +2487,23 @@
 
                             // State Licence Check
                             // "on_hold" populated in resolve_exceptions($data) - (1)Broker Terminated, (3)Broker Licence
-                            if(!$resolveHoldCommission AND !empty($broker_id) AND !empty($client_id) AND !empty($clientAccount['state']) AND !empty($product_category_id)){
+                            if(!empty($broker_id) AND !empty($client_id) AND !empty($clientAccount['state']) AND !empty($product_category_id)){
                                 // 12/17/21 Get the correct product type licence
                                 $check_result = $this->checkStateLicence($broker_id, $clientAccount['state'], $product_category_id, $check_data_val['trade_date']);
 
                                 if($check_result == 0){
                                     // User placed a hold in "Resolve Exception" (Exception #6: Broker License Error)
                                     if ($resolveHoldCommission == 6){
-                                        $check_data_val['on_hold'] = 1;
+                                        // Should already be done in Resolve Exception, but switch the "hold" flag just in case in the Detail table
+                                        if ($check_data_val['on_hold'] != 1){
+                                            $check_data_val['on_hold'] = 1;
+
+                                            $q ="UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
+                                                ." SET `on_hold`=1"
+                                                ." WHERE `is_delete`=0 AND `id`=".$check_data_val['id']
+                                            ;
+                                            $res = $this->re_db_query($q);
+                                        }
                                     } else {
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                 ."SET  `error_code_id`='6'"

@@ -514,6 +514,7 @@ PostResult( msg );
                                                                 $instance_product = new product_maintenance();
                                                                 $instance_broker = new broker_master();
                                                                 $instance_import = new import();
+                                                                $instance_suitability = new client_suitebility_master();
 
                                                                 if (!empty($return_idc_existing_data['broker_id'])){
                                                                     $brokerRow = $instance_broker->select_broker_by_id($return_idc_existing_data['broker_id']);
@@ -560,11 +561,19 @@ PostResult( msg );
 
                                                                 if($error_val['field'] == 'objectives')
                                                                 {
-                                                                    $productObjective = 0;
+                                                                    $productObjectiveId = 0;
+                                                                    $existing_field_value = '';
+                                                                    $res = 0;
 
                                                                     $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['CUSIP_number'])."'");
                                                                     if ($productDetail){
-                                                                        $productObjective = (int)$productDetail['objective'];
+                                                                        $productObjectiveId = (int)$productDetail['objective'];
+
+                                                                        $res = $instance_suitability->edit_objective($productObjectiveId);
+
+                                                                        if ($res) {
+                                                                            $existing_field_value = $res['option'];
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -1180,7 +1189,7 @@ PostResult( msg );
                         <select name="objectives" id="objectives" class="form-control" style="display: none;">
                             <option value="">Select Objective</option>
                             <?php foreach($get_objective as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php echo $productObjective==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
+                                <option value="<?php echo $val['id'];?>" <?php echo $productObjectiveId==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
                             <?php } ?>
                         </select>
                         <div id="demo-dp-range">
@@ -1214,17 +1223,21 @@ PostResult( msg );
                     </div>
                 </div>
                 </div>
-                <div class="row" style="display: none;" id="broker_termination_options_trades">
+                <div class="row" style="display: none;" id="broker_termination_options_trades" data-exception-field="representative_number">
                 <div class="col-md-5">
                     <div class="inputpopup">
                         <label id="broker_termination_label" class="pull-right">Select Option</label>
                     </div>
                 </div>
                 <div class="col-md-6">
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/><label> Hold commission</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign trade to a new broker</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Trade</label><br />
+                    <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/>
+                        <label> Hold commission</label><br />
+                    <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/>
+                        <label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
+                    <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/>
+                        <label id="lbl_reassign_broker_trades"> Reassign trade to a new broker</label><br />
+                    <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/>
+                        <label> Delete Trade</label><br />
                 </div>
                 </div>
                 <div class="row" style="display: none;" id="broker_termination_options_clients">
@@ -1305,21 +1318,38 @@ PostResult( msg );
                     </div>
                 </div>
                 <div class="row" id="assign_client_to_account" style="display: none;">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label class="pull-right" id="label_assign_to_existing_client">Assign to Existing Client</label>
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_assign_to_existing_client">Assign to Existing Client</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="acc_for_client" id="acc_for_client" class="form-control">
+                                <option value="">Select Client</option>
+                                <?php foreach($get_client as $key=>$val){ ?>
+                                <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="inputpopup">
-                        <select name="acc_for_client" id="acc_for_client" class="form-control">
-                            <option value="">Select Client</option>
-                            <?php foreach($get_client as $key=>$val){ ?>
-                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
-                            <?php } ?>
-                        </select>
+                <div class="row" id="assign_objective_to_client" style="display: none;">
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_assign_objective_to_client">Add Client Objective: </label>
+                        </div>
                     </div>
-                </div>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="objective_for_client" id="objective_for_client" class="form-control" style="display: none;">
+                                <option value="">Select Objective</option>
+                                <?php foreach($get_objective as $key=>$val){?>
+                                    <option value="<?php echo $val['id'];?>" <?php echo $productObjectiveId==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                 <div class="col-md-5"></div>
@@ -1537,14 +1567,21 @@ $('#demo-dp-range .input-daterange').datepicker({
 });
 function reassign_broker_(value)
 {
+    const exception_field = document.getElementById("broker_termination_options_trades").dataset.exceptionField;
+    $("#assign_rep_to_broker").css('display','none');
+    // Not needed. Just assign Product's Objective to the Client, instead of letting the user choose the Objective
+    // $("#assign_objective_to_client").css('display','none');
+    // $("#objective_for_client").css('display','none');
+
     if(value==3)
     {
         $("#assign_rep_to_broker").css('display','block');
     }
-    else
-    {
-        $("#assign_rep_to_broker").css('display','none');
-    }
+
+    // if (value==2 && exception_field=='objectives'){
+    //     $("#assign_objective_to_client").css('display','block');
+    //     $("#objective_for_client").css('display','block');
+    // }
 }
 
 function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id)
@@ -1609,6 +1646,9 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             if(exception_file_type == '2')
             {
                 $("#broker_termination_options_trades").css('display','block');
+                document.getElementById("broker_termination_options_trades").dataset.exceptionField = "u5";
+                document.getElementById("lbl_broker_active_trades").innerHTML = 'Remove U5 Date/Activate Broker';
+
             }
             document.getElementById("exception_value_date").value = existing_field_value;
             document.getElementById("exception_value_date_display").value = existing_field_value;
@@ -1683,6 +1723,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("exception_value").value = existing_field_value;
             document.getElementById("exception_value_dis").value = existing_field_value;
             document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
+            document.getElementById("broker_termination_options_trades").dataset.exceptionField = "active_check";
             $("#exception_value").prop( "disabled", true );
             $("#exception_value_dis").prop( "disabled", true );
             $("#exception_value").css('display','none');
@@ -1724,9 +1765,23 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         if(exception_field == 'objectives')
         {
-            document.getElementById("field_label").innerHTML = 'Add Client Objective:';
-            $("#objectives").css('display','block');
+            // Use #broker_termination_options_trades row
+            $("#objectives").css('display','none');
+            
+            document.getElementById("field_label").innerHTML = 'Product Objective';
+            $("#field_label").css('display','block');
             $("#exception_value").css('display','none');
+            $("#exception_value").prop( "disabled", true );
+            $("#exception_value_dis").css('display','block');
+            $("#exception_value_dis").prop( "disabled", true );
+            document.getElementById("exception_value").value = existing_field_value;
+            document.getElementById("exception_value_dis").value = existing_field_value;
+            
+            /* Show Hold/Assign/Reassign/Delete radio buttons */
+            $("#broker_termination_options_trades").css('display','block');
+            document.getElementById("broker_termination_options_trades").dataset.exceptionField = "objectives";
+            document.getElementById("lbl_broker_active_trades").innerHTML = 'Add Product Objective to Client';
+
         }
         else
         {
