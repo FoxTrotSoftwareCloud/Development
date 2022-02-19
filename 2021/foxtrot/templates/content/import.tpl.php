@@ -1224,50 +1224,50 @@ PostResult( msg );
                 </div>
                 </div>
                 <div class="row" style="display: none;" id="broker_termination_options_trades" data-exception-field="representative_number">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label id="broker_termination_label" class="pull-right">Select Option</label>
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label id="broker_termination_label" class="pull-right">Select Option</label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/>
-                        <label> Hold commission</label><br />
-                    <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/>
-                        <label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
-                    <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/>
-                        <label id="lbl_reassign_broker_trades"> Reassign trade to a new broker</label><br />
-                    <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/>
-                        <label> Delete Trade</label><br />
-                </div>
+                    <div class="col-md-6">
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/>
+                            <label> Hold commission</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/>
+                            <label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/>
+                            <label id="lbl_reassign_broker_trades"> Reassign trade to another BROKER</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/>
+                            <label> Delete Trade</label><br />
+                    </div>
                 </div>
                 <div class="row" style="display: none;" id="broker_termination_options_clients">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label id="broker_termination_label">Select Option</label>
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label id="broker_termination_label">Select Option</label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Make Broker Active</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign client to a new broker </label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Client</label><br />
-                </div>
+                    <div class="col-md-6">
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Make Broker Active</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign client to a new broker </label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Client</label><br />
+                    </div>
                 </div>
                 <div class="row" id="assign_rep_to_broker" style="display: none;">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label class="pull-right" id="label_assign_to_existing_broker">Select Broker: </label>
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_assign_to_existing_broker">Select Broker: </label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="inputpopup">
-                        <select name="rep_for_broker" id="rep_for_broker" class="form-control">
-                            <option value="">Select Broker</option>
-                            <?php foreach($get_broker as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['first_name']) AND !empty($val['last_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
-                            <?php } ?>
-                        </select>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="rep_for_broker" id="rep_for_broker" class="form-control">
+                                <option value="">Select Broker</option>
+                                <?php foreach($get_broker as $key=>$val){?>
+                                <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['first_name']) AND !empty($val['last_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="row" id="assign_cusip_to_product" style="display: none;">
                     <div class="col-md-12">
@@ -1567,21 +1567,19 @@ $('#demo-dp-range .input-daterange').datepicker({
 });
 function reassign_broker_(value)
 {
-    const exception_field = document.getElementById("broker_termination_options_trades").dataset.exceptionField;
+    $exceptionField = document.getElementById('broker_termination_options_trades').dataset.exceptionField;
     $("#assign_rep_to_broker").css('display','none');
-    // Not needed. Just assign Product's Objective to the Client, instead of letting the user choose the Objective
-    // $("#assign_objective_to_client").css('display','none');
-    // $("#objective_for_client").css('display','none');
+    $("#assign_client_to_account").css('display','none');
 
     if(value==3)
     {
-        $("#assign_rep_to_broker").css('display','block');
-    }
+        if ($exceptionField == 'objectives'){
+            $("#assign_client_to_account").css('display','block');
 
-    // if (value==2 && exception_field=='objectives'){
-    //     $("#assign_objective_to_client").css('display','block');
-    //     $("#objective_for_client").css('display','block');
-    // }
+        } else {
+            $("#assign_rep_to_broker").css('display','block');
+        }
+    }
 }
 
 function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id)
@@ -1592,227 +1590,182 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     document.getElementById("exception_file_type").value = exception_file_type;
     document.getElementById("error_code_id").value = error_code_id;
     document.getElementById("exception_record_id").value = exception_record_id;
+    document.getElementById("exception_value").value = '';
+    document.getElementById("link_div").innerHTML = '';
 
-    if(exception_file_type == '3')
+    $("#exception_value_date").css('display','none');
+    $("#exception_value_date_display").css('display','none');
+    $("#exception_value_dis").css('display','none');
+    $("#active_state").css('display','none');
+    $("#active").css('display','none');
+    $("#status").css('display','none');
+    $("#social_security_number").css('display','none');
+    $("#sponsor").css('display','none');
+    $("#objectives").css('display','none');
+    $("#cusip_number").css('display','none');
+    $("#alpha_code").css('display','none');
+    $("#existing_ticker_symbol").css('display','none');
+    $("#existing_cusip_number").css('display','none');
+    $("#assign_client_to_account").css('display','none');
+    $("#assign_rep_to_broker").css('display','none');
+    $("#assign_cusip_to_product").css('display','none');
+
+    if(exception_field == 'u5')
     {
-        $("#exception_value_date").css('display','none');
-        $("#active_state").css('display','none');
-        $("#status").css('display','none');
-        $("#social_security_number").css('display','none');
-        $("#active").css('display','none');
-        $("#sponsor").css('display','none');
-        $("#objectives").css('display','none');
-        $("#cusip_number").css('display','none');
-        $("#alpha_code").css('display','none');
-        $("#assign_rep_to_broker").css('display','none');
+        document.getElementById("field_label").innerHTML = 'Broker Termination Date:';
+        $("#exception_value_date_display").css('display','block');
+        if(exception_file_type == '1')
+        {
+            $("#broker_termination_options_clients").css('display','block');
+        }
+        if(exception_file_type == '2')
+        {
+            $("#broker_termination_options_trades").css('display','block');
+            document.getElementById("broker_termination_options_trades").dataset.exceptionField = "u5";
+            document.getElementById("lbl_broker_active_trades").innerHTML = 'Remove U5 Date/Activate Broker';
+        }
+        document.getElementById("exception_value_date").value = existing_field_value;
+        document.getElementById("exception_value_date_display").value = existing_field_value;
+        $("#exception_value_date_display").prop('disabled','true');
+        $("#exception_value").css('display','none');
+    }
+    // else
+    // {
+    //     document.getElementById("field_label").innerHTML = exception_field;
+    //     $("#exception_value_date").css('display','none');
+    //     $("#exception_value_date_display").css('display','none');
+    //     if(exception_file_type == '1')
+    //     {
+    //         $("#broker_termination_options_clients").css('display','none');
+    //     }
+    //     if(exception_file_type == '2')
+    //     {
+    //         $("#broker_termination_options_trades").css('display','none');
+    //     }
+    //     document.getElementById("exception_value_date").value = '';
+    //     $("#exception_value").css('display','block');
+    // }
 
-        if(exception_field == 'cusip_number')
+    if(exception_field == 'status')
+    {
+        document.getElementById("field_label").innerHTML = 'Product Terminated:';
+        $("#status").css('display','block');
+        $("#exception_value").css('display','none');
+    }
+
+    if(exception_field == 'mutual_fund_customer_account_number')
+    {
+        document.getElementById("field_label").innerHTML = 'Account# to Add';
+        document.getElementById("exception_value").value = '';
+    }
+
+    if(exception_field == 'customer_account_number')
+    {
+        document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Account # to Add');
+        document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
+        document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
+        $("#exception_value_dis").prop( "disabled", true );
+        $("#assign_client_to_account").css('display','block');
+        $("#exception_value").css('display','none');
+        $("#exception_value_dis").css('display','block');
+        if (error_code_id == 13){
+            document.getElementById("label_assign_to_existing_client").innerHTML = 'Assign Client to Trade';
+        }
+    }
+
+    if(exception_field == 'active_check')
+    {
+        document.getElementById("field_label").innerHTML = 'Licence Category / State';
+        // $("#active_state").css('display','block');
+        $("#exception_value").css('display','block');
+        $("#broker_termination_options_trades").css('display','block');
+        document.getElementById("exception_value").value = existing_field_value;
+        document.getElementById("exception_value_dis").value = existing_field_value;
+        document.getElementById("broker_termination_options_trades").dataset.exceptionField = "active_check";
+        document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
+        document.getElementById("lbl_reassign_broker_trades").innerHTML = 'Reassign trade to another BROKER';
+        $("#exception_value").prop( "disabled", true );
+        $("#exception_value_dis").prop( "disabled", true );
+        $("#exception_value").css('display','none');
+        $("#exception_value_dis").css('display','block');
+    }
+
+    if(exception_field == 'registration_line1')
+    {
+        document.getElementById("field_label").innerHTML = 'Enter Client Name:';
+        document.getElementById("exception_value").value = existing_field_value;
+    }
+
+    if(exception_field == 'social_security_number')
+    {
+        document.getElementById("field_label").innerHTML = 'Change Social Security Number: ';
+        document.getElementById("social_security_number").value = existing_field_value;
+        $("#social_security_number").css('display','block');
+        $("#exception_value").css('display','none');
+    }
+
+    if(exception_field == 'active')
+    {
+        document.getElementById("field_label").innerHTML = 'Active Client:';
+        $("#active").css('display','block');
+        $("#exception_value").css('display','none');
+    }
+
+    if(exception_field == 'objectives')
+    {
+        // Use #broker_termination_options_trades row
+        $("#objectives").css('display','none');
+
+        document.getElementById("field_label").innerHTML = 'Product Objective';
+        $("#field_label").css('display','block');
+        $("#exception_value").css('display','none');
+        $("#exception_value").prop( "disabled", true );
+        $("#exception_value_dis").css('display','block');
+        $("#exception_value_dis").prop( "disabled", true );
+        document.getElementById("exception_value").value = existing_field_value;
+        document.getElementById("exception_value_dis").value = existing_field_value;
+
+        /* Show Hold/Assign/Reassign/Delete radio buttons */
+        $("#broker_termination_options_trades").css('display','block');
+        document.getElementById("broker_termination_options_trades").dataset.exceptionField = "objectives";
+        document.getElementById("lbl_broker_active_trades").innerHTML = 'Add Product Objective to Client';
+        document.getElementById("lbl_reassign_broker_trades").innerHTML = 'Reassign trade to another CLIENT';
+
+    }
+
+    if(exception_field == 'sponsor')
+    {
+        document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
+        $("#sponsor").css('display','block');
+        $("#exception_value").css('display','none');
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
+    }
+
+    if(exception_field == 'CUSIP_number' && error_code_id == '13' )
+    {
+        if(exception_file_type==3)
         {
             document.getElementById("field_label").innerHTML = 'Change Cusip Number:';
             $("#existing_cusip_number").css('display','block');
             document.getElementById("existing_cusip_number").value = existing_field_value;
             $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#existing_cusip_number").css('display','none');
-        }
-        if(exception_field == 'ticker_symbol')
-        {
-            document.getElementById("field_label").innerHTML = 'Change Ticker Symbol:';
-            $("#existing_ticker_symbol").css('display','block');
-            document.getElementById("existing_ticker_symbol").value = existing_field_value;
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#existing_ticker_symbol").css('display','none');
-        }
-    }
-    else
-    {
-        $("#existing_cusip_number").css('display','none');
-        $("#existing_ticker_symbol").css('display','none');
-
-        if(exception_field == 'u5')
-        {
-            document.getElementById("field_label").innerHTML = 'Broker Termination Date:';
-            $("#exception_value_date").css('display','none');
-            $("#exception_value_date_display").css('display','block');
-            if(exception_file_type == '1')
-            {
-                $("#broker_termination_options_clients").css('display','block');
-            }
-            if(exception_file_type == '2')
-            {
-                $("#broker_termination_options_trades").css('display','block');
-                document.getElementById("broker_termination_options_trades").dataset.exceptionField = "u5";
-                document.getElementById("lbl_broker_active_trades").innerHTML = 'Remove U5 Date/Activate Broker';
-
-            }
-            document.getElementById("exception_value_date").value = existing_field_value;
-            document.getElementById("exception_value_date_display").value = existing_field_value;
-            $("#exception_value_date_display").prop('disabled','true');
-            $("#exception_value").css('display','none');
-        }
-        else{
-            document.getElementById("field_label").innerHTML = exception_field;
-            $("#exception_value_date").css('display','none');
-            $("#exception_value_date_display").css('display','none');
-            if(exception_file_type == '1')
-            {
-                $("#broker_termination_options_clients").css('display','none');
-            }
-            if(exception_file_type == '2')
-            {
-                $("#broker_termination_options_trades").css('display','none');
-            }
-            document.getElementById("exception_value_date").value = '';
-            $("#exception_value").css('display','block');
-        }
-
-        if(exception_field == 'status')
-        {
-            document.getElementById("field_label").innerHTML = 'Product Terminated:';
-            $("#status").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#status").css('display','none');
-        }
-
-        if(exception_field == 'mutual_fund_customer_account_number')
-        {
-            document.getElementById("field_label").innerHTML = 'Account# to Add';
-            document.getElementById("exception_value").value = '';
-        }
-        else
-        {
-            document.getElementById("exception_value").value = '';
-        }
-
-        if(exception_field == 'customer_account_number')
-        {
-            document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Account # to Add');
-            document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
-            document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
-            $("#exception_value_dis").prop( "disabled", true );
-            $("#assign_client_to_account").css('display','block');
-            $("#exception_value").css('display','none');
-            $("#exception_value_dis").css('display','block');
-            if (error_code_id == 13){
-                document.getElementById("label_assign_to_existing_client").innerHTML = 'Assign Client to Trade';
-            }
-        }
-        else
-        {
-            document.getElementById("exception_value").value = '';
-            document.getElementById("link_div").innerHTML = '';
-            $("#assign_client_to_account").css('display','none');
-            $("#exception_value_dis").css('display','none');
-        }
-
-        if(exception_field == 'active_check')
-        {
-            document.getElementById("field_label").innerHTML = 'Licence Category / State';
-            // $("#active_state").css('display','block');
-            $("#exception_value").css('display','block');
-            $("#broker_termination_options_trades").css('display','block');
-            document.getElementById("exception_value").value = existing_field_value;
-            document.getElementById("exception_value_dis").value = existing_field_value;
-            document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
-            document.getElementById("broker_termination_options_trades").dataset.exceptionField = "active_check";
-            $("#exception_value").prop( "disabled", true );
-            $("#exception_value_dis").prop( "disabled", true );
-            $("#exception_value").css('display','none');
-            $("#exception_value_dis").css('display','block');
-        }
-        else
-        {
-            $("#active_state").css('display','none');
-        }
-
-        if(exception_field == 'registration_line1')
-        {
-            document.getElementById("field_label").innerHTML = 'Enter Client Name:';
-            document.getElementById("exception_value").value = existing_field_value;
-        }
-
-        if(exception_field == 'social_security_number')
-        {
-            document.getElementById("field_label").innerHTML = 'Change Social Security Number: ';
-            document.getElementById("social_security_number").value = existing_field_value;
-            $("#social_security_number").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#social_security_number").css('display','none');
-        }
-
-        if(exception_field == 'active')
-        {
-            document.getElementById("field_label").innerHTML = 'Active Client:';
-            $("#active").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#active").css('display','none');
-        }
-
-        if(exception_field == 'objectives')
-        {
-            // Use #broker_termination_options_trades row
-            $("#objectives").css('display','none');
-            
-            document.getElementById("field_label").innerHTML = 'Product Objective';
-            $("#field_label").css('display','block');
-            $("#exception_value").css('display','none');
-            $("#exception_value").prop( "disabled", true );
-            $("#exception_value_dis").css('display','block');
-            $("#exception_value_dis").prop( "disabled", true );
-            document.getElementById("exception_value").value = existing_field_value;
-            document.getElementById("exception_value_dis").value = existing_field_value;
-            
-            /* Show Hold/Assign/Reassign/Delete radio buttons */
-            $("#broker_termination_options_trades").css('display','block');
-            document.getElementById("broker_termination_options_trades").dataset.exceptionField = "objectives";
-            document.getElementById("lbl_broker_active_trades").innerHTML = 'Add Product Objective to Client';
-
-        }
-        else
-        {
-            $("#objectives").css('display','none');
-        }
-
-        if(exception_field == 'sponsor')
-        {
-            document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
-            $("#sponsor").css('display','block');
-            $("#exception_value").css('display','none');
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
-        }
-        else
-        {
-            $("#sponsor").css('display','none');
-        }
-
-        if(exception_field == 'CUSIP_number' && error_code_id == '13' )
-        {
+        } else {
             document.getElementById("field_label").innerHTML = 'Enter Missing CUSIP #';
             $("#cusip_number").css('display','block');
             $("#exception_value").css('display','none');
         }
-        else
-        {
-            $("#cusip_number").css('display','none');
-        }
+    }
 
-        if(exception_field == 'CUSIP_number' && error_code_id == '11')
+    if(exception_field == 'CUSIP_number' && error_code_id == '11')
+    {
+        if(exception_file_type == 3)
         {
+            document.getElementById("field_label").innerHTML = 'Change Cusip Number:';
+            $("#existing_cusip_number").css('display','block');
+            document.getElementById("existing_cusip_number").value = existing_field_value;
+            $("#exception_value").css('display','none');
+        } else {
             document.getElementById("field_label").innerHTML = 'Assign CUSIP to Product';
             $("#assign_cusip_to_product").css('display','block');
             $("#exception_value").css('display','none');
@@ -1820,38 +1773,36 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("assign_cusip_number").value = existing_field_value;
             document.getElementById("CUSIP_number").value = existing_field_value;
         }
-        else
-        {
-            $("#assign_cusip_to_product").css('display','none');
+    }
+
+    if(exception_field == 'ticker_symbol')
+    {
+        document.getElementById("field_label").innerHTML = 'Change Ticker Symbol:';
+        $("#existing_ticker_symbol").css('display','block');
+        document.getElementById("existing_ticker_symbol").value = existing_field_value;
+        $("#exception_value").css('display','none');
+    }
+
+
+    if(exception_field == 'alpha_code')
+    {
+        document.getElementById("field_label").innerHTML = 'Enter Client Name';
+        $("#alpha_code").css('display','block');
+        $("#exception_value").css('display','none');
+    }
+
+    if(exception_field == 'representative_number')
+    {
+        document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Broker Alias to Add:');
+        document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+        //document.getElementById("exception_value_dis").value = rep_number;
+        $("#assign_rep_to_broker").css('display','block');
+        //$("#exception_value").css('display','none');
+        if (error_code_id == 13){
+            document.getElementById("label_assign_to_existing_broker").innerHTML = 'Assign Trade to Broker';
         }
 
-        if(exception_field == 'alpha_code')
-        {
-            document.getElementById("field_label").innerHTML = 'Enter Client Name';
-            $("#alpha_code").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#alpha_code").css('display','none');
-        }
-
-        if(exception_field == 'representative_number')
-        {
-            document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Broker Alias to Add:');
-            document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
-            //document.getElementById("exception_value_dis").value = rep_number;
-            $("#assign_rep_to_broker").css('display','block');
-            //$("#exception_value").css('display','none');
-            if (error_code_id == 13){
-                document.getElementById("label_assign_to_existing_broker").innerHTML = 'Assign Trade to Broker';
-            }
-
-        }
-        else{
-            $("#assign_rep_to_broker").css('display','none');
-        }
     }
 
 }
