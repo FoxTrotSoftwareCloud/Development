@@ -211,11 +211,11 @@
 				if($id>0){
 					$con = " AND `id`!='".$id."'";
 				}
-				$q = "SELECT * FROM `".$this->table."` WHERE `is_delete`='0' AND `first_name`='".$fname."' ".$con;
+				$q = "SELECT * FROM `".$this->table."` WHERE `is_delete`='0' AND `first_name`='".$fname."' AND `last_name`='".$lname."'".$con;
 				$res = $this->re_db_query($q);
 				$return = $this->re_db_num_rows($res);
 				if($return>0){
-					$this->errors = 'This broker is already exists.';
+					$this->errors = 'This broker already exists.';
 				}
 
 				if($this->errors!=''){
@@ -224,24 +224,25 @@
 				else
         {
 					if($id==0){
-						$q = "INSERT INTO `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`middle_name`='".$mname."',`suffix`='".$suffix."',`fund`='".$fund."',`internal`='".$internal."',`display_on_statement`='".$display_on_statement."',`tax_id`='".$tax_id."',`crd`='".$crd."',`ssn`='".$ssn."',`active_status`='".$active_status_cdd."',`pay_method`='".$pay_method."'".$this->insert_common_sql();
-						$res = $this->re_db_query($q);
-            $_SESSION['last_insert_id'] = $this->re_db_insert_id();
+              $q = "INSERT INTO `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`middle_name`='".$mname."',`suffix`='".$suffix."',`fund`='".$fund."',`internal`='".$internal."',`display_on_statement`='".$display_on_statement."',`tax_id`='".$tax_id."',`crd`='".$crd."',`ssn`='".$ssn."',`active_status`='".$active_status_cdd."',`pay_method`='".$pay_method."'".$this->insert_common_sql();
+              $res = $this->re_db_query($q);
+              $_SESSION['last_insert_id'] = $this->re_db_insert_id();
 
-            if($res){
-              //--- IMPORT File call ---//
-              if($for_import == 'true'){
-                //--- 1/28/22 Called from "Resolve Exceptions" in import.tpl.php. Reprocess will update all the Import Tables (IMPORT_EXCEPTIONS, IMPORT_???_DETAIL_DATA)
-                $instance_import = new import();
-                $instance_import->reprocess_current_files($file_id);
+              if($res){
+                  //--- IMPORT File call ---//
+                  if($for_import == 'true'){
+                      //--- 1/28/22 Called from "Resolve Exceptions" in import.tpl.php. Reprocess will update all the Import Tables (IMPORT_EXCEPTIONS, IMPORT_???_DETAIL_DATA)
+                      $instance_import = new import();
+                      $instance_import->reprocess_current_files($file_id);
 
-                $_SESSION['success'] = INSERT_MESSAGE;
-							  return true;
-						  } else {
-							  $_SESSION['warning'] = UNKWON_ERROR;
-							  return false;
-						  }
-					  } else if($id>0) {
+                      $_SESSION['success'] = INSERT_MESSAGE;
+                      return true;
+                  } else {
+                      $_SESSION['warning'] = UNKWON_ERROR;
+                      return false;
+                  }
+              }
+          } else if($id>0) {
               $q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`middle_name`='".$mname."',`suffix`='".$suffix."',`fund`='".$fund."',`internal`='".$internal."',`display_on_statement`='".$display_on_statement."',`tax_id`='".$tax_id."',`crd`='".$crd."',`ssn`='".$ssn."',`active_status`='".$active_status_cdd."',`pay_method`='".$pay_method."'".$this->update_common_sql()." WHERE `id`='".$id."'";
               $res = $this->re_db_query($q);
 
@@ -252,13 +253,12 @@
                 $this->update_history(BROKER_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
 
                 $_SESSION['success'] = UPDATE_MESSAGE;
-							  return true;
-						  } else {
-							  $_SESSION['warning'] = UNKWON_ERROR;
-							  return false;
-						  }
-					  }
-				  }
+                return true;
+              } else {
+                $_SESSION['warning'] = UNKWON_ERROR;
+                return false;
+              }
+          }
 			  }
 		  }
     }
