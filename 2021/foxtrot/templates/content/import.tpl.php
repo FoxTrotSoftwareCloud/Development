@@ -1617,12 +1617,14 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         if(exception_file_type == '1')
         {
             $("#broker_termination_options_clients").css('display','block');
+            document.getElementById("broker_active").checked = true;
         }
         if(exception_file_type == '2')
         {
             $("#broker_termination_options_trades").css('display','block');
             document.getElementById("broker_termination_options_trades").dataset.exceptionField = "u5";
             document.getElementById("lbl_broker_active_trades").innerHTML = 'Remove U5 Date/Activate Broker';
+            document.getElementById("hold_commission").checked = true;
         }
         document.getElementById("exception_value_date").value = existing_field_value;
         document.getElementById("exception_value_date_display").value = existing_field_value;
@@ -1683,6 +1685,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         document.getElementById("exception_value").value = existing_field_value;
         document.getElementById("exception_value_dis").value = existing_field_value;
         document.getElementById("broker_termination_options_trades").dataset.exceptionField = "active_check";
+        document.getElementById("hold_commission").checked = true;
         document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
         document.getElementById("lbl_reassign_broker_trades").innerHTML = 'Reassign trade to another BROKER';
         $("#exception_value").prop( "disabled", true );
@@ -1728,10 +1731,11 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         /* Show Hold/Assign/Reassign/Delete radio buttons */
         $("#broker_termination_options_trades").css('display','block');
+
         document.getElementById("broker_termination_options_trades").dataset.exceptionField = "objectives";
         document.getElementById("lbl_broker_active_trades").innerHTML = 'Add Product Objective to Client';
         document.getElementById("lbl_reassign_broker_trades").innerHTML = 'Reassign trade to another CLIENT';
-
+        document.getElementById("hold_commission").checked = true;
     }
 
     if(exception_field == 'sponsor')
