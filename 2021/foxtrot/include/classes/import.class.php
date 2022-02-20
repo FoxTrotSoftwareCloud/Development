@@ -2350,28 +2350,28 @@
                         ;
 
                         // Exception intervention in resolve exception() by user(reassign client OR broker)
-                        $reassignBroker = $reassignClient = $resolveHoldCommission = 0;
-                        $errorArray = [];
+                        $reassignBroker = $reassignClient = 0;
+                        $exceptionArray = $resolveHoldCommission = [];
 
                         if ($check_data_val['resolve_exceptions'] != ''){
-                            $errorArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
+                            $exceptionArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
                             // Cycle through the "resolves" the user entered to flag any defaults to rep, client, or hold(i.e. pass the exception through)
-                            foreach ($errorArray AS $errorKey=>$errorRow){
-                                if ($errorArray[$errorKey]['resolve_action']=='reassign' AND in_array($errorArray[$errorKey]['field'], ['representative_number', 'u5', 'active_check'])){
+                            foreach ($exceptionArray AS $errorKey=>$errorRow){
+                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['representative_number', 'u5', 'active_check'])){
                                     // Assign error code so the program knows way it's skipping the Rep #alias search
                                     $reassignBroker = $errorKey;
                                 }
 
-                                if ($errorArray[$errorKey]['resolve_action']=='reassign' AND in_array($errorArray[$errorKey]['field'], ['customer_account_number', 'objectives'])
-                                    OR ($errorArray[$errorKey]['resolve_action']=='add' AND in_array($errorArray[$errorKey]['field'], ['objectives']))
+                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['customer_account_number', 'objectives'])
+                                    OR ($exceptionArray[$errorKey]['resolve_action']=='add' AND in_array($exceptionArray[$errorKey]['field'], ['objectives']))
                                 ){
                                     // Assign error code so the program knows way it's skipping the Client Account # search
                                     $reassignClient = $errorKey;
                                 }
 
-                                if ($errorArray[$errorKey]['resolve_action']=='hold'){
+                                if ($exceptionArray[$errorKey]['resolve_action']=='hold'){
                                     // Assign error code so the program knows way it's skipping exception entry, and entering the trade into the system with a hold, and "hold reason" corresponds to $errorKey(Exception Master ID)
-                                    $resolveHoldCommission  = $errorKey;
+                                    array_push($resolveHoldCommission, $errorKey);
                                 }
                             }
                         }
@@ -2411,7 +2411,7 @@
 
                                     if($check_broker_termination!='' AND date('Y-m-d', strtotime($check_data_val['trade_date'])) > $check_broker_termination){
                                         // User placed a hold on "Exception 2: Broker Terminated"
-                                        if ($resolveHoldCommission == 2){
+                                        if (in_array(2, $resolveHoldCommission)){
                                             // Should already be done in Resolve Exception, but switch the "hold" flag just in case in the Detail table
                                             if ($check_data_val['on_hold'] != 1){
                                                 $check_data_val['on_hold'] = 1;
@@ -2538,7 +2538,7 @@
                                 $resClientObjectives = $this->re_db_query($q);
 
                                 if($this->re_db_num_rows($resClientObjectives) == 0){
-                                    if ($resolveHoldCommission == 9){
+                                    if (in_array(9,$resolveHoldCommission)){
                                             // Should already be done in Resolve Exception, but switch the "hold" flag just in case in the Detail table
                                             if ($check_data_val['on_hold'] != 1){
                                                 $check_data_val['on_hold'] = 1;
@@ -2569,7 +2569,7 @@
 
                                 if($check_result == 0){
                                     // User placed a hold in "Resolve Exception" (Exception #6: Broker License Error)
-                                    if ($resolveHoldCommission == 6){
+                                    if (in_array(6,$resolveHoldCommission)){
                                         // Should already be done in Resolve Exception, but switch the "hold" flag just in case in the Detail table
                                         if ($check_data_val['on_hold'] != 1){
                                             $check_data_val['on_hold'] = 1;
@@ -2668,11 +2668,11 @@
 
                                 $con = '';
 
-                                if ($check_data_val['on_hold'] AND $resolveHoldCommission==2){
+                                if ($check_data_val['on_hold'] AND in_array(2,$resolveHoldCommission)){
                                     $con .=",`hold_commission`=1,`hold_resoan`='BROKER TERMINATED'";
-                                } else if($check_data_val['on_hold'] AND $resolveHoldCommission==6){
+                                } else if($check_data_val['on_hold'] AND in_array(6,$resolveHoldCommission)){
                                     $con .=",`hold_commission`=1, `hold_resoan`='BROKER LICENCE ERROR'";
-                                } else if($check_data_val['on_hold'] AND $resolveHoldCommission==9){
+                                } else if($check_data_val['on_hold'] AND in_array(9,$resolveHoldCommission)){
                                     $con .=",`hold_commission`=1, `hold_resoan`='CLIENT<>PRODUCT OBJECTIVE'";
                                 } else if($broker_hold_commission == 1){
                                     $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
