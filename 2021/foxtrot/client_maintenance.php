@@ -390,7 +390,8 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
-    else if(isset($_POST['add_allobjectives'])&& $_POST['add_allobjectives']=='Add_AllObjectives'){ echo '<pre>';print_r($_POST);exit;
+    else if(isset($_POST['add_allobjectives'])&& $_POST['add_allobjectives']=='Add_AllObjectives'){
+        // echo '<pre>';print_r($_POST);exit;
         $id = isset($_POST['allobjectives_id'])?$instance->re_db_input($_POST['allobjectives_id']):0;
         $allobjectives = isset($_POST['allobjectives'])?$_POST['allobjectives']:array();
 

@@ -1776,6 +1776,8 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#field_label").css('display','block');
             document.getElementById("assign_cusip_number").value = existing_field_value;
             document.getElementById("CUSIP_number").value = existing_field_value;
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_new&file_id=';?>'+exception_file_id+'<?php echo '&cusip_number='; ?>'+existing_field_value+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'" style="display: block; float: right;" id="add_product_for_cusip">Add New Product</a>';
+
         }
     }
 

@@ -48,7 +48,7 @@ function addMoreThreshold(){
                             '</div>'+*/
                         '</div>'+
                     '</div>'+
-                    
+
                     /*'<div class="col-md-1">'+
                         '<div class="row" style="padding: 5px;">'+
                             '<div class="col-md-12">'+
@@ -59,8 +59,8 @@ function addMoreThreshold(){
                         '</div>'+
                     '</div>'+*/
                 '</div>';
-                
-            
+
+
     $(html).insertAfter('#add_more_threshold');
 }
 $(document).on('click','.remove-row',function(){
@@ -87,7 +87,7 @@ $(document).on('click','.remove-row',function(){
             			</div>
                     </div><br />-->
             		<div class="panel-body">
-                        
+
                        <div class="table-responsive">
             			<table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
             	            <thead>
@@ -133,12 +133,12 @@ $(document).on('click','.remove-row',function(){
                         </div>
             		</div>
             	</div>
-                <?php } ?>  
-            <?php  
+                <?php } ?>
+            <?php
             if($action=='select_cat'){
                 ?>
                 <!-- <div class="panel">
-                           
+
                 <form name="frm2" method="POST">
                     <div class="panel-body">
                     <div class="row">
@@ -166,11 +166,11 @@ $(document).on('click','.remove-row',function(){
                         <div>
                             <div class="col-md-6">
                              <a href="#joint_account" data-toggle="modal"><input type="button" onclick="get_product_category(0);" name="joint_account" value="Add/edit Product Category" /></a>
-                              
+
                          </div>
                         </div>
                     </div>
-                    
+
                    </div>
                 </form>
                 </div> -->
@@ -222,7 +222,7 @@ $(document).on('click','.remove-row',function(){
                             </tbody>
                         </table>
                         </div>
-                     </div>   
+                     </div>
                 </div>
 
 
@@ -243,7 +243,7 @@ $(document).on('click','.remove-row',function(){
 
 
                     else if($action=='add_product' || $action=='add_product_from_trans' || ($action=='edit_product' && $id>0)){
-                ?>   
+                ?>
                 <ul class="nav nav-tabs <?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtabs';}*/?>">
                   <li class="active"><a href="#tab_aa" data-toggle="tab">General</a></li>
                   <li><a href="#tab_bb" data-toggle="tab">Suitability</a></li>
@@ -254,20 +254,20 @@ $(document).on('click','.remove-row',function(){
 							<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_product&category=<?php echo $category;?>"><i class="fa fa-eye"></i> View List</a></li>
 						</ul>
 					</div>
-				</ul> 
-                 <form name="frm" method="POST" onsubmit="return validation();" enctype="multipart/form-data">    
-                 
+				</ul>
+                 <form name="frm" method="POST" onsubmit="return validation();" enctype="multipart/form-data">
+
                  <div class="tab-content col-md-12 panel">
-                    
-                    <div class="tab-pane active" id="tab_aa"> 
-                        
+
+                    <div class="tab-pane active" id="tab_aa">
+
         					<div class="row"><br />
                                 <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i> <?php echo $action=='add_product'?'Add':'Edit'; ?> Product</h3>
         					</div><br />
-                           
+
                             <div class="row">
-                               
-                                                            
+
+
                                  <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Product Category </label><br />
@@ -278,9 +278,9 @@ $(document).on('click','.remove-row',function(){
                                             <?php } ?>
                                         </select>
                                     </div>
-                                </div>   
-                                 
-                                
+                                </div>
+
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Product Name <span class="text-red">*</span></label><br />
@@ -320,13 +320,13 @@ $(document).on('click','.remove-row',function(){
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>CUSIP </label><br />
-                                        <?php 
+                                        <?php
                                         if(isset($_GET['cusip_number']) && $_GET['cusip_number'] != '')
                                         {
                                         ?>
                                             <input type="text" disabled="true" name="cusip_disp" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="cusip_disp" class="form-control" value="<?php echo $_GET['cusip_number'];?>" />
                                             <input type="hidden" maxlength="11" class="form-control" name="cusip" value="<?php echo $_GET['cusip_number'];?>" />
-                                        <?php 
+                                        <?php
                                         }else{
                                         ?>
                                             <input type="text" maxlength="11" class="form-control" name="cusip" value="<?php echo $cusip; ?>" />
@@ -356,9 +356,9 @@ $(document).on('click','.remove-row',function(){
                                             </div>
                                         </div>
                                     </div>
-                               
+
                                     <div style="display: block; border: 1px solid #ddd;">
-                                       <div class="row" style="padding: 5px;"> 
+                                       <div class="row" style="padding: 5px;">
                                             <div class="col-md-12">
                                                 <h4><b>Mutual Funds</b></h4><br />
                                             </div>
@@ -434,8 +434,8 @@ $(document).on('click','.remove-row',function(){
                                                     </div>
                                                 </div>
                                             </div>
-                                            
-                                            
+
+
                                        </div>
                                        <?php } }?>
                                        <div class="row" style="padding: 5px;" id="add_more_threshold">
@@ -491,9 +491,9 @@ $(document).on('click','.remove-row',function(){
                                             </div>
                                        </div>
                                    </div>
-                                </div>   
-                           
-                            
+                                </div>
+
+
                                 <div class="cat_block cat_11" style="display:none" data-cat="11">
                                    <div style="display: block; border: 1px solid #ddd;">
                                    <div class="row" style="padding: 5px;">
@@ -512,9 +512,9 @@ $(document).on('click','.remove-row',function(){
                                         </div>
                                     </div>
                                     </div><br />
-                                </div>    
-                          
-                          
+                                </div>
+
+
                                 <div class="cat_block cat_12" style="display:none" data-cat="12">
                                    <div style="display: block; border: 1px solid #ddd;">
                                    <div class="row" style="padding: 5px;">
@@ -539,7 +539,7 @@ $(document).on('click','.remove-row',function(){
                                                 <input type="radio"  name="based_type" class="radio"  value="2" style="display: inline;" <?php if($based==2){echo "checked='checked'";}?>/>&nbsp;<label>Fee Based</label>
                                             </div>
                                         </div>
-                                    </div>   
+                                    </div>
                                     <div class="row" style="padding: 5px;">
                                         <div class="col-md-6">
                                             <div class="form-group">
@@ -549,10 +549,10 @@ $(document).on('click','.remove-row',function(){
                                         </div>
                                     </div>
                                     </div>
-                                    <br />  
-                                 </div>   
-                           
-                          
+                                    <br />
+                                 </div>
+
+
                                  <div class="cat_block cat_2 cat_3" style="display:none" data-cat="2,3">
                                    <div style="display: block; border: 1px solid #ddd;">
                                    <div class="row" style="padding: 5px;">
@@ -560,30 +560,30 @@ $(document).on('click','.remove-row',function(){
                                             <h4><b>Stocks, Bonds</b></h4><br />
                                         </div>
                                    </div>
-                                   
+
                                    <div class="row" style="padding: 5px;">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <input type="radio" class="radio" name="stocks_bonds" value="1" style="display: inline;" <?php if($st_bo==1){echo "checked='checked'";}?>/>&nbsp;<label>Listed </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            
+
                                                 <input type="radio" class="radio" name="stocks_bonds"  value="2" style="display: inline;" <?php if($st_bo==2){echo "checked='checked'";}?>/>&nbsp;<label>OTC </label>
                                             </div>
                                         </div>
                                     </div>
                                     </div>
                                     <br />
-                                </div>    
-                          
-                           
+                                </div>
+
+
                                 <div class="cat_block cat_3 cat_7 cat_8" style="display:none" data-cat="3,7,8">
                                    <div style="display: block; border: 1px solid #ddd;">
                                     <div class="row" style="padding: 5px;">
-                                    
+
                                         <div class="col-md-12">
                                             <h4><b>CDs, UITs, Bonds</b></h4><br />
                                         </div>
                                     </div>
-                                   
+
                                     <div class="row" style="padding: 5px;">
                                         <div class="col-md-6">
                                             <div class="form-group">
@@ -609,13 +609,13 @@ $(document).on('click','.remove-row',function(){
                                         </div>
                                     </div>
                                     </div>
-                                    <br /> 
-                                </div> 
-                          
+                                    <br />
+                                </div>
+
                                 <div class="cat_block cat_4" style="display:none" data-cat="4">
                                    <div style="display: block; border: 1px solid #ddd;">
                                     <div class="row" style="padding: 5px;">
-                                   
+
                                         <div class="col-md-12">
                                             <h4><b>Variable Annuities</b></h4><br />
                                         </div>
@@ -624,7 +624,7 @@ $(document).on('click','.remove-row',function(){
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <input type="radio" class="radio" name="variable_annuities" value="1" style="display: inline;" <?php if($var==1){echo "checked='checked'";}?>/>&nbsp;<label>Single </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            
+
                                                 <input type="radio" class="radio" name="variable_annuities"  value="2" style="display: inline;" <?php if($var==2){echo "checked='checked'";}?>/>&nbsp;<label>Recurring </label>
                                             </div>
                                         </div>
@@ -632,7 +632,7 @@ $(document).on('click','.remove-row',function(){
                                     </div>
                                     <br />
                                 </div>
-                          
+
                                 <div class="cat_block cat_9 cat_10" style="display:none" data-cat="9,10">
                                        <div style="display: block; border: 1px solid #ddd;">
                                         <div class="row" style="padding: 5px;">
@@ -640,7 +640,7 @@ $(document).on('click','.remove-row',function(){
                                                 <h4><b>Partnerships, Alternative Investments, REITs, Agency Tax Credits, Hedge Funds</b></h4><br />
                                             </div>
                                         </div>
-                                       
+
                                         <div class="row" style="padding: 5px;">
                                            <div class="col-md-6">
                                                 <div class="form-group">
@@ -665,9 +665,9 @@ $(document).on('click','.remove-row',function(){
                                         </div>
                                       </div><br />
                                 </div>
-                            </div>    
-                    </div>  
-                    <div class="tab-pane" id="tab_bb"> 
+                            </div>
+                    </div>
+                    <div class="tab-pane" id="tab_bb">
                         <div class="row">
                                 <div class="col-md-12">
                                     <h4><b>Suitability</b></h4><br />
@@ -731,19 +731,20 @@ $(document).on('click','.remove-row',function(){
                                 </div>
                             </div>
                     </div>
-                   
+
                 </div>
                 <div class="panel-footer fixedbtmenu">
                         <div class="selectwrap">
                             <?php if(isset($_GET['cusip_number']) && ($_GET['cusip_number'] != '' || $_GET['cusip_number'] == '')){?>
-                            <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
-                            <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
-                            <input type="hidden" name="temp_data_id" id="temp_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
+                                <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
+                                <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
+                                <input type="hidden" name="detail_data_id" id="detail_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
+                                <input type="hidden" name="exception_record_id" id="exception_record_id" class="form-control" value="<?php echo $_GET['exception_record_id']; ?>" />
                             <?php }?>
                             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                             <?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous&category=<?php echo $category;?>" class="previous next_previous_a" style="float: left;"><input type="submit" name="submit" value="Previous" /></a><?php } ?>
         					<?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next&category=<?php echo $category;?>" class="next next_previous_a"><input type="submit" name="submit" value="Next" /></a><?php } ?>
-                            
+
                             <?php if($action=='edit_product' && $id>0){?>
                             <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10%;"/></a>
                             <?php } ?>
@@ -754,11 +755,11 @@ $(document).on('click','.remove-row',function(){
                             <input type="submit" name="product" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
                         </div>
                     </div>
-			    </form> 
+			    </form>
                 <?php
                     }
-                ?> 
-                <!-- Lightbox strart -->    
+                ?>
+                <!-- Lightbox strart -->
 
 
         <div id="joint_account" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
@@ -769,22 +770,22 @@ $(document).on('click','.remove-row',function(){
             <h4 class="modal-title">Product Category</h4>
         </div>
         <div class="modal-body">
-        
+
         <div class="inputpopup">
             <a class="btn btn-sm btn-success" href="#add_new_category" onclick="get_product_category(0);" data-toggle="modal" style="float: right !important; margin-right: 5px !important;"><i class="fa fa-plus"></i> Add New</a>
         </div>
-        
+
         <div class="col-md-12">
             <div id="msg_account">
             </div>
         </div>
-       
+
         <div class="inputpopup">
             <div class="table-responsive" id="ajax_account" style="margin: 0px 5px 0px 5px;">
                 <div class="col-md-12" style="padding-bottom:10px">
                     <div class="col-md-8">
                      <label>Product Category </label>
-                     
+
                                 <select class="form-control" id="edit_category" onchange="prod_cate_edit_del_enable(this.value)"  name="edit_category" style="display: inline !important;">
                                     <option value="0" selected="true">Select Category</option>
                                     <?php foreach($product_category as $key=>$val){?>
@@ -792,23 +793,23 @@ $(document).on('click','.remove-row',function(){
                                     <?php } ?>
                                 </select>
                     </div>
-                    
+
                     <div class="col-md-4" id="div_prod_cat_edit_del" style="visibility:hidden;">
-                        
+
                         <a href="#add_new_category" onclick="get_product_category_edit();" data-toggle="modal"class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
                        <!--  <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                        <a href="#delete_category" onclick="get_product_category_move();" data-toggle="modal" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash">Move Product Category</i></a>
                     </div>
                     </div>
-                           
+
             </div>
         </div>
         </div><!-- End of Modal body -->
         </div><!-- End of Modal content -->
         </div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->                         
+</div><!-- End of Modal -->
 
-                      <!-- Lightbox strart -->                          
+                      <!-- Lightbox strart -->
     <!-- Modal for add client notes -->
     <div  id= "add_new_category" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
         <div class="modal-dialog" style="margin-left: 19% !important;">
@@ -820,16 +821,16 @@ $(document).on('click','.remove-row',function(){
         <div class="modal-body">
                  <div class="inputpopup">
                         <div class="table-responsive" id="ajax_product_category" style="margin: 0px 5px 0px 5px;">
-                            
+
                         </div>
                     </div>
-      
-        
+
+
         </div><!-- End of Modal body -->
         </div><!-- End of Modal content -->
         </div><!-- End of Modal dialog -->
 </div><!-- End of Modal -->
-                      <!-- Lightbox strart -->                          
+                      <!-- Lightbox strart -->
     <!-- Modal for add client notes -->
     <div  id= "delete_category" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
         <div class="modal-dialog" style="margin-left: 19% !important;">
@@ -841,8 +842,8 @@ $(document).on('click','.remove-row',function(){
         <div class="modal-body">
         <div class="inputpopup">
             <div class="table-responsive" id="ajax_move_product_category" style="margin: 0px 5px 0px 5px;">
-                  
-                    
+
+
             </div>
         </div>
         </div><!-- End of Modal body -->
@@ -850,7 +851,7 @@ $(document).on('click','.remove-row',function(){
         </div><!-- End of Modal dialog -->
 </div><!-- End of Modal -->
     <!-- Modal for add client notes -->
-            <!-- Lightbox strart -->							
+            <!-- Lightbox strart -->
             	<!-- Modal for add client notes -->
             	<div id="product_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
             		<div class="modal-dialog">
@@ -860,28 +861,28 @@ $(document).on('click','.remove-row',function(){
             			<h4 class="modal-title">Branch's Notes</h4>
             		</div>
             		<div class="modal-body">
-                    
+
                     <div class="inputpopup">
                         <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newnotes();"><i class="fa fa-plus"></i> Add New</a></li>
             		</div>
-                    
+
                     <div class="col-md-12">
                         <div id="msg_notes">
                         </div>
                     </div>
-                   
+
                     <div class="inputpopup">
                         <div class="table-responsive" id="ajax_notes" style="margin: 0px 5px 0px 5px;">
-                            
+
                         </div>
             		</div>
                     </div><!-- End of Modal body -->
             		</div><!-- End of Modal content -->
             		</div><!-- End of Modal dialog -->
             </div><!-- End of Modal -->
-            <!-- Lightbox strart -->							
+            <!-- Lightbox strart -->
 
-			<!-- Lightbox strart -->							
+			<!-- Lightbox strart -->
 	<!-- Modal for add client notes -->
 	<div id="product_attach" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 		<div class="modal-dialog">
@@ -891,26 +892,26 @@ $(document).on('click','.remove-row',function(){
 			<h4 class="modal-title">Product's Attach</h4>
 		</div>
 		<div class="modal-body">
-        
+
         <div class="inputpopup">
             <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newattach();"><i class="fa fa-plus"></i> Add New</a></li>
 		</div>
-        
+
         <div class="col-md-12">
             <div id="msg_attach">
             </div>
         </div>
-       
+
         <div class="inputpopup">
             <div class="table-responsive" id="ajax_attach" style="margin: 0px 5px 0px 5px;">
-                
+
             </div>
 		</div>
         </div><!-- End of Modal body -->
 		</div><!-- End of Modal content -->
 		</div><!-- End of Modal dialog -->
 </div><!-- End of Modal -->
-<!-- Lightbox strart -->							
+<!-- Lightbox strart -->
 <!-- Modal for transaction list -->
 <div id="product_transactions" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 	<div class="modal-dialog">
@@ -951,7 +952,7 @@ $(document).on('click','.remove-row',function(){
 	</div><!-- End of Modal dialog -->
 </div><!-- End of Modal -->
 <!-- Lightbox strart -->
-              <!-- Lightbox strart -->							
+              <!-- Lightbox strart -->
                 <!-- Modal for transaction list -->
                 <div id="view_changes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                 	<div class="modal-dialog">
@@ -973,7 +974,7 @@ $(document).on('click','.remove-row',function(){
                                     <th>New Value</th>
                                 </thead>
                                 <tbody>
-                                <?php 
+                                <?php
                                 $count = 0;
                                 $feild_name='';
                                 $lable_array = array();
@@ -982,22 +983,22 @@ $(document).on('click','.remove-row',function(){
                                 'min_threshold' => 'Min Threshold','max_threshold' => 'Max Threshold','sweep_fee' => 'Waive Sweep Fee','ria_specific' => 'Investment Banking Type','ria_specific_type' => 'RIA Type','based' => 'Based Type','fee_rate' => 'Fee Rate','st_bo' => 'Stocks, Bonds',
                                 'm_date' => 'Maturity Date','type' => 'Type','var' => 'Variable Annuities','reg_type' => 'Registration Type');
                                 foreach($product_data as $key=>$val){
-                                    
+
                                     if(isset($lable_array[$val['field']])){
                                         $feild_name = $lable_array[$val['field']];
                                     }else {
                                         $feild_name = $val['field'];
                                     }?>
                                     <tr>
-                                    
+
                                         <td><?php echo $val['user_initial'];?></td>
                                         <td><?php echo date('m/d/Y',strtotime($val['modified_time']));?></td>
                                         <td><?php echo $feild_name;?></td>
-                                        <?php 
+                                        <?php
                                         if($feild_name == 'Allowable Receivable' && $val['old_value'] == 0){?>
                                         <td><?php echo 'UnChecked';?></td>
                                         <td><?php echo 'Checked';?></td>
-                                        <?php } 
+                                        <?php }
                                         else if($feild_name == 'Allowable Receivable' && $val['old_value'] == 1){?>
                                         <td><?php echo 'Checked';?></td>
                                         <td><?php echo 'UnChecked';?></td>
@@ -1005,14 +1006,14 @@ $(document).on('click','.remove-row',function(){
                                         else if($feild_name == 'Non-Commissionable' && $val['old_value'] == 0){?>
                                         <td><?php echo 'UnChecked';?></td>
                                         <td><?php echo 'Checked';?></td>
-                                        <?php } 
+                                        <?php }
                                         else if($feild_name == 'Non-Commissionable' && $val['old_value'] == 1){?>
                                         <td><?php echo 'Checked';?></td>
                                         <td><?php echo 'UnChecked';?></td>
                                         <?php }
                                         else if($feild_name == 'Class Type'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'A';
@@ -1032,7 +1033,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'A';
@@ -1055,14 +1056,14 @@ $(document).on('click','.remove-row',function(){
                                         else if($feild_name == 'Waive Sweep Fee' && $val['old_value'] == 0){?>
                                         <td><?php echo 'UnChecked';?></td>
                                         <td><?php echo 'Checked';?></td>
-                                        <?php } 
+                                        <?php }
                                         else if($feild_name == 'Waive Sweep Fee' && $val['old_value'] == 1){?>
                                         <td><?php echo 'Checked';?></td>
                                         <td><?php echo 'UnChecked';?></td>
                                         <?php }
                                         else if($feild_name == 'Investment Banking Type'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'IPO';
@@ -1086,7 +1087,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'IPO';
@@ -1112,7 +1113,7 @@ $(document).on('click','.remove-row',function(){
                                         <?php }
                                         else if($feild_name == 'RIA Type'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'Fee Based Mutual Funds';
@@ -1140,7 +1141,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'Fee Based Mutual Funds';
@@ -1170,7 +1171,7 @@ $(document).on('click','.remove-row',function(){
                                         <?php }
                                         else if($feild_name == 'Based Type'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'Asset Based';
@@ -1182,7 +1183,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'Asset Based';
@@ -1196,7 +1197,7 @@ $(document).on('click','.remove-row',function(){
                                         <?php }
                                         else if($feild_name == 'Stocks, Bonds'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'Listed';
@@ -1208,7 +1209,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'Listed';
@@ -1222,7 +1223,7 @@ $(document).on('click','.remove-row',function(){
                                         <?php }
                                         else if($feild_name == 'Type'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'Government Municipal';
@@ -1242,7 +1243,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'Government Municipal';
@@ -1264,7 +1265,7 @@ $(document).on('click','.remove-row',function(){
                                         <?php }
                                         else if($feild_name == 'Variable Annuities'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'Single';
@@ -1276,7 +1277,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'Single';
@@ -1290,7 +1291,7 @@ $(document).on('click','.remove-row',function(){
                                         <?php }
                                         else if($feild_name == 'Registration Type'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'Public Real Estate';
@@ -1342,7 +1343,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'Public Real Estate';
@@ -1396,7 +1397,7 @@ $(document).on('click','.remove-row',function(){
                                         <?php }
                                         else if($feild_name == 'Objectives'){?>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['old_value'] == 1)
                                         {
                                             echo 'Growth';
@@ -1420,7 +1421,7 @@ $(document).on('click','.remove-row',function(){
                                         ?>
                                         </td>
                                         <td>
-                                        <?php 
+                                        <?php
                                         if($val['new_value'] == 1)
                                         {
                                             echo 'Growth';
@@ -1464,13 +1465,13 @@ $(document).on('click','.remove-row',function(){
                 	</div><!-- End of Modal content -->
                 	</div><!-- End of Modal dialog -->
                 </div><!-- End of Modal -->
-            
+
         </div>
-    
+
 </div>
 <script type="text/javascript">
     $(document).ready(function() {
-        
+
         $('#data-table').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -1478,10 +1479,10 @@ $(document).on('click','.remove-row',function(){
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 4 ] }, 
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 4 ] },
                         { "bSearchable": false, "aTargets": [ 4 ] }]
         });
-        
+
         $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_product" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
             '<div class="panel-control" style="padding-left:5px;display:inline;">'+
                     '<div class="btn-group dropdown" style="float: right;">'+
@@ -1528,28 +1529,28 @@ function formsubmit_movecategory()
       data: $("#move_category_form").serialize(), // serializes the form's elements.
       success: function(data){
           if(data=='1'){
-            
+
              $("#delete_category").modal('hide');
              get_product_category(0);
-             location.reload(); 
+             location.reload();
              //header("location:"."product_cate.php");exit;
             $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-            //window.location.href = "product_category_maintenance.php";//get_client_notes();   
+            //window.location.href = "product_category_maintenance.php";//get_client_notes();
           }
           else{
                $('#msg_account').html('<div class="alert alert-danger">'+data+'</div>');
           }
-          
+
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
            $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
       }
-      
+
    });
 
    //e.preventDefault(); // avoid to execute the actual submit of the form.
    return false;
-       
+
 }
 
 function formsubmit_category()
@@ -1564,28 +1565,28 @@ function formsubmit_category()
       data: $("#add_new_category_form").serialize(), // serializes the form's elements.
       success: function(data){
           if(data=='1'){
-            
+
              $("#add_new_category").modal('hide');
              get_product_category(0);
-             location.reload(); 
+             location.reload();
              //header("location:"."product_cate.php");exit;
             $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-            //window.location.href = "product_category_maintenance.php";//get_client_notes();   
+            //window.location.href = "product_category_maintenance.php";//get_client_notes();
           }
           else{
                $('#msg_account').html('<div class="alert alert-danger">'+data+'</div>');
           }
-          
+
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
            $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
       }
-      
+
    });
 
    //e.preventDefault(); // avoid to execute the actual submit of the form.
    return false;
-       
+
 }
 </script>
 <script>
@@ -1609,7 +1610,7 @@ function round(feerate)
         var rounded = round.toFixed(1);
     }
     document.getElementById("fee_rate").value = rounded;
-    
+
 }
 function minrate(feerate)
 {
@@ -1623,7 +1624,7 @@ function minrate(feerate)
         var rounded = round.toFixed(1);
     }
     document.getElementById("min_rate").value = rounded;
-    
+
 }
 function maxrate(feerate)
 {
@@ -1637,7 +1638,7 @@ function maxrate(feerate)
         var rounded = round.toFixed(1);
     }
     document.getElementById("max_rate").value = rounded;
-    
+
 }
 function minthreshold(feerate)
 {
@@ -1653,7 +1654,7 @@ function minthreshold(feerate)
         var rounded = feerate;
     }
     document.getElementById("min_threshold").value = rounded;
-    
+
 }
 function maxthreshold(feerate)
 {
@@ -1669,7 +1670,7 @@ function maxthreshold(feerate)
         var rounded = feerate;
     }
     document.getElementById("max_threshold").value = rounded;
-    
+
 }
 </script>
 <script>
@@ -1687,10 +1688,10 @@ function open_newattach()
     var isRedirectToTransPage=<?php  echo isset($_GET['redirect']) && $_GET['redirect']== "add_product_from_trans" ? 1 : 0 ?>;
 
 function get_product_notes(){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("ajax_notes").innerHTML = this.responseText;
             }
@@ -1702,7 +1703,7 @@ function get_product_category_edit(){
         var cat_id = document.getElementById('edit_category').value;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("ajax_product_category").innerHTML = this.responseText;
             }
@@ -1714,7 +1715,7 @@ function get_product_category_move(){
         var cat_id = document.getElementById('edit_category').value;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("ajax_move_product_category").innerHTML = this.responseText;
             }
@@ -1723,10 +1724,10 @@ function get_product_category_move(){
         xmlhttp.send();
 }
 function get_product_category(id){
-        
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("ajax_product_category").innerHTML = this.responseText;
             }
@@ -1735,10 +1736,10 @@ function get_product_category(id){
         xmlhttp.send();
 }
 function get_product_attach(){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("ajax_attach").innerHTML = this.responseText;
             }
@@ -1758,23 +1759,23 @@ function hideshow_sponser_based_on_product_category(product_category)
         }
 }
 function openedit(note_id){
-    
+
     var frm_element = document.getElementById("add_client_notes_"+note_id);
     //var ele = frm_element.getElementById("client_note");
-    name = frm_element.elements["client_note"].removeAttribute("style"); 
+    name = frm_element.elements["client_note"].removeAttribute("style");
     //$(name).css('pointer-events','');
     console.log(name);
 }
 function product_category_autoredirect(product_category){
-    
+
     if(product_category!='0')
-    {   
+    {
         if(isRedirectToTransPage == 1)
           window.location="product_cate.php?action=add_product&category="+product_category+"&redirect=add_product_from_trans";
         else
         window.location="product_cate.php?action=view_product&category="+product_category
     }
-    
+
 }
 function prod_cate_edit_del_enable(product_category)
 {
@@ -1802,33 +1803,33 @@ function notessubmit(note_id)
       data: $("#add_client_notes_"+note_id).serialize(), // serializes the form's elements.
       success: function(data){
           if(data=='1'){
-            
+
             get_product_notes();
             $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-            //window.location.href = "client_maintenance.php";//get_client_notes();   
+            //window.location.href = "client_maintenance.php";//get_client_notes();
           }
           else{
                $('#msg_notes').html('<div class="alert alert-danger">'+data+'</div>');
           }
-          
+
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
            $('#msg_notes').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
       }
-      
+
    });
 
    //e.preventDefault(); // avoid to execute the actual submit of the form.
    return false;
-       
+
 }
 function attachsubmit(attach_id)
-{ 
+{
         var myForm = document.getElementById('add_client_attach_'+attach_id);
         form_data = new FormData(myForm);
         $.ajax({
-            url: 'product_cate.php', // point to server-side PHP script 
-            
+            url: 'product_cate.php', // point to server-side PHP script
+
             cache: false,
             contentType: false,
             processData: false,
@@ -1836,53 +1837,53 @@ function attachsubmit(attach_id)
             type: 'post',
             success: function(data){
                   if(data=='1'){
-                    
+
                     get_product_attach();
                     $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-                    //window.location.href = "client_maintenance.php";//get_client_attach();   
+                    //window.location.href = "client_maintenance.php";//get_client_attach();
                   }
                   else{
                        $('#msg_attach').html('<div class="alert alert-danger">'+data+'</div>');
-                  } 
+                  }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                    $('#msg_attach').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
               }
         });
-               
-        
-   return false; 
-       
+
+
+   return false;
+
 }
 function delete_notes(note_id){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
                 if(data=='1'){
-                   get_product_notes(); 
+                   get_product_notes();
                    $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Note deleted Successfully.</div>');
                    //get_client_notes();
-                  
+
                   }
                   else{
                        $('#msg_notes').html('<div class="alert alert-danger">'+data+'</div>');
                   }
-                
+
             }
         };
         xmlhttp.open("GET", "product_cate.php?delete_action=delete_notes&note_id="+note_id, true);
         xmlhttp.send();
 }
 function delete_attach(attach_id){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
                 if(data=='1'){
-                   get_product_attach(); 
+                   get_product_attach();
                    $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Attach deleted Successfully.</div>');
                   }
                   else{
@@ -1966,7 +1967,7 @@ var waitingDialog = waitingDialog || (function ($) {
 		/**
 		 * Closes dialog
 		 */
-	
+
 	};
 
 })(jQuery);

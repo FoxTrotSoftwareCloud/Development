@@ -154,6 +154,9 @@
             if(isset($data['resolve_broker_terminated'])){
                 $resolveAction = $data['resolve_broker_terminated'];
             }
+            if(isset($data['resolveAction'])){
+                $resolveAction = $data['resolveAction'];
+            }
 
 			if($exception_value==''){
 				$this->errors = 'Please enter field value.';
@@ -971,8 +974,18 @@
                         // }
                         else if($exception_field == 'CUSIP_number')
                         {
-                            // Missing CUSIP
-                            if ($error_code_id == '13'){
+                            // Missing CUSIP -> Replace cusip number in the data for processing
+                            if ($resolveAction == 5){
+                                // Product added
+                                $product = (isset($data['assign_cusip_product'])) ? $data['assign_cusip_product'] : 0;
+                                $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                        ." SET `resolve_action`=5"
+                                            .",`resolve_assign_to`='".$product."'"
+                                                .$this->update_common_sql()
+                                        ." WHERE `id`=".$exception_record_id
+                                ;
+                                $res = $this->re_db_query($q);
+                            } else if ($error_code_id == '13'){
                                 $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
                                 $res = $this->re_db_query($q);
 
@@ -988,9 +1001,8 @@
                                     ;
                                     $res = $this->re_db_query($q);
                                 }
-                            } else {
-                                //if($error_code_id == '11')
-                                // 11 = Cusip not found
+                            } else if($error_code_id == '11') {
+                                // 11 = Cusip not found -> Update "cusip" field in Products table
                                 $product_category = isset($data['assign_cusip_product_category'])?$data['assign_cusip_product_category']:0;
                                 $product = isset($data['assign_cusip_product'])?$data['assign_cusip_product']:0;
                                 if($product_category <=0)
@@ -1026,7 +1038,7 @@
 
                             if($res){
                                 $result = $this->reprocess_current_files($exception_file_id, 2, $exception_data_id);
-                                
+
                                 // Check if this update can clear other exceptions in the file
                                 // Clear all the Exceptions for the same Exception and Client #
                                 $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`CUSIP_number`"
@@ -3851,7 +3863,7 @@
         function getDetailExceptions($serialValue=''){
             $return = [];
             $excArray = $excDetail = 0;
-            $actionArray = [1=>'hold', 2=>'add', 3=>'reassign', 4=>'delete'];
+            $actionArray = [1=>'hold', 2=>'add', 3=>'reassign', 4=>'delete', 5=>'add_new'];
 
             if (!empty($serialValue) AND !is_array($serialValue)){
                 $excArray = unserialize($serialValue);
