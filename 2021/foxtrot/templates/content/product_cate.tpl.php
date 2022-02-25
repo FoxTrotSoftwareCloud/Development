@@ -746,12 +746,12 @@ $(document).on('click','.remove-row',function(){
         					<?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next&category=<?php echo $category;?>" class="next next_previous_a"><input type="submit" name="submit" value="Next" /></a><?php } ?>
 
                             <?php if($action=='edit_product' && $id>0){?>
-                            <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10%;"/></a>
+                                <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10%;"/></a>
                             <?php } ?>
                             <a href="#product_notes" data-toggle="modal"><input type="button" onclick="get_product_notes();" name="notes" value="Notes" /></a>
                             <a href="#product_transactions" data-toggle="modal"><input type="button" name="attach" value="Transactions" /></a>
                             <a href="#product_attach" data-toggle="modal"><input type="button"  onclick="get_product_attach();" name="attach" value="Attachments" style="margin-right: 10%;"/></a>
-                            <a href="<?php echo CURRENT_PAGE.'?action=view_product';?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+                            <a href="<?php echo CURRENT_PAGE.'?action=view_product&cancel=true';?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                             <input type="submit" name="product" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
                         </div>
                     </div>

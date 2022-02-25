@@ -566,19 +566,33 @@
 		 * */
 		public function select_product_category($category=''){
 			$return = array();
+			$categoryQuery = '';
+			
+			if (!empty($category)){
+				$categoryQuery = " AND `at`.`category`=".(int)($this->re_db_input($category));
+			}
+			
+			// 02/24/22 Products consolidated into one table "ft_products"
+			// $q = "SELECT `at`.*,pc.type,sp.name as sponsor
+			// 		FROM `product_category_".$category."` AS `at`
+            //         LEFT JOIN `".PRODUCT_TYPE."` as `pc` on `pc`.`id`=`at`.`category`
+            //         LEFT JOIN `".SPONSOR_MASTER."` as `sp` on `sp`.`id`=`at`.`sponsor`
+            //         WHERE `at`.`is_delete`='0'
+            //         ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*,pc.type,sp.name as sponsor"
+					." FROM `".PRODUCT_LIST."` AS `at`"
+                    ." LEFT JOIN `".PRODUCT_TYPE."` as `pc` on `pc`.`id`=`at`.`category`"
+                    ." LEFT JOIN `".SPONSOR_MASTER."` as `sp` on `sp`.`id`=`at`.`sponsor`"
+                    ." WHERE `at`.`is_delete`='0'"
+							.$categoryQuery
+                    ." ORDER BY `at`.`id` ASC"
+			;
 
-			$q = "SELECT `at`.*,pc.type,sp.name as sponsor
-					FROM `product_category_".$category."` AS `at`
-                    LEFT JOIN `".PRODUCT_TYPE."` as `pc` on `pc`.`id`=`at`.`category`
-                    LEFT JOIN `".SPONSOR_MASTER."` as `sp` on `sp`.`id`=`at`.`sponsor`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-
     			}
             }
 			return $return;

@@ -193,7 +193,6 @@
         $product_cate= $_GET['cat_id'];
         $product= $_GET['p_id'];
         $sponsor= $_GET['sponsor'];
-
     }
     if(isset($_GET['client_id']) && isset($_GET['client_id'])){
         $client_name=$_GET['client_id'];

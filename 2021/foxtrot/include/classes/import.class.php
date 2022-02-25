@@ -977,7 +977,7 @@
                             // Missing CUSIP -> Replace cusip number in the data for processing
                             if ($resolveAction == 5){
                                 // Product added
-                                $product = (isset($data['assign_cusip_product'])) ? $data['assign_cusip_product'] : 0;
+                                $product = (isset($data['assign_cusip_number'])) ? $data['assign_cusip_number'] : 0;
                                 $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                         ." SET `resolve_action`=5"
                                             .",`resolve_assign_to`='".$product."'"
