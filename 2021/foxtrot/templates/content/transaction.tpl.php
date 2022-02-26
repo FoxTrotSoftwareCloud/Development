@@ -1172,8 +1172,9 @@ $('.decimal').chargeFormat();
     }
 function get_product(category_id,selected=''){
         category_id = document.getElementById("product_cate").value;
+        transaction_id = document.getElementById("trade_number").value;
         sponsor = document.getElementById("sponsor").value;
-        $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans");
+        $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans"+"&transaction_id="+transaction_id);
       
      if(category_id =='2' ||category_id =='3'|| category_id =='6'||category_id =='7'||category_id =='8')
         {

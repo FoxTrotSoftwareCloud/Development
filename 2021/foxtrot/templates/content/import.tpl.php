@@ -448,19 +448,26 @@ PostResult( msg );
                                                 <table id="data-table3" class="table table-bordered table-stripped table-hover">
                                                     <thead>
                                                         <th>Date</th>
-                                                        <th>Rep#</th>
-                                                        <th>Rep Name</th>
-                                                        <th>Account#</th>
-                                                        <th>Client Name</th>
-                                                        <?php if(isset($get_file_type) && $get_file_type == '1'){
-                                                        ?>
-                                                        <th>Client Address</th>
-                                                        <?php }
-                                                        else if(isset($get_file_type) && $get_file_type == '2'){?>
-                                                        <th>CUSIP</th>
-                                                        <th>Principal</th>
-                                                        <th>Commission</th>
+                                                        <?php if(isset($get_file_type) && in_array($get_file_type, ['1', '2'])) { ?>
+                                                            <th>Rep#</th>
+                                                            <th>Rep Name</th>
+                                                            <th>Account#</th>
+                                                            <th>Client Name</th>
                                                         <?php } ?>
+                                                        <?php if(isset($get_file_type) && $get_file_type == '1'){?>
+                                                            <th>Client Address</th>
+                                                        <?php } else if(isset($get_file_type) && $get_file_type == '2'){?>
+                                                            <th>CUSIP</th>
+                                                            <th>Principal</th>
+                                                            <th>Commission</th>
+                                                        <?php } else if(isset($get_file_type) && $get_file_type == '3'){?>
+                                                            <th>Fund Name</th>
+                                                            <th>CUSIP</th>
+                                                            <th>Ticker Symbol</th>
+                                                            <th>Security Type</th>
+                                                        <?php } ?>
+
+
                                                         <th>Issue</th>
                                                         <th>Action</th>
                                                     </thead>
@@ -580,21 +587,25 @@ PostResult( msg );
                                                         ?>
                                                         <tr>
                                                             <td><?php echo date('m/d/Y',strtotime($error_val['date']));?></td>
-                                                            <td><?php echo $error_val['rep'];?></td>
-                                                            <td><?php echo $error_val['rep_name'];?></td>
-                                                            <td><?php echo $error_val['account_no'];?></td>
-                                                            <td><?php echo $error_val['client'];?></td>
-                                                            <?php
-                                                            if(isset($get_file_type) && $get_file_type == '1'){
-                                                            $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']);
-                                                            ?>
-                                                            <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                            <?php }
-                                                            else if(isset($get_file_type) && $get_file_type == '2')
-                                                            { ?>
-                                                            <td><?php echo $error_val['cusip'];?></td>
-                                                            <td style="text-align: right;"><?php if($error_val['principal'] > 0){ echo '$'.number_format($error_val['principal'],2);}else{ echo '$0';}?></td>
-                                                            <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
+                                                            <?php if(isset($get_file_type) && in_array($get_file_type, ['1', '2'])) { ?>
+                                                                <td><?php echo $error_val['rep'];?></td>
+                                                                <td><?php echo $error_val['rep_name'];?></td>
+                                                                <td><?php echo $error_val['account_no'];?></td>
+                                                                <td><?php echo $error_val['client'];?></td>
+                                                            <?php } ?>
+
+                                                            <?php if(isset($get_file_type) && $get_file_type == '1'){
+                                                                $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']); ?>
+                                                                <td><?php echo $get_client_data[0]['client_address'];?></td>
+                                                            <?php } else if(isset($get_file_type) && $get_file_type == '2') { ?>
+                                                                <td><?php echo $error_val['cusip'];?></td>
+                                                                <td style="text-align: right;"><?php if($error_val['principal'] > 0){ echo '$'.number_format($error_val['principal'],2);}else{ echo '$0';}?></td>
+                                                                <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
+                                                            <?php } else if(isset($get_file_type) && $get_file_type == '3') { ?>
+                                                                <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
+                                                                <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
+                                                                <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
+                                                                <td><?php echo $return_sfr_existing_data['major_security_type'] ?></td>
                                                             <?php } ?>
                                                             <td><?php echo $error_val['error'];?></td>
                                                             <td style="width: 20%;">
@@ -640,9 +651,9 @@ PostResult( msg );
                                                             <th>Client Address</th>
                                                             <?php }
                                                             else if(isset($get_file_type) && $get_file_type == '2'){?>
-                                                            <th>CUSIP</th>
-                                                            <th>Principal</th>
-                                                            <th>Commission</th>
+                                                                <th>CUSIP</th>
+                                                                <th>Principal</th>
+                                                                <th>Commission</th>
                                                             <?php } ?>
                                                         </thead>
                                                         <tbody>

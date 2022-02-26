@@ -48,21 +48,22 @@
     $category = isset($_GET['category'])&&$_GET['category']!=''?$dbins->re_db_input($_GET['category']):'';
     $cancelEdit = (!empty($_GET['cancel']) AND $action == 'view_product') ? 1 : 0;
 
-    /*if($redirect=='add_product_from_trans'){
-        $_SESSION
-    }*/
+    // Store redirect arguments for Add New Product from a calling program
+    if($redirect=='add_product_from_trans') {
+        $_SESSION['product_cate_add_product_from_trans']['action'] = 'add_product_from_trans';
+        $_SESSION['product_cate_add_product_from_trans']['category'] = (empty($_GET['category'])) ? 0 : ((int)$dbins->re_db_input($_GET['category']));
+        $_SESSION['product_cate_add_product_from_trans']['redirect'] = $redirect;
+        $_SESSION['product_cate_add_product_from_trans']['redirect_id'] = (empty($_GET['transaction_id'])) ? 0 : ((int)$dbins->re_db_input($_GET['transaction_id']));
+    }
 
     $import_instance = new import();
     $instance = new product_maintenance();
     $product_category = $instance->select_category();
     $get_sponsor = $instance->select_sponsor();
 
-    if($category=='' || $category=='0')
-    {
+    if($category=='' || $category=='0') {
         $get_product_transactions='';
-    }
-    else
-    {
+    } else {
         $get_product_transactions = $instance->get_transaction_on_product($id,$category);//print_r($get_product_transactions);exit;
     }
 
@@ -145,14 +146,13 @@
                 forImport($file_id);
             } else {
                 if($redirect=='add_product_from_trans') {
+                    $args = '';
+
                     if ($return){
-                        $args= http_build_query(array("action"=>"add","p_id"=>$_SESSION['new_product_id'],"cat_id"=>$category,"sponsor"=>$sponsor));
-                    } else {
-                        $args = '';
+                        $args= http_build_query(array("p_id"=>$_SESSION['new_product_id'],"cat_id"=>$category,"sponsor"=>$sponsor));
                     }
 
-                    header("location:".SITE_URL."transaction.php?".$args);
-                    exit;
+                    fromTrans($return, $args);
                 } else {
                     header("location:".CURRENT_PAGE.'?action=select_cat');
                     exit;
@@ -394,6 +394,9 @@
     else if($cancelEdit AND isset($_SESSION['product_cate_for_import'])){
         forImport($_SESSION['product_cate_for_import']['file_id']);
     }
+    else if($cancelEdit AND isset($_SESSION['product_cate_add_product_from_trans'])){
+        fromTrans(0,'');
+    }
     else if($action=='view_product'){
         if($category=='' || $category=='0')
         {
@@ -408,8 +411,10 @@
             $return =$instance->load_product_list();
     }
 
+    //-- Display Page, finally! --//
     $content = "product_cate";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
+
 
     //-- USER DEFINED FUNCTIONS --//
     function forImport($file_id) {
@@ -420,5 +425,20 @@
 
         unset($_SESSION['product_cate_for_import']);
         header("location:".SITE_URL."import.php".$args);
+    }
+    //-- Callback to Maintain Transactions --//
+    function fromTrans($added=0, $pArgs='') {
+        $sessionId = 'product_cate_add_product_from_trans';
+        $sendArguments =
+            '?action=edit_transaction'
+            .(empty($_SESSION['product_cate_add_product_from_trans']['redirect_id']) ? '' : '&id='.$_SESSION['product_cate_add_product_from_trans']['redirect_id'])
+            .(empty($pArgs) ? '' : '&'.trim($pArgs))
+        ;
+
+        header("location:".SITE_URL."transaction.php".$sendArguments);
+
+        if (isset($_SESSION[$sessionId])) {
+            unset($_SESSION[$sessionId]);
+        }
     }
 ?>
