@@ -236,7 +236,7 @@ PostResult( msg );
                                                 $count = 0;
                                                 if(isset($return) && $return != array())
                                                 {
-                                                $return = $instance->select_current_files();
+                                                $return = $instance->select_current_files(1);
                                                 foreach($return as $key=>$val){
                                                     $return_file_data_array = $instance->get_file_array($val['id']);
                                                     $isImportCompleted=$val['processed'] == 1 && $val['process_completed']==1;
@@ -261,7 +261,14 @@ PostResult( msg );
                                                         <td style="width: 15%;"><?php echo $val['file_type'];?></td>
                                                         <td><?php echo $val['source'];?></td>
                                                         <?php
-                                                        $total_processed_data = $instance->check_file_exception_process($val['id'],1);
+                                                        // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
+                                                        $detailTable = '';
+                                                        
+                                                        if (!in_array($val['file_type'], ['C1', 'DST Commission'])) {
+                                                            $detailTable = ($val['file_type']=='Security File') ? IMPORT_SFR_DETAIL_DATA : IMPORT_DETAIL_DATA;
+                                                        }
+                                                        
+                                                        $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
                                                         $count_processed_data = $total_processed_data['processed'];
                                                         $count_exception_data = $total_processed_data['exceptions'];
 
@@ -280,7 +287,7 @@ PostResult( msg );
                                                         <div class="progress">
                                                             <?php //echo $count_processed_data."/".$count_exception_data;?>
                                                         <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
-                                                            <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
+                                                            <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?> 
                                                             <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
                                                               <?php echo $total_complete_process.'%';?> Complete
                                                             </div>

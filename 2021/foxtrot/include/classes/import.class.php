@@ -647,7 +647,7 @@
                                     }
                                 }
                                 else if($resolveAction == 3)
-                                { // REASSIGN Broker/Client 
+                                { // REASSIGN Broker/Client
                                     if ($exception_field == "objectives"){
                                         $result = $this->resolve_exception_reassignClient($exception_file_type, $exception_file_id, $acc_for_client, $exception_data_id, $exception_record_id);
                                     } else {
@@ -810,7 +810,7 @@
                                     // MISSING DATA: "Client Account Number"
                                     // -> Assign trade to existing(or newly added) client
                                     $result = $this->resolve_exception_reassignClient($exception_file_type, $exception_file_id, $acc_for_client, $exception_data_id, $exception_record_id);
-                                    
+
                                     /************** Delete me. Replaces by the function above->resolve_exception_reassignClient
                                     // $q = "SELECT id,first_name,last_name FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `id`=".$acc_for_client;
                                     // $res = $this->re_db_query($q);
@@ -845,7 +845,7 @@
                                     //     }
                                     // }
                                     END: Delete Me - replaced by new UDF ***********************************/
-                                    
+
                                     break;
                                 default:
                                     // ACCOUNT NUMBER NOT FOUND - Add Account # to existing client (Error Code: 13)
@@ -2858,19 +2858,38 @@
 				return false;
 			}
        }
-       public function select_current_files(){
+       public function select_current_files($sfrBreakOut=0){
 			$return = array();
 
-			 $q = "SELECT `at`.*
-					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`=0 and `at`.`is_archived`='0' and `at`.`user_id`='".$_SESSION['user_id']."'
-                    ORDER BY `at`.`imported_date` DESC";
+            if ($sfrBreakOut){
+                // UNION in an SFR row, if one exists
+                $q = "SELECT `id`,`file_name`, `file_type`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`"
+                        ." FROM `".IMPORT_CURRENT_FILES."`"
+                        ." WHERE `is_delete`=0"
+                        ." AND `is_archived`=0"
+                    ." UNION"
+                        ." SELECT `b`.`id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`"
+                            ." FROM `".IMPORT_SFR_HEADER_DATA."` `a`"
+                            ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
+                            ." WHERE `b`.`is_delete`=0"
+                            ." AND `b`.`is_archived`=0"
+                    ." ORDER BY `file_name`"
+                ;
+            } else {
+                $q = "SELECT `at`.*"
+                        ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
+                        ." WHERE `at`.`is_delete`=0"
+                        ." AND `at`.`is_archived`=0"
+                        ." ORDER BY `at`.`imported_date` DESC"
+                ;
+            }
+
 			$res = $this->re_db_query($q);
+
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-
     			}
             }
 			return $return;
@@ -3064,7 +3083,7 @@
             }
 			return $return;
 		}
-        public function check_file_exception_process($file_id,$exceptionSummary=0){
+        public function check_file_exception_process($file_id, $exceptionSummary=0, $detailTableConstant=''){
 			$return = 0;
 
             if ($exceptionSummary==0){
@@ -3085,14 +3104,22 @@
             } else {
                 $return = ["file_id"=>$file_id, "file_name"=>'*Not Found*', "exceptions"=>0, "processed"=>0];
 
-                foreach ([IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA] AS $table){
+                if (empty($detailTableConstant)){
+                    $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA];
+                } else {
+                    $tableArray = [$detailTableConstant];
+                }
+
+                foreach ($tableArray AS $table){
                     $q = "SELECT `a`.`file_id`, `b`.`file_name`, SUM(if(`a`.`process_result`>0,0,1)) AS exceptions, SUM(if(`a`.`process_result`>0,1,0)) AS processed"
                         ." FROM `$table` `a`"
                         ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `a`.`file_id`=`b`.`id` AND `b`.`is_delete`=0"
                         ." WHERE `a`.`is_delete`=0 AND `file_id`=$file_id"
                         ." GROUP BY `a`.`file_id`, `b`.`file_name`"
                     ;
+
                     $res = $this->re_db_query($q);
+
                     if($this->re_db_num_rows($res)>0){
                         $fileTotals = $this->re_db_fetch_array($res);
                         $return['file_name'] = $fileTotals['file_name'];
