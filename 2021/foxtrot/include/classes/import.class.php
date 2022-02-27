@@ -3479,18 +3479,19 @@
                         ." ORDER BY `at`.`id` ASC"
                 ;
             } else if($customWhere != '') {
-                $q = "SELECT *"
-                        ." FROM `".IMPORT_EXCEPTION."`"
+                $q = "SELECT `at`.`*`, `em`.`error`"
+                        ." FROM `".IMPORT_EXCEPTION."` `at`"
+                        ." LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`"
                         ." WHERE $customWhere"
                         ." ORDER BY `id` ASC"
                 ;
             } else {
-                $q = "SELECT `at`.*,`em`.`error`
-                        FROM `".IMPORT_EXCEPTION."` AS `at`
-                        LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`
-                        LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                        WHERE `at`.`is_delete`=0 and `at`.`solved`='0' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
-                        ORDER BY `at`.`id` ASC"
+                $q = "SELECT `at`.*,`em`.`error`"
+                        ." FROM `".IMPORT_EXCEPTION."` AS `at`"
+                        ." LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`"
+                        ." LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`"
+                        ." WHERE `at`.`is_delete`=0 and `at`.`solved`='0' and `at`.`file_id`='".$file_id."'"
+                        ." ORDER BY `at`.`id` ASC"
                 ;
             }
 
@@ -3508,13 +3509,18 @@
         public function select_single_exception_data($file_id,$exception_id){
 			$return = array();
 
-			$q = "SELECT `at`.*,`em`.`error`
-					FROM `".IMPORT_EXCEPTION."` AS `at`
-                    LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`
-                    LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                    WHERE `at`.`is_delete`=0 and `at`.`solved`='0' and `at`.`file_id`='".$file_id."' and `at`.`temp_data_id`='".$exception_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*,`em`.`error`"
+					." FROM `".IMPORT_EXCEPTION."` AS `at`"
+                    ." LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`"
+                    ." LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`"
+                    ." WHERE `at`.`is_delete`=0"
+                    ." AND `at`.`solved`='0'"
+                    ." AND `at`.`file_id`='".$file_id."'"
+                    ." AND `at`.`temp_data_id`='".$exception_id."'"
+                    ." ORDER BY `at`.`id` ASC"
+            ;
 			$res = $this->re_db_query($q);
+
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){

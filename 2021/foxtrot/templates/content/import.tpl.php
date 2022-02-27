@@ -263,11 +263,11 @@ PostResult( msg );
                                                         <?php
                                                         // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
                                                         $detailTable = '';
-                                                        
+
                                                         if (!in_array($val['file_type'], ['C1', 'DST Commission'])) {
                                                             $detailTable = ($val['file_type']=='Security File') ? IMPORT_SFR_DETAIL_DATA : IMPORT_DETAIL_DATA;
                                                         }
-                                                        
+
                                                         $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
                                                         $count_processed_data = $total_processed_data['processed'];
                                                         $count_exception_data = $total_processed_data['exceptions'];
@@ -287,7 +287,7 @@ PostResult( msg );
                                                         <div class="progress">
                                                             <?php //echo $count_processed_data."/".$count_exception_data;?>
                                                         <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
-                                                            <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?> 
+                                                            <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
                                                             <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
                                                               <?php echo $total_complete_process.'%';?> Complete
                                                             </div>
@@ -307,6 +307,7 @@ PostResult( msg );
                                                             <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
                                                             <input type="hidden" name="note" value="save_note" />
                                                             <input type="text" maxlength="20" value="<?php echo isset($val['note'])?$val['note']:'';?>" name="note_<?php echo $val['id'];?>">
+                                                            <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type'];?>" />
                                                             </form>
                                                         </td>
                                                         <td style="width: 25%;">
@@ -315,13 +316,14 @@ PostResult( msg );
                                                                     <option value="0">Select Option</option>
                                                                     <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
                                                                     <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
-                                                                    <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
-                                                                    <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
+                                                                    <option value="3" <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
+                                                                    <option value="4" <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
                                                                     <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
                                                                     <option value="1" >Delete File</option>
                                                                     <!-- <option value="7" >Preview</option> -->
                                                                 </select>
                                                                 <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                                <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type'];?>" />
                                                                 <input type="hidden" name="go" value="go" />
                                                             </form>
                                                         </td>
@@ -450,7 +452,11 @@ PostResult( msg );
                                             <br />-->
                                             <?php
                                             $get_file_type = $instance->get_file_type($_GET['id']);
+                                            if (isset($_GET['file_type'])) {
+                                                $get_file_type = $_GET['file_type'];
+                                            }
                                             ?>
+
                                             <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                 <table id="data-table3" class="table table-bordered table-stripped table-hover">
                                                     <thead>
@@ -474,27 +480,29 @@ PostResult( msg );
                                                             <th>Security Type</th>
                                                         <?php } ?>
 
-
                                                         <th>Issue</th>
                                                         <th>Action</th>
                                                     </thead>
                                                     <tbody>
                                                         <?php
-                                                        $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
                                                         $existing_field_value = '';
-                                                        $return_exception = $instance->select_exception_data($file_id);
+                                                        $file_id = (isset($_GET['id'])) ? (int)$instance->re_db_input($_GET['id']) : 0;
+                                                        $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
+                                                        $return_exception = $instance->select_exception_data(0,0,"`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type");
+
                                                         foreach($return_exception as $error_key=>$error_val)
                                                         {
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '3')
                                                             {
                                                                 $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
-                                                                if($error_val['field'] == 'cusip_number')
-                                                                {
+                                                                if($error_val['field'] == 'cusip_number') {
                                                                     $existing_field_value = $return_sfr_existing_data['cusip_number'];
-                                                                }
-                                                                if($error_val['field'] == 'ticker_symbol')
-                                                                {
+                                                                } else if($error_val['field'] == 'ticker_symbol') {
                                                                     $existing_field_value = $return_sfr_existing_data['ticker_symbol'];
+                                                                } else if($error_val['field'] == 'fund_name') {
+                                                                    $existing_field_value = $return_sfr_existing_data['fund_name'];
+                                                                }else if($error_val['field'] == 'major_security_type') {
+                                                                    $existing_field_value = $return_sfr_existing_data['major_security_type'];
                                                                 }
                                                             }
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '1')

@@ -37,8 +37,20 @@
 
     if(isset($_POST['go'])&& $_POST['go']=='go'){
 
-        $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
-        $process_file = isset($_POST['process_file_'.$id])?$instance->re_db_input($_POST['process_file_'.$id]):'';
+        $id = isset($_POST['id']) ? $instance->re_db_input($_POST['id']) : 0;
+        $process_file = isset($_POST['process_file_'.$id]) ? $instance->re_db_input($_POST['process_file_'.$id]) : '';
+        // "File Type" is populated in select_current_files($file_id, sfrBreakout) function
+        if (!isset($_POST['process_file_type'])) {
+            $file_type = 1;
+        } else if ($_POST['process_file_type'] == 'DST Commission'){
+            $file_type = 2;    
+        } else if ($_POST['process_file_type'] == 'Security File'){
+            $file_type = 3;
+        } else {
+            $file_type = 1;
+        }
+
+        // Action Choices
         if(isset($process_file) && $process_file == 1)
         {
             $return = $instance->delete_current_files($id);
@@ -58,7 +70,7 @@
         }
         else if(isset($process_file) && $process_file == 4)
         {
-            header("location:".CURRENT_PAGE."?tab=review_files&id=".$id);exit;
+            header("location:".CURRENT_PAGE."?tab=review_files&id=$id&file_type=$file_type");exit;
         }
         else if(isset($process_file) && $process_file == 5)
         {
