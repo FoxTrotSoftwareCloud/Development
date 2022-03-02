@@ -2201,11 +2201,18 @@
                         $result = $last_inserted_id = 0;
 
                         if(empty(trim($check_data_val['major_security_type'])) OR (empty(trim($check_data_val['fund_name'])) AND empty(trim($check_data_val['product_name']))) ){
+                            $field = 'major_security_type';
+                            if (empty(trim($check_data_val['fund_name']))) {
+                                $field = 'fund_name';
+                            } else if (empty(trim($check_data_val['product_name']))) {
+                                $field = 'product_name';
+                            }
+                            
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
                                     ." `file_id`='".$check_data_val['file_id']."'"
                                     .",`error_code_id`=13"
-                                    .",`field`='major_security_type'"
+                                    .",`field`='$field'"
                                     .",`file_type`='3'"
                                     .",`temp_data_id`='".$check_data_val['id']."'"
                                     .",`date`='".date('Y-m-d')."'"
@@ -2995,10 +3002,13 @@
         public function select_archive_files(){
 			$return = array();
 
-			$q = "SELECT `at`.*
-					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`=0 and `at`.`process_completed`='1' and `at`.`is_archived`='1' and `at`.`user_id`='".$_SESSION['user_id']."'
-                    ORDER BY `at`.`imported_date` DESC";
+			$q = "SELECT `at`.*"
+					." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
+                    ." WHERE `at`.`is_delete`=0"
+                      ." AND `at`.`process_completed`='1'"
+                      ." AND `at`.`is_archived`='1'"
+                    ." ORDER BY `at`.`imported_date` DESC"
+            ;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -3533,10 +3543,11 @@
         public function select_existing_sfr_data($temp_data_id){
 			$return = array();
 
-			$q = "SELECT `sfr`.*
-					FROM `".IMPORT_SFR_DETAIL_DATA."` AS `sfr`
-                    WHERE `sfr`.`is_delete`=0 and `sfr`.`id`='".$temp_data_id."'
-                    ORDER BY `sfr`.`id` ASC";
+			$q = "SELECT `sfr`.*"
+					." FROM `".IMPORT_SFR_DETAIL_DATA."` AS `sfr`"
+                    ." WHERE `sfr`.`is_delete`=0 and `sfr`.`id`='".$temp_data_id."'"
+                    ." ORDER BY `sfr`.`id` ASC"
+            ;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -3611,20 +3622,24 @@
             }
 			return $return;
 		}
-        public function select_solved_exception_data($file_id){
+        public function select_solved_exception_data($file_id, $file_type=0){
 			$return = array();
+            $con = ($file_type) ? " AND `at`.`file_type`=".$file_type : '';
 
-			$q = "SELECT `at`.*
-					FROM `".IMPORT_EXCEPTION."` AS `at`
-                    LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                    WHERE `at`.`is_delete`=0 and `at`.`solved`='1' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*"
+					." FROM `".IMPORT_EXCEPTION."` AS `at`"
+                    ." LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`"
+                    ." WHERE `at`.`is_delete`=0"
+                      ." AND `at`.`solved`='1'"
+                      ." AND `at`.`file_id`='".$file_id."'"
+                      .$con
+                    ." ORDER BY `at`.`id` ASC"
+            ;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-
     			}
             }
 			return $return;

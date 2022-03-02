@@ -28,6 +28,7 @@
     $get_client = $instance_client->select(1);
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor();
+    $instance_batches = new batches();
 
     if(isset($_GET['id']) && $_GET['id'] !='')
     {
