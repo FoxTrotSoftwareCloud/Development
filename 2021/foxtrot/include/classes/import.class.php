@@ -995,7 +995,7 @@
                             // Check if this update can clear other exceptions in the file
                             // Clear all the Exceptions for the same Exception and CUSIP #
                             $sfrDetail = $this->select_existing_sfr_data($exception_data_id);
-                            
+
                             $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`CUSIP_number`"
                                     ." FROM `".IMPORT_EXCEPTION."` `ex`"
                                     ." LEFT JOIN `".IMPORT_SFR_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
@@ -1706,7 +1706,11 @@
                     /*************************************************
                      * DST CLIENT DATA (NFA(07) / NAA(08) / AMP(09))
                      *************************************************/
-                    $check_fanmail_array = $this->get_fanmail_detail_data($file_id, 0);
+                    $check_fanmail_array = [];
+                    if ($detail_record_id==0 OR $file_type==1) {
+                        $check_fanmail_array = $this->get_fanmail_detail_data($file_id, 0, ($file_type==1 AND $detail_record_id>0) ? $detail_record_id : 0);
+                    }
+
                     $dataSettings = $dataClass->edit(2, $_SESSION['user_id']);
 
                     foreach($check_fanmail_array as $check_data_key=>$check_data_val) {
@@ -2047,15 +2051,33 @@
                     /***********************************
                     * SFR PROCESS security-file data
                     ************************************/
-                    $check_sfr_array = $this->get_sfr_detail_data($file_id, 0);
-
+                    $check_sfr_array = [];
+                    if ($detail_record_id==0 OR $file_type==3) {
+                        $check_sfr_array = $this->get_sfr_detail_data($file_id, 0, ($file_type==3 AND $detail_record_id>0) ? $detail_record_id : 0);
+                    }
+                    
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform(IMPORT_SFR_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
 
                         $result = $last_inserted_id = 0;
+                        $productCategoryQuery = '';
+                        
+                        // Exception intervention in resolve exception() by user(reassign client OR broker)
+                        $reassignProductCategory =  0;
 
-                        if(empty(trim($check_data_val['major_security_type'])) OR (empty(trim($check_data_val['fund_name'])) AND empty(trim($check_data_val['product_name']))) ){
+                        if ($check_data_val['resolve_exceptions'] != ''){
+                            $exceptionArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
+                            // Cycle through the "resolves" the user entered to flag any defaults to rep, client, or hold(i.e. pass the exception through)
+                            foreach ($exceptionArray AS $errorKey=>$errorRow){
+                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['major_security_type'])){
+                                    // Assign error code so the program knows why(error code id#) it's skipping the exception validation
+                                    $reassignProductCategory = $errorKey;
+                                }
+                            }
+                        }
+
+                        if((empty(trim($check_data_val['major_security_type'])) AND $reassignProductCategory==0) OR (empty(trim($check_data_val['fund_name'])) AND empty(trim($check_data_val['product_name']))) ){
                             $field = 'major_security_type';
                             if (empty(trim($check_data_val['fund_name']))) {
                                 $field = 'fund_name';
@@ -2076,11 +2098,17 @@
                             ;
                             $res = $this->re_db_query($q);
                         } else {
+                            // Reassign Product Category is done in Resolve Exceptions
+                            if ($reassignProductCategory AND $check_data_val['product_category_id']>0){
+                                $productCategoryQuery = " AND `id`=".$check_data_val['product_category_id'];
+                            } else {
+                                $productCategoryQuery = " AND `type_code`='".$check_data_val['major_security_type']."'";
+                            }
                             // Check: PRODUCT TYPE/CATEGORY
                             $q = "SELECT `id` FROM `".PRODUCT_TYPE."`"
                                     ." WHERE `is_delete`=0"
-                                        ." AND `status`='1'"
-                                        ." AND `type_code`='".$check_data_val['major_security_type']."'"
+                                    ." AND `status`='1'"
+                                    .$productCategoryQuery
                             ;
                             $res_ProductCategory = $this->re_db_query($q);
 
@@ -2196,8 +2224,11 @@
                     /***********************************
                     * IDC PROCESS commission data
                     ************************************/
-                    $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($file_type==2 AND $detail_record_id>0) ? $detail_record_id : 0);
-
+                    $check_idc_array = [];
+                    if ($detail_record_id==0 OR $file_type==2) {
+                        $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($file_type==2 AND $detail_record_id>0) ? $detail_record_id : 0);
+                    }
+                    
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform(IMPORT_IDC_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']." AND `is_delete`=0");
@@ -2995,7 +3026,7 @@
             }
 			return $return;
 		}
-        public function get_fanmail_detail_data($id, $process_result=null){
+        public function get_fanmail_detail_data($id, $process_result=null, $record_id=0){
 			$return = array();
 			$con = '';
 
@@ -3008,6 +3039,11 @@
                 } else {
                     $con = " AND `at`.`process_result` = '$process_result'";
                 }
+            }
+
+            if ($record_id){
+                $record_id = (int)$this->re_db_input($record_id);
+                $con .= " AND `at`.`id`=$record_id";
             }
 
 			$q = "SELECT `at`.*"
@@ -3026,15 +3062,20 @@
             }
 			return $return;
 		}
-        public function get_sfr_detail_data($id, $process_result=null){
+        public function get_sfr_detail_data($id, $process_result=null, $record_id=0){
 			$return = array();
             $con = '';
 
-            if (!is_null($process_result)) {
+            if (!is_null($process_result)){
                 $con = " AND (`at`.`process_result` = '".$process_result."'"
                        .($process_result==0 ? " OR `at`.`process_result` IS NULL" : "")
                        .")"
                 ;
+            }
+
+            if ($record_id){
+                $record_id = (int)$this->re_db_input($record_id);
+                $con .= " AND `at`.`id`=$record_id";
             }
 
 			$q = "SELECT `at`.*
@@ -3044,11 +3085,11 @@
                       .$con."
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
+
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-
     			}
             }
 			return $return;

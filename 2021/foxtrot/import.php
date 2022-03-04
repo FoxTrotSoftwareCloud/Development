@@ -71,7 +71,8 @@
         }
         else if(isset($process_file) && $process_file == 4)
         {
-            header("location:".CURRENT_PAGE."?tab=review_files&id=$id&file_type=$file_type");exit;
+            header("location:".CURRENT_PAGE."?tab=review_files&id=$id&file_type=$file_type");
+            exit;
         }
         else if(isset($process_file) && $process_file == 5)
         {
@@ -172,7 +173,8 @@
         $return = $instance->resolve_exceptions($_POST);
 
         if($return===true){
-            echo '1';exit;
+            echo '1';
+            exit;
         }else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }

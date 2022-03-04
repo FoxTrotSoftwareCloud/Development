@@ -151,55 +151,58 @@ PostResult( msg );
 		        <div class="graphboxtitle">Import </div>
 				<div class="graphboxcontent">
                 <div class="tab-content col-md-12">
-                <?php if(isset($_GET['tab']) && ($_GET['tab']=="review_files" || $_GET['tab']=="processed_files") && $_GET['id']>0){
-                    $get_file_data = $instance->select_user_files($_GET['id']);
-                    ?>
-                <h3>Review & Resolve Exceptions</h3><br />
-                <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php if(isset($get_file_data['file_type'])){ echo $get_file_data['file_type']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
+
+                <!-- Record Grid -> RESOLVE EXCEPTIONS & PROCESSED Tabs -->
                 <?php
-                $get_file_type = $instance->get_file_type($_GET['id']);
-                if($get_file_type == 2){?>
-                <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount,2);?></h4>
-                <?php } } ?>
-                <?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files" && $_GET['id']>0){
+                if(isset($_GET['tab']) && ($_GET['tab']=="review_files" || $_GET['tab']=="processed_files") && $_GET['id']>0){
                     $get_file_data = $instance->select_user_files($_GET['id']);
-                    ?>
-                <h3>Preview Data</h3><br />
-                <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php if(isset($get_file_data['file_type'])){ echo $get_file_data['file_type']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
-                <?php
-                $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
+                    $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
+                    $fileTypeDescription = ($get_file_type==3) ? 'Security File' : $get_file_data['file_type'] ;
 
-                $get_file_type =  '';
-                $get_file_type_source = $instance->get_current_file_type($file_id);
+                    if ($_GET['tab']=="review_files") { ?>
+                        <h3>Review & Resolve Exceptions</h3><br />
+                        <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
 
-                if($get_file_type_source == 'DSTFANMail') {
-                    $get_file_type = 1;
-                } else if($get_file_type_source == 'DSTIDC') {
-                    $get_file_type = 2;
-                }
+                        <?php if($get_file_type == 2){ ?>
+                            <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount,2);?></h4>
+                        <?php }
+                    } else { ?>
+                        <h3>Preview Data</h3><br />
+                        <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
+                        <?php
+                        $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
+                        $get_file_type =  '';
+                        $get_file_type_source = $instance->get_current_file_type($file_id);
 
-                if(isset($get_file_type) && $get_file_type == 2)
-                {
-                    $return_file_data_array = $instance->get_file_array($file_id);
-                    $total_amount = 0;
+                        if($get_file_type_source == 'DSTFANMail') {
+                            $get_file_type = 1;
+                        } else if($get_file_type_source == 'DSTIDC') {
+                            $get_file_type = 2;
+                        }
 
-                    foreach($return_file_data_array as $preview_key=>$preview_val)
-                    {
-                        $total_amount += $preview_val['dealer_commission_amount'];
+                        if(isset($get_file_type) && $get_file_type == 2)
+                        {
+                            $return_file_data_array = $instance->get_file_array($file_id);
+                            $total_amount = 0;
+
+                            foreach($return_file_data_array as $preview_key=>$preview_val)
+                            {
+                                $total_amount += $preview_val['dealer_commission_amount'];
+                            }
+                            $total_commission_amount = $total_amount; ?>
+
+                            <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount/100,2);?></h4>
+                        <?php }
                     }
-                    $total_commission_amount = $total_amount; ?>
+                } ?>
 
-                    <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount/100,2);?></h4>
-                <?php } ?>
-
-                // Record Grid -> RESOLVE EXCEPTIONS & PROCESSED Tabs
-                <?php } ?>
+                <!-- Import Grid -->
                 <div class="tab-pane active" id="tab_a"><?php if(isset($_GET['tab']) && ($_GET['tab']=="current_files" || $_GET['tab']=="archived_files") || !isset($_GET['tab'])){?>
                     <ul class="nav nav-tabs ">
                       <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="current_files"){ echo "active"; }else if(!isset($_GET['tab'])){echo "active";}else{ echo '';} ?>" ><a href="#current_files" data-toggle="tab">Current Files</a></li>
@@ -253,11 +256,20 @@ PostResult( msg );
                                                         $sponsor = isset($sponsor_detail['name'])?$sponsor_detail['name']:'';
                                                         //echo '<pre>';print_r($system_id.','.$management_code);
                                                         $file_batch_id = $instance->get_file_batch($val['id']);
+                                                        if (!isset($val['file_type'])) {
+                                                            $file_type_id = 1;
+                                                        } else if ($val['file_type'] == 'DST Commission'){
+                                                            $file_type_id = 2;
+                                                        } else if ($val['file_type'] == 'Security File'){
+                                                            $file_type_id = 3;
+                                                        } else {
+                                                            $file_type_id = 1;
+                                                        }
 
                                                         if(isset($val['imported_date']) && $val['imported_date']!= '') {?>
                                                             <tr>
                                                                 <td><?php echo in_array($val['file_type'], ['C1', 'DST Commission'])?$file_batch_id:'N/A';?></td>
-                                                                <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id=".$val['id'];?>"><?php echo $sponsor;?></a></td>
+                                                                <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id={$val['id']}&file_type=$file_type_id" ;?>"><?php echo $sponsor;?></a></td>
                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
                                                                 <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
                                                                 <td style="width: 10%;"><?php echo $val['file_name'];?></td>
@@ -608,21 +620,22 @@ PostResult( msg );
                                                         ?>
                                                         <tr>
                                                             <td><?php echo date('m/d/Y',strtotime($error_val['date']));?></td>
-                                                            <?php if(isset($get_file_type) && in_array($get_file_type, ['1', '2'])) { ?>
+                                                            <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2'])) { ?>
                                                                 <td><?php echo $error_val['rep'];?></td>
                                                                 <td><?php echo $error_val['rep_name'];?></td>
                                                                 <td><?php echo $error_val['account_no'];?></td>
                                                                 <td><?php echo $error_val['client'];?></td>
                                                             <?php } ?>
 
-                                                            <?php if(isset($get_file_type) && $get_file_type == '1'){
+                                                            <?php if(isset($error_val['file_type']) && $error_val['file_type'] == '1'){
                                                                 $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']); ?>
                                                                 <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                            <?php } else if(isset($get_file_type) && $get_file_type == '2') { ?>
+                                                            <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '2') { ?>
                                                                 <td><?php echo $error_val['cusip'];?></td>
                                                                 <td style="text-align: right;"><?php if($error_val['principal'] > 0){ echo '$'.number_format($error_val['principal'],2);}else{ echo '$0';}?></td>
                                                                 <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
-                                                            <?php } else if(isset($get_file_type) && $get_file_type == '3') { ?>
+                                                            <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '3') { ?>
+                                                                <?php $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']); ?>
                                                                 <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
                                                                 <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
                                                                 <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
@@ -1222,7 +1235,7 @@ PostResult( msg );
             </div>
         </div>
         <br />
-        <div class="col-md-12" style="alignment-adjust: central;">
+        <div class="col-md-12" style="text-align: center;">
             <form method="post" id="resolve_exception_form" name="resolve_exception_form" onsubmit="return exception_submit();">
                 <div class="row"> <!--text-right"-->
                 <div class="col-md-5">
@@ -1243,7 +1256,7 @@ PostResult( msg );
                         <select name="sponsor" id="sponsor" class="form-control" style="display: none;">
                             <option value="">Select Sponsor</option>
                             <?php foreach($get_sponsor as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
+                                <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
                             <?php } ?>
                         </select>
                         <select name="objectives" id="objectives" class="form-control" style="display: none;">
@@ -1422,7 +1435,7 @@ PostResult( msg );
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="exception_record_id" id="exception_record_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
-        	            <button type="submit" style="alignment-adjust: central !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
+        	            <button type="submit" style="text-align: center !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
                     </div>
                 </div>
                 <div class="col-md-5" id="link_div">
@@ -1877,7 +1890,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#assign_cusip_to_product").css("display","block");
         $(".row #assign_cusip_to_product_row_cusip").css("display","none");
         $("#assign_cusip_to_product_row_product").css("display","none");
- 
+
         document.getElementById("exception_value").value = existing_field_value;
         document.getElementById("exception_value_dis").value = existing_field_value;
         $("#exception_value").prop( "disabled", true );
@@ -1899,7 +1912,7 @@ function exception_submit()
       data: $("#resolve_exception_form").serialize(), // serializes the form's elements.
       success: function(data){
           if(data=='1'){
-               window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>;//get_client_notes();
+               window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>+"&file_type="+<?php echo $file_type; ?>;//get_client_notes();
           }
           else{
                $('#msg_exception').html('<div class="alert alert-danger">'+data+'</div>');
