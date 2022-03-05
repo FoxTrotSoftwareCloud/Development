@@ -456,7 +456,7 @@ PostResult( msg );
                          </ul> <?php } ?> <br />
                           <!-- Tab 1 is started -->
                             <div class="tab-content">
-                            <div class="tab-pane <?php if(isset($_GET['tab']) &&$_GET['tab']=="review_files" && $_GET['id']>0){ echo "active"; } ?>" id="review_files">
+                            <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="review_files" && $_GET['id']>0){ echo "active"; } ?>" id="review_files">
 
                                 <div class="panel-overlay-wrap">
                                     <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
@@ -635,7 +635,13 @@ PostResult( msg );
                                                                 <td style="text-align: right;"><?php if($error_val['principal'] > 0){ echo '$'.number_format($error_val['principal'],2);}else{ echo '$0';}?></td>
                                                                 <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
                                                             <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '3') { ?>
-                                                                <?php $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']); ?>
+                                                                <?php 
+                                                                    $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
+                                                                    $fundName = $return_sfr_existing_data['fund_name'];
+                                                                    $cusipNumber = $return_sfr_existing_data['cusip_number'];
+                                                                    $tickerSymbol = $return_sfr_existing_data['ticker_symbol'];
+                                                                    $productCategoryId = $return_sfr_existing_data['product_category_id'];
+                                                                ?>
                                                                 <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
                                                                 <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
                                                                 <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
@@ -1235,7 +1241,7 @@ PostResult( msg );
             </div>
         </div>
         <br />
-        <div class="col-md-12" style="text-align: center;">
+        <div class="col-md-12" > <!--deprecated 03/04/22 -- style="alignment-adjustment: center;"-->
             <form method="post" id="resolve_exception_form" name="resolve_exception_form" onsubmit="return exception_submit();">
                 <div class="row"> <!--text-right"-->
                 <div class="col-md-5">
@@ -1347,7 +1353,7 @@ PostResult( msg );
                         <div class="row" id="assign_cusip_to_product_row_cusip">
                             <div class="col-md-5">
                                 <div class="inputpopup">
-                                    <label class="pull-right">CUSIP # to Assign: </label>
+                                    <label class="pull-right" id="label_cusip_number">CUSIP # to Assign: </label>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -1368,7 +1374,7 @@ PostResult( msg );
                                     <select name="assign_cusip_product_category" id="assign_cusip_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
                                         <option value="0">Select Category</option>
                                         <?php foreach($get_product_category as $key=>$val){?>
-                                        <option value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>
+                                        <option value="<?php echo $val['id'];?>" <?php echo (isset($productCategoryId) AND $val['id']==$productCategoryId)?"selected":"" ?>><?php echo $val['type'];?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -1435,7 +1441,8 @@ PostResult( msg );
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="exception_record_id" id="exception_record_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
-        	            <button type="submit" style="text-align: center !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
+        	            <button type="submit" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
+                        <!--Deprecated 03/04/22 -- style="alignment-adjustment: center !important;" -->
                     </div>
                 </div>
                 <div class="col-md-5" id="link_div">
@@ -1706,22 +1713,6 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#exception_value_date_display").prop('disabled','true');
         $("#exception_value").css('display','none');
     }
-    // else
-    // {
-    //     document.getElementById("field_label").innerHTML = exception_field;
-    //     $("#exception_value_date").css('display','none');
-    //     $("#exception_value_date_display").css('display','none');
-    //     if(exception_file_type == '1')
-    //     {
-    //         $("#broker_termination_options_clients").css('display','none');
-    //     }
-    //     if(exception_file_type == '2')
-    //     {
-    //         $("#broker_termination_options_trades").css('display','none');
-    //     }
-    //     document.getElementById("exception_value_date").value = '';
-    //     $("#exception_value").css('display','block');
-    // }
 
     if(exception_field == 'status')
     {
@@ -1885,6 +1876,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         }
 
     }
+
     if (error_code_id == '17'){
         document.getElementById("field_label").innerHTML = 'Security Type';
         $("#assign_cusip_to_product").css("display","block");
@@ -1899,6 +1891,20 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#exception_value_dis").css('display','block');
     }
 
+    if (['major_security_type', 'cusip_number', 'fund_name'].includes(exception_field) && error_code_id == 13){
+        const parentRow = '#assign_cusip_to_product';
+        
+        $(parentRow).css("display","block");
+        $(parentRow + " #label_cusip_number").html("Cusip #");
+        $(parentRow + "_row_product").css("display","none");
+
+        $("#field_label").html("Fund Name");
+        $("#field_label").css("display","block");
+        $("#exception_value").css("display","block");
+        $("#exception_value").val("<?php echo $fundName ?>");
+        $(parentRow + " #CUSIP_number").val("<?php echo $cusipNumber ?>");
+        $(parentRow + " #CUSIP_number").prop("disabled", false);
+    }
 }
 function exception_submit()
 {
