@@ -2099,15 +2099,15 @@
                     if ($detail_record_id==0 OR $file_type==3) {
                         $check_sfr_array = $this->get_sfr_detail_data($file_id, 0, ($file_type==3 AND $detail_record_id>0) ? $detail_record_id : 0);
                     }
-                    
+
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform(IMPORT_SFR_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
 
                         $result = $last_inserted_id = 0;
                         $productCategoryQuery = '';
-                        
-                        // Exception intervention in resolve exception() by user(reassign client OR broker)
+
+                        // Resolve exception() by user (edited Category/CUSIP and/or Name)
                         $reassignProductCategory =  0;
 
                         if ($check_data_val['resolve_exceptions'] != ''){
@@ -2120,7 +2120,7 @@
                                 }
                             }
                         }
-
+                        // Missing data
                         if((empty(trim($check_data_val['major_security_type'])) AND $reassignProductCategory==0) OR (empty(trim($check_data_val['fund_name'])) AND empty(trim($check_data_val['product_name']))) ){
                             $field = 'major_security_type';
                             if (empty(trim($check_data_val['fund_name']))) {
@@ -2141,14 +2141,16 @@
                                     .$this->insert_common_sql()
                             ;
                             $res = $this->re_db_query($q);
-                        } else {
+                            $result += 1;
+                        }
+                        else {
                             // Reassign Product Category is done in Resolve Exceptions
                             if ($reassignProductCategory AND $check_data_val['product_category_id']>0){
                                 $productCategoryQuery = " AND `id`=".$check_data_val['product_category_id'];
                             } else {
                                 $productCategoryQuery = " AND `type_code`='".$check_data_val['major_security_type']."'";
                             }
-                            // Check: PRODUCT TYPE/CATEGORY
+                            // VALIDATION: Product Category
                             $q = "SELECT `id` FROM `".PRODUCT_TYPE."`"
                                     ." WHERE `is_delete`=0"
                                     ." AND `status`='1'"
@@ -2170,7 +2172,8 @@
                                         .$this->insert_common_sql()
                                 ;
                                 $res = $this->re_db_query($q);
-                            } else {
+                            }
+                            else {
                                 // 1/19/22 Product Category Refactor - consolidate all products into 'PRODUCT_LIST', and use `ft_product_categories` i/o `ft_product_types`
                                 // Check: CUSIP & SYMBOL
                                 $array_ProductCategory = $this->re_db_fetch_array($res_ProductCategory);
@@ -2219,8 +2222,8 @@
                                         ." WHERE `id`=".$check_data_val['id']." AND `is_delete`=0"
                                     ;
                                     $res = $this->re_db_query($q);
-
-                                } else {
+                                } 
+                                else {
                                     // Checks Passed: INSERT PRODUCT
                                     $q = "INSERT INTO `".PRODUCT_LIST."`"
                                         ." SET"
