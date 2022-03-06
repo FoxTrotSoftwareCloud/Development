@@ -134,9 +134,9 @@
                 $exception_value = isset($data['objectives'])?$this->re_db_input($data['objectives']):'';
             } else if($exception_field == 'sponsor'){
                 $exception_value = isset($data['sponsor'])?$this->re_db_input($data['sponsor']):'';
-            } else if($exception_field == 'CUSIP_number' && $error_code_id == '13'){
+            } else if($exception_field == 'cusip_number' && $error_code_id == '13'){
                 $exception_value = isset($data['cusip_number'])?$this->re_db_input($data['cusip_number']):'';
-            } else if($exception_field == 'CUSIP_number' && $error_code_id == '11'){
+            } else if($exception_field == 'cusip_number' && $error_code_id == '11'){
                 $exception_value = isset($data['assign_cusip_number'])?$this->re_db_input($data['assign_cusip_number']):'';
             } else if($exception_field == 'alpha_code'){
                 $exception_value = isset($data['alpha_code'])?$this->re_db_input($data['alpha_code']):'';
@@ -178,6 +178,25 @@
             if($exception_field == 'customer_account_number' && $acc_for_client == '')
             {
                 $this->errors = 'Please select client.';
+            }
+            if($exception_file_type == 3 && $error_code_id == 13)
+            {
+                // Adding product, make sure all the fields are populated
+                $resultMessage = '';
+                
+                if (empty($exception_value)){
+                    $resultMessage .= 'Please enter Fund Name.';
+                }
+                if (empty($data['cusip_number'])){
+                    $resultMessage .= ' Please enter CUSIP number.';
+                }
+                if (empty($data['assign_cusip_product_category'])){
+                    $resultMessage .= ' Please select a Product Category.';
+                }
+
+                if ($resultMessage != ''){
+                    $this->errors = $resultMessage;
+                }
             }
 
             if($this->errors!=''){
@@ -507,7 +526,7 @@
                                 $instance_broker = new broker_master();
                                 $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
                                 $clientDetail = $instance_client->get_client_name($idcDetailRow['client_id']);
-                                $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['CUSIP_number'])."'");
+                                $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['cusip_number'])."'");
                                 $licenceDetail = $this->checkStateLicence($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1);
 
                                 if (!empty($licenceDetail['licence_table']) AND !empty($licenceDetail['state_id'])){
@@ -872,7 +891,7 @@
                             break;
                     }
                 }
-                else if($exception_field == 'CUSIP_number')
+                else if($exception_field == 'cusip_number')
                 {
                     // Missing CUSIP -> Replace cusip number in the data for processing
                     if ($resolveAction == 5){
@@ -941,14 +960,14 @@
 
                         // Check if this update can clear other exceptions in the file
                         // Clear all the Exceptions for the same Exception and Client #
-                        $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`CUSIP_number`"
+                        $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`cusip_number`"
                                 ." FROM `".IMPORT_EXCEPTION."` `ex`"
                                 ." LEFT JOIN `".IMPORT_IDC_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
                                 ." WHERE `ex`.`file_id`=$exception_file_id"
                                 ." AND `ex`.`file_type`=$exception_file_type"
                                 ." AND `ex`.`error_code_id`=$error_code_id"
                                 ." AND `ex`.`is_delete`=0"
-                                ." AND `det`.`CUSIP_number`='".$exception_value."'"
+                                ." AND `det`.`cusip_number`='".$exception_value."'"
                         ;
                         $res = $this->re_db_query($q);
 
@@ -996,7 +1015,7 @@
                             // Clear all the Exceptions for the same Exception and CUSIP #
                             $sfrDetail = $this->select_existing_sfr_data($exception_data_id);
 
-                            $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`CUSIP_number`"
+                            $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`cusip_number`"
                                     ." FROM `".IMPORT_EXCEPTION."` `ex`"
                                     ." LEFT JOIN `".IMPORT_SFR_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
                                     ." WHERE `ex`.`file_id`=$exception_file_id"
@@ -1018,7 +1037,32 @@
                     }
                 }
 
-                if($exception_field == 'ticker_symbol') {
+                if($error_code_id == '13') {
+                    // Missing data - Name/Cusip/Product Category
+                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                        ." SET `fund_name` = '".$this->re_db_input(strtoupper($exception_value))."'"
+                            .", `product_category_id`={$data['assign_cusip_product_category']}"
+                            .", `cusip_number`='".$this->re_db_input($data['cusip_number'])."'"
+                                .$this->update_common_sql()
+                        ." WHERE `id`='".$exception_data_id."'"
+                        ;
+                    $res = $this->re_db_query($q);
+
+                    if ($res){
+                        // Update "resolve_exception" field to flag detail as "special handling" record
+                        $res = $this->read_update_serial_field(IMPORT_SFR_DETAIL_DATA, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
+
+                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                ." SET `resolve_action`=3"
+                                        .$this->update_common_sql()
+                                ." WHERE `id`=".$exception_record_id
+                        ;
+                        $res = $this->re_db_query($q);
+                    }
+
+                    if($res){
+                        $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
+                    }
                 }
             }
 
@@ -1571,7 +1615,7 @@
                                 $commission_record_type_code = substr($val_string, 0, 1);
                                 if($commission_record_type_code == '1' || $commission_record_type_code == '3')
                                 {
-                                    $data_array[$array_key]['DETAIL'][$commission_record_type_code][] = array("commission_record_type_code" => substr($val_string, 0, 1),"dealer_number" => substr($val_string, 1, 7),"dealer_branch_number" => substr($val_string, 8, 9),"representative_number" => trim(substr($val_string, 17, 9)),"representative_name" => substr($val_string, 26, 30),"CUSIP_number" => substr($val_string, 56, 9),"alpha_code" => substr($val_string, 65, 10),"trade_date" => substr($val_string, 75, 8),"gross_transaction_amount" => substr($val_string, 83, 15),"gross_amount_sign_code" => substr($val_string, 98, 1),"dealer_commission_amount" => substr($val_string, 99, 15),"commission_rate" => substr($val_string, 114, 5),"customer_account_number" => substr($val_string, 119, 20),"account_number_type_code" => substr($val_string, 139, 1),"purchase_type_code" => substr($val_string, 140, 1),"social_code" => substr($val_string, 141, 3),"cumulative_discount_number" => substr($val_string, 144, 9),"letter_of_intent(LOI)_number" => substr($val_string, 153, 9),"social_security_number" => substr($val_string, 162, 9),"social_security_number_status_code" => substr($val_string, 171, 1),"transaction_share_count" => substr($val_string, 172, 15),"share_price_amount" => substr($val_string, 187, 9),"resident_state_country_code" => substr($val_string, 196, 3),"dealer_commission_sign_code" => substr($val_string, 199, 1));
+                                    $data_array[$array_key]['DETAIL'][$commission_record_type_code][] = array("commission_record_type_code" => substr($val_string, 0, 1),"dealer_number" => substr($val_string, 1, 7),"dealer_branch_number" => substr($val_string, 8, 9),"representative_number" => trim(substr($val_string, 17, 9)),"representative_name" => substr($val_string, 26, 30),"cusip_number" => substr($val_string, 56, 9),"alpha_code" => substr($val_string, 65, 10),"trade_date" => substr($val_string, 75, 8),"gross_transaction_amount" => substr($val_string, 83, 15),"gross_amount_sign_code" => substr($val_string, 98, 1),"dealer_commission_amount" => substr($val_string, 99, 15),"commission_rate" => substr($val_string, 114, 5),"customer_account_number" => substr($val_string, 119, 20),"account_number_type_code" => substr($val_string, 139, 1),"purchase_type_code" => substr($val_string, 140, 1),"social_code" => substr($val_string, 141, 3),"cumulative_discount_number" => substr($val_string, 144, 9),"letter_of_intent(LOI)_number" => substr($val_string, 153, 9),"social_security_number" => substr($val_string, 162, 9),"social_security_number_status_code" => substr($val_string, 171, 1),"transaction_share_count" => substr($val_string, 172, 15),"share_price_amount" => substr($val_string, 187, 9),"resident_state_country_code" => substr($val_string, 196, 3),"dealer_commission_sign_code" => substr($val_string, 199, 1));
                                 }
                             }
                             else if(isset($record_type) && $record_type == 'RTR')
@@ -1596,7 +1640,7 @@
                                 {
                                     foreach($detail_val as $seq_key=>$seq_val)
                                     {
-                                        $q = "INSERT INTO `".IMPORT_IDC_DETAIL_DATA."` SET `file_id`='".$id."',`idc_header_id`='".$rhr_inserted_id."',`commission_record_type_code`='".$seq_val['commission_record_type_code']."',`dealer_number`='".$seq_val['dealer_number']."',`dealer_branch_number`='".$seq_val['dealer_branch_number']."',`representative_number`='".trim($seq_val['representative_number'])."',`representative_name`='".$seq_val['representative_name']."',`CUSIP_number`='".$seq_val['CUSIP_number']."',`alpha_code`='".$seq_val['alpha_code']."',`trade_date`='".date('Y-m-d',strtotime($seq_val['trade_date']))."',`gross_transaction_amount`='".($seq_val['gross_transaction_amount']/100)."',`gross_amount_sign_code`='".$seq_val['gross_amount_sign_code']."',`dealer_commission_amount`='".($seq_val['dealer_commission_amount']/100)."',`commission_rate`='".$seq_val['commission_rate']."',`customer_account_number`='".$seq_val['customer_account_number']."',`account_number_type_code`='".$seq_val['account_number_type_code']."',`purchase_type_code`='".$seq_val['purchase_type_code']."',`social_code`='".$seq_val['social_code']."',`cumulative_discount_number`='".$seq_val['cumulative_discount_number']."',`letter_of_intent(LOI)_number`='".$seq_val['letter_of_intent(LOI)_number']."',`social_security_number`='".$seq_val['social_security_number']."',`social_security_number_status_code`='".$seq_val['social_security_number_status_code']."',`transaction_share_count`='".$seq_val['transaction_share_count']."',`share_price_amount`='".$seq_val['share_price_amount']."',`resident_state_country_code`='".$seq_val['resident_state_country_code']."',`dealer_commission_sign_code`='".$seq_val['dealer_commission_sign_code']."'".$this->insert_common_sql();
+                                        $q = "INSERT INTO `".IMPORT_IDC_DETAIL_DATA."` SET `file_id`='".$id."',`idc_header_id`='".$rhr_inserted_id."',`commission_record_type_code`='".$seq_val['commission_record_type_code']."',`dealer_number`='".$seq_val['dealer_number']."',`dealer_branch_number`='".$seq_val['dealer_branch_number']."',`representative_number`='".trim($seq_val['representative_number'])."',`representative_name`='".$seq_val['representative_name']."',`cusip_number`='".$seq_val['cusip_number']."',`alpha_code`='".$seq_val['alpha_code']."',`trade_date`='".date('Y-m-d',strtotime($seq_val['trade_date']))."',`gross_transaction_amount`='".($seq_val['gross_transaction_amount']/100)."',`gross_amount_sign_code`='".$seq_val['gross_amount_sign_code']."',`dealer_commission_amount`='".($seq_val['dealer_commission_amount']/100)."',`commission_rate`='".$seq_val['commission_rate']."',`customer_account_number`='".$seq_val['customer_account_number']."',`account_number_type_code`='".$seq_val['account_number_type_code']."',`purchase_type_code`='".$seq_val['purchase_type_code']."',`social_code`='".$seq_val['social_code']."',`cumulative_discount_number`='".$seq_val['cumulative_discount_number']."',`letter_of_intent(LOI)_number`='".$seq_val['letter_of_intent(LOI)_number']."',`social_security_number`='".$seq_val['social_security_number']."',`social_security_number_status_code`='".$seq_val['social_security_number_status_code']."',`transaction_share_count`='".$seq_val['transaction_share_count']."',`share_price_amount`='".$seq_val['share_price_amount']."',`resident_state_country_code`='".$seq_val['resident_state_country_code']."',`dealer_commission_sign_code`='".$seq_val['dealer_commission_sign_code']."'".$this->insert_common_sql();
                             			$res = $this->re_db_query($q);
                                         $data_status = true;
                                    }
@@ -2070,7 +2114,7 @@
                             $exceptionArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
                             // Cycle through the "resolves" the user entered to flag any defaults to rep, client, or hold(i.e. pass the exception through)
                             foreach ($exceptionArray AS $errorKey=>$errorRow){
-                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['major_security_type'])){
+                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['major_security_type', 'cusip_number', 'fund_name'])){
                                     // Assign error code so the program knows why(error code id#) it's skipping the exception validation
                                     $reassignProductCategory = $errorKey;
                                 }
@@ -2228,7 +2272,7 @@
                     if ($detail_record_id==0 OR $file_type==2) {
                         $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($file_type==2 AND $detail_record_id>0) ? $detail_record_id : 0);
                     }
-                    
+
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform(IMPORT_IDC_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']." AND `is_delete`=0");
@@ -2248,7 +2292,7 @@
                             .",`rep_name`='".$check_data_val['representative_name']."'"
                             .",`account_no`='".$check_data_val['customer_account_number']."'"
                             .",`client`='".$check_data_val['alpha_code']."'"
-                            .",`cusip`='".$check_data_val['CUSIP_number']."'"
+                            .",`cusip`='".$check_data_val['cusip_number']."'"
                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
                             .",`commission`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
                             .$this->insert_common_sql()
@@ -2350,10 +2394,10 @@
                             }
                         }
                         // IDC PRODUCT Validation
-                        if(empty($check_data_val['CUSIP_number'])){
+                        if(empty($check_data_val['cusip_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='13'"
-                                        .",`field`='CUSIP_number'"
+                                        .",`field`='cusip_number'"
                                         .",`file_type`='2'"
                                         .$insert_exception_string;
                             $res = $this->re_db_query($q);
@@ -2365,7 +2409,7 @@
                                     "FROM `".PRODUCT_LIST."`".
                                     "WHERE `is_delete`=0".
                                     " AND `status`!=0".
-                                    " AND `cusip`='".$check_data_val['CUSIP_number']."'";
+                                    " AND `cusip`='".$check_data_val['cusip_number']."'";
                             $resCusipFind = $this->re_db_query($q);
 
                             // CUSIP found
@@ -2377,7 +2421,7 @@
                             } else {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET `error_code_id`='11'"
-                                            .",`field`='CUSIP_number'"
+                                            .",`field`='cusip_number'"
                                             .",`file_type`='2'"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
@@ -2559,7 +2603,7 @@
                                             .",`rep_name`='".$check_data_val['representative_name']."'"
                                             .",`account_no`='".$check_data_val['customer_account_number']."'"
                                             .",`client`='".$check_data_val['alpha_code']."'"
-                                            .",`cusip`='".$check_data_val['CUSIP_number']."'"
+                                            .",`cusip`='".$check_data_val['cusip_number']."'"
                                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
                                             .",`commission`='".$commission_received."'"
                                             .$this->insert_common_sql()
@@ -3271,7 +3315,7 @@
                             $commission_record_type_code = substr($val_string, 0, 1);
                             if($commission_record_type_code == '1' || $commission_record_type_code == '3')
                             {
-                                $data_array[$array_key]['DETAIL'][$commission_record_type_code][] = array("dst_system_id"=>$dst_system_id,"dst_management_code"=>$dst_management_code,"commission_record_type_code" => substr($val_string, 0, 1),"dealer_number" => substr($val_string, 1, 7),"dealer_branch_number" => substr($val_string, 8, 9),"representative_number" => trim(substr($val_string, 17, 9)),"representative_name" => substr($val_string, 26, 30),"CUSIP_number" => substr($val_string, 56, 9),"alpha_code" => substr($val_string, 65, 10),"trade_date" => substr($val_string, 75, 8),"gross_transaction_amount" => substr($val_string, 83, 15),"gross_amount_sign_code" => substr($val_string, 98, 1),"dealer_commission_amount" => substr($val_string, 99, 15),"commission_rate" => substr($val_string, 114, 5),"customer_account_number" => substr($val_string, 119, 20),"account_number_type_code" => substr($val_string, 139, 1),"purchase_type_code" => substr($val_string, 140, 1),"social_code" => substr($val_string, 141, 3),"cumulative_discount_number" => substr($val_string, 144, 9),"letter_of_intent(LOI)_number" => substr($val_string, 153, 9),"social_security_number" => substr($val_string, 162, 9),"social_security_number_status_code" => substr($val_string, 171, 1),"transaction_share_count" => substr($val_string, 172, 15),"share_price_amount" => substr($val_string, 187, 9),"resident_state_country_code" => substr($val_string, 196, 3),"dealer_commission_sign_code" => substr($val_string, 199, 1));
+                                $data_array[$array_key]['DETAIL'][$commission_record_type_code][] = array("dst_system_id"=>$dst_system_id,"dst_management_code"=>$dst_management_code,"commission_record_type_code" => substr($val_string, 0, 1),"dealer_number" => substr($val_string, 1, 7),"dealer_branch_number" => substr($val_string, 8, 9),"representative_number" => trim(substr($val_string, 17, 9)),"representative_name" => substr($val_string, 26, 30),"cusip_number" => substr($val_string, 56, 9),"alpha_code" => substr($val_string, 65, 10),"trade_date" => substr($val_string, 75, 8),"gross_transaction_amount" => substr($val_string, 83, 15),"gross_amount_sign_code" => substr($val_string, 98, 1),"dealer_commission_amount" => substr($val_string, 99, 15),"commission_rate" => substr($val_string, 114, 5),"customer_account_number" => substr($val_string, 119, 20),"account_number_type_code" => substr($val_string, 139, 1),"purchase_type_code" => substr($val_string, 140, 1),"social_code" => substr($val_string, 141, 3),"cumulative_discount_number" => substr($val_string, 144, 9),"letter_of_intent(LOI)_number" => substr($val_string, 153, 9),"social_security_number" => substr($val_string, 162, 9),"social_security_number_status_code" => substr($val_string, 171, 1),"transaction_share_count" => substr($val_string, 172, 15),"share_price_amount" => substr($val_string, 187, 9),"resident_state_country_code" => substr($val_string, 196, 3),"dealer_commission_sign_code" => substr($val_string, 199, 1));
                             }
                         }
                         else if(isset($record_type) && $record_type == 'RTR')
