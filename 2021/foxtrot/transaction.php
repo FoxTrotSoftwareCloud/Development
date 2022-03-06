@@ -2,7 +2,7 @@
 
     require_once("include/config.php");
 	require_once(DIR_FS."islogin.php");
-    
+
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     $ch_date ='';
@@ -28,9 +28,9 @@
     $split_rate = array();
     $return_splits = array();
     $units = 0;
-    $shares = 0; 
-    
-    if((isset($_POST['transaction'])&& $_POST['transaction']=='Save')|| (isset($_POST['transaction'])&& $_POST['transaction']=='Save & Copy')){ 
+    $shares = 0;
+
+    if((isset($_POST['transaction'])&& $_POST['transaction']=='Save')|| (isset($_POST['transaction'])&& $_POST['transaction']=='Save & Copy')){
        // echo '<pre>';print_r($_POST);exit();
 
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
@@ -77,10 +77,10 @@
         $shares = isset($_POST['shares'])?$instance->re_db_input($_POST['shares']):'';
         $is_1035_exchange = isset($_POST['is_1035_exchange']) ? $instance->re_db_input($_POST['is_1035_exchange']):0;
         $is_trail_trade = isset($_POST['is_trail_trade']) ? $instance->re_db_input($_POST['is_trail_trade']):0;
-        
+
 
         $return = $instance->insert_update($_POST);
-        
+
         if($return===true){
             if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
             {
@@ -108,7 +108,7 @@
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }
- 
+
     }
     else if(isset($_GET['action'])&&$_GET['action']=='add' && isset($_GET['batch_id'])&&$_GET['batch_id']>0)
     {
@@ -117,7 +117,7 @@
         $get_batch_data = $instance_batch->edit_batches($batch);
         $product_cate = isset($get_batch_data['pro_category'])?$instance->re_db_output($get_batch_data['pro_category']):0;
         $sponsor = isset($get_batch_data['sponsor'])?$instance->re_db_output($get_batch_data['sponsor']):0;
-        
+
     }
     else if($action=='edit_transaction' && $id>0){
         $return = $instance->edit_transaction($id);
@@ -151,7 +151,7 @@
         $split = isset($return['split'])?$instance->re_db_output($return['split']):'';
         $another_level = isset($return['another_level'])?$instance->re_db_output($return['another_level']):'';
         $cancel = isset($return['cancel'])?$instance->re_db_output($return['cancel']):'';
-        $buy_sell = isset($return['buy_sell'])?$instance->re_db_output($return['buy_sell']):'';  
+        $buy_sell = isset($return['buy_sell'])?$instance->re_db_output($return['buy_sell']):'';
         $hold_commission = isset($return['hold_commission'])?$instance->re_db_output($return['hold_commission']):'';
         $hold_resoan = isset($return['hold_resoan'])?$instance->re_db_output($return['hold_resoan']):'';
         $posting_date = isset($return['posting_date'])?$instance->re_db_output($return['posting_date']):'';
@@ -159,7 +159,7 @@
         $shares = isset($return['shares'])?$instance->re_db_output($return['shares']):'';
         $return_splits = $instance->edit_splits($id);
         $return_overrides = $instance->edit_overrides($id);
-           
+
     }
     else if(isset($_GET['action'])&&$_GET['action']=='transaction_delete'&&isset($_GET['id'])&&$_GET['id']>0)
     {
@@ -184,26 +184,22 @@
         $return = $instance->search_transcation($_POST);
     }
     else if($action=='view'){
-        
+
         $return = $instance->select();//echo'<pre>';print_r($return);exit;
-        
+
     }
 
     if(isset($_GET['p_id']) && isset($_GET['cat_id'])){
         $product_cate= $_GET['cat_id'];
         $product= $_GET['p_id'];
         $sponsor= $_GET['sponsor'];
-
     }
     if(isset($_GET['client_id']) && isset($_GET['client_id'])){
         $client_name=$_GET['client_id'];
-    } 
+    }
 
     $get_accounts_no= $instance->select_client_all_account_no($client_name);
-       
 
-    
-    
     $content = "transaction";
 	require_once(DIR_WS_TEMPLATES."main_page.tpl.php");
 

@@ -181,7 +181,7 @@
 						$fieldsToWatch = array('first_name', 'last_name', 'mi', 'do_not_contact', 'active', 'ofac_check', 'fincen_check', 'long_name', 'client_file_number',
 							'clearing_account', 'client_ssn', 'house_hold', 'split_broker', 'split_rate', 'address1', 'address2', 'city', 'state', 'zip_code', 'citizenship',
 							'birth_date', 'date_established', 'age', 'open_date', 'naf_date', 'last_contacted', 'account_type', 'broker_name', 'telephone', 'contact_status',
-							'reviewed_at', 'reviewed_by', 'is_reviewed', '');
+							'reviewed_at', 'reviewed_by', 'is_reviewed'); //, '');
 						$this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
 
 						$objectiveDbId=$this->updateClientObjectives($id,$objectives);
@@ -418,22 +418,40 @@
 				}
 			}
 		}
-        public function insert_update_objectives($data){
+        public function insert_update_objectives($data, $useDataArray=0){
+			$res = $id = $client_id = $clientObjectives = $checkForObjRow = 0;
+            $objectives = (isset($data['objectives'])?$this->re_db_input($data['objectives']):'');
 
-            $objectives = isset($data['objectives'])?$this->re_db_input($data['objectives']):'';
+			if ($useDataArray){
+				$client_id = (isset($data['client_id']) ? $data['client_id'] : '');
+			} else {
+				$client_id = $_SESSION['client_id'];
+			}
 
-            $q = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`='".$_SESSION['client_id']."',`objectives`='".$objectives."'".$this->insert_common_sql();
-			$res = $this->re_db_query($q);
-            $id = $this->re_db_insert_id();
+			if (!empty($client_id) AND !empty($objectives)){
+				$clientObjectives = $this->select_objectives($client_id);
+				$res = 1;
+				foreach ($clientObjectives AS $checkForObjRow){
+					if ($checkForObjRow['objectives']==$objectives AND $checkForObjRow['is_delete']==0){
+						$res = 0;
+						break;
+					}
+				}
+
+				if ($res) {
+					$q = "INSERT INTO `".CLIENT_OBJECTIVES."` SET `client_id`='".$client_id."',`objectives`='".$objectives."'".$this->insert_common_sql();
+					$res = $this->re_db_query($q);
+					$id = $this->re_db_insert_id();
+				}
+			}
+
 			if($res){
-			    return true;
+			    return $id;
 			}
 			else{
 				$_SESSION['warning'] = UNKWON_ERROR;
 				return false;
 			}
-
-
 		}
         public function insert_update_allobjectives($data){//print_r($data);exit;
 
@@ -673,15 +691,15 @@
 
 			return $return;
 		}
-        public function select_objectives($id){
+        public function select_objectives($client_id){
 			$return = array();
 
-            if($id>0)
+            if($client_id>0)
             {
     			$q = "SELECT `o`.*,co.option as oname
     					FROM `".CLIENT_OBJECTIVES."` AS `o`
                         LEFT JOIN `".OBJECTIVE_MASTER."` as co on co.id=o.objectives
-                        WHERE `o`.`is_delete`='0' and `o`.`client_id`=".$id."
+                        WHERE `o`.`is_delete`='0' and `o`.`client_id`=".$client_id."
                         ORDER BY `o`.`id` ASC";
     			$res = $this->re_db_query($q);
                 if($this->re_db_num_rows($res)>0){
@@ -1175,9 +1193,9 @@
 				return false;
 			}
 		}
-        public function delete_allobjectives($id){
+        public function delete_allobjectives($client_id){
 
-			$q = "UPDATE `".CLIENT_OBJECTIVES."` SET `is_delete`='1' WHERE `client_id`='".$id."'";
+			$q = "UPDATE `".CLIENT_OBJECTIVES."` SET `is_delete`='1' WHERE `client_id`='".$client_id."'";
 			$res = $this->re_db_query($q);
 			if($res){
 			    return true;

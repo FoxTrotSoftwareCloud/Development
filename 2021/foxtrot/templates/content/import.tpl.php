@@ -151,53 +151,58 @@ PostResult( msg );
 		        <div class="graphboxtitle">Import </div>
 				<div class="graphboxcontent">
                 <div class="tab-content col-md-12">
-                <?php if(isset($_GET['tab']) && ($_GET['tab']=="review_files" || $_GET['tab']=="processed_files") && $_GET['id']>0){
-                    $get_file_data = $instance->select_user_files($_GET['id']);
-                    ?>
-                <h3>Review & Resolve Exceptions</h3><br />
-                <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php if(isset($get_file_data['file_type'])){ echo $get_file_data['file_type']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
-                <?php
-                $get_file_type = $instance->get_file_type($_GET['id']);
-                if($get_file_type == 2){?>
-                <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount,2);?></h4>
-                <?php } } ?>
-                <?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files" && $_GET['id']>0){
-                    $get_file_data = $instance->select_user_files($_GET['id']);
-                    ?>
-                <h3>Preview Data</h3><br />
-                <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php if(isset($get_file_data['file_type'])){ echo $get_file_data['file_type']; } ?></h4>
-                <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
-                <?php
-                $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
 
-                $get_file_type =  '';
-                $get_file_type_source = $instance->get_current_file_type($file_id);
-                if($get_file_type_source == 'DSTFANMail')
-                {
-                    $get_file_type = 1;
-                }
-                else if($get_file_type_source == 'DSTIDC')
-                {
-                    $get_file_type = 2;
-                }
-                if(isset($get_file_type) && $get_file_type == 2)
-                {
-                    $return_file_data_array = $instance->get_file_array($file_id);
-                    $total_amount = 0;
-                    foreach($return_file_data_array as $preview_key=>$preview_val)
-                    {
-                        $total_amount += $preview_val['dealer_commission_amount'];
+                <!-- Record Grid -> RESOLVE EXCEPTIONS & PROCESSED Tabs -->
+                <?php
+                if(isset($_GET['tab']) && ($_GET['tab']=="review_files" || $_GET['tab']=="processed_files") && $_GET['id']>0){
+                    $get_file_data = $instance->select_user_files($_GET['id']);
+                    $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
+                    $fileTypeDescription = ($get_file_type==3) ? 'Security File' : $get_file_data['file_type'] ;
+
+                    if ($_GET['tab']=="review_files") { ?>
+                        <h3>Review & Resolve Exceptions</h3><br />
+                        <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
+
+                        <?php if($get_file_type == 2){ ?>
+                            <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount,2);?></h4>
+                        <?php }
+                    } else { ?>
+                        <h3>Preview Data</h3><br />
+                        <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
+                        <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
+                        <?php
+                        $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
+                        $get_file_type =  '';
+                        $get_file_type_source = $instance->get_current_file_type($file_id);
+
+                        if($get_file_type_source == 'DSTFANMail') {
+                            $get_file_type = 1;
+                        } else if($get_file_type_source == 'DSTIDC') {
+                            $get_file_type = 2;
+                        }
+
+                        if(isset($get_file_type) && $get_file_type == 2)
+                        {
+                            $return_file_data_array = $instance->get_file_array($file_id);
+                            $total_amount = 0;
+
+                            foreach($return_file_data_array as $preview_key=>$preview_val)
+                            {
+                                $total_amount += $preview_val['dealer_commission_amount'];
+                            }
+                            $total_commission_amount = $total_amount; ?>
+
+                            <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount/100,2);?></h4>
+                        <?php }
                     }
-                    $total_commission_amount = $total_amount; ?>
+                } ?>
 
-                <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount/100,2);?></h4>
-                <?php } ?>
-                <?php } ?>
+                <!-- Import Grid -->
                 <div class="tab-pane active" id="tab_a"><?php if(isset($_GET['tab']) && ($_GET['tab']=="current_files" || $_GET['tab']=="archived_files") || !isset($_GET['tab'])){?>
                     <ul class="nav nav-tabs ">
                       <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="current_files"){ echo "active"; }else if(!isset($_GET['tab'])){echo "active";}else{ echo '';} ?>" ><a href="#current_files" data-toggle="tab">Current Files</a></li>
@@ -236,90 +241,112 @@ PostResult( msg );
                                                 $count = 0;
                                                 if(isset($return) && $return != array())
                                                 {
-                                                $return = $instance->select_current_files();
-                                                foreach($return as $key=>$val){
-                                                    $return_file_data_array = $instance->get_file_array($val['id']);
-                                                    $isImportCompleted=$val['processed'] == 1 && $val['process_completed']==1;
-                                                    $isImportArchived= $val['is_archived']==1;
-                                                    $isImportNotStart= $val['processed']==0;
-                                                    $isImportStarted= $val['processed']==1 && $val['process_completed']!=1;
-                                                    //print_r($val);
-                                                    $system_id = isset($return_file_data_array[0]['dst_system_id'])?$return_file_data_array[0]['dst_system_id']:'';
-                                                    $management_code = isset($return_file_data_array[0]['dst_management_code'])?$return_file_data_array[0]['dst_management_code']:'';
-                                                    $sponsor_detail = $instance->get_sponsor_on_system_management_code($system_id,$management_code);
-                                                    $sponsor = isset($sponsor_detail['name'])?$sponsor_detail['name']:'';
-                                                    //echo '<pre>';print_r($system_id.','.$management_code);
-                                                    $file_batch_id = $instance->get_file_batch($val['id']);
-                                                    if(isset($val['imported_date']) && $val['imported_date']!= ''){
-                                                   ?>
-                                                    <tr>
-                                                        <td><?php echo in_array($val['file_type'], ['C1', 'DST Commission'])?$file_batch_id:'N/A';?></td>
-                                                        <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id=".$val['id'];?>"><?php echo $sponsor;?></a></td>
-                                                        <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
-                                                        <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
-                                                        <td style="width: 10%;"><?php echo $val['file_name'];?></td>
-                                                        <td style="width: 15%;"><?php echo $val['file_type'];?></td>
-                                                        <td><?php echo $val['source'];?></td>
-                                                        <?php
-                                                        $total_processed_data = $instance->check_file_exception_process($val['id'],1);
-                                                        $count_processed_data = $total_processed_data['processed'];
-                                                        $count_exception_data = $total_processed_data['exceptions'];
+                                                    $return = $instance->select_current_files(1);
 
-                                                        if($count_processed_data + $count_exception_data > 0)
-                                                        {
-                                                            $total_process = $count_processed_data+$count_exception_data;
-                                                            $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                            $total_complete_process = round($total_processed_per);
+                                                    foreach($return as $key=>$val){
+                                                        $return_file_data_array = $instance->get_file_array($val['id']);
+                                                        $isImportCompleted=$val['processed'] == 1 && $val['process_completed']==1;
+                                                        $isImportArchived= $val['is_archived']==1;
+                                                        $isImportNotStart= $val['processed']==0;
+                                                        $isImportStarted= $val['processed']==1 && $val['process_completed']!=1;
+                                                        //print_r($val);
+                                                        $system_id = isset($return_file_data_array[0]['dst_system_id'])?$return_file_data_array[0]['dst_system_id']:'';
+                                                        $management_code = isset($return_file_data_array[0]['dst_management_code'])?$return_file_data_array[0]['dst_management_code']:'';
+                                                        $sponsor_detail = $instance->get_sponsor_on_system_management_code($system_id,$management_code);
+                                                        $sponsor = isset($sponsor_detail['name'])?$sponsor_detail['name']:'';
+                                                        //echo '<pre>';print_r($system_id.','.$management_code);
+                                                        $file_batch_id = $instance->get_file_batch($val['id']);
+                                                        if (!isset($val['file_type'])) {
+                                                            $file_type_id = 1;
+                                                        } else if ($val['file_type'] == 'DST Commission'){
+                                                            $file_type_id = 2;
+                                                        } else if ($val['file_type'] == 'Security File'){
+                                                            $file_type_id = 3;
+                                                        } else {
+                                                            $file_type_id = 1;
                                                         }
-                                                        else
-                                                        {
-                                                            $total_complete_process=0;
-                                                        }
-                                                        ?>
-                                                        <td style="width: 15%;">
-                                                        <div class="progress">
-                                                            <?php //echo $count_processed_data."/".$count_exception_data;?>
-                                                        <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
-                                                            <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
-                                                            <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
-                                                              <?php echo $total_complete_process.'%';?> Complete
-                                                            </div>
-                                                        <?php }else{ ?>
-                                                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
-                                                              <?php echo $total_complete_process.'%';?> Complete
-                                                            </div>
-                                                        <?php } ?>
-                                                        </div>
-                                                        </td>
-                                                        <?php
-                                                            $check_exception_data = $instance->check_exception_data($val['id']);
-                                                            $check_processed_data = $instance->check_processed_data($val['id']);
-                                                            $check_file_exception_process = $instance->check_file_exception_process($val['id']);
-                                                        ?>
-                                                        <td style="width: 10%;"><form method="post">
-                                                            <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
-                                                            <input type="hidden" name="note" value="save_note" />
-                                                            <input type="text" maxlength="20" value="<?php echo isset($val['note'])?$val['note']:'';?>" name="note_<?php echo $val['id'];?>">
-                                                            </form>
-                                                        </td>
-                                                        <td style="width: 25%;">
-                                                            <form method="post">
-                                                                <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
-                                                                    <option value="0">Select Option</option>
-                                                                    <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
-                                                                    <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
-                                                                    <option value="3"  <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
-                                                                    <option value="4"  <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
-                                                                    <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
-                                                                    <option value="1" >Delete File</option>
-                                                                    <!-- <option value="7" >Preview</option> -->
-                                                                </select>
-                                                                <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
-                                                                <input type="hidden" name="go" value="go" />
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                <?php }}
+
+                                                        if(isset($val['imported_date']) && $val['imported_date']!= '') {?>
+                                                            <tr>
+                                                                <td><?php echo in_array($val['file_type'], ['C1', 'DST Commission'])?$file_batch_id:'N/A';?></td>
+                                                                <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id={$val['id']}&file_type=$file_type_id" ;?>"><?php echo $sponsor;?></a></td>
+                                                                <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
+                                                                <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
+                                                                <td style="width: 10%;"><?php echo $val['file_name'];?></td>
+                                                                <td style="width: 15%;"><?php echo $val['file_type'];?></td>
+                                                                <td><?php echo $val['source'];?></td>
+
+                                                                <?php
+                                                                    // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
+                                                                    $detailTable = '';
+
+                                                                    if (!in_array($val['file_type'], ['C1', 'DST Commission'])) {
+                                                                        $detailTable = ($val['file_type']=='Security File') ? IMPORT_SFR_DETAIL_DATA : IMPORT_DETAIL_DATA;
+                                                                    }
+
+                                                                    $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
+                                                                    $count_processed_data = $total_processed_data['processed'];
+                                                                    $count_exception_data = $total_processed_data['exceptions'];
+
+                                                                    if($count_processed_data + $count_exception_data > 0)
+                                                                    {
+                                                                        $total_process = $count_processed_data+$count_exception_data;
+                                                                        $total_processed_per = ($count_processed_data*100)/$total_process;
+                                                                        $total_complete_process = round($total_processed_per);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        $total_complete_process=0;
+                                                                    }
+                                                                ?>
+
+                                                                <td style="width: 15%;">
+                                                                    <div class="progress">
+                                                                        <?php //echo $count_processed_data."/".$count_exception_data;?>
+
+                                                                        <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
+                                                                            <?php $progress_bar_style = ($count_exception_data>0) ? 'danger' : 'warning';?>
+                                                                            <div class="progress-bar progress-bar-<?php echo $progress_bar_style;?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
+                                                                            <?php echo $total_complete_process.'%';?> Complete
+                                                                            </div>
+                                                                        <?php }else{ ?>
+                                                                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
+                                                                            <?php echo $total_complete_process.'%';?> Complete
+                                                                            </div>
+                                                                        <?php } ?>
+                                                                    </div>
+                                                                </td>
+                                                                <?php
+                                                                    $check_exception_data = $instance->check_exception_data($val['id']);
+                                                                    $check_processed_data = $instance->check_processed_data($val['id']);
+                                                                    $check_file_exception_process = $instance->check_file_exception_process($val['id']);
+                                                                ?>
+                                                                <td style="width: 10%;"><form method="post">
+                                                                    <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                                    <input type="hidden" name="note" value="save_note" />
+                                                                    <input type="text" maxlength="20" value="<?php echo isset($val['note'])?$val['note']:'';?>" name="note_<?php echo $val['id'];?>">
+                                                                    <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type'];?>" />
+                                                                    </form>
+                                                                </td>
+                                                                <td style="width: 25%;">
+                                                                    <form method="post">
+                                                                        <select name="process_file_<?php echo $val['id'];?>" id="process_file_<?php echo $val['id'];?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
+                                                                            <option value="0">Select Option</option>
+                                                                            <option value="2" <?php echo $isImportNotStart? "selected='selected'" : "disabled='disabled'"; ?>>Process</option>
+                                                                            <option value="5" <?php  echo !$isImportNotStart && !$isImportCompleted ? "":"disabled='disabled'";  ?>>Reprocess</option>
+                                                                            <option value="3" <?php if($val['processed']==0){echo 'disabled="true"';}?> >View/Print</option>
+                                                                            <option value="4" <?php if($val['processed']==0){echo 'disabled="true"';}?>>Resolve Exceptions</option>
+                                                                            <option value="6" <?php  echo ($isImportCompleted && !$isImportArchived) ? "" : "disabled='disabled'" ?>>Move To Archived</option>
+                                                                            <option value="1" >Delete File</option>
+                                                                            <!-- <option value="7" >Preview</option> -->
+                                                                        </select>
+                                                                        <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                                        <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type'];?>" />
+                                                                        <input type="hidden" name="go" value="go" />
+                                                                    </form>
+                                                                </td>
+                                                            </tr>
+                                                    <?php }}
                                                 }?>
                                               </tbody>
                                             </table>
@@ -353,61 +380,61 @@ PostResult( msg );
                                                     $count = 0;
                                                     if(isset($return) && $return != array())
                                                     {
-                                                    $return = $instance->select_archive_files();
-                                                    foreach($return as $key=>$val){
-                                                        $file_batch_id = $instance->get_file_batch($val['id']);
-                                                        $check_exception_data = $instance->check_exception_data($val['id']);
-                                                        if(isset($val['imported_date']) && $val['imported_date']!= '' && $check_exception_data <= 0){
-                                                       ?>
-                                                        <tr>
-                                                            <td><?php echo $file_batch_id; ?></td>
-                                                            <td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>
-                                                            <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
-                                                            <td style="width: 10%;"><?php echo $val['file_name'];?></td>
-                                                            <td style="width: 15%;"><?php echo $val['file_type'];?></td>
-                                                            <td><?php echo $val['source'];?></td>
-                                                            <?php
-                                                            $total_processed_data = $instance->check_file_exception_process($val['id'],1);
-                                                            $count_processed_data = $total_processed_data['processed'];
-                                                            $count_exception_data = $total_processed_data['exceptions'];
+                                                        $return = $instance->select_archive_files();
+                                                        foreach($return as $key=>$val){
+                                                            $file_batch_id = $instance->get_file_batch($val['id']);
+                                                            $check_exception_data = $instance->check_exception_data($val['id']);
 
-                                                            if($count_processed_data + $count_exception_data > 0)
-                                                            {
-                                                                $total_process = $count_processed_data+$count_exception_data;
-                                                                $total_processed_per = ($count_processed_data*100)/$total_process;
-                                                                $total_complete_process = round($total_processed_per);
-                                                            }
-                                                            else
-                                                            {
-                                                                $total_complete_process=0;
-                                                            }
-                                                            ?>
-                                                            <td style="width: 20%;">
-                                                            <div class="progress">
-                                                            <?php if(isset($total_complete_process) && $total_complete_process < 100){?>
-                                                                <div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
-                                                                  <?php echo $total_complete_process.'%';?> Complete
-                                                                </div>
-                                                            <?php }else{ ?>
-                                                                <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
-                                                                  <?php echo $total_complete_process.'%';?> Complete
-                                                                </div>
-                                                            <?php } ?>
-                                                            </div>
-                                                            </td>
-                                                            <td style="width: 30%;">
-                                                            <form method="post">
-                                                            <select name="archive_option" id="archive_option" class="form-control" style=" width: 78% !important;display: inline;">
-                                                                <option value="0">Select Option</option>
-                                                                <option value="1" selected="true" >View/Print</option>
-                                                            </select>
-                                                            <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
-                                                            <button type="submit" class="btn btn-sm btn-warning" name="go_archive" value="go_archive" style="display: inline;"> Go</button>
-                                                            </form>
-                                                            </td>
-                                                        </tr>
-                                                    <?php }}
-                                                    }?>
+                                                            if(isset($val['imported_date']) && $val['imported_date']!= '' && $check_exception_data <= 0){ ?>
+                                                                <tr>
+                                                                    <td><?php echo $file_batch_id; ?></td>
+                                                                    <td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>
+                                                                    <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
+                                                                    <td style="width: 10%;"><?php echo $val['file_name'];?></td>
+                                                                    <td style="width: 15%;"><?php echo $val['file_type'];?></td>
+                                                                    <td><?php echo $val['source'];?></td>
+
+                                                                    <?php
+                                                                        $total_processed_data = $instance->check_file_exception_process($val['id'],1);
+                                                                        $count_processed_data = $total_processed_data['processed'];
+                                                                        $count_exception_data = $total_processed_data['exceptions'];
+
+                                                                        if($count_processed_data + $count_exception_data > 0) {
+                                                                            $total_process = $count_processed_data+$count_exception_data;
+                                                                            $total_processed_per = ($count_processed_data*100)/$total_process;
+                                                                            $total_complete_process = round($total_processed_per);
+                                                                        } else {
+                                                                            $total_complete_process=0;
+                                                                        }
+                                                                    ?>
+
+                                                                    <td style="width: 20%;">
+                                                                    <div class="progress">
+                                                                        <?php if(isset($total_complete_process) && $total_complete_process < 100) { ?>
+                                                                            <div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
+                                                                            <?php echo $total_complete_process.'%';?> Complete
+                                                                            </div>
+                                                                        <?php } else { ?>
+                                                                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process;?>%">
+                                                                            <?php echo $total_complete_process.'%';?> Complete
+                                                                            </div>
+                                                                        <?php } ?>
+                                                                    </div>
+                                                                    </td>
+
+                                                                    <td style="width: 30%;">
+                                                                        <form method="post">
+                                                                            <select name="archive_option" id="archive_option" class="form-control" style=" width: 78% !important;display: inline;">
+                                                                                <option value="0">Select Option</option>
+                                                                                <option value="1" selected="true" >View/Print</option>
+                                                                            </select>
+                                                                            <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                                            <button type="submit" class="btn btn-sm btn-warning" name="go_archive" value="go_archive" style="display: inline;"> Go</button>
+                                                                        </form>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php }}
+                                                        }?>
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -429,7 +456,7 @@ PostResult( msg );
                          </ul> <?php } ?> <br />
                           <!-- Tab 1 is started -->
                             <div class="tab-content">
-                            <div class="tab-pane <?php if(isset($_GET['tab']) &&$_GET['tab']=="review_files" && $_GET['id']>0){ echo "active"; } ?>" id="review_files">
+                            <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="review_files" && $_GET['id']>0){ echo "active"; } ?>" id="review_files">
 
                                 <div class="panel-overlay-wrap">
                                     <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
@@ -442,47 +469,50 @@ PostResult( msg );
                                             </div>
                                             <br />-->
                                             <?php
-                                            $get_file_type = $instance->get_file_type($_GET['id']);
+                                            if (isset($_GET['file_type'])) {
+                                                $get_file_type = $_GET['file_type'];
+                                            } else {
+                                                $get_file_type = $instance->get_file_type($_GET['id']);
+                                            }
                                             ?>
+
                                             <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                 <table id="data-table3" class="table table-bordered table-stripped table-hover">
                                                     <thead>
                                                         <th>Date</th>
-                                                        <th>Rep#</th>
-                                                        <th>Rep Name</th>
-                                                        <th>Account#</th>
-                                                        <th>Client Name</th>
-                                                        <?php if(isset($get_file_type) && $get_file_type == '1'){
-                                                        ?>
-                                                        <th>Client Address</th>
-                                                        <?php }
-                                                        else if(isset($get_file_type) && $get_file_type == '2'){?>
-                                                        <th>CUSIP</th>
-                                                        <th>Principal</th>
-                                                        <th>Commission</th>
+                                                        <?php if(isset($get_file_type) && in_array($get_file_type, ['1', '2'])) { ?>
+                                                            <th>Rep#</th>
+                                                            <th>Rep Name</th>
+                                                            <th>Account#</th>
+                                                            <th>Client Name</th>
                                                         <?php } ?>
+                                                        <?php if(isset($get_file_type) && $get_file_type == '1'){?>
+                                                            <th>Client Address</th>
+                                                        <?php } else if(isset($get_file_type) && $get_file_type == '2'){?>
+                                                            <th>CUSIP</th>
+                                                            <th>Principal</th>
+                                                            <th>Commission</th>
+                                                        <?php } else if(isset($get_file_type) && $get_file_type == '3'){?>
+                                                            <th>Fund Name</th>
+                                                            <th>CUSIP</th>
+                                                            <th>Ticker Symbol</th>
+                                                            <th>Security Type</th>
+                                                        <?php } ?>
+
                                                         <th>Issue</th>
                                                         <th>Action</th>
                                                     </thead>
                                                     <tbody>
                                                         <?php
-                                                        $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
                                                         $existing_field_value = '';
-                                                        $return_exception = $instance->select_exception_data($file_id);
+                                                        $existingDetailValues = [];
+                                                        $file_id = (isset($_GET['id'])) ? (int)$instance->re_db_input($_GET['id']) : 0;
+                                                        $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
+
+                                                        $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
+
                                                         foreach($return_exception as $error_key=>$error_val)
                                                         {
-                                                            if(isset($error_val['file_type']) && $error_val['file_type'] == '3')
-                                                            {
-                                                                $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
-                                                                if($error_val['field'] == 'cusip_number')
-                                                                {
-                                                                    $existing_field_value = $return_sfr_existing_data['cusip_number'];
-                                                                }
-                                                                if($error_val['field'] == 'ticker_symbol')
-                                                                {
-                                                                    $existing_field_value = $return_sfr_existing_data['ticker_symbol'];
-                                                                }
-                                                            }
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '1')
                                                             {
                                                                 $return_fanmail_existing_data = $instance->select_existing_fanmail_data($error_val['temp_data_id']);
@@ -514,15 +544,17 @@ PostResult( msg );
                                                                 $instance_product = new product_maintenance();
                                                                 $instance_broker = new broker_master();
                                                                 $instance_import = new import();
+                                                                $instance_suitability = new client_suitebility_master();
 
-                                                                if (!empty($return_idc_existing_data['broker_id'])){
+                                                                if (!empty($return_idc_existing_data['broker_id'])) {
                                                                     $brokerRow = $instance_broker->select_broker_by_id($return_idc_existing_data['broker_id']);
 
                                                                     if ($brokerRow) {
                                                                         $error_val['rep_name'] = trim($brokerRow['last_name']).(($brokerRow['last_name']!='' AND $brokerRow['last_name']!='') ? ', ' : '').trim($brokerRow['first_name']);
                                                                     }
                                                                 }
-                                                                if (!empty($return_idc_existing_data['client_id'])){
+
+                                                                if (!empty($return_idc_existing_data['client_id'])) {
                                                                     $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
 
                                                                     if ($clientDetail) {
@@ -531,52 +563,87 @@ PostResult( msg );
                                                                 }
 
                                                                 // Exception Types
-                                                                if($error_val['field'] == 'customer_account_number')
-                                                                {
+                                                                if($error_val['field'] == 'customer_account_number') {
                                                                     $existing_field_value = $return_idc_existing_data['customer_account_number'];
                                                                 }
 
-                                                                if($error_val['field'] == 'CUSIP_number')
-                                                                {
-                                                                    $existing_field_value = $return_idc_existing_data['CUSIP_number'];
+                                                                if($error_val['field'] == 'cusip_number') {
+                                                                    $existing_field_value = $return_idc_existing_data['cusip_number'];
                                                                 }
 
-                                                                if($error_val['field'] == 'u5')
-                                                                {
+                                                                if($error_val['field'] == 'u5') {
                                                                     $rep_number = $return_idc_existing_data['representative_number'];
                                                                     $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
 
-                                                                if($error_val['field'] == 'active_check')
-                                                                {
+                                                                if($error_val['field'] == 'active_check') {
                                                                     // 1.State / 2.ProdCat / 3.TermDate
                                                                     $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
-                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['CUSIP_number'])."'");
+                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['cusip_number'])."'");
                                                                     $licenceDetail = $instance_import->checkStateLicence($return_idc_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_idc_existing_data['trade_date'], 1);
                                                                     $category = substr($licenceDetail['licence_table'], strrpos($licenceDetail['licence_table'], '_') +1 );
                                                                     $existing_field_value = trim($category).' / '.trim($licenceDetail['state_name']);
                                                                 }
 
+                                                                if($error_val['field'] == 'objectives') {
+                                                                    $productObjectiveId = 0;
+                                                                    $existing_field_value = '';
+                                                                    $res = 0;
+
+                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['cusip_number'])."'");
+                                                                    if ($productDetail) {
+                                                                        $productObjectiveId = (int)$productDetail['objective'];
+
+                                                                        $res = $instance_suitability->edit_objective($productObjectiveId);
+
+                                                                        if ($res) {
+                                                                            $existing_field_value = $res['option'];
+                                                                        }
+                                                                    }
+                                                                }
                                                             }
+                                                            if(isset($error_val['file_type']) && $error_val['file_type'] == '3')
+                                                            {
+                                                                $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
+
+                                                                if($error_val['field'] == 'cusip_number') {
+                                                                    $existing_field_value = $return_sfr_existing_data['cusip_number'];
+                                                                } else if($error_val['field'] == 'ticker_symbol') {
+                                                                    $existing_field_value = $return_sfr_existing_data['ticker_symbol'];
+                                                                } else if($error_val['field'] == 'fund_name') {
+                                                                    $existing_field_value = $return_sfr_existing_data['fund_name'];
+                                                                } else if($error_val['field'] == 'major_security_type') {
+                                                                    $existing_field_value = $return_sfr_existing_data['major_security_type'];
+                                                                }
+                                                            }
+
                                                         ?>
                                                         <tr>
                                                             <td><?php echo date('m/d/Y',strtotime($error_val['date']));?></td>
-                                                            <td><?php echo $error_val['rep'];?></td>
-                                                            <td><?php echo $error_val['rep_name'];?></td>
-                                                            <td><?php echo $error_val['account_no'];?></td>
-                                                            <td><?php echo $error_val['client'];?></td>
-                                                            <?php
-                                                            if(isset($get_file_type) && $get_file_type == '1'){
-                                                            $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']);
-                                                            ?>
-                                                            <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                            <?php }
-                                                            else if(isset($get_file_type) && $get_file_type == '2')
-                                                            { ?>
-                                                            <td><?php echo $error_val['cusip'];?></td>
-                                                            <td style="text-align: right;"><?php if($error_val['principal'] > 0){ echo '$'.number_format($error_val['principal'],2);}else{ echo '$0';}?></td>
-                                                            <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
+                                                            <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2'])) { ?>
+                                                                <td><?php echo $error_val['rep'];?></td>
+                                                                <td><?php echo $error_val['rep_name'];?></td>
+                                                                <td><?php echo $error_val['account_no'];?></td>
+                                                                <td><?php echo $error_val['client'];?></td>
+                                                            <?php } ?>
+
+                                                            <?php if(isset($error_val['file_type']) && $error_val['file_type'] == '1'){
+                                                                $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']); ?>
+                                                                <td><?php echo $get_client_data[0]['client_address'];?></td>
+                                                            <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '2') { ?>
+                                                                <td><?php echo $error_val['cusip'];?></td>
+                                                                <td style="text-align: right;"><?php if($error_val['principal'] > 0){ echo '$'.number_format($error_val['principal'],2);}else{ echo '$0';}?></td>
+                                                                <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
+                                                            <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '3') { ?>
+                                                                <?php
+                                                                    $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
+                                                                    $existingDetailValues = ['fund_name'=> $return_sfr_existing_data['fund_name'], 'cusip_number'=>$return_sfr_existing_data['cusip_number'], 'ticker_symbol'=>$return_sfr_existing_data['ticker_symbol'], 'product_category_id'=>$return_sfr_existing_data['product_category_id']];
+                                                                ?>
+                                                                <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
+                                                                <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
+                                                                <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
+                                                                <td><?php echo $return_sfr_existing_data['major_security_type'] ?></td>
                                                             <?php } ?>
                                                             <td><?php echo $error_val['error'];?></td>
                                                             <td style="width: 20%;">
@@ -586,7 +653,7 @@ PostResult( msg );
                                                                 <option value="0">ADD</option>
                                                             </select> -->
                                                             <input type="hidden" name="id" id="id" value="" />
-                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
+                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>,<?php echo $error_val['id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
                                                             </form>
                                                             </td>
                                                         </tr>
@@ -600,60 +667,88 @@ PostResult( msg );
                                             <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span><h4 class="panel-overlay-title"></h4><p></p></div>
                                         </div>
                                      </div>
-
                                 </div>
+
                                 <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="processed_files" && $_GET['id']>0){ echo "active"; } ?>" id="processed_files">
                                     <div class="panel-overlay-wrap">
                                         <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                             <div class="row">
-                                            <?php
-                                            $get_file_type = $instance->get_file_type($_GET['id']);
-                                            ?>
+                                            <?php if (isset($_GET['file_type'])) {
+                                                $get_file_type = $instance->re_db_input($_GET['file_type']);
+                                            } else {
+                                                $get_file_type = $instance->get_file_type($_GET['id']);
+                                            } ?>
+
                                                 <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                     <table id="data-table4" class="table table-bordered table-stripped table-hover">
                                                         <thead>
                                                             <th>Date</th>
-                                                            <th>Rep#</th>
-                                                            <th>Rep Name</th>
-                                                            <th>Account#</th>
-                                                            <th>Client Name</th>
-                                                            <?php if(isset($get_file_type) && $get_file_type == '1'){
-                                                            ?>
-                                                            <th>Client Address</th>
-                                                            <?php }
-                                                            else if(isset($get_file_type) && $get_file_type == '2'){?>
-                                                            <th>CUSIP</th>
-                                                            <th>Principal</th>
-                                                            <th>Commission</th>
+
+                                                            <?php if(isset($get_file_type) && $get_file_type == '3') { ?>
+                                                                <th>Fund Name</th>
+                                                                <th>CUSIP</th>
+                                                                <th>Ticker Symbol</th>
+                                                                <th>Security Type</th>
+                                                            <?php } else { ?>
+                                                                <th>Rep#</th>
+                                                                <th>Rep Name</th>
+                                                                <th>Account#</th>
+                                                                <th>Client Name</th>
+                                                            <?php } ?>
+
+                                                            <?php if(isset($get_file_type) && $get_file_type == '1') { ?>
+                                                                <th>Client Address</th>
+                                                            <?php } else if(isset($get_file_type) && $get_file_type == '2'){ ?>
+                                                                <th>CUSIP</th>
+                                                                <th>Principal</th>
+                                                                <th>Commission</th>
                                                             <?php } ?>
                                                         </thead>
                                                         <tbody>
                                                             <?php
                                                             $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
-                                                            $return_solved_exception = $instance->select_solved_exception_data($file_id);
+                                                            $get_sfr_detail_data = [];
+                                                            if (isset($_GET['file_type'])) {
+                                                                $get_file_type = $instance->re_db_input($_GET['file_type']);
+                                                            } else {
+                                                                $get_file_type = $instance->get_file_type($_GET['id']);
+                                                            }
+                                                            $return_solved_exception = $instance->select_solved_exception_data($file_id, $get_file_type);
+
                                                             foreach($return_solved_exception as $process_key=>$process_val)
                                                             {
                                                                 $total_commission_amount = $total_commission_amount+$process_val['commission'];
-                                                            ?>
-                                                            <tr>
-                                                                <td><?php echo date('m/d/Y',strtotime($process_val['date']));?></td>
-                                                                <td><?php echo $process_val['rep'];?></td>
-                                                                <td><?php echo $process_val['rep_name'];?></td>
-                                                                <td><?php echo $process_val['account_no'];?></td>
-                                                                <td><?php echo $process_val['client'];?></td>
-                                                                <?php
-                                                                if(isset($get_file_type) && $get_file_type == '1'){
-                                                                $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']);
                                                                 ?>
-                                                                <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                                <?php }
-                                                                else if(isset($get_file_type) && $get_file_type == '2')
-                                                                { ?>
-                                                                <td><?php echo $process_val['cusip'];?></td>
-                                                                <td style="text-align: right;"><?php if($process_val['principal'] > 0){ echo '$'.number_format($process_val['principal'],2);}else{ echo '$0';}?></td>
-                                                                <td style="text-align: right;"><?php if($process_val['commission'] > 0){ echo '$'.number_format($process_val['commission'],2);}else{ echo '$0';}?></td>
-                                                                <?php } ?>
-                                                            </tr>
+
+                                                                <tr>
+                                                                    <td><?php echo date('m/d/Y',strtotime($process_val['date']));?></td>
+
+                                                                    <?php if(isset($get_file_type) && $get_file_type == '3') {
+                                                                        $get_sfr_detail_data = $instance->select_existing_sfr_data($process_val['temp_data_id']);
+                                                                        $security_type = $instance_batches->get_product_type($get_sfr_detail_data['product_category_id']);
+                                                                        ?>
+
+                                                                        <td><?php echo $get_sfr_detail_data['fund_name'];?></td>
+                                                                        <td><?php echo $get_sfr_detail_data['cusip_number'];?></td>
+                                                                        <td><?php echo $get_sfr_detail_data['ticker_symbol'];?></td>
+                                                                        <td><?php if ($security_type!=''){echo $security_type;} else {echo $get_sfr_detail_data['major_security_type'];}?></td>
+                                                                    <?php } else { ?>
+                                                                        <td><?php echo $process_val['rep'];?></td>
+                                                                        <td><?php echo $process_val['rep_name'];?></td>
+                                                                        <td><?php echo $process_val['account_no'];?></td>
+                                                                        <td><?php echo $process_val['client'];?></td>
+                                                                    <?php } ?>
+
+
+                                                                    <?php if(isset($get_file_type) && $get_file_type == '1') {
+                                                                        $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']); ?>
+                                                                        <td><?php echo $get_client_data[0]['client_address'];?></td>
+                                                                    <?php } else if(isset($get_file_type) && $get_file_type == '2') { ?>
+                                                                        <td><?php echo $process_val['cusip'];?></td>
+                                                                        <td style="text-align: right;"><?php if($process_val['principal'] > 0){ echo '$'.number_format($process_val['principal'],2);}else{ echo '$0';}?></td>
+                                                                        <td style="text-align: right;"><?php if($process_val['commission'] > 0){ echo '$'.number_format($process_val['commission'],2);}else{ echo '$0';}?></td>
+                                                                    <?php } ?>
+                                                                </tr>
                                                             <?php } ?>
                                                         </tbody>
                                                     </table>
@@ -841,7 +936,7 @@ PostResult( msg );
                                                                 <?php }
                                                                 else if(isset($get_file_type) && $get_file_type == '2')
                                                                 { ?>
-                                                                <td><?php echo $preview_val['CUSIP_number'];?></td>
+                                                                <td><?php echo $preview_val['cusip_number'];?></td>
                                                                 <td style="text-align: right;"><?php if($preview_val['gross_transaction_amount'] > 0){ echo '$'.number_format($preview_val['gross_transaction_amount']/100,2);}else{ echo '$0';}?></td>
                                                                 <td style="text-align: right;"><?php if($preview_val['dealer_commission_amount'] > 0){ echo '$'.number_format($preview_val['dealer_commission_amount']/100,2);}else{ echo '$0';}?></td>
                                                                 <?php } ?>
@@ -1144,7 +1239,7 @@ PostResult( msg );
             </div>
         </div>
         <br />
-        <div class="col-md-12" style="alignment-adjust: central;">
+        <div class="col-md-12" > <!--deprecated 03/04/22 -- style="alignment-adjustment: center;"-->
             <form method="post" id="resolve_exception_form" name="resolve_exception_form" onsubmit="return exception_submit();">
                 <div class="row"> <!--text-right"-->
                 <div class="col-md-5">
@@ -1165,13 +1260,13 @@ PostResult( msg );
                         <select name="sponsor" id="sponsor" class="form-control" style="display: none;">
                             <option value="">Select Sponsor</option>
                             <?php foreach($get_sponsor as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
+                                <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
                             <?php } ?>
                         </select>
                         <select name="objectives" id="objectives" class="form-control" style="display: none;">
                             <option value="">Select Objective</option>
                             <?php foreach($get_objective as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>"><?php echo $val['option'];?></option>
+                                <option value="<?php echo $val['id'];?>" <?php echo $productObjectiveId==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
                             <?php } ?>
                         </select>
                         <div id="demo-dp-range">
@@ -1205,112 +1300,133 @@ PostResult( msg );
                     </div>
                 </div>
                 </div>
-                <div class="row" style="display: none;" id="broker_termination_options_trades">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label id="broker_termination_label" class="pull-right">Select Option</label>
+                <div class="row" style="display: none;" id="broker_termination_options_trades" data-exception-field="representative_number">
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label id="broker_termination_label" class="pull-right">Select Option</label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/><label> Hold commission</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign trade to a new broker</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Trade</label><br />
-                </div>
+                    <div class="col-md-6">
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/>
+                            <label> Hold commission</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/>
+                            <label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/>
+                            <label id="lbl_reassign_broker_trades"> Reassign trade to another BROKER</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/>
+                            <label> Delete Trade</label><br />
+                    </div>
                 </div>
                 <div class="row" style="display: none;" id="broker_termination_options_clients">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label id="broker_termination_label">Select Option</label>
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label id="broker_termination_label">Select Option</label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Make Broker Active</label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign client to a new broker </label><br />
-                   <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Client</label><br />
-                </div>
+                    <div class="col-md-6">
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Make Broker Active</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign client to a new broker </label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Client</label><br />
+                    </div>
                 </div>
                 <div class="row" id="assign_rep_to_broker" style="display: none;">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label class="pull-right">Select Broker: </label>
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_assign_to_existing_broker">Select Broker: </label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="inputpopup">
-                        <select name="rep_for_broker" id="rep_for_broker" class="form-control">
-                            <option value="">Select Broker</option>
-                            <?php foreach($get_broker as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['first_name']) AND !empty($val['last_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
-                            <?php } ?>
-                        </select>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="rep_for_broker" id="rep_for_broker" class="form-control">
+                                <option value="">Select Broker</option>
+                                <?php foreach($get_broker as $key=>$val){?>
+                                <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['first_name']) AND !empty($val['last_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="row" id="assign_cusip_to_product" style="display: none;">
                     <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-md-5">
-                            <div class="inputpopup">
-                                <label class="pull-right">CUSIP # to Assign: </label>
+                        <div class="row" id="assign_cusip_to_product_row_cusip">
+                            <div class="col-md-5">
+                                <div class="inputpopup">
+                                    <label class="pull-right" id="label_cusip_number">CUSIP # to Assign: </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="inputpopup">
+                                    <input type="text" name="cusip_number" id="cusip_number" disabled="true"/>
+                                    <input type="hidden" name="assign_cusip_number" id="assign_cusip_number"/>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="inputpopup">
-                                <input type="text" name="CUSIP_number" id="CUSIP_number" disabled="true"/>
-                                <input type="hidden" name="assign_cusip_number" id="assign_cusip_number"/>
+                        <div class="row" id="assign_cusip_to_product_row_product_category">
+                            <div class="col-md-5">
+                                <div class="inputpopup">
+                                    <label class="pull-right">Product Category: </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="inputpopup">
+                                    <select name="assign_cusip_product_category" id="assign_cusip_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
+                                        <option value="0">Select Category</option>
+                                        <?php foreach($get_product_category as $key=>$val){?>
+                                        <option value="<?php echo $val['id'];?>" <?php echo (isset($existingDetailValues['product_category_id']) AND $val['id']==$existingDetailValues['product_category_id'])?"selected":"" ?>><?php echo $val['type'];?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-5">
-                            <div class="inputpopup">
-                                <label class="pull-right">Product Category: </label>
+                        <div class="row" id="assign_cusip_to_product_row_product">
+                            <div class="col-md-5">
+                                <div class="inputpopup">
+                                    <label class="pull-right">Product: </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="inputpopup">
+                                    <select class="form-control" name="assign_cusip_product"  id="assign_cusip_product">
+                                        <option value="0">Select Product</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="inputpopup">
-                                <select name="assign_cusip_product_category" id="assign_cusip_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
-                                    <option value="0">Select Category</option>
-                                    <?php foreach($get_product_category as $key=>$val){?>
-                                    <option value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-5">
-                            <div class="inputpopup">
-                                <label class="pull-right">Product: </label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="inputpopup">
-                                <select class="form-control" name="assign_cusip_product"  id="assign_cusip_product">
-                                    <option value="0">Select Product</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
                     </div>
                 </div>
                 <div class="row" id="assign_client_to_account" style="display: none;">
-                <div class="col-md-5">
-                    <div class="inputpopup">
-                        <label class="pull-right" id="label_assign_to_existing_client">Assign to Existing Client</label>
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_assign_to_existing_client">Assign to Existing Client</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="acc_for_client" id="acc_for_client" class="form-control">
+                                <option value="">Select Client</option>
+                                <?php foreach($get_client as $key=>$val){ ?>
+                                <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="inputpopup">
-                        <select name="acc_for_client" id="acc_for_client" class="form-control">
-                            <option value="">Select Client</option>
-                            <?php foreach($get_client as $key=>$val){ ?>
-                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
-                            <?php } ?>
-                        </select>
+                <div class="row" id="assign_objective_to_client" style="display: none;">
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_assign_objective_to_client">Add Client Objective: </label>
+                        </div>
                     </div>
-                </div>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="objective_for_client" id="objective_for_client" class="form-control" style="display: none;">
+                                <option value="">Select Objective</option>
+                                <?php foreach($get_objective as $key=>$val){?>
+                                    <option value="<?php echo $val['id'];?>" <?php echo $productObjectiveId==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                 <div class="col-md-5"></div>
@@ -1321,8 +1437,10 @@ PostResult( msg );
                         <input type="hidden" name="exception_file_id" id="exception_file_id" value=""/>
                         <input type="hidden" name="exception_file_type" id="exception_file_type" value=""/>
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
+                        <input type="hidden" name="exception_record_id" id="exception_record_id" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
-        	            <button type="submit" style="alignment-adjust: central !important;" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
+        	            <button type="submit" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
+                        <!--Deprecated 03/04/22 -- style="alignment-adjustment: center !important;" -->
                     </div>
                 </div>
                 <div class="col-md-5" id="link_div">
@@ -1527,264 +1645,263 @@ $('#demo-dp-range .input-daterange').datepicker({
 });
 function reassign_broker_(value)
 {
+    $exceptionField = document.getElementById('broker_termination_options_trades').dataset.exceptionField;
+    $("#assign_rep_to_broker").css('display','none');
+    $("#assign_client_to_account").css('display','none');
+
     if(value==3)
     {
-        $("#assign_rep_to_broker").css('display','block');
-    }
-    else
-    {
-        $("#assign_rep_to_broker").css('display','none');
+        if ($exceptionField == 'objectives'){
+            $("#assign_client_to_account").css('display','block');
+
+        } else {
+            $("#assign_rep_to_broker").css('display','block');
+        }
     }
 }
 
-function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id)
+function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id)
 {
+    result = 0;
+
+    document.getElementById("field_label").innerHTML = 'Add Exception Value';
     document.getElementById("exception_data_id").value = temp_data_id;
     document.getElementById("exception_field").value = exception_field;
     document.getElementById("exception_file_id").value = exception_file_id;
     document.getElementById("exception_file_type").value = exception_file_type;
     document.getElementById("error_code_id").value = error_code_id;
+    document.getElementById("exception_record_id").value = exception_record_id;
+    document.getElementById("exception_value").value = '';
+    document.getElementById("link_div").innerHTML = '';
 
-    if(exception_file_type == '3')
-    {
-        $("#exception_value_date").css('display','none');
-        $("#active_state").css('display','none');
-        $("#status").css('display','none');
-        $("#social_security_number").css('display','none');
-        $("#active").css('display','none');
-        $("#sponsor").css('display','none');
+    $("#exception_value").css('display','block');
+    $("#exception_value_date").css('display','none');
+    $("#exception_value_date_display").css('display','none');
+    $("#exception_value_dis").css('display','none');
+    $("#active_state").css('display','none');
+    $("#active").css('display','none');
+    $("#status").css('display','none');
+    $("#social_security_number").css('display','none');
+    $("#sponsor").css('display','none');
+    $("#objectives").css('display','none');
+    $("#cusip_number").css('display','none');
+    $("#alpha_code").css('display','none');
+    $("#existing_ticker_symbol").css('display','none');
+    $("#existing_cusip_number").css('display','none');
+    $("#assign_client_to_account").css('display','none');
+    $("#assign_rep_to_broker").css('display','none');
+    $("#assign_cusip_to_product").css('display','none');
+
+    if (exception_file_type == 3 && error_code_id == 13){
+        // 03/05/22 Not needed with file_type and error_code_id criteria --- && ['major_security_type', 'cusip_number', 'fund_name'].includes(exception_field)
+        const existingDetailValues = <?php echo isset($existingDetailValues) ? json_encode($existingDetailValues) : json_encode(['fund_name'=>'', 'cusip_number'=>'', 'product_category_id'=>'0']); ?>;
+        const parentRow = '#assign_cusip_to_product';
+
+        $(parentRow).css("display","block");
+        $(parentRow + " #label_cusip_number").html("Cusip #");
+        $(parentRow + "_row_product").css("display","none");
+
+        $("#field_label").html("Fund Name");
+        $("#field_label").css("display","block");
+        $("#exception_value").css("display","block");
+        $("#exception_value").val(existingDetailValues['fund_name']);
+        $(parentRow + " #cusip_number").val(existingDetailValues['cusip_number']);
+        $(parentRow + " #cusip_number").prop("disabled", false);
+
+        result += 1;
+    }
+    else if (error_code_id == '17'){
+        document.getElementById("field_label").innerHTML = 'Security Type';
+        $("#assign_cusip_to_product").css("display","block");
+        $(".row #assign_cusip_to_product_row_cusip").css("display","none");
+        $("#assign_cusip_to_product_row_product").css("display","none");
+
+        document.getElementById("exception_value").value = existing_field_value;
+        document.getElementById("exception_value_dis").value = existing_field_value;
+        $("#exception_value").prop( "disabled", true );
+        $("#exception_value_dis").prop( "disabled", true );
+        $("#exception_value").css('display','none');
+        $("#exception_value_dis").css('display','block');
+
+        result += 1;
+    }
+    else if(exception_field == 'u5'){
+        document.getElementById("field_label").innerHTML = 'Broker Termination Date:';
+        $("#exception_value_date_display").css('display','block');
+        if(exception_file_type == '1')
+        {
+            $("#broker_termination_options_clients").css('display','block');
+            document.getElementById("broker_active").checked = true;
+        }
+        if(exception_file_type == '2')
+        {
+            $("#broker_termination_options_trades").css('display','block');
+            document.getElementById("broker_termination_options_trades").dataset.exceptionField = "u5";
+            document.getElementById("lbl_broker_active_trades").innerHTML = 'Remove U5 Date/Activate Broker';
+            document.getElementById("hold_commission").checked = true;
+        }
+        document.getElementById("exception_value_date").value = existing_field_value;
+        document.getElementById("exception_value_date_display").value = existing_field_value;
+        $("#exception_value_date_display").prop('disabled','true');
+        $("#exception_value").css('display','none');
+
+        result += 1;
+    }
+    else if(exception_field == 'status'){
+        document.getElementById("field_label").innerHTML = 'Product Terminated:';
+        $("#status").css('display','block');
+        $("#exception_value").css('display','none');
+
+        result += 1;
+    }
+    else if(exception_field == 'mutual_fund_customer_account_number'){
+        document.getElementById("field_label").innerHTML = 'Account# to Add';
+        document.getElementById("exception_value").value = '';
+
+        result += 1;
+    }
+    else if(exception_field == 'customer_account_number'){
+        document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Account # to Add');
+        document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
+        document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
+        $("#exception_value_dis").prop( "disabled", true );
+        $("#assign_client_to_account").css('display','block');
+        $("#exception_value").css('display','none');
+        $("#exception_value_dis").css('display','block');
+        if (error_code_id == 13){
+            document.getElementById("label_assign_to_existing_client").innerHTML = 'Assign Client to Trade';
+        }
+
+        result += 1;
+    }
+    else if(exception_field == 'active_check'){
+        document.getElementById("field_label").innerHTML = 'Licence Category / State';
+        // $("#active_state").css('display','block');
+        $("#exception_value").css('display','block');
+        $("#broker_termination_options_trades").css('display','block');
+        document.getElementById("exception_value").value = existing_field_value;
+        document.getElementById("exception_value_dis").value = existing_field_value;
+        document.getElementById("broker_termination_options_trades").dataset.exceptionField = "active_check";
+        document.getElementById("hold_commission").checked = true;
+        document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
+        document.getElementById("lbl_reassign_broker_trades").innerHTML = 'Reassign trade to another BROKER';
+        $("#exception_value").prop( "disabled", true );
+        $("#exception_value_dis").prop( "disabled", true );
+        $("#exception_value").css('display','none');
+        $("#exception_value_dis").css('display','block');
+
+        result += 1;
+    }
+    else if(exception_field == 'registration_line1'){
+        document.getElementById("field_label").innerHTML = 'Enter Client Name:';
+        document.getElementById("exception_value").value = existing_field_value;
+
+        result += 1;
+    }
+    else if(exception_field == 'social_security_number'){
+        document.getElementById("field_label").innerHTML = 'Change Social Security Number: ';
+        document.getElementById("social_security_number").value = existing_field_value;
+        $("#social_security_number").css('display','block');
+        $("#exception_value").css('display','none');
+
+        result += 1;
+    }
+    else if(exception_field == 'active'){
+        document.getElementById("field_label").innerHTML = 'Active Client:';
+        $("#active").css('display','block');
+        $("#exception_value").css('display','none');
+
+        result += 1;
+    }
+    else if(exception_field == 'objectives'){
+        // Use #broker_termination_options_trades row
         $("#objectives").css('display','none');
-        $("#cusip_number").css('display','none');
-        $("#alpha_code").css('display','none');
-        $("#assign_rep_to_broker").css('display','none');
 
-        if(exception_field == 'cusip_number')
+        document.getElementById("field_label").innerHTML = 'Product Objective';
+        $("#field_label").css('display','block');
+        $("#exception_value").css('display','none');
+        $("#exception_value").prop( "disabled", true );
+        $("#exception_value_dis").css('display','block');
+        $("#exception_value_dis").prop( "disabled", true );
+        document.getElementById("exception_value").value = existing_field_value;
+        document.getElementById("exception_value_dis").value = existing_field_value;
+
+        /* Show Hold/Assign/Reassign/Delete radio buttons */
+        $("#broker_termination_options_trades").css('display','block');
+
+        document.getElementById("broker_termination_options_trades").dataset.exceptionField = "objectives";
+        document.getElementById("lbl_broker_active_trades").innerHTML = 'Add Product Objective to Client';
+        document.getElementById("lbl_reassign_broker_trades").innerHTML = 'Reassign trade to another CLIENT';
+        document.getElementById("hold_commission").checked = true;
+
+        result += 1;
+    }
+    else if (exception_field == 'sponsor'){
+        document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
+        $("#sponsor").css('display','block');
+        $("#exception_value").css('display','none');
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
+
+        result += 1;
+    }
+    else if(exception_field == 'cusip_number' && error_code_id == '13' ){
+        document.getElementById("field_label").innerHTML = 'Enter Missing CUSIP #';
+        $("#cusip_number").css('display','block');
+        $("#exception_value").css('display','none');
+
+        result += 1;
+    }
+    else if(exception_field == 'cusip_number' && error_code_id == '11'){
+        if(exception_file_type == 3)
         {
             document.getElementById("field_label").innerHTML = 'Change Cusip Number:';
             $("#existing_cusip_number").css('display','block');
             document.getElementById("existing_cusip_number").value = existing_field_value;
             $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#existing_cusip_number").css('display','none');
-        }
-        if(exception_field == 'ticker_symbol')
-        {
-            document.getElementById("field_label").innerHTML = 'Change Ticker Symbol:';
-            $("#existing_ticker_symbol").css('display','block');
-            document.getElementById("existing_ticker_symbol").value = existing_field_value;
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#existing_ticker_symbol").css('display','none');
-        }
-    }
-    else
-    {
-        $("#existing_cusip_number").css('display','none');
-        $("#existing_ticker_symbol").css('display','none');
-
-        if(exception_field == 'u5')
-        {
-            document.getElementById("field_label").innerHTML = 'Broker Termination Date:';
-            $("#exception_value_date").css('display','none');
-            $("#exception_value_date_display").css('display','block');
-            if(exception_file_type == '1')
-            {
-                $("#broker_termination_options_clients").css('display','block');
-            }
-            if(exception_file_type == '2')
-            {
-                $("#broker_termination_options_trades").css('display','block');
-            }
-            document.getElementById("exception_value_date").value = existing_field_value;
-            document.getElementById("exception_value_date_display").value = existing_field_value;
-            $("#exception_value_date_display").prop('disabled','true');
-            $("#exception_value").css('display','none');
-        }
-        else{
-            document.getElementById("field_label").innerHTML = exception_field;
-            $("#exception_value_date").css('display','none');
-            $("#exception_value_date_display").css('display','none');
-            if(exception_file_type == '1')
-            {
-                $("#broker_termination_options_clients").css('display','none');
-            }
-            if(exception_file_type == '2')
-            {
-                $("#broker_termination_options_trades").css('display','none');
-            }
-            document.getElementById("exception_value_date").value = '';
-            $("#exception_value").css('display','block');
-        }
-
-        if(exception_field == 'active_check')
-        {
-            document.getElementById("field_label").innerHTML = 'Licence Category / State';
-            // $("#active_state").css('display','block');
-            $("#exception_value").css('display','block');
-            $("#broker_termination_options_trades").css('display','block');
-            document.getElementById("exception_value").value = existing_field_value;
-            document.getElementById("exception_value_dis").value = existing_field_value;
-            document.getElementById("lbl_broker_active_trades").innerHTML = 'Enter/Activate Broker Licence';
-            $("#exception_value").prop( "disabled", true );
-            $("#exception_value_dis").prop( "disabled", true );
-            $("#exception_value").css('display','none');
-            $("#exception_value_dis").css('display','block');s
-        }
-        else
-        {
-            $("#active_state").css('display','none');
-        }
-
-        if(exception_field == 'status')
-        {
-            document.getElementById("field_label").innerHTML = 'Product Terminated:';
-            $("#status").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#status").css('display','none');
-        }
-
-        if(exception_field == 'mutual_fund_customer_account_number')
-        {
-            document.getElementById("field_label").innerHTML = 'Account# to Add';
-            document.getElementById("exception_value").value = '';
-        }
-        else
-        {
-            document.getElementById("exception_value").value = '';
-        }
-
-        if(exception_field == 'customer_account_number')
-        {
-            document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Account # to Add');
-            document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
-            document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
-            $("#exception_value_dis").prop( "disabled", true );
-            $("#assign_client_to_account").css('display','block');
-            $("#exception_value").css('display','none');
-            $("#exception_value_dis").css('display','block');
-            if (error_code_id == 13){
-                document.getElementById("label_assign_to_existing_client").innerHTML = 'Assign Trade to Client';
-            }
-        }
-        else
-        {
-            document.getElementById("exception_value").value = '';
-            document.getElementById("link_div").innerHTML = '';
-            $("#assign_client_to_account").css('display','none');
-            $("#exception_value_dis").css('display','none');
-        }
-
-        if(exception_field == 'registration_line1')
-        {
-            document.getElementById("field_label").innerHTML = 'Enter Client Name:';
-            document.getElementById("exception_value").value = existing_field_value;
-        }
-
-        if(exception_field == 'social_security_number')
-        {
-            document.getElementById("field_label").innerHTML = 'Change Social Security Number: ';
-            document.getElementById("social_security_number").value = existing_field_value;
-            $("#social_security_number").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#social_security_number").css('display','none');
-        }
-
-        if(exception_field == 'active')
-        {
-            document.getElementById("field_label").innerHTML = 'Active Client:';
-            $("#active").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#active").css('display','none');
-        }
-
-        if(exception_field == 'objectives')
-        {
-            document.getElementById("field_label").innerHTML = 'Assign Product Objective:';
-            $("#objectives").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#objectives").css('display','none');
-        }
-
-        if(exception_field == 'sponsor')
-        {
-            document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
-            $("#sponsor").css('display','block');
-            $("#exception_value").css('display','none');
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
-        }
-        else
-        {
-            $("#sponsor").css('display','none');
-        }
-
-        if(exception_field == 'CUSIP_number' && error_code_id == '13' )
-        {
-            document.getElementById("field_label").innerHTML = 'Enter CUSIP Number';
-            $("#cusip_number").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#cusip_number").css('display','none');
-        }
-
-        if(exception_field == 'CUSIP_number' && error_code_id == '11')
-        {
-            //document.getElementById("field_label").innerHTML = 'CUSIP Number';
+        } else {
+            document.getElementById("field_label").innerHTML = 'Assign CUSIP to Product';
             $("#assign_cusip_to_product").css('display','block');
             $("#exception_value").css('display','none');
-            $("#field_label").css('display','none');
+            $("#field_label").css('display','block');
             document.getElementById("assign_cusip_number").value = existing_field_value;
-            document.getElementById("CUSIP_number").value = existing_field_value;
-        }
-        else
-        {
-            $("#assign_cusip_to_product").css('display','none');
-        }
-
-        if(exception_field == 'alpha_code')
-        {
-            document.getElementById("field_label").innerHTML = 'Enter Client Name';
-            $("#alpha_code").css('display','block');
-            $("#exception_value").css('display','none');
-        }
-        else
-        {
-            $("#alpha_code").css('display','none');
-        }
-
-        if(exception_field == 'representative_number')
-        {
-            document.getElementById("field_label").innerHTML = 'Broker Alias to Add:';
-            document.getElementById("exception_value").value = rep_number;
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
-            //document.getElementById("exception_value_dis").value = rep_number;
-            $("#assign_rep_to_broker").css('display','block');
-            //$("#exception_value").css('display','none');
+            document.getElementById("cusip_number").value = existing_field_value;
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_new&file_id=';?>'+exception_file_id+'<?php echo '&cusip_number='; ?>'+existing_field_value+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'" style="display: block; float: right;" id="add_product_for_cusip">Add New Product</a>';
 
         }
-        else{
-            $("#assign_rep_to_broker").css('display','none');
+
+        result += 1;
+    }
+    else if(exception_field == 'ticker_symbol'){
+        document.getElementById("field_label").innerHTML = 'Change Ticker Symbol:';
+        $("#existing_ticker_symbol").css('display','block');
+        document.getElementById("existing_ticker_symbol").value = existing_field_value;
+        $("#exception_value").css('display','none');
+
+        result += 1;
+    }
+    else if(exception_field == 'alpha_code'){
+        document.getElementById("field_label").innerHTML = 'Enter Client Name';
+        $("#alpha_code").css('display','block');
+        $("#exception_value").css('display','none');
+
+        result += 1;
+    }
+    else if(exception_field == 'representative_number'){
+        document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Data' : 'Broker Alias to Add:');
+        document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+        //document.getElementById("exception_value_dis").value = rep_number;
+        $("#assign_rep_to_broker").css('display','block');
+        //$("#exception_value").css('display','none');
+        if (error_code_id == 13){
+            document.getElementById("label_assign_to_existing_broker").innerHTML = 'Assign Trade to Broker';
         }
+
+        result += 1;
     }
 
+    return result
 }
 function exception_submit()
 {
@@ -1798,7 +1915,7 @@ function exception_submit()
       data: $("#resolve_exception_form").serialize(), // serializes the form's elements.
       success: function(data){
           if(data=='1'){
-               window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>;//get_client_notes();
+               window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>+"&file_type="+<?php echo $file_type; ?>;//get_client_notes();
           }
           else{
                $('#msg_exception').html('<div class="alert alert-danger">'+data+'</div>');

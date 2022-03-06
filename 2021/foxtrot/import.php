@@ -28,6 +28,7 @@
     $get_client = $instance_client->select(1);
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor();
+    $instance_batches = new batches();
 
     if(isset($_GET['id']) && $_GET['id'] !='')
     {
@@ -37,8 +38,20 @@
 
     if(isset($_POST['go'])&& $_POST['go']=='go'){
 
-        $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
-        $process_file = isset($_POST['process_file_'.$id])?$instance->re_db_input($_POST['process_file_'.$id]):'';
+        $id = isset($_POST['id']) ? $instance->re_db_input($_POST['id']) : 0;
+        $process_file = isset($_POST['process_file_'.$id]) ? $instance->re_db_input($_POST['process_file_'.$id]) : '';
+        // "File Type" is populated in select_current_files($file_id, sfrBreakout) function
+        if (!isset($_POST['process_file_type'])) {
+            $file_type = 1;
+        } else if ($_POST['process_file_type'] == 'DST Commission'){
+            $file_type = 2;
+        } else if ($_POST['process_file_type'] == 'Security File'){
+            $file_type = 3;
+        } else {
+            $file_type = 1;
+        }
+
+        // Action Choices
         if(isset($process_file) && $process_file == 1)
         {
             $return = $instance->delete_current_files($id);
@@ -58,7 +71,8 @@
         }
         else if(isset($process_file) && $process_file == 4)
         {
-            header("location:".CURRENT_PAGE."?tab=review_files&id=".$id);exit;
+            header("location:".CURRENT_PAGE."?tab=review_files&id=$id&file_type=$file_type");
+            exit;
         }
         else if(isset($process_file) && $process_file == 5)
         {
@@ -156,10 +170,11 @@
             $exception_value = isset($_POST['exception_value'])?$instance->re_db_input($_POST['exception_value']):'';
         }
 
-        $return = $instance->update_exceptions($_POST);
+        $return = $instance->resolve_exceptions($_POST);
 
         if($return===true){
-            echo '1';exit;
+            echo '1';
+            exit;
         }else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }

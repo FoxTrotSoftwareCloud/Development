@@ -43,7 +43,7 @@
             //for import
             $for_import = isset($data['for_import'])?$this->re_db_input($data['for_import']):'false';
             $file_id = isset($data['file_id'])?$this->re_db_input($data['file_id']):'';
-            $temp_data_id = isset($data['temp_data_id'])?$this->re_db_input($data['temp_data_id']):'';
+            $detail_data_id = isset($data['detail_data_id'])?$this->re_db_input($data['detail_data_id']):'';
 
 
 			if($name==''){
@@ -110,8 +110,26 @@
 
 				}
 				else{ // insert
+					/* check duplicate record */
+					$symbolQuery = $cusipQuery = 0;
+					$ticker_symbol = $this->re_db_input($ticker_symbol);
+					$cusip = $this->re_db_input($cusip);
 
-					$q = "INSERT INTO `".PRODUCT_LIST."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->insert_common_sql();
+					if (!empty($ticker_symbol)){
+						$symbolQuery = $this->product_list_by_query("`ticker_symbol`='$ticker_symbol'");
+					}
+
+					if (!empty($cusip)){
+						$cusipQuery = $this->product_list_by_query("`cusip`='$cusip'");
+					}
+
+					if($symbolQuery){
+						$this->errors = 'Symbol already exists.';
+					}
+					else if($cusipQuery){
+						$this->errors = 'Cusip already exists..';
+					} else {
+						$q = "INSERT INTO `".PRODUCT_LIST."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->insert_common_sql();
 
 						$res = $this->re_db_query($q);
                         $last_inserted_id = $this->re_db_insert_id();
@@ -126,15 +144,6 @@
 
                             }
                         }
-                        if($for_import == 'true')
-                        {
-                            $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$file_id."' and `temp_data_id`='".$temp_data_id."'";
-                            $res1 = $this->re_db_query($q1);
-
-                            $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `CUSIP_number`='".$cusip."' WHERE `file_id`='".$file_id."' and `id`='".$temp_data_id."'";
-                            $res1 = $this->re_db_query($q1);
-                        }
-
 
 						if($res){
 							if($isReturn){
@@ -147,11 +156,9 @@
 							$_SESSION['warning'] = UNKWON_ERROR;
 							return false;
 						}
-
+					}
 				}
 			}
-
-
 		}
 
 		public function get_product_rates_ids($product_id){
@@ -209,8 +216,7 @@
             //for import
             $for_import = isset($data['for_import'])?$this->re_db_input($data['for_import']):'false';
             $file_id = isset($data['file_id'])?$this->re_db_input($data['file_id']):'';
-            $temp_data_id = isset($data['temp_data_id'])?$this->re_db_input($data['temp_data_id']):'';
-
+            $detail_data_id = isset($data['detail_data_id'])?$this->re_db_input($data['detail_data_id']):'';
 
 			if($name==''){
 				$this->errors = 'Please enter product name.';
@@ -255,15 +261,6 @@
                 				$res = $this->re_db_query($q);
                             }
                         }
-                        if($for_import == 'true')
-                        {
-                            $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$file_id."' and `temp_data_id`='".$temp_data_id."'";
-                            $res1 = $this->re_db_query($q1);
-
-                            $q1 = "UPDATE `".IMPORT_IDC_DETAIL_DATA."` SET `CUSIP_number`='".$cusip."' WHERE `file_id`='".$file_id."' and `id`='".$temp_data_id."'";
-                            $res1 = $this->re_db_query($q1);
-                        }
-
 
 						if($res){
 							if($isReturn){
@@ -490,7 +487,7 @@
 
             $q = "SELECT `at`.*,`pro`.`name` as `product_name`
 					FROM `".TRANSACTION_MASTER."` AS `at`
-                    LEFT JOIN `product_category_".$category."` AS `pro` on `pro`.`id`=`at`.`product`
+                    LEFT JOIN `".PRODUCT_LIST."` AS `pro` on `pro`.`id`=`at`.`product`
                     WHERE `at`.`is_delete`='0' and `at`.`product`=".$id." and `at`.`product_cate`=".$category."
                     ORDER BY `at`.`id` DESC";
 			$res = $this->re_db_query($q);
@@ -569,19 +566,33 @@
 		 * */
 		public function select_product_category($category=''){
 			$return = array();
+			$categoryQuery = '';
+			
+			if (!empty($category)){
+				$categoryQuery = " AND `at`.`category`=".(int)($this->re_db_input($category));
+			}
+			
+			// 02/24/22 Products consolidated into one table "ft_products"
+			// $q = "SELECT `at`.*,pc.type,sp.name as sponsor
+			// 		FROM `product_category_".$category."` AS `at`
+            //         LEFT JOIN `".PRODUCT_TYPE."` as `pc` on `pc`.`id`=`at`.`category`
+            //         LEFT JOIN `".SPONSOR_MASTER."` as `sp` on `sp`.`id`=`at`.`sponsor`
+            //         WHERE `at`.`is_delete`='0'
+            //         ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*,pc.type,sp.name as sponsor"
+					." FROM `".PRODUCT_LIST."` AS `at`"
+                    ." LEFT JOIN `".PRODUCT_TYPE."` as `pc` on `pc`.`id`=`at`.`category`"
+                    ." LEFT JOIN `".SPONSOR_MASTER."` as `sp` on `sp`.`id`=`at`.`sponsor`"
+                    ." WHERE `at`.`is_delete`='0'"
+							.$categoryQuery
+                    ." ORDER BY `at`.`id` ASC"
+			;
 
-			$q = "SELECT `at`.*,pc.type,sp.name as sponsor
-					FROM `product_category_".$category."` AS `at`
-                    LEFT JOIN `".PRODUCT_TYPE."` as `pc` on `pc`.`id`=`at`.`category`
-                    LEFT JOIN `".SPONSOR_MASTER."` as `sp` on `sp`.`id`=`at`.`sponsor`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-
     			}
             }
 			return $return;

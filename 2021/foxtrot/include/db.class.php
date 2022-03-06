@@ -1134,7 +1134,65 @@ class db
     {
       return date('Y-m-d H:i:s', $timestamp);
     }
+    
 
+    /** Read/Update MySQL field that contains a PHP array that has been serialize($array)'d
+     * @param string $pTable
+     * @param string $pQuery
+     * @param string $pField
+     * @param variable $pAddValue
+     * @return mixed
+     * 02/09/22
+     */
+    function read_update_serial_field($pTable='', $pQuery='', $pField='', $pAddValue=null){
+        global $dbins;
+        $return = [];
+        $con = $pQuery;
+        $resArray = '';
+
+        if (is_null($pAddValue) AND !empty($pTable) AND !empty($pField)){
+            // READ the array from the table
+            $q = "SELECT `$pField`"
+                ." FROM `$pTable` "
+                .$con
+            ;
+            $res = $dbins->re_db_query($q);
+
+            if ($res) {
+                $resArray = $dbins->re_db_fetch_array($res);
+                if (!empty($resArray)){
+                    $return = unserialize($resArray[$pField]);
+                }
+            }
+        } else if (!is_null($pAddValue) AND !empty($pTable) AND !empty($pField)){
+            if (is_array($pAddValue)){
+                // UPDATE the field with the argument array
+                $resArray = $pAddValue;
+            } else {
+                // If SINGLE VALUE is passed, push into the array field
+                $resArray = $this->read_update_serial_field($pTable, $con, $pField);
+
+                if (is_array($resArray) AND count($resArray)){
+                    array_push($resArray, $pAddValue);
+                } else {
+                    $resArray = [$pAddValue];
+                }
+            }
+
+            if (!empty($resArray)){
+                $q = "UPDATE `$pTable`"
+                        ." SET `$pField`='".serialize($resArray)."'"
+                                .$this->update_common_sql()
+                        .$con
+                    ;
+                $res = $dbins->re_db_query($q);
+
+                $return = ($res ? $resArray : []);
+            }
+        }
+
+        return $return;
+    }
 }
 class Excel extends db
 {

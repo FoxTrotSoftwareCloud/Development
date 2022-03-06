@@ -1,6 +1,6 @@
 <?php
-  /* error_reporting(E_ALL);
-   ini_set("display_errors", "On");*/
+    /* error_reporting(E_ALL);
+    ini_set("display_errors", "On");*/
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
     $error = '';
@@ -42,45 +42,44 @@
     $search_product_category = '';
     $return_rates = array();
 
-    
- 
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'select_cat';
     $redirect = isset($_GET['redirect'])&&$_GET['redirect']!=''?$dbins->re_db_input($_GET['redirect']):'';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     $category = isset($_GET['category'])&&$_GET['category']!=''?$dbins->re_db_input($_GET['category']):'';
+    $cancelEdit = (!empty($_GET['cancel']) AND $action == 'view_product') ? 1 : 0;
 
-    /*if($redirect=='add_product_from_trans'){
-        $_SESSION
-    }*/
+    // Store redirect arguments for Add New Product from a calling program
+    if($redirect=='add_product_from_trans') {
+        $_SESSION['product_cate_add_product_from_trans']['action'] = 'add_product_from_trans';
+        $_SESSION['product_cate_add_product_from_trans']['category'] = (empty($_GET['category'])) ? 0 : ((int)$dbins->re_db_input($_GET['category']));
+        $_SESSION['product_cate_add_product_from_trans']['redirect'] = $redirect;
+        $_SESSION['product_cate_add_product_from_trans']['redirect_id'] = (empty($_GET['transaction_id'])) ? 0 : ((int)$dbins->re_db_input($_GET['transaction_id']));
+    }
 
-   
+    $import_instance = new import();
     $instance = new product_maintenance();
     $product_category = $instance->select_category();
     $get_sponsor = $instance->select_sponsor();
-    if($category=='' || $category=='0')
-    {
+
+    if($category=='' || $category=='0') {
         $get_product_transactions='';
-    }
-    else
-    {
+    } else {
         $get_product_transactions = $instance->get_transaction_on_product($id,$category);//print_r($get_product_transactions);exit;
     }
-    
+
+    //-- Process the user inputs --//
     if(isset($_POST['next'])&& $_POST['next']=='Next')
     {
-        
         $category = isset($_POST['set_category'])?$instance->re_db_input($_POST['set_category']):'';
-        
-        if($category!='')
-        {
+
+        if($category!='') {
             header("location:".CURRENT_PAGE.'?action=view_product&category='.$category.'');exit;
         }
     }
-    else if((isset($_POST['product'])&& $_POST['product']=='Save')
-        || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
-        || (isset($_POST['submit'])&& $_POST['submit']=='Next'))
+    else if((isset($_POST['product']) && $_POST['product']=='Save')
+        || (isset($_POST['submit']) && $_POST['submit']=='Previous')
+        || (isset($_POST['submit']) && $_POST['submit']=='Next'))
     {
-       
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $category = isset($_POST['product_category'])?$instance->re_db_input($_POST['product_category']):'';
         $name = isset($_POST['name'])?$instance->re_db_input($_POST['name']):'';
@@ -113,99 +112,99 @@
         $type = isset($_POST['type'])?$instance->re_db_input($_POST['type']):'';
         $var = isset($_POST['variable_annuities'])?$instance->re_db_input($_POST['variable_annuities']):'';
         $reg_type = isset($_POST['registration_type'])?$instance->re_db_input($_POST['registration_type']):'';
-        
+
         $for_import = isset($_POST['for_import'])?$instance->re_db_input($_POST['for_import']):'false';
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
-        
-        $return = $instance->insert_update_product($_POST,true);
-        
-        if($return===true)
-        {
-            if($return===true && $_POST['product']=='Save')
-            {
-         
-                if($for_import == 'true')
-                {
 
-                    if(isset($file_id) && $file_id >0 )
-                    {
-                        header("location:".SITE_URL."import.php?tab=review_files&id=".$file_id);exit;
-                    }
-                    else
-                    {
-                        header("location:".SITE_URL."import.php");exit;
+        $return = $instance->insert_update_product($_POST,true);
+
+        if($_POST['product']=='Save') {
+            if (!$return)
+                $error = (!isset($_SESSION['warning'])) ? $return : '';
+
+            if($for_import == 'true') {
+                if($file_id > 0) {
+                    if($return) {
+                        $exceptionDetail = $import_instance->select_exception_data(0, $_POST['exception_record_id']);
+                        $dataDetail = $import_instance->select_existing_idc_data($_POST['detail_data_id']);
+                        $data = [
+                            'resolveAction'=>5,
+                            'exception_field'=>'CUSIP_number',
+                            'assign_cusip_number'=>$dataDetail['CUSIP_number'],
+                            'exception_record_id'=>$_POST['exception_record_id'],
+                            'exception_file_id'=>$file_id,
+                            'exception_data_id'=>$_POST['detail_data_id'],
+                            'exception_file_type'=>$exceptionDetail[0]['file_type'],
+                            'error_code_id'=>$exceptionDetail[0]['error_code_id'],
+                            'exception_value'=>$exceptionDetail[0]['cusip']
+                        ];
+
+                        $import_instance->resolve_exceptions($data);
                     }
                 }
-                else
-                {
-                    if($redirect=='add_product_from_trans')
-                    {
-                        $args= http_build_query(array("action"=>"add","p_id"=>$_SESSION['new_product_id'],"cat_id"=>$category,"sponsor"=>$sponsor));
-                        header("location:".SITE_URL."transaction.php?".$args);exit;  
+
+                forImport($file_id);
+            } else {
+                if($redirect=='add_product_from_trans') {
+                    $args = '';
+
+                    if ($return){
+                        $args= http_build_query(array("p_id"=>$_SESSION['new_product_id'],"cat_id"=>$category,"sponsor"=>$sponsor));
                     }
-                    else
-                    {
-                        header("location:".CURRENT_PAGE.'?action=select_cat');exit;
-                    }
+
+                    fromTrans($return, $args);
+                } else {
+                    header("location:".CURRENT_PAGE.'?action=select_cat');
+                    exit;
                 }
             }
-        else if($return==true && $_POST['submit']=='Next')
-        {
+        } else if($return==true && $_POST['submit']=='Next') {
             $id = $instance->re_db_input($_GET['id']);
             $category =$instance->re_db_input($_GET['category']);
-            
+
             $return = $instance->get_next_product($id,$category);
             //print($return);exit();
-            if($return!=false)
-            {
+            if($return!=false) {
                 $id=$return['id'];
                 header("location:".CURRENT_PAGE."?action=edit_product&id=".$id."&category=".$category."");exit;
-            }
-            else{
+            } else {
                 header("location:".CURRENT_PAGE."?action=edit_product&id=".$id."&category=".$category."");exit;
             }
-        }
-        else if($return==true && $_POST['submit']=='Previous')
-        {
+        } else if($return && $_POST['submit']=='Previous') {
             $id = $instance->re_db_input($_GET['id']);
             $category =$instance->re_db_input($_GET['category']);
             $return = $instance->get_previous_product($id,$category);
-                
-            if($return!=false){
+
+            if($return){
                 $id=$return['id'];
                 header("location:".CURRENT_PAGE."?action=edit_product&id=".$id."&category=".$category."");exit;
-            }
-            else{
+            } else {
                 header("location:".CURRENT_PAGE."?action=edit_product&id=".$id."&category=".$category."");exit;
             }
-            
-        }
-        else
-        {
+        } else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
-    else{
-             $error = $return;
-    }
-}
-    else if(isset($_POST['submit']) && ($_POST['submit']=='Add Note' || $_POST['submit']=='Update Note')){
+    else if(isset($_POST['submit']) && ($_POST['submit']=='Add Note' || $_POST['submit']=='Update Note'))
+    {
         $note_id = isset($_POST['note_id'])?$instance->re_db_input($_POST['note_id']):0;
         $note_date = isset($_POST['note_date'])?$instance->re_db_input($_POST['note_date']):'';
         $note_user = isset($_POST['note_user'])?$instance->re_db_input($_POST['note_user']):'';
         $product_note = isset($_POST['product_note'])?$instance->re_db_input($_POST['product_note']):'';
         $return = $instance->insert_update_product($_POST);
+
         if($return===true){
-            echo '1';exit;
+            echo '1';
+            exit;
+        } else {
+            $error = (!isset($_SESSION['warning'])) ? $return : '';
         }
-        else{
-            $error = !isset($_SESSION['warning'])?$return:'';
-        }
+
         echo $error;
         exit;
-        
     }
-    else if($action=='edit_product' && $id>0 && $category !=''){
+    else if($action=='edit_product' && $id>0 && $category !='')
+    {
         $return = $instance->edit_product($id,$category);
         $product_data = $instance->get_product_changes($id,$category);
         $id = isset($return['id'])?$instance->re_db_output($return['id']):0;
@@ -240,20 +239,22 @@
         $type = isset($return['type'])?$instance->re_db_output($return['type']):'';
         $var = isset($return['var'])?$instance->re_db_output($return['var']):0;
         $reg_type = isset($return['reg_type'])?$instance->re_db_output($return['reg_type']):'';
-        $return_rates = $instance->edit_product_rates($id,$category);//echo '<pre>';print_r($return_rates);exit;
+        $return_rates = $instance->edit_product_rates($id,$category);
     }
-    else if(isset($_POST['add_notes'])&& $_POST['add_notes']=='Add Notes'){
+    else if(isset($_POST['add_notes'])&& $_POST['add_notes']=='Add Notes')
+    {
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
-       
+
         $return = $instance->insert_update_product_notes($_POST);
-        
+
         if($return===true){
             echo '1';exit;
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }
+
         echo $error;
         exit;
     }
@@ -262,45 +263,43 @@
         $id = $instance->re_db_input($_GET['id']);
         $category =$instance->re_db_input($_GET['category']);
         $return = $instance->get_previous_product($id,$category);
-            
+
         if($return!=false){
             $id=$return['id'];
             header("location:".CURRENT_PAGE."?action=edit_product&id=".$id."&category=".$category."");exit;
-        }
-        else{
+        } else {
             header("location:".CURRENT_PAGE."?action=edit_product&id=".$id."&category=".$category."");exit;
         }
-        
     }
     else if(isset($_GET['send'])&&$_GET['send']=='next' && isset($_GET['id'])&&$_GET['id']>0 && $_GET['id']!='')
     {
         $id = $instance->re_db_input($_GET['id']);
         $category =$instance->re_db_input($_GET['category']);
-        
+
         $return = $instance->get_next_product($id,$category);
         //print($return);exit();
         if($return!=false){
             $id=$return['id'];
             header("location:".CURRENT_PAGE."?action=edit_product&id=".$id."&category=".$category."");exit;
-        }
-        else{
+        } else {
             header("location:".CURRENT_PAGE."?action=edit_product&id=".$id."&category=".$category."");exit;
         }
-        
-    } 
-    else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){//print_r($_FILES);exit;
+    }
+    else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach')
+    {
+        //print_r($_FILES);exit;
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
         $file = isset($_FILES['add_attach'])?$_FILES['add_attach']:array();
-        
+
         $return = $instance->insert_update_product_attach($_POST);
-        
+
         if($return===true){
             echo '1';exit;
-        }
-        else{
+        } else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
+
         echo $error;
         exit;
     }
@@ -308,12 +307,13 @@
     {
         $attach_id = $instance->re_db_input($_GET['attach_id']);
         $return = $instance->delete_attach($attach_id);
+
         if($return===true){
             echo '1';exit;
-        }
-        else{
+        } else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
+
         echo $error;
         exit;
     }
@@ -321,25 +321,29 @@
     {
         $note_id = $instance->re_db_input($_GET['note_id']);
         $return = $instance->delete_notes($note_id);
+
         if($return===true){
-            echo '1';exit;
-        }
-        else{
+            echo '1';
+            exit;
+        } else {
             $error = !isset($_SESSION['warning'])?$return:'';
         }
+
         echo $error;
         exit;
-    } 
+    }
     else if(isset($_GET['action'])&&$_GET['action']=='product_delete' && $_GET['category']!='' &&isset($_GET['id'])&&$_GET['id']>0)
     {
         $id = $instance->re_db_input($_GET['id']);
         $category = $instance->re_db_input($_GET['category']);
         $return = $instance->product_delete($id,$category);
+
         if($return==true){
-            header('location:'.CURRENT_PAGE);exit;
-        }
-        else{
-            header('location:'.CURRENT_PAGE);exit;
+            header('location:'.CURRENT_PAGE);
+            exit;
+        } else {
+            header('location:'.CURRENT_PAGE);
+            exit;
         }
     }
     else if(isset($_GET['action'])&&$_GET['action']=='product_status'&&isset($_GET['id'])&&$_GET['id']>0&&isset($_GET['status'])&&($_GET['status']==0 || $_GET['status']==1))
@@ -348,38 +352,93 @@
         $status = $instance->re_db_input($_GET['status']);
         $category = $instance->re_db_input($_GET['category']);
         $return = $instance->product_status($id,$status,$category);
+
         if($return==true){
             header('location:'.CURRENT_PAGE.'?action=view_product&category='.$category);exit;
-        }
-        else
-        {
+        } else {
             header('location:'.CURRENT_PAGE);exit;
         }
-    } 
-    else if(isset($_POST['search_product'])&&$_POST['search_product']=='Search'){
-        
-       $search_text_product = isset($_POST['search_text_product'])?$instance->re_db_input($_POST['search_text_product']):''; 
+    }
+    else if(isset($_POST['search_product'])&&$_POST['search_product']=='Search')
+    {
+       $search_text_product = isset($_POST['search_text_product'])?$instance->re_db_input($_POST['search_text_product']):'';
        $search_product_category = isset($_POST['search_product_category'])?$instance->re_db_input($_POST['search_product_category']):'';
        $return = $instance->search_product($search_text_product,$search_product_category);
+    }
+    else if($action=='add_new' && !empty($_GET['exception_data_id']) && !empty($_GET['exception_record_id']))
+    {
+        //--- 02/23/22 Called from import template page -> "Resolve Exceptions" tab ---//
+        $dataDetail = $exceptionDetail = $sponsor = $category = 0;
+        $cusip = $name = $action = '';
+        $exceptionDetail = $import_instance->select_exception_data(0, $_GET['exception_record_id']);
+
+        if ($exceptionDetail){
+            switch ($exceptionDetail[0]['file_type']){
+                case 2:
+                    $dataDetail = $import_instance->select_existing_idc_data($_GET['exception_data_id']);
+                    break;
+            }
+        }
+
+        if ($dataDetail AND $exceptionDetail){
+            $fileDetail = $import_instance->select_user_files($dataDetail['file_id']);
+            $sponsor = $fileDetail['sponsor_id'];
+            $category = ($dataDetail['commission_record_type_code']=='V') ? 4 : 1;
+            $cusip = (empty($_GET['cusip_number'])) ? '' : $instance->re_db_input($_GET['cusip_number']);
+            $name = (empty($_GET['name'])) ? (trim($cusip).': Cusip Number') : $instance->re_db_input($_GET['name']);
+            $action = 'add_product';
+
+            $_SESSION['product_cate_for_import'] = ['file_id'=>$fileDetail['id'], 'detail_id'=>$dataDetail['id'], 'exception_id'=>$_GET['exception_record_id']];
+        }
+    }
+    else if($cancelEdit AND isset($_SESSION['product_cate_for_import'])){
+        forImport($_SESSION['product_cate_for_import']['file_id']);
+    }
+    else if($cancelEdit AND isset($_SESSION['product_cate_add_product_from_trans'])){
+        fromTrans(0,'');
     }
     else if($action=='view_product'){
         if($category=='' || $category=='0')
         {
             $category='1';
             $return = $instance->select_product_category($category);
-        }
-        else
-        {
+        } else {
             $return = $instance->select_product_category($category);
         }
-        
     }
 
     if($action == 'select_cat'){
             $return =$instance->load_product_list();
-           
-
     }
+
+    //-- Display Page, finally! --//
     $content = "product_cate";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
+
+
+    //-- USER DEFINED FUNCTIONS --//
+    function forImport($file_id) {
+        $args = '';
+        if (!empty($file_id)){
+            $args = "?tab=review_files&id=".$file_id;
+        }
+
+        unset($_SESSION['product_cate_for_import']);
+        header("location:".SITE_URL."import.php".$args);
+    }
+    //-- Callback to Maintain Transactions --//
+    function fromTrans($added=0, $pArgs='') {
+        $sessionId = 'product_cate_add_product_from_trans';
+        $sendArguments =
+            '?action=edit_transaction'
+            .(empty($_SESSION['product_cate_add_product_from_trans']['redirect_id']) ? '' : '&id='.$_SESSION['product_cate_add_product_from_trans']['redirect_id'])
+            .(empty($pArgs) ? '' : '&'.trim($pArgs))
+        ;
+
+        header("location:".SITE_URL."transaction.php".$sendArguments);
+
+        if (isset($_SESSION[$sessionId])) {
+            unset($_SESSION[$sessionId]);
+        }
+    }
 ?>
