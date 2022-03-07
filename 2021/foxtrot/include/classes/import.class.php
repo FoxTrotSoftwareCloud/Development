@@ -3431,7 +3431,7 @@
                         ." ORDER BY `at`.`id` ASC"
                 ;
             } else if($customWhere != '') {
-                $q = "SELECT `at`.`*`, `em`.`error`"
+                $q = "SELECT `at`.*, `em`.`error`"
                         ." FROM `".IMPORT_EXCEPTION."` `at`"
                         ." LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` AS `em` on `at`.`error_code_id` = `em`.`id`"
                         ." WHERE $customWhere"

@@ -836,9 +836,7 @@ PostResult( msg );
                         </div>
                     </div>
                     <div class="tab-content col-md-12">
-                    <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files"){ echo "active"; } ?>" id="tab_view"><?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files" && $_GET['id']>0){
-
-                        ?>
+                    <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files"){ echo "active"; } ?>" id="tab_view"><?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files" && $_GET['id']>0){?>
                         <ul class="nav nav-tabs ">
                           <li class="<?php if(isset($_GET['tab']) && $_GET['tab']=="preview_files"){ echo "active"; } ?>" ><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
                          </ul> <?php } ?> <br />
@@ -1918,7 +1916,7 @@ function exception_submit()
                window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>+"&file_type="+<?php echo $file_type; ?>;//get_client_notes();
           }
           else{
-               $('#msg_exception').html('<div class="alert alert-danger">'+data+'</div>');
+               f$('#msg_exception').html('<div class="alert alert-danger">'+data+'</div>');
           }
 
       },
