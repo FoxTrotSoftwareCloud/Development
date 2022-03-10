@@ -1760,27 +1760,29 @@
                     foreach($check_fanmail_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform(IMPORT_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
-                        $broker_id = 0;
-                        $first_name = '';
-                        $middle_name = '';
-                        $last_name = '';
-                        $result = 0;
-                        $batch_id = 0;
+
+                        $result = $broker_id = 0;
+                        $first_name = $middle_name = $last_name = '';
                         $rep_number = isset($check_data_val['representative_number']) ? trim($this->re_db_input($check_data_val['representative_number'])) : '';
+                        // Account Number Check
+                        $existingAccountArray = $clientClass->select_client_by_account_no($this->re_db_input($check_data_val['mutual_fund_customer_account_number']),$file_sponsor_array['id']);
+                        $existingAccountExceptionId = 0;
+                        $existingSocialArray = array();
+                        $existingSocialExceptionId = 0;
+                        $social_security_number = '';
+
 
                         if($rep_number != '') {
                             $broker_data = $broker_master->select_broker_by_fund($rep_number);
-                            $return = count($broker_data);
 
-                            if($return == 0){
-                                $broker_data = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
-                                $return = count($broker_data);
-                                $broker_id = ($return ? $broker_data['broker_id'] : 0);
-                            } else {
+                            if($broker_data){
                                 $broker_id = $broker_data['id'];
+                            } else {
+                                $broker_data = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
+                                $broker_id = ($broker_data ? $broker_data['broker_id'] : 0);
                             }
 
-                            if($return == 0 ) {
+                            if($broker_id == 0 ) {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET"
                                             ." `file_id`='".$check_data_val['file_id']."'"
@@ -1794,10 +1796,19 @@
                                             .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
                                             .",`client`='".$check_data_val['registration_line1']."'"
                                             .",`cusip`='".$check_data_val['cusip_number']."'"
-                                            .$this->insert_common_sql();
+                                            .$this->insert_common_sql()
+                                ;
                                 $res = $this->re_db_query($q);
                                 $result++;
                             } else {
+                                $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                        ." SET"
+                                            ." `broker_id`=$broker_id"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`=".$check_data_val['id']
+                                ;
+                                $res = $this->re_db_query($q);
+
                                 $check_broker_termination = $this->broker_termination_date('', $broker_id);
 
                                 if($check_broker_termination != '') {
@@ -1817,7 +1828,8 @@
                                                     .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
                                                     .",`client`='".$check_data_val['registration_line1']."'"
                                                     .",`cusip`='".$check_data_val['cusip_number']."'"
-                                                    .$this->insert_common_sql();
+                                                    .$this->insert_common_sql()
+                                        ;
                                         $res = $this->re_db_query($q);
                                         $result++;
                                     }
@@ -1842,21 +1854,37 @@
                             $result++;
                         }
 
-                        if($result == 0) {
-                            // Account Number Check
-                            $existingAccountArray = $clientClass->select_client_by_account_no($this->re_db_input($check_data_val['mutual_fund_customer_account_number']),$file_sponsor_array['id']);
-                            $existingAccountExceptionId = 0;
-                            $existingSocialArray = array();
-                            $existingSocialExceptionId = 0;
-                            $social_security_number = '';
+                        // Account Number Already Exists
+                        if($existingAccountArray){
+                            $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                    ." SET"
+                                        ." `file_id`='".$check_data_val['file_id']."'"
+                                        .",`error_code_id`='12'"
+                                        .",`field`='mutual_fund_customer_account_number'"
+                                        .",`file_type`='1'"
+                                        .",`temp_data_id`='".$check_data_val['id']."'"
+                                        .",`date`='".date('Y-m-d')."'"
+                                        .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
+                                        .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
+                                        .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                        .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
+                                        .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
+                                        .$this->insert_common_sql();
+                            $res = $this->re_db_query($q);
+                            $existingAccountExceptionId = $this->re_db_insert_id();
+                            $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingAccountArray[0]["client_id"], "account_no_id"=>$existingAccountArray[0]["account_no_id"]],"update","`id`='".$check_data_val['id']."'");
+                            // Don't increment the exception "result" variable, so this record will be checked for updates in the ADD/UPDATE section below
+                            // $result++;
+                        } else {
+                            // SSN Check
+                            $social_security_number = preg_replace("/[^a-zA-Z0-9]/", "", $check_data_val['social_security_number']);
 
-                            // Account Number Already Exists
-                            if($existingAccountArray){
+                            if (empty($social_security_number)) {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET"
                                             ." `file_id`='".$check_data_val['file_id']."'"
-                                            .",`error_code_id`='12'"
-                                            .",`field`='mutual_fund_customer_account_number'"
+                                            .",`error_code_id`='13'"
+                                            .",`field`='social_security_number'"
                                             .",`file_type`='1'"
                                             .",`temp_data_id`='".$check_data_val['id']."'"
                                             .",`date`='".date('Y-m-d')."'"
@@ -1867,231 +1895,209 @@
                                             .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                             .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
-                                $existingAccountExceptionId = $this->re_db_insert_id();
-                                $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingAccountArray[0]["client_id"], "account_no_id"=>$existingAccountArray[0]["account_no_id"]],"update","`id`='".$check_data_val['id']."'");
-                                // Don't increment the exception "result" variable, so this record will be checked for updates in the ADD/UPDATE section below
-                                // $result++;
+                                $result++;
                             } else {
-                                // SSN Check
-                                $social_security_number = preg_replace("/[^a-zA-Z0-9]/", "", $check_data_val['social_security_number']);
+                                $q = "SELECT `id`,`last_name`,`first_name`,`client_ssn`,`client_file_number`,`clearing_account`"
+                                    ." FROM `".CLIENT_MASTER."`"
+                                    ." WHERE `is_delete`=0"
+                                    ." AND `active`='0'"
+                                    ." AND REPLACE(`client_ssn`,'-','')='".$social_security_number."'"
+                                ;
+                                $res = $this->re_db_query($q);
+                                $existingSocialArray = ($this->re_db_num_rows($res) ? $this->re_db_fetch_array($res) : array());
+                            }
+                            
+                            if ($existingSocialArray) {
+                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                    ." SET"
+                                        ." `file_id`='".$check_data_val['file_id']."'"
+                                        .",`error_code_id`='19'"
+                                        .",`field`='social_security_number'"
+                                        .",`file_type`='1'"
+                                        .",`temp_data_id`='".$check_data_val['id']."'"
+                                        .",`date`='".date('Y-m-d')."'"
+                                        .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
+                                        .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
+                                        .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                        .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
+                                        .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
+                                        .$this->insert_common_sql();
+                                $res = $this->re_db_query($q);
+                                $existingSocialExceptionId = $this->re_db_insert_id();
+                                $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingSocialArray["id"]],"update","`id`='".$check_data_val['id']."'");
+                                // Don't increment the exception "$result" variable, so this record will be checked for updates in the ADD/UPDATE section below
+                                // $result++;
+                            }
+                        }
 
-                                if (empty($social_security_number)) {
-                                    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                            ." SET"
-                                                ." `file_id`='".$check_data_val['file_id']."'"
-                                                .",`error_code_id`='13'"
-                                                .",`field`='social_security_number'"
-                                                .",`file_type`='1'"
-                                                .",`temp_data_id`='".$check_data_val['id']."'"
-                                                .",`date`='".date('Y-m-d')."'"
-                                                .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
-                                                .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
-                                                .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
-                                                .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
-                                                .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
-                                                .$this->insert_common_sql();
-                                    $res = $this->re_db_query($q);
-                                    $result++;
+                        /*******************
+                         * Enter the Client
+                        ********************/
+                        if ($result == 0) {
+                            $res = $error_code = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
+                            $exceptionFields =
+                                    ",`file_id`='".$check_data_val['file_id']."'"
+                                .",`file_type`='1'"
+                                .",`temp_data_id`='".$check_data_val['id']."'"
+                                .",`date`='".date('Y-m-d')."'"
+                                .",`rep`='".trim($check_data_val['representative_number'])."'"
+                                .",`rep_name`='".$check_data_val['representative_name']."'"
+                                .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                .",`client`='".$check_data_val['registration_line1']."'"
+                                .",`cusip`='".$check_data_val['cusip_number']."'"
+                                .$this->insert_common_sql()
+                            ;
+                            if(isset($check_data_val['registration_line1'])) {
+                                $registration_line1 = isset($check_data_val['registration_line1'])?$this->re_db_input($check_data_val['registration_line1']):'';
+                                $client_name_array = explode(' ',$registration_line1);
+
+                                if(isset($client_name_array[2]) AND $client_name_array[2] != '') {
+                                    $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
+                                    $middle_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
+                                    $last_name = isset($client_name_array[2])?$this->re_db_input($client_name_array[2]):'';
                                 } else {
-                                    $q = "SELECT `id`,`last_name`,`first_name`,`client_ssn`,`client_file_number`,`clearing_account`"
-                                        ." FROM `".CLIENT_MASTER."`"
-                                        ." WHERE `is_delete`=0"
-                                        ." AND `active`='0'"
-                                        ." AND REPLACE(`client_ssn`,'-','')='".$social_security_number."'"
-                                    ;
-                                    $res = $this->re_db_query($q);
-                                    $existingSocialArray = ($this->re_db_num_rows($res) ? $this->re_db_fetch_array($res) : array());
-                                }
-                                if ($existingSocialArray) {
-                                    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                        ." SET"
-                                            ." `file_id`='".$check_data_val['file_id']."'"
-                                            .",`error_code_id`='19'"
-                                            .",`field`='social_security_number"
-                                            .",`file_type`='1'"
-                                            .",`temp_data_id`='".$check_data_val['id']."'"
-                                            .",`date`='".date('Y-m-d')."'"
-                                            .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
-                                            .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
-                                            .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
-                                            .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
-                                            .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
-                                            .$this->insert_common_sql();
-                                    $res = $this->re_db_query($q);
-                                    $existingSocialExceptionId = $this->re_db_insert_id();
-                                    $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingSocialArray["id"]],"update","`id`='".$check_data_val['id']."'");
-                                    // Don't increment the exception "$result" variable, so this record will be checked for updates in the ADD/UPDATE section below
-                                    // $result++;
+                                    $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
+                                    $middle_name = '';
+                                    $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
                                 }
                             }
+                            $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
 
-                            /*******************
-                             * Enter the Client
-                            ********************/
-                            if ($result == 0) {
-                                $res = $error_code = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
-                                $exceptionFields =
-                                     ",`file_id`='".$check_data_val['file_id']."'"
-                                    .",`file_type`='1'"
-                                    .",`temp_data_id`='".$check_data_val['id']."'"
-                                    .",`date`='".date('Y-m-d')."'"
-                                    .",`rep`='".trim($check_data_val['representative_number'])."'"
-                                    .",`rep_name`='".$check_data_val['representative_name']."'"
-                                    .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
-                                    .",`client`='".$check_data_val['registration_line1']."'"
-                                    .",`cusip`='".$check_data_val['cusip_number']."'"
-                                    .$this->insert_common_sql()
-                                ;
-                                if(isset($check_data_val['registration_line1'])) {
-                                    $registration_line1 = isset($check_data_val['registration_line1'])?$this->re_db_input($check_data_val['registration_line1']):'';
-                                    $client_name_array = explode(' ',$registration_line1);
-
-                                    if(isset($client_name_array[2]) AND $client_name_array[2] != '') {
-                                        $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
-                                        $middle_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
-                                        $last_name = isset($client_name_array[2])?$this->re_db_input($client_name_array[2]):'';
-                                    } else {
-                                        $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
-                                        $middle_name = '';
-                                        $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
-                                    }
-                                }
-                                $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
-
-                                // UPDATE CLIENT - for existing SSN or Account #
-                                if ($existingSocialArray OR $existingAccountArray){
-                                    if ($existingSocialArray){
-                                        $clientId = $existingSocialArray['id'];
-                                        $exceptionId = $existingSocialExceptionId;
-                                    } else {
-                                        $clientId = $existingAccountArray[0]['client_id'];
-                                        $exceptionId = $existingAccountExceptionId;
-                                    }
-
-                                    $q = "UPDATE `".IMPORT_EXCEPTION."`"
-                                        ." SET"
-                                            ."`error_code_id`=".($dataSettings['update_client'] ? '`error_code_id`' : 23)
-                                            .",`solved`='".$dataSettings['update_client']."'"
-                                            .",`process_completed`='".$dataSettings['update_client']."'"
-                                            .$exceptionFields
-                                        ." WHERE `id`='$exceptionId'"
-                                    ;
-                                    $res = $this->re_db_query($q);
-
-                                    if ($dataSettings['update_client']){
-                                        $updateFields = [
-                                            'first_name'=>$first_name,
-                                            'mi'=>$middle_name,
-                                            'last_name'=>$last_name,
-                                            'address1'=>$get_client_data[0]['client_address'],
-                                            'birth_date'=>$check_data_val['customer_date_of_birth'],
-                                            'zip_code'=>$check_data_val['zip_code'],
-                                            'broker_name'=>$broker_id,
-                                            'client_ssn'=>$check_data_val['social_security_number'],
-                                            'client_file_number'=>$check_data_val['social_security_number'],
-                                            'last_contacted'=>$check_data_val['last_maintenance_date']
-                                        ];
-
-                                        $process_result = 1;
-                                        if ($this->update_client_master($clientId, $updateFields)){
-                                            // Flag the Detail record as "updated", otherwise the update function didn't change anything
-                                            $process_result = 2;
-                                        }
-                                        // Update DETAIL TABLE for added/updated clients
-                                        $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
-                                                ." SET `process_result`='$process_result'"
-                                                        .$this->update_common_sql()
-                                                ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
-                                        ;
-                                        $res = $this->re_db_query($q);
-                                    }
+                            // UPDATE CLIENT - for existing SSN or Account #
+                            if ($existingSocialArray OR $existingAccountArray){
+                                if ($existingSocialArray){
+                                    $clientId = $existingSocialArray['id'];
+                                    $exceptionId = $existingSocialExceptionId;
                                 } else {
-                                    // --- ADD CLIENT ---
-                                    $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                        ." SET "
-                                            ."`error_code_id`=".($dataSettings['add_client'] ? '`error_code_id`' : 23)
-                                            .",`solved`='".$dataSettings['add_client']."'"
-                                            .",`process_completed`='".$dataSettings['add_client']."'"
-                                            .$exceptionFields
-                                    ;
-                                    $res = $this->re_db_query($q);
-
-                                    if ($dataSettings['add_client']){
-
-                                        $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
-
-                                        $q = "INSERT INTO `".CLIENT_MASTER."`"
-                                                ." SET "
-                                                    ."`file_id`='".$check_data_val['file_id']."'"
-                                                    .",`first_name`='".$first_name."'"
-                                                    .",`mi`='".$middle_name."'"
-                                                    .",`last_name`='".$last_name."'"
-                                                    .",`address1`='".$get_client_data[0]['client_address']."'"
-                                                    .",`birth_date`='".$check_data_val['customer_date_of_birth']."'"
-                                                    .",`zip_code`='".$check_data_val['zip_code']."'"
-                                                    .",`broker_name`='".$broker_id."'"
-                                                    .",`client_ssn`='".$check_data_val['social_security_number']."'"
-                                                    .",`client_file_number`='".$check_data_val['social_security_number']."'"
-                                                    .",`last_contacted`='".$check_data_val['last_maintenance_date']."'"
-                                                    .$this->insert_common_sql();
-                                        $res = $this->re_db_query($q);
-                                        $last_inserted_id = $this->re_db_insert_id();
-                                        $reprocess_status = true;
-                                        $process_result = 1;
-                                    }
+                                    $clientId = $existingAccountArray[0]['client_id'];
+                                    $exceptionId = $existingAccountExceptionId;
                                 }
 
-                                // Client Account #
-                                if($last_inserted_id OR ($dataSettings['update_client'] AND $existingSocialArray)) {
-                                    $client_id = 0;
+                                $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                    ." SET"
+                                        ."`error_code_id`=".($dataSettings['update_client'] ? '`error_code_id`' : 23)
+                                        .",`solved`='".$dataSettings['update_client']."'"
+                                        .",`process_completed`='".$dataSettings['update_client']."'"
+                                        .$exceptionFields
+                                    ." WHERE `id`='$exceptionId'"
+                                ;
+                                $res = $this->re_db_query($q);
 
-                                    if ($last_inserted_id) {
-                                        $client_id = $last_inserted_id;
-                                    } else {
-                                        // Assign the Account Number to the already existing SSN
-                                        $client_id = $existingSocialArray['id'];
-                                    }
+                                if ($dataSettings['update_client']){
+                                    $updateFields = [
+                                        'first_name'=>$first_name,
+                                        'mi'=>$middle_name,
+                                        'last_name'=>$last_name,
+                                        'address1'=>$get_client_data[0]['client_address'],
+                                        'birth_date'=>$check_data_val['customer_date_of_birth'],
+                                        'zip_code'=>$check_data_val['zip_code'],
+                                        'broker_name'=>$broker_id,
+                                        'client_ssn'=>$check_data_val['social_security_number'],
+                                        'client_file_number'=>$check_data_val['social_security_number'],
+                                        'last_contacted'=>$check_data_val['last_maintenance_date']
+                                    ];
 
-                                    $q = "INSERT INTO `".CLIENT_ACCOUNT."`"
-                                        ." SET "
-                                            ."`client_id`='".$client_id."'"
-                                            .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
-                                            .",`sponsor_company`='".$file_sponsor_array['id']."'"
-                                            .$this->insert_common_sql();
-                                    $res = $this->re_db_query($q);
-                                    $last_inserted_account_no_id = $this->re_db_insert_id();
                                     $process_result = 1;
-
-                                    // Update EXCEPTIONS table if CLIENT_MASTER wasn't updated
-                                    if ($existingSocialArray){
-                                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
-                                                ." SET"
-                                                    ." `file_id`='".$check_data_val['file_id']."'"
-                                                    .",`field`='client_account_no'"
-                                                    .",`solved`='1'"
-                                                    .",`process_completed`='2'"
-                                                    .",`file_type`='1'"
-                                                    .",`temp_data_id`='".$check_data_val['id']."'"
-                                                    .$this->insert_common_sql()
-                                                ." WHERE `id`='".$existingSocialExceptionId."'"
-                                        ;
-                                        $res = $this->re_db_query($q);
-                                        $reprocess_status = true;
+                                    if ($this->update_client_master($clientId, $updateFields)){
+                                        // Flag the Detail record as "updated", otherwise the update function didn't change anything
+                                        $process_result = 2;
                                     }
-
                                     // Update DETAIL TABLE for added/updated clients
                                     $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
                                             ." SET `process_result`='$process_result'"
-                                                .",`client_master_id`='$client_id'"
-                                                .",`account_no_id`='$last_inserted_account_no_id'"
-                                                .$this->update_common_sql()
+                                                    .$this->update_common_sql()
                                             ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
                                     ;
                                     $res = $this->re_db_query($q);
                                 }
+                            } else {
+                                // --- ADD CLIENT ---
+                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                    ." SET "
+                                        ."`error_code_id`=".($dataSettings['add_client'] ? '`error_code_id`' : 23)
+                                        .",`solved`='".$dataSettings['add_client']."'"
+                                        .",`process_completed`='".$dataSettings['add_client']."'"
+                                        .$exceptionFields
+                                ;
+                                $res = $this->re_db_query($q);
+
+                                if ($dataSettings['add_client']){
+
+                                    $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
+
+                                    $q = "INSERT INTO `".CLIENT_MASTER."`"
+                                            ." SET "
+                                                ."`file_id`='".$check_data_val['file_id']."'"
+                                                .",`first_name`='".$first_name."'"
+                                                .",`mi`='".$middle_name."'"
+                                                .",`last_name`='".$last_name."'"
+                                                .",`address1`='".$get_client_data[0]['client_address']."'"
+                                                .",`birth_date`='".$check_data_val['customer_date_of_birth']."'"
+                                                .",`zip_code`='".$check_data_val['zip_code']."'"
+                                                .",`broker_name`='".$broker_id."'"
+                                                .",`client_ssn`='".$check_data_val['social_security_number']."'"
+                                                .",`client_file_number`='".$check_data_val['social_security_number']."'"
+                                                .",`last_contacted`='".$check_data_val['last_maintenance_date']."'"
+                                                .$this->insert_common_sql();
+                                    $res = $this->re_db_query($q);
+                                    $last_inserted_id = $this->re_db_insert_id();
+                                    $reprocess_status = true;
+                                    $process_result = 1;
+                                }
+                            }
+
+                            // Client Account #
+                            if($last_inserted_id OR ($dataSettings['update_client'] AND $existingSocialArray)) {
+                                $client_id = 0;
+
+                                if ($last_inserted_id) {
+                                    $client_id = $last_inserted_id;
+                                } else {
+                                    // Assign the Account Number to the already existing SSN
+                                    $client_id = $existingSocialArray['id'];
+                                }
+
+                                $q = "INSERT INTO `".CLIENT_ACCOUNT."`"
+                                    ." SET "
+                                        ."`client_id`='".$client_id."'"
+                                        .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                        .",`sponsor_company`='".$file_sponsor_array['id']."'"
+                                        .$this->insert_common_sql()
+                                ;
+                                $res = $this->re_db_query($q);
+                                $last_inserted_account_no_id = $this->re_db_insert_id();
+                                $process_result = 1;
+
+                                // Update EXCEPTIONS table if CLIENT_MASTER wasn't updated
+                                if ($existingSocialArray){
+                                    $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                            ." SET"
+                                                ." `file_id`='".$check_data_val['file_id']."'"
+                                                .",`field`='client_account_no'"
+                                                .",`solved`='1'"
+                                                .",`process_completed`='2'"
+                                                .",`file_type`='1'"
+                                                .",`temp_data_id`='".$check_data_val['id']."'"
+                                                .$this->insert_common_sql()
+                                            ." WHERE `id`='".$existingSocialExceptionId."'"
+                                    ;
+                                    $res = $this->re_db_query($q);
+                                    $reprocess_status = true;
+                                }
+
+                                // Update DETAIL TABLE for added/updated clients
+                                $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                        ." SET `process_result`='$process_result'"
+                                            .",`client_master_id`='$client_id'"
+                                            .",`account_no_id`='$last_inserted_account_no_id'"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
+                                ;
+                                $res = $this->re_db_query($q);
                             }
                         }
                     }
+                    
                     /***********************************
                     * SFR PROCESS security-file data
                     ************************************/
