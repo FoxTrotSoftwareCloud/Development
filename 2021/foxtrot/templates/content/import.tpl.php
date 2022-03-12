@@ -1324,7 +1324,7 @@ PostResult( msg );
                     <div class="col-md-6">
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/><label> Reactivate Broker</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/><label> Reassign Client to Another Broker </label><br />
-                        <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Delete Client</label><br />
+                        <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/><label> Skip/Remove Exception</label><br />
                     </div>
                 </div>
                 <div class="row" id="assign_rep_to_broker" style="display: none;">
@@ -1402,8 +1402,14 @@ PostResult( msg );
                         <div class="inputpopup">
                             <select name="acc_for_client" id="acc_for_client" class="form-control">
                                 <option value="">Select Client</option>
-                                <?php foreach($get_client as $key=>$val){ ?>
-                                <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
+                                <?php foreach($get_client as $key=>$val){ 
+                                    // SSN ALREADY EXISTS - only allow user to choose clients that match the SSN#
+                                    if(isset($error_val['error']) AND $error_val['error']=='SSN ALREADY EXISTS') { 
+                                        if($error_val['field_value']==str_replace('-','',$val['client_ssn'])) { ?>
+                                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
+                                    <?php } } else { ?>
+                                        <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
+                                    <?php } ?>
                                 <?php } ?>
                             </select>
                         </div>
@@ -1651,7 +1657,6 @@ function reassign_broker_(value)
     {
         if ($exceptionField == 'objectives'){
             $("#assign_client_to_account").css('display','block');
-
         } else {
             $("#assign_rep_to_broker").css('display','block');
         }
@@ -1709,8 +1714,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $(parentRow + " #cusip_number").prop("disabled", false);
 
         result += 1;
-    }
-    else if (error_code_id == '17'){
+    } else if (error_code_id == '17'){
         // Product Type Not Found
         document.getElementById("field_label").innerHTML = 'Security Type';
         $("#assign_cusip_to_product").css("display","block");
@@ -1725,8 +1729,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#exception_value_dis").css('display','block');
 
         result += 1;
-    }
-    else if(exception_field == 'u5'){
+    } else if(exception_field == 'u5'){
         document.getElementById("field_label").innerHTML = 'Broker Termination Date:';
         $("#exception_value_date_display").css('display','block');
         
@@ -1734,8 +1737,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#broker_termination_options_clients").css('display','block');
             document.getElementById("label_assign_rep_to_broker").innerHTML = "Assign Client to Broker";
             document.getElementById("broker_active").checked = true;
-        }
-        else if(exception_file_type == '2'){
+        } else if(exception_file_type == '2'){
             $("#broker_termination_options_trades").css('display','block');
             document.getElementById("broker_termination_options_trades").dataset.exceptionField = "u5";
             document.getElementById("lbl_broker_active_trades").innerHTML = 'Remove U5 Date/Activate Broker';
@@ -1748,21 +1750,38 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#exception_value").css('display','none');
 
         result += 1;
-    }
-    else if(exception_field == 'status'){
+    } else if(exception_field == 'representative_number'){
+        // TEST DELETE
+        <?php $a=0; ?>;
+        document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Field' : 'Alias # Not Found');
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+        document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Trade to Broker';
+        document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
+        $("#assign_rep_to_broker").css('display','block');
+
+        if(exception_file_type == 1){
+            switch (error_code_id){
+                case 1:
+                    document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Alias to Broker';
+                    break;
+                default:
+                    document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Broker to Client';
+            }
+        }
+
+        result += 1;
+    } else if(exception_field == 'status'){
         document.getElementById("field_label").innerHTML = 'Product Terminated:';
         $("#status").css('display','block');
         $("#exception_value").css('display','none');
 
         result += 1;
-    }
-    else if(exception_field == 'mutual_fund_customer_account_number'){
+    } else if(exception_field == 'mutual_fund_customer_account_number'){
         document.getElementById("field_label").innerHTML = 'Account# to Add';
         document.getElementById("exception_value").value = '';
 
         result += 1;
-    }
-    else if(exception_field == 'customer_account_number'){
+    } else if(exception_field == 'customer_account_number'){
         document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Field' : 'Account # to Add');
         document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
         document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
@@ -1776,8 +1795,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         }
 
         result += 1;
-    }
-    else if(exception_field == 'active_check'){
+    } else if(exception_field == 'active_check'){
         document.getElementById("field_label").innerHTML = 'Licence Category / State';
         // $("#active_state").css('display','block');
         $("#exception_value").css('display','block');
@@ -1794,14 +1812,12 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#exception_value_dis").css('display','block');
 
         result += 1;
-    }
-    else if(exception_field == 'registration_line1'){
+    } else if(exception_field == 'registration_line1'){
         document.getElementById("field_label").innerHTML = 'Enter Client Name:';
         document.getElementById("exception_value").value = existing_field_value;
 
         result += 1;
-    }
-    else if(exception_field == 'social_security_number'){
+    } else if(exception_field == 'social_security_number'){
         document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
 
@@ -1813,9 +1829,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#exception_value_dis").prop( "disabled", true );
             $("#exception_value").css('display','none');
             $("#assign_client_to_account").css('display','block');
-
-        }
-        else {
+        } else {
             document.getElementById("field_label").innerHTML = 'Change Social Security Number: ';
             document.getElementById("social_security_number").value = existing_field_value;
             $("#social_security_number").css('display','block');
@@ -1823,15 +1837,13 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         }
 
         result += 1;
-    }
-    else if(exception_field == 'active'){
+    } else if(exception_field == 'active'){
         document.getElementById("field_label").innerHTML = 'Active Client:';
         $("#active").css('display','block');
         $("#exception_value").css('display','none');
 
         result += 1;
-    }
-    else if(exception_field == 'objectives'){
+    } else if(exception_field == 'objectives'){
         // Use #broker_termination_options_trades row
         $("#objectives").css('display','none');
 
@@ -1853,23 +1865,20 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         document.getElementById("hold_commission").checked = true;
 
         result += 1;
-    }
-    else if (exception_field == 'sponsor'){
+    } else if (exception_field == 'sponsor'){
         document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
         $("#sponsor").css('display','block');
         $("#exception_value").css('display','none');
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
 
         result += 1;
-    }
-    else if(exception_field == 'cusip_number' && error_code_id == '13' ){
+    } else if(exception_field == 'cusip_number' && error_code_id == '13' ){
         document.getElementById("field_label").innerHTML = 'Enter Missing CUSIP #';
         $("#cusip_number").css('display','block');
         $("#exception_value").css('display','none');
 
         result += 1;
-    }
-    else if(exception_field == 'cusip_number' && error_code_id == '11'){
+    } else if(exception_field == 'cusip_number' && error_code_id == '11'){
         if(exception_file_type == 3)
         {
             document.getElementById("field_label").innerHTML = 'Change Cusip Number:';
@@ -1888,45 +1897,28 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         }
 
         result += 1;
-    }
-    else if(exception_field == 'ticker_symbol'){
+    } else if(exception_field == 'ticker_symbol'){
         document.getElementById("field_label").innerHTML = 'Change Ticker Symbol:';
         $("#existing_ticker_symbol").css('display','block');
         document.getElementById("existing_ticker_symbol").value = existing_field_value;
         $("#exception_value").css('display','none');
 
         result += 1;
-    }
-    else if(exception_field == 'alpha_code'){
+    } else if(exception_field == 'alpha_code'){
         document.getElementById("field_label").innerHTML = 'Enter Client Name';
         $("#alpha_code").css('display','block');
         $("#exception_value").css('display','none');
 
         result += 1;
     }
-    else if(exception_field == 'representative_number'){
-        document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Field' : 'Alias # Not Found');
-        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
-        document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Trade to Broker';
-        document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
-        $("#assign_rep_to_broker").css('display','block');
-        //document.getElementById("exception_value_dis").value = rep_number;
-        //$("#exception_value").css('display','none');
-        if(exception_file_type == 1){
-            switch (error_code_id){
-                case 1:
-                    document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Alias to Broker';
-                    break;
-                default:
-                    document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Client to Broker';
-            }
-        }
-
-        result += 1;
-    }
 
     return result
 }
+function populate_assign_to_client(exception_record_id){
+    
+}
+
+
 function exception_submit()
 {
    $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');

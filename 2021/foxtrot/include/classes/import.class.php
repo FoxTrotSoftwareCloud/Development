@@ -1718,6 +1718,7 @@
                                     ." `file_id`='".$file_id."'"
                                     .",`error_code_id`='14'"
                                     .",`field`='sponsor_id'"
+                                    .",`field_value`='".substr($file_array['file_name'],0,3).substr($file_array['file_name'],3,2)."'"
                                     .",`file_type`='1'"
                                     .",`temp_data_id`='0'"
                                     .",`date`='".date('Y-m-d')."'"
@@ -1788,6 +1789,7 @@
                                             ." `file_id`='".$check_data_val['file_id']."'"
                                             .",`error_code_id`='1'"
                                             .",`field`='representative_number'"
+                                            .",`field_value`='$rep_number'"
                                             .",`file_type`='1'"
                                             .",`temp_data_id`='".$check_data_val['id']."'"
                                             .",`date`='".date('Y-m-d')."'"
@@ -1820,6 +1822,7 @@
                                                     ." `file_id`='".$check_data_val['file_id']."'"
                                                     .",`error_code_id`='2'"
                                                     .",`field`='u5'"
+                                                    .",`field_value`='".$check_broker_termination."'"
                                                     .",`file_type`='1'"
                                                     .",`temp_data_id`='".$check_data_val['id']."'"
                                                     .",`date`='".date('Y-m-d')."'"
@@ -1841,6 +1844,7 @@
                                         ." `file_id`='".$check_data_val['file_id']."'"
                                         .",`error_code_id`='13'"
                                         .",`field`='representative_number'"
+                                        .",`field_value`=''"
                                         .",`file_type`='1'"
                                         .",`temp_data_id`='".$check_data_val['id']."'"
                                         .",`date`='".date('Y-m-d')."'"
@@ -1861,6 +1865,7 @@
                                         ." `file_id`='".$check_data_val['file_id']."'"
                                         .",`error_code_id`='12'"
                                         .",`field`='mutual_fund_customer_account_number'"
+                                        .",`field_value`='".$check_data_val['mutual_fund_customer_account_number']."'"
                                         .",`file_type`='1'"
                                         .",`temp_data_id`='".$check_data_val['id']."'"
                                         .",`date`='".date('Y-m-d')."'"
@@ -1885,6 +1890,7 @@
                                             ." `file_id`='".$check_data_val['file_id']."'"
                                             .",`error_code_id`='13'"
                                             .",`field`='social_security_number'"
+                                            .",`field_value`=''"
                                             .",`file_type`='1'"
                                             .",`temp_data_id`='".$check_data_val['id']."'"
                                             .",`date`='".date('Y-m-d')."'"
@@ -1913,6 +1919,7 @@
                                         ." `file_id`='".$check_data_val['file_id']."'"
                                         .",`error_code_id`='19'"
                                         .",`field`='social_security_number'"
+                                        .",`field_value`='$social_security_number'"
                                         .",`file_type`='1'"
                                         .",`temp_data_id`='".$check_data_val['id']."'"
                                         .",`date`='".date('Y-m-d')."'"
@@ -2074,6 +2081,7 @@
                                             ." SET"
                                                 ." `file_id`='".$check_data_val['file_id']."'"
                                                 .",`field`='client_account_no'"
+                                                .",`field_value`='$last_inserted_account_no_id'"
                                                 .",`solved`='1'"
                                                 .",`process_completed`='2'"
                                                 .",`file_type`='1'"
@@ -2140,6 +2148,7 @@
                                     ." `file_id`='".$check_data_val['file_id']."'"
                                     .",`error_code_id`=13"
                                     .",`field`='$field'"
+                                    .",`field_value`=''"
                                     .",`file_type`='3'"
                                     .",`temp_data_id`='".$check_data_val['id']."'"
                                     .",`date`='".date('Y-m-d')."'"
@@ -2171,6 +2180,7 @@
                                         ." `file_id`='".$check_data_val['file_id']."'"
                                         .",`error_code_id`='17'"
                                         .",`field`='major_security_type'"
+                                        .",`field_value`='".$check_data_val['major_security_type']."'"
                                         .",`file_type`='3'"
                                         .",`temp_data_id`='".$check_data_val['id']."'"
                                         .",`date`='".date('Y-m-d')."'"
@@ -2207,6 +2217,7 @@
                                             ." `file_id`='".$check_data_val['file_id']."'"
                                             .",`error_code_id`='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? '16' : '15')."'"
                                             .",`field`='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? 'cusip_number' : 'ticker_symbol')."'"
+                                            .",`field_value`='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? $cusipNumber : $tickerSymbol)."'"
                                             .",`file_type`='3'"
                                             .",`temp_data_id`='".$check_data_val['id']."'"
                                             .",`date`='".date('Y-m-d')."'"
@@ -2352,6 +2363,7 @@
                                             ." SET"
                                                 ."`error_code_id`='1'"
                                                 .",`field`='representative_number'"
+                                                .",`field_value`='$rep_number'"
                                                 .",`file_type`='2'"
                                                 .$insert_exception_string;
                                     $res = $this->re_db_query($q);
@@ -2384,6 +2396,7 @@
                                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                     ." SET `error_code_id`='2'"
                                                         .",`field`='u5'"
+                                                        .",`field_value`='".$check_broker_termination."'"
                                                         .",`file_type`='2'"
                                                         .$insert_exception_string;
                                             $res = $this->re_db_query($q);
@@ -2396,6 +2409,7 @@
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET `error_code_id`='13'"
                                             .",`field`='representative_number'"
+                                            .",`field_value`=''"
                                             .",`file_type`='2'"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
@@ -2407,6 +2421,7 @@
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='13'"
                                         .",`field`='cusip_number'"
+                                        .",`field_value`=''"
                                         .",`file_type`='2'"
                                         .$insert_exception_string;
                             $res = $this->re_db_query($q);
@@ -2431,6 +2446,7 @@
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET `error_code_id`='11'"
                                             .",`field`='cusip_number'"
+                                            .",`field_value`='".$check_data_val['cusip_number']."'"
                                             .",`file_type`='2'"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
@@ -2444,6 +2460,7 @@
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='13'"
                                         .",`field`='customer_account_number'"
+                                        .",`field_value`=''"
                                         .",`file_type`='2'"
                                         .$insert_exception_string;
                             $resInsert = $this->re_db_query($q);
@@ -2468,7 +2485,8 @@
                             if($clientAccount == '') {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='18'"
-                                        .",`field`='customer_account_number'"
+                                        .",`field`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
+                                        .",`field_value`=''"
                                         .",`file_type`='2'"
                                         .$insert_exception_string;
                                 $resInsert = $this->re_db_query($q);
@@ -2511,6 +2529,7 @@
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                 ." SET `error_code_id`='9'"
                                                     .",`field`='objectives'"
+                                                    .",`field_value`='".$foundCusip['objective']."'"
                                                     .",`file_type`='2'"
                                                 .$insert_exception_string;
                                         $resInsert = $this->re_db_query($q);
@@ -2542,6 +2561,7 @@
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                 ."SET  `error_code_id`='6'"
                                                     .",`field`='active_check'"
+                                                    .",`field_value`='".$product_category_id." / ".$clientAccount['state']."'"
                                                     .",`file_type`='2'"
                                                     .$insert_exception_string;
                                         $res = $this->re_db_query($q);
