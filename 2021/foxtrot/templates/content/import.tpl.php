@@ -453,8 +453,9 @@ PostResult( msg );
                         <ul class="nav nav-tabs ">
                           <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="review_files"){ echo "active"; }?>" ><a href="#review_files" data-toggle="tab">Exceptions For Review</a></li>
                           <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="processed_files"){ echo "active"; } ?>" ><a href="#processed_files" data-toggle="tab">Processed</a></li>
-                         </ul> <?php } ?> <br />
-                          <!-- Tab 1 is started -->
+                        </ul> <?php } ?> <br />
+                           
+                        <!-- Tab 1 is started -->
                             <div class="tab-content">
                             <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="review_files" && $_GET['id']>0){ echo "active"; } ?>" id="review_files">
 
@@ -1222,8 +1223,8 @@ PostResult( msg );
 		</div>
     </div>
   </div>
-<!-- Lightbox strart -->
-	<!-- Modal for add client notes -->
+<!-- Lightbox start -->
+	<!-- Modal for Resolve Exceptions popup -->
 	<div id="solve_exception_model" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 		<div class="modal-dialog">
 		<div class="modal-content">
@@ -1402,14 +1403,8 @@ PostResult( msg );
                         <div class="inputpopup">
                             <select name="acc_for_client" id="acc_for_client" class="form-control">
                                 <option value="">Select Client</option>
-                                <?php foreach($get_client as $key=>$val){ 
-                                    // SSN ALREADY EXISTS - only allow user to choose clients that match the SSN#
-                                    if(isset($error_val['error']) AND $error_val['error']=='SSN ALREADY EXISTS') { 
-                                        if($error_val['field_value']==str_replace('-','',$val['client_ssn'])) { ?>
-                                            <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
-                                    <?php } } else { ?>
-                                        <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
-                                    <?php } ?>
+                                <?php foreach($get_client as $key=>$val){ ?>
+                                    <option value="<?php echo $val['id'];?>"><?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?></option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -1662,7 +1657,6 @@ function reassign_broker_(value)
         }
     }
 }
-
 function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id)
 {
     result = 0;
@@ -1788,6 +1782,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
         $("#exception_value_dis").prop( "disabled", true );
         $("#assign_client_to_account").css('display','block');
+        populate_assign_to_client(error_code_id, existing_field_value, exception_record_id);
         $("#exception_value").css('display','none');
         $("#exception_value_dis").css('display','block');
         if (error_code_id == 13){
@@ -1818,16 +1813,18 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         result += 1;
     } else if(exception_field == 'social_security_number'){
-        document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
+        document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : '***-**-' + existing_field_value.slice(-4));
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
 
         if (exception_file_type == 1 && [13, 19].includes(error_code_id)){
             document.getElementById("field_label").innerHTML = (error_code_id == 13 ? 'Missing Field' : 'Social Security #');
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
             $("#exception_value_dis").css('display','block');
-            $("#exception_value_dis").val((error_code_id == 13) ? '<Social Security Number>' : existing_field_value);
+            $("#exception_value_dis").val((error_code_id == 13) ? '<Social Security Number>' : '***-**-' + existing_field_value.slice(-4));
             $("#exception_value_dis").prop( "disabled", true );
             $("#exception_value").css('display','none');
+            
+            populate_assign_to_client(error_code_id, existing_field_value, exception_record_id);
             $("#assign_client_to_account").css('display','block');
         } else {
             document.getElementById("field_label").innerHTML = 'Change Social Security Number: ';
@@ -1914,10 +1911,21 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
     return result
 }
-function populate_assign_to_client(exception_record_id){
-    
+function populate_assign_to_client(error_code_id, existing_field_value, exception_record_id){
+    var clientDropdown = $("#acc_for_client");
+    clientDropdown.empty();
+        
+    <?php foreach ($get_client AS $key=>$val){ ?>
+        // 19=SSN Already Exists - filter for only matching SSN's
+        if(error_code_id != 19 || existing_field_value.replace('-','') == '<?php echo str_replace('-','',$val['client_ssn']); ?>') {
+            clientDropdown.append(
+                $('<option></option>')
+                    .val("<?php echo $val['id'];?>")
+                    .html("<?php echo strtoupper($val['last_name']).((!empty($val['last_name']) AND !empty($val['first_name'])) ? ', ' : '').strtoupper($val['first_name']);?>")
+            );  
+        }
+    <?php } ?>
 }
-
 
 function exception_submit()
 {

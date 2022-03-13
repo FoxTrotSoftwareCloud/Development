@@ -1771,6 +1771,7 @@
                         $existingSocialArray = array();
                         $existingSocialExceptionId = 0;
                         $social_security_number = '';
+                        $field_value = '';
 
 
                         if($rep_number != '') {
@@ -1910,16 +1911,23 @@
                                     ." AND REPLACE(`client_ssn`,'-','')='".$social_security_number."'"
                                 ;
                                 $res = $this->re_db_query($q);
-                                $existingSocialArray = ($this->re_db_num_rows($res) ? $this->re_db_fetch_array($res) : array());
+                                $existingSocialArray = ($this->re_db_num_rows($res) ? $this->re_db_fetch_all($res) : array());
                             }
                             
                             if ($existingSocialArray) {
+                                $field_value = $res = '';
+                                // Store a comma separated string of client id's for explode() a list of duplicate of dupclicate client's socials in reports\pages
+                                foreach ($existingSocialArray AS $res){
+                                    $field_value .= (empty($field_value) ? "" : ",").$this->re_db_input((string)$res['id']);
+                                }
+                                $res = '';
+                                
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET"
                                         ." `file_id`='".$check_data_val['file_id']."'"
                                         .",`error_code_id`='19'"
                                         .",`field`='social_security_number'"
-                                        .",`field_value`='$social_security_number'"
+                                        .",`field_value`='$field_value'"
                                         .",`file_type`='1'"
                                         .",`temp_data_id`='".$check_data_val['id']."'"
                                         .",`date`='".date('Y-m-d')."'"
@@ -1931,7 +1939,8 @@
                                         .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
                                 $existingSocialExceptionId = $this->re_db_insert_id();
-                                $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingSocialArray["id"]],"update","`id`='".$check_data_val['id']."'");
+                                // Client_master_id assigned in Resolve Exceptions 3/12/22
+                                // $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingSocialArray[0]['id']],"update","`id`='".$check_data_val['id']."'");
                                 // Don't increment the exception "$result" variable, so this record will be checked for updates in the ADD/UPDATE section below
                                 // $result++;
                             }

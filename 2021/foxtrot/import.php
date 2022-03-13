@@ -251,7 +251,11 @@
         }else{
             echo '0';exit;
         }
-    }else if($action=='view'){
+    }
+    else if(isset($_GET['error_code_id']) && $_GET['error_code_id']=='19'){
+        $a=0;
+    }
+    else if($action=='view'){
         $return = $instance->select_current_files();//echo '<pre>';print_r($return);exit;
     }
 
