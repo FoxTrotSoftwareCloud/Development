@@ -113,12 +113,12 @@
         public function resolve_exceptions($data){
             $result = $resolveAction = 0;
             $resultMessage = '';
-			$exception_file_id = isset($data['exception_file_id'])?$this->re_db_input($data['exception_file_id']):0;
-            $exception_file_type = isset($data['exception_file_type'])?$this->re_db_input($data['exception_file_type']):0;
-            $error_code_id = isset($data['error_code_id'])?$this->re_db_input($data['error_code_id']):0;
-            $exception_data_id = isset($data['exception_data_id'])?$this->re_db_input($data['exception_data_id']):0;
-            $exception_field = isset($data['exception_field'])?$this->re_db_input($data['exception_field']):'';
-            $exception_record_id = isset($data['exception_record_id'])?$this->re_db_input($data['exception_record_id']):'';
+			$exception_file_id = isset($data['exception_file_id']) ? (int)$this->re_db_input($data['exception_file_id']) : 0;
+            $exception_file_type = isset($data['exception_file_type']) ? (int)$this->re_db_input($data['exception_file_type']) : 0;
+            $error_code_id = isset($data['error_code_id'])? (int)$this->re_db_input($data['error_code_id']) : 0;
+            $exception_data_id = isset($data['exception_data_id']) ? (int)$this->re_db_input($data['exception_data_id']) : 0;
+            $exception_field = isset($data['exception_field']) ? $this->re_db_input($data['exception_field']) : '';
+            $exception_record_id = isset($data['exception_record_id']) ? $this->re_db_input($data['exception_record_id']) : '';
 
             if($exception_field == 'u5'){
                 $exception_value = isset($data['exception_value_date'])?$this->re_db_input($data['exception_value_date']):'';
@@ -152,12 +152,17 @@
 
             $rep_for_broker = isset($data['rep_for_broker'])?$this->re_db_input($data['rep_for_broker']):'';
             $acc_for_client = isset($data['acc_for_client'])?$this->re_db_input($data['acc_for_client']):'';
+            $skipException = isset($data['skip_exception'])?$this->re_db_input($data['skip_exception']):'';
 
             if(isset($data['resolve_broker_terminated'])){
                 $resolveAction = $data['resolve_broker_terminated'];
             }
             if(isset($data['resolveAction'])){
                 $resolveAction = $data['resolveAction'];
+            }
+            if($skipException){
+                // Delete/Skip Exception
+                $resolveAction = 4;
             }
 
 			if($exception_value==''){
@@ -204,8 +209,14 @@
 			}
 
             //--- CLIENT FILE ---//
-            if(isset($exception_file_type) && $exception_file_type == '1') {
-                if($exception_field == 'u5'){
+            if(isset($exception_file_type) && $exception_file_type == '1'){
+                // Broker Not Found
+                if ($error_code_id == 1) {
+                    // Only option is to reassign broker to an existing one
+                    $result = $this->resolve_action_3reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+                }
+                // Terminated Broker
+                else if($error_code_id == 3){
                     if(!isset($data['resolve_broker_terminated'])||$data['resolve_broker_terminated']==''){
                             $this->errors = 'Please select one option.';
                     }
@@ -287,55 +298,27 @@
                                 }
 
                             }
-                            else if($resolveAction == 4)
-                            {
+                            else if($resolveAction == 4){
                                 $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' AND `file_id`='".$exception_file_id."'";
                                 $res = $this->re_db_query($q);
-                                if($res)
-                                {
-                                    $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `is_delete`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and `temp_data_id`='".$exception_data_id."'";
+                                
+                                if($res){
+                                    $q1 = "UPDATE `".IMPORT_EXCEPTION."`"
+                                            ." SET `solved` = 1"
+                                                .",`is_delete` = 1"
+                                                .",`resolve_action` = 4"
+                                                .$this->update_common_sql()
+                                            ." WHERE `file_id`='".$exception_file_id."'"
+                                            ." AND `temp_data_id`='".$exception_data_id."'"
+                                    ;
+                                
                                     $res1 = $this->re_db_query($q1);
-                                    if($res1)
-                                    {
+                                    if($res1){
                                         $result = 1;
                                     }
                                 }
                             }
                         }
-
-                    }
-                    else if($exception_field == 'representative_number')
-                    {
-                            $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
-                            if($header_detail != array()){
-                                $system_id = $header_detail['system_id'];
-                                $management_code = $header_detail['management_code'];
-                                $sponsor_detail = $this->get_sponsor_on_system_management_code($system_id,$management_code);
-                                $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
-                                $alias_number = $exception_value;
-
-                                $q = "INSERT INTO `".BROKER_ALIAS."`"
-                                        ." SET `broker_id`='".$rep_for_broker."'"
-                                            .",`alias_name`='".$alias_number."'"
-                                            .",`sponsor_company`='".$alias_sponsor."'"
-                                            .",`date`='".date('Y-m-d')."'"
-                                            .$this->insert_common_sql()
-                                ;
-                                $res = $this->re_db_query($q);
-                            }
-                            $q = "UPDATE `".BROKER_MASTER."` SET `fund`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$rep_for_broker."'";
-                            $res = $this->re_db_query($q);
-
-                            $q = "UPDATE `".IMPORT_DETAIL_DATA."` SET `".$exception_field."`='".$exception_value."'".$this->update_common_sql()." WHERE `id`='".$exception_data_id."' and `file_id`='".$exception_file_id."'";
-                            $res = $this->re_db_query($q);
-
-                            $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1'".$this->update_common_sql()." WHERE `file_id`='".$exception_file_id."' and  `temp_data_id`='".$exception_data_id."' and `field`='".$exception_field."'";
-                            /*`error_code_id`='1' and `field`='".$exception_field."' and `rep`='".$exception_value."'*/
-                            $res1 = $this->re_db_query($q1);
-                            if($res1)
-                            {
-                                $result = 1;
-                            }
 
                     }
                     else
@@ -1127,12 +1110,74 @@
                         ;
                         $res = $this->re_db_query($q);
 
-                        $result = $this->reprocess_current_files($file_id, 2, $detail_id);
+                        $result = $this->reprocess_current_files($file_id, $file_type, $detail_id);
                     }
                 }
             }
 
             return $return;
+        }
+        // ASSIGN import record TO ANOTHER /[client_id][broker_id]/
+        function resolve_action_3reassign($reassign_field='', $newId=0, $file_type=0, $file_id=0, $detail_data_id=0,  $exception_record_id=0){
+            $result = 0;
+            
+            if (in_array($reassign_field,['broker_id','client_id']) AND $newId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id){
+                $res = $q = '';
+                
+                switch ($reassign_field) {
+                    case 'broker_id':
+                        $q = "SELECT `id` FROM `".BROKER_MASTER."` WHERE `is_delete`=0 AND `id`=".$newId;
+                        break;
+                    case 'client_id':
+                        $q = "SELECT `id` FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `id`=".$newId;
+                        break;
+                }
+                $res = $this->re_db_query($q);
+
+                if($this->re_db_num_rows($res)) {
+                    $importFileTable = '';
+                    $res = 0;
+                                    
+                    switch ($file_type){
+                        case 1:
+                            $importFileTable = IMPORT_DETAIL_DATA;
+                            break;
+                        case 2:
+                            $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                            break;
+                        case 3:
+                            $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                            break;
+                    }
+                    
+                    if ($importFileTable){
+                        $q = "UPDATE `".$importFileTable."`"
+                            ." SET `".$reassign_field."` = ".$newId
+                                    .$this->update_common_sql()
+                            ." WHERE `id`=".$detail_data_id
+                            ." AND `file_id`=".$file_id
+                        ;
+                        $res = $this->re_db_query($q);
+                    }
+
+                    if($res) {
+                        // Update "resolve_exception" field to flag detail as "special handling" record
+                        $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
+
+                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                ." SET `resolve_action`=3"
+                                    .",`resolve_assign_to` = '".$newId."'"
+                                    .$this->update_common_sql()
+                                ." WHERE `id`=".$exception_record_id
+                        ;
+                        $res = $this->re_db_query($q);
+
+                        $result = $this->reprocess_current_files($file_id, $file_type, $detail_data_id);
+                    }
+                }
+            }
+            
+            return $result;
         }
 
         public function select_ftp(){
@@ -1773,15 +1818,33 @@
                         $social_security_number = '';
                         $field_value = '';
 
+                        // Exception intervention in resolve exception() by user(reassign client OR broker)
+                        $reassignBroker =  0;
+                        $exceptionArray = [];
 
-                        if($rep_number != '') {
-                            $broker_data = $broker_master->select_broker_by_fund($rep_number);
+                        if ($check_data_val['resolve_exceptions'] != ''){
+                            $exceptionArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
+                            // Cycle through the "resolves" the user entered to flag any defaults to rep, client, or hold(i.e. pass the exception through)
+                            foreach ($exceptionArray AS $errorKey=>$errorRow){
+                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['representative_number', 'u5'])){
+                                    // Assign error code so the program knows way it's skipping the Rep #alias search
+                                    $reassignBroker = $errorKey;
+                                }
+                            }
+                        }
 
-                            if($broker_data){
-                                $broker_id = $broker_data['id'];
+                        if($rep_number != '' OR $reassignBroker) {
+                            if ($reassignBroker){
+                                $broker_id = (int)$check_data_val['broker_id'];
                             } else {
-                                $broker_data = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
-                                $broker_id = ($broker_data ? $broker_data['broker_id'] : 0);
+                                $broker_data = $broker_master->select_broker_by_fund($rep_number);
+    
+                                if($broker_data){
+                                    $broker_id = $broker_data['id'];
+                                } else {
+                                    $broker_data = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
+                                    $broker_id = ($broker_data ? $broker_data['broker_id'] : 0);
+                                }
                             }
 
                             if($broker_id == 0 ) {
@@ -1941,8 +2004,7 @@
                                 $existingSocialExceptionId = $this->re_db_insert_id();
                                 // Client_master_id assigned in Resolve Exceptions 3/12/22
                                 // $this->re_db_perform(IMPORT_DETAIL_DATA,["client_master_id"=>$existingSocialArray[0]['id']],"update","`id`='".$check_data_val['id']."'");
-                                // Don't increment the exception "$result" variable, so this record will be checked for updates in the ADD/UPDATE section below
-                                // $result++;
+                                $result++;
                             }
                         }
 
@@ -1982,7 +2044,7 @@
                             // UPDATE CLIENT - for existing SSN or Account #
                             if ($existingSocialArray OR $existingAccountArray){
                                 if ($existingSocialArray){
-                                    $clientId = $existingSocialArray['id'];
+                                    $clientId = $existingSocialArray[0]['id'];
                                     $exceptionId = $existingSocialExceptionId;
                                 } else {
                                     $clientId = $existingAccountArray[0]['client_id'];
@@ -2070,7 +2132,7 @@
                                     $client_id = $last_inserted_id;
                                 } else {
                                     // Assign the Account Number to the already existing SSN
-                                    $client_id = $existingSocialArray['id'];
+                                    $client_id = $existingSocialArray[0]['id'];
                                 }
 
                                 $q = "INSERT INTO `".CLIENT_ACCOUNT."`"

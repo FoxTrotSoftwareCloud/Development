@@ -1244,6 +1244,7 @@ PostResult( msg );
                 <div class="col-md-5">
                     <div class="inputpopup">
                         <label id="field_label" class="pull-right">Add Exception value</label>
+                        <label id="active_label" for="active" class="pull-right" style="display: none;">Active</label>
                     </div>
                 </div>
                 <div class="col-md-4 pull-left float-left">
@@ -1279,7 +1280,7 @@ PostResult( msg );
                         <input type="text" name="existing_ticker_symbol" id="existing_ticker_symbol" value="" style="display: none;"/>
                         <input type="text" name="alpha_code" id="alpha_code" value="" style="display: none;"/>
                         <input type="text" name="social_security_number" id="social_security_number" value="" style="display: none;"/>
-                        <input type="checkbox" class="checkbox" name="active" id="active" value="1" style="display: none;"/>
+                        <input type="checkbox" class="checkbox" name="active" id="active" value="1" style="display: none;vertical-align:-2px;"/></label>
                     </div>
                 </div>
                 </div>
@@ -1313,7 +1314,7 @@ PostResult( msg );
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/>
                             <label id="lbl_reassign_broker_trades"> Reassign Trade to Another Broker</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/>
-                            <label> Delete Trade</label><br />
+                            <label> Skip/Remove Trade Exception</label><br />
                     </div>
                 </div>
                 <div class="row" style="display: none;" id="broker_termination_options_clients">
@@ -1427,6 +1428,18 @@ PostResult( msg );
                         </div>
                     </div>
                 </div>
+                <div class="row skip_exception" id="row_skip_exception" style="display: none;">
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_skip_exception" for="checkbox_skip_exception" style="margin-top: 6px;">Remove/Skip Exception </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <input type="checkbox" name="skip_exception" class="checkbox skip_exception" id="checkbox_skip_exception" value="1"/>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                 <div class="col-md-5"></div>
                 <div class="col-md-2">
@@ -1437,7 +1450,7 @@ PostResult( msg );
                         <input type="hidden" name="exception_file_type" id="exception_file_type" value=""/>
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="exception_record_id" id="exception_record_id" value=""/>
-                        <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />
         	            <button type="submit" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
                         <!--Deprecated 03/04/22 -- style="alignment-adjustment: center !important;" -->
                     </div>
@@ -1677,6 +1690,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     $("#exception_value_dis").css('display','none');
     $("#active_state").css('display','none');
     $("#active").css('display','none');
+    $("#row_skip_exception").css('display','none');
     $("#status").css('display','none');
     $("#social_security_number").css('display','none');
     $("#sponsor").css('display','none');
@@ -1823,12 +1837,13 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#exception_value_dis").val((error_code_id == 13) ? '<Social Security Number>' : '***-**-' + existing_field_value.slice(-4));
             $("#exception_value_dis").prop( "disabled", true );
             $("#exception_value").css('display','none');
-            
+            // Client dropdown and/or "Skip/Delete Exception Record" - 3/13/22 
             populate_assign_to_client(error_code_id, existing_field_value, exception_record_id);
             $("#assign_client_to_account").css('display','block');
+            $("#row_skip_exception").css('display','block');
         } else {
-            document.getElementById("field_label").innerHTML = 'Change Social Security Number: ';
-            document.getElementById("social_security_number").value = existing_field_value;
+            $("#field_label").html('Change Social Security Number: ');
+            $("#social_security_number").val(existing_field_value);
             $("#social_security_number").css('display','block');
             $("#exception_value").css('display','none');
         }
@@ -1855,7 +1870,6 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         /* Show Hold/Assign/Reassign/Delete radio buttons */
         $("#broker_termination_options_trades").css('display','block');
-
         document.getElementById("broker_termination_options_trades").dataset.exceptionField = "objectives";
         document.getElementById("lbl_broker_active_trades").innerHTML = 'Add Product Objective to Client';
         document.getElementById("lbl_reassign_broker_trades").innerHTML = 'Reassign Trade to Another Client';
@@ -1914,6 +1928,11 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 function populate_assign_to_client(error_code_id, existing_field_value, exception_record_id){
     var clientDropdown = $("#acc_for_client");
     clientDropdown.empty();
+    clientDropdown.append(
+        $('<option></option>')
+            .val("0")
+            .html("Select Client")
+    );  
         
     <?php foreach ($get_client AS $key=>$val){ ?>
         // 19=SSN Already Exists - filter for only matching SSN's
