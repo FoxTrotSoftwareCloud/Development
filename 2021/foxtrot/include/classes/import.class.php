@@ -172,7 +172,7 @@
             {
                 $this->errors = 'Please enter rep number.';
             }
-            if(($exception_field == 'representative_number' OR ($exception_field='u5' AND $resolveAction==3)) AND $rep_for_broker == '')
+            if(($exception_field == 'representative_number' OR ($exception_field == 'u5' AND $resolveAction == 3)) AND $rep_for_broker == '')
             {
                 $this->errors = 'Please select broker.';
             }
@@ -220,13 +220,13 @@
                     $result = 0;
 
                     if($resolveAction == 2){
-                        $this->resolve_exception_2Reactivate($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id, $error_code_id);
+                        $result = $this->resolve_exception_2Reactivate($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id, $error_code_id);
                     }
                     else if($resolveAction == 3){
-                        $this->resolve_exception_3Reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+                        $result = $this->resolve_exception_3Reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                     }
                     else if($resolveAction == 4){
-                        
+                        $result = $this->resolve_exception_4Delete($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                     }
                 }
                 // else if($exception_field == 'social_security_number'){
@@ -1144,6 +1144,7 @@
                             .",`resolve_action` = 4"
                             .$this->update_common_sql()
                         ." WHERE `file_id` = $file_id"
+                        ." AND `file_type` = $file_type"
                         ." AND `temp_data_id` = $detail_data_id"
                 ;
             
