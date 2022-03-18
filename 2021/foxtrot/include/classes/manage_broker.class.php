@@ -231,9 +231,9 @@
               if($res){
                   //--- IMPORT File call ---//
                   if($for_import == 'true'){
-                      //--- 1/28/22 Called from "Resolve Exceptions" in import.tpl.php. Reprocess will update all the Import Tables (IMPORT_EXCEPTIONS, IMPORT_???_DETAIL_DATA)
+                      //--- 3/17/22 Flag the exception as "add_new", process the record again to resolve the exception
                       $instance_import = new import();
-                      $instance_import->reprocess_current_files($file_id);
+                      $instance_import->resolve_exception_5AddNew('broker_id', $_SESSION['last_insert_id'], $_GET['exception_record_id']);
 
                       $_SESSION['success'] = INSERT_MESSAGE;
                       return true;

@@ -519,7 +519,7 @@ PostResult( msg );
                                                                 $return_fanmail_existing_data = $instance->select_existing_fanmail_data($error_val['temp_data_id']);
                                                                 if($error_val['field'] == 'social_security_number')
                                                                 {
-                                                                    $existing_field_value = $return_fanmail_existing_data['social_security_number'];
+                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? '(SSN blank)' : $return_fanmail_existing_data['social_security_number']);
                                                                 }
                                                                 if($error_val['field'] == 'mutual_fund_customer_account_number')
                                                                 {
@@ -1743,7 +1743,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         
         if(exception_file_type == '1'){
             $("#broker_termination_options_clients").css('display','block');
-            document.getElementById("label_assign_rep_to_broker").innerHTML = "Assign Client to Broker";
+            document.getElementById("label_assign_rep_to_broker").innerHTML = "Assign Broker to Client";
             document.getElementById("broker_active").checked = true;
         } else if(exception_file_type == '2'){
             $("#broker_termination_options_trades").css('display','block');
@@ -1762,7 +1762,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         // TEST DELETE
         <?php $a=0; ?>;
         document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Field' : 'Alias # Not Found');
-        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
         document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Trade to Broker';
         document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
         $("#assign_rep_to_broker").css('display','block');
@@ -1928,12 +1928,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 function populate_assign_to_client(error_code_id, existing_field_value, exception_record_id){
     var clientDropdown = $("#acc_for_client");
     clientDropdown.empty();
-    clientDropdown.append(
-        $('<option></option>')
-            .val("0")
-            .html("Select Client")
-    );  
-        
+
     <?php foreach ($get_client AS $key=>$val){ ?>
         // 19=SSN Already Exists - filter for only matching SSN's
         if(error_code_id != 19 || existing_field_value.replace('-','') == '<?php echo str_replace('-','',$val['client_ssn']); ?>') {
@@ -1944,6 +1939,15 @@ function populate_assign_to_client(error_code_id, existing_field_value, exceptio
             );  
         }
     <?php } ?>
+
+    if (clientDropdown.find("option").length > 1) {
+        clientDropdown.prepend(
+            $('<option></option>')
+                .val("0")
+                .html("Select Client")
+                .attr("selected", "selected")
+        );  
+    }
 }
 
 function exception_submit()
