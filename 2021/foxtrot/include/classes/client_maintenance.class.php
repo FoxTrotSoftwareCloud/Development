@@ -310,9 +310,11 @@
 
                         if($for_import == 'true')
                         {
-							//--- 01/29/22.14:00 Let Reprocess() populate the EXCEPTION table
+							//--- 3/18/22 New function to flag the exception as a 'add_new' or 'reassign' so reprocess
+							// can process the new client correctly - recognize new client, skip acct# validation/error, remove from exception grid
+							// $importClass->reprocess_current_files($file_id);
 							$importClass = new import();
-							$importClass->reprocess_current_files($file_id);
+							$importClass->resolve_exception_5AddNew('client_id', $_SESSION['client_id'], $_GET['exception_record_id'], ['account_no_id'=>$id]);
                         }
 
     				    $_SESSION['success'] = INSERT_MESSAGE;
@@ -1049,7 +1051,7 @@
 				." FROM `".CLIENT_ACCOUNT."` AS `at`"
 				." INNER JOIN `".CLIENT_MASTER."` `cm` ON `at`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
 				." WHERE `at`.`is_delete`='0'"
-				." AND `at`.`account_no`='".$this->re_db_input($account_no)."'"
+				." AND TRIM(LEADING '0' FROM `at`.`account_no`)='".LTRIM($this->re_db_input($account_no), '0')."'"
 				.$sponsorQuery
 				." ORDER BY `at`.`id`"
 			;

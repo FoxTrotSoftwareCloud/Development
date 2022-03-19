@@ -165,7 +165,7 @@
                 $resolveAction = 4;
             }
             // Skip error for missing SSN. Field will be empty
-			if($exception_value=='' AND !($exception_field=='social_security_number' AND $error_code_id=="13")){
+			if($exception_value=='' AND !($exception_file_type==1 AND $exception_field=='social_security_number')){
 				$this->errors = 'Please enter field value.';
 			}
             if($exception_field == 'representative_number' AND $exception_value == '')
@@ -233,7 +233,14 @@
                     $result = $this->resolve_exception_3Reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                 }
                 else if($exception_field == 'social_security_number'){
-                    $result = $this->resolve_exception_3Reassign('client_id', $acc_for_client, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+                    if($resolveAction == 4){
+                        $result = $this->resolve_exception_4Delete($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+                    } else if(!empty($acc_for_client)){
+                        $result = $this->resolve_exception_3Reassign('client_id', $acc_for_client, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+                    } else {
+                        $this->errors = 'Please select a resolution.';
+                    }
+
                 }
                 //*** Exceptions not populated in Process/Reprocess. Remove later if not found to be useful 3/17/22 ***//
                 // else if($exception_field == 'registration_line1'){
@@ -1152,7 +1159,7 @@
             return $result;
         }
         // Action 5 - Add New Broker or Client
-        function resolve_exception_5AddNew($reassign_field='', $newId=0, $exception_record_id=0){
+        function resolve_exception_5AddNew($reassign_field='', $newId=0, $exception_record_id=0, $accountFields=[]){
             $result = 0;
             
             if (in_array($reassign_field,['broker_id','client_id']) AND $newId AND $exception_record_id){
@@ -1191,8 +1198,18 @@
                         }
                         
                         if ($importFileTable){
+                            // If other fields were populated, add that to the SET command as well
+                            $setAccountFields = '';
+                            
+                            if (count($accountFields)){
+                                foreach ($accountFields AS $field=>$value){
+                                    $setAccountFields .= ", `$field` = '$value'";
+                                }                             
+                            }
+                            
                             $q = "UPDATE `".$importFileTable."`"
                                 ." SET `".$reassign_field."` = ".$newId
+                                        .$setAccountFields
                                         .$this->update_common_sql()
                                 ." WHERE `id`=".$detail_data_id
                                 ." AND `file_id`=".$file_id
@@ -1891,7 +1908,7 @@
                         $field_value = '';
 
                         // Exception intervention in resolve exception() by user(reassign client OR broker)
-                        $reassignBroker = $reassignClient = 0;
+                        $reassignBroker = $reassignClient = $reassignClientExceptionId = 0;
                         $exceptionArray = [];
 
                         if ($check_data_val['resolve_exceptions'] != ''){
@@ -1903,9 +1920,10 @@
                                     $reassignBroker = $errorKey;
                                 }
 
-                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['customer_account_number', 'social_security_number'])){
+                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['social_security_number'])){
                                     // Assign error code so the program knows way it's skipping the Client Account # search
                                     $reassignClient = $errorKey;
+                                    $reassignClientExceptionId = $exceptionArray[$errorKey]['exception_id'];
                                 }
                             }
                         }
@@ -1957,7 +1975,7 @@
                                 if($check_broker_termination != '') {
                                     $current_date = date('Y-m-d');
 
-                                    if($current_date>$check_broker_termination) {
+                                    if($current_date > $check_broker_termination) {
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                 ." SET"
                                                     ." `file_id`='".$check_data_val['file_id']."'"
@@ -2000,7 +2018,7 @@
                         }
 
                         // Account Number Already Exists
-                        if($existingAccountArray){
+                        if($existingAccountArray AND !$reassignClient){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET"
                                         ." `file_id`='".$check_data_val['file_id']."'"
@@ -2021,8 +2039,8 @@
                             $this->re_db_perform(IMPORT_DETAIL_DATA,["client_id"=>$existingAccountArray[0]["client_id"], "account_no_id"=>$existingAccountArray[0]["account_no_id"]],"update","`id`='".$check_data_val['id']."'");
                             // Don't increment the exception "result" variable, so this record will be checked for updates in the ADD/UPDATE section below
                             // $result++;
-                        } else {
-                            // SSN Check
+                        } else if(!$reassignClient){
+                            // SSN Check - skipped if the user chose to Reassign to Exising Client in Resolve Exception()
                             $social_security_number = preg_replace("/[^a-zA-Z0-9]/", "", $check_data_val['social_security_number']);
 
                             if (empty($social_security_number)) {
@@ -2089,7 +2107,8 @@
                          * Enter the Client
                         ********************/
                         if ($result == 0) {
-                            $res = $error_code = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
+                            $res = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
+                            
                             $exceptionFields =
                                     ",`file_id`='".$check_data_val['file_id']."'"
                                 .",`file_type`='1'"
@@ -2102,6 +2121,7 @@
                                 .",`cusip`='".$check_data_val['cusip_number']."'"
                                 .$this->insert_common_sql()
                             ;
+                            
                             if(isset($check_data_val['registration_line1'])) {
                                 $registration_line1 = isset($check_data_val['registration_line1'])?$this->re_db_input($check_data_val['registration_line1']):'';
                                 $client_name_array = explode(' ',$registration_line1);
@@ -2116,15 +2136,19 @@
                                     $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
                                 }
                             }
+                            
                             $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
 
                             // UPDATE CLIENT - for existing SSN or Account #
-                            if ($existingSocialArray OR $existingAccountArray){
-                                if ($existingSocialArray){
-                                    $clientId = $existingSocialArray[0]['id'];
+                            if ($existingSocialArray OR $existingAccountArray OR $reassignClient){
+                                if ($reassignClient){
+                                    $client_id = $check_data_val['client_id'];
+                                    $exceptionId = $reassignClientExceptionId;
+                                } else if ($existingSocialArray){
+                                    $client_id = $existingSocialArray[0]['id'];
                                     $exceptionId = $existingSocialExceptionId;
                                 } else {
-                                    $clientId = $existingAccountArray[0]['client_id'];
+                                    $client_id = $existingAccountArray[0]['client_id'];
                                     $exceptionId = $existingAccountExceptionId;
                                 }
 
@@ -2133,6 +2157,7 @@
                                         ."`error_code_id`=".($dataSettings['update_client'] ? '`error_code_id`' : 23)
                                         .",`solved`='".$dataSettings['update_client']."'"
                                         .",`process_completed`='".$dataSettings['update_client']."'"
+                                        .",`is_delete` = 0"
                                         .$exceptionFields
                                     ." WHERE `id`='$exceptionId'"
                                 ;
@@ -2152,10 +2177,11 @@
                                         'last_contacted'=>$check_data_val['last_maintenance_date']
                                     ];
 
-                                    $process_result = 1;
-                                    if ($this->update_client_master($clientId, $updateFields)){
+                                    $process_result++;
+                                    
+                                    if ($this->update_client_master($client_id, $updateFields)){
                                         // Flag the Detail record as "updated", otherwise the update function didn't change anything
-                                        $process_result = 2;
+                                        $process_result++;
                                     }
                                     // Update DETAIL TABLE for added/updated clients
                                     $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
@@ -2164,6 +2190,27 @@
                                             ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
                                     ;
                                     $res = $this->re_db_query($q);
+                                    
+                                    if ($reassignClient AND !$existingAccountArray){
+                                        $q = "INSERT INTO `".CLIENT_ACCOUNT."`"
+                                                ." SET "
+                                                    ."`client_id`='".$client_id."'"
+                                                    .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                                    .",`sponsor_company`='".$file_sponsor_array['id']."'"
+                                                    .$this->insert_common_sql()
+                                        ;
+                                        $res = $this->re_db_query($q);
+                                        $last_inserted_account_no_id = $this->re_db_insert_id();
+                                        
+                                        // Update DETAIL TABLE for added/updated clients
+                                        $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                                ." SET `process_result`='$process_result'"
+                                                    .",`client_id`='$client_id'"
+                                                    .",`account_no_id`='$last_inserted_account_no_id'"
+                                                    .$this->update_common_sql()
+                                                ." WHERE `id`='".$check_data_val['id']."'"
+                                        ;
+                                    }
                                 }
                             } else {
                                 // --- ADD CLIENT ---
@@ -3247,7 +3294,7 @@
             }
 			return $return;
 		}
-        public function get_fanmail_detail_data($id, $process_result=null, $record_id=0){
+        public function get_fanmail_detail_data($file_id, $process_result=null, $record_id=0){
 			$return = array();
 			$con = '';
 
@@ -3270,7 +3317,7 @@
 			$q = "SELECT `at`.*"
 					." FROM `".IMPORT_DETAIL_DATA."` AS `at`"
                     ." WHERE `at`.`is_delete`=0"
-                    ." AND `at`.`file_id`='".$id."'"
+                    ." AND `at`.`file_id`='".$file_id."'"
                     .$con
                     ." ORDER BY `at`.`id` ASC"
             ;
@@ -4042,6 +4089,7 @@
 
                     if (count($excDetail)){
                         $return[$excDetail[0]['error_code_id']] = [
+                            'exception_id'=>$excDetail[0]['id'],
                             'field'=>$excDetail[0]['field'],
                             'error'=>$excDetail[0]['error_description'],
                             'resolve_action'=>(array_key_exists($excDetail[0]['resolve_action'], $actionArray) ? $actionArray[$excDetail[0]['resolve_action']] : (string)$excDetail[0]['resolve_action']),

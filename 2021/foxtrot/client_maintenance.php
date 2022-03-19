@@ -660,13 +660,46 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         $return = $instance->select();
     }
     else if(isset($_GET['action']) && $_GET['action']=='add_new' && isset($_GET['exception_data_id']) && $_GET['exception_data_id']>0){
-        //--- 01/29/22 Called from import template page -> "Resolve Exceptions" tab ---//
-        $idcDetail = $instance_import->select_existing_idc_data($_GET['exception_data_id']);
+        //--- 03/18/22 Called from import template page -> "Resolve Exceptions" tab ---//
+        $broker_name = $client_file_number = $fname = $lname = $mi = '';
+        $detailData = [];
+        $file_type = (int)$dbins->re_db_input($_GET['file_type']) ;
+        $exceptionId = (int)$dbins->re_db_input($_GET['exception_data_id']);
+        $client_file_number = (isset($_GET['account_no']) ? $dbins->re_db_input($_GET['account_no']) : '');
+        
+        // Import Detail for populating the client detail vars
+        if ($file_type==1){
+            $detailData = $instance_import->select_existing_fanmail_data($exceptionId);
+        } else if ($file_type==2) {
+            $detailData = $instance_import->select_existing_idc_data($exceptionId);
+        }
+        
+        if ($detailData){
+            // Broker 
+            $broker_name = $dbins->re_db_input($detailData['broker_id']);
+    
+            // Client Name
+            if ($file_type == 1){
+                // Client Name - parse it out
+                $clientNameArray = explode(' ', trim($detailData['registration_line1']));
+                // Passing the parameter strips off the zeroes    
+                $client_file_number = $detailData['mutual_fund_customer_account_number'];
 
-        if ($idcDetail){
-            $broker_name = (string)$idcDetail['broker_id'];
-            $client_file_number = $dbins->re_db_input($idcDetail['customer_account_number']);
-            $lname = $dbins->re_db_input($idcDetail['alpha_code']);
+                if (count($clientNameArray) == 2) {
+                    $fname = $clientNameArray[0];
+                    $lname = $clientNameArray[1];
+                } else if (count($clientNameArray)==3 AND strlen($clientNameArray[1])==1) {
+                    $fname = $clientNameArray[0];
+                    $mi = $clientNameArray[1];
+                    $lname = $clientNameArray[2];
+                } else {
+                    $lname = TRIM($row['client']);
+                }
+            } else if ($file_type == 2){
+                $lname = $detailData['alpha_code'];                
+                // Passing the parameter strips off the zeroes    
+                $client_file_number = $detailData['customer_account_number'];
+            }
         }
     }
 

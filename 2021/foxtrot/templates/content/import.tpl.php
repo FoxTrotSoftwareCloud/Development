@@ -509,7 +509,6 @@ PostResult( msg );
                                                         $existingDetailValues = [];
                                                         $file_id = (isset($_GET['id'])) ? (int)$instance->re_db_input($_GET['id']) : 0;
                                                         $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
-
                                                         $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
 
                                                         foreach($return_exception as $error_key=>$error_val)
@@ -519,7 +518,7 @@ PostResult( msg );
                                                                 $return_fanmail_existing_data = $instance->select_existing_fanmail_data($error_val['temp_data_id']);
                                                                 if($error_val['field'] == 'social_security_number')
                                                                 {
-                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? '(SSN blank)' : $return_fanmail_existing_data['social_security_number']);
+                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? 'blank' : $return_fanmail_existing_data['social_security_number']);
                                                                 }
                                                                 if($error_val['field'] == 'mutual_fund_customer_account_number')
                                                                 {
@@ -654,7 +653,7 @@ PostResult( msg );
                                                                 <option value="0">ADD</option>
                                                             </select> -->
                                                             <input type="hidden" name="id" id="id" value="" />
-                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>,<?php echo $error_val['id'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
+                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>,<?php echo $error_val['id'];?>,<?php echo $error_val['account_no'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
                                                             </form>
                                                             </td>
                                                         </tr>
@@ -1670,7 +1669,7 @@ function reassign_broker_(value)
         }
     }
 }
-function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id)
+function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id,client_account_no)
 {
     result = 0;
 
@@ -1793,7 +1792,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Field' : 'Account # to Add');
         document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
         document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
-        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
         $("#exception_value_dis").prop( "disabled", true );
         $("#assign_client_to_account").css('display','block');
         populate_assign_to_client(error_code_id, existing_field_value, exception_record_id);
@@ -1828,11 +1827,11 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         result += 1;
     } else if(exception_field == 'social_security_number'){
         document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : '***-**-' + existing_field_value.slice(-4));
-        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
 
         if (exception_file_type == 1 && [13, 19].includes(error_code_id)){
             document.getElementById("field_label").innerHTML = (error_code_id == 13 ? 'Missing Field' : 'Social Security #');
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
+            // Test 3/18/22 - Send $clientAccountNo instead of 'existing_field_value
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+client_account_no+'&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'&file_type='+exception_file_type+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
             $("#exception_value_dis").css('display','block');
             $("#exception_value_dis").val((error_code_id == 13) ? '<Social Security Number>' : '***-**-' + existing_field_value.slice(-4));
             $("#exception_value_dis").prop( "disabled", true );
@@ -1842,6 +1841,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#assign_client_to_account").css('display','block');
             $("#row_skip_exception").css('display','block');
         } else {
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+client_account_no+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'&file_type='+exception_file_type+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
             $("#field_label").html('Change Social Security Number: ');
             $("#social_security_number").val(existing_field_value);
             $("#social_security_number").css('display','block');

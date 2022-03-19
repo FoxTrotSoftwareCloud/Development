@@ -91,7 +91,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                               <!--<li><a href="#tab_ee" data-toggle="tab">Documents</a></li>-->
                                 <div class="btn-group dropdown" style="float: right;">
     								<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-    								<ul class="dropdown-menu dropdown-menu-right" style="">
+    								<ul class="dropdown-menu dropdown-menu-right" > <!-- style="" -->
     									<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
     								</ul>
     							</div>
@@ -708,15 +708,9 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                     <div class="form-group">
                                                         <label>Sponsor Company </label><br />
                                                         <?php if(isset($_GET['account_no']) && $_GET['account_no'] != ''){
-                                                              $file_id = isset($_GET['file_id'])?$_GET['file_id']:0;
-                                                              $data_id = isset($_GET['exception_data_id'])?$_GET['exception_data_id']:0;
-                                                              $get_idc_sponsor = $instance_import->get_idc_record_details($file_id,$data_id);
-                                                              $management_code = $get_idc_sponsor['management_code'];
-                                                              $system_id = $get_idc_sponsor['system_id'];
-                                                              $sponsor_on_system = $instance_sponsor->get_sponsor_on_system_management_code($system_id,$management_code);
-                                                              $sponsor_company = isset($sponsor_on_system['id'])?$sponsor_on_system['id']:'';
-                                                        }
-                                                        ?>
+                                                            $file_id = isset($_GET['file_id'])?$_GET['file_id']:0;
+                                                            $sponsor_company = $instance_import->get_current_file_type($file_id, 'sponsor_id');
+                                                        } ?>
                                                         <select class="form-control" name="sponsor[]">
                                                             <option value="">Select Sponsor</option>
                                                              <?php foreach($get_sponsor as $key=>$val){?>
@@ -1013,7 +1007,9 @@ $(document).on('change', '#is_reviewed', function(event) {
                                         <?php if(isset($_GET['account_no']) && ($_GET['account_no'] != '' || $_GET['account_no'] == '')){?>
                                         <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
                                         <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
+                                        <input type="hidden" name="file_type" id="file_type" class="form-control" value="<?php echo $_GET['file_type']; ?>" />
                                         <input type="hidden" name="temp_data_id" id="temp_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
+                                        <input type="hidden" name="exception_record_id" id="exception_record_id" class="form-control" value="<?php echo $_GET['exception_record_id']; ?>" />
                                         <?php }?>
                                         <?php if($_GET['action']=='edit' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous" class="previous next_previous_a" style="float: left;"><input type="button" name="previos" value="&laquo; Previous" /></a><?php } ?>
                                         <?php if($_GET['action']=='edit' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next" class="next next_previous_a"><input type="button" name="next" value="Next &raquo;" /></a><?php } ?>
