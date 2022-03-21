@@ -2680,7 +2680,7 @@
                             if($clientAccount == '') {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='18'"
-                                        .",`field`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
+                                        .",`field`='customer_account_number'"
                                         .",`field_value`=''"
                                         .",`file_type`='2'"
                                         .$insert_exception_string;
