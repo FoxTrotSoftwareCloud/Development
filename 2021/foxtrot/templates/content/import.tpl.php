@@ -653,7 +653,7 @@ PostResult( msg );
                                                                 <option value="0">ADD</option>
                                                             </select> -->
                                                             <input type="hidden" name="id" id="id" value="" />
-                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>,<?php echo $error_val['id'];?>,<?php echo $error_val['account_no'];?>);" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
+                                                            <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id'];?>','<?php echo $error_val['file_type'];?>','<?php echo $error_val['temp_data_id'];?>','<?php echo $error_val['field'];?>','<?php echo $error_val['rep'];?>','<?php echo $existing_field_value;?>',<?php echo $error_val['error_code_id'];?>,<?php echo $error_val['id'];?>,'<?php echo $error_val['account_no'];?>');" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
                                                             </form>
                                                             </td>
                                                         </tr>
