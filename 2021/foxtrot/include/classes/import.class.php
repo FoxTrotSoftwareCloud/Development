@@ -150,37 +150,37 @@
                 $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
             }
 
-            $rep_for_broker = isset($data['rep_for_broker'])?$this->re_db_input($data['rep_for_broker']):'';
-            $acc_for_client = isset($data['acc_for_client'])?$this->re_db_input($data['acc_for_client']):'';
-            $skipException = isset($data['skip_exception'])?$this->re_db_input($data['skip_exception']):'';
+            $rep_for_broker = (isset($data['rep_for_broker']) ? (int)$this->re_db_input($data['rep_for_broker']) : 0);
+            $acc_for_client = (isset($data['acc_for_client']) ? (int)$this->re_db_input($data['acc_for_client']) : 0);
+            $skipException = (isset($data['skip_exception']) ? (int)$this->re_db_input($data['skip_exception']) : 0);
 
             if(isset($data['resolve_broker_terminated'])){
-                $resolveAction = $data['resolve_broker_terminated'];
+                $resolveAction = (int)$data['resolve_broker_terminated'];
             }
             if(isset($data['resolveAction'])){
-                $resolveAction = $data['resolveAction'];
+                $resolveAction = (int)$data['resolveAction'];
             }
             if($skipException){
                 // Delete/Skip Exception
                 $resolveAction = 4;
             }
             // Skip error for missing SSN. Field will be empty
-			if($exception_value=='' AND !($exception_file_type==1 AND $exception_field=='social_security_number')){
+			if($exception_value=='' AND !($exception_file_type==1 AND $exception_field=='social_security_number') AND empty($rep_for_broker) AND empty($acc_for_client) AND $resolveAction!=4){
 				$this->errors = 'Please enter field value.';
 			}
-            if($exception_field == 'representative_number' AND $exception_value == '')
+            if($exception_field == 'representative_number' AND $exception_value == '' AND empty($rep_for_broker))
             {
                 $this->errors = 'Please enter rep number.';
             }
-            if(($exception_field == 'representative_number' OR ($exception_field == 'u5' AND $resolveAction == 3)) AND $rep_for_broker == '')
+            if(($exception_field == 'representative_number' OR ($exception_field == 'u5' AND $resolveAction == 3)) AND empty($rep_for_broker))
             {
                 $this->errors = 'Please select broker.';
             }
-            if($exception_field == 'customer_account_number' AND $exception_value == '')
+            if($exception_field == 'customer_account_number' AND $exception_value == '' AND $error_code_id!=13 AND empty($acc_for_client))
             {
                 $this->errors = 'Account number blank, Please enter client for account number.';
             }
-            if($exception_field == 'customer_account_number' AND $acc_for_client == '')
+            if($exception_field == 'customer_account_number' AND empty($acc_for_client))
             {
                 $this->errors = 'Please select client.';
             }
@@ -653,7 +653,7 @@
                                 ." SET"
                                     ." `account_no`='".$exception_value."'"
                                     .",`sponsor_company`='".$sponsorId."'"
-                                    .",`client_id`='".$new_client."'"
+                                    .",`client_id` = $new_client"
                                     .$this->insert_common_sql();
                             $res = $this->re_db_query($q);
 
@@ -664,7 +664,7 @@
 
                                 $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                         ." SET `resolve_action`=2"
-                                            .",`resolve_assign_to`='".$new_client."'"
+                                            .",`resolve_assign_to` = '".$new_client."'"
                                                 .$this->update_common_sql()
                                         ." WHERE `id`=".$exception_record_id
                                 ;
@@ -2680,7 +2680,7 @@
                             if($clientAccount == '') {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='18'"
-                                        .",`field`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
+                                        .",`field`='customer_account_number'"
                                         .",`field_value`=''"
                                         .",`file_type`='2'"
                                         .$insert_exception_string;
