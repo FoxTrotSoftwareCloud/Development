@@ -314,7 +314,14 @@
 							// can process the new client correctly - recognize new client, skip acct# validation/error, remove from exception grid
 							// $importClass->reprocess_current_files($file_id);
 							$importClass = new import();
-							$importClass->resolve_exception_5AddNew('client_id', $_SESSION['client_id'], $_GET['exception_record_id'], ['account_no_id'=>$id]);
+							$otherFieldUpdates = [];
+							$file_type = (isset($_SESSION['client_maintenance_for_import']['file_type']) ? (int)$_SESSION['client_maintenance_for_import']['file_type'] : 0); 
+							
+							if ($file_type == 1){
+								$otherFieldUpdates = ['account_no_id'=>$id];
+							}
+							
+							$importClass->resolve_exception_5AddNew('client_id', $_SESSION['client_id'], $_GET['exception_record_id'], $otherFieldUpdates);
                         }
 
     				    $_SESSION['success'] = INSERT_MESSAGE;
