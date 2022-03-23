@@ -1449,7 +1449,7 @@ PostResult( msg );
                         <input type="hidden" name="exception_file_type" id="exception_file_type" value=""/>
                         <input type="hidden" name="error_code_id" id="error_code_id" value=""/>
                         <input type="hidden" name="exception_record_id" id="exception_record_id" value=""/>
-                        <input type="hidden" name="resolveAction" id="resolveAction" value="00"/>
+                        <input type="hidden" name="resolveAction" id="resolveAction" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />
         	            <button type="submit" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
                         <!--Deprecated 03/04/22 -- style="alignment-adjustment: center !important;" -->
@@ -1762,9 +1762,10 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         result += 1;
     } else if(exception_field == 'representative_number'){
         document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Field' : 'Alias # Not Found');
-        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'&file_type='+exception_file_type+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
         document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
         $("#assign_rep_to_broker").css('display','block');
+        $("#resolveAction").val('2');
         
         if (error_code_id == 1){
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Alias to Broker';
@@ -1772,6 +1773,8 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Client to Broker';
         } else if (exception_file_type == 2 && error_code_id == 13) {
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Trade to Broker';
+        } else {
+            document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign to Broker';
         }
 
         result += 1;
@@ -1888,10 +1891,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         result += 1;
     } else if(exception_field == 'cusip_number' && error_code_id == '11'){
-        console.log(
-            'existing_field_value: ' + existing_field_value +
-            'exception_file_type: ' + exception_file_type
-        );
+        document.getElementById("resolveAction").value = "2";
         
         if(exception_file_type == 3) {
             document.getElementById("field_label").innerHTML = 'Change Cusip Number:';
