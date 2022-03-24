@@ -119,11 +119,17 @@
             $exception_data_id = isset($data['exception_data_id']) ? (int)$this->re_db_input($data['exception_data_id']) : 0;
             $exception_field = isset($data['exception_field']) ? $this->re_db_input($data['exception_field']) : '';
             $exception_record_id = isset($data['exception_record_id']) ? $this->re_db_input($data['exception_record_id']) : '';
-
+            
+            // Populate "Exception Value" per Exception Field
             if($exception_field == 'u5'){
                 $exception_value = isset($data['exception_value_date'])?$this->re_db_input($data['exception_value_date']):'';
             } else if($exception_field == 'social_security_number'){
-                $exception_value = isset($data['social_security_number'])?$this->re_db_input($data['social_security_number']):'';
+                if($exception_file_type==1){
+                    // Skip error for missing SSN. Field will be empty
+                    $exception_value = $exception_record_id;
+                } else {
+                    $exception_value = isset($data['social_security_number'])?$this->re_db_input($data['social_security_number']):'';
+                }
             } else if($exception_field == 'active'){
                 $exception_value = isset($data['active'])?$this->re_db_input($data['active']):'';
             } else if($exception_field == 'active_check'){
@@ -131,7 +137,12 @@
             } else if($exception_field == 'status'){
                 $exception_value = isset($data['status'])?$this->re_db_input($data['status']):'';
             } else if($exception_field == 'objectives'){
-                $exception_value = isset($data['objectives'])?$this->re_db_input($data['objectives']):'';
+                if ($exception_file_type==2 AND $error_code_id==9){
+                    // Objectives is not populated for IDC file, so just default it to the exception record id for $data validation
+                    $exception_value = $exception_record_id;
+                } else {
+                    $exception_value = isset($data['objectives'])?$this->re_db_input($data['objectives']):'';
+                }
             } else if($exception_field == 'sponsor'){
                 $exception_value = isset($data['sponsor'])?$this->re_db_input($data['sponsor']):'';
             } else if($exception_field == 'cusip_number' && $error_code_id == '13'){
@@ -149,24 +160,29 @@
             } else {
                 $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
             }
-
+            
+            // Form-User Inputs
             $rep_for_broker = (isset($data['rep_for_broker']) ? (int)$this->re_db_input($data['rep_for_broker']) : 0);
             $acc_for_client = (isset($data['acc_for_client']) ? (int)$this->re_db_input($data['acc_for_client']) : 0);
             $skipException = (isset($data['skip_exception']) ? (int)$this->re_db_input($data['skip_exception']) : 0);
-
+            // Element is used for more than just "Broker Terminated" exceptions (radio button input element)
             if(isset($data['resolve_broker_terminated'])){
                 $resolveAction = (int)$data['resolve_broker_terminated'];
             }
+            
             // Some Exceptions only have one Action. Let the program know what "action" to take. flagged in import.tpl.php
             if(!empty($data['resolveAction'])){
                 $resolveAction = (int)$data['resolveAction'];
             }
+            
             if($skipException){
                 // Delete/Skip Exception
                 $resolveAction = 4;
+                $exception_value = (empty($exception_value) ? 'delete exception' : $exception_value);
             }
-            // Skip error for missing SSN. Field will be empty
-			if($exception_value=='' AND !($exception_file_type==1 AND $exception_field=='social_security_number') AND empty($rep_for_broker) AND empty($acc_for_client) AND $resolveAction!=4){
+            
+            // Validate Exception Field 
+			if($exception_value==''){
 				$this->errors = 'Please enter field value.';
 			}
             if($exception_field == 'representative_number' AND $exception_value == '' AND empty($rep_for_broker))
