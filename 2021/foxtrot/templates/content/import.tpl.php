@@ -267,7 +267,7 @@ PostResult( msg );
                                                         }
 
                                                         if(isset($val['imported_date']) && $val['imported_date']!= '') {?>
-                                                            <tr>
+                                                            <tr id="<?php echo '$key'.$key ?>">
                                                                 <td><?php echo in_array($val['file_type'], ['C1', 'DST Commission'])?$file_batch_id:'N/A';?></td>
                                                                 <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id={$val['id']}&file_type=$file_type_id" ;?>"><?php echo $sponsor;?></a></td>
                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
@@ -1487,14 +1487,15 @@ $(document).ready(function() {
         })
 
         $('#data-table').DataTable({
-        "pageLength": 25,
-        "bLengthChange": false,
-        "bFilter": true,
-        "bInfo": false,
-        "bAutoWidth": false,
-        "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] },
-                        { "bSearchable": false, "aTargets": [ 6,7 ] }]
+            "pageLength": 25,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "dom": '<"toolbar">frtip',
+            "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] },
+                            { "bSearchable": false, "aTargets": [ 6,7 ] }],
+            "order": [[3, "asc"]]
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>'+
                     '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');

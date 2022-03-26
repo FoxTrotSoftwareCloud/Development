@@ -1,6 +1,5 @@
 <?php
 	class import extends db{
-
 		public $errors = '';
         public $table = IMPORT_CURRENT_FILES;
         /**
@@ -9,7 +8,6 @@
 		 * */
 
         public function insert_update_ftp($data){
-
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
             $host_name = isset($data['host_name'])?$this->re_db_input($data['host_name']):'';
             $user_name = isset($data['user_name'])?$this->re_db_input($data['user_name']):'';
@@ -21,83 +19,76 @@
 
 			if($host_name==''){
 				$this->errors = 'Please enter host name.';
-			}
-            else if($user_name==''){
+			} else if($user_name==''){
 				$this->errors = 'Please enter user name.';
-			}
-            else if($password=='' && $id==0){
+			} else if($password=='' && $id==0){
 				$this->errors = 'Please enter password.';
-			}
-            else if($password!='' && $confirm_password==''){
+			} else if($password!='' && $confirm_password==''){
 				$this->errors = 'Please confirm password.';
-			}
-			else if($password!=$confirm_password){
+			} else if($password!=$confirm_password){
 				$this->errors = 'Confirm password must be same as password.';
-			}
-            else if($status==''){
+			} else if($status==''){
 				$this->errors = 'Please select status.';
-			}
-            else if($ftp_file_type==''){
+			} else if($ftp_file_type==''){
 				$this->errors = 'Please select file type.';
 			}
+            
             if($this->errors!=''){
 				return $this->errors;
-			}
-            else{
-            /* check duplicate record */
-			$con = '';
-			if($id>0){
-				$con = " AND `id`!='".$id."'";
-			}
-			$q = "SELECT * FROM `".IMPORT_FTP_MASTER."` WHERE `is_delete`=0 AND `user_name`='".$user_name."' ".$con;
-			$res = $this->re_db_query($q);
-			$return = $this->re_db_num_rows($res);
-			if($return>0){
-				$this->errors = 'This user is already exists.';
-			}
+			} else{
+                /* check duplicate record */
+    			$con = '';
+	    		
+                if($id>0){
+		    		$con = " AND `id`!='".$id."'";
+			    }
+			
+                $q = "SELECT * FROM `".IMPORT_FTP_MASTER."` WHERE `is_delete`=0 AND `user_name`='".$user_name."' ".$con;
+			    $res = $this->re_db_query($q);
+			    $return = $this->re_db_num_rows($res);
+			
+                if($return>0){
+			    	$this->errors = 'This user is already exists.';
+			    }
 
-			if($this->errors!=''){
-				return $this->errors;
-			}
-			else if($id>=0){
-				if($id==0){
+			    if($this->errors!=''){
+				    return $this->errors;
+			    } else if($id>=0){
+				    if($id==0){
+                        $q = "INSERT INTO `".IMPORT_FTP_MASTER."` SET `host_name`='".$host_name."',`user_name`='".$user_name."',`password`='".$this->encryptor($password)."',`folder_location`='".$folder_location."',`status`='".$status."',`ftp_file_type`='".$ftp_file_type."'".$this->insert_common_sql();
+                        $res = $this->re_db_query($q);
+                        $id = $this->re_db_insert_id();
 
-					$q = "INSERT INTO `".IMPORT_FTP_MASTER."` SET `host_name`='".$host_name."',`user_name`='".$user_name."',`password`='".$this->encryptor($password)."',`folder_location`='".$folder_location."',`status`='".$status."',`ftp_file_type`='".$ftp_file_type."'".$this->insert_common_sql();
-					$res = $this->re_db_query($q);
-                    $id = $this->re_db_insert_id();
-					if($res){
-					    $_SESSION['success'] = INSERT_MESSAGE;
-						return true;
-					}
-					else{
-						$_SESSION['warning'] = UNKWON_ERROR;
-						return false;
-					}
-				}
-				else if($id>0){
-				    $con = '';
-                    $id = (int)$id;
+                        if($res){
+                            $_SESSION['success'] = INSERT_MESSAGE;
+                            return true;
+    					} else{
+						    $_SESSION['warning'] = UNKWON_ERROR;
+						    return false;
+					    }
+				    } else if($id>0){
+				        $con = '';
+                        $id = (int)$id;
 
-					if($password!=''){
-						$con .= " , `password`='".$this->encryptor($password)."' ";
-					}
+					    if($password!=''){
+						    $con .= " , `password`='".$this->encryptor($password)."' ";
+					    }
 
-				    $q = "UPDATE `".IMPORT_FTP_MASTER."` SET `host_name`='".$host_name."',`user_name`='".$user_name."',`folder_location`='".$folder_location."',`status`='".$status."',`ftp_file_type`='".$ftp_file_type."' ".$con." ".$this->update_common_sql()." WHERE `id`=$id";
-                    $res = $this->re_db_query($q);
-					if($res){
-					    $_SESSION['success'] = UPDATE_MESSAGE;
-						return true;
-					}
-					else{
-						$_SESSION['warning'] = UNKWON_ERROR;
-						return false;
-					}
-				}
-			}
-			else{
-				$_SESSION['warning'] = UNKWON_ERROR;
-				return false;
-			}
+				        $q = "UPDATE `".IMPORT_FTP_MASTER."` SET `host_name`='".$host_name."',`user_name`='".$user_name."',`folder_location`='".$folder_location."',`status`='".$status."',`ftp_file_type`='".$ftp_file_type."' ".$con." ".$this->update_common_sql()." WHERE `id`=$id";
+                        $res = $this->re_db_query($q);
+					    
+                        if($res){
+					        $_SESSION['success'] = UPDATE_MESSAGE;
+						    return true;
+                        } else{
+						    $_SESSION['warning'] = UNKWON_ERROR;
+						    return false;
+					    }
+				    }
+			    } else{
+				    $_SESSION['warning'] = UNKWON_ERROR;
+				    return false;
+			    }
             }
 		}
 
@@ -2926,14 +2917,14 @@
                             ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
                             ." WHERE `b`.`is_delete`=0"
                             ." AND `b`.`is_archived`=0"
-                    ." ORDER BY `file_name`"
+                    ." ORDER BY `last_processed_date` DESC, `file_name`, `file_type`"
                 ;
             } else {
                 $q = "SELECT `at`.*"
                         ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
                         ." WHERE `at`.`is_delete`=0"
                         ." AND `at`.`is_archived`=0"
-                        ." ORDER BY `at`.`imported_date` DESC"
+                        ." ORDER BY `at`.`imported_date` DESC, `at`.`file_type`, `at`.`file_name`"
                 ;
             }
 

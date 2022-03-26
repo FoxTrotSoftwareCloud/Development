@@ -74,9 +74,10 @@
 		 * @param int id
 		 * @return array of record if success, error message if any errors
 		 * $user_id deprecated 3/21/22 - all users should enjoy! This is not Florida!!
-		 * */
+		 **/
 		public function edit($dim_id,$user_id=0){
 			$return = array();
+			
 			$q = "SELECT `at`.*
 					FROM `".$this->table."` AS `at`
                     WHERE `at`.`is_delete`='0' AND `at`.`dim_id`='".$dim_id."' ";
@@ -86,5 +87,20 @@
             }
 			return $return;
 		}
-    }
+
+		public function select($queryString){
+			$return = array();
+			
+			$q = "SELECT `at`.*
+					FROM `".$this->table."` AS `at`
+                    WHERE ".trim($queryString);
+			$res = $this->re_db_query($q);
+
+			if($this->re_db_num_rows($res)>0){
+    			$return = $this->re_db_fetch_all($res);
+            }
+			return $return;
+		}
+
+	}
 ?>
