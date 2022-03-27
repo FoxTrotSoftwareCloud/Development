@@ -11,7 +11,6 @@
     define('PRODUCT_RATES','ft_products_rates');
     define('PRODUCT_HISTORY','ft_products_history');
     
-    
     define('PAYROLL_TYPE','ft_payroll_master');
     define('CLIENT_MASTER','ft_client_master');
     define('BROKER_MASTER','ft_broker_master');
@@ -101,6 +100,7 @@
     define('IMPORT_SFR_HEADER_DATA','ft_import_sfrfile_header_data');
     define('IMPORT_SFR_DETAIL_DATA','ft_import_sfrfile_detail_data');
     define('IMPORT_SFR_FOOTER_DATA','ft_import_sfrfile_footer_data');
+    define('IMPORT_GEN_DETAIL_DATA','ft_import_genfile_detail_data');
     define('PAYOUT_FIXED_RATES','ft_broker_payout_fixed_rates');
     //define('PAYROLL_ADJUSTMENTS','ft_payroll_adjustments');
     //define('PAYROLL_TRANSACTIONS','ft_payroll_transactions');

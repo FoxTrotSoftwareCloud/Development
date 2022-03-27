@@ -490,12 +490,12 @@
                                 <label>Local Folder </label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <input type="text" name="local_folder" class="form-control"/>
+                                <input type="text" name="local_folder" class="form-control" value="<?php echo $local_folder ?>"/>
                             </div>
                         </div>	
                         <div class="selectwrap">
                             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
-                            <input type="hidden" name="dim_id" id="dim_id" value="9" />
+                            <input type="hidden" name="dim_id" id="dim_id" value="<?php echo $id; ?>" />
                             <input type="hidden" name="is_authorized" id="is_authorized" value="0" />
                             <input type="button" name="clear" value="Clear" style="float: right;"/>
                             <input type="submit" onclick="waitingDialog.show();" name="submit" value="Save" style="float: right;"/>	

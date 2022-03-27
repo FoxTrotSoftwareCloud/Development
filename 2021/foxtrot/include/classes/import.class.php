@@ -1365,15 +1365,15 @@
             }
 		}
         public function reArrayFiles($file_post) {
-           $file_ary = array();
+           $file_array = array();
            $file_count = count($file_post['name']);
            $file_keys = array_keys($file_post);
            for ($i=0; $i<$file_count; $i++) {
                foreach ($file_keys as $key) {
-                   $file_ary[$i][$key] = $file_post[$key][$i];
+                   $file_array[$i][$key] = $file_post[$key][$i];
                }
            }
-           return $file_ary;
+           return $file_array;
        }
 
         public function process_current_files($id){
@@ -3729,18 +3729,22 @@
             }
 			return $return;
 		}
-        public function check_current_files($user_id){
+        public function check_current_files($user_id=0){
 			$return = array();
-
-			$q = "SELECT `at`.`file_name`
-					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`=0 and `at`.`user_id`='".$user_id."'
-                    ORDER BY `at`.`id` ASC";
-			$res = $this->re_db_query($q);
+            $userQuery = ($user_id==0 ? '' : "`at`.`user_id`='$user_id'");
+            
+			$q = "SELECT `at`.`file_name`"
+				    ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
+                    ." WHERE `at`.`is_delete`=0"
+                        .$userQuery
+                    ." ORDER BY `at`.`id` ASC"
+            ;
+			
+            $res = $this->re_db_query($q);
+            
             if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     $return[] = $row['file_name'];
+    		    while($row = $this->re_db_fetch_array($res)){
+    			     $return[] = ($user_id==0 ? strtoupper($row['file_name']) : $row['file_name']);
                 }
             }
 			return $return;

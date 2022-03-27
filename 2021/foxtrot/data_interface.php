@@ -23,20 +23,20 @@
     	$trade_activity = isset($_POST['trade_activity'])?$instance->re_db_input($_POST['trade_activity']):0;
     	$add_client = isset($_POST['add_client'])?$instance->re_db_input($_POST['add_client']):0;
     	$update_client = isset($_POST['update_client'])?$instance->re_db_input($_POST['update_client']):0;
-    	$local_folder = isset($_POST['local_folder'])?$instance->re_db_input($_POST['local_folder']):'';//echo '<pre>';print_r($_POST);exit;
-    	$return = $instance->insert_update($_POST);
+        $local_folder = isset($_POST['local_folder']) ? $instance->re_db_input($_POST['local_folder']) : '';
+
+        $return = $instance->insert_update($_POST);
         
         if($return===true){
             header('location:'.CURRENT_PAGE);exit;
-            
-        }
-        else{
+        } else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
     else if($action=='view' && $dim_id>0){
-        $user_id = $_SESSION['user_id'];
-        $return = $instance->edit($dim_id,$user_id);
+        // 03/26/22 user_id deprecated. filter should be set in System Config
+        // $user_id = $_SESSION['user_id'];
+        $return = $instance->edit($dim_id);
         $id = isset($return['id'])?$instance->re_db_output($return['id']):0;
         $uname = isset($return['user_name'])?$instance->re_db_output($return['user_name']):'';
     	$password = isset($return['password'])?$instance->re_db_output($return['password']):'';
