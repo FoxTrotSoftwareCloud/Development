@@ -156,6 +156,12 @@
 		$city_general = isset($_POST['city_general'])?$instance->re_db_input($_POST['city_general']):'';
 		$state_general = isset($_POST['state_general'])?$instance->re_db_input($_POST['state_general']):'';
 		$zip_code_general = isset($_POST['zip_code_general'])?$instance->re_db_input($_POST['zip_code_general']):'';
+
+        $business_city = isset($_POST['business_city'])?$instance->re_db_input($_POST['business_city']):'';
+        $business_state = isset($_POST['business_state'])?$instance->re_db_input($_POST['business_state']):'';
+        $business_zipcode = isset($_POST['business_zipcode'])?$instance->re_db_input($_POST['business_zipcode']):'';
+
+
         $telephone_general = isset($_POST['telephone_general'])?$instance->re_db_input($_POST['telephone_general']):'';
         $cell_general = isset($_POST['cell_general'])?$instance->re_db_input($_POST['cell_general']):'';
 		$fax_general = isset($_POST['fax_general'])?$instance->re_db_input($_POST['fax_general']):'';
@@ -473,6 +479,12 @@
         $city = isset($edit_general['city'])?$instance->re_db_output($edit_general['city']):'';
         $state_id = isset($edit_general['state_id'])?$instance->re_db_output($edit_general['state_id']):'';
         $zip_code = isset($edit_general['zip_code'])?$instance->re_db_output($edit_general['zip_code']):'';
+
+        $business_city = isset($edit_general['business_city'])?$instance->re_db_input($edit_general['business_city']):'';
+        $business_state = isset($edit_general['business_state'])?$instance->re_db_input($edit_general['business_state']):'';
+        $business_zipcode = isset($edit_general['business_zipcode'])?$instance->re_db_input($edit_general['business_zipcode']):'';
+
+
         $telephone = isset($edit_general['telephone'])?$instance->re_db_output($edit_general['telephone']):'';
         $cell = isset($edit_general['cell'])?$instance->re_db_output($edit_general['cell']):'';
         $fax = isset($edit_general['fax'])?$instance->re_db_output($edit_general['fax']):'';
