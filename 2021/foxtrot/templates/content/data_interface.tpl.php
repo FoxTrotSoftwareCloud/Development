@@ -487,10 +487,11 @@
                         </div>	
                         <div class="row"> 
                             <div class="col-md-6 form-group">
-                                <label>Local Folder </label>
+                                <label>Upload Generic CSV File </label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <input type="text" name="local_folder" class="form-control" value="<?php echo $local_folder ?>"/>
+                                <input type="hidden" name="local_folder" class="form-control" value="<?php echo $local_folder ?>"/>
+                                <input type="file" name="upload_file" class="form-control" />
                             </div>
                         </div>	
                         <div class="selectwrap">

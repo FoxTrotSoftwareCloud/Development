@@ -37,13 +37,12 @@
 			$res = $this->re_db_query($q);
 			$return = $this->re_db_num_rows($res);
 			if($return>0){
-			 
                     $con = '';
 					if($password!=''){
 						$con .= " , `password`='".$this->encryptor($password)."' ";
 					}
-			        
-                    $q = "UPDATE `".$this->table."` SET `dim_id`='".$dim_id."',`is_authorized_person`='".$is_authorized."',`user_name`='".$uname."',`exclude_non_comm_trade_activity`='".$trade_activity."',`add_client`='".$add_client."',`update_client`='".$update_client."',`local_folder`='".$local_folder."' ".$con." ".$this->update_common_sql()." WHERE `id`='".$id."'";
+			        // Don't update 'local_folder' <input type="file" returns empty in $_POST. Save name for uploading files - 03/28/22 -> ",`local_folder`='$local_folder'"
+                    $q = "UPDATE `".$this->table."` SET `dim_id`='".$dim_id."',`is_authorized_person`='".$is_authorized."',`user_name`='".$uname."',`exclude_non_comm_trade_activity`='".$trade_activity."',`add_client`='".$add_client."',`update_client`='".$update_client."' ".$con." ".$this->update_common_sql()." WHERE `id`='".$id."'";
                             
 					$res = $this->re_db_query($q);
                     $id = $this->re_db_insert_id();
@@ -103,6 +102,22 @@
 			if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_all($res);
             }
+			return $return;
+		}
+		
+		function upload_file($data, $toFolder){
+			$return = 0;
+			$moveToFolder = empty($toFolder) ? 'import_files' : rtrim($toFolder, "/")."/";
+
+			if (!empty($data['name'])){
+				$return = move_uploaded_file($_FILES['upload_file']['tmp_name'], DIR_FS.$moveToFolder.$_FILES['upload_file']['name']);
+				
+				if ($return){
+					$instance_importGeneric = new import_generic();
+					$return = $instance_importGeneric->fetch_files();
+				}
+			}
+
 			return $return;
 		}
 

@@ -3749,18 +3749,20 @@
             }
 			return $return;
 		}
-        public function check_file_type($file_id){
+        public function check_file_type($file_id, $typeCode=0){
 			$return = array();
-
-			$q = "SELECT `at`.`source`
-					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`=0 and `at`.`id`='".$file_id."'
-                    ORDER BY `at`.`id` ASC";
+            $returnField = $typeCode==0 ? "source" : "file_type";
+            
+			$q = "SELECT `at`.`source`, `at`.`file_type`"
+					." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
+                    ." WHERE `at`.`is_delete`=0 and `at`.`id`='".$file_id."'"
+                    ." ORDER BY `at`.`id` ASC"
+            ;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
-    			     $return = $row['source'];
+    			     $return = $row[$returnField];
                 }
             }
 			return $return;

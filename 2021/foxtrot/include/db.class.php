@@ -951,6 +951,8 @@ class db
     public function insert_common_sql($returnType=1){
         if ($returnType == 2){
             $insert_common_sql = ['created_ip'=>$this->get_client_ip(), 'created_by'=>$_SESSION['user_id'], 'created_time'=>CURRENT_DATETIME];
+        } else if ($returnType == 3){
+            $insert_common_sql = ['fields'=>", `created_ip`, `created_by`, `created_time`", 'values'=>' , "'.$this->get_client_ip().'", "'.$_SESSION['user_id'].'", "'.CURRENT_DATETIME.'"'];
         } else {
             $insert_common_sql = " , `created_ip`='".$this->get_client_ip()."', `created_by`='".$_SESSION['user_id']."', `created_time`='".CURRENT_DATETIME."' ";
         }
