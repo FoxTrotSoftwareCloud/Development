@@ -123,7 +123,7 @@
 
 
 
-if((isset($_POST['submit'])&& $_POST['submit']=='Save')
+    if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
         || (isset($_POST['submit'])&& $_POST['submit']=='Next') )
     {
@@ -208,6 +208,7 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         //for account no add for import module
         $for_import = isset($_POST['for_import'])?$instance->re_db_input($_POST['for_import']):'false';
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
+        $file_type = isset($_POST['file_type'])?$instance->re_db_input($_POST['file_type']):0;
 
         // Update the client table
         $return = $instance->insert_update($_POST);
@@ -227,24 +228,19 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
             }
             else
             {
-                if($for_import == 'true')
-                {
-                    if(isset($file_id) && $file_id >0 )
-                    {
-                        header("location:".SITE_URL."import.php?tab=review_files&id=".$file_id);exit;
-                    }
-                    else
-                    {
-                        header("location:".SITE_URL."import.php");exit;
-                    }
-                }
-                else if($action == 'edit')
-                {
-                    header("location:".CURRENT_PAGE);exit;
-                }
-                else
-                {
-                    header("location:".CURRENT_PAGE);exit;
+                if($for_import == 'true') {
+                    $params = (!empty($file_id) ? '&id='.$file_id : '')
+                              .(!empty($file_type) ? '&file_type='.$file_type : '');
+                    unset($_SESSION['client_maintenance_for_import']);
+
+                    header("location:".SITE_URL."import.php?tab=review_files".$params);
+                    exit;
+                } else if($action == 'edit') {
+                    header("location:".CURRENT_PAGE);
+                    exit;
+                } else {
+                    header("location:".CURRENT_PAGE);
+                    exit;
                 }
             }
         }
@@ -655,10 +651,6 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         echo $error;
         exit;
     }
-    else if($action=='view'){
-        $_SESSION['client_id']='';
-        $return = $instance->select();
-    }
     else if(isset($_GET['action']) && $_GET['action']=='add_new' && isset($_GET['exception_data_id']) && $_GET['exception_data_id']>0){
         //--- 03/18/22 Called from import template page -> "Resolve Exceptions" tab ---//
         $broker_name = $client_file_number = $fname = $lname = $mi = '';
@@ -700,7 +692,23 @@ if((isset($_POST['submit'])&& $_POST['submit']=='Save')
                 // Passing the parameter strips off the zeroes    
                 $client_file_number = $detailData['customer_account_number'];
             }
+            $_SESSION['client_maintenance_for_import'] = ['account_no'=>$client_file_number, 'file_id'=>$_GET['file_id'], 'file_type'=>$file_type, 'detail_id'=>$exceptionId, 'exception_id'=>$_GET['exception_record_id']];
         }
+    } else if (!empty($_SESSION['client_maintenance_for_import'])) {
+        // Add New Client from Import grid, but hit "Cancel"
+        $file_id = (isset($_SESSION['client_maintenance_for_import']['file_id']) ? (int)$instance->re_db_input($_SESSION['client_maintenance_for_import']['file_id']) : 0);
+        $file_type = (isset($_SESSION['client_maintenance_for_import']['file_type']) ? (int)$instance->re_db_input($_SESSION['client_maintenance_for_import']['file_type']) : 0);
+        unset($_SESSION['client_maintenance_for_import']);
+
+        $params = (!empty($file_id) ? '&id='.$file_id : '')
+                 .(!empty($file_type) ? '&file_type='.$file_type : '');
+        
+        header("location:".SITE_URL."import.php?tab=review_files".$params);
+        exit;
+    }
+    else if($action=='view'){
+        $_SESSION['client_id']='';
+        $return = $instance->select();
     }
 
     //--- Show the Client Maintenance Page ---//

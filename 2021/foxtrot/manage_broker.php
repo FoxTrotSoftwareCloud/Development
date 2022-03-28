@@ -249,14 +249,11 @@
             
             if($for_import == 'true')
             {
-                if(isset($file_id) && $file_id >0 )
-                {
-                    header("location:".SITE_URL."import.php?tab=review_files&id=".$file_id);exit;
-                }
-                else
-                {
-                    header("location:".SITE_URL."import.php");exit;
-                }
+                $params = (!empty($file_id) ? '&id='.$file_id : '')
+                          .(!empty($file_type) ? '&file_type='.$file_type : '');
+
+                header("location:".SITE_URL."import.php?tab=review_files".$params);
+                exit;
             }
             else if($action == 'edit')
             {
