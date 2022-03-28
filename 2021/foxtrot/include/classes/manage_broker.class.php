@@ -1873,7 +1873,7 @@
 			$q = "SELECT `at`.*
 					FROM `".BROKER_MASTER."` AS `at`
                     WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                    ORDER BY `at`.`last_name` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -2658,6 +2658,41 @@
             }//echo "<pre>"; print_r($return);exit;
 			return $return;
 		}
+
+		 function load_broker_state_fee($broker_id){
+    	$return = array();
+
+			$q = "SELECT * from ft_broker_state_fee_master where feeBrokerID='".$broker_id."' limit 1";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+             $row = $this->re_db_fetch_array($res);
+               return json_decode($row['feeData']);
+            } 
+
+				return array();
+    }
+
+    function save_broker_state_fee($data){
+
+    	
+    	  	  $q = "SELECT * from ft_broker_state_fee_master where feeBrokerID='".$_POST['broker']."'";
+
+    	  	  foreach($_POST['state_fee'] as $index=>$fee){
+    	  	  	$_POST['state_fee'][$index]= filter_var($fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+    	  	  }
+						$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+              	 $q = "update  `ft_broker_state_fee_master` SET `feeData`='".json_encode($_POST['state_fee'])."' where feeBrokerID='".$_POST['broker']."'";  
+              		$res = $this->re_db_query($q);
+            }
+            else{
+            	   	
+            	   	$q = "INSERT INTO `ft_broker_state_fee_master` SET `feeData`='".json_encode($_POST['state_fee'])."',feeBrokerID='".$_POST['broker']."' ".$this->insert_common_sql();
+									$res = $this->re_db_query($q);
+            }
+    	  	  
+    	  	   return true;
+         }  
 
     }
 ?>

@@ -74,7 +74,7 @@
         /**
 		 * @param int id
 		 * @return array of record if success, error message if any errors
-		 * $user_id deprecated 3/21/22 - all users should enjoy! This is not Florida!!
+		 * $user_id deprecated 3/21/22 - all users should enjoy!
 		 **/
 		public function edit($dim_id,$user_id=0){
 			$return = array();
