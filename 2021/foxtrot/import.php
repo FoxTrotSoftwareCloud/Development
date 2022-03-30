@@ -29,6 +29,7 @@
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor();
     $instance_batches = new batches();
+    $instance_importGeneric = new import_generic();
 
     if(isset($_GET['id']) && $_GET['id'] !='')
     {
@@ -194,7 +195,37 @@
         echo $error;
         exit;
     }
-    else if($action=='edit_ftp' && $ftp_id>0){
+    else if(isset($_POST['upload_generic_csv_file']) && $_POST['upload_generic_csv_file']=='upload_generic_csv_file')
+    {
+        $error = '';
+        $uploaded = $processed = 0;
+        
+        // Validate the file
+        if (empty($_FILES['upload_generic_csv_file']['name'])){
+            $error = 'No file specified. Procedure cancelled.';
+        }
+        // Upload the file from the client side to the server
+        if (empty($error)){
+            $uploaded = $instance->upload_file($_FILES['upload_generic_csv_file'], $instance_importGeneric->dataInterface['local_folder']);
+        }
+        // Load the File & Generic Detail tables
+        if ($uploaded){
+            $uploaded = $instance_importGeneric->process_file($_FILES['upload_generic_csv_file']['name']);
+        } else if (empty($error)){
+            $error = 'File not uploaded. Please check privileges on the directory & file: '.$$_FILES['upload_generic_csv_file']['name'];
+        }
+        
+        if(empty($error) AND $uploaded){
+            $_SESSION['success'] = "File '".$_FILES['upload_generic_csv_file']['name']."' uploaded and processed.";
+            header("location:".CURRENT_PAGE."?action=view");
+        } else{
+            $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
+            header("location:".CURRENT_PAGE."?tab=open_ftp");
+        }
+        exit;
+    }
+    else if($action=='edit_ftp' && $ftp_id>0)
+    {
         $return = $instance->edit_ftp($ftp_id);
         $ftp_id = isset($return['id'])?$instance->re_db_output($return['id']):0;
         $host_name = isset($return['host_name'])?$instance->re_db_output($return['host_name']):'';

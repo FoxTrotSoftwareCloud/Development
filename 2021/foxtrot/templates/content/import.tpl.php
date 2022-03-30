@@ -956,8 +956,7 @@ PostResult( msg );
                     <div class="tab-content col-md-12">
                     <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="open_ftp"){ echo "active"; } ?>" id="ftp">
                     <?php
-                    if($action=='add_ftp'||($action=='edit_ftp' && $ftp_id>0)){
-                        ?>
+                    if($action=='add_ftp'||($action=='edit_ftp' && $ftp_id>0)){ ?>
                         <form method="POST">
                         <div class="panel">
                             <div class="panel-heading">
@@ -1040,8 +1039,9 @@ PostResult( msg );
 
                         </div>
                         </form>
-                        <?php
-                            }else{?>
+                        
+                        <?php } else { ?>
+                        
                         <div class="panel">
                         <form method="post" enctype="multipart/form-data">
                     		<!--<div class="panel-heading">
@@ -1067,37 +1067,46 @@ PostResult( msg );
                                         </tr>
                     	            </thead>
                     	            <tbody>
-                                    <?php
+             
+                                    <?php 
                                     if(isset($_GET['tab']) && $_GET['tab'] =='open_ftp'){
-                                    $count = 0;
-                                    foreach($return_ftplist as $key=>$val){
-                                        ?>
-                    	                   <tr>
+                                        $count = 0;
+                                        foreach($return_ftplist as $key=>$val){
+                                    ?>
+                                            <tr>
                                                 <td><?php echo $val['host_name'];?></td>
                                                 <td><?php echo $val['user_name'];?></td>
                                                 <td class="text-center">
-                                                    <?php
-                                                        if($val['status']==1){
-                                                            ?>
-                                                            <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success"><i class="fa fa-check-square-o"></i> Active</a>
-                                                            <?php
-                                                        }
-                                                        else{
-                                                            ?>
-                                                            <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Inactive</a>
-                                                            <?php
-                                                        }
-                                                    ?>
+                                                    <?php if($val['status']==1){ ?>
+                                                        <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success"><i class="fa fa-check-square-o"></i> Active</a>
+                                                    <?php } else { ?>
+                                                        <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Inactive</a>
+                                                    <?php } ?>
                                                 </td>
                                                 <td class="text-center">
                                                     <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                                     <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                                     <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a>
                                                     <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
-
                                                 </td>
                                             </tr>
-                                    <?php } } ?>
+                                        <?php } 
+                                        // Add Generic CSV Interface for user-file upload -->
+                                        if(!empty($instance_importGeneric->dataInterface)){ ?>
+                                            <tr>
+                                                <td><?php echo $instance_importGeneric->dataInterface['name'];?></td>
+                                                <td></td>
+                                                <td></td>
+                                                </td>
+                                                <!-- <td class="text-center"> -->
+                                                <td>
+                                                    <input type="file" name="upload_generic_csv_file" class="form-control" />
+                                                    <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=uploadGeneric" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Upload</a> -->
+                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-download"></i> Upload</button>
+                                                </td>
+                                            </tr>
+                                        <?php }
+                                    } ?>
                                     </tbody>
                                 </table>
                                 </div>

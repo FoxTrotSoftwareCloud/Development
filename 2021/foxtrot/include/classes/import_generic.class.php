@@ -18,13 +18,66 @@ class import_generic extends import {
             $this->dim_id = $this->dataInterface['dim_id'];
         }
     }
+
+    // Fully cycle a file Decode CSV -> Process 
+    function process_file ($genericCsvFileName){
+        $file_id = $return = 0;
+        $filePathAndName = DIR_FS.str_replace("\\", "/", rtrim($this->dataInterface['local_folder'], "/")."/").
+                           strtoupper(trim($genericCsvFileName));
+
+        $file_id = $this->load_current_file_table($genericCsvFileName);
+        if ($file_id){
+            $return = $this->load_detail_table($filePathAndName, $file_id);
+        }
+        
+        return $return;
+    }
     
-    // Insert files into IMPORT CURRENT FILES table from the "local folder"
-    function fetch_files (){
+    function load_current_file_table ($genericCsvFileName, $action=1){
+        $file_id = $currentImportFiles = $processed = 0;
+        $fileType = $source = '';
+        // Format the path to be function suitable - some string functions treat backslashes as Unicode or char escapes
+        $filePath = DIR_FS.str_replace("\\", "/", rtrim($this->dataInterface['local_folder'], "/")."/");
+        $currentImportFiles = $this->check_current_files();        
+        $fileName = strtoupper(trim($genericCsvFileName));
+                
+        if (pathInfo($fileName, PATHINFO_EXTENSION)=='CSV' AND !in_array($fileName, $currentImportFiles)){
+            // File Type
+            if (strpos($fileName, 'VA') OR strpos($fileName, 'VARIABLE')) {
+                $fileType = 'Variable Annuity';
+            } else if (strpos($fileName, 'RIA') OR strpos($fileName, 'ADVISORY')) {
+                $fileType = 'RIA';
+            } else {
+                $fileType = 'Mutual Fund';
+            }
+            $fileType .= ' Generic Commission';
+            $source = 'GENERIC';
+            
+            $q = "INSERT INTO `".IMPORT_CURRENT_FILES."`"
+                    ." SET "
+                        ."`user_id` = '".$_SESSION['user_id']."'"
+                        .",`imported_date` = '".date('Y-m-d')."'"
+                        .",`file_name` = '$fileName'"
+                        .",`file_type` = '$fileType'"
+                        .",`source` = '$source'"
+                        .$this->insert_common_sql();
+            $res = $this->re_db_query($q);
+            
+            if ($res){
+                $file_id = $this->re_db_insert_id();
+            }
+        }
+
+        return $file_id;
+    }
+    
+    // Insert files from "local folder" into IMPORT CURRENT FILES table
+    function process_directory_files ($local_dir = ''){
         $returnFilesEntered = $currentImportFiles = $file_id = 0;
         $fileType = $source = '';
         // Format the path to be function suitable - remove backslashes and add forward slash to the end
-        $filePath = DIR_FS.str_replace("\\", "/", rtrim($this->dataInterface['local_folder'], "/")."/");
+        $local_dir = !empty($local_dir) ? trim($local_dir) : $this->dataInterface['local_folder'];
+        $filePath = DIR_FS.str_replace("\\", "/", rtrim($local_dir, "/")."/");
         $genericFileArray = scandir($filePath);
         
         if ($genericFileArray) {
@@ -34,31 +87,10 @@ class import_generic extends import {
                 $fileName = strtoupper(trim($genericFile));
                 
                 if (pathInfo($fileName, PATHINFO_EXTENSION)=='CSV' AND !in_array($fileName, $currentImportFiles)){
-                    // File Type
-                    if (strpos($fileName, 'VA') OR strpos($fileName, 'VARIABLE')) {
-                        $fileType = 'Variable Annuity';
-                    } else if (strpos($fileName, 'RIA')) {
-                        $fileType = 'RIA';
-                    } else {
-                        $fileType = 'Mutual Fund';
-                    }
-                    $fileType .= ' Generic Commission';
-                    $source = 'GENERIC';
+                    $file_id = $this->process_file($fileName);
                     
-                    $q = "INSERT INTO `".IMPORT_CURRENT_FILES."`"
-                            ." SET "
-                                ."`user_id` = '".$_SESSION['user_id']."'"
-                                .",`imported_date` = '".date('Y-m-d')."'"
-                                .",`file_name` = '$fileName'"
-                                .",`file_type` = '$fileType'"
-                                .",`source` = '$source'"
-                                .$this->insert_common_sql();
-                    $res = $this->re_db_query($q);
-                    
-                    if ($res){
-                        $file_id = $this->re_db_insert_id();
-                        $imported = $this->process_file($filePath.$fileName, $file_id);
-                        $returnFilesEntered += 1;
+                    if ($file_id){
+                        $returnFilesEntered += 1;             
                     }
                 }
             }
@@ -67,7 +99,7 @@ class import_generic extends import {
     }
     
     // Load CSV Data into into the "?_detail_table"
-    function process_file ($filePathAndName, $file_id){
+    function load_detail_table ($filePathAndName, $file_id){
         $result = 0;
         $fileDetailArray = $this->load_csvfile_detail($filePathAndName);
         $currentFileType = $this->check_file_type($file_id, 1);
@@ -113,7 +145,7 @@ class import_generic extends import {
                         $result += 1;
                     } else {
                         $this->errors = 'File: '.$filePathAndName.' not found.';            
-                        $error = !isset($_SESSION['warning']) ? $result : '';
+                        $_SESSION['warning'] = $this->errors;
                     }
                 }
             }

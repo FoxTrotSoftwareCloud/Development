@@ -3990,5 +3990,17 @@
 
             return $return;
         }
-    }
+        
+        // $fileArray must be the array from a $_FILES['elementName'] that comes from an HTTP $_POST[]: contains ['name'=>'', 'tmp_name'=>'(path/name -> created by PHP)',...]
+  		function upload_file($fileArray, $toFolder){
+			$return = 0;
+			$moveToFolder = empty($toFolder) ? 'import_files' : rtrim($toFolder, "/")."/";
+
+			if (!empty($fileArray['name'])){
+				$return = move_uploaded_file($fileArray['tmp_name'], DIR_FS.$moveToFolder.$fileArray['name']);
+			}
+
+			return $return;
+		}
+  }
 ?>
