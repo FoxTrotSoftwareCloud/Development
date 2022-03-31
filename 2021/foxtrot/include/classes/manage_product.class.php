@@ -267,19 +267,25 @@
 		 * @return array of record if success, error message if any errors
 		 * */
 
-		public function select_product_type(){
+		public function select_product_type($type=''){
+            if (!empty($type)){
+                $con = " AND TRIM(LOWER(`type`)) = '".strtolower($this->re_db_input($type))."'";
+            } else {
+                $con = '';
+            }
 			$return = array();
 			
-			$q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*"
+					." FROM `".$this->table."` AS `at`"
+                    ." WHERE `at`.`is_delete`='0'"
+                        .$con
+                    ." ORDER BY `at`.`id` ASC"
+            ;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-                     
     			}
             }
 			return $return;

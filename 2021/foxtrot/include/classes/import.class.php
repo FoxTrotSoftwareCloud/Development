@@ -2191,7 +2191,7 @@
                     if ($detail_record_id==0 OR $file_type==3) {
                         $check_sfr_array = $this->get_sfr_detail_data($file_id, 0, ($file_type==3 AND $detail_record_id>0) ? $detail_record_id : 0);
                     }
-
+                    
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform(IMPORT_SFR_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
@@ -2367,10 +2367,12 @@
                     * IDC PROCESS commission data
                     ************************************/
                     $check_idc_array = [];
-                    if ($detail_record_id==0 OR $file_type==2) {
-                        $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($file_type==2 AND $detail_record_id>0) ? $detail_record_id : 0);
+                    if ($file_type==2) {
+                        $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
+                    } else if ($file_type==9) {
+                        $check_idc_array = $this->get_gen_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                     }
-
+                    
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform(IMPORT_IDC_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']." AND `is_delete`=0");
@@ -2389,7 +2391,7 @@
                             .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                             .",`rep_name`='".$check_data_val['representative_name']."'"
                             .",`account_no`='".$check_data_val['customer_account_number']."'"
-                            .",`client`='".$check_data_val['alpha_code']."'"
+                            .",`client`='".$this->re_db_input($check_data_val['alpha_code'])."'"
                             .",`cusip`='".$check_data_val['cusip_number']."'"
                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
                             .",`commission`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
@@ -2709,7 +2711,7 @@
                                             .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                                             .",`rep_name`='".$check_data_val['representative_name']."'"
                                             .",`account_no`='".$check_data_val['customer_account_number']."'"
-                                            .",`client`='".$check_data_val['alpha_code']."'"
+                                            .",`client`='".$this->re_db_input($check_data_val['alpha_code'])."'"
                                             .",`cusip`='".$check_data_val['cusip_number']."'"
                                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
                                             .",`commission`='".$commission_received."'"
@@ -2907,12 +2909,12 @@
 
             if ($sfrBreakOut){
                 // UNION in an SFR row, if one exists
-                $q = "SELECT `id`,`file_name`, `file_type`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`"
+                $q = "SELECT `id`,`file_name`, `file_type`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`, `sponsor_id`"
                         ." FROM `".IMPORT_CURRENT_FILES."`"
                         ." WHERE `is_delete`=0"
                         ." AND `is_archived`=0"
                     ." UNION"
-                        ." SELECT `b`.`id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`"
+                        ." SELECT `b`.`id` AS `id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
                             ." FROM `".IMPORT_SFR_HEADER_DATA."` `a`"
                             ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
                             ." WHERE `b`.`is_delete`=0"
@@ -3278,6 +3280,42 @@
             }
 			return $return;
 		}
+        public function get_gen_detail_data($file_id, $process_result=null, $record_id=0){
+			$return = array();
+            $con = '';
+            $file_id = (int)$file_id;
+            
+            if (!is_null($process_result)) {
+                $con = " AND (`at`.`process_result` = '".$process_result."'"
+                       .($process_result==0 ? " OR `at`.`process_result` IS NULL" : "")
+                       .")"
+                ;
+            }
+
+            if ($record_id){
+                $record_id = (int)$record_id;
+                $con .= " AND `at`.`id`=$record_id";
+            }
+
+			$q = "SELECT `at`.*"
+					." FROM `".IMPORT_GEN_DETAIL_DATA."` AS `at`"
+                    ." WHERE `at`.`is_delete` = 0"
+                    ." AND `at`.`file_id` = $file_id"
+                        .$con
+                    ." ORDER BY `at`.`id`"
+            ;
+			$res = $this->re_db_query($q);
+            
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+
+    			}
+            }
+			return $return;
+		}
+
         public function get_file_array($file_id)
         {
             $return = array();

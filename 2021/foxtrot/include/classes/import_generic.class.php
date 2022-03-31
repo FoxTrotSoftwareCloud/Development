@@ -7,6 +7,7 @@ class import_generic extends import {
     public $file_type = 0;
     public $dim_id = 0;
     public $dataInterface = [];
+    public $fileNamePrefix = 'Generic Commission - ';
     
     function __construct(){
         $instance_dim = new data_interfaces_master();
@@ -26,9 +27,7 @@ class import_generic extends import {
                            strtoupper(trim($genericCsvFileName));
 
         $file_id = $this->load_current_file_table($genericCsvFileName);
-        if ($file_id){
-            $return = $this->load_detail_table($filePathAndName, $file_id);
-        }
+        if ($file_id) {$return = $this->load_detail_table($filePathAndName, $file_id);}
         
         return $return;
     }
@@ -44,13 +43,13 @@ class import_generic extends import {
         if (pathInfo($fileName, PATHINFO_EXTENSION)=='CSV' AND !in_array($fileName, $currentImportFiles)){
             // File Type
             if (strpos($fileName, 'VA') OR strpos($fileName, 'VARIABLE')) {
-                $fileType = 'Variable Annuity';
+                $fileType = 'Variable Annuities';
             } else if (strpos($fileName, 'RIA') OR strpos($fileName, 'ADVISORY')) {
                 $fileType = 'RIA';
             } else {
-                $fileType = 'Mutual Fund';
+                $fileType = 'Mutual Funds';
             }
-            $fileType .= ' Generic Commission';
+            $fileType = $this->fileNamePrefix.$fileType;
             $source = 'GENERIC';
             
             $q = "INSERT INTO `".IMPORT_CURRENT_FILES."`"
@@ -63,9 +62,7 @@ class import_generic extends import {
                         .$this->insert_common_sql();
             $res = $this->re_db_query($q);
             
-            if ($res){
-                $file_id = $this->re_db_insert_id();
-            }
+            if ($res){$file_id = $this->re_db_insert_id(); }
         }
 
         return $file_id;
@@ -100,9 +97,12 @@ class import_generic extends import {
     
     // Load CSV Data into into the "?_detail_table"
     function load_detail_table ($filePathAndName, $file_id){
+        $instance_productMaster = new product_master();
         $result = 0;
         $fileDetailArray = $this->load_csvfile_detail($filePathAndName);
         $currentFileType = $this->check_file_type($file_id, 1);
+        $productCategory = $instance_productMaster->select_product_type(str_replace('Generic Commission - ', '', $currentFileType));
+        $productCategoryId = (count($productCategory) > 0) ? $productCategory[0]['id'] : 0;
         
         if ($fileDetailArray){
             $insertCommonSQL = $this->insert_common_sql(3);
@@ -125,19 +125,19 @@ class import_generic extends import {
                     }
                     // Table Fields to populate
                     $tableFields = '';
-                    if ($currentFileType == 'RIA Generic Commission') {
+                    if ($currentFileType == $this->fileNamePrefix.'RIA') {
                         $tableFields =  "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
-                            ." `customer_account_number`, `alpha_code`, `gross_commission_amount`, `total_commission_amount`";
+                            ." `customer_account_number`, `alpha_code`, `gross_commission_amount`, `dealer_commission_amount`";
                     } else {
                         $tableFields = "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
                             ." `customer_account_number`, `alpha_code`, `comm_type`,`gross_transaction_amount`,"
-                            ." `gross_commission_amount`, `rep_regular`, `rep_trail`, `total_commission_amount`";
+                            ." `gross_commission_amount`, `rep_regular`, `rep_trail`, `dealer_commission_amount`";
                     }
                     // Insert record into the detail table
                     $q = "INSERT INTO `".IMPORT_GEN_DETAIL_DATA."` "
-                        ."(`file_id`, ".$tableFields.$insertCommonSQL['fields'].")"
+                        ."(`file_id`, `product_category`, ".$tableFields.$insertCommonSQL['fields'].")"
                         ." values "
-                        ."($file_id, ".$fieldValues.$insertCommonSQL['values'].")"
+                        ."($file_id, $productCategoryId, ".$fieldValues.$insertCommonSQL['values'].")"
                     ;
                     $res = $this->re_db_query($q);
                     

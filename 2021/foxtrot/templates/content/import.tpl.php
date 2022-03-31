@@ -225,13 +225,13 @@ PostResult( msg );
                                         <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                             <table id="data-table" class="table table-bordered table-stripped table-hover">
                                                 <thead>
-                                                    <th>Batch#</th>
-                                                    <th>Sponsor</th>
-                                                    <!--<th>Imported</th>-->
-                                                    <th>Last Processed</th>
+                                                    <th>Source</th>
                                                     <th>File Name</th>
                                                     <th>File Type</th>
-                                                    <th>Source</th>
+                                                    <!--<th>Imported</th>-->
+                                                    <th>Last Processed</th>
+                                                    <th>Sponsor</th>
+                                                    <th>Batch#</th>
                                                     <th>Results</th>
                                                     <th>Note</th>
                                                     <th>Action</th>
@@ -252,7 +252,7 @@ PostResult( msg );
                                                         //print_r($val);
                                                         $system_id = isset($return_file_data_array[0]['dst_system_id'])?$return_file_data_array[0]['dst_system_id']:'';
                                                         $management_code = isset($return_file_data_array[0]['dst_management_code'])?$return_file_data_array[0]['dst_management_code']:'';
-                                                        $sponsor_detail = $instance->get_sponsor_on_system_management_code($system_id,$management_code);
+                                                        $sponsor_detail = $instance_sponsor->edit_sponsor($val['sponsor_id']);
                                                         $sponsor = isset($sponsor_detail['name'])?$sponsor_detail['name']:'';
                                                         //echo '<pre>';print_r($system_id.','.$management_code);
                                                         $file_batch_id = $instance->get_file_batch($val['id']);
@@ -262,19 +262,21 @@ PostResult( msg );
                                                             $file_type_id = 2;
                                                         } else if ($val['file_type'] == 'Security File'){
                                                             $file_type_id = 3;
+                                                        } else if (strpos(strtolower($val['file_type']), 'generic commission')){
+                                                            $file_type_id = 9;
                                                         } else {
                                                             $file_type_id = 1;
                                                         }
 
                                                         if(isset($val['imported_date']) && $val['imported_date']!= '') {?>
                                                             <tr id="<?php echo '$key'.$key ?>">
-                                                                <td><?php echo in_array($val['file_type'], ['C1', 'DST Commission'])?$file_batch_id:'N/A';?></td>
-                                                                <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id={$val['id']}&file_type=$file_type_id" ;?>"><?php echo $sponsor;?></a></td>
-                                                                <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
-                                                                <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
+                                                                <td><?php echo $val['source'];?></td>
                                                                 <td style="width: 10%;"><?php echo $val['file_name'];?></td>
                                                                 <td style="width: 15%;"><?php echo $val['file_type'];?></td>
-                                                                <td><?php echo $val['source'];?></td>
+                                                                <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
+                                                                <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id={$val['id']}&file_type=$file_type_id" ;?>"><?php echo $sponsor;?></a></td>
+                                                                <td><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A';?></td>
+                                                                <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
 
                                                                 <?php
                                                                     // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
@@ -1504,7 +1506,7 @@ $(document).ready(function() {
             "dom": '<"toolbar">frtip',
             "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] },
                             { "bSearchable": false, "aTargets": [ 6,7 ] }],
-            "order": [[3, "asc"]]
+            "order": [[0, "asc"], [1, "asc"]]
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>'+
                     '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');
