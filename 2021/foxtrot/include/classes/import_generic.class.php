@@ -42,9 +42,10 @@ class import_generic extends import {
                 
         if (pathInfo($fileName, PATHINFO_EXTENSION)=='CSV' AND !in_array($fileName, $currentImportFiles)){
             // File Type
-            if (strpos($fileName, 'VA') OR strpos($fileName, 'VARIABLE')) {
+            // Have to use the stripos()!===false, stripos() returns unpredictable "false" values(boolean OR <blank>) and 1st char returns as position = 0
+            if (stripos($fileName, 'VA')!==false OR stripos($fileName, 'VARIABLE')!==false) {
                 $fileType = 'Variable Annuities';
-            } else if (strpos($fileName, 'RIA') OR strpos($fileName, 'ADVISORY')) {
+            } else if (stripos($fileName, 'RIA')!==false OR stripos($fileName, 'ADVISORY')!==false) {
                 $fileType = 'RIA';
             } else {
                 $fileType = 'Mutual Funds';

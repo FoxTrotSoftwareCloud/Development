@@ -18,7 +18,8 @@
     $get_file_data = '';
     $return_exception = array();
     $total_commission_amount = 0;
-
+    $dataTableOrder = isset($_GET['reprocessed']) ? '[3, "desc"], [0, "asc"], [1, "asc"]' : '';
+    
     $instance = new import();
     $get_product_category = $instance->select_category();
     $get_objective = $instance->get_objectives_data();
@@ -59,11 +60,13 @@
         }
         else if(isset($process_file) && $process_file == 2)
         {
-
             $return = $instance->process_current_files($id);
-            if($return == '')
-            {
-                header("location:".SITE_URL."import.php");exit;
+            
+            if($return == ''){
+                header("location:".SITE_URL."import.php?reprocessed=1");
+                exit;
+            } else {
+                $dataTableOrder = '';
             }
         }
         else if(isset($process_file) && $process_file == 3)
@@ -92,9 +95,8 @@
         }
 
         if($return===true){
-
-            header("location:".CURRENT_PAGE);exit;
-
+            header("location:".CURRENT_PAGE.'?reprocessed=1');
+            exit;
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
@@ -198,17 +200,17 @@
     else if(isset($_POST['upload_generic_csv_file']) && $_POST['upload_generic_csv_file']=='upload_generic_csv_file')
     {
         $error = '';
-        $uploaded = $processed = 0;
-        
-        // Validate the file
+        $uploaded =  0;
+        // Validate upload file        
         if (empty($_FILES['upload_generic_csv_file']['name'])){
             $error = 'No file specified. Procedure cancelled.';
+        } else if (file_exists(rtrim($instance_importGeneric->dataInterface['local_folder'],"/")."/".$_FILES['upload_generic_csv_file']['name'])){
+            $error = "File '".$_FILES['upload_generic_csv_file']['name']."' already uploaded. Please select another file or rename current file.";
         }
-        // Upload the file from the client side to the server
+        // Upload file
         if (empty($error)){
             $uploaded = $instance->upload_file($_FILES['upload_generic_csv_file'], $instance_importGeneric->dataInterface['local_folder']);
         }
-        // Load the File & Generic Detail tables
         if ($uploaded){
             $uploaded = $instance_importGeneric->process_file($_FILES['upload_generic_csv_file']['name']);
         } else if (empty($error)){
@@ -217,7 +219,7 @@
         
         if(empty($error) AND $uploaded){
             $_SESSION['success'] = "File '".$_FILES['upload_generic_csv_file']['name']."' uploaded and processed.";
-            header("location:".CURRENT_PAGE."?action=view");
+            header("location:".CURRENT_PAGE."?action=view&reprocessed=1");
         } else{
             $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
             header("location:".CURRENT_PAGE."?tab=open_ftp");

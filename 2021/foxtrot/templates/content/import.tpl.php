@@ -1504,9 +1504,11 @@ $(document).ready(function() {
             "bInfo": false,
             "bAutoWidth": false,
             "dom": '<"toolbar">frtip',
-            "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] },
-                            { "bSearchable": false, "aTargets": [ 6,7 ] }],
-            "order": [[0, "asc"], [1, "asc"]]
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": [ 6,7 ] },
+                { "bSearchable": false, "aTargets": [ 6,7 ] }
+            ],
+            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[0, "asc"], [1, "asc"]';?>]
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>'+
                     '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');

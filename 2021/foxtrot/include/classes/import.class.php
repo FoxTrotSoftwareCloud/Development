@@ -2,6 +2,9 @@
 	class import extends db{
 		public $errors = '';
         public $table = IMPORT_CURRENT_FILES;
+        public $GENERIC_file_type = 9;
+        public $IMPORT_File_Types = [1=>'DST CLIENTS', 2=>'DST IDC COMMISSIONS', 3=>'DST PRODUCTS', 9=>'GENERIC CSV COMMISSIONS']
+        
         /**
 		 * @param post array
 		 * @return true if success, error message if any errors
@@ -805,6 +808,9 @@
                         case 3:
                             $importFileTable = IMPORT_SFR_DETAIL_DATA;
                             break;
+                        case $this->GENERIC_file_type:
+                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                            break;
                     }
 
                     // Update "resolve_exceptions" field to flag detail as "special handling" record
@@ -867,6 +873,9 @@
                         break;
                     case 3:
                         $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                        break;
+                    case $this->GENERIC_file_type:
+                        $importFileTable = IMPORT_GEN_DETAIL_DATA;
                         break;
                 }
 
@@ -966,6 +975,9 @@
                         case 3:
                             $importFileTable = IMPORT_SFR_DETAIL_DATA;
                             break;
+                        case $this->GENERIC_file_type::
+                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                            break;
                     }
                     
                     if ($importFileTable){
@@ -1011,6 +1023,9 @@
                     break;
                 case 3:
                     $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                    break;
+                case $this->GENERIC_file_type:
+                    $importFileTable = IMPORT_GEN_DETAIL_DATA;
                     break;
             }
 
@@ -1077,6 +1092,9 @@
                                 break;
                             case 3:
                                 $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                                break;
+                            case $this->GENERIC_file_type:
+                                $importFileTable = IMPORT_GEN_DETAIL_DATA;
                                 break;
                         }
                         
@@ -2364,13 +2382,17 @@
                         }
                     }
                     /***********************************
-                    * IDC PROCESS commission data
+                    * PROCESS COMMISSION data
                     ************************************/
                     $check_idc_array = [];
-                    if ($file_type==2) {
+                    $commissionProcessFileType = 0;
+                    
+                    if ($file_type==2 OR $detail_record_id==0) {
                         $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
-                    } else if ($file_type==9) {
+                        $commissionProcessFileType = 2;
+                    } else if ($file_type==$this->GENERIC_file_type) {
                         $check_idc_array = $this->get_gen_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
+                        $idcProcessFileType = $this->GENERIC_file_type;
                     }
                     
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
@@ -2444,7 +2466,7 @@
                                                 ."`error_code_id`='1'"
                                                 .",`field`='representative_number'"
                                                 .",`field_value`='$rep_number'"
-                                                .",`file_type`='2'"
+                                                .",`file_type` = $idcProcessFileType"
                                                 .$insert_exception_string;
                                     $res = $this->re_db_query($q);
                                     $result = 1;
