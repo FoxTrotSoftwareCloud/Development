@@ -49,6 +49,8 @@
             $file_type = 2;
         } else if ($_POST['process_file_type'] == 'Security File'){
             $file_type = 3;
+        } else if (stripos($_POST['process_file_type'],'generic commission')!==false){
+            $file_type = 9;
         } else {
             $file_type = 1;
         }
@@ -80,7 +82,7 @@
         }
         else if(isset($process_file) && $process_file == 5)
         {
-            $return = $instance->reprocess_current_files($id);
+            $return = $instance->reprocess_current_files($id, $file_type, 0);
         }
         else if(isset($process_file) && $process_file == 6)
         {

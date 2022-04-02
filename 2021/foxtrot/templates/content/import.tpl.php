@@ -166,7 +166,7 @@ PostResult( msg );
                         <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
                         <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
 
-                        <?php if($get_file_type == 2){ ?>
+                        <?php if(in_array($get_file_type, [2, 9])){ ?>
                             <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount,2);?></h4>
                         <?php }
                     } else { ?>
@@ -184,12 +184,18 @@ PostResult( msg );
                             $get_file_type = 1;
                         } else if($get_file_type_source == 'DSTIDC') {
                             $get_file_type = 2;
+                        } else if($get_file_type_source == 'GENERIC') {
+                            $get_file_type = 9;
                         }
 
-                        if(isset($get_file_type) && $get_file_type == 2)
-                        {
-                            $return_file_data_array = $instance->get_file_array($file_id);
+                        if(isset($get_file_type) && in_array($get_file_type, [2, 9])){
                             $total_amount = 0;
+                            
+                            if ($get_file_type == 9){
+                                $return_file_data_array = $instance->get_gen_detail_data($file_id);
+                            } else {
+                                $return_file_data_array = $instance->get_file_array($file_id);
+                            }
 
                             foreach($return_file_data_array as $preview_key=>$preview_val)
                             {
@@ -249,7 +255,7 @@ PostResult( msg );
                                                         $isImportArchived= $val['is_archived']==1;
                                                         $isImportNotStart= $val['processed']==0;
                                                         $isImportStarted= $val['processed']==1 && $val['process_completed']!=1;
-                                                        //print_r($val);
+
                                                         $system_id = isset($return_file_data_array[0]['dst_system_id'])?$return_file_data_array[0]['dst_system_id']:'';
                                                         $management_code = isset($return_file_data_array[0]['dst_management_code'])?$return_file_data_array[0]['dst_management_code']:'';
                                                         $sponsor_detail = $instance_sponsor->edit_sponsor($val['sponsor_id']);
@@ -262,7 +268,7 @@ PostResult( msg );
                                                             $file_type_id = 2;
                                                         } else if ($val['file_type'] == 'Security File'){
                                                             $file_type_id = 3;
-                                                        } else if (strpos(strtolower($val['file_type']), 'generic commission')){
+                                                        } else if (stripos($val['file_type'], 'generic commission')!==false){
                                                             $file_type_id = 9;
                                                         } else {
                                                             $file_type_id = 1;
@@ -483,7 +489,7 @@ PostResult( msg );
                                                 <table id="data-table3" class="table table-bordered table-stripped table-hover">
                                                     <thead>
                                                         <th>Date</th>
-                                                        <?php if(isset($get_file_type) && in_array($get_file_type, ['1', '2'])) { ?>
+                                                        <?php if(isset($get_file_type) && in_array($get_file_type, ['1', '2', '9'])) { ?>
                                                             <th>Rep#</th>
                                                             <th>Rep Name</th>
                                                             <th>Account#</th>
@@ -491,7 +497,7 @@ PostResult( msg );
                                                         <?php } ?>
                                                         <?php if(isset($get_file_type) && $get_file_type == '1'){?>
                                                             <th>Client Address</th>
-                                                        <?php } else if(isset($get_file_type) && $get_file_type == '2'){?>
+                                                        <?php } else if(isset($get_file_type) && in_array($get_file_type, ['2', '9'])){?>
                                                             <th>CUSIP</th>
                                                             <th>Principal</th>
                                                             <th>Commission</th>
@@ -537,9 +543,16 @@ PostResult( msg );
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
                                                             }
-                                                            if(isset($error_val['file_type']) && $error_val['file_type'] == '2')
-                                                            {
-                                                                $return_idc_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);
+                                                            if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9']))
+                                                            {   
+                                                                switch ($error_val['file_type']){
+                                                                    case '9':
+                                                                        $return_commission_existing_data = $instance->select_existing_gen_data($error_val['temp_data_id']);
+                                                                        break;
+                                                                    default:
+                                                                        $return_commission_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);
+                                                                        break;
+                                                                }
                                                                 // Display the names found during the processing of the data. Sometimes they don't match what was sent in the data fields (alpha_code & rep_name), or the
                                                                 // the descrtiptions are vague, i.e. "Trust Account 123"
                                                                 $instance_client = new client_maintenance();
@@ -548,16 +561,16 @@ PostResult( msg );
                                                                 $instance_import = new import();
                                                                 $instance_suitability = new client_suitebility_master();
 
-                                                                if (!empty($return_idc_existing_data['broker_id'])) {
-                                                                    $brokerRow = $instance_broker->select_broker_by_id($return_idc_existing_data['broker_id']);
+                                                                if (!empty($return_commission_existing_data['broker_id'])) {
+                                                                    $brokerRow = $instance_broker->select_broker_by_id($return_commission_existing_data['broker_id']);
 
                                                                     if ($brokerRow) {
                                                                         $error_val['rep_name'] = trim($brokerRow['last_name']).(($brokerRow['last_name']!='' AND $brokerRow['last_name']!='') ? ', ' : '').trim($brokerRow['first_name']);
                                                                     }
                                                                 }
 
-                                                                if (!empty($return_idc_existing_data['client_id'])) {
-                                                                    $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
+                                                                if (!empty($return_commission_existing_data['client_id'])) {
+                                                                    $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);
 
                                                                     if ($clientDetail) {
                                                                         $error_val['client'] = trim($clientDetail[0]['last_name']).(($clientDetail[0]['first_name']!='' AND $clientDetail[0]['last_name']!='') ? ', ' : '').trim($clientDetail[0]['first_name']);
@@ -566,24 +579,24 @@ PostResult( msg );
 
                                                                 // Exception Types
                                                                 if($error_val['field'] == 'customer_account_number') {
-                                                                    $existing_field_value = $return_idc_existing_data['customer_account_number'];
+                                                                    $existing_field_value = $return_commission_existing_data['customer_account_number'];
                                                                 }
 
                                                                 if($error_val['field'] == 'cusip_number') {
-                                                                    $existing_field_value = $return_idc_existing_data['cusip_number'];
+                                                                    $existing_field_value = $return_commission_existing_data['cusip_number'];
                                                                 }
 
                                                                 if($error_val['field'] == 'u5') {
-                                                                    $rep_number = $return_idc_existing_data['representative_number'];
-                                                                    $u5_date = $instance->broker_termination_date($rep_number, $return_idc_existing_data['broker_id']);
+                                                                    $rep_number = $return_commission_existing_data['representative_number'];
+                                                                    $u5_date = $instance->broker_termination_date($rep_number, $return_commission_existing_data['broker_id']);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
 
                                                                 if($error_val['field'] == 'active_check') {
                                                                     // 1.State / 2.ProdCat / 3.TermDate
-                                                                    $clientDetail = $instance_client->get_client_name($return_idc_existing_data['client_id']);
-                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['cusip_number'])."'");
-                                                                    $licenceDetail = $instance_import->checkStateLicence($return_idc_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_idc_existing_data['trade_date'], 1);
+                                                                    $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);
+                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_commission_existing_data['cusip_number'])."'");
+                                                                    $licenceDetail = $instance_import->checkStateLicence($return_commission_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_commission_existing_data['trade_date'], 1);
                                                                     $category = substr($licenceDetail['licence_table'], strrpos($licenceDetail['licence_table'], '_') +1 );
                                                                     $existing_field_value = trim($category).' / '.trim($licenceDetail['state_name']);
                                                                 }
@@ -593,7 +606,7 @@ PostResult( msg );
                                                                     $existing_field_value = '';
                                                                     $res = 0;
 
-                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_idc_existing_data['cusip_number'])."'");
+                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_commission_existing_data['cusip_number'])."'");
                                                                     if ($productDetail) {
                                                                         $productObjectiveId = (int)$productDetail['objective'];
 
@@ -623,7 +636,7 @@ PostResult( msg );
                                                         ?>
                                                         <tr>
                                                             <td><?php echo date('m/d/Y',strtotime($error_val['date']));?></td>
-                                                            <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2'])) { ?>
+                                                            <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2', '9'])) { ?>
                                                                 <td><?php echo $error_val['rep'];?></td>
                                                                 <td><?php echo $error_val['rep_name'];?></td>
                                                                 <td><?php echo $error_val['account_no'];?></td>
@@ -633,7 +646,7 @@ PostResult( msg );
                                                             <?php if(isset($error_val['file_type']) && $error_val['file_type'] == '1'){
                                                                 $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']); ?>
                                                                 <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                            <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '2') { ?>
+                                                            <?php } else if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2','9'])) { ?>
                                                                 <td><?php echo $error_val['cusip'];?></td>
                                                                 <td style="text-align: right;"><?php if($error_val['principal'] > 0){ echo '$'.number_format($error_val['principal'],2);}else{ echo '$0';}?></td>
                                                                 <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
@@ -700,7 +713,7 @@ PostResult( msg );
 
                                                             <?php if(isset($get_file_type) && $get_file_type == '1') { ?>
                                                                 <th>Client Address</th>
-                                                            <?php } else if(isset($get_file_type) && $get_file_type == '2'){ ?>
+                                                            <?php } else if(isset($get_file_type) && in_array($get_file_type, ['2','9'])){ ?>
                                                                 <th>CUSIP</th>
                                                                 <th>Principal</th>
                                                                 <th>Commission</th>
@@ -745,7 +758,7 @@ PostResult( msg );
                                                                     <?php if(isset($get_file_type) && $get_file_type == '1') {
                                                                         $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']); ?>
                                                                         <td><?php echo $get_client_data[0]['client_address'];?></td>
-                                                                    <?php } else if(isset($get_file_type) && $get_file_type == '2') { ?>
+                                                                    <?php } else if(isset($get_file_type) && in_array($get_file_type,['2','9'])) { ?>
                                                                         <td><?php echo $process_val['cusip'];?></td>
                                                                         <td style="text-align: right;"><?php if($process_val['principal'] > 0){ echo '$'.number_format($process_val['principal'],2);}else{ echo '$0';}?></td>
                                                                         <td style="text-align: right;"><?php if($process_val['commission'] > 0){ echo '$'.number_format($process_val['commission'],2);}else{ echo '$0';}?></td>
@@ -769,7 +782,7 @@ PostResult( msg );
                     <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="view_processed_files"){ echo "active"; } ?>" id="tab_view"><?php if(isset($_GET['tab']) && $_GET['tab']=="view_processed_files" && $_GET['id']>0){?>
                         <ul class="nav nav-tabs ">
                           <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="view_processed_files"){ echo "active"; } ?>" ><a href="#view_processed_files" data-toggle="tab">View Processed Data</a></li>
-                         </ul> <?php } ?> <br />
+                        </ul> <?php } ?> <br />
                           <!-- Tab 1 is started -->
                             <div class="tab-content">
                                 <div class="tab-pane <?php if(isset($_GET['tab']) && $_GET['tab']=="view_processed_files" && $_GET['id']>0){ echo "active"; } ?>" id="view_processed_files">
@@ -791,7 +804,7 @@ PostResult( msg );
                                                             ?>
                                                             <th>Client Address</th>
                                                             <?php }
-                                                            else if(isset($get_file_type) && $get_file_type == '2'){?>
+                                                            else if(isset($get_file_type) && in_array($get_file_type, ['2','9'])){?>
                                                             <th>CUSIP</th>
                                                             <th>Principal</th>
                                                             <th>Commission</th>
@@ -816,7 +829,7 @@ PostResult( msg );
                                                                 ?>
                                                                 <td><?php echo $get_client_data[0]['client_address'];?></td>
                                                                 <?php }
-                                                                else if(isset($get_file_type) && $get_file_type == '2')
+                                                                else if(isset($get_file_type) && in_array($get_file_type,['2','9']))
                                                                 { ?>
                                                                 <td><?php echo $process_val['cusip'];?></td>
                                                                 <td style="text-align: right;"><?php if($process_val['principal'] > 0){ echo '$'.number_format($process_val['principal'],2);}else{ echo '$0';}?></td>
@@ -851,13 +864,12 @@ PostResult( msg );
                                             <?php
                                             $get_file_type =  '';
                                             $get_file_type_source = $instance->get_current_file_type($_GET['id']);
-                                            if($get_file_type_source == 'DSTFANMail')
-                                            {
+                                            if($get_file_type_source == 'DSTFANMail'){
                                                 $get_file_type = 1;
-                                            }
-                                            else if($get_file_type_source == 'DSTIDC')
-                                            {
+                                            } else if($get_file_type_source == 'DSTIDC'){
                                                 $get_file_type = 2;
+                                            } else if($get_file_type_source == 'GENERIC'){
+                                                $get_file_type = 9;
                                             }
                                             ?>
                                                 <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
@@ -868,14 +880,12 @@ PostResult( msg );
                                                             <th>Rep Name</th>
                                                             <th>Account#</th>
                                                             <th>Client Name</th>
-                                                            <?php if(isset($get_file_type) && $get_file_type == '1'){
-                                                            ?>
-                                                            <th>Client Address</th>
-                                                            <?php }
-                                                            else if(isset($get_file_type) && $get_file_type == '2'){?>
-                                                            <th>CUSIP</th>
-                                                            <th>Principal</th>
-                                                            <th>Commission</th>
+                                                            <?php if(isset($get_file_type) && $get_file_type == '1'){ ?>
+                                                                <th>Client Address</th>
+                                                            <?php } else if(isset($get_file_type) && in_array($get_file_type,['2','9'])){ ?>
+                                                                <th>CUSIP</th>
+                                                                <th>Principal</th>
+                                                                <th>Commission</th>
                                                             <?php }?>
                                                         </thead>
                                                         <tbody>
@@ -893,7 +903,7 @@ PostResult( msg );
                                                                 ?>
                                                                 <td><?php echo $preview_val['mutual_fund_customer_account_number'];?></td>
                                                                 <?php }
-                                                                else if(isset($get_file_type) && $get_file_type == '2'){
+                                                                else if(isset($get_file_type) && in_array($get_file_type,['2','9'])){
                                                                 ?>
                                                                 <td><?php echo $preview_val['customer_account_number'];?></td>
                                                                 <?php } ?>
@@ -902,7 +912,7 @@ PostResult( msg );
                                                                 ?>
                                                                 <td><?php echo $preview_val['registration_line1'];?></td>
                                                                 <?php }
-                                                                else if(isset($get_file_type) && $get_file_type == '2'){
+                                                                else if(isset($get_file_type) && in_array($get_file_type,['2','9'])){
                                                                 ?>
                                                                 <td><?php echo $preview_val['alpha_code'];?></td>
                                                                 <?php } ?>
@@ -934,7 +944,7 @@ PostResult( msg );
                                                                 ?>
                                                                 </td>
                                                                 <?php }
-                                                                else if(isset($get_file_type) && $get_file_type == '2')
+                                                                else if(isset($get_file_type) && in_array($get_file_type,['2','9']))
                                                                 { ?>
                                                                 <td><?php echo $preview_val['cusip_number'];?></td>
                                                                 <td style="text-align: right;"><?php if($preview_val['gross_transaction_amount'] > 0){ echo '$'.number_format($preview_val['gross_transaction_amount']/100,2);}else{ echo '$0';}?></td>
@@ -1761,7 +1771,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#broker_termination_options_clients").css('display','block');
             document.getElementById("label_assign_rep_to_broker").innerHTML = "Assign Broker to Client";
             document.getElementById("broker_active").checked = true;
-        } else if(exception_file_type == '2'){
+        } else if([2, 9].includes(exception_file_type)){
             $("#broker_termination_options_trades").css('display','block');
             document.getElementById("broker_termination_options_trades").dataset.exceptionField = "u5";
             document.getElementById("lbl_broker_active_trades").innerHTML = 'Remove U5 Date/Activate Broker';
@@ -1785,7 +1795,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Alias to Broker';
         } else if (exception_file_type == 1 && error_code_id == 13) {
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Client to Broker';
-        } else if (exception_file_type == 2 && error_code_id == 13) {
+        } else if ([2, 9].includes(exception_file_type) && error_code_id == 13) {
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Trade to Broker';
         } else {
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign to Broker';

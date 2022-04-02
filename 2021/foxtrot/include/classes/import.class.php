@@ -3,7 +3,7 @@
 		public $errors = '';
         public $table = IMPORT_CURRENT_FILES;
         public $GENERIC_file_type = 9;
-        public $IMPORT_File_Types = [1=>'DST CLIENTS', 2=>'DST IDC COMMISSIONS', 3=>'DST PRODUCTS', 9=>'GENERIC CSV COMMISSIONS']
+        public $IMPORT_File_Types = [1=>'DST CLIENTS', 2=>'DST IDC COMMISSIONS', 3=>'DST PRODUCTS', 9=>'GENERIC CSV COMMISSIONS'];
         
         /**
 		 * @param post array
@@ -1754,7 +1754,7 @@
                                     .",`error_code_id`='14'"
                                     .",`field`='sponsor_id'"
                                     .",`field_value`='".substr($file_array['file_name'],0,3).substr($file_array['file_name'],3,2)."'"
-                                    .",`file_type`='1'"
+                                    .",`file_type`=$file_type"
                                     .",`temp_data_id`='0'"
                                     .",`date`='".date('Y-m-d')."'"
                                     .$this->insert_common_sql();
@@ -2387,12 +2387,12 @@
                     $check_idc_array = [];
                     $commissionProcessFileType = 0;
                     
-                    if ($file_type==2 OR $detail_record_id==0) {
-                        $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
-                        $commissionProcessFileType = 2;
-                    } else if ($file_type==$this->GENERIC_file_type) {
+                    if (in_array($file_type, [$this->GENERIC_file_type])) {
                         $check_idc_array = $this->get_gen_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $idcProcessFileType = $this->GENERIC_file_type;
+                    } else if ($file_type==2 OR $detail_record_id==0) {
+                        $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
+                        $idcProcessFileType = 2;
                     }
                     
                     foreach($check_idc_array as $check_data_key=>$check_data_val){
@@ -2499,7 +2499,7 @@
                                                     ." SET `error_code_id`='2'"
                                                         .",`field`='u5'"
                                                         .",`field_value`='".$check_broker_termination."'"
-                                                        .",`file_type`='2'"
+                                                        .",`file_type`=$idcProcessFileType"
                                                         .$insert_exception_string;
                                             $res = $this->re_db_query($q);
 
@@ -2512,7 +2512,7 @@
                                         ." SET `error_code_id`='13'"
                                             .",`field`='representative_number'"
                                             .",`field_value`=''"
-                                            .",`file_type`='2'"
+                                            .",`file_type`=$idcProcessFileType"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
                                 $result = 1;
@@ -2524,7 +2524,7 @@
                                     ." SET `error_code_id`='13'"
                                         .",`field`='cusip_number'"
                                         .",`field_value`=''"
-                                        .",`file_type`='2'"
+                                        .",`file_type`=$idcProcessFileType"
                                         .$insert_exception_string;
                             $res = $this->re_db_query($q);
                             $result = 1;
@@ -2549,7 +2549,7 @@
                                         ." SET `error_code_id`='11'"
                                             .",`field`='cusip_number'"
                                             .",`field_value`='".$check_data_val['cusip_number']."'"
-                                            .",`file_type`='2'"
+                                            .",`file_type`=$idcProcessFileType"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
                                 $result = 1;
@@ -2563,7 +2563,7 @@
                                     ." SET `error_code_id`='13'"
                                         .",`field`='customer_account_number'"
                                         .",`field_value`=''"
-                                        .",`file_type`='2'"
+                                        .",`file_type`=$idcProcessFileType"
                                         .$insert_exception_string;
                             $resInsert = $this->re_db_query($q);
                             $result = 1;
@@ -2589,7 +2589,7 @@
                                     ." SET `error_code_id`='18'"
                                         .",`field`='customer_account_number'"
                                         .",`field_value`=''"
-                                        .",`file_type`='2'"
+                                        .",`file_type`=$idcProcessFileType"
                                         .$insert_exception_string;
                                 $resInsert = $this->re_db_query($q);
                                 $result = 1;
@@ -2632,7 +2632,7 @@
                                                 ." SET `error_code_id`='9'"
                                                     .",`field`='objectives'"
                                                     .",`field_value`='".$foundCusip['objective']."'"
-                                                    .",`file_type`='2'"
+                                                    .",`file_type`=$idcProcessFileType"
                                                 .$insert_exception_string;
                                         $resInsert = $this->re_db_query($q);
                                         $result = 1;
@@ -2664,7 +2664,7 @@
                                                 ."SET  `error_code_id`='6'"
                                                     .",`field`='active_check'"
                                                     .",`field_value`='".$product_category_id." / ".$clientAccount['state']."'"
-                                                    .",`file_type`='2'"
+                                                    .",`file_type`=$idcProcessFileType"
                                                     .$insert_exception_string;
                                         $res = $this->re_db_query($q);
 
@@ -2724,7 +2724,7 @@
                                         ." SET "
                                             ." `error_code_id`='0'"
                                             .",`field`=''"
-                                            .",`file_type`='2'"
+                                            .",`file_type`=$idcProcessFileType"
                                             .",`solved`='1'"
                                             .",`process_completed`='1'"
                                             .",`file_id`='".$check_data_val['file_id']."'"
@@ -2865,7 +2865,7 @@
 
             $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
                 ." SET `processed`='1'"
-                    .",`last_processed_date`='".date('Y-m-d')."'"
+                    .",`last_processed_date`='".date('Y-m-d H:i:s')."'"
                     .",`process_completed`=".($check_file_exception_process['exceptions'] ? '0' : '1')
                     .$this->update_common_sql()
                 ." WHERE `id`=$file_id";
@@ -3176,7 +3176,7 @@
                 $return = ["file_id"=>$file_id, "file_name"=>'*Not Found*', "exceptions"=>0, "processed"=>0];
 
                 if (empty($detailTableConstant)){
-                    $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA];
+                    $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA, IMPORT_GEN_DETAIL_DATA];
                 } else {
                     $tableArray = [$detailTableConstant];
                 }
@@ -3348,7 +3348,8 @@
                 $file_string_array = array();
                 $get_file = $this->select_user_files($file_id);
                 $file_name = $get_file['file_name'];
-                $file_path = DIR_FS."import_files/user_".$_SESSION['user_id']."/".$file_name;
+                // $file_path = DIR_FS."import_files/user_".$_SESSION['user_id']."/".$file_name;
+                $file_path = DIR_FS."import_files/".$file_name;
                 if(!file_exists($file_path)){
                     return ;
                 }
@@ -3670,6 +3671,25 @@
 
 			$q = "SELECT `idc`.*"
 					." FROM `".IMPORT_IDC_DETAIL_DATA."` AS `idc`"
+                    ." WHERE `idc`.`is_delete`=0"
+                    ."  AND `idc`.`id`='".$temp_data_id."'"
+                    ." ORDER BY `idc`.`id` ASC"
+            ;
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     $return = $row;
+
+    			}
+            }
+			return $return;
+		}
+        public function select_existing_gen_data($temp_data_id){
+			$return = array();
+
+			$q = "SELECT `idc`.*"
+					." FROM `".IMPORT_GEN_DETAIL_DATA."` AS `idc`"
                     ." WHERE `idc`.`is_delete`=0"
                     ."  AND `idc`.`id`='".$temp_data_id."'"
                     ." ORDER BY `idc`.`id` ASC"
