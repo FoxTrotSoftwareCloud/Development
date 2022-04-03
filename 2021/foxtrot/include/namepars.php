@@ -126,6 +126,7 @@ function nameParse($nameString = '', $taxId = ''){
         ){
             $firstName = $middleName = '';
             $lastName = $nameString;
+            break;
         } else if ($word == '&'){
             $middleName = '';
             
@@ -153,17 +154,20 @@ function nameParse($nameString = '', $taxId = ''){
                 }
             }
         } else if (strpos($word, 'ESTATE')!==false){
-            if ($numberOfWords == 1){
-                // * Do nothing
+            if ($wordKey == 0){
+                $firstName = '';
+                $lastName = $word;
             } else if ($wordKey == 1){
                 // $lastName = $arWords[$wordKey-1].' '.$word.' ESTATE';
                 $firstName = "";
                 $lastName  = $arWords[$wordKey-1].' ESTATE';
-            } else if ($wordKey == 2){
-                // *!* $firstName = ''
-                $lastName = $arWords[$wordKey-2].' '.$arWords[$wordKey-1].' ESTATE';
-            } else if ($wordKey > 2){
-            
+            } else if ($wordKey > 1){
+                // Assume the last name of the Estate precedes "ESTATE"
+                $lastName = $arWords[$wordKey-1].' ESTATE';
+                
+                for ($i=0; $i < $wordKey-1; $i++){
+                    $firstName .= (empty($firstName)?'':' ').$arWords[$i];
+                }
             }
         } else if (strpos($word, ' TRUST')!==false){ 
             // * add 'trust' to the end of the name *
@@ -209,7 +213,7 @@ function nameParse($nameString = '', $taxId = ''){
         }
     }
 
-    return ['first_name'=>$firstName, 'middle_name'=>$middleName, 'last_name'=>$lastName];
+    return ['first_name'=>$firstName, 'mi'=>$middleName, 'last_name'=>$lastName];
 }
 
 
