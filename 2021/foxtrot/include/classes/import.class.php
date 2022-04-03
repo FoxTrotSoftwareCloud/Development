@@ -1,5 +1,7 @@
 <?php
-	class import extends db{
+    require_once("include/namepars.php");
+
+    class import extends db{
 		public $errors = '';
         public $table = IMPORT_CURRENT_FILES;
         public $GENERIC_file_type = 9;
@@ -1708,14 +1710,17 @@
          * @return string|bool
          ***************************************************************/
         public function reprocess_current_files($file_id, $file_type=0, $detail_record_id=0) {
+            // $instance_batches = new batches();
+            $reprocess_status = false;
+            $_SESSION['reprocess_status'] = $reprocess_status;
+            $result = 0;
             // Cast $file_id to int, some calling code was sending null and '' arguments from empty "current_file" queries
             $file_id = (int)$file_id;
-            $dataClass = new data_interfaces_master();
-            $broker_master = new broker_master();
-            $batchClass = new batches();
-            $sponsorClass = new manage_sponsor();
-            $clientClass = new client_maintenance();
-            $reprocess_status = false;
+            $instance_data_interface = new data_interfaces_master();
+            $instance_broker_master = new broker_master();
+            $instance_manage_sponsor = new manage_sponsor();
+            $instance_client_maintenance = new client_maintenance();
+            $instance_product_maintenance = new product_maintenance();
 
             if($file_id > 0){
                 $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `process_completed`='1' AND `id`=$file_id";
@@ -1734,7 +1739,7 @@
                     $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `id`=$file_id";
                     $res = $this->re_db_query($q);
                     $file_array = $this->re_db_fetch_array($res);
-                    $file_sponsor_array = $sponsorClass->edit_sponsor($file_array['sponsor_id']);
+                    $file_sponsor_array = $instance_manage_sponsor->edit_sponsor($file_array['sponsor_id']);
 
                     if (empty($file_array['sponsor_id'])) {
                         $file_sponsor_array = $this->get_sponsor_on_system_management_code(substr($file_array['file_name'],0,3), substr($file_array['file_name'],3,2));
@@ -1747,7 +1752,7 @@
                         }
                     }
 
-                    if (empty($file_array['sponsor_id'])){
+                    if (empty($file_array['sponsor_id']) AND $file_type != 9){
                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
                                     ." `file_id`='".$file_id."'"
@@ -1762,7 +1767,9 @@
 
                         $file_sponsor_array['id'] = 0;
                         $file_sponsor_array['name'] = '';
-                        $result = 1;
+                    } else if ($file_type == 9){
+                        $file_sponsor_array['id'] = 0;
+                        $file_sponsor_array['name'] = '';
                     }
 
                     // Remove prior exceptions
@@ -1791,7 +1798,7 @@
                         $check_fanmail_array = $this->get_fanmail_detail_data($file_id, 0, ($file_type==1 AND $detail_record_id>0) ? $detail_record_id : 0);
                     }
 
-                    $dataSettings = $dataClass->edit(2, $_SESSION['user_id']);
+                    $dataSettings = $instance_data_interface->edit(2, $_SESSION['user_id']);
 
                     foreach($check_fanmail_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
@@ -1801,7 +1808,7 @@
                         $first_name = $middle_name = $last_name = '';
                         $rep_number = isset($check_data_val['representative_number']) ? trim($this->re_db_input($check_data_val['representative_number'])) : '';
                         // Account Number Check
-                        $existingAccountArray = $clientClass->select_client_by_account_no($this->re_db_input($check_data_val['mutual_fund_customer_account_number']),$file_sponsor_array['id']);
+                        $existingAccountArray = $instance_client_maintenance->select_client_by_account_no($this->re_db_input($check_data_val['mutual_fund_customer_account_number']),$file_sponsor_array['id']);
                         $existingAccountExceptionId = 0;
                         $existingSocialArray = array();
                         $existingSocialExceptionId = 0;
@@ -1833,12 +1840,12 @@
                             if ($reassignBroker){
                                 $broker_id = (int)$check_data_val['broker_id'];
                             } else {
-                                $broker_data = $broker_master->select_broker_by_fund($rep_number);
+                                $broker_data = $instance_broker_master->select_broker_by_fund($rep_number);
     
                                 if($broker_data){
                                     $broker_id = $broker_data['id'];
                                 } else {
-                                    $broker_data = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
+                                    $broker_data = $instance_broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
                                     $broker_id = ($broker_data ? $broker_data['broker_id'] : 0);
                                 }
                             }
@@ -2385,11 +2392,13 @@
                     * PROCESS COMMISSION data
                     ************************************/
                     $check_idc_array = [];
-                    $commissionProcessFileType = 0;
+                    $idcProcessFileType = $idcAddOnTheFly_Client = $idcAddOnTheFly_Product = 0;
                     
                     if (in_array($file_type, [$this->GENERIC_file_type])) {
                         $check_idc_array = $this->get_gen_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $idcProcessFileType = $this->GENERIC_file_type;
+                        // Generic file does not contain a Cusip(or any unique product id or description) and Clients are often added with the transaction, i.e. many will not be in Cloudfox DB. So, add them and let God sort it out
+                        $idcAddOnTheFly_Client = $idcAddOnTheFly_Product = 1;
                     } else if ($file_type==2 OR $detail_record_id==0) {
                         $check_idc_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $idcProcessFileType = 2;
@@ -2404,6 +2413,7 @@
                         $client_id = 0;
                         $product_category_id = 0;
                         $product_id = 0;
+                        $productName = '';
                         $result=0;
                         $transaction_master_id = 0;
                         $insert_exception_string =
@@ -2453,11 +2463,11 @@
 
                             if($rep_number != '' OR $reassignBroker){
                                 if ($reassignBroker) {
-                                    $broker = $broker_master->select_broker_by_id($check_data_val['broker_id']);
+                                    $broker = $instance_broker_master->select_broker_by_id($check_data_val['broker_id']);
                                     $brokerAlias = [];
                                 } else {
-                                    $broker = $broker_master->select_broker_by_fund($rep_number);
-                                    $brokerAlias = $broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
+                                    $broker = $instance_broker_master->select_broker_by_fund($rep_number);
+                                    $brokerAlias = $instance_broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
                                 }
 
                                 if(empty($broker) AND empty($brokerAlias)){
@@ -2469,7 +2479,7 @@
                                                 .",`file_type` = $idcProcessFileType"
                                                 .$insert_exception_string;
                                     $res = $this->re_db_query($q);
-                                    $result = 1;
+                                    $result++;
                                 } else {
                                     $broker_id = (!empty($broker) ? $broker['id'] : $brokerAlias['broker_id']);
                                     // Update the Detail table for process checks later in the function
@@ -2503,7 +2513,7 @@
                                                         .$insert_exception_string;
                                             $res = $this->re_db_query($q);
 
-                                            $result = 1;
+                                            $result++;
                                         }
                                     }
                                 }
@@ -2515,11 +2525,13 @@
                                             .",`file_type`=$idcProcessFileType"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
-                                $result = 1;
+                                $result++;
                             }
                         }
                         // IDC PRODUCT Validation
-                        if(empty($check_data_val['cusip_number'])){
+                        $productFound = 0;
+
+                        if(!$idcAddOnTheFly_Product AND empty($check_data_val['cusip_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='13'"
                                         .",`field`='cusip_number'"
@@ -2527,23 +2539,69 @@
                                         .",`file_type`=$idcProcessFileType"
                                         .$insert_exception_string;
                             $res = $this->re_db_query($q);
-                            $result = 1;
+                            $result++;
+                            $productFound = -1;
                         } else {
-                            $cusipFound = 0;
-
                             $q = "SELECT `id`,`cusip`,`category`,`objective` ".
                                     "FROM `".PRODUCT_LIST."`".
                                     "WHERE `is_delete`=0".
                                     " AND `status`!=0".
-                                    " AND `cusip`='".$check_data_val['cusip_number']."'";
+                                    " AND TRIM(`cusip`)!='' AND `cusip`='".$check_data_val['cusip_number']."'";
                             $resCusipFind = $this->re_db_query($q);
 
                             // CUSIP found
                             if($this->re_db_num_rows($resCusipFind)>0){
-                                $cusipFound++;
-                                $foundCusip = $this->re_db_fetch_array($resCusipFind);
-                                $product_id = $foundCusip['id'];
-                                $product_category_id = $foundCusip['category'];
+                                $productFound++;
+                                $foundProduct = $this->re_db_fetch_array($resCusipFind);
+                            }
+                            
+                            if (!$productFound AND $idcAddOnTheFly_Product){
+                                $foundProduct = [
+                                    'category'=>$check_data_val['product_category'],
+                                    'name'=>"*GENERIC PRODUCT - ".strtoupper($this->re_db_input($check_data_val['fund_company'])),
+                                    'security'=>"*GENERIC".strtoupper($this->re_db_input($check_data_val['fund_company'])),
+                                    'id'=>0,
+                                    'product_category'=>$check_data_val['product_category'],
+                                    'sponsor'=>$this->re_db_input(strtoupper($check_data_val['fund_company']))
+                                ];
+                                // Check for the File Name & Code
+                                $q = "`security` = '{$foundProduct['security']}' OR `name` = '{$foundProduct['name']}'";
+                                $res = $instance_product_maintenance->product_list_by_query($q);
+                                
+                                if ($res){
+                                    $foundProduct = $res;
+                                    $productFound++;
+                                }
+                                // ADD THE PRODUCT
+                                if ($productFound == 0){
+                                    // Search for a valid sponsor by the company description in the file
+                                    $res = $instance_manage_sponsor->search_sponsor("UPPER(`clm`.`name`) LIKE '".trim($foundProduct['sponsor'])."%' ", 1);
+                                    // Sponsor found
+                                    if ($res){
+                                        $foundProduct['sponsor'] = $res[0]['id'];
+                                        
+                                        $res = $instance_product_maintenance->insert_update_product($foundProduct, true);
+                                        
+                                        if ($res AND !empty($_SESSION['new_product_id'])){
+                                            $foundProduct = $instance_product_maintenance->edit_product($_SESSION['new_product_id']);
+                                            $productFound++;
+                                        }
+                                    } else {
+                                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                            ." SET `error_code_id`='14'"
+                                                .",`field`='sponsor'"
+                                                .",`field_value`='".strtoupper($check_data_val['fund_company'])."'"
+                                                .",`file_type`=$idcProcessFileType"
+                                                .$insert_exception_string;
+                                        $res = $this->re_db_query($q);
+                                    }
+                                }
+                            }
+                            
+                            if ($productFound > 0){
+                                $product_id = $foundProduct['id'];
+                                $product_category_id = $foundProduct['category'];
+                                $result++;
                             } else {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET `error_code_id`='11'"
@@ -2552,9 +2610,7 @@
                                             .",`file_type`=$idcProcessFileType"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
-                                $result = 1;
                             }
-
                         }
 
                         // IDC CLIENT validation
@@ -2565,8 +2621,8 @@
                                         .",`field_value`=''"
                                         .",`file_type`=$idcProcessFileType"
                                         .$insert_exception_string;
-                            $resInsert = $this->re_db_query($q);
-                            $result = 1;
+                            $res = $this->re_db_query($q);
+                            $result++;
                         } else {
                             if ($reassignClient){
                                 $clientAccount['id'] = $check_data_val['client_id'];
@@ -2584,17 +2640,23 @@
                             }
 
                             // Client Account # Not Found
-                            if($clientAccount == '') {
+                            if($clientAccount == '' AND !$idcAddOnTheFly_Client) {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='18'"
                                         .",`field`='customer_account_number'"
                                         .",`field_value`=''"
                                         .",`file_type`=$idcProcessFileType"
                                         .$insert_exception_string;
-                                $resInsert = $this->re_db_query($q);
-                                $result = 1;
+                                $res = $this->re_db_query($q);
+                                $result++;
                                 $client_id = 0;
-                            } else {
+                            } 
+                            // ADD CLIENT
+                            if($clientAccount == '' AND $idcAddOnTheFly_Client) { 
+                                
+                            }
+                            
+                            if ($client_id > 0){
                                 $client_id = $clientAccount['id'];
 
                                 $q = "UPDATE `".IMPORT_IDC_DETAIL_DATA."`"
@@ -2606,11 +2668,11 @@
                             }
 
                             // Objectives Check
-                            if (!empty($client_id) AND !empty($foundCusip['objective'])){
+                            if (!empty($client_id) AND !empty($foundProduct['objective'])){
                                 $q = "SELECT `co`.`client_id`, `co`.`objectives`".
                                         " FROM `".CLIENT_OBJECTIVES."` as `co`".
                                         " WHERE `co`.`is_delete`=0".
-                                          " AND `co`.`objectives`='".$foundCusip['objective']."'".
+                                          " AND `co`.`objectives`='".$foundProduct['objective']."'".
                                           " AND `client_id`='".$this->re_db_input($client_id)."'"
                                 ;
                                 $resClientObjectives = $this->re_db_query($q);
@@ -2631,11 +2693,11 @@
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                 ." SET `error_code_id`='9'"
                                                     .",`field`='objectives'"
-                                                    .",`field_value`='".$foundCusip['objective']."'"
+                                                    .",`field_value`='".$foundProduct['objective']."'"
                                                     .",`file_type`=$idcProcessFileType"
                                                 .$insert_exception_string;
-                                        $resInsert = $this->re_db_query($q);
-                                        $result = 1;
+                                        $res = $this->re_db_query($q);
+                                        $result++;
                                     }
                                 }
                             }
@@ -2668,7 +2730,7 @@
                                                     .$insert_exception_string;
                                         $res = $this->re_db_query($q);
 
-                                        $result = 1;
+                                        $result++;
                                     }
                                 }
                             }
@@ -2676,7 +2738,7 @@
 
                         // INSERT the IDC record
                         if(isset($result) && $result == 0){
-                            $total_check_amount = $transaction_master_id = 0;
+                            $total_check_amount = $transaction_master_id = $isTrail = 0;
                             $commission_received = ($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '') . ($this->re_db_input($check_data_val['dealer_commission_amount']));
                             $split_trade = 0;
                             $batch_id = $this->get_file_batch($check_data_val['file_id']);
@@ -2742,8 +2804,7 @@
                                 $res = $this->re_db_query($q);
                                 $result = 0;
 
-                                $broker_class = new broker_master();
-                                $check_broker_commission = $broker_class->check_broker_commission_status($broker_id);
+                                $check_broker_commission = $instance_broker_master->check_broker_commission_status($broker_id);
                                 $broker_hold_commission = (empty($check_broker_commission) ? 0 : $check_broker_commission['hold_commissions']);
 
                                 $con = '';
@@ -2764,7 +2825,13 @@
                                 $get_branch_company_detail = $trans_ins->select_branch_company_ref($broker_id);
                                 $branch = isset($get_branch_company_detail['branch_id'])?$get_branch_company_detail['branch_id']:'';
                                 $company = isset($get_branch_company_detail['company_id'])?$get_branch_company_detail['company_id']:'';
-
+                                // Have to check stripos() with "!==false" because if the string is in the first position, it will return "0"
+                                if (!empty($check_data_val['comm_type']) AND (stripos($check_data_val['comm_type'], '12b')!==false OR stripos($check_data_val['comm_type'], 'trail')!==false)) {
+                                    $isTrail = 1;
+                                } else if (!empty($check_data_val['commission_record_type_code']) AND $check_data_val['commission_record_type_code']=='3') {
+                                    $isTrail = 1;
+                                }
+                                
                                 $q1 = "INSERT INTO `".TRANSACTION_MASTER."`"
                                         ." SET `file_id`='".$check_data_val['file_id']."'"
                                             .",`source`='DS'"
@@ -2787,7 +2854,7 @@
                                             .",`buy_sell`='1'"
                                             .",`cancel`='2'"
                                             .",`commission_received_date`='".$batch_date."'"
-                                            .",`trail_trade`='".($check_data_val['commission_record_type_code']=='3' ? '1' : '0')."'"
+                                            .",`trail_trade`=$isTrail"
                                             .$con
                                             .$this->insert_common_sql();
                                 $res1 = $this->re_db_query($q1);
@@ -2862,6 +2929,7 @@
              * FILE Update
              *********************/
             $check_file_exception_process = $this->check_file_exception_process($file_id,1);
+            $_SESSION['reprocess_status'] = $reprocess_status;
 
             $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
                 ." SET `processed`='1'"

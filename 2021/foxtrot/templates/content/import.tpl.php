@@ -279,7 +279,7 @@ PostResult( msg );
                                                                 <td><?php echo $val['source'];?></td>
                                                                 <td style="width: 10%;"><?php echo $val['file_name'];?></td>
                                                                 <td style="width: 15%;"><?php echo $val['file_type'];?></td>
-                                                                <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00'){echo date('m/d/Y',strtotime($val['last_processed_date']));}?></td>
+                                                                <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00'){echo date('m/d/Y H:i:s',strtotime($val['last_processed_date']));}?></td>
                                                                 <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id={$val['id']}&file_type=$file_type_id" ;?>"><?php echo $sponsor;?></a></td>
                                                                 <td><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A';?></td>
                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
@@ -302,8 +302,7 @@ PostResult( msg );
                                                                         $total_processed_per = ($count_processed_data*100)/$total_process;
                                                                         $total_complete_process = round($total_processed_per);
                                                                     }
-                                                                    else
-                                                                    {
+                                                                    else {
                                                                         $total_complete_process=0;
                                                                     }
                                                                 ?>

@@ -435,16 +435,19 @@
 			return $return;
 		}
 
-		public function search_sponsor($search_text=''){
+		public function search_sponsor($search_text='', $useFullText=0){
 			$return = array();
 			$con = '';
-            if($search_text!='' && $search_text>=0){
+            if ($search_text!='' AND $useFullText){
+				$con .= 'AND '.$search_text;
+			} else if($search_text!='' && $search_text>=0){
 				$con .= " AND `clm`.`name` LIKE '%".$search_text."%' ";
 			}
             
             $q = "SELECT `clm`.*
 					FROM `".SPONSOR_MASTER."` AS `clm`
-                    WHERE `clm`.`is_delete`='0' ".$con."
+                    WHERE `clm`.`is_delete`='0' "
+					.$con."
                     ORDER BY `clm`.`id` ASC ";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -452,7 +455,6 @@
     			while($row = $this->re_db_fetch_array($res)){
     			     //print_r($row);exit;
                      array_push($return,$row);
-                     
     			}
             }
 			return $return;
