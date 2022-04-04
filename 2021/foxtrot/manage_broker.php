@@ -89,40 +89,6 @@
     
     $get_payout_schedule = $instance->get_payout_schedule();
     $get_branch_office = $instance->select_branch_office();
-    if(isset($_GET['file_id']) && ($_GET['file_id'] && $_GET['exception_data_id']) >0 )
-    {
-        $file_id = $_GET['file_id'];
-        $temp_data_id = $_GET['exception_data_id'];
-        $rep = $_GET['rep_no'];
-        $instance_import= new import();
-        $return_exception_detail = $instance_import->select_single_exception_data($file_id,$temp_data_id);
-        foreach($return_exception_detail as $key=>$val)
-        {
-            $rep_name = explode(' ',$val['rep_name']);
-            $file_type = $val['file_type'];
-            $header_detail = $instance_import->get_files_header_detail($file_id,$temp_data_id,$file_type);
-            if($header_detail != array()){
-                $system_id = $header_detail['system_id'];
-                $management_code = $header_detail['management_code'];
-                $sponsor_detail = $instance_import->get_sponsor_on_system_management_code($system_id,$management_code);
-                $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
-                $alias_number = $rep;
-            }
-        
-            if(isset($rep_name[2]) && $rep_name[2] != '')
-            {
-                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
-                $mname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
-                $lname = isset($rep_name[2])?$instance->re_db_input($rep_name[2]):'';
-            }
-            else
-            {
-                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
-                $lname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
-            }
-        }
-    }
-    //echo '<pre>';print_r($product_category);exit();
     
     if((isset($_POST['submit'])&& $_POST['submit']=='Save') 
         || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
@@ -642,6 +608,42 @@
         echo $error;
         exit;
     } 
+    else if(isset($_GET['file_id']) && ($_GET['file_id'] && $_GET['exception_data_id']) >0 )
+    {
+        // 04/03/22 I moved this from the top of the file. I think this is old code that over wrote the new code. Doesn't work as well, and is not coded for 
+        // any other dowmload except for DST Clients. Can't find a newer version. Have to work with it.
+        $file_id = $_GET['file_id'];
+        $temp_data_id = $_GET['exception_data_id'];
+        $rep = $_GET['rep_no'];
+        $instance_import= new import();
+        $return_exception_detail = $instance_import->select_single_exception_data($file_id,$temp_data_id);
+        
+        foreach($return_exception_detail as $key=>$val)
+        {
+            $rep_name = explode(' ',$val['rep_name']);
+            $file_type = $val['file_type'];
+            $header_detail = $instance_import->get_files_header_detail($file_id,$temp_data_id,$file_type);
+            if($header_detail != array()){
+                $system_id = $header_detail['system_id'];
+                $management_code = $header_detail['management_code'];
+                $sponsor_detail = $instance_import->get_sponsor_on_system_management_code($system_id,$management_code);
+                $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
+                $alias_number = $rep;
+            }
+        
+            if(isset($rep_name[2]) && $rep_name[2] != '')
+            {
+                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
+                $mname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
+                $lname = isset($rep_name[2])?$instance->re_db_input($rep_name[2]):'';
+            }
+            else
+            {
+                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
+                $lname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
+            }
+        }
+    }
     else if($action=='view'){
         
         $_SESSION['last_insert_id']='';
