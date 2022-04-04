@@ -52,9 +52,9 @@
             else if($category==''){
 				$this->errors = 'Please select product category.';
 			}
-			else if($sponsor==''){
+			/*else if($sponsor==''){
 				$this->errors = 'Please select sponsor.';
-			}
+			}*/
 			if($this->errors!=''){
 				return $this->errors;
 			}
