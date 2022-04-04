@@ -25,9 +25,11 @@ class import_generic extends import {
         $file_id = $return = 0;
         $filePathAndName = DIR_FS.str_replace("\\", "/", rtrim($this->dataInterface['local_folder'], "/")."/").
                            strtoupper(trim($genericCsvFileName));
-
+        $instance_import = new import();
+        
         $file_id = $this->load_current_file_table($genericCsvFileName);
-        if ($file_id) {$return = $this->load_detail_table($filePathAndName, $file_id);}
+        if ($file_id) { $return = $this->load_detail_table($filePathAndName, $file_id); }
+        if ($return) { $instance_import->reprocess_current_files($file_id, $this->file_type); }
         
         return $return;
     }

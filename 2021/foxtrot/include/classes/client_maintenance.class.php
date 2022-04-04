@@ -117,7 +117,8 @@
 			if ($for_import == 'reprocess_add_client_on_the_fly'){
 				$_SESSION[$for_import]['insert_update_master'] = 0;
 			}
-
+			$file_id = isset($data['file_id']) ? (int)$this->re_db_input($data['file_id']) : 0;
+			
 			if($lname==''){
 				$this->errors = 'Please enter last name.';
 			} else if($broker_name==''){
@@ -157,7 +158,44 @@
 				if($this->errors!=''){
 					return $this->errors;
 				} else if($id==0){
-						$q = "INSERT INTO `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`mi`='".$mi."',`do_not_contact`='".$do_not_contact."',`active`='".$active."',`ofac_check`='".$ofak_check."',`fincen_check`='".$fincen_check."',`long_name`='".$long_name."',`client_file_number`='".$client_file_number."',`clearing_account`='".$clearing_account."',`client_ssn`='".$client_ssn."',`house_hold`='".$household."',`split_broker`='".$split_broker."',`split_rate`='".$split_rate."',`address1`='".$address1."',`address2`='".$address2."',`city`='".$city."',`state`='".$state."',`zip_code`='".$zip_code."',`citizenship`='".$citizenship."',`birth_date`='".$birth_date."',`date_established`='".$date_established."',`age`='".$age."',`open_date`='".$open_date."',`naf_date`='".$naf_date."',`last_contacted`='".$last_contacted."',`account_type`='".$account_type."',`broker_name`='".$broker_name."',`telephone`='".$telephone."',`contact_status`='".$contact_status."',`reviewed_at`='".$reviewed_at."',`reviewed_by`='".$reviewed_by."',`is_reviewed`='".$is_reviewed."'".$this->insert_common_sql();
+						$q = "INSERT INTO `".$this->table."`"
+								." SET `first_name`='".$fname."'"
+										.",`last_name`='".$lname."'"
+										.",`mi`='".$mi."'"
+										.",`do_not_contact`='".$do_not_contact."'"
+										.",`active`='".$active."'"
+										.",`ofac_check`='".$ofak_check."'"
+										.",`fincen_check`='".$fincen_check."'"
+										.",`long_name`='".$long_name."'"
+										.",`client_file_number`='".$client_file_number."'"
+										.",`clearing_account`='".$clearing_account."'"
+										.",`client_ssn`='".$client_ssn."'"
+										.",`house_hold`='".$household."'"
+										.",`split_broker`='".$split_broker."'"
+										.",`split_rate`='".$split_rate."'"
+										.",`address1`='".$address1."'"
+										.",`address2`='".$address2."'"
+										.",`city`='".$city."'"
+										.",`state`='".$state."'"
+										.",`zip_code`='".$zip_code."'"
+										.",`citizenship`='".$citizenship."'"
+										.",`birth_date`='".$birth_date."'"
+										.",`date_established`='".$date_established."'"
+										.",`age`='".$age."'"
+										.",`open_date`='".$open_date."'"
+										.",`naf_date`='".$naf_date."'"
+										.",`last_contacted`='".$last_contacted."'"
+										.",`account_type`='".$account_type."'"
+										.",`broker_name`='".$broker_name."'"
+										.",`telephone`='".$telephone."'"
+										.",`contact_status`='".$contact_status."'"
+										.",`reviewed_at`='".$reviewed_at."'"
+										.",`reviewed_by`='".$reviewed_by."'"
+										.",`is_reviewed`='".$is_reviewed."'"
+										.",`file_id`=$file_id"
+										.$this->insert_common_sql()
+						;
+						
 						$res = $this->re_db_query($q);
 						$client_id= $this->re_db_insert_id();
 						$_SESSION['client_id'] = $client_id;

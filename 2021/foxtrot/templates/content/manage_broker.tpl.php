@@ -3117,10 +3117,10 @@ var waitingDialog = waitingDialog || (function ($) {
                          <?php } ?>
                          <a href="#broker_notes" data-toggle="modal"><input type="button" onclick="get_broker_notes();" name="notes" value="Notes" /></a>
                           <a href="#ytd_earnings_modal" data-toggle="modal">
-                            <input type="button" name="view_changes" value="Modify YTD Earnings" style=""/></a>
+                            <input type="button" name="view_changes" value="Modify YTD Earnings"/></a>
                          <a href="#client_transactions" data-toggle="modal"><input type="button" name="transactions" value="Transactions" /></a>
                          <a href="#broker_attach" data-toggle="modal"><input type="button"  onclick="get_broker_attach();" name="attach" value="Attachments" style="margin-right: 2% !important;"/></a>
-                         <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+                         <a href="<?php echo CURRENT_PAGE."?action=cancel";?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                          <input type="submit" name="submit" value="Save" style="float: right;"/>
                          
                     </div>

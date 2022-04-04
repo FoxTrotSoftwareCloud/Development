@@ -139,7 +139,7 @@ function nameParse($nameString = '', $taxId = ''){
                     $firstName = $firstName.' '.$arWords[$wordKey+2];
                     $lastName = $arWords[$wordKey+3];
                 } else {
-                    $lastName = $arWords[$numberOfWords];
+                    $lastName = $arWords[$numberOfWords-1];
                 }
             } else if ($wordKey == 2){
                 $firstName = $arWords[$wordKey-2].' ' .$arWords[$wordKey-1]
@@ -150,7 +150,7 @@ function nameParse($nameString = '', $taxId = ''){
                     $firstName = $firstName.' ' .$arWords[$wordKey+2];
                     $lastName = $arWords[$wordKey+3];
                 } else {
-                    $lastName = $arWords[$numberOfWords];
+                    $lastName = $arWords[$numberOfWords-1];
                 }
             }
         } else if (strpos($word, 'ESTATE')!==false){

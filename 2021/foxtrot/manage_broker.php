@@ -112,6 +112,7 @@
         $branch_office = isset($_POST['branch_office'])?$instance->re_db_input($_POST['branch_office']):'';
         $for_import = isset($_POST['for_import'])?$instance->re_db_input($_POST['for_import']):'false';
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
+        $file_type = isset($_POST['file_type'])?$instance->re_db_input($_POST['file_type']):0;
         //echo '<pre>';print_r($_POST);exit;
         
         $home_general = isset($_POST['home_general'])?$instance->re_db_input($_POST['home_general']):'';
@@ -215,8 +216,13 @@
             
             if($for_import == 'true')
             {
+                if (isset($_SESSION['manage_broker_from_import'])){
+                    $file_id = $_SESSION['manage_broker_from_import']['file_id'];
+                    $file_type = $_SESSION['manage_broker_from_import']['file_type'];
+                }
                 $params = (!empty($file_id) ? '&id='.$file_id : '')
                           .(!empty($file_type) ? '&file_type='.$file_type : '');
+                unset($_SESSION['manage_broker_from_import']);
 
                 header("location:".SITE_URL."import.php?tab=review_files".$params);
                 exit;
@@ -643,12 +649,31 @@
                 $lname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
             }
         }
+
+        $_SESSION['manage_broker_from_import']['file_id'] = $file_id;
+        $_SESSION['manage_broker_from_import']['file_type'] = $file_type;
     }
-    else if($action=='view'){
-        
+    else if($action=='cancel'){
         $_SESSION['last_insert_id']='';
         $return = $instance->select();
-        
+
+        if(isset($_SESSION['manage_broker_from_import'])){
+            $file_id = $_SESSION['manage_broker_from_import']['file_id'];
+            $file_type = $_SESSION['manage_broker_from_import']['file_type'];
+            $params = (!empty($file_id) ? '&id='.$file_id : '')
+                      .(!empty($file_type) ? '&file_type='.$file_type : '');
+            unset($_SESSION['manage_broker_from_import']);
+            
+            header("location:".SITE_URL."import.php?tab=review_files".$params);
+            exit;
+        } else {
+            header("location:".CURRENT_PAGE);
+            exit;
+        }
+    }
+    else if($action=='view'){
+        $_SESSION['last_insert_id']='';
+        $return = $instance->select();
     }    
 	$content = "manage_broker";
 	require_once(DIR_WS_TEMPLATES."main_page.tpl.php");
