@@ -62,8 +62,9 @@
                                 <label>Local Folder </label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <input type="file" name="local_folder" class="form-control" />
-                                <!--input type="file" name="file1"   /-->
+                                <!-- Just display where the files are stored. The users will load the folder from a local or FTP fetch(another server) -- 
+                                <input type="file" name="local_folder" class="form-control" /> -->
+                                <input type="text" name="local_folder" class="form-control" value="<?php echo $local_folder ?>" disabled/>
                             </div>
                         </div>	
                         <div class="selectwrap">
@@ -123,8 +124,9 @@
                                 <label>Local Folder </label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <input type="file" name="local_folder" class="form-control" />
-                                <!--input type="file" name="file1"   /-->
+                                <!-- Just display where the files are stored. The users will load the folder from a local or FTP fetch(another server) -- 
+                                <input type="file" name="local_folder" class="form-control" /> -->
+                                <input type="text" name="local_folder" class="form-control" value="<?php echo $local_folder ?>" disabled/>
                             </div>
                         </div>	
                         <div class="selectwrap">
@@ -487,11 +489,11 @@
                         </div>	
                         <div class="row"> 
                             <div class="col-md-6 form-group">
-                                <label>Upload Generic CSV File </label>
+                                <label>Data Directory </label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <input type="hidden" name="local_folder" class="form-control" value="<?php echo $local_folder ?>"/>
-                                <input type="file" name="upload_file" class="form-control" />
+                                <!-- Transferred to Import grid ("Fetch" File) -- <input type="file" name="upload_file" class="form-control" /> -->
+                                <input type="text" name="local_folder" class="form-control" value="<?php echo $local_folder ?>" disabled/>
                             </div>
                         </div>	
                         <div class="selectwrap">

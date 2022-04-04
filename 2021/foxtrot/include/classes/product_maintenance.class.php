@@ -95,18 +95,19 @@
 			            	 }
 
 			            }
-									if($res){
-										//$_SESSION['tran']
-										if($isReturn){
-				                        	$_SESSION['new_product_id']=$id;
-				                        }
-									    $_SESSION['success'] = UPDATE_MESSAGE;
-										return true;
-									}
-									else{
-										$_SESSION['warning'] = UNKWON_ERROR;
-										return false;
-									}
+
+						if($res){
+							//$_SESSION['tran']
+							if($isReturn){
+								$_SESSION['new_product_id']=$id;
+							}
+							$_SESSION['success'] = UPDATE_MESSAGE;
+							return true;
+						}
+						else{
+							$_SESSION['warning'] = UNKWON_ERROR;
+							return false;
+						}
 
 				}
 				else{ // insert
@@ -133,7 +134,6 @@
 
 						$res = $this->re_db_query($q);
                         $last_inserted_id = $this->re_db_insert_id();
-
 
                         foreach($min_threshold as $key_thres=>$val_thres)
                         {

@@ -169,8 +169,10 @@
 			$q = "SELECT `type`
 					FROM `".PRODUCT_TYPE."`
                     WHERE is_delete='0' and id=".$id." 
-                    ORDER BY `id` ASC";
+                    ORDER BY `id` ASC"
+			;
 			$res = $this->re_db_query($q);
+			
             if($this->re_db_num_rows($res)>0){
                 while($row = $this->re_db_fetch_array($res)){
     			     $return = $row['type'];

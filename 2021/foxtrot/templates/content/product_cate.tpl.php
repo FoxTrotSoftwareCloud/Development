@@ -250,7 +250,7 @@ $(document).on('click','.remove-row',function(){
                   <!--<li><a href="#tab_ee" data-toggle="tab">Documents</a></li>-->
                     <div class="btn-group dropdown" style="float: right;">
 						<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-						<ul class="dropdown-menu dropdown-menu-right" style="">
+						<ul class="dropdown-menu dropdown-menu-right">
 							<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_product&category=<?php echo $category;?>"><i class="fa fa-eye"></i> View List</a></li>
 						</ul>
 					</div>
@@ -1749,14 +1749,16 @@ function get_product_attach(){
 }
 function hideshow_sponser_based_on_product_category(product_category)
 {
-     if(product_category =='2' ||product_category =='3'|| product_category =='6'||product_category =='7'||product_category =='8')
-        {
-            document.getElementById("div_sponsor").style.visibility='hidden';
-        }
-        else
-        {
-            document.getElementById("div_sponsor").style.visibility='visible';
-        }
+    var divSponsorExists = document.getElementById("div_sponsor");
+    
+    if(divSponsorExists && (product_category =='2' ||product_category =='3'|| product_category =='6'||product_category =='7'||product_category =='8'))
+    {
+        // document.getElementById("div_sponsor").style.visibility='hidden';
+        document.getElementById("div_sponsor").style.display='none';
+    } else if (divSponsorExists) {
+        // document.getElementById("div_sponsor").style.visibility='visible';
+        document.getElementById("div_sponsor").style.display='block';
+    }
 }
 function openedit(note_id){
 

@@ -664,6 +664,8 @@
             $detailData = $instance_import->select_existing_fanmail_data($exceptionId);
         } else if ($file_type==2) {
             $detailData = $instance_import->select_existing_idc_data($exceptionId);
+        } else if ($file_type==9) {
+            $detailData = $instance_import->select_existing_gen_data($exceptionId);
         }
         
         if ($detailData){
@@ -687,7 +689,7 @@
                 } else {
                     $lname = TRIM($row['client']);
                 }
-            } else if ($file_type == 2){
+            } else if (in_array($file_type, [2, 9])){
                 $lname = $detailData['alpha_code'];                
                 // Passing the parameter strips off the zeroes    
                 $client_file_number = $detailData['customer_account_number'];

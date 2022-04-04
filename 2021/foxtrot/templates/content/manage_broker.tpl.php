@@ -646,7 +646,7 @@
             <div class="panel-control" style="float: right;">
                <div class="btn-group dropdown">
                   <button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-                  <ul class="dropdown-menu dropdown-menu-right" style="">
+                  <ul class="dropdown-menu dropdown-menu-right">
                      <li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
                      <?php if(($action=='edit' && $id>0)): ?>
                      <li><a id="export_broker_data_btn" data-broker_id="<?php echo $id; ?>" href="javascript:void(0);"><i class="fa fa-download"></i> Export Broker data</a></li>
@@ -3191,9 +3191,65 @@
                               </div>
                            </div>
                         </div>
-                     </div>
-                  </div>
-               </div>
+                 </div>
+              </div>
+              <div class="panel-footer fixedbtmenu">
+                    <div class="selectwrap">
+                         <?php if(isset($_GET['rep_no']) && ($_GET['rep_no'] != '' || $_GET['rep_no'] == '')){?>
+                        <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
+                        <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
+                        <input type="hidden" name="temp_data_id" id="temp_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
+                        <?php }?>
+                         <?php if($action=='edit' && $id>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous" class="previous next_previous_a" style="float: left;"><input type="submit" name="submit" value="Previous" /></a><?php } ?>
+                         <?php if($action=='edit' && $id>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next" class="next next_previous_a" ><input type="submit" name="submit" value="Next" /></a><?php } ?>
+                         <?php if($action=='edit' && $id>0){?>
+                            <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 2% !important;"/></a>
+
+                         <?php } ?>
+                         <a href="#broker_notes" data-toggle="modal"><input type="button" onclick="get_broker_notes();" name="notes" value="Notes" /></a>
+                          <a href="#ytd_earnings_modal" data-toggle="modal">
+                            <input type="button" name="view_changes" value="Modify YTD Earnings"/></a>
+                         <a href="#client_transactions" data-toggle="modal"><input type="button" name="transactions" value="Transactions" /></a>
+                         <a href="#broker_attach" data-toggle="modal"><input type="button"  onclick="get_broker_attach();" name="attach" value="Attachments" style="margin-right: 2% !important;"/></a>
+                         <a href="<?php echo CURRENT_PAGE."?action=cancel";?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+                         <input type="submit" name="submit" value="Save" style="float: right;"/>
+                         
+                    </div>
+                 </div>   
+            </form>
+                 <?php } ?>
+            <!-- Lightbox strart -->							
+        	<!-- Modal for add broker notes -->
+        	<div id="broker_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        		<div class="modal-dialog">
+        		<div class="modal-content">
+        		<div class="modal-header" style="margin-bottom: 0px !important;">
+        			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+        			<h4 class="modal-title">Brokers's Notes</h4>
+        		</div>
+        		<div class="modal-body">
+                
+                <div class="inputpopup">
+                    <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newnotes();"><i class="fa fa-plus"></i> Add New</a></li>
+        		</div>
+                
+                <div class="col-md-12">
+                    <div id="msg_notes">
+                    </div>
+                </div>
+               
+                <div class="inputpopup">
+                    <div class="table-responsive" id="ajax_notes" style="margin: 0px 5px 0px 5px;">
+                        
+                    </div>
+        		</div>
+                </div><!-- End of Modal body -->
+        		</div><!-- End of Modal content -->
+        		</div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
+        <!-- Lightbox strart -->							
+        	<!-- Modal for add broker notes -->
+        	<!-- End of Modal dialog -->
             </div>
             <div class="panel-footer fixedbtmenu">
                <div class="selectwrap">
@@ -3209,7 +3265,7 @@
                   <?php } ?>
                   <a href="#broker_notes" data-toggle="modal"><input type="button" onclick="get_broker_notes();" name="notes" value="Notes" /></a>
                   <a href="#ytd_earnings_modal" data-toggle="modal">
-                  <input type="button" name="view_changes" value="Modify YTD Earnings" style=""/></a>
+                  <input type="button" name="view_changes" value="Modify YTD Earnings" /></a>
                   <a href="#client_transactions" data-toggle="modal"><input type="button" name="transactions" value="Transactions" /></a>
                   <a href="#broker_attach" data-toggle="modal"><input type="button"  onclick="get_broker_attach();" name="attach" value="Attachments" style="margin-right: 2% !important;"/></a>
                   <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
@@ -3217,7 +3273,7 @@
                </div>
             </div>
          </form>
-         <?php } ?>
+         <?php //} ?>
          <!-- Lightbox strart -->                           
          <!-- Modal for add broker notes -->
          <div id="broker_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">

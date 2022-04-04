@@ -23,12 +23,7 @@
     	$trade_activity = isset($_POST['trade_activity'])?$instance->re_db_input($_POST['trade_activity']):0;
     	$add_client = isset($_POST['add_client'])?$instance->re_db_input($_POST['add_client']):0;
     	$update_client = isset($_POST['update_client'])?$instance->re_db_input($_POST['update_client']):0;
-        // <input type="file" stored in $_FILES['elementName']
     	$local_folder = isset($_POST['local_folder'])?$instance->re_db_input($_POST['local_folder']):'';
-        if (!empty($_FILES['upload_file']['name'])){
-          $fileUploaded = $instance->upload_file($_FILES['upload_file'], empty($local_folder)?'import_files/':$local_folder);
-        }
-
         $return = $instance->insert_update($_POST);
         
         if($return===true){

@@ -69,9 +69,10 @@ body .container{
     border-radius: 0 6px 6px 6px;
 }
 
-.graphboxcontent{
+/* .graphboxcontent{ */
     /*padding: 10px 0;*/
-}
+/* } */
+
 .dropdown-submenu:hover>.dropdown-menu {
     display: block;
 }
