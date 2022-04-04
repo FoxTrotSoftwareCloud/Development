@@ -1418,13 +1418,25 @@
         public function process_current_files($id){
             $sponsorClass = new manage_sponsor();
             $data_status = false;
-
+            
             if($id > 0)
             {
                 $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `processed`='1' AND `id`='".$id."'; ";
 				$res = $this->re_db_query($q);
 				$return = $this->re_db_num_rows($res);
-
+                
+                // 04/04/22 Quick fix to get the Generic Import up and running.
+                if ($return){
+                    $return = 0;
+                    $res = $this->re_db_fetch_array($res);
+                    
+                    if ($res['source']=='GENERIC'){
+                        $instance_importGeneric = new import_generic();
+                        $return = $instance_importGeneric->process_file($res['file_name']);
+                    }
+                    return $return;
+                }
+                
                 $this->errors='';
                 //print_r($return);
 				if($return == 0){

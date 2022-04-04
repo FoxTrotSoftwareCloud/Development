@@ -66,6 +66,15 @@ class import_generic extends import {
             $res = $this->re_db_query($q);
             
             if ($res){$file_id = $this->re_db_insert_id(); }
+        } else if (in_array($fileName, $currentImportFiles)){
+                $q = "SELECT `id`,`file_name` FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `processed`='0' AND TRIM(UPPER(`file_name`))='{strtoupper(trim($fileName))}'; ";
+				$res = $this->re_db_query($q);
+				$return = $this->re_db_num_rows($res);
+
+            if ($return){
+                $res = $this->re_db_fetch_array($res);
+                $file_id = $res['id'];
+            }
         }
 
         return $file_id;
