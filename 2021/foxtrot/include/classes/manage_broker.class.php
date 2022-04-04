@@ -203,7 +203,12 @@
       }*/
 
 			if($this->errors!=''){
-				return $this->errors;
+        if (!empty($_GET['file_id'])){
+          $_SESSION['warning'] = $this->errors;
+          return false;
+        } else {
+          return $this->errors;
+        }
 			}
 			else{
 				/* check duplicate record */

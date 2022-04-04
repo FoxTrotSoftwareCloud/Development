@@ -18,7 +18,8 @@
     $get_file_data = '';
     $return_exception = array();
     $total_commission_amount = 0;
-
+    $dataTableOrder = isset($_GET['reprocessed']) ? '[3, "desc"], [0, "asc"], [1, "asc"]' : '';
+    
     $instance = new import();
     $get_product_category = $instance->select_category();
     $get_objective = $instance->get_objectives_data();
@@ -29,6 +30,7 @@
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor();
     $instance_batches = new batches();
+    $instance_importGeneric = new import_generic();
 
     if(isset($_GET['id']) && $_GET['id'] !='')
     {
@@ -47,6 +49,8 @@
             $file_type = 2;
         } else if ($_POST['process_file_type'] == 'Security File'){
             $file_type = 3;
+        } else if (stripos($_POST['process_file_type'],'generic commission')!==false){
+            $file_type = 9;
         } else {
             $file_type = 1;
         }
@@ -58,11 +62,13 @@
         }
         else if(isset($process_file) && $process_file == 2)
         {
-
             $return = $instance->process_current_files($id);
-            if($return == '')
-            {
-                header("location:".SITE_URL."import.php");exit;
+            
+            if($return == ''){
+                header("location:".SITE_URL."import.php?reprocessed=1");
+                exit;
+            } else {
+                $dataTableOrder = '';
             }
         }
         else if(isset($process_file) && $process_file == 3)
@@ -76,7 +82,7 @@
         }
         else if(isset($process_file) && $process_file == 5)
         {
-            $return = $instance->reprocess_current_files($id);
+            $return = $instance->reprocess_current_files($id, $file_type, 0);
         }
         else if(isset($process_file) && $process_file == 6)
         {
@@ -91,9 +97,8 @@
         }
 
         if($return===true){
-
-            header("location:".CURRENT_PAGE);exit;
-
+            header("location:".CURRENT_PAGE.'?reprocessed=1');
+            exit;
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
@@ -194,7 +199,37 @@
         echo $error;
         exit;
     }
-    else if($action=='edit_ftp' && $ftp_id>0){
+    else if(isset($_POST['upload_generic_csv_file']) && $_POST['upload_generic_csv_file']=='upload_generic_csv_file')
+    {
+        $error = '';
+        $uploaded =  0;
+        // Validate upload file        
+        if (empty($_FILES['upload_generic_csv_file']['name'])){
+            $error = 'No file specified. Procedure cancelled.';
+        } else if (file_exists(rtrim($instance_importGeneric->dataInterface['local_folder'],"/")."/".$_FILES['upload_generic_csv_file']['name'])){
+            $error = "File '".$_FILES['upload_generic_csv_file']['name']."' already uploaded. Please select another file or rename current file.";
+        }
+        // Upload file
+        if (empty($error)){
+            $uploaded = $instance->upload_file($_FILES['upload_generic_csv_file'], $instance_importGeneric->dataInterface['local_folder']);
+        }
+        if ($uploaded){
+            $uploaded = $instance_importGeneric->process_file($_FILES['upload_generic_csv_file']['name']);
+        } else if (empty($error)){
+            $error = 'File not uploaded. Please check privileges on the directory & file: '.$$_FILES['upload_generic_csv_file']['name'];
+        }
+        
+        if(empty($error) AND $uploaded){
+            $_SESSION['success'] = "File '".$_FILES['upload_generic_csv_file']['name']."' uploaded and processed.";
+            header("location:".CURRENT_PAGE."?action=view&reprocessed=1");
+        } else{
+            $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
+            header("location:".CURRENT_PAGE."?tab=open_ftp");
+        }
+        exit;
+    }
+    else if($action=='edit_ftp' && $ftp_id>0)
+    {
         $return = $instance->edit_ftp($ftp_id);
         $ftp_id = isset($return['id'])?$instance->re_db_output($return['id']):0;
         $host_name = isset($return['host_name'])?$instance->re_db_output($return['host_name']):'';

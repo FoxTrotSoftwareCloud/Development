@@ -105,21 +105,5 @@
 			return $return;
 		}
 		
-		function upload_file($data, $toFolder){
-			$return = 0;
-			$moveToFolder = empty($toFolder) ? 'import_files' : rtrim($toFolder, "/")."/";
-
-			if (!empty($data['name'])){
-				$return = move_uploaded_file($_FILES['upload_file']['tmp_name'], DIR_FS.$moveToFolder.$_FILES['upload_file']['name']);
-				
-				if ($return){
-					$instance_importGeneric = new import_generic();
-					$return = $instance_importGeneric->fetch_files();
-				}
-			}
-
-			return $return;
-		}
-
 	}
 ?>

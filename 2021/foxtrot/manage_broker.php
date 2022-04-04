@@ -89,40 +89,6 @@
     
     $get_payout_schedule = $instance->get_payout_schedule();
     $get_branch_office = $instance->select_branch_office();
-    if(isset($_GET['file_id']) && ($_GET['file_id'] && $_GET['exception_data_id']) >0 )
-    {
-        $file_id = $_GET['file_id'];
-        $temp_data_id = $_GET['exception_data_id'];
-        $rep = $_GET['rep_no'];
-        $instance_import= new import();
-        $return_exception_detail = $instance_import->select_single_exception_data($file_id,$temp_data_id);
-        foreach($return_exception_detail as $key=>$val)
-        {
-            $rep_name = explode(' ',$val['rep_name']);
-            $file_type = $val['file_type'];
-            $header_detail = $instance_import->get_files_header_detail($file_id,$temp_data_id,$file_type);
-            if($header_detail != array()){
-                $system_id = $header_detail['system_id'];
-                $management_code = $header_detail['management_code'];
-                $sponsor_detail = $instance_import->get_sponsor_on_system_management_code($system_id,$management_code);
-                $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
-                $alias_number = $rep;
-            }
-        
-            if(isset($rep_name[2]) && $rep_name[2] != '')
-            {
-                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
-                $mname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
-                $lname = isset($rep_name[2])?$instance->re_db_input($rep_name[2]):'';
-            }
-            else
-            {
-                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
-                $lname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
-            }
-        }
-    }
-    //echo '<pre>';print_r($product_category);exit();
     
     if((isset($_POST['submit'])&& $_POST['submit']=='Save') 
         || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
@@ -146,6 +112,7 @@
         $branch_office = isset($_POST['branch_office'])?$instance->re_db_input($_POST['branch_office']):'';
         $for_import = isset($_POST['for_import'])?$instance->re_db_input($_POST['for_import']):'false';
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
+        $file_type = isset($_POST['file_type'])?$instance->re_db_input($_POST['file_type']):0;
         //echo '<pre>';print_r($_POST);exit;
         
         $home_general = isset($_POST['home_general'])?$instance->re_db_input($_POST['home_general']):'';
@@ -249,8 +216,13 @@
             
             if($for_import == 'true')
             {
+                if (isset($_SESSION['manage_broker_from_import'])){
+                    $file_id = $_SESSION['manage_broker_from_import']['file_id'];
+                    $file_type = $_SESSION['manage_broker_from_import']['file_type'];
+                }
                 $params = (!empty($file_id) ? '&id='.$file_id : '')
                           .(!empty($file_type) ? '&file_type='.$file_type : '');
+                unset($_SESSION['manage_broker_from_import']);
 
                 header("location:".SITE_URL."import.php?tab=review_files".$params);
                 exit;
@@ -642,11 +614,66 @@
         echo $error;
         exit;
     } 
-    else if($action=='view'){
+    else if(isset($_GET['file_id']) && ($_GET['file_id'] && $_GET['exception_data_id']) >0 )
+    {
+        // 04/03/22 I moved this from the top of the file. I think this is old code that over wrote the new code. Doesn't work as well, and is not coded for 
+        // any other dowmload except for DST Clients. Can't find a newer version. Have to work with it.
+        $file_id = $_GET['file_id'];
+        $temp_data_id = $_GET['exception_data_id'];
+        $rep = $_GET['rep_no'];
+        $instance_import= new import();
+        $return_exception_detail = $instance_import->select_single_exception_data($file_id,$temp_data_id);
         
+        foreach($return_exception_detail as $key=>$val)
+        {
+            $rep_name = explode(' ',$val['rep_name']);
+            $file_type = $val['file_type'];
+            $header_detail = $instance_import->get_files_header_detail($file_id,$temp_data_id,$file_type);
+            if($header_detail != array()){
+                $system_id = $header_detail['system_id'];
+                $management_code = $header_detail['management_code'];
+                $sponsor_detail = $instance_import->get_sponsor_on_system_management_code($system_id,$management_code);
+                $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
+                $alias_number = $rep;
+            }
+        
+            if(isset($rep_name[2]) && $rep_name[2] != '')
+            {
+                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
+                $mname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
+                $lname = isset($rep_name[2])?$instance->re_db_input($rep_name[2]):'';
+            }
+            else
+            {
+                $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
+                $lname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
+            }
+        }
+
+        $_SESSION['manage_broker_from_import']['file_id'] = $file_id;
+        $_SESSION['manage_broker_from_import']['file_type'] = $file_type;
+    }
+    else if($action=='cancel'){
         $_SESSION['last_insert_id']='';
         $return = $instance->select();
-        
+
+        if(isset($_SESSION['manage_broker_from_import'])){
+            $file_id = $_SESSION['manage_broker_from_import']['file_id'];
+            $file_type = $_SESSION['manage_broker_from_import']['file_type'];
+            $params = (!empty($file_id) ? '&id='.$file_id : '')
+                      .(!empty($file_type) ? '&file_type='.$file_type : '');
+            unset($_SESSION['manage_broker_from_import']);
+            
+            header("location:".SITE_URL."import.php?tab=review_files".$params);
+            exit;
+        } else {
+            header("location:".CURRENT_PAGE);
+            exit;
+        }
+    }
+    else if($action=='view'){
+        $_SESSION['last_insert_id']='';
+        $return = $instance->select();
     }    
 	$content = "manage_broker";
 	require_once(DIR_WS_TEMPLATES."main_page.tpl.php");

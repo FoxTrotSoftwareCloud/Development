@@ -1749,14 +1749,18 @@ function get_product_attach(){
 }
 function hideshow_sponser_based_on_product_category(product_category)
 {
-     if(product_category =='2' ||product_category =='3'|| product_category =='6'||product_category =='7'||product_category =='8')
-        {
-            document.getElementById("div_sponsor").style.visibility='hidden';
-        }
-        else
-        {
-            document.getElementById("div_sponsor").style.visibility='visible';
-        }
+    // $a = 0 TEST DELETE ME
+    var divSponsorExists = document.getElementById("div_sponsor");
+    console.log('product_cateogry:' + product_category + ', sponsorExists:' + divSponsorExists)
+    
+    if(divSponsorExists && (product_category =='2' ||product_category =='3'|| product_category =='6'||product_category =='7'||product_category =='8'))
+    {
+        // document.getElementById("div_sponsor").style.visibility='hidden';
+        document.getElementById("div_sponsor").style.display='none';
+    } else if (divSponsorExists) {
+        // document.getElementById("div_sponsor").style.visibility='visible';
+        document.getElementById("div_sponsor").style.display='block';
+    }
 }
 function openedit(note_id){
 
