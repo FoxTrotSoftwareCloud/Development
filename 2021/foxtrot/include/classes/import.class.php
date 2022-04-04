@@ -2392,6 +2392,7 @@
                     ************************************/
                     $commission_detail_array = [];
                     $commissionFileType = $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 0;
+                    $fileSource = '';
                     
                     if (in_array($file_type, [$this->GENERIC_file_type])) {
                         $commission_detail_array = $this->get_gen_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
@@ -2399,10 +2400,12 @@
                         // Generic file does not contain a Cusip(or any unique product id or description) and Clients are often added with the transaction, i.e. many will not be in Cloudfox DB. So, add them and let God sort it out
                         $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 1;
                         $commDetailTable = IMPORT_GEN_DETAIL_DATA;
+                        $fileSource = 'GN';
                     } else if ($file_type==2 OR $detail_record_id==0) {
                         $commission_detail_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $commissionFileType = 2;
                         $commDetailTable = IMPORT_IDC_DETAIL_DATA;
+                        $fileSource = 'DS';
                     }
                     
                     foreach($commission_detail_array as $check_data_key=>$check_data_val){
@@ -2418,9 +2421,12 @@
                         $transaction_master_id = 0;
                         $updateResult = [];
                         $for_import = '';
-                        $sponsor_id = $check_data_val['sponsor_id'];
+                        $sponsor_id = 0;
                         if ($file_type == $this->GENERIC_file_type){
-                            $file_sponsor_array['id'] = $check_data_val['sponsor_id'];
+                            $sponsor_id = $check_data_val['sponsor_id'];
+                            // $file_sponsor_array['id'] = $check_data_val['sponsor_id'];
+                        } else {
+                            $sponsor_id = $file_sponsor_array['id'];
                         }
                         
                         $insert_exception_string =
@@ -2474,7 +2480,7 @@
                                     $brokerAlias = [];
                                 } else {
                                     $broker = $instance_broker_master->select_broker_by_fund($rep_number);
-                                    $brokerAlias = $instance_broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
+                                    $brokerAlias = $instance_broker_master->select_broker_by_alias($rep_number, $sponsor_id);
                                 }
 
                                 if(empty($broker) AND empty($brokerAlias)){
@@ -2611,7 +2617,6 @@
                                 $product_id = $foundProduct['id'];
                                 $product_category_id = $foundProduct['category'];
                                 $sponsor_id = (int)$foundProduct['sponsor'];
-                                $result++;
                             } else {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET `error_code_id`='11'"
@@ -2638,32 +2643,32 @@
                             if ($reassignClient){
                                 $clientAccount['id'] = $check_data_val['client_id'];
                             } else {
+                                // CLIENT SEARCH BY ACCOUNT #
                                 $q =
                                     "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
                                         ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                         ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
                                         ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
-                                            ." AND `ca`.`sponsor_company`='".$file_sponsor_array['id']."'"
+                                            ." AND `ca`.`sponsor_company`='".$sponsor_id."'"
                                             ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
                                 ;
                                 $res = $this->re_db_query($q);
-                                $clientAccount = ($this->re_db_num_rows($res)>0 ? $this->re_db_fetch_array($res) : '');
+
+                                if ($this->re_db_num_rows($res)>0){
+                                    $clientAccount = $this->re_db_fetch_array($res);
+                                    $client_id = $clientAccount['id'];
+                                } else {
+                                    $clientAccount = [];
+                                    $client_id = 0;
+                                }
                             }
 
-                            // Client Account # Not Found
-                            if ($clientAccount == '' AND !$commissionAddOnTheFly_Client) {
-                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                    ." SET `error_code_id`='18'"
-                                        .",`field`='customer_account_number'"
-                                        .",`field_value`=''"
-                                        .",`file_type`=$commissionFileType"
-                                        .$insert_exception_string;
-                                $res = $this->re_db_query($q);
-                                $client_id = 0;
-                                $result++;
-                            } 
                             //--- ADD CLIENT ---//
-                            if ($clientAccount == '' AND $commissionAddOnTheFly_Client) {
+                            if (empty($clientAccount) AND $commissionAddOnTheFly_Client) {
+                                $updateResult['insert_client_master'] = $updateResult['insert_client_account'] = 0;
+                                $for_import = 'reprocess_add_client_on_the_fly';
+                                $_SESSION[$for_import] = [];
+                                
                                 // Add->Check sponsor
                                 if (empty($sponsor_id)){
                                     // Search for a valid sponsor by the company description in the file
@@ -2690,8 +2695,6 @@
                                 // Actually do the add
                                 // Rename the return keys so you can pass it to insert update()
                                 if (!empty($sponsor_id) AND !empty($broker_id)){
-                                    $for_import = 'reprocess_add_client_on_the_fly';
-                                    $_SESSION[$for_import] = [];
                                     
                                     $updateResult['insert_client_master'] = $instance_client_maintenance->insert_update([
                                         'for_import'=>$for_import,
@@ -2699,18 +2702,19 @@
                                         'fname'=>$clientAccount['first_name'], 
                                         'mi'=>$clientAccount['mi'], 
                                         'client_file_number'=>$check_data_val['customer_account_number'],
-                                        'broker_name'=>(string)$broker_id
+                                        'broker_name'=>(string)$broker_id,
+                                        'file_id'=>$check_data_val['file_id']
                                     ]);
                                     // $_SESSION[$for_import] populated in the called function
                                     if ($updateResult['insert_client_master'] AND !empty($_SESSION[$for_import]['insert_update_master'])){
                                         // insert update account gets the "client_id" from the Global $_SESSION variable
-                                        $_SESSION['client_id'] = (int)$this->re_db_input($_SESSION[$for_import]['insert_update_master']);
+                                        // $_SESSION['client_id'] = (int)$this->re_db_input($_SESSION[$for_import]['insert_update_master']);
                                         
                                         // Add Account #
                                         $updateResult['insert_client_account'] = $instance_client_maintenance->insert_update_account([
                                             'for_import'=>$for_import,
-                                            'account_no'=>$clientAccount['customer_account_number'], 
-                                            'sponsor'=>$sponsor_id 
+                                            'account_no'=>[$check_data_val['customer_account_number']], 
+                                            'sponsor'=>[$sponsor_id]
                                         ]);
                                     }
                                     // Both Client Master & Account entered
@@ -2728,6 +2732,7 @@
                                         $client_id = $clientAccount['id'];
                                     }
                                 }
+                                unset($_SESSION[$for_import]);
                             }
                             
                             //--- VALID CLIENT FOUND --//
@@ -2740,7 +2745,18 @@
                                         ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
                                 ;
                                 $res = $this->re_db_query($q);
-                            }
+                            } else {
+                                // Client Account # Not Found
+                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                    ." SET `error_code_id`='18'"
+                                        .",`field`='customer_account_number'"
+                                        .",`field_value`='{$check_data_val['customer_account_number']}'"
+                                        .",`file_type`=$commissionFileType"
+                                        .$insert_exception_string;
+                                $res = $this->re_db_query($q);
+                                $client_id = 0;
+                                $result++;
+                            } 
 
                             // Objectives Check
                             if (!empty($client_id) AND !empty($foundProduct['objective'])){
@@ -2845,7 +2861,7 @@
                                         ." SET `file_id`='".$check_data_val['file_id']."'"
                                             .",`pro_category`='".$product_category_id."'"
                                             .",`batch_desc`='".$this->re_db_input($batch_description)."'"
-                                            .",`sponsor`='".$this->re_db_input($file_sponsor_array['id'])."'"
+                                            .",`sponsor`='".$this->re_db_input($sponsor_id)."'"
                                             .",`check_amount`='".$total_check_amount."'"
                                             .",`batch_date`='".$batch_date."'"
                                             .",`trade_start_date`='".$this->re_db_input($batchArray['trade_start_date'])."'"
@@ -2908,7 +2924,7 @@
                                 
                                 $q1 = "INSERT INTO `".TRANSACTION_MASTER."`"
                                         ." SET `file_id`='".$check_data_val['file_id']."'"
-                                            .",`source`='DS'"
+                                            .",`source`='".$fileSource."'"
                                             .",`trade_date`='".$check_data_val['trade_date']."'"
                                             .",`posting_date`='".date('Y-m-d')."'"
                                             .",`invest_amount`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
@@ -2918,7 +2934,7 @@
                                             .",`product_cate`='".$product_category_id."'"
                                             .",`product`='".$product_id."'"
                                             .",`batch`='".$batch_id."'"
-                                            .",`sponsor`='".$this->re_db_input($file_sponsor_array['id'])."'"
+                                            .",`sponsor`='".$sponsor_id."'"
                                             .",`broker_name`='".$broker_id."'"
                                             .",`client_name`='".$client_id."'"
                                             .",`client_number`='".$check_data_val['customer_account_number']."'"
