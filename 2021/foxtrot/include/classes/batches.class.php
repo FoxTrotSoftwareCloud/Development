@@ -265,7 +265,7 @@
 				return false;
 			}
 		}
-        public function get_all_category_batch_data($product_category='',$company='',$batch='',$beginning_date='',$ending_date='',$sort_by=''){
+        public function get_all_category_batch_data($product_category='',$company='',$batch='',$beginning_date='',$ending_date='',$sort_by='', $includeUploaded=0){
 			$return = array();
             $con='';
             if($product_category>0)
@@ -282,9 +282,16 @@
             }
             if($beginning_date != '' && $ending_date != '')
             {
-                $con.=" AND `at`.`batch_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."'";
+                $con.=" AND `at`.`batch_date` BETWEEN '".date('Y-m-d',strtotime($beginning_date))."' AND '".date('Y-m-d',strtotime($ending_date))."'";
             }
-            if($sort_by == 1)
+            if($includeUploaded)
+            {
+                $con.=" AND `ts`.`is_payroll` = 1";
+            } else {
+                $con.=" AND `ts`.`is_payroll` = 0";
+			}
+        
+			if($sort_by == 1)
             {
                 $con .= " GROUP BY `ts`.`batch` ORDER BY `at`.`sponsor` ASC";
             }
@@ -301,12 +308,13 @@
                 $con .= " GROUP BY `ts`.`batch` ORDER BY `at`.`pro_category` ASC";
             }
             
-			$q = "SELECT `at`.*,`pc`.`type` as pro_category,`ts`.`batch`
-					FROM `".$this->table."` AS `at`
-                    LEFT JOIN `".PRODUCT_TYPE."` AS `pc` on `pc`.`id`=`at`.`pro_category`
-                    LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`batch`=`at`.`id`
-                    WHERE `at`.`is_delete`='0' ".$con."
-                    ";
+			$q = "SELECT `at`.*, `pc`.`type` AS pro_category, `ts`.`batch`"
+					." FROM `".$this->table."` AS `at`"
+                    ." LEFT JOIN `".PRODUCT_TYPE."` AS `pc` on `pc`.`id`=`at`.`pro_category`"
+                    ." LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`batch`=`at`.`id`"
+                    ." WHERE `at`.`is_delete`='0'"
+						.$con
+			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
