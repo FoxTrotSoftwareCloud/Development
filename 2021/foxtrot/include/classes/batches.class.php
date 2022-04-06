@@ -284,9 +284,10 @@
             {
                 $con.=" AND `at`.`batch_date` BETWEEN '".date('Y-m-d',strtotime($beginning_date))."' AND '".date('Y-m-d',strtotime($ending_date))."'";
             }
+			// Default filter to EXCLUDING uploaded payroll transactions
             if($includeUploaded)
             {
-                $con.=" AND `ts`.`is_payroll` = 1";
+                $con.="";
             } else {
                 $con.=" AND `ts`.`is_payroll` = 0";
 			}
