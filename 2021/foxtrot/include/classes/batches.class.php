@@ -286,7 +286,7 @@
             }
             if($includeUploaded)
             {
-                $con.=" AND `ts`.`is_payroll` = 1";
+                $con.="";
             } else {
                 $con.=" AND `ts`.`is_payroll` = 0";
 			}
