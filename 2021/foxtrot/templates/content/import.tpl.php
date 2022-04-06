@@ -1106,8 +1106,21 @@ PostResult( msg );
                                         if(!empty($instance_importGeneric->dataInterface)){ ?>
                                             <tr>
                                                 <td><?php echo $instance_importGeneric->dataInterface['name'];?></td>
-                                                <td></td>
-                                                <td></td>
+                                                <td>
+                                                    <select name="generic_sponsor" id="generic_sponsor" class="form-control" style="display: block;">
+                                                        <option value="">Select Sponsor</option>
+                                                        <?php foreach($get_sponsor as $key=>$val){?>
+                                                            <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="generic_product_category" id="generic_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
+                                                        <option value="0">Select Category</option>
+                                                        <?php foreach($get_product_category as $key=>$val){?>
+                                                            <option value="<?php echo $val['id'];?>" <?php echo (isset($existingDetailValues['product_category_id']) AND $val['id']==$existingDetailValues['product_category_id'])?"selected":"" ?>><?php echo $val['type'];?></option>
+                                                        <?php } ?>
+                                                    </select>
                                                 </td>
                                                 <!-- <td class="text-center"> -->
                                                 <td>
