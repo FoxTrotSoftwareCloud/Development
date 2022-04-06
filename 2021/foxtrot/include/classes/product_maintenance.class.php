@@ -597,19 +597,21 @@
             }
 			return $return;
 		}
-        public function select_category(){
+        public function select_category($id=0){
 			$return = array();
+			$con = (empty((int)$id) ? '' : " AND `id` = ".(int)$this->re_db_input($id));
 
-			$q = "SELECT `at`.*
-					FROM `".PRODUCT_TYPE."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*"
+					." FROM `".PRODUCT_TYPE."` AS `at`"
+                    ." WHERE `at`.`is_delete`='0'"
+                    	.$con
+                    ." ORDER BY `at`.`id` ASC"
+			;
 			$res = $this->re_db_query($q);
+			
             if($this->re_db_num_rows($res)>0){
-                $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-
     			}
             }
 			return $return;

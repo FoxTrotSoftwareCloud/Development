@@ -2,7 +2,6 @@
     //test
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
-    //print_r($_POST);exit;
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     $ftp_id = isset($_GET['ftp_id'])&&$_GET['ftp_id']!=''?$dbins->re_db_input($_GET['ftp_id']):0;
@@ -203,18 +202,25 @@
     {
         $error = '';
         $uploaded =  0;
-        // Validate upload file        
+
+        // Validate file parameters
         if (empty($_FILES['upload_generic_csv_file']['name'])){
             $error = 'No file specified. Procedure cancelled.';
         } else if (file_exists(rtrim($instance_importGeneric->dataInterface['local_folder'],"/")."/".$_FILES['upload_generic_csv_file']['name'])){
             $error = "File '".$_FILES['upload_generic_csv_file']['name']."' already uploaded. Please select another file or rename current file.";
+        } else if (empty($_POST['generic_sponsor'])){
+            $error = "No SPONSOR specified. Please select a SPONSOR from the dropdown list.";
+        } else if (empty($_POST['generic_product_category'])){
+            $error = "No PRODUCT CATEGORY specified. Please select a PRODUCT CATEGORY from the dropdown list.";
         }
+
         // Upload file
         if (empty($error)){
             $uploaded = $instance->upload_file($_FILES['upload_generic_csv_file'], $instance_importGeneric->dataInterface['local_folder']);
         }
         if ($uploaded){
-            $uploaded = $instance_importGeneric->process_file($_FILES['upload_generic_csv_file']['name']);
+            // $uploaded = $instance_importGeneric->process_file($_FILES['upload_generic_csv_file']['name']);
+            $uploaded = $instance_importGeneric->process_file($_FILES['upload_generic_csv_file']['name'], $_POST['generic_sponsor'], $_POST['generic_product_category']);
         } else if (empty($error)){
             $error = 'File not uploaded. Please check privileges on the directory & file: '.$$_FILES['upload_generic_csv_file']['name'];
         }
@@ -296,5 +302,4 @@
 
     $content = "import";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
-
 ?>

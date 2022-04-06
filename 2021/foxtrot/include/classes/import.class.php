@@ -1783,7 +1783,7 @@
                         }
                     }
 
-                    if (empty($file_array['sponsor_id']) AND $file_type != 9){
+                    if (empty($file_array['sponsor_id'])){
                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
                                     ." `file_id`='".$file_id."'"
@@ -2454,12 +2454,13 @@
                         $updateResult = [];
                         $for_import = '';
                         $sponsor_id = 0;
-                        if ($file_type == $this->GENERIC_file_type){
-                            $sponsor_id = $check_data_val['sponsor_id'];
-                            // $file_sponsor_array['id'] = $check_data_val['sponsor_id'];
-                        } else {
+                        // 04/05/22 Generic Type - sponsor dropdown added on File Fetch, so the $sponsor_id should be in the IMPORT CURRENT FILE table record
+                        // if ($file_type == $this->GENERIC_file_type){
+                        //     $sponsor_id = $check_data_val['sponsor_id'];
+                        //     // $file_sponsor_array['id'] = $check_data_val['sponsor_id'];
+                        // } else {
                             $sponsor_id = $file_sponsor_array['id'];
-                        }
+                        // }
                         
                         $insert_exception_string =
                              ",`file_id`='".$check_data_val['file_id']."'"
@@ -2620,12 +2621,14 @@
                                 // ADD THE PRODUCT
                                 if ($productFound == 0){
                                     // Search for a valid sponsor by the company description in the file
-                                    $res = $instance_manage_sponsor->search_sponsor("UPPER(`clm`.`name`) LIKE '".trim($foundProduct['sponsor'])."%' ", 1);
+                                    if (empty($sponsor_id)){
+                                        $res = $instance_manage_sponsor->search_sponsor("UPPER(`clm`.`name`) LIKE '".trim($foundProduct['sponsor'])."%' ", 1);
+                                    } else {
+                                        $res = [['id'=> $sponsor_id]];
+                                    }
                                     // Sponsor found
                                     if ($res){
                                         $foundProduct['sponsor'] = $res[0]['id'];
-                                        $sponsor_id = $res[0]['id'];
-                                        
                                         $updateResult['insert_product'] = $instance_product_maintenance->insert_update_product($foundProduct, true);
                                         
                                         if ($updateResult['insert_product'] AND !empty($_SESSION['new_product_id'])){
@@ -2648,7 +2651,6 @@
                             if ($productFound > 0){
                                 $product_id = $foundProduct['id'];
                                 $product_category_id = $foundProduct['category'];
-                                $sponsor_id = (int)$foundProduct['sponsor'];
                             } else {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET `error_code_id`='11'"
@@ -2715,7 +2717,8 @@
                                         $res = $this->re_db_query($q);
                                         $result++;
                                     } else {
-                                        $sponsor_id = $res[0]['id'];
+                                        // $sponsor_id should be part of the file information, and never be empty - 4/5/22
+                                        // $sponsor_id = $res[0]['id'];
                                     }
                                 }
                                 // Add->Check Client Name
@@ -4270,11 +4273,21 @@
 			$return = 0;
 			$moveToFolder = empty($toFolder) ? 'import_files' : rtrim($toFolder, "/")."/";
 
-			if (!empty($fileArray['name'])){
-				$return = move_uploaded_file($fileArray['tmp_name'], DIR_FS.$moveToFolder.$fileArray['name']);
+            if (!empty($fileArray['name'])){
+                $return = move_uploaded_file($fileArray['tmp_name'], DIR_FS.$moveToFolder.$fileArray['name']);
 			}
 
 			return $return;
 		}
+        
+        // PHP Version of console.log(). For debugging on the server
+        function PHPconsole_log($output, $with_script_tags = true) {
+            $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
+            if ($with_script_tags) {
+                $js_code = '<script>' . $js_code . '</script>';
+            }
+            echo $js_code;
+        }
+
   }
 ?>
