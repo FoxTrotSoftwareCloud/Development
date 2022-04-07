@@ -284,6 +284,7 @@
             {
                 $con.=" AND `at`.`batch_date` BETWEEN '".date('Y-m-d',strtotime($beginning_date))."' AND '".date('Y-m-d',strtotime($ending_date))."'";
             }
+			// Default to EXCLUDING uploaded transactions - 4/6/22 - Per Marcus - Commission Posting Log should NOT have uploaded tx's
             if($includeUploaded)
             {
                 $con.="";
