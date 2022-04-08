@@ -571,7 +571,7 @@
 
                                 $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                         ." SET `resolve_action`=2"
-                                            .",`resolve_assign_to` = '".$new_client."'"
+                                            .",`resolve_assign_to`='".$new_client."'"
                                                 .$this->update_common_sql()
                                         ." WHERE `id`=".$exception_record_id
                                 ;
@@ -996,7 +996,7 @@
                         case 3:
                             $importFileTable = IMPORT_SFR_DETAIL_DATA;
                             break;
-                        case $this->GENERIC_file_type::
+                        case $this->GENERIC_file_type:
                             $importFileTable = IMPORT_GEN_DETAIL_DATA;
                             break;
                     }
@@ -2672,7 +2672,8 @@
                             $result++;
                         } else {
                             if ($reassignClient){
-                                $clientAccount['id'] = $check_data_val['client_id'];
+                                $client_id = $check_data_val['client_id'];
+                                $clientAccount = $instance_client_maintenance->edit($client_id);
                             } else {
                                 // CLIENT SEARCH BY ACCOUNT #
                                 $q =
@@ -2772,7 +2773,7 @@
                             }
                             
                             //--- VALID CLIENT FOUND --//
-                            if ($client_id > 0){
+                            if (!empty($clientAccount['id'])){
                                 $client_id = $clientAccount['id'];
 
                                 $q = "UPDATE `".$commDetailTable."`"

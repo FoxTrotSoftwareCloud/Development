@@ -1720,15 +1720,16 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     //     ',  exception_record_id:'+ typeof exception_record_id+ ': '  + exception_record_id +
     //     ',  client_account_no:'+ typeof client_account_no + ': '  + client_account_no
     // );
-    x = Number(error_code_id);
-    if ([2, 9].includes(error_code_id)){
-        console.log("['2', '9'].includes(error_code_id)");
-    }
+    
+    // Some arguments are passed as strings, which messes up the "[array].includes(#value#)" function which is type sensitive 
+    // BUT, "if" statements are NOT type sensitive -> "if (exception_file_id == '1')" & "if (exception_file_id == 1) will both return TRUE if exception_file_id is 1 or "1"
+    exception_file_id = Number(exception_file_id);
     exception_file_type = Number(exception_file_type);
-    if ([2, 9].includes(Number(exception_file_type))){
-        console.log("[2, 9].includes(Number(exception_file_type))");
-    }
+    temp_data_id = Number(temp_data_id);
+    error_code_id = Number(error_code_id);
     result = 0;
+    // Trade/Commission records display more detailed elements and Resolve options than Clients & Securities
+    tradeOrCommRecord = [2, 9].includes(exception_file_type);
 
     document.getElementById("field_label").innerHTML = 'Add Exception Value';
     document.getElementById("exception_data_id").value = temp_data_id;
@@ -1762,7 +1763,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     $("#broker_termination_options_clients").css('display','none');
     $("#broker_termination_options_trades").css('display','none');
 
-    if (exception_file_type == '3' && error_code_id == 13){
+    if (exception_file_type == 3 && error_code_id == 13){
         // SFR File - Missing/Invalid Data
         // 03/05/22 Not needed with file_type and error_code_id criteria --- && ['major_security_type', 'cusip_number', 'fund_name'].includes(exception_field)
         const existingDetailValues = <?php echo isset($existingDetailValues) ? json_encode($existingDetailValues) : json_encode(['fund_name'=>'', 'cusip_number'=>'', 'product_category_id'=>'0']); ?>;
@@ -1799,11 +1800,11 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         document.getElementById("field_label").innerHTML = 'Broker Termination Date:';
         $("#exception_value_date_display").css('display','block');
         
-        if(exception_file_type == '1'){
+        if(exception_file_type == 1){
             $("#broker_termination_options_clients").css('display','block');
             document.getElementById("label_assign_rep_to_broker").innerHTML = "Assign Broker to Client";
             document.getElementById("broker_active").checked = true;
-        } else if(['2', '9'].includes(exception_file_type)){
+        } else if(tradeOrCommRecord){
             $("#broker_termination_options_trades").css('display','block');
             document.getElementById("broker_termination_options_trades").dataset.exceptionField = "u5";
             document.getElementById("lbl_broker_active_trades").innerHTML = 'Remove U5 Date/Activate Broker';
@@ -1816,17 +1817,17 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         result += 1;
     } else if(exception_field == 'representative_number'){
-        document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Field' : 'Alias # Not Found');
+        document.getElementById("field_label").innerHTML = (error_code_id == 13 ? 'Missing Field' : 'Alias # Not Found');
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_broker.php?action=add_new&rep_no=';?>'+rep_number+'<?php echo '&file_id='; ?>'+exception_file_id+'&file_type='+exception_file_type+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
-        document.getElementById("exception_value").value = (error_code_id==13 ? '<Broker Alias/Fund #>' : rep_number);
+        document.getElementById("exception_value").value = (error_code_id == 13 ? '<Broker Alias/Fund #>' : rep_number);
         $("#assign_rep_to_broker").css('display','block');
         $("#resolveAction").val('2');
         
-        if (error_code_id == '1'){
+        if (error_code_id == 1){
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Alias to Broker';
-        } else if (exception_file_type == '1' && error_code_id == 13) {
+        } else if (exception_file_type == 1 && error_code_id == 13) {
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Client to Broker';
-        } else if (['2', '9'].includes(exception_file_type) && error_code_id == 13) {
+        } else if (tradeOrCommRecord && error_code_id == 13) {
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Trade to Broker';
         } else {
             document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign to Broker';
@@ -1845,9 +1846,9 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         result += 1;
     } else if(exception_field == 'customer_account_number'){
-        document.getElementById("field_label").innerHTML = (error_code_id==13 ? 'Missing Field' : 'Account # to Add');
-        document.getElementById("exception_value").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
-        document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : existing_field_value);
+        document.getElementById("field_label").innerHTML = (error_code_id == 13 ? 'Missing Field' : 'Account # to Add');
+        document.getElementById("exception_value").value = (error_code_id == 13 ? '<Customer Account #>' : existing_field_value);
+        document.getElementById("exception_value_dis").value = (error_code_id == 13 ? '<Customer Account #>' : existing_field_value);
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+existing_field_value+'&file_id='+exception_file_id+'&file_type='+exception_file_type+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
         $("#exception_value_dis").prop( "disabled", true );
         $("#assign_client_to_account").css('display','block');
@@ -1882,14 +1883,14 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         result += 1;
     } else if(exception_field == 'social_security_number'){
-        document.getElementById("exception_value_dis").value = (error_code_id==13 ? '<Customer Account #>' : '***-**-' + existing_field_value.slice(-4));
+        document.getElementById("exception_value_dis").value = (error_code_id == 13 ? '<Customer Account #>' : '***-**-' + existing_field_value.slice(-4));
 
-        if (exception_file_type == '1' && ['13', '19'].includes(error_code_id)){
+        if (exception_file_type == 1 && [13, 19].includes(error_code_id)){
             document.getElementById("field_label").innerHTML = (error_code_id == 13 ? 'Missing Field' : 'Social Security #');
             // Test 3/18/22 - Send $clientAccountNo instead of 'existing_field_value
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+client_account_no+'&file_id='+exception_file_id+'&exception_data_id='+'&file_type='+exception_file_type+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'&file_type='+exception_file_type+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
             $("#exception_value_dis").css('display','block');
-            $("#exception_value_dis").val((error_code_id == '13') ? '<Social Security Number>' : '***-**-' + existing_field_value.slice(-4));
+            $("#exception_value_dis").val((error_code_id == 13) ? '<Social Security Number>' : '***-**-' + existing_field_value.slice(-4));
             $("#exception_value_dis").prop( "disabled", true );
             $("#exception_value").css('display','none');
             // Client dropdown and/or "Skip/Delete Exception Record" - 3/13/22 
@@ -1939,16 +1940,16 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
 
         result += 1;
-    } else if(exception_field == 'cusip_number' && error_code_id == '13' ){
+    } else if(exception_field == 'cusip_number' && error_code_id == 13){
         document.getElementById("field_label").innerHTML = 'Enter Missing CUSIP #';
         $("#cusip_number").css('display','block');
         $("#exception_value").css('display','none');
 
         result += 1;
-    } else if(exception_field == 'cusip_number' && error_code_id == '11'){
+    } else if(exception_field == 'cusip_number' && error_code_id == 11){
         document.getElementById("resolveAction").value = "2";
         
-        if(exception_file_type == '3') {
+        if(exception_file_type == 3) {
             document.getElementById("field_label").innerHTML = 'Change Cusip Number:';
             $("#existing_cusip_number").css('display','block');
             document.getElementById("existing_cusip_number").value = existing_field_value;
