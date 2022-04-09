@@ -527,39 +527,41 @@
                             break;
                     }
                 }
-                else if($exception_field == 'customer_account_number')
+                else if(in_array($exception_field, ['customer_account_number', 'alpha_code']))
                 {
                     $result = $new_client = 0;
-
+                    $accountNo = '';
+                    
                     switch ($error_code_id) {
                         case 13:
                             // MISSING DATA: "Client Account Number"
-                            // -> Assign trade to existing(or newly added) client
+                            // -> Assign TRADE to existing(or newly added) client
                             $result = $this->resolve_exception_3Reassign('client_id', $acc_for_client, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                             break;
                         default:
                             // ACCOUNT NUMBER NOT FOUND - Add Account # to existing client (Error Code: 18)
+                            // CLIENT NAME ALREADY EXISTS - (Error Code: 24)
                             $new_client = $acc_for_client;
                             $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
-                            if($sponsorId == 0){
-                                if ($exception_file_type == 2){
+                            $accountNo = $exception_value;
+                            
+                            if($sponsorId == 0 AND $exception_file_type == 2){
                                     $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
                                     $sponsor_detail = $this->get_sponsor_on_system_management_code($header_detail['system_id'],$header_detail['management_code']);
                                     $sponsorId = isset($sponsor_detail['id']) ? (int)$sponsor_detail['id'] : 0;
-                                } else if ($exception_file_type == 9){
-                                    $commDetailData = $this->select_existing_gen_data($exception_data_id);
-                                    $res = $instance_manage_sponsor->search_sponsor("UPPER(`clm`.`name`) LIKE '".$this->re_db_input($commDetailData['fund_company'])."%' ", 1);
-                                    // Sponsor found
-                                    if ($res){
-                                        $sponsorId = $res[0]['id'];
-                                    }
-                                }
+                            }
+                            
+                            if ($exception_file_type == 9){
+                                $commDetailData = $this->select_existing_gen_data($exception_data_id);
+                                // Sponsor found
+                                $sponsorId = ($sponsorId==0 ? $commDetailData['sponsor_id'] : $sponsorId);
+                                $accountNo = $commDetailData['customer_account_number'];
                             }
 
                             $q = "INSERT `".CLIENT_ACCOUNT."`"
                                 ." SET"
-                                    ." `account_no`='".$exception_value."'"
-                                    .",`sponsor_company`='".$sponsorId."'"
+                                    ." `account_no` = '".$accountNo."'"
+                                    .",`sponsor_company` = $sponsorId"
                                     .",`client_id` = $new_client"
                                     .$this->insert_common_sql();
                             $res = $this->re_db_query($q);
@@ -589,7 +591,7 @@
                                             ." AND `ex`.`file_type`=$exception_file_type"
                                             ." AND `ex`.`error_code_id`=$error_code_id"
                                             ." AND `ex`.`is_delete`=0"
-                                            ." AND `det`.`customer_account_number`='".$exception_value."'"
+                                            ." AND `det`.`customer_account_number`='".$accountNo."'"
                                     ;
                                     $res = $this->re_db_query($q);
 

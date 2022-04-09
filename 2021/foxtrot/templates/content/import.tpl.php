@@ -1982,20 +1982,26 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         result += 1;
     } else if(exception_field == 'alpha_code'){
+        document.getElementById("field_label").innerHTML = 'Enter Client Name';
+        document.getElementById("alpha_code").value = existing_field_value;
+        document.getElementById("alpha_code").style.display = 'block';
+        document.getElementById("exception_value").style.display = 'none';
+        
+        // Commission record - add Assign Client dropdown
         if (tradeOrCommRecord){
+            document.getElementById("alpha_code").readOnly = 'true';
             document.getElementById("field_label").innerHTML = 'Account # to Add';
-            document.getElementById("exception_value").value = existing_field_value;
+            document.getElementById("active_label").innerHTML = 'File Client Name';
+            document.getElementById("active_label").style.display = 'inline-block';
+            document.getElementById("active_label").style.paddingTop = '11px';
             document.getElementById("exception_value_dis").value = client_account_no;
+            document.getElementById("exception_value_dis").readOnly = 'true';
+            document.getElementById("exception_value_dis").style.display = 'block';
+            document.getElementById("assign_client_to_account").style.display = 'block';
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+client_account_no+'&file_id='+exception_file_id+'&file_type='+exception_file_type+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
-            $("#exception_value_dis").prop( "disabled", true );
-            $("#assign_client_to_account").css('display','block');
             populate_assign_to_client(error_code_id, existing_field_value, exception_record_id);
-            $("#exception_value").css('display','none');
-            $("#exception_value_dis").css('display','block');
         } else {
-            document.getElementById("field_label").innerHTML = 'Enter Client Name';
-            $("#alpha_code").css('display','block');
-            $("#exception_value").css('display','none');
+            $a = 0;
         }
 
         result += 1;
