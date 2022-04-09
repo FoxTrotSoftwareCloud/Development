@@ -2646,8 +2646,16 @@
                             }
                             
                             if ($productFound > 0){
-                                $product_id = $foundProduct['id'];
+                                $product_id = (int)$this->re_db_input($foundProduct['id']);
                                 $product_category_id = $foundProduct['category'];
+
+                                $q = "UPDATE `".$commDetailTable."`"
+                                        ." SET `product_id`=$product_id"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
+                                ;
+                                $res = $this->re_db_query($q);
+
                             } else {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET `error_code_id`='11'"
@@ -2741,6 +2749,17 @@
                                     
                                     if ($updateResult['insert_client_master']==0 AND !empty($instance_client_maintenance->errors)){
                                         $_SESSION['warning'] = $instance_client_maintenance->errors;
+                                        
+                                        if (stripos($instance_client_maintenance->errors, '(24)') !== false){
+                                            $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                                ." SET `error_code_id`=24"
+                                                    .",`field`='alpha_code'"
+                                                    .",`field_value`='{$check_data_val['alpha_code']}'"
+                                                    .",`file_type`=$commissionFileType"
+                                                    .$insert_exception_string;
+                                            $res = $this->re_db_query($q);
+                                            $result++;
+                                        }
                                     }
                                     // $_SESSION[$for_import] populated in the called function
                                     if ($updateResult['insert_client_master'] AND !empty($_SESSION[$for_import]['insert_update_master'])){
@@ -2851,7 +2870,7 @@
                                         }
                                     } else {
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                ."SET  `error_code_id`='6'"
+                                                ." SET  `error_code_id`='6'"
                                                     .",`field`='active_check'"
                                                     .",`field_value`='".$product_category_id." / ".$clientAccount['state']."'"
                                                     .",`file_type`=$commissionFileType"

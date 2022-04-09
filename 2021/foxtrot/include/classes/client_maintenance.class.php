@@ -152,7 +152,7 @@
 
 				if($return>0){
 					$client_name = trim($fname).(empty($fname) ? '' : ' ').trim($mi).(empty($fname) AND empty($mi) ? '' :' ').trim($lname);
-					$this->errors = "Client '$client_name' already exists.";
+					$this->errors = "Client '$client_name' already exists (24)";
 				}
 
 				if($this->errors!=''){

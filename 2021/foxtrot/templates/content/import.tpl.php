@@ -604,8 +604,13 @@ PostResult( msg );
                                                                     $productObjectiveId = 0;
                                                                     $existing_field_value = '';
                                                                     $res = 0;
-
-                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_commission_existing_data['cusip_number'])."'");
+                                                                        
+                                                                    if (!empty($return_commission_existing_data['product_id'])){
+                                                                        $productDetail = $instance_product->edit_product($return_commission_existing_data['product_id']);
+                                                                    } else {
+                                                                        $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_commission_existing_data['cusip_number'])."'");
+                                                                    }
+                                                                    
                                                                     if ($productDetail) {
                                                                         $productObjectiveId = (int)$productDetail['objective'];
 
@@ -615,6 +620,10 @@ PostResult( msg );
                                                                             $existing_field_value = $res['option'];
                                                                         }
                                                                     }
+                                                                }
+
+                                                                if($error_val['field'] == 'alpha_code') {
+                                                                    $existing_field_value = trim($error_val['field_value']);
                                                                 }
                                                             }
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '3')
@@ -1709,20 +1718,20 @@ function reassign_broker_(value)
 function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id,client_account_no)
 {
     //--- For testing
-    // console.log(
-    //     'exception_file_id:'+ typeof exception_file_id + ': ' + exception_file_id + 
-    //     ',  exception_file_type:' + typeof exception_file_type + ': ' + exception_file_type +
-    //     ',  temp_data_id:' + typeof temp_data_id + ': '  + temp_data_id +
-    //     ',  exception_field:' + typeof exception_field + ': '  + exception_field +
-    //     ',  rep_number:'+ typeof rep_number + ': '  + rep_number +
-    //     ',  existing_field_value:'+ typeof existing_field_value + ': '  + existing_field_value +
-    //     ',  error_code_id:'+ typeof error_code_id + ': '  + error_code_id +
-    //     ',  exception_record_id:'+ typeof exception_record_id+ ': '  + exception_record_id +
-    //     ',  client_account_no:'+ typeof client_account_no + ': '  + client_account_no
-    // );
+    console.log(
+        'exception_file_id:'+ typeof exception_file_id + ': ' + exception_file_id + 
+        ',  exception_file_type:' + typeof exception_file_type + ': ' + exception_file_type +
+        ',  temp_data_id:' + typeof temp_data_id + ': '  + temp_data_id +
+        ',  exception_field:' + typeof exception_field + ': '  + exception_field +
+        ',  rep_number:'+ typeof rep_number + ': '  + rep_number +
+        ',  existing_field_value:'+ typeof existing_field_value + ': '  + existing_field_value +
+        ',  error_code_id:'+ typeof error_code_id + ': '  + error_code_id +
+        ',  exception_record_id:'+ typeof exception_record_id+ ': '  + exception_record_id +
+        ',  client_account_no:'+ typeof client_account_no + ': '  + client_account_no
+    );
     
     // Some arguments are passed as strings, which messes up the "[array].includes(#value#)" function which is type sensitive 
-    // BUT, "if" statements are NOT type sensitive -> "if (exception_file_id == '1')" & "if (exception_file_id == 1) will both return TRUE if exception_file_id is 1 or "1"
+    // BUT, "if" statements are NOT type sensitive -> "if (exception_file_id == '1')" & "if (exception_file_id == 1) isn't type sensitive, unlike "==="
     exception_file_id = Number(exception_file_id);
     exception_file_type = Number(exception_file_type);
     temp_data_id = Number(temp_data_id);
@@ -1973,9 +1982,21 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
 
         result += 1;
     } else if(exception_field == 'alpha_code'){
-        document.getElementById("field_label").innerHTML = 'Enter Client Name';
-        $("#alpha_code").css('display','block');
-        $("#exception_value").css('display','none');
+        if (tradeOrCommRecord){
+            document.getElementById("field_label").innerHTML = 'Account # to Add';
+            document.getElementById("exception_value").value = existing_field_value;
+            document.getElementById("exception_value_dis").value = client_account_no;
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'client_maintenance.php?action=add_new&account_no=';?>'+client_account_no+'&file_id='+exception_file_id+'&file_type='+exception_file_type+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'" style="display: block; float: right;" id="add_client_for_account">Add New Client</a>';
+            $("#exception_value_dis").prop( "disabled", true );
+            $("#assign_client_to_account").css('display','block');
+            populate_assign_to_client(error_code_id, existing_field_value, exception_record_id);
+            $("#exception_value").css('display','none');
+            $("#exception_value_dis").css('display','block');
+        } else {
+            document.getElementById("field_label").innerHTML = 'Enter Client Name';
+            $("#alpha_code").css('display','block');
+            $("#exception_value").css('display','none');
+        }
 
         result += 1;
     }
@@ -1988,7 +2009,10 @@ function populate_assign_to_client(error_code_id, existing_field_value, exceptio
 
     <?php foreach ($get_client AS $key=>$val){ ?>
         // 19=SSN Already Exists - filter for only matching SSN's
-        if(error_code_id != 19 || existing_field_value.replace('-','') == '<?php echo str_replace('-','',$val['client_ssn']); ?>') {
+        if((error_code_id != 19 && error_code_id != 24) 
+            || (error_code_id == 19 && existing_field_value.replace('-','') == '<?php echo str_replace('-','',$val['client_ssn']); ?>')
+            || (error_code_id == 24 && (existing_field_value.includes("<?php echo empty($val['last_name'])?'@@@@@@@@@':$val['last_name'];?>") || existing_field_value.includes("<?php echo empty($val['first_name'])?'@@@@@@@@@':$val['first_name'];?>")))
+        ) {
             clientDropdown.append(
                 $('<option></option>')
                     .val("<?php echo $val['id'];?>")
