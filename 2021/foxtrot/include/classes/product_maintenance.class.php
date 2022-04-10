@@ -663,8 +663,8 @@
 		 * */
 		public function edit_product($id,$category=''){
 			$return = array();
-			$id = (int)$this->re_db_input($id);
 			$con = '';
+			$id = (int)$this->re_db_input($id);
 			
 			if (!empty($category)){
 				$con = " AND `at`.`category` = ".(int)$this->re_db_input($category);

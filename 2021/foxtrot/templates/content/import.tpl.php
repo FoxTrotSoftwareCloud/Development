@@ -594,7 +594,11 @@ PostResult( msg );
                                                                 if($error_val['field'] == 'active_check') {
                                                                     // 1.State / 2.ProdCat / 3.TermDate
                                                                     $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);
-                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_commission_existing_data['cusip_number'])."'");
+                                                                    if (empty($return_commission_existing_data['product_id'])){
+                                                                        $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($return_commission_existing_data['cusip_number'])."'");
+                                                                    } else {
+                                                                        $productDetail = $instance_product->edit_product($return_commission_existing_data['product_id']);
+                                                                    }
                                                                     $licenceDetail = $instance_import->checkStateLicence($return_commission_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_commission_existing_data['trade_date'], 1);
                                                                     $category = substr($licenceDetail['licence_table'], strrpos($licenceDetail['licence_table'], '_') +1 );
                                                                     $existing_field_value = trim($category).' / '.trim($licenceDetail['state_name']);

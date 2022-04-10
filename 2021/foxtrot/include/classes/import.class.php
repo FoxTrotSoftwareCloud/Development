@@ -296,8 +296,8 @@
             }
 
             //--- IDC EXCEPTIONS ---//
-            if(isset($exception_file_type) && in_array($exception_file_type, ['2', '9'])) {
-                if ($exception_file_type == 9){
+            if(isset($exception_file_type) && in_array($exception_file_type, ['2', $this->GENERIC_file_type])) {
+                if ($exception_file_type == $this->GENERIC_file_type){
                     $commDetailTable = IMPORT_GEN_DETAIL_DATA;
                 } else {
                     $commDetailTable = IMPORT_IDC_DETAIL_DATA;
@@ -349,9 +349,23 @@
                                 $instance_client = new client_maintenance();
                                 $instance_product = new product_maintenance();
                                 $instance_broker = new broker_master();
-                                $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
+                                
+                                switch ($commDetailTable){
+                                    case IMPORT_IDC_DETAIL_DATA:
+                                        $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
+                                        break;
+                                    case IMPORT_GEN_DETAIL_DATA:
+                                        $idcDetailRow = $this->select_existing_gen_data($exception_data_id);
+                                        break;
+                                }
+                                
+                                if (empty($idcDetailRow['product_id'])){
+                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['cusip_number'])."'");
+                                } else {
+                                    $productDetail = $instance_product->edit_product($idcDetailRow['product_id']);
+                                }
+                                
                                 $clientDetail = $instance_client->get_client_name($idcDetailRow['client_id']);
-                                $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['cusip_number'])."'");
                                 $licenceDetail = $this->checkStateLicence($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1);
 
                                 if (!empty($licenceDetail['licence_table']) AND !empty($licenceDetail['state_id'])){
@@ -449,12 +463,16 @@
                             } else if($exception_field == 'objectives') {
                                 // Commission Client Objectives <> Product Objectives - add Objective to Client
                                 $instance_client = new client_maintenance();
-                                if ($exception_file_type == 9){
-                                    $idcDetail = $this->select_existing_gen_data($exception_data_id);
-                                } else {
-                                    $idcDetail = $this->select_existing_idc_data($exception_data_id);
-                                }
                                 
+                                switch ($commDetailTable){
+                                    case IMPORT_IDC_DETAIL_DATA:
+                                        $idcDetail = $this->select_existing_idc_data($exception_data_id);
+                                        break;
+                                    case IMPORT_GEN_DETAIL_DATA:
+                                        $idcDetail = $this->select_existing_gen_data($exception_data_id);
+                                        break;
+                                }
+
                                 $res = $instance_client->insert_update_objectives(['client_id'=>$idcDetail['client_id'], 'objectives'=>$data['objectives']], 1);
 
                                 if($res){
@@ -2588,8 +2606,8 @@
                             $productFound = -1;
                         } else {
                             $q = "SELECT `id`,`cusip`,`category`,`objective` ".
-                                    "FROM `".PRODUCT_LIST."`".
-                                    "WHERE `is_delete`=0".
+                                    " FROM `".PRODUCT_LIST."`".
+                                    " WHERE `is_delete`=0".
                                     " AND `status`!=0".
                                     " AND TRIM(`cusip`)!='' AND `cusip`='".$check_data_val['cusip_number']."'";
                             $resCusipFind = $this->re_db_query($q);
