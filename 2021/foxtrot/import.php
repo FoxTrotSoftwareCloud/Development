@@ -163,7 +163,8 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
-    else if(isset($_POST['resolve_exception']) && $_POST['resolve_exception']=='Resolve Exception'){
+    else if(isset($_POST['resolve_exception']) && $_POST['resolve_exception']=='Resolve Exception')
+    {
         $exception_file_id = isset($_POST['exception_file_id'])?$instance->re_db_input($_POST['exception_file_id']):0;
         $exception_data_id = isset($_POST['exception_data_id'])?$instance->re_db_input($_POST['exception_data_id']):0;
         $exception_field = isset($_POST['exception_field'])?$instance->re_db_input($_POST['exception_field']):'';

@@ -663,9 +663,19 @@
 		 * */
 		public function edit_product($id,$category=''){
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".PRODUCT_LIST."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+			$con = '';
+			$id = (int)$this->re_db_input($id);
+			
+			if (!empty($category)){
+				$con = " AND `at`.`category` = ".(int)$this->re_db_input($category);
+			}
+			
+			$q = "SELECT `at`.*"
+					." FROM `".PRODUCT_LIST."` AS `at`"
+                    ." WHERE `at`.`is_delete`='0'"
+					." AND `at`.`id`='".$id."'"
+					.$con
+			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);

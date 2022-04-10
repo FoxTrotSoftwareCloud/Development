@@ -296,8 +296,8 @@
             }
 
             //--- IDC EXCEPTIONS ---//
-            if(isset($exception_file_type) && in_array($exception_file_type, ['2', '9'])) {
-                if ($exception_file_type == 9){
+            if(isset($exception_file_type) && in_array($exception_file_type, ['2', $this->GENERIC_file_type])) {
+                if ($exception_file_type == $this->GENERIC_file_type){
                     $commDetailTable = IMPORT_GEN_DETAIL_DATA;
                 } else {
                     $commDetailTable = IMPORT_IDC_DETAIL_DATA;
@@ -349,9 +349,23 @@
                                 $instance_client = new client_maintenance();
                                 $instance_product = new product_maintenance();
                                 $instance_broker = new broker_master();
-                                $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
+                                
+                                switch ($commDetailTable){
+                                    case IMPORT_IDC_DETAIL_DATA:
+                                        $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
+                                        break;
+                                    case IMPORT_GEN_DETAIL_DATA:
+                                        $idcDetailRow = $this->select_existing_gen_data($exception_data_id);
+                                        break;
+                                }
+                                
+                                if (empty($idcDetailRow['product_id'])){
+                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['cusip_number'])."'");
+                                } else {
+                                    $productDetail = $instance_product->edit_product($idcDetailRow['product_id']);
+                                }
+                                
                                 $clientDetail = $instance_client->get_client_name($idcDetailRow['client_id']);
-                                $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['cusip_number'])."'");
                                 $licenceDetail = $this->checkStateLicence($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1);
 
                                 if (!empty($licenceDetail['licence_table']) AND !empty($licenceDetail['state_id'])){
@@ -449,12 +463,16 @@
                             } else if($exception_field == 'objectives') {
                                 // Commission Client Objectives <> Product Objectives - add Objective to Client
                                 $instance_client = new client_maintenance();
-                                if ($exception_file_type == 9){
-                                    $idcDetail = $this->select_existing_gen_data($exception_data_id);
-                                } else {
-                                    $idcDetail = $this->select_existing_idc_data($exception_data_id);
-                                }
                                 
+                                switch ($commDetailTable){
+                                    case IMPORT_IDC_DETAIL_DATA:
+                                        $idcDetail = $this->select_existing_idc_data($exception_data_id);
+                                        break;
+                                    case IMPORT_GEN_DETAIL_DATA:
+                                        $idcDetail = $this->select_existing_gen_data($exception_data_id);
+                                        break;
+                                }
+
                                 $res = $instance_client->insert_update_objectives(['client_id'=>$idcDetail['client_id'], 'objectives'=>$data['objectives']], 1);
 
                                 if($res){
@@ -527,39 +545,41 @@
                             break;
                     }
                 }
-                else if($exception_field == 'customer_account_number')
+                else if(in_array($exception_field, ['customer_account_number', 'alpha_code']))
                 {
                     $result = $new_client = 0;
-
+                    $accountNo = '';
+                    
                     switch ($error_code_id) {
                         case 13:
                             // MISSING DATA: "Client Account Number"
-                            // -> Assign trade to existing(or newly added) client
+                            // -> Assign TRADE to existing(or newly added) client
                             $result = $this->resolve_exception_3Reassign('client_id', $acc_for_client, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                             break;
                         default:
                             // ACCOUNT NUMBER NOT FOUND - Add Account # to existing client (Error Code: 18)
+                            // CLIENT NAME ALREADY EXISTS - (Error Code: 24)
                             $new_client = $acc_for_client;
                             $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
-                            if($sponsorId == 0){
-                                if ($exception_file_type == 2){
+                            $accountNo = $exception_value;
+                            
+                            if($sponsorId == 0 AND $exception_file_type == 2){
                                     $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
                                     $sponsor_detail = $this->get_sponsor_on_system_management_code($header_detail['system_id'],$header_detail['management_code']);
                                     $sponsorId = isset($sponsor_detail['id']) ? (int)$sponsor_detail['id'] : 0;
-                                } else if ($exception_file_type == 9){
-                                    $commDetailData = $this->select_existing_gen_data($exception_data_id);
-                                    $res = $instance_manage_sponsor->search_sponsor("UPPER(`clm`.`name`) LIKE '".$this->re_db_input($commDetailData['fund_company'])."%' ", 1);
-                                    // Sponsor found
-                                    if ($res){
-                                        $sponsorId = $res[0]['id'];
-                                    }
-                                }
+                            }
+                            
+                            if ($exception_file_type == 9){
+                                $commDetailData = $this->select_existing_gen_data($exception_data_id);
+                                // Sponsor found
+                                $sponsorId = ($sponsorId==0 ? $commDetailData['sponsor_id'] : $sponsorId);
+                                $accountNo = $commDetailData['customer_account_number'];
                             }
 
                             $q = "INSERT `".CLIENT_ACCOUNT."`"
                                 ." SET"
-                                    ." `account_no`='".$exception_value."'"
-                                    .",`sponsor_company`='".$sponsorId."'"
+                                    ." `account_no` = '".$accountNo."'"
+                                    .",`sponsor_company` = $sponsorId"
                                     .",`client_id` = $new_client"
                                     .$this->insert_common_sql();
                             $res = $this->re_db_query($q);
@@ -571,7 +591,7 @@
 
                                 $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                         ." SET `resolve_action`=2"
-                                            .",`resolve_assign_to` = '".$new_client."'"
+                                            .",`resolve_assign_to`='".$new_client."'"
                                                 .$this->update_common_sql()
                                         ." WHERE `id`=".$exception_record_id
                                 ;
@@ -589,7 +609,7 @@
                                             ." AND `ex`.`file_type`=$exception_file_type"
                                             ." AND `ex`.`error_code_id`=$error_code_id"
                                             ." AND `ex`.`is_delete`=0"
-                                            ." AND `det`.`customer_account_number`='".$exception_value."'"
+                                            ." AND `det`.`customer_account_number`='".$accountNo."'"
                                     ;
                                     $res = $this->re_db_query($q);
 
@@ -996,7 +1016,7 @@
                         case 3:
                             $importFileTable = IMPORT_SFR_DETAIL_DATA;
                             break;
-                        case $this->GENERIC_file_type::
+                        case $this->GENERIC_file_type:
                             $importFileTable = IMPORT_GEN_DETAIL_DATA;
                             break;
                     }
@@ -2586,8 +2606,8 @@
                             $productFound = -1;
                         } else {
                             $q = "SELECT `id`,`cusip`,`category`,`objective` ".
-                                    "FROM `".PRODUCT_LIST."`".
-                                    "WHERE `is_delete`=0".
+                                    " FROM `".PRODUCT_LIST."`".
+                                    " WHERE `is_delete`=0".
                                     " AND `status`!=0".
                                     " AND TRIM(`cusip`)!='' AND `cusip`='".$check_data_val['cusip_number']."'";
                             $resCusipFind = $this->re_db_query($q);
@@ -2646,8 +2666,16 @@
                             }
                             
                             if ($productFound > 0){
-                                $product_id = $foundProduct['id'];
+                                $product_id = (int)$this->re_db_input($foundProduct['id']);
                                 $product_category_id = $foundProduct['category'];
+
+                                $q = "UPDATE `".$commDetailTable."`"
+                                        ." SET `product_id`=$product_id"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
+                                ;
+                                $res = $this->re_db_query($q);
+
                             } else {
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                         ." SET `error_code_id`='11'"
@@ -2672,7 +2700,8 @@
                             $result++;
                         } else {
                             if ($reassignClient){
-                                $clientAccount['id'] = $check_data_val['client_id'];
+                                $client_id = $check_data_val['client_id'];
+                                $clientAccount = $instance_client_maintenance->edit($client_id);
                             } else {
                                 // CLIENT SEARCH BY ACCOUNT #
                                 $q =
@@ -2740,6 +2769,17 @@
                                     
                                     if ($updateResult['insert_client_master']==0 AND !empty($instance_client_maintenance->errors)){
                                         $_SESSION['warning'] = $instance_client_maintenance->errors;
+                                        
+                                        if (stripos($instance_client_maintenance->errors, '(24)') !== false){
+                                            $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                                ." SET `error_code_id`=24"
+                                                    .",`field`='alpha_code'"
+                                                    .",`field_value`='{$check_data_val['alpha_code']}'"
+                                                    .",`file_type`=$commissionFileType"
+                                                    .$insert_exception_string;
+                                            $res = $this->re_db_query($q);
+                                            $result++;
+                                        }
                                     }
                                     // $_SESSION[$for_import] populated in the called function
                                     if ($updateResult['insert_client_master'] AND !empty($_SESSION[$for_import]['insert_update_master'])){
@@ -2772,7 +2812,7 @@
                             }
                             
                             //--- VALID CLIENT FOUND --//
-                            if ($client_id > 0){
+                            if (!empty($clientAccount['id'])){
                                 $client_id = $clientAccount['id'];
 
                                 $q = "UPDATE `".$commDetailTable."`"
@@ -2850,7 +2890,7 @@
                                         }
                                     } else {
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                ."SET  `error_code_id`='6'"
+                                                ." SET  `error_code_id`='6'"
                                                     .",`field`='active_check'"
                                                     .",`field_value`='".$product_category_id." / ".$clientAccount['state']."'"
                                                     .",`file_type`=$commissionFileType"

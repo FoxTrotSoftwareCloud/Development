@@ -152,7 +152,7 @@
 
 				if($return>0){
 					$client_name = trim($fname).(empty($fname) ? '' : ' ').trim($mi).(empty($fname) AND empty($mi) ? '' :' ').trim($lname);
-					$this->errors = "Client '$client_name' already exists.";
+					$this->errors = "Client '$client_name' already exists (24)";
 				}
 
 				if($this->errors!=''){
@@ -1160,11 +1160,16 @@
 		 * */
 		public function edit($id){
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+			$id = (int)$this->re_db_input($id);
+			
+			$q = "SELECT `at`.*"
+					." FROM `".$this->table."` AS `at`"
+                    ." WHERE `at`.`is_delete` = 0"
+					." AND `at`.`id` = $id"
+			;
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
+            
+			if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
             }
 			return $return;
