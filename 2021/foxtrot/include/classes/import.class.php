@@ -1818,6 +1818,9 @@
 
                         $file_sponsor_array['id'] = 0;
                         $file_sponsor_array['name'] = '';
+                    } else if ($file_type == 9){
+                        $file_sponsor_array['id'] = 0;
+                        $file_sponsor_array['name'] = '';
                     }
 
                     // Remove prior exceptions
