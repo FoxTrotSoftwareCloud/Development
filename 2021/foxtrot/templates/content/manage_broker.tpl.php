@@ -2263,7 +2263,7 @@
                                                 <div class="form-group" style="margin-bottom: 0px !important;">
                                                    <div id="demo-dp-range">
                                                       <div class="input-daterange input-group" id="datepicker">
-                                                         <input type="text" name="data1[<?php echo $stateval['id'] ?>][received]" id="data1[<?php echo $stateval['id'] ?>][received]" value="<?php echo date('m/d/Y',strtotime($val['received'])); ?>" class="form-control" />
+                                                         <input type="text" name="data1[<?php echo $stateval['id'] ?>][received]" id="data1[<?php echo $stateval['id'] ?>][received]" value="<?php echo date('m/d/Y',strtotime(trim($val['received']))); ?>" class="form-control" />
                                                       </div>
                                                    </div>
                                                 </div>
