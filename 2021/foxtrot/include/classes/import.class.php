@@ -569,7 +569,7 @@
                                     $sponsorId = isset($sponsor_detail['id']) ? (int)$sponsor_detail['id'] : 0;
                             }
                             
-                            if ($exception_file_type == 9){
+                            if ($exception_file_type == $this->GENERIC_file_type){
                                 $commDetailData = $this->select_existing_gen_data($exception_data_id);
                                 // Sponsor found
                                 $sponsorId = ($sponsorId==0 ? $commDetailData['sponsor_id'] : $sponsorId);
