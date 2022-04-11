@@ -12,7 +12,7 @@
                     <div class="panel-control" style="float: right;">
         				<div class="btn-group dropdown">
         					<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-        					<ul class="dropdown-menu dropdown-menu-right" style="">
+        					<ul class="dropdown-menu dropdown-menu-right" >
         						<li><a href="<?php echo CURRENT_PAGE; ?>?action=view"><i class="fa fa-eye"></i> View List</a></li>
         					</ul>
         				</div>
