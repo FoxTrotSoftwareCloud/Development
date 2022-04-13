@@ -106,7 +106,6 @@
          * @return mixed
          */
         public function resolve_exceptions($data){
-            $instance_manage_sponsor = new manage_sponsor();
             $result = $resolveAction = 0;
             $resultMessage = '';
 			$exception_file_id = isset($data['exception_file_id']) ? (int)$this->re_db_input($data['exception_file_id']) : 0;
@@ -348,7 +347,6 @@
                                 //--- Broker Licence Error - Activate Licence ---//
                                 $instance_client = new client_maintenance();
                                 $instance_product = new product_maintenance();
-                                $instance_broker = new broker_master();
                                 
                                 switch ($commDetailTable){
                                     case IMPORT_IDC_DETAIL_DATA:
@@ -466,14 +464,14 @@
                                 
                                 switch ($commDetailTable){
                                     case IMPORT_IDC_DETAIL_DATA:
-                                        $idcDetail = $this->select_existing_idc_data($exception_data_id);
+                                        $detailData = $this->select_existing_idc_data($exception_data_id);
                                         break;
                                     case IMPORT_GEN_DETAIL_DATA:
-                                        $idcDetail = $this->select_existing_gen_data($exception_data_id);
+                                        $detailData = $this->select_existing_gen_data($exception_data_id);
                                         break;
                                 }
 
-                                $res = $instance_client->insert_update_objectives(['client_id'=>$idcDetail['client_id'], 'objectives'=>$data['objectives']], 1);
+                                $res = $instance_client->insert_update_objectives(['client_id'=>$detailData['client_id'], 'objectives'=>$data['objectives']], 1);
 
                                 if($res){
                                     // Update "resolve_exceptions" field to flag detail as "special handling" record
@@ -481,7 +479,7 @@
 
                                     $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                             ." SET `resolve_action`=2"
-                                                .",`resolve_assign_to`='Client:".$idcDetail['client_id'].", Objective:".$data['objectives']."'"
+                                                .",`resolve_assign_to`='Client:".$detailData['client_id'].", Objective:".$data['objectives']."'"
                                                     .$this->update_common_sql()
                                             ." WHERE `id`=".$exception_record_id
                                     ;
@@ -499,7 +497,7 @@
                                                 ." AND `ex`.`file_type`=$exception_file_type"
                                                 ." AND `ex`.`error_code_id`=$error_code_id"
                                                 ." AND `ex`.`is_delete`=0"
-                                                ." AND `det`.`client_id`=".$idcDetail['client_id']
+                                                ." AND `det`.`client_id`=".$detailData['client_id']
                                         ;
                                         $res = $this->re_db_query($q);
 
@@ -512,7 +510,6 @@
                                         }
                                     }
                                 }
-
                             }
                         }
                         else if($resolveAction == 3)
