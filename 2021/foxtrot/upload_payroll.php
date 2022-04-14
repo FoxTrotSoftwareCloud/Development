@@ -13,10 +13,12 @@
     }
     
     $instance = new payroll();
+    $instance_broker_master = new broker_master();
     $payroll_date = '';
     $clearing_business_cutoff_date = '';
     $direct_business_cutoff_date = '';
     $payroll_transactions_array = $instance->select_payroll_transactions();
+    $select_brokers = $instance_broker_master->select();
 
 
     if((isset($_POST['upload_payroll']) AND $_POST['upload_payroll']=='Upload Payroll') OR (isset($_POST['duplicate_payroll_proceed']) AND $_POST['duplicate_payroll_proceed']=="true")) {

@@ -29,7 +29,8 @@
         </div>
         <?php if(!isset($action) OR $action != 'payroll_close') { ?>
             <div class="row">
-                <div class="col-md-6">
+                <!--*** TEST: Make room for Broker Grid 4/13/22  ***-->
+                <!-- <div class="col-md-6">
                     <div class="form-group">
                         <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
                         <div id="demo-dp-range">
@@ -38,7 +39,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
             <div class="row">
                 <div class="col-md-6">
@@ -51,7 +52,61 @@
                         </div>
                     </div>
                 </div>
+                <!-- TEST: Make room for Broker Grid 4/13/22  -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
+                        <div id="demo-dp-range">
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" name="clearing_business_cutoff_date" id="clearing_business_cutoff_date" class="form-control" value="<?php echo $clearing_business_cutoff_date;?>"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- TEST: Make room for Broker Grid 4/13/22  -->
             </div>
+            
+                <!--*** TEST: New Broker Grid 4/13/22  ***--->
+            <div class="row">
+            <div class="panel">
+            <div class="panel-body">
+
+                <div class="table-responsive">
+                    <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
+                           <thead class="thead_fixed_title">
+                              <tr>
+                                 <th></th>
+                                 <th>BROKER NAME</th>
+                                 <th>CRD#</th>
+                                 <th>CLEAR#</th>
+                                 <th class="text-center">STATUS</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                            <?php
+                            $count = 0;
+                            foreach($select_brokers as $key=>$val){ ?>
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" name="upload" id="upload" checked/>
+                                    </td>
+                                    <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
+                                    <td><?php echo $val['id']; ?></td>
+                                    <td><?php echo $val['fund']; ?></td>
+                                    <td>
+                                        <?php echo $instance_broker_master->active_statuses((int)$val['active_status']); ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
+            </div>
+
+        <div class="row">
+        </div>
         <?php } ?>
         <div class="panel-footer">
             <div class="selectwrap">
@@ -73,20 +128,34 @@
 </div>
 
 <script type="text/javascript">
- <?php 
+    $(document).ready(function() {
+        $('#data-table').DataTable({
+            "pageLength": 25,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "dom": '<"toolbar">frtip',
+            "aoColumnDefs": [{ "bSortable": true, "aTargets": [ 0 ] }, 
+                            { "bSearchable": false, "aTargets": [ 0 ] }],
+            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[0, "asc"], [1, "asc"]';?>]
+        });
+    });
+
+    <?php 
     if(isset($action) && $action == 'payroll_close') {?>
         // $(document).ready(function() {
         //     conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
         // });
-<?php } ?>
+    <?php } ?>
 
-<?php
+    <?php
     if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) { 
-?>
-    $(document).ready(function() {
-        duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
-    });
-<?php } ?>
+    ?>
+        $(document).ready(function() {
+            duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
+        });
+    <?php } ?>
 
 $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
