@@ -70,26 +70,23 @@
             <div class="row">
             <div class="panel">
             <div class="panel-body">
-
                 <div class="table-responsive">
                     <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
-                           <thead class="thead_fixed_title">
-                              <tr>
-                                 <th></th>
-                                 <th>BROKER NAME</th>
-                                 <th>CRD#</th>
-                                 <th>CLEAR#</th>
-                                 <th class="text-center">STATUS</th>
-                              </tr>
-                           </thead>
-                           <tbody>
+                        <thead class="thead_fixed_title">
+                            <tr>
+                                <th name="select_all" id="select_all"></th>
+                                <th>BROKER NAME</th>
+                                <th>CRD#</th>
+                                <th>CLEAR#</th>
+                                <th class="text-center">STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             <?php
                             $count = 0;
                             foreach($select_brokers as $key=>$val){ ?>
                                 <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" name="upload" id="upload" checked/>
-                                    </td>
+                                    <td><input class="chk_upload" type="hidden" name="<?php echo 'upload_'.$val['id'] ?>" id="<?php echo 'upload_'.$val['id'] ?>" value=1 /></td>
                                     <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                     <td><?php echo $val['id']; ?></td>
                                     <td><?php echo $val['fund']; ?></td>
@@ -128,34 +125,72 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('#data-table').DataTable({
-            "pageLength": 25,
-            "bLengthChange": false,
-            "bFilter": true,
-            "bInfo": false,
-            "bAutoWidth": false,
-            "dom": '<"toolbar">frtip',
-            "aoColumnDefs": [{ "bSortable": true, "aTargets": [ 0 ] }, 
-                            { "bSearchable": false, "aTargets": [ 0 ] }],
-            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[0, "asc"], [1, "asc"]';?>]
-        });
+$(document).ready(function() {
+    let dataTable = $('#data-table').DataTable({
+        "pageLength": 25,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "dom": '<"toolbar">frtip',
+        // 04/14/22 Remvoved for the checkbox/select column properties
+        // "aoColumnDefs": [
+        //                     { "bSortable": true, "aTargets": [ 1 ] }, 
+        //                     { "bSearchable": false, "aTargets": [ 1 ]},
+        //                 ],
+        columnDefs: [ {
+            orderable: false,
+            className: 'select-checkbox',
+            targets:   0
+        } ],
+        select: {
+            style:    'multi',
+            selector: 'td:first-child'
+        },
+        initComplete: function(settings, json){
+            // console.log("TEST: initComplete.fired()");
+            // $(".select-checkbox").addClass("selected");
+        },
+        "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[1, "asc"], [2, "asc"]';?>],
     });
+    dataTable.on("click", "th.select-checkbox", function() {
+        if ($("th.select-checkbox").hasClass("selected")) {
+            dataTable.rows().deselect();
+            $("th.select-checkbox").removeClass("selected");
+        } else {
+            dataTable.rows().select();
+            $("th.select-checkbox").addClass("selected");
+        }
+    }).on("select deselect", function() {
+        ("Some selection or deselection going on")
+        if (dataTable.rows({
+                selected: true
+            }).count() !== dataTable.rows().count()) {
+            $("th.select-checkbox").removeClass("selected");
+        } else {
+            $("th.select-checkbox").addClass("selected");
+        }
+    });
+
+    dataTable.rows().select();
+    document.querySelectorAll(".chk_upload").setAttribute('value', 99);
+    // $("input.chk_upload").val(100);
 
     <?php 
     if(isset($action) && $action == 'payroll_close') {?>
         // $(document).ready(function() {
-        //     conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
-        // });
+            //     conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
+            // });
     <?php } ?>
-
+            
     <?php
     if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) { 
-    ?>
+        ?>
         $(document).ready(function() {
             duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
         });
     <?php } ?>
+});
 
 $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",

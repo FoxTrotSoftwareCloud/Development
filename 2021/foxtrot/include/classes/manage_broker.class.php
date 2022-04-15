@@ -2697,7 +2697,7 @@
       return true;
     }
     
-    // Generic Typing - return based on parameter passed-> (NULL/Empty/default)code->entire array, (integer)code->return Description(statuses[key value/code]), (string)code->return key value(if string is found in the array)
+    // Generic Typing - return based on parameter passed-> (NULL/Empty/default)code->entire array, (integer)code->return Description(statuses[key value/code]), (string)code->return key/index value(if string is found in the array)
     function active_statuses($statusArg=NULL){
       $statuses = [0=>'*Unknown/Not Specified*', 1=>'Active', 2=>'Terminated', 3=>'Retired', 4=>'Deceased', 5=>'Inactive', 6=>'Suspended'];
       $return = $statuses[0];
