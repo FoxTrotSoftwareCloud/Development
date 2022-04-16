@@ -86,7 +86,7 @@
                             $count = 0;
                             foreach($select_brokers as $key=>$val){ ?>
                                 <tr>
-                                    <td><input class="chk_upload" type="hidden" name="<?php echo 'upload_'.$val['id'] ?>" id="<?php echo 'upload_'.$val['id'] ?>" value=1 /></td>
+                                    <td id="chk_upload[<?php echo $val['id'] ?>]"><input type="hidden" name="upload[<?php echo $val['id'] ?>]" value=1 /></td>
                                     <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                     <td><?php echo $val['id']; ?></td>
                                     <td><?php echo $val['fund']; ?></td>
@@ -145,7 +145,7 @@ $(document).ready(function() {
         } ],
         select: {
             style:    'multi',
-            selector: 'td:first-child'
+            selector: 'tr'
         },
         initComplete: function(settings, json){
             // console.log("TEST: initComplete.fired()");
@@ -171,10 +171,19 @@ $(document).ready(function() {
             $("th.select-checkbox").addClass("selected");
         }
     });
-
+    dataTable.on("click", "tr", function() {
+        console.log('Selected: tr > td:' + $("td.select-checkbox::before").attr('id'));
+        console.log('Selected: tr > td:' + $("td.select-checkbox::after").attr('id'));
+        console.log('$("tr::after").hasClass("selected")' + $("tr::after").hasClass("selected"));
+        console.log('$("tr::before").hasClass("selected")' + $("tr::before").hasClass("selected"));
+        
+        if ($("tr::after").hasClass("selected")) {
+        } else {
+            console.log('Unchecked: tr > td id#:' + $("tr > td").attr('id'));
+            // console.log('td.click() id#:' + $("td").attr('id'));
+        }
+    })
     dataTable.rows().select();
-    document.querySelectorAll(".chk_upload").setAttribute('value', 99);
-    // $("input.chk_upload").val(100);
 
     <?php 
     if(isset($action) && $action == 'payroll_close') {?>
@@ -305,6 +314,10 @@ function duplicate_payroll(url, message){
         }
     });
 }
+
+// $("#data-table.select-checkbox").click(function(){
+//     console.log('td.click() id#:' + $("td").attr('id'));
+// });
 </script>
 <style>
 .btn-primary {
