@@ -76,8 +76,8 @@
                             <tr>
                                 <th name="select_all" id="select_all"></th>
                                 <th>BROKER NAME</th>
-                                <th>CRD#</th>
-                                <th>CLEAR#</th>
+                                <th>CLOUDFOX #</th>
+                                <th>FUND/CLEAR#</th>
                                 <th class="text-center">STATUS</th>
                             </tr>
                         </thead>
@@ -86,7 +86,7 @@
                             $count = 0;
                             foreach($select_brokers as $key=>$val){ ?>
                                 <tr>
-                                    <td id="chk_upload[<?php echo $val['id'] ?>]"><input type="hidden" name="upload[<?php echo $val['id'] ?>]" value=1 /></td>
+                                    <td id="chk_upload[<?php echo $val['id'] ?>]"><input type="hidden" id="upload[<?php echo $val['id'] ?>]" name="upload[<?php echo $val['id'] ?>]" value="0" /></td>
                                     <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                     <td><?php echo $val['id']; ?></td>
                                     <td><?php echo $val['fund']; ?></td>
@@ -161,8 +161,7 @@ $(document).ready(function() {
             dataTable.rows().select();
             $("th.select-checkbox").addClass("selected");
         }
-    }).on("select deselect", function() {
-        ("Some selection or deselection going on")
+    }).on("select", function(e, dt, type, indexes) {
         if (dataTable.rows({
                 selected: true
             }).count() !== dataTable.rows().count()) {
@@ -170,19 +169,34 @@ $(document).ready(function() {
         } else {
             $("th.select-checkbox").addClass("selected");
         }
-    });
-    dataTable.on("click", "tr", function() {
-        console.log('Selected: tr > td:' + $("td.select-checkbox::before").attr('id'));
-        console.log('Selected: tr > td:' + $("td.select-checkbox::after").attr('id'));
-        console.log('$("tr::after").hasClass("selected")' + $("tr::after").hasClass("selected"));
-        console.log('$("tr::before").hasClass("selected")' + $("tr::before").hasClass("selected"));
+
+        var isSelected = 1;
+        var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
+        var rowDataSplit = rowData.split(',');
         
-        if ($("tr::after").hasClass("selected")) {
-        } else {
-            console.log('Unchecked: tr > td id#:' + $("tr > td").attr('id'));
-            // console.log('td.click() id#:' + $("td").attr('id'));
-        }
-    })
+        rowDataSplit.forEach((element, index) => {
+            if (element.indexOf('upload[') > -1){
+                var elementName = element.substr(element.indexOf('upload['));
+                var elementName = elementName.substr(0, elementName.indexOf(']')+1).replace('[', '\\[').replace(']', '\\]');
+                $("#" + elementName).val(isSelected);
+            }
+        })
+    }).on("deselect", function(e, dt, type, indexes) {
+        $("th.select-checkbox").removeClass("selected");
+
+            var isSelected = 0;
+        var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
+        var rowDataSplit = rowData.split(',');
+        
+        rowDataSplit.forEach((element, index) => {
+            if (element.indexOf('upload[') > -1){
+                var elementName = element.substr(element.indexOf('upload['));
+                var elementName = elementName.substr(0, elementName.indexOf(']')+1).replace('[', '\\[').replace(']', '\\]');
+                $("#" + elementName).val(isSelected);
+            }
+        })
+    });
+
     dataTable.rows().select();
 
     <?php 

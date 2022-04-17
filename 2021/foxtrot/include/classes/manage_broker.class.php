@@ -2697,22 +2697,22 @@
       return true;
     }
     
-    // Generic Typing - return based on parameter passed-> (NULL/Empty/default)code->entire array, (integer)code->return Description(statuses[key value/code]), (string)code->return key/index value(if string is found in the array)
-    function active_statuses($statusArg=NULL){
+    // Generic Typing - return based on parameter data type passed-> (NULL/Empty/default)$statusParameter->entire array, (integer)$statusParameter->return Description(statuses[key value/$statusParameter]), (string)$statusParameter->return key/index value(if string is found in the array)
+    function active_statuses($statusParameter=NULL){
       $statuses = [0=>'*Unknown/Not Specified*', 1=>'Active', 2=>'Terminated', 3=>'Retired', 4=>'Deceased', 5=>'Inactive', 6=>'Suspended'];
       $return = $statuses[0];
 
-      switch (gettype($statusArg)){
+      switch (gettype($statusParameter)){
         case NULL:
             $return = $statuses;
             break;
         case 'integer':
-          if (array_key_exists($statusArg, $statuses)){
-            $return = $statuses[$statusArg];
+          if (array_key_exists($statusParameter, $statuses)){
+            $return = $statuses[$statusParameter];
           }
           break;
         case 'string':
-          $return = array_search(ucfirst(strtolower($statusArg)), $statuses);
+          $return = array_search(ucfirst(strtolower($statusParameter)), $statuses);
           $return = ($return !== false) ? $return : 0;
           break;
         default:
