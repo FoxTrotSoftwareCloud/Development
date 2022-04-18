@@ -127,7 +127,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
     let dataTable = $('#data-table').DataTable({
-        "pageLength": 25,
+        "pageLength": 50,
         "bLengthChange": false,
         "bFilter": true,
         "bInfo": false,
@@ -169,8 +169,8 @@ $(document).ready(function() {
         } else {
             $("th.select-checkbox").addClass("selected");
         }
-
-        var isSelected = 1;
+        console.log(indexes);
+        var isSelected = "1";
         var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
         var rowDataSplit = rowData.split(',');
         
@@ -184,7 +184,7 @@ $(document).ready(function() {
     }).on("deselect", function(e, dt, type, indexes) {
         $("th.select-checkbox").removeClass("selected");
 
-            var isSelected = 0;
+        var isSelected = "-1";
         var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
         var rowDataSplit = rowData.split(',');
         
@@ -196,8 +196,16 @@ $(document).ready(function() {
             }
         })
     });
-
-    dataTable.rows().select();
+    // Initialize the dataTable - 
+    <?php if(!empty($_SESSION['upload_payroll']['upload'])){ 
+        foreach ($_SESSION['upload_payroll']['upload'] AS $repId=>$rowIndex){
+            if ($rowIndex == "1") { ?>
+                dataTable.rows(<?php echo $rowIndex ?>).select();
+            <?php }
+        }   
+    } else { ?>
+        dataTable.rows().select();
+    <?php } ?>
 
     <?php 
     if(isset($action) && $action == 'payroll_close') {?>
