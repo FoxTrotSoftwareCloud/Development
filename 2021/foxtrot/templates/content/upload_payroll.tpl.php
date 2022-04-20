@@ -10,7 +10,7 @@
                     <?php if(!isset($action) OR $action != 'payroll_close') { ?>
                         <div id="demo-dp-range">
                             <div class="input-daterange input-group" id="datepicker">
-                                <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php echo $payroll_date;?>"/>
+                                <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php echo $payroll_date; ?>" data-format="00/00/0000" placeholder="MM/DD/YYYY" />
                             </div>
                         </div>
                     <?php } else { ?>
@@ -29,7 +29,6 @@
         </div>
         <?php if(!isset($action) OR $action != 'payroll_close') { ?>
             <div class="row">
-                <!--*** TEST: Make room for Broker Grid 4/13/22  ***-->
                 <!-- <div class="col-md-6">
                     <div class="form-group">
                         <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
@@ -85,8 +84,8 @@
                             <?php
                             $count = 0;
                             foreach($select_brokers as $key=>$val){ ?>
-                                <tr>
-                                    <td id="chk_upload[<?php echo $val['id'] ?>]"><input type="hidden" id="upload[<?php echo $val['id'] ?>]" name="upload[<?php echo $val['id'] ?>]" value="0" /></td>
+                                <tr id="rep_row[<?php echo $val['id'] ?>]">
+                                    <td><input type="hidden" id="upload[<?php echo $val['id'] ?>]" name="upload[<?php echo $val['id'] ?>]" value="0" /></td>
                                     <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                     <td><?php echo $val['id']; ?></td>
                                     <td><?php echo $val['fund']; ?></td>
@@ -169,7 +168,6 @@ $(document).ready(function() {
         } else {
             $("th.select-checkbox").addClass("selected");
         }
-        console.log(indexes);
         var isSelected = "1";
         var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
         var rowDataSplit = rowData.split(',');
@@ -184,7 +182,7 @@ $(document).ready(function() {
     }).on("deselect", function(e, dt, type, indexes) {
         $("th.select-checkbox").removeClass("selected");
 
-        var isSelected = "-1";
+        var isSelected = "0";
         var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
         var rowDataSplit = rowData.split(',');
         
@@ -200,7 +198,9 @@ $(document).ready(function() {
     <?php if(!empty($_SESSION['upload_payroll']['upload'])){ 
         foreach ($_SESSION['upload_payroll']['upload'] AS $repId=>$rowIndex){
             if ($rowIndex == "1") { ?>
-                dataTable.rows(<?php echo $rowIndex ?>).select();
+                // 4/18/22 jQuery row find - have to use 3 escape backslashes for JS to use array's brackets
+                var repRow = $("<?php echo '#rep_row\\\['.$repId.'\\\]' ?>");
+                dataTable.rows( repRow ).select();
             <?php }
         }   
     } else { ?>
@@ -336,10 +336,6 @@ function duplicate_payroll(url, message){
         }
     });
 }
-
-// $("#data-table.select-checkbox").click(function(){
-//     console.log('td.click() id#:' + $("td").attr('id'));
-// });
 </script>
 <style>
 .btn-primary {
