@@ -2664,38 +2664,40 @@
 			return $return;
 		}
 
-    function load_broker_state_fee($broker_id){
-    	$return = array();
+   function load_broker_state_fee(){
+    		$return = array();
 
-			$q = "SELECT * from ft_broker_state_fee_master where feeBrokerID='".$broker_id."' limit 1";
+			$q = "SELECT feeStateId,stateFee from ft_broker_state_fee_master;";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
-               $row = $this->re_db_fetch_array($res);
-               return json_decode($row['feeData']);
+             	while($row = $this->re_db_fetch_array($res)){
+              	$return[$row['feeStateId']] = $row['stateFee']; 
+
+              }
             } 
 
-				return array();
-    }
+			return $return;
+    	}
 
-    function save_broker_state_fee($data){
-      $q = "SELECT * from ft_broker_state_fee_master where feeBrokerID='".$_POST['broker']."'";
+    function save_broker_state_fee($state_id = 0,$state_fee= 0){
 
-      foreach($_POST['state_fee'] as $index=>$fee){
-        $_POST['state_fee'][$index]= filter_var($fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-      }
-      $res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0){
-            $q = "update  `ft_broker_state_fee_master` SET `feeData`='".json_encode($_POST['state_fee'])."' where feeBrokerID='".$_POST['broker']."'";  
-            $res = $this->re_db_query($q);
-      }
-      else{
-            
-            $q = "INSERT INTO `ft_broker_state_fee_master` SET `feeData`='".json_encode($_POST['state_fee'])."',feeBrokerID='".$_POST['broker']."' ".$this->insert_common_sql();
-            $res = $this->re_db_query($q);
-      }
+    	
+    	  	  $q = "SELECT * from ft_broker_state_fee_master where feeStateId='".$state_id."'";
 
-      return true;
-    }
+    	
+						$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+              	 $q = "update  `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."' where feeStateId='".$state_id."'";  
+              		$res = $this->re_db_query($q);
+            }
+            else{
+            	   	
+            	   	$q = "INSERT INTO `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."',feeStateId='".$state_id."' ".$this->insert_common_sql();
+									$res = $this->re_db_query($q);
+            }
+    	  	  
+    	  	   return true;
+         }  
     
     // Generic Typing - return based on parameter data type passed-> (NULL/Empty/default)$statusParameter->entire array, (integer)$statusParameter->return Description(statuses[key value/$statusParameter]), (string)$statusParameter->return key/index value(if string is found in the array)
     function active_statuses($statusParameter=NULL){

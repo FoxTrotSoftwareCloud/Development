@@ -45,7 +45,7 @@ require_once(DIR_FS."islogin.php");?>
 <!-- // Move the ajax file to plugins folder if it works // -->
 <!-- <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script> -->
 <script src="<?php echo SITE_PLUGINS; ?>datatables/extensions/Validate/jquery.validate.min.js"></script>
-<script type="text/javascript" language="javascript" src="<?php echo SITE_PLUGINS; ?>datatables/extensions/Select/js/dataTables.select.js">
+<script type="text/javascript" language="javascript" src="<?php echo SITE_PLUGINS; ?>datatables/extensions/Select/js/dataTables.select.js"></script>
      
 <script src="<?php echo SITE_JS; ?>validator.js"></script>
 <script src="<?php echo SITE_JS; ?>multipleselection.js"></script>
