@@ -39,8 +39,13 @@ require_once(DIR_FS."islogin.php");?>
 <script src="<?php echo SITE_PLUGINS; ?>datatables/pdfmake.min.js"></script>
 <script src="<?php echo SITE_PLUGINS; ?>datatables/vfs_fonts.js"></script>        
 <script src="<?php echo SITE_PLUGINS; ?>datatables/buttons.html5.min.js"></script>  
-<script src="<?php echo SITE_PLUGINS; ?>datatables/buttons.colVis.min.js"></script>      
-  
+<script src="<?php echo SITE_PLUGINS; ?>datatables/buttons.colVis.min.js"></script>    
+<!-- 4/14/22 Checkboxes -->
+<link rel="stylesheet" type="text/css" href="<?php echo SITE_PLUGINS; ?>datatables/extensions/Select/css/select.dataTables.css">
+<!-- // Move the ajax file to plugins folder if it works // -->
+<!-- <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script> -->
+<script src="<?php echo SITE_PLUGINS; ?>datatables/extensions/Validate/jquery.validate.min.js"></script>
+<script type="text/javascript" language="javascript" src="<?php echo SITE_PLUGINS; ?>datatables/extensions/Select/js/dataTables.select.js"></script>
      
 <script src="<?php echo SITE_JS; ?>validator.js"></script>
 <script src="<?php echo SITE_JS; ?>multipleselection.js"></script>

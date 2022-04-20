@@ -5,7 +5,8 @@
 	<link rel="shortcut icon" type="image/ico" href="http://www.datatables.net/favicon.ico">
 	<meta name="viewport" content="initial-scale=1.0, maximum-scale=2.0">
 	<title>Select example - Checkbox selection</title>
-	<link rel="stylesheet" type="text/css" href="../../../../media/css/jquery.dataTables.css">
+	<!-- <link rel="stylesheet" type="text/css" href="../../../../media/css/jquery.dataTables.css"> -->
+	<link rel="stylesheet" type="text/css" href="../../../../jquery.dataTables.css">
 	<link rel="stylesheet" type="text/css" href="../../css/select.dataTables.css">
 	<link rel="stylesheet" type="text/css" href="../../../../examples/resources/syntax/shCore.css">
 	<link rel="stylesheet" type="text/css" href="../../../../examples/resources/demo.css">
@@ -14,7 +15,8 @@
 	</style>
 	<script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.12.3.js">
 	</script>
-	<script type="text/javascript" language="javascript" src="../../../../media/js/jquery.dataTables.js">
+	<!-- <script type="text/javascript" language="javascript" src="../../../../media/js/jquery.dataTables.js"> -->
+	<script type="text/javascript" language="javascript" src="../../../../jquery.dataTables.js">
 	</script>
 	<script type="text/javascript" language="javascript" src="../../js/dataTables.select.js">
 	</script>
@@ -34,7 +36,7 @@ $(document).ready(function() {
 			targets:   0
 		} ],
 		select: {
-			style:    'os',
+			style:    'multi',
 			selector: 'td:first-child'
 		},
 		order: [[ 1, 'asc' ]]

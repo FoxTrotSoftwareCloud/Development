@@ -2607,7 +2607,7 @@
 				return false;
 			}
 		}
-        public function select_charge_type(){
+    public function select_charge_type(){
 			$return = array();
 
 			$q = "SELECT * FROM `".CHARGE_TYPE_MASTER."`";
@@ -2621,7 +2621,7 @@
             }
 			return $return;
 		}
-        public function select_charge_name($charge_type_id){
+    public function select_charge_name($charge_type_id){
 			$return = array();
 
 			$q = "SELECT cnm.* FROM `".CHARGE_NAME_MASTER."` cnm, `".CHARGE_DETAIL."` cd
@@ -2636,7 +2636,7 @@
             }
 			return $return;
 		}
-        public function select_charge_detail($charge_type_id,$charge_name_id){
+    public function select_charge_detail($charge_type_id,$charge_name_id){
 			$return = array();
 
 			$q = "SELECT cd.* FROM `".CHARGE_DETAIL."` cd
@@ -2651,7 +2651,7 @@
             }
 			return $return;
 		}
-        public function select_broker_charge($id){
+    public function select_broker_charge($id){
 			$return = array();
 			$q="SELECT ctm.charge_type_id,cnm.charge_name_id,cd.account_type,cd.account_process,cv.value FROM `".CHARGE_TYPE_MASTER."` ctm, `".CHARGE_NAME_MASTER."` cnm, `".CHARGE_DETAIL."` cd, `".CHARGE_VALUE."` cv WHERE ctm.charge_type_id=cd.charge_type_id and cnm.charge_name_id=cd.charge_name_id and cd.charge_detail_id=cv.charge_detail_id and cv.broker_id='".$id."'";
 			$res = $this->re_db_query($q);
@@ -2664,40 +2664,64 @@
 			return $return;
 		}
 
-		 function load_broker_state_fee($broker_id){
-    	$return = array();
+   function load_broker_state_fee(){
+    		$return = array();
 
-			$q = "SELECT * from ft_broker_state_fee_master where feeBrokerID='".$broker_id."' limit 1";
+			$q = "SELECT feeStateId,stateFee from ft_broker_state_fee_master;";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
-             $row = $this->re_db_fetch_array($res);
-               return json_decode($row['feeData']);
+             	while($row = $this->re_db_fetch_array($res)){
+              	$return[$row['feeStateId']] = $row['stateFee']; 
+
+              }
             } 
 
-				return array();
-    }
+			return $return;
+    	}
 
-    function save_broker_state_fee($data){
+    function save_broker_state_fee($state_id = 0,$state_fee= 0){
 
     	
-    	  	  $q = "SELECT * from ft_broker_state_fee_master where feeBrokerID='".$_POST['broker']."'";
+    	  	  $q = "SELECT * from ft_broker_state_fee_master where feeStateId='".$state_id."'";
 
-    	  	  foreach($_POST['state_fee'] as $index=>$fee){
-    	  	  	$_POST['state_fee'][$index]= filter_var($fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-    	  	  }
+    	
 						$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
-              	 $q = "update  `ft_broker_state_fee_master` SET `feeData`='".json_encode($_POST['state_fee'])."' where feeBrokerID='".$_POST['broker']."'";  
+              	 $q = "update  `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."' where feeStateId='".$state_id."'";  
               		$res = $this->re_db_query($q);
             }
             else{
             	   	
-            	   	$q = "INSERT INTO `ft_broker_state_fee_master` SET `feeData`='".json_encode($_POST['state_fee'])."',feeBrokerID='".$_POST['broker']."' ".$this->insert_common_sql();
+            	   	$q = "INSERT INTO `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."',feeStateId='".$state_id."' ".$this->insert_common_sql();
 									$res = $this->re_db_query($q);
             }
     	  	  
     	  	   return true;
          }  
+    
+    // Generic Typing - return based on parameter data type passed-> (NULL/Empty/default)$statusParameter->entire array, (integer)$statusParameter->return Description(statuses[key value/$statusParameter]), (string)$statusParameter->return key/index value(if string is found in the array)
+    function active_statuses($statusParameter=NULL){
+      $statuses = [0=>'*Unknown/Not Specified*', 1=>'Active', 2=>'Terminated', 3=>'Retired', 4=>'Deceased', 5=>'Inactive', 6=>'Suspended'];
+      $return = $statuses[0];
 
+      switch (gettype($statusParameter)){
+        case NULL:
+            $return = $statuses;
+            break;
+        case 'integer':
+          if (array_key_exists($statusParameter, $statuses)){
+            $return = $statuses[$statusParameter];
+          }
+          break;
+        case 'string':
+          $return = array_search(ucfirst(strtolower($statusParameter)), $statuses);
+          $return = ($return !== false) ? $return : 0;
+          break;
+        default:
+          // Do nothing - return "unknown"
+      }
+      
+      return $return;
     }
+  }
 ?>

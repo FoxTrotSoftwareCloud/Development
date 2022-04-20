@@ -10,7 +10,7 @@
                     <?php if(!isset($action) OR $action != 'payroll_close') { ?>
                         <div id="demo-dp-range">
                             <div class="input-daterange input-group" id="datepicker">
-                                <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php echo $payroll_date;?>"/>
+                                <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php echo $payroll_date; ?>" data-format="00/00/0000" placeholder="MM/DD/YYYY" />
                             </div>
                         </div>
                     <?php } else { ?>
@@ -29,7 +29,7 @@
         </div>
         <?php if(!isset($action) OR $action != 'payroll_close') { ?>
             <div class="row">
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <div class="form-group">
                         <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
                         <div id="demo-dp-range">
@@ -38,7 +38,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
             <div class="row">
                 <div class="col-md-6">
@@ -51,7 +51,58 @@
                         </div>
                     </div>
                 </div>
+                <!-- TEST: Make room for Broker Grid 4/13/22  -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
+                        <div id="demo-dp-range">
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" name="clearing_business_cutoff_date" id="clearing_business_cutoff_date" class="form-control" value="<?php echo $clearing_business_cutoff_date;?>"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- TEST: Make room for Broker Grid 4/13/22  -->
             </div>
+            
+                <!--*** TEST: New Broker Grid 4/13/22  ***--->
+            <div class="row">
+            <div class="panel">
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
+                        <thead class="thead_fixed_title">
+                            <tr>
+                                <th name="select_all" id="select_all"></th>
+                                <th>BROKER NAME</th>
+                                <th>CLOUDFOX #</th>
+                                <th>FUND/CLEAR#</th>
+                                <th class="text-center">STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $count = 0;
+                            foreach($select_brokers as $key=>$val){ ?>
+                                <tr id="rep_row[<?php echo $val['id'] ?>]">
+                                    <td><input type="hidden" id="upload[<?php echo $val['id'] ?>]" name="upload[<?php echo $val['id'] ?>]" value="0" /></td>
+                                    <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
+                                    <td><?php echo $val['id']; ?></td>
+                                    <td><?php echo $val['fund']; ?></td>
+                                    <td>
+                                        <?php echo $instance_broker_master->active_statuses((int)$val['active_status']); ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
+            </div>
+
+        <div class="row">
+        </div>
         <?php } ?>
         <div class="panel-footer">
             <div class="selectwrap">
@@ -73,20 +124,104 @@
 </div>
 
 <script type="text/javascript">
- <?php 
+$(document).ready(function() {
+    let dataTable = $('#data-table').DataTable({
+        "pageLength": 50,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "dom": '<"toolbar">frtip',
+        // 04/14/22 Remvoved for the checkbox/select column properties
+        // "aoColumnDefs": [
+        //                     { "bSortable": true, "aTargets": [ 1 ] }, 
+        //                     { "bSearchable": false, "aTargets": [ 1 ]},
+        //                 ],
+        columnDefs: [ {
+            orderable: false,
+            className: 'select-checkbox',
+            targets:   0
+        } ],
+        select: {
+            style:    'multi',
+            selector: 'tr'
+        },
+        initComplete: function(settings, json){
+            // console.log("TEST: initComplete.fired()");
+            // $(".select-checkbox").addClass("selected");
+        },
+        "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[1, "asc"], [2, "asc"]';?>],
+    });
+    dataTable.on("click", "th.select-checkbox", function() {
+        if ($("th.select-checkbox").hasClass("selected")) {
+            dataTable.rows().deselect();
+            $("th.select-checkbox").removeClass("selected");
+        } else {
+            dataTable.rows().select();
+            $("th.select-checkbox").addClass("selected");
+        }
+    }).on("select", function(e, dt, type, indexes) {
+        if (dataTable.rows({
+                selected: true
+            }).count() !== dataTable.rows().count()) {
+            $("th.select-checkbox").removeClass("selected");
+        } else {
+            $("th.select-checkbox").addClass("selected");
+        }
+        var isSelected = "1";
+        var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
+        var rowDataSplit = rowData.split(',');
+        
+        rowDataSplit.forEach((element, index) => {
+            if (element.indexOf('upload[') > -1){
+                var elementName = element.substr(element.indexOf('upload['));
+                var elementName = elementName.substr(0, elementName.indexOf(']')+1).replace('[', '\\[').replace(']', '\\]');
+                $("#" + elementName).val(isSelected);
+            }
+        })
+    }).on("deselect", function(e, dt, type, indexes) {
+        $("th.select-checkbox").removeClass("selected");
+
+        var isSelected = "0";
+        var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
+        var rowDataSplit = rowData.split(',');
+        
+        rowDataSplit.forEach((element, index) => {
+            if (element.indexOf('upload[') > -1){
+                var elementName = element.substr(element.indexOf('upload['));
+                var elementName = elementName.substr(0, elementName.indexOf(']')+1).replace('[', '\\[').replace(']', '\\]');
+                $("#" + elementName).val(isSelected);
+            }
+        })
+    });
+    // Initialize the dataTable - 
+    <?php if(!empty($_SESSION['upload_payroll']['upload'])){ 
+        foreach ($_SESSION['upload_payroll']['upload'] AS $repId=>$rowIndex){
+            if ($rowIndex == "1") { ?>
+                // 4/18/22 jQuery row find - have to use 3 escape backslashes for JS to use array's brackets
+                var repRow = $("<?php echo '#rep_row\\\['.$repId.'\\\]' ?>");
+                dataTable.rows( repRow ).select();
+            <?php }
+        }   
+    } else { ?>
+        dataTable.rows().select();
+    <?php } ?>
+
+    <?php 
     if(isset($action) && $action == 'payroll_close') {?>
         // $(document).ready(function() {
-        //     conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
-        // });
-<?php } ?>
-
-<?php
+            //     conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
+            // });
+    <?php } ?>
+            
+    <?php
     if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) { 
-?>
-    $(document).ready(function() {
-        duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
-    });
-<?php } ?>
+        ?>
+        $(document).ready(function() {
+            duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
+        });
+    <?php } ?>
+});
 
 $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",

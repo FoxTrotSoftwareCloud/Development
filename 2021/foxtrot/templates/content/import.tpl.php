@@ -1540,7 +1540,7 @@ $(document).ready(function() {
             "bAutoWidth": false,
             "dom": '<"toolbar">frtip',
             "aoColumnDefs": [
-                { "bSortable": false, "aTargets": [ 6,7 ] },
+                { "bSortable": true, "aTargets": [ 6,7 ] },
                 { "bSearchable": false, "aTargets": [ 6,7 ] }
             ],
             "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[0, "asc"], [1, "asc"]';?>]
