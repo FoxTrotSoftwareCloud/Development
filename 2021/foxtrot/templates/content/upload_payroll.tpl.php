@@ -6,6 +6,18 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
+                    <label>Company</label>    
+                    <select class="form-control" name="company">
+                        <option value="0">All Companies</option>
+                        <?php foreach ($get_multi_company AS $companyRow) { ?>
+                            <option value="<?php echo $companyRow['id'] ?>" <?php echo ($company==$companyRow['id'] ? 'selected':'') ?> ><?php echo $companyRow['company_name'] ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+        
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
                     <label>Payroll Date <span class="text-red">*</span></label>
                     <?php if(!isset($action) OR $action != 'payroll_close') { ?>
                         <div id="demo-dp-range">
@@ -28,7 +40,7 @@
             </div>
         </div>
         <?php if(!isset($action) OR $action != 'payroll_close') { ?>
-            <div class="row">
+            <!-- <div class="row"> -->
                 <!-- <div class="col-md-6">
                     <div class="form-group">
                         <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
@@ -39,7 +51,7 @@
                         </div>
                     </div>
                 </div> -->
-            </div>
+            <!-- </div> -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -51,7 +63,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- TEST: Make room for Broker Grid 4/13/22  -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
@@ -62,10 +73,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- TEST: Make room for Broker Grid 4/13/22  -->
             </div>
-            
-                <!--*** TEST: New Broker Grid 4/13/22  ***--->
             <div class="row">
             <div class="panel">
             <div class="panel-body">
@@ -107,7 +115,7 @@
         <div class="panel-footer">
             <div class="selectwrap">
 				<div class="selectwrap">
-                    <a href="<?php echo CURRENT_PAGE; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+                    <a href="home.php"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
 
                     <?php if(isset($action) && $action == 'payroll_close') { ?>
                         <input type="submit" name="close_payroll"  value="Close Payroll" style="float: right;"/>

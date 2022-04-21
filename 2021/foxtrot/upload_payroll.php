@@ -20,6 +20,9 @@
     $direct_business_cutoff_date = '';
     $payroll_transactions_array = $instance->select_payroll_transactions();
     $select_brokers = $instance_broker_master->select();
+    $instance_multi_company = new manage_company();
+    $get_multi_company = $instance_multi_company->select_company();
+    $company = isset($_POST['company']) ? $_POST['company'] : "";
 
     if((isset($_POST['upload_payroll']) AND $_POST['upload_payroll']=='Upload Payroll') OR (isset($_POST['duplicate_payroll_proceed']) AND $_POST['duplicate_payroll_proceed']=="true")) {
         // 04/17/22 Reinitialize front end parameters if things go wrong
