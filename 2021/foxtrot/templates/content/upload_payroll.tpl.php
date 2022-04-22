@@ -134,12 +134,14 @@
 <script type="text/javascript">
 $(document).ready(function() {
     let dataTable = $('#data-table').DataTable({
-        "pageLength": 50,
         "bLengthChange": false,
         "bFilter": true,
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
+        // pageLength: 25,
+        paging: false,
+        stateSave: true,
         // 04/14/22 Remvoved for the checkbox/select column properties
         // "aoColumnDefs": [
         //                     { "bSortable": true, "aTargets": [ 1 ] }, 
@@ -153,10 +155,6 @@ $(document).ready(function() {
         select: {
             style:    'multi',
             selector: 'tr'
-        },
-        initComplete: function(settings, json){
-            // console.log("TEST: initComplete.fired()");
-            // $(".select-checkbox").addClass("selected");
         },
         "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[1, "asc"], [2, "asc"]';?>],
     });
@@ -201,8 +199,17 @@ $(document).ready(function() {
                 $("#" + elementName).val(isSelected);
             }
         })
+    }).on( 'page.dt', function() {
+        var dataTable = $("#data_table").DataTable();
+        var info = dataTable.page.len;
+        
+        console.log('Tables: PageChange: ' + info);    
+        
+        dataTable.rows().every( function(rowIdx, tableLoop, rowLoop){
+            console.log('Table: rowIdx: ');    
+        });
     });
-    // Initialize the dataTable - 
+
     <?php if(!empty($_SESSION['upload_payroll']['upload'])){ 
         foreach ($_SESSION['upload_payroll']['upload'] AS $repId=>$rowIndex){
             if ($rowIndex == "1") { ?>
@@ -212,9 +219,11 @@ $(document).ready(function() {
             <?php }
         }   
     } else { ?>
-        dataTable.rows().select();
+        $("#select_all").trigger("click");
+        // dataTable.rows().select();
     <?php } ?>
 
+    
     <?php 
     if(isset($action) && $action == 'payroll_close') {?>
         // $(document).ready(function() {
@@ -344,6 +353,7 @@ function duplicate_payroll(url, message){
         }
     });
 }
+
 </script>
 <style>
 .btn-primary {

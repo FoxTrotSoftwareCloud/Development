@@ -2723,5 +2723,56 @@
       
       return $return;
     }
+    
+    // Listing of Broker, Branches, & Companies
+    // Can be queried by All or Individually
+    function select_broker_by_branch_company($broker=0, $branch=0, $company=0){
+      $return = [];
+      $con = $searchField = '';
+      
+      if ($broker > 0){
+        $con .= " AND `bm`.`id` = ".(int)$this->re_db_input($broker);
+      }
+      if ($branch > 0){
+        $searchField = (int)$this->re_db_input($branch);
+        
+        $con .= " AND (`br1`.`id` = $searchField OR `br2`.`id` = $searchField OR `br3`.`id` = $searchField)";
+      }
+      if ($company > 0){
+        $searchField = (int)$this->re_db_input($company);
+        
+        $con .= " AND (`co1`.`id` = $searchField OR `co2`.`id` = $searchField OR `co3`.`id` = $searchField)";
+      }
+
+      $q = 
+        "SELECT "
+            ." `bm`.`id` AS `broker_id`,"
+            ." `bm`.`first_name` AS broker_firstname,"
+            ." `bm`.`last_name` AS broker_lastname,"
+            ." `bm`.`fund`,"
+            ." `bm`.`internal`,"
+            ." `br1`.`id` AS `branch_id1`, `br1`.`name` AS `branch_name1`, `br1`.`company` AS `company_id1`, `co1`.`company_name` AS `company_name1`,"
+            ." `br2`.`id` AS `branch_id2`, `br2`.`name` AS `branch_name2`, `br2`.`company` AS `company_id2`, `co2`.`company_name` AS `company_name2`,"
+            ." `br3`.`id` AS `branch_id3`, `br3`.`name` AS `branch_name3`, `br3`.`company` AS `company_id3`, `co3`.`company_name` AS `company_name3`"
+          ." FROM `ft_broker_master` AS `bm`"
+          ." LEFT JOIN `ft_broker_branches` AS `repbr` ON `bm`.`id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'"
+          ." LEFT JOIN `ft_branch_master` AS `br1` ON `br1`.`id`=`repbr`.`branch1` AND `br1`.`is_delete`=0"
+          ." LEFT JOIN `ft_branch_master` AS `br2` ON `br2`.`id`=`repbr`.`branch2` AND `br2`.`is_delete`=0"
+          ." LEFT JOIN `ft_branch_master` AS `br3` ON `br3`.`id`=`repbr`.`branch3` AND `br3`.`is_delete`=0"
+          ." LEFT JOIN `ft_company_master` AS `co1` ON `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0"
+          ." LEFT JOIN `ft_company_master` AS `co2` ON `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0"
+          ." LEFT JOIN `ft_company_master` AS `co3` ON `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0"
+          ." WHERE `bm`.`is_delete` = 0"
+              .$con
+      ;
+
+      $res = $this->re_db_query($q);
+
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_all($res);
+      } 
+
+      return $return;
+    }
   }
 ?>

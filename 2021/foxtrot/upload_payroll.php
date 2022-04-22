@@ -10,7 +10,8 @@
     $payroll_id = $id;
     // Don't unset the parameters to update the front end page
     if ($action == 'view'){ //AND empty($_SESSION['upload_payroll']['errors'])) {
-        unset($_SESSION['upload_payroll']);
+        unset($_SESSION['upload_payroll'], $_SESSION['upload_reps']);
+        $_SESSION['upload_reps']=[];
     }
     
     $instance = new payroll();
