@@ -29,7 +29,12 @@
         // 04/17/22 Reinitialize front end parameters if things go wrong
         $_SESSION['upload_payroll'] = $_POST;
         $_SESSION['upload_payroll']['errors'] = '';
-        
+        if (isset($_POST['upload2'])){
+            foreach ($_POST['upload2'] AS $key=>$value) {
+                $_SESSION['upload_payroll']['upload'][$key] = $value;    
+            }
+        }
+
         $payroll_date = isset($_POST['payroll_date'])?$instance->re_db_input($_POST['payroll_date']):'';
         $clearing_business_cutoff_date = isset($_POST['clearing_business_cutoff_date'])?$instance->re_db_input($_POST['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($_POST['direct_business_cutoff_date'])?$instance->re_db_input($_POST['direct_business_cutoff_date']):'';
