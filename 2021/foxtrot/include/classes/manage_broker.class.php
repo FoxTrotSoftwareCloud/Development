@@ -2746,11 +2746,12 @@
 
       $q = 
         "SELECT "
-            ." `bm`.`id` AS `broker_id`,"
-            ." `bm`.`first_name` AS broker_firstname,"
-            ." `bm`.`last_name` AS broker_lastname,"
+            ." `bm`.`id`,"
+            ." `bm`.`first_name`,"
+            ." `bm`.`last_name`,"
             ." `bm`.`fund`,"
             ." `bm`.`internal`,"
+            ." `bm`.`active_status`,"
             ." `br1`.`id` AS `branch_id1`, `br1`.`name` AS `branch_name1`, `br1`.`company` AS `company_id1`, `co1`.`company_name` AS `company_name1`,"
             ." `br2`.`id` AS `branch_id2`, `br2`.`name` AS `branch_name2`, `br2`.`company` AS `company_id2`, `co2`.`company_name` AS `company_name2`,"
             ." `br3`.`id` AS `branch_id3`, `br3`.`name` AS `branch_name3`, `br3`.`company` AS `company_id3`, `co3`.`company_name` AS `company_name3`"
