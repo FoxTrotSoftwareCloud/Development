@@ -26,23 +26,29 @@
     $company = isset($_POST['company']) ? $_POST['company'] : "";
 
     if((isset($_POST['upload_payroll']) AND $_POST['upload_payroll']=='Upload Payroll') OR (isset($_POST['duplicate_payroll_proceed']) AND $_POST['duplicate_payroll_proceed']=="true")) {
+        // TEST DELETE ME 4/24/22
+if ($_POST['duplicate_payroll_proceed']=="true"){
+    $x = 0;
+}        
         // 04/17/22 Reinitialize front end parameters if things go wrong
         $_SESSION['upload_payroll'] = $_POST;
         $_SESSION['upload_payroll']['errors'] = '';
-
+        $_SESSION['info'] = '';
+        
         $payroll_date = isset($_POST['payroll_date'])?$instance->re_db_input($_POST['payroll_date']):'';
         $clearing_business_cutoff_date = isset($_POST['clearing_business_cutoff_date'])?$instance->re_db_input($_POST['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($_POST['direct_business_cutoff_date'])?$instance->re_db_input($_POST['direct_business_cutoff_date']):'';
-                
+        
         $return = $instance->upload_payroll($_POST);
         
         if($return===true){
             unset($_SESSION['upload_payroll']);
             header("location:".SITE_URL."calculate_payrolls.php?action=view");
             exit;
-        }
-        else {
-            $error = !isset($_SESSION['warning'])?$return:'';
+        } else {
+            if (empty($_SESSION['info'])) {
+                $error = !isset($_SESSION['warning'])?$return:'';
+            }
         }
     }
     else if(isset($_POST['reverse_payroll']) && $_POST['reverse_payroll']=='Reverse Payroll'){

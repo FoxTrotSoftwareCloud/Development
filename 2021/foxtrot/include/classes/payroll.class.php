@@ -71,7 +71,8 @@ class payroll extends db{
 		}
 	}
     public function upload_payroll($data){
-        $_SESSION['upload_payroll']['errors'] = '';
+        $_SESSION['upload_payroll']['errors'] = $_SESSION['info'] = '';
+        
 		$payroll_date = isset($data['payroll_date'])?$this->re_db_input($data['payroll_date']):'';
 		$clearing_business_cutoff_date = isset($data['clearing_business_cutoff_date'])?$this->re_db_input($data['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($data['direct_business_cutoff_date'])?$this->re_db_input($data['direct_business_cutoff_date']):'';
@@ -93,6 +94,7 @@ class payroll extends db{
             if (!empty($payroll)) {
                 if ($data['duplicate_payroll_proceed'] !="true") {
                     $this->errors = 'Payroll Date already exists: '.date('m/d/Y', strtotime($payroll['payroll_date']));
+                    $_SESSION['info'] = $this->errors;
                     $_SESSION['upload_payroll']['duplicate_payroll'] = true;
                 }
             }

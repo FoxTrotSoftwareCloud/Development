@@ -91,8 +91,13 @@
                         <tbody>
                             <?php
                             $count = 0;
-                            foreach($select_brokers as $key=>$val){ ?>
-                                <tr id="repId_<?php echo $val['id'] ?>">
+                            foreach($select_brokers as $key=>$val){ 
+                                $compClasses = 
+                                    (empty($val['company_id1']) ? '' : ' company'.$val['company_id1']).
+                                    (empty($val['company_id2']) ? '' : ' company'.$val['company_id2']).
+                                    (empty($val['company_id3']) ? '' : ' company'.$val['company_id3']) ;
+                            ?>
+                                <tr id="repId_<?php echo $val['id']; ?>" class="<?php echo $compClasses; ?>" >
                                     <td></td>
                                     <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                     <td><?php echo $val['id']; ?></td>
@@ -192,18 +197,6 @@ $(document).ready(function() {
         // })
     }).on("deselect", function(e, dt, type, indexes) {
         $("th.select-checkbox").removeClass("selected");
-        //-- DELETE ME IF FORM SUBMIT WORKS 4/22/22 --//
-        // var isSelected = "0";
-        // var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
-        // var rowDataSplit = rowData.split(',');
-        
-        // rowDataSplit.forEach((element, index) => {
-        //     if (element.indexOf('upload[') > -1){
-        //         var elementName = element.substr(element.indexOf('upload['));
-        //         var elementName = elementName.substr(0, elementName.indexOf(']')+1).replace('[', '\\[').replace(']', '\\]');
-        //         $("#" + elementName).val(isSelected);
-        //     }
-        // })
     }).on("page.dt", function(){
         
     });
@@ -234,13 +227,6 @@ $(document).ready(function() {
             } else {
                 this.deselect();
             }
-            // Delete me: for test purposes only    
-            // console.log(
-            //     "element: id: " + this.node().id 
-            //     + ",  className: " + (this.node().className ? this.node().className : "(none)")
-            //     + ",  element: className (Y/N): " + (this.node().className ? "Yes" : "No")
-            //     + ",  isSelected: " + isSelected
-            // );
         });
     <?php } else { ?>
         $("#select_all").trigger("click");
@@ -253,8 +239,7 @@ $(document).ready(function() {
             // });
     <?php } ?>
             
-    <?php if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) { 
-        ?>
+    <?php if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) {  ?>
         $(document).ready(function() {
             duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
         });
@@ -280,12 +265,6 @@ $(document).ready(function() {
             var jQInput = $("input[name=" + inputName.replace("[", "\\\[").replace("]", "\\\]") + "]");
             jQInput.attr('value', isSelected);
         });
-    });
-    
-    $("data-table").dataTable({
-       "drawCallback": function(settings){
-           alert("Datatables has redrawn the table");
-       } 
     });
 });
         
@@ -397,6 +376,7 @@ function duplicate_payroll(url, message){
         callback: function(result) {
             document.getElementById("duplicate_payroll_proceed").value = result;
             if (result) {
+                // $("#upload_payroll").trigger("submit");
                 document.getElementById("upload_payroll").submit();
             };
         }
