@@ -19,7 +19,10 @@
     $clearing_business_cutoff_date = '';
     $direct_business_cutoff_date = '';
     $payroll_transactions_array = $instance->select_payroll_transactions();
-    $select_brokers = $instance_broker_master->select();
+    $select_brokers = $instance_broker_master->select_broker_by_branch_company();
+    $instance_multi_company = new manage_company();
+    $get_multi_company = $instance_multi_company->select_company();
+    $company_number = isset($_POST['company-select']) ? (int)$dbins->re_db_input($_POST['company-select']) : 0;
 
     if((isset($_POST['upload_payroll']) AND $_POST['upload_payroll']=='Upload Payroll') OR (isset($_POST['duplicate_payroll_proceed']) AND $_POST['duplicate_payroll_proceed']=="true")) {
         // 04/17/22 Reinitialize front end parameters if things go wrong
@@ -29,16 +32,17 @@
         $payroll_date = isset($_POST['payroll_date'])?$instance->re_db_input($_POST['payroll_date']):'';
         $clearing_business_cutoff_date = isset($_POST['clearing_business_cutoff_date'])?$instance->re_db_input($_POST['clearing_business_cutoff_date']):'';
         $direct_business_cutoff_date = isset($_POST['direct_business_cutoff_date'])?$instance->re_db_input($_POST['direct_business_cutoff_date']):'';
-                
+        
         $return = $instance->upload_payroll($_POST);
         
         if($return===true){
             unset($_SESSION['upload_payroll']);
             header("location:".SITE_URL."calculate_payrolls.php?action=view");
             exit;
-        }
-        else {
-            $error = !isset($_SESSION['warning'])?$return:'';
+        } else {
+            if (empty($_SESSION['info'])) {
+                $error = !isset($_SESSION['warning'])?$return:'';
+            }
         }
     }
     else if(isset($_POST['reverse_payroll']) && $_POST['reverse_payroll']=='Reverse Payroll'){

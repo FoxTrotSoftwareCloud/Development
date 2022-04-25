@@ -6,6 +6,18 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
+                    <label>Company</label>    
+                    <select class="form-control" id="company-select" name="company-select">`
+                        <option value="0">All Companies</option>
+                        <?php foreach ($get_multi_company AS $companyRow) { ?>
+                            <option value="<?php echo $companyRow['id'] ?>" <?php echo ($company_number==$companyRow['id'] ? 'selected':'') ?> ><?php echo $companyRow['company_name'] ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+        
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
                     <label>Payroll Date <span class="text-red">*</span></label>
                     <?php if(!isset($action) OR $action != 'payroll_close') { ?>
                         <div id="demo-dp-range">
@@ -28,7 +40,7 @@
             </div>
         </div>
         <?php if(!isset($action) OR $action != 'payroll_close') { ?>
-            <div class="row">
+            <!-- <div class="row"> -->
                 <!-- <div class="col-md-6">
                     <div class="form-group">
                         <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
@@ -39,7 +51,7 @@
                         </div>
                     </div>
                 </div> -->
-            </div>
+            <!-- </div> -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -51,7 +63,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- TEST: Make room for Broker Grid 4/13/22  -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Clearing Business Cutoff Date <span class="text-red">*</span></label>
@@ -62,10 +73,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- TEST: Make room for Broker Grid 4/13/22  -->
             </div>
-            
-                <!--*** TEST: New Broker Grid 4/13/22  ***--->
             <div class="row">
             <div class="panel">
             <div class="panel-body">
@@ -83,9 +91,15 @@
                         <tbody>
                             <?php
                             $count = 0;
-                            foreach($select_brokers as $key=>$val){ ?>
-                                <tr id="rep_row[<?php echo $val['id'] ?>]">
-                                    <td><input type="hidden" id="upload[<?php echo $val['id'] ?>]" name="upload[<?php echo $val['id'] ?>]" value="0" /></td>
+                            foreach($select_brokers as $key=>$val){ 
+                                $compClasses = 
+                                    (empty($val['company_id1']) ? '' : ' company'.$val['company_id1']).
+                                    (empty($val['company_id2']) ? '' : ' company'.$val['company_id2']).
+                                    (empty($val['company_id3']) ? '' : ' company'.$val['company_id3']) 
+                                ;
+                            ?>
+                                <tr id="repId_<?php echo $val['id']; ?>" class="<?php echo $compClasses; ?>" >
+                                    <td></td>
                                     <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                     <td><?php echo $val['id']; ?></td>
                                     <td><?php echo $val['fund']; ?></td>
@@ -107,7 +121,7 @@
         <div class="panel-footer">
             <div class="selectwrap">
 				<div class="selectwrap">
-                    <a href="<?php echo CURRENT_PAGE; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+                    <a href="home.php"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
 
                     <?php if(isset($action) && $action == 'payroll_close') { ?>
                         <input type="submit" name="close_payroll"  value="Close Payroll" style="float: right;"/>
@@ -125,34 +139,36 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-    let dataTable = $('#data-table').DataTable({
-        "pageLength": 50,
-        "bLengthChange": false,
-        "bFilter": true,
-        "bInfo": false,
-        "bAutoWidth": false,
-        "dom": '<"toolbar">frtip',
-        // 04/14/22 Remvoved for the checkbox/select column properties
-        // "aoColumnDefs": [
-        //                     { "bSortable": true, "aTargets": [ 1 ] }, 
-        //                     { "bSearchable": false, "aTargets": [ 1 ]},
-        //                 ],
-        columnDefs: [ {
-            orderable: false,
-            className: 'select-checkbox',
-            targets:   0
-        } ],
-        select: {
-            style:    'multi',
-            selector: 'tr'
-        },
-        initComplete: function(settings, json){
-            // console.log("TEST: initComplete.fired()");
-            // $(".select-checkbox").addClass("selected");
-        },
-        "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[1, "asc"], [2, "asc"]';?>],
-    });
-    dataTable.on("click", "th.select-checkbox", function() {
+    let dataTable = $('#data-table')
+        .DataTable({
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "dom": '<"toolbar">frtip',
+            pageLength: 25,
+            paging: true,
+            stateSave: false,
+            select: true,
+            // 04/14/22 Remvoved for the checkbox/select column properties
+            // "aoColumnDefs": [
+            //                     { "bSortable": true, "aTargets": [ 1 ] }, 
+            //                     { "bSearchable": false, "aTargets": [ 1 ]},
+            //                 ],
+            columnDefs: [ {
+                orderable: false,
+                className: 'select-checkbox',
+                targets:   0
+            } ],
+            select: {
+                style:    'multi',
+                selector: 'tr'
+            },
+            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[1, "asc"], [2, "asc"]';?>]
+        });
+
+    dataTable
+    .on("click", "th.select-checkbox", function() {
         if ($("th.select-checkbox").hasClass("selected")) {
             dataTable.rows().deselect();
             $("th.select-checkbox").removeClass("selected");
@@ -168,61 +184,113 @@ $(document).ready(function() {
         } else {
             $("th.select-checkbox").addClass("selected");
         }
-        var isSelected = "1";
-        var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
-        var rowDataSplit = rowData.split(',');
-        
-        rowDataSplit.forEach((element, index) => {
-            if (element.indexOf('upload[') > -1){
-                var elementName = element.substr(element.indexOf('upload['));
-                var elementName = elementName.substr(0, elementName.indexOf(']')+1).replace('[', '\\[').replace(']', '\\]');
-                $("#" + elementName).val(isSelected);
-            }
-        })
     }).on("deselect", function(e, dt, type, indexes) {
         $("th.select-checkbox").removeClass("selected");
-
-        var isSelected = "0";
-        var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
-        var rowDataSplit = rowData.split(',');
-        
-        rowDataSplit.forEach((element, index) => {
-            if (element.indexOf('upload[') > -1){
-                var elementName = element.substr(element.indexOf('upload['));
-                var elementName = elementName.substr(0, elementName.indexOf(']')+1).replace('[', '\\[').replace(']', '\\]');
-                $("#" + elementName).val(isSelected);
-            }
-        })
+    }).on("page.dt", function(){
+        // Page change code removed. Data initialized in "Initialize Broker table" code. Keep this open for future mods - i.e. element formatting        
     });
-    // Initialize the dataTable - 
-    <?php if(!empty($_SESSION['upload_payroll']['upload'])){ 
-        foreach ($_SESSION['upload_payroll']['upload'] AS $repId=>$rowIndex){
-            if ($rowIndex == "1") { ?>
-                // 4/18/22 jQuery row find - have to use 3 escape backslashes for JS to use array's brackets
-                var repRow = $("<?php echo '#rep_row\\\['.$repId.'\\\]' ?>");
-                dataTable.rows( repRow ).select();
-            <?php }
-        }   
-    } else { ?>
-        dataTable.rows().select();
+
+    // Initialize the Broker table
+    <?php if(!empty($_SESSION['upload_payroll']['upload']) AND in_array("0", $_SESSION['upload_payroll']['upload'])){ 
+        foreach ($_SESSION['upload_payroll']['upload'] AS $repId=>$rowValue){ 
+    ?>
+            // Create hidden <input> elements for the $_POST array
+            var inputName = "<?php echo 'upload['.$repId.']' ?>";
+            var isSelected = <?php echo $rowValue ?>;
+
+            $("#upload_payroll").append(
+                $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', inputName)
+                .attr('value', isSelected)
+            )
+        <?php } ?>
+        
+        // Select the appropriate rows from $_SESSION['upload_payroll']['upload'] (translated into the <input>'s above)
+        // Have to use the rows().every() method, because that was the only way to update(select/deselect) the rows that aren't visible on the current page.
+        dataTable.rows().every(function(rowIdx, tableLoop, rowLoop) {
+            isSelected = $("input[name=upload\\[" + this.node().id.replace("repId_","") + "\\]]").val();
+                    
+            if (isSelected == 1) {
+                this.select();
+            } else {
+                this.deselect();
+            }
+        });
+    <?php } else { ?>
+        $("#select_all").trigger("click");
     <?php } ?>
 
-    <?php 
-    if(isset($action) && $action == 'payroll_close') {?>
+    //-- 
+    $('#company-select').on('change', function(event){
+        companyClass = "company" + event.target.value;
+        // Reset the search array every time, if the user searches companies the stack will go down to nothing
+        $.fn.dataTable.ext.search.pop();
+        
+        if (event.target.value > 0){
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    return $(dataTable.row(dataIndex).node()).hasClass(companyClass);
+                }
+            );
+        }
+        // Important: trigger the draw(), or the table will look the same
+        dataTable.draw();
+    });
+
+    // Add/Remove reps to the hidden <input> elements for POST - 4/22/22
+    $('#upload_payroll').on('submit', function(e){
+        var form = this;
+        
+        dataTable.rows().every( function (rowIdx, tableLoop, rowLoop){
+            var inputName =(this.node().id).replace("repId_", "upload[") + "]";
+            var isSelected = ($("#select_all").hasClass("selected") || (this.node().className).indexOf("selected")>-1) ? "1" : "0";
+            var companyClass = 'company' + $("#company-select").val();
+            
+            // If a specific company is selected, only append Brokers associated with that company
+            if (companyClass == 'company0' || $("#" + this.node().id).hasClass(companyClass)){
+                //--- Saturday 4/23/22 1:28 PM - Try to append all the <inputs> on initialization ---//
+                if(!$.contains(document, form[this.name])){
+                    $(form).append(
+                        $('<input>')
+                        .attr('type', 'hidden')
+                        .attr('name', inputName)
+                        // .attr('value', isSelected)
+                    )
+                }
+                var jQInput = $("input[name=" + inputName.replace("[", "\\\[").replace("]", "\\\]") + "]");
+                jQInput.attr('value', isSelected);
+            } else {
+                // Remove <input> from the DOM so it won't POST
+                var jQInput = $("input[name=" + inputName.replace("[", "\\\[").replace("]", "\\\]") + "]");
+                
+                console.log(jQInput + ", Length: " + $(jQInput).length)
+                
+                if ($(jQInput).length > 0){
+                    $(jQInput).remove();
+                }
+            }
+        });
+    });
+
+    // Filter the Broker table for specific companies
+    if ($('#company-select').val() != 0){
+        $('#company-select').trigger('change');
+    }
+    
+    <?php if(isset($action) && $action == 'payroll_close') {?>
         // $(document).ready(function() {
             //     conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
             // });
     <?php } ?>
             
-    <?php
-    if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) { 
-        ?>
+    <?php if(isset($_POST['upload_payroll']) && $_POST['upload_payroll']=="Upload Payroll" && !empty($payroll_date) && isset($_SESSION['upload_payroll']['duplicate_payroll'])) {  ?>
         $(document).ready(function() {
             duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
         });
     <?php } ?>
 });
-
+        
 $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
@@ -336,6 +404,7 @@ function duplicate_payroll(url, message){
         }
     });
 }
+
 </script>
 <style>
 .btn-primary {
