@@ -25,10 +25,6 @@
     $company_number = isset($_POST['company-select']) ? (int)$dbins->re_db_input($_POST['company-select']) : 0;
 
     if((isset($_POST['upload_payroll']) AND $_POST['upload_payroll']=='Upload Payroll') OR (isset($_POST['duplicate_payroll_proceed']) AND $_POST['duplicate_payroll_proceed']=="true")) {
-        // TEST DELETE ME 4/24/22
-if ($_POST['duplicate_payroll_proceed']=="true"){
-    $x = 0;
-}        
         // 04/17/22 Reinitialize front end parameters if things go wrong
         $_SESSION['upload_payroll'] = $_POST;
         $_SESSION['upload_payroll']['errors'] = '';

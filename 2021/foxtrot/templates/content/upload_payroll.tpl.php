@@ -399,7 +399,6 @@ function duplicate_payroll(url, message){
         callback: function(result) {
             document.getElementById("duplicate_payroll_proceed").value = result;
             if (result) {
-                // $("#upload_payroll").trigger("submit");
                 document.getElementById("upload_payroll").submit();
             };
         }
