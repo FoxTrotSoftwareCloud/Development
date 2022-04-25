@@ -71,7 +71,7 @@ class payroll extends db{
 		}
 	}
     public function upload_payroll($data){
-        $_SESSION['upload_payroll']['errors'] = $_SESSION['info'] = '';
+        $_SESSION['upload_payroll']['errors'] = '';
         
 		$payroll_date = isset($data['payroll_date'])?$this->re_db_input($data['payroll_date']):'';
 		$clearing_business_cutoff_date = isset($data['clearing_business_cutoff_date'])?$this->re_db_input($data['clearing_business_cutoff_date']):'';

@@ -7,10 +7,10 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Company</label>    
-                    <select class="form-control" name="company">
+                    <select class="form-control" id="company-select" name="company-select">`
                         <option value="0">All Companies</option>
                         <?php foreach ($get_multi_company AS $companyRow) { ?>
-                            <option value="<?php echo $companyRow['id'] ?>" <?php echo ($company==$companyRow['id'] ? 'selected':'') ?> ><?php echo $companyRow['company_name'] ?></option>
+                            <option value="<?php echo $companyRow['id'] ?>" <?php echo ($company_number==$companyRow['id'] ? 'selected':'') ?> ><?php echo $companyRow['company_name'] ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -95,7 +95,8 @@
                                 $compClasses = 
                                     (empty($val['company_id1']) ? '' : ' company'.$val['company_id1']).
                                     (empty($val['company_id2']) ? '' : ' company'.$val['company_id2']).
-                                    (empty($val['company_id3']) ? '' : ' company'.$val['company_id3']) ;
+                                    (empty($val['company_id3']) ? '' : ' company'.$val['company_id3']) 
+                                ;
                             ?>
                                 <tr id="repId_<?php echo $val['id']; ?>" class="<?php echo $compClasses; ?>" >
                                     <td></td>
@@ -183,25 +184,13 @@ $(document).ready(function() {
         } else {
             $("th.select-checkbox").addClass("selected");
         }
-        //-- DELETE ME IF FORM SUBMIT WORKS 4/22/22 --//
-        // var isSelected = "1";
-        // var rowData = JSON.stringify(dataTable.rows( indexes ).data().toArray());
-        // var rowDataSplit = rowData.split(',');
-        
-        // rowDataSplit.forEach((element, index) => {
-        //     if (element.indexOf('upload[') > -1){
-        //         var elementName = element.substr(element.indexOf('upload['));
-        //         var elementName = elementName.substr(0, elementName.indexOf(']')+1).replace('[', '\\[').replace(']', '\\]');
-        //         $("#" + elementName).val(isSelected);
-        //     }
-        // })
     }).on("deselect", function(e, dt, type, indexes) {
         $("th.select-checkbox").removeClass("selected");
     }).on("page.dt", function(){
-        
+        // Page change code removed. Data initialized in "Initialize Broker table" code. Keep this open for future mods - i.e. element formatting        
     });
 
-    // Initialize the Broker Grid
+    // Initialize the Broker table
     <?php if(!empty($_SESSION['upload_payroll']['upload']) AND in_array("0", $_SESSION['upload_payroll']['upload'])){ 
         foreach ($_SESSION['upload_payroll']['upload'] AS $repId=>$rowValue){ 
     ?>
@@ -232,7 +221,63 @@ $(document).ready(function() {
         $("#select_all").trigger("click");
     <?php } ?>
 
+    //-- 
+    $('#company-select').on('change', function(event){
+        companyClass = "company" + event.target.value;
+        // Reset the search array every time, if the user searches companies the stack will go down to nothing
+        $.fn.dataTable.ext.search.pop();
+        
+        if (event.target.value > 0){
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    return $(dataTable.row(dataIndex).node()).hasClass(companyClass);
+                }
+            );
+        }
+        // Important: trigger the draw(), or the table will look the same
+        dataTable.draw();
+    });
 
+    // Add/Remove reps to the hidden <input> elements for POST - 4/22/22
+    $('#upload_payroll').on('submit', function(e){
+        var form = this;
+        
+        dataTable.rows().every( function (rowIdx, tableLoop, rowLoop){
+            var inputName =(this.node().id).replace("repId_", "upload[") + "]";
+            var isSelected = ($("#select_all").hasClass("selected") || (this.node().className).indexOf("selected")>-1) ? "1" : "0";
+            var companyClass = 'company' + $("#company-select").val();
+            
+            // If a specific company is selected, only append Brokers associated with that company
+            if (companyClass == 'company0' || $("#" + this.node().id).hasClass(companyClass)){
+                //--- Saturday 4/23/22 1:28 PM - Try to append all the <inputs> on initialization ---//
+                if(!$.contains(document, form[this.name])){
+                    $(form).append(
+                        $('<input>')
+                        .attr('type', 'hidden')
+                        .attr('name', inputName)
+                        // .attr('value', isSelected)
+                    )
+                }
+                var jQInput = $("input[name=" + inputName.replace("[", "\\\[").replace("]", "\\\]") + "]");
+                jQInput.attr('value', isSelected);
+            } else {
+                // Remove <input> from the DOM so it won't POST
+                var jQInput = $("input[name=" + inputName.replace("[", "\\\[").replace("]", "\\\]") + "]");
+                
+                console.log(jQInput + ", Length: " + $(jQInput).length)
+                
+                if ($(jQInput).length > 0){
+                    $(jQInput).remove();
+                }
+            }
+        });
+    });
+
+    // Filter the Broker table for specific companies
+    if ($('#company-select').val() != 0){
+        $('#company-select').trigger('change');
+    }
+    
     <?php if(isset($action) && $action == 'payroll_close') {?>
         // $(document).ready(function() {
             //     conf_close('<?php echo CURRENT_PAGE; ?>?action=payroll_close&confirm=yes');
@@ -244,28 +289,6 @@ $(document).ready(function() {
             duplicate_payroll('<?php echo CURRENT_PAGE; ?>?action=upload_payroll_duplicate_proceed', "<?php echo 'Payroll '.date('m/d/Y', strtotime($payroll_date)).' already exists.<br>Do you want to add trades to the existing payroll?<br>(If not, closeout the payroll and upload again.)'; ?>");
         });
     <?php } ?>
-    
-    // Update the checked off reps to the hidden <input> elements - 4/22/22
-    $('#upload_payroll').on('submit', function(e){
-        var form = this;
-        
-        dataTable.rows().every( function (rowIdx, tableLoop, rowLoop){
-            var inputName =(this.node().id).replace("repId_", "upload[") + "]";
-            var isSelected = ($("#select_all").hasClass("selected") || (this.node().className).indexOf("selected")>-1) ? "1" : "0";
-            
-            //--- Saturday 4/23/22 1:28 PM - Try to append all the <inputs> on initialization ---//
-            if(!$.contains(document, form[this.name])){
-                $(form).append(
-                    $('<input>')
-                    .attr('type', 'hidden')
-                    .attr('name', inputName)
-                    // .attr('value', isSelected)
-                )
-            }
-            var jQInput = $("input[name=" + inputName.replace("[", "\\\[").replace("]", "\\\]") + "]");
-            jQInput.attr('value', isSelected);
-        });
-    });
 });
         
 $('#demo-dp-range .input-daterange').datepicker({
