@@ -928,21 +928,24 @@ public function insert_update_generic ($table, $data) {
     	return $return;
     }
 
+    /***
+    4/29/22 Moved to "payroll" class so all may enjoy! - especially Payroll Summary Report
+    ***/
+    // public function select_current_payroll($id=0) {
+    //     $con = '';
+    //     if ($id > 0){
+    //         $con .= " AND `pcp`.`payroll_id` = '".$id."'";
+    //     }
 
-    public function select_current_payroll($id=0) {
-        $con = '';
-        if ($id > 0){
-            $con .= " AND `pcp`.`payroll_id` = '".$id."'";
-        }
+    //     $q = "SELECT *
+    //             FROM `" .PAYROLL_CURRENT_PAYROLL. "` `pcp`
+    //             WHERE `pcp`.`is_delete`='0' ".$con." 
+    //     ";
 
-        $q = "SELECT *
-                FROM `" .PAYROLL_CURRENT_PAYROLL. "` `pcp`
-                WHERE `pcp`.`is_delete`='0' ".$con." 
-        ";
-
-        $res = $this->re_db_query($q);
-        return  $this->re_db_fetch_all($res);
-    }
+    //     $res = $this->re_db_query($q);
+    //     return  $this->re_db_fetch_all($res);
+    // }
+    
     public function select_active_brokers($payroll_date) {
         $q = "SELECT 
                     `bm`.`id` AS `broker_id`, 

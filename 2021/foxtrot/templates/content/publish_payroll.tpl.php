@@ -25,6 +25,7 @@
                                     <option value="2" <?php echo ($publish_report==2)?'selected':''; ?> >Company Statement</option>
                                     <option value="3" <?php echo ($publish_report==3)?'selected':''; ?> >Adjustment Report</option>
                                     <option value="4" <?php echo ($publish_report==4)?'selected':''; ?> >Reconciliation Report</option>
+                                    <option value="5" <?php echo ($publish_report==5)?'selected':''; ?> >Summary Report</option>
                                 </select>
                             </div>
                          </div>

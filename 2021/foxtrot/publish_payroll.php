@@ -96,6 +96,25 @@
                 header("location:".SITE_URL."report_payroll_reconciliation.php?filter=".$data_array);exit;
             }
         }
+        else if(isset($publish_report) && $publish_report == 5)
+        {
+            if($output == 1)
+            {
+                header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
+            }
+            else if($output == 2)
+            {
+                header("location:".SITE_URL."report_payroll_summary.php?open=output_print&filter=".$data_array);exit;
+            }
+            else if($output == 3)
+            {
+                header("location:".SITE_URL."report_payroll_summary_excel.php?filter=".$data_array);exit;
+            }
+            else if($output == 4)
+            {
+                header("location:".SITE_URL."report_payroll_summary.php?filter=".$data_array);exit;
+            }
+        }
     }
     if(isset($_GET['filter']) && $_GET['filter'] != '')
     {

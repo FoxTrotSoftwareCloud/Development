@@ -1028,9 +1028,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
            </tbody>
         </table>
         
-<?php }
-      else if($publish_report==4)
-      { 
+    <?php } else if($publish_report==4) { 
         $get_reconci_data = array();
         $product_category = isset($filter_array['product_category'])?$filter_array['product_category']:0;
         // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
@@ -1161,7 +1159,140 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
        </tbody>
        </table>
         
-<?php  }
-}
+    <?php } else if($publish_report==5) { 
+        $reportData = array();
+        $company = isset($filter_array['company'])?$filter_array['company']:0;
+        $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
+        $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
+        $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
+        $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
+        
+        $summaryData = $instance_payroll->select_current_payroll($payroll_id, 1);
+        $reportData = $instance_payroll->get_payroll_summary_report_data($payroll_id, $company);
+        
+        ?>
+        <table border="0" width="100%">
+                <tr>
+                    <?php 
+                    if(isset($system_logo) && $system_logo != '')
+                    {?>
+                        <td width="30%" align="left"><?php echo $img;?></td>
+                    <?php } ?>
+                    <td width="40%" style="font-size:16px;font-weight:bold;text-align:center;"><?php echo 'PAYROLL SUMMARY REPORT';?></td>
+                    <?php
+                    if(isset($system_company_name) && $system_company_name != '')
+                    {?>
+                        <td width="30%" style="font-size:12px;font-weight:bold;text-align:right;"><?php echo $system_company_name;?></td>
+                    <?php
+                    }?>
+                </tr>
+                <tr>
+                    <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo $payroll_date;?></td>
+                </tr>
+        </table>
+        <table border="0" cellpadding="1" width="100%">
+            <thead>
+                <tr style="background-color: #f1f1f1;">
+                    <td width="25%" style="text-align:center;"><h5>PRODUCT CATEGORY</h5></td>
+                    <td width="15%" style="text-align:right; "><h5>TRADE COUNT</h5></td>
+                    <td width="20%" style="text-align:right;"><h5>GROSS COMMISSION</h5></td>
+                    <td width="20%" style="text-align:right;"><h5>% of GROSS</h5></td>
+                    <td width="20%" style="text-align:right;"><h5>NET COMMISSION</h5></td>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if($reportData != array()) {
+                    $report_trade_count_total = 0;
+                    $report_gross_commission_total = 0;
+                    $report_net_commission_total = 0;
+                    
+                    foreach($reportData AS $dataKey=>$dataRow) {   
+                        $pctOfGross = ($summaryData[0]['GROSS_COMMISSION']==0 ? 0 : round($dataRow['GROSS_COMMISSION']*100 /$summaryData[0]['GROSS_COMMISSION'], 0));
+                    ?>
+                        <tr>
+                            <td style="font-size:12px;font-weight:normal;text-align:left;"><?php echo $dataRow['PRODUCT_CATEGORY'];?></td>
+                            <td style="font-size:12px;font-weight:normal;text-align:right;"><?php echo number_format($dataRow['TRADE_COUNT'],0);?></td>
+                            <td style="font-size:12px;font-weight:normal;text-align:right;"><?php echo number_format($dataRow['GROSS_COMMISSION'],2);?></td>
+                            <td style="font-size:12px;font-weight:normal;text-align:right;"><?php echo (string)$pctOfGross."%";?></td>
+                            <td style="font-size:12px;font-weight:normal;text-align:right;"><?php echo number_format($dataRow['NET_COMMISSION'],2);?></td>
+                        </tr>
+                        
+                        <?php 
+                        $report_trade_count_total += $dataRow['TRADE_COUNT'];
+                        $report_gross_commission_total += $dataRow['GROSS_COMMISSION'];
+                        $report_net_commission_total += $dataRow['NET_COMMISSION'];;
+                    } ?>
+                
+                    <tr style="background-color: #f1f1f1;">
+                       <td style="font-size:12px;font-weight:bold;text-align:right;">* TRANSACTION TOTALS *</td>
+                       <td style="font-size:12px;font-weight:bold;text-align:right;"><?php echo number_format($report_trade_count_total,0);?></td>
+                       <td style="font-size:12px;font-weight:bold;text-align:right;"><?php echo '$'.number_format($report_gross_commission_total,2);?></td>
+                       <td style="font-size:12px;font-weight:bold;text-align:right;"><?php echo '100%';?></td>
+                       <td style="font-size:12px;font-weight:bold;text-align:right;"><?php echo '$'.number_format($report_net_commission_total,2);?></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:bold;text-align:center;" colspan="5">&nbsp</td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:bold;text-align:center;" colspan="3">&nbsp</td>
+                        <td style="font-size:12px;font-weight:bold;text-align:center;" colspan="2">* PAYOUT SUMMARY *</td>
+                    </tr>
+                     <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:left;" colspan="3">&nbsp</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;">FINRA</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;"><?php echo $instance_payroll->payroll_accounting_format(-$summaryData[0]['FINRA_TOTAL'],2);?></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:left;" colspan="3">&nbsp</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;">SIPC</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;"><?php echo $instance_payroll->payroll_accounting_format(-$summaryData[0]['SIPC_TOTAL'],2);?></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:left;" colspan="2">&nbsp</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;" colspan="2">TAXABLE ADJUSTMENTS</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;"><?php echo $instance_payroll->payroll_accounting_format($summaryData[0]['TAXABLE_ADJUSTMENTS_TOTAL'],2);?></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:left;" colspan="2">&nbsp</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;" colspan="2">NON-TAX ADJUSTMENTS</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;"><?php echo $instance_payroll->payroll_accounting_format($summaryData[0]['NON-TAXABLE_ADJUSTMENTS_TOTAL'],2);?></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:left;" colspan="2">&nbsp</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;" colspan="2">OVERRIDES PAID</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;"><?php echo $instance_payroll->payroll_accounting_format($summaryData[0]['OVERRIDES_PAID_TOTAL'],2);?></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:left;" colspan="2">&nbsp</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;" colspan="2">PRIOR BALANCES</td>
+                        <td style="font-size:12px;font-weight:normal;font-style:italic;text-align:right;"><?php echo $instance_payroll->payroll_accounting_format($summaryData[0]['PRIOR_BALANCE_TOTAL'],2);?></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:bold;text-align:left;" colspan="2">&nbsp</td>
+                        <td style="font-size:12px;font-weight:bold;text-align:right;" colspan="2"><b>TOTAL PAYROLL</b></td>
+                        <td style="font-size:12px;font-weight:bold;text-align:right;"><b><?php echo $instance_payroll->payroll_accounting_format($summaryData[0]['TOTAL_PAYROLL'],2);?></b></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:bold;text-align:center;" colspan="5">&nbsp</td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:bold;text-align:left;" colspan="2">&nbsp</td>
+                        <td style="font-size:12px;font-weight:bold;text-align:right;" colspan="2"><b>TOTAL CHECKS</b></td>
+                        <td style="font-size:12px;font-weight:bold;text-align:right;"><b><?php echo $instance_payroll->payroll_accounting_format($summaryData[0]['TOTAL_CHECKS'],2);?></b></td>
+                    </tr>
+                    <tr style="background-color: #f1f1f1;">
+                        <td style="font-size:12px;font-weight:bold;text-align:left;" colspan="2">&nbsp</td>
+                        <td style="font-size:12px;font-weight:bold;text-align:right;" colspan="2"><b>BALANCES CARRIED FORWARD</b></td>
+                        <td style="font-size:12px;font-weight:bold;text-align:right;"><b><?php echo $instance_payroll->payroll_accounting_format($summaryData[0]['TOTAL_CARRIED_FORWARD'],2);?></b></td>
+                    </tr>
+                <?php  } else { ?>
+                    <tr>
+                        <td style="font-size:13px;font-weight:cold;text-align:center;" colspan="9">No Records Found.</td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    <?php } ?>
+<?php }
 ?>
        
