@@ -103,7 +103,7 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
 </div>-->
 <?php }
 else if(isset($_GET['report_name']) && in_array((int)$_GET['report_name'], [2,5])){ ?>
-<div class="titlebox">Company Commission Statement</div><br />
+<div class="titlebox"><?php echo (int)$_GET['report_name']==2?"Company Commission Statement":"Payroll Summary Report" ?></div><br />
 <div class="row">
     <div class="col-md-6">
         <div class="form-group">

@@ -1027,7 +1027,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             }?>
            </tbody>
         </table>
-        
+    <!-- ------------------------ -->
+    <!-- PAYROLL RECON REPORT (4) -->
+    <!-- ------------------------ -->
     <?php } else if($publish_report==4) { 
         $get_reconci_data = array();
         $product_category = isset($filter_array['product_category'])?$filter_array['product_category']:0;
@@ -1158,7 +1160,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             }?>
        </tbody>
        </table>
-        
+    <!-- ---------------------------------- -->
+    <!-- PAYROLL SUMMARY REPORT (5) 4/30/22 -->
+    <!-- ---------------------------------- -->
     <?php } else if($publish_report==5) { 
         $reportData = array();
         $company = isset($filter_array['company'])?$filter_array['company']:0;
