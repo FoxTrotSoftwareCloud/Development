@@ -102,8 +102,8 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
     </div>
 </div>-->
 <?php }
-else if(isset($_GET['report_name']) && $_GET['report_name'] == '2'){ ?>
-<div class="titlebox">Company Commission Statement</div><br />
+else if(isset($_GET['report_name']) && in_array((int)$_GET['report_name'], [2,5])){ ?>
+<div class="titlebox"><?php echo (int)$_GET['report_name']==2?"Company Commission Statement":"Payroll Summary Report" ?></div><br />
 <div class="row">
     <div class="col-md-6">
         <div class="form-group">
@@ -135,15 +135,17 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '2'){ ?>
 </div>
 
 <div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label>Sort Order </label>
-            <select class="form-control" name="sort_by">
-                <option value="1">By Name</option>
-                <option value="2">By Fund/Clear No.</option>
-            </select>
+    <?php if ((int)$_GET['report_name'] != 5){ ?>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Sort Order </label>
+                <select class="form-control" name="sort_by">
+                    <option value="1">By Name</option>
+                    <option value="2">By Fund/Clear No.</option>
+                </select>
+            </div>
         </div>
-    </div>
+    <?php } ?>
     <div class="col-md-6">
         <div class="form-group">
             <label>Output Destination </label>

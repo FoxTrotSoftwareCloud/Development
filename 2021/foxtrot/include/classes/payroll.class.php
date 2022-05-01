@@ -778,18 +778,67 @@ class payroll extends db{
 		}
    }
 
- public function edit_review_payroll($id){
+    public function edit_review_payroll($id){
         $return = array();
-        $q = "SELECT `trn`.*, `trn`.`broker_id` AS broker_name
-                FROM ".PAYROLL_REVIEW_MASTER." AS `trn`
-                WHERE `trn`.`is_delete`='0' AND `trn`.`id`='".$id."'";
+        $id = (int)$this->re_db_input($id);
+        
+        $q = "SELECT `trn`.*, `trn`.`broker_id` AS `broker_name`"
+                ." FROM `".PAYROLL_REVIEW_MASTER."` AS `trn`"
+                ." WHERE `trn`.`is_delete`=0"
+                ." AND `trn`.`id`=$id"
+        ;
         $res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
             $return = $this->re_db_fetch_array($res);
         }
         return $return;
     }
-   /** INVALID: Table PAYROLL_TRADE_OVERRIDES doesn't exist, but may be added later - 10/29/21 li
+
+    // For Payroll Summary Report - 4/28/22
+    public function select_review_master($payroll_id=0, $summaryByProdCat=0){
+        $return = array();
+        $payroll_id = (int)$this->re_db_input($payroll_id);
+        $con = '';
+        
+        if ($payroll_id){
+            $con = " AND `a`.`payroll_id`=$payroll_id";    
+        }
+        
+        if ($summaryByProdCat){
+            $q =                
+                "SELECT `a`.`payroll_id`,"
+                        ." `b`.`product_cate` AS `PRODCAT_ID`,"
+                        ." `c`.`type` AS `PRODUCT_CATEGORY`,"
+                        ." SUM(`a`.`investment_amount`) AS `INVESTMENT_TOTAL`, "
+                        ." SUM(`a`.`commission_received`) AS `GROSS_COMMISSION`," 
+                        ." SUM(`a`.`commission_paid`) AS `NET_COMMISSION`,"
+                        ." COUNT(1) AS TRADE_COUNT"
+                ." FROM `".PAYROLL_REVIEW_MASTER."` `a`"
+                ." LEFT JOIN `".TRANSACTION_MASTER."` `b` ON `a`.`trade_number`=`b`.`id`"
+                ." LEFT JOIN `".PRODUCT_TYPE."` `c` ON `b`.`product_cate`=`c`.`id`"
+                ." WHERE `a`.`is_delete`=0"
+                    .$con
+                ." GROUP BY `a`.`payroll_id`, `b`.`product_cate`, `c`.`type`"
+                ." ORDER BY `a`.`payroll_id`, `c`.`type`, `b`.`product_cate`"
+            ;
+        } else {
+            $q = "SELECT `rm`.*"
+                    ." FROM `".PAYROLL_REVIEW_MASTER."` AS `rm`"
+                    ." WHERE `rm`.`is_delete`=0"
+                    .$con
+            ;
+        }
+
+        $res = $this->re_db_query($q);
+
+        if($this->re_db_num_rows($res)>0){
+            $return = $this->re_db_fetch_all($res);
+        }
+
+        return $return;
+    }
+
+    /** INVALID: Table PAYROLL_TRADE_OVERRIDES doesn't exist, but may be added later - 10/29/21 li
     * @param mixed $id 
     * @param mixed $transaction_id 
     * @return array 
@@ -1991,6 +2040,7 @@ class payroll extends db{
         ";
 
 		$res = $this->re_db_query($queryString);
+        
         if($this->re_db_num_rows($res)>0){
 			while($row = $this->re_db_fetch_array($res)){
 			     $return['company_name']=$row['company_name'];
@@ -2000,6 +2050,153 @@ class payroll extends db{
         }
 		return $return;
 	}
+    
+    // 4/28/22 PAYROLL SUMMARY REPORT - get Net Commissions for Splits and group by Product Category
+    function select_split_rates_by_product_category($payroll_id=0, $summaryByProdCat=0){
+        $return = [];
+        $con = '';
+        $payroll_id = (int)$this->re_db_input($payroll_id);
+        
+        if ($payroll_id){
+            $con .= " AND `a`.`payroll_id`=$payroll_id";    
+        }
+        
+        if ($summaryByProdCat){
+            $q = "SELECT `a`.`payroll_id`"
+                    ." ,`b`.`product_cate` AS `PRODCAT_ID`"
+                    ." ,`c`.`type` AS `PRODUCT_CATEGORY`"
+                    ." ,SUM(`a`.`split_paid`) AS `NET_COMMISSION`"
+                    ." ,COUNT(1) AS TRADE_COUNT"
+                ." FROM `".PAYROLL_SPLIT_RATES."` `a`"
+                ." LEFT JOIN `".TRANSACTION_MASTER."` `b` ON `a`.`transaction_id`=`b`.`id`"
+                ." LEFT JOIN `".PRODUCT_TYPE."` `c` ON `b`.`product_cate`=`c`.`id`"
+                ." WHERE `a`.`is_delete`=0"
+                    .$con
+                ." GROUP BY `a`.`payroll_id`, `b`.`product_cate`, `c`.`type`"
+                ." ORDER BY `a`.`payroll_id`, `c`.`type`, `b`.`product_cate`"
+            ;
+        } else {
+            $q = "SELECT `a`.*"
+                    ." ,`b`.`product_cate` AS `PRODCAT_ID`"
+                    ." ,`c`.`type` AS `PRODUCT_CATEGORY`"
+                ." FROM `".PAYROLL_SPLIT_RATES."` `a`"
+                ." LEFT JOIN `".TRANSACTION_MASTER."` `b` ON `a`.`transaction_id`=`b`.`id`"
+                ." LEFT JOIN `".PRODUCT_TYPE."` `c` ON `b`.`product_cate`=`c`.`id`"
+                ." WHERE `a`.`is_delete`=0"
+                    .$con
+                ." ORDER BY `a`.`payroll_id`, `c`.`type`, `b`.`product_cate`"
+            ;
+        }
 
+        $res = $this->re_db_query($q);
+        
+        if($this->re_db_num_rows($res)>0){
+            $return = $this->re_db_fetch_all($res);
+        }
+
+        return $return;
+    }
+
+    function select_current_payroll($payroll_id=0, $summary=0){
+        $return = [];
+        $con = '';
+        $payroll_id = (int)$this->re_db_input($payroll_id);
+        
+        if ($payroll_id > 0){
+            $con .= " AND `payroll_id`=$payroll_id";    
+        }
+        
+        // Don't change the field names. They are used in the Payroll Summary Report as column descriptions. That's why they're in CAPS.
+        if ($summary){
+            $q = "SELECT payroll_id"
+                    .", SUM(`commission_received`+`split_gross`) AS `GROSS_COMMISSION`" 
+                    .", SUM(`commission_paid`+`split_paid`) AS `NET_COMMISSON`" 
+                    .", SUM(`finra`) AS `FINRA_TOTAL`"
+                    .", SUM(`sipc`) AS `SIPC_TOTAL`" 
+                    .", SUM(`adjustments`) AS `ADJUSTMENTS_TOTAL`" 
+                    .", SUM(`taxable_adjustments`) AS `TAXABLE_ADJUSTMENTS_TOTAL`" 
+                    .", SUM(`non-taxable_adjustments`) AS `NON-TAXABLE_ADJUSTMENTS_TOTAL`" 
+                    .", SUM(`override_paid`) AS `OVERRIDES_PAID_TOTAL`" 
+                    .", SUM(`balance`) AS `PRIOR_BALANCE_TOTAL`" 
+                    .", SUM(`check_amount`) AS `TOTAL_PAYROLL`"
+                    .", SUM(IF(`check_amount`>=`minimum_check_amount`, `check_amount`, 0)) AS `TOTAL_CHECKS`"
+                    .", SUM(IF(`check_amount`>=`minimum_check_amount`, 0, `check_amount`)) AS `TOTAL_CARRIED_FORWARD`"
+                ." FROM `".PAYROLL_CURRENT_PAYROLL."`"
+                ." WHERE `is_delete`=0"
+                    .$con
+                ." GROUP BY `payroll_id`"
+            ;
+        } else {
+            $q = "SELECT *"
+                ." FROM `".PAYROLL_CURRENT_PAYROLL."`"
+                ." WHERE `is_delete`=0"
+                    .$con
+            ;
+        }
+        
+        $res = $this->re_db_query($q);
+        
+        if($this->re_db_num_rows($res)>0){
+            $return = $this->re_db_fetch_all($res);
+        }
+
+        return $return;
+    }
+    
+    function get_payroll_summary_report_data($payroll_id=0, $company=0){
+        $payroll_id = (int)$this->re_db_input($payroll_id);
+        $company = (int)$this->re_db_input($company);
+        $return = $found = [];
+
+        $commData = $this->select_review_master($payroll_id, 1);
+        $splitData = $this->select_split_rates_by_product_category($payroll_id, 1);
+    
+        /****
+         * Add Split Payouts
+         */
+        foreach ($splitData AS $rowSplit){
+            $found[$rowSplit['PRODCAT_ID']]['key'] = -1;
+            
+            foreach ($commData AS $keyReview=>$rowReview){
+                if ($rowSplit['PRODCAT_ID']==$rowReview['PRODCAT_ID']){
+                    $found[$rowSplit['PRODCAT_ID']]['key'] = $keyReview;
+                    $found[$rowSplit['PRODCAT_ID']]['amount'] = $rowSplit['NET_COMMISSION'];
+                    break;
+                }
+            }
+            
+            if ($found[$rowSplit['PRODCAT_ID']]['key'] != -1){
+                $commData[$found[$rowSplit['PRODCAT_ID']]['key']]['NET_COMMISSION'] += $rowSplit['NET_COMMISSION'];
+            } else {
+                $commData[] = [
+                    'payroll_id'=>$rowSplit['payroll_id'], 
+                    'PRODCAT_ID'=>$rowSplit['PRODCAT_ID'], 
+                    'PRODUCT_CATEGORY'=>$rowSplit['PRODUCT_CATEGORY'], 
+                    'INVESTMENT_TOTAL'=>0, 
+                    'GROSS_COMMISSION'=>0, 
+                    'NET_COMMISSION'=>$rowSplit['NET_COMMISSION'],
+                    'TRADE_COUNT'=>0
+                ];
+            }
+        }
+        
+        if (count($commData)){
+            $return = $commData;
+        }
+        
+        return $return;
+    }
+    
+    function payroll_accounting_format($number=null, $precision=0){
+        $return = "";
+        
+        if (!is_null($number)){
+            $return = "$".number_format($number, $precision);
+        }
+        if (!empty($return) AND $number < 0){
+            $return = "($".number_format(abs($number), $precision).")";
+        }
+        return $return;
+    }
 }
 ?>

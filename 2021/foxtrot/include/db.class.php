@@ -1304,6 +1304,60 @@ class Excel extends db
                         } else {
                             $horizontal_alignment = PHPExcel_Style_Alignment::HORIZONTAL_LEFT;
                         }
+                        // 5/1/22 Add Border Styling
+                        if (array_key_exists('borders', $row_style)) {
+                            switch ($row_style['borders'][1]) {
+                                case 'thin':
+                                    $borderStyle = PHPExcel_Style_Border::BORDER_THIN;
+                                    break;
+                                case 'medium':
+                                    $borderStyle = PHPExcel_Style_Border::BORDER_MEDIUM ;
+                                    break;
+                                case 'thick':
+                                    $borderStyle = PHPExcel_Style_Border::BORDER_THICK;
+                                    break;
+                                case 'double':
+                                    $borderStyle = PHPExcel_Style_Border::BORDER_DOUBLE ;
+                                    break;
+                                case 'hair':
+                                    $borderStyle = PHPExcel_Style_Border::BORDER_HAIR ;
+                                    break;
+                                default:
+                                    $borderStyle = PHPExcel_Style_Border::BORDER_NONE ;
+                            };
+                            switch ($row_style['borders'][2]) {
+                                // PHPExcel deprecated in 2017 - System colors ("PHPExcel_Style_Color::COLOR_BLACK/RED/BLUE/GREEN") don't work
+                                case 'black':
+                                    $borderColor = '000000';
+                                    break;
+                                case 'red':
+                                    $borderColor = 'FF0000';
+                                    break;
+                                case 'blue':
+                                    $borderColor = '0000FF';
+                                    break;
+                                case 'green':
+                                    $borderColor = '00FF00';
+                                    break;
+                                default:
+                                    $borderColor = '000000';break;// PHPExcel_Style_Color::COLOR_BLACK;
+                            };
+                            
+                            $borderStyling = [
+                                $row_style['borders'][0] => [
+                                    'style' => $borderStyle,
+                                    'color' => ['rgb'=>$borderColor]
+                                ]
+                            ];
+                        } else {
+                            // Default settings
+                            $borderStyling = [
+                                'allborders' => [
+                                    'style' => PHPExcel_Style_Border::BORDER_NONE,
+                                    'color' => array('rgb' => '000000')
+                                ]
+                            ];
+                        }
 
                         $styleArray = array(
                             'font' => array(
@@ -1316,12 +1370,12 @@ class Excel extends db
                             'alignment' => array(
                                 'horizontal' => $horizontal_alignment
                             ),
-                            'borders' => array(
-                                  'allborders' => array(
-                                      'style' => PHPExcel_Style_Border::BORDER_NONE,
-                                      'color' => array('rgb' => '000000')
-                                  )
-                             )
+                            'borders' => $borderStyling
+                            //     'allborders' => array(
+                            //         'style' => PHPExcel_Style_Border::BORDER_NONE,
+                            //         'color' => array('rgb' => '000000')
+                            //     )
+                            
                         );
 
                         if(array_key_exists('background',$row_style)){

@@ -15,7 +15,6 @@
         $data_array = json_encode($_POST);
         $publish_report = isset($_POST['publish_report'])?$instance->re_db_input($_POST['publish_report']):0;
         $output = isset($_POST['output'])?$instance->re_db_input($_POST['output']):0;
-        // 11/11/21 Not sure if this is the best way to default the prior report selections, but i am pressed for time!   
         $_SESSION['publish_payroll']=$_POST;
 
         if(isset($publish_report) && $publish_report == 1)
@@ -32,68 +31,105 @@
             }
             else if($output == 3)
             {
-                header("location:".SITE_URL."report_payroll_broker_statement_excel.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_broker_statement_excel.php?filter=".$data_array);
+                exit;
             }
             else if($output == 4)
             {
-                header("location:".SITE_URL."report_payroll_broker_statement.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_broker_statement.php?filter=".$data_array);
+                exit;
             }
         }
         else if(isset($publish_report) && $publish_report == 2)
         {
             if($output == 1)
             {
-                header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
+                header('location:'.CURRENT_PAGE.'?filter='.$data_array);
+                exit;
             }
             else if($output == 2)
             {
-                header("location:".SITE_URL."report_payroll_company_statement.php?open=output_print&filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_company_statement.php?open=output_print&filter=".$data_array);
+                exit;
             }
             else if($output == 3)
             {
-                header("location:".SITE_URL."report_payroll_company_statement_excel.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_company_statement_excel.php?filter=".$data_array);
+                exit;
             }
             else if($output == 4)
             {
-                header("location:".SITE_URL."report_payroll_company_statement.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_company_statement.php?filter=".$data_array);
+                exit;
             }
         }
         else if(isset($publish_report) && $publish_report == 3)
         {
             if($output == 1)
             {
-                header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
+                header('location:'.CURRENT_PAGE.'?filter='.$data_array);
+                exit;
             }
             else if($output == 2)
             {
-                header("location:".SITE_URL."report_payroll_adjustment.php?open=output_print&filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_adjustment.php?open=output_print&filter=".$data_array);
+                exit;
             }
             else if($output == 3)
             {
-                header("location:".SITE_URL."report_payroll_adjustment_excel.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_adjustment_excel.php?filter=".$data_array);
+                exit;
             }
             else if($output == 4)
             {
-                header("location:".SITE_URL."report_payroll_adjustment.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_adjustment.php?filter=".$data_array);
+                exit;
             }
         }
         else if(isset($publish_report) && $publish_report == 4)
         {
             if($output == 1)
             {
-                header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
+                header('location:'.CURRENT_PAGE.'?filter='.$data_array);
+                exit;
             }
             else if($output == 2)
             {
-                header("location:".SITE_URL."report_payroll_reconciliation.php?open=output_print&filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_reconciliation.php?open=output_print&filter=".$data_array);
+                exit;
             }
             else if($output == 3)
             {
-                header("location:".SITE_URL."report_payroll_reconciliation_excel.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_reconciliation_excel.php?filter=".$data_array);
+                exit;
             }
             else if($output == 4)
             {
-                header("location:".SITE_URL."report_payroll_reconciliation.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_payroll_reconciliation.php?filter=".$data_array);
+                exit;
+            }
+        }
+        else if(isset($publish_report) && $publish_report == 5)
+        {
+            if($output == 1)
+            {
+                header('location:'.CURRENT_PAGE.'?filter='.$data_array);
+                exit;
+            }
+            else if($output == 2)
+            {
+                header("location:".SITE_URL."report_payroll_summary.php?open=output_print&filter=".$data_array);
+                exit;
+            }
+            else if($output == 3)
+            {
+                header("location:".SITE_URL."report_payroll_summary_excel.php?filter=".$data_array);
+                exit;
+            }
+            else if($output == 4)
+            {
+                header("location:".SITE_URL."report_payroll_summary.php?filter=".$data_array);
+                exit;
             }
         }
     }

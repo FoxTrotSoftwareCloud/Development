@@ -1,5 +1,5 @@
 <div class="container">
-<h1>Publish</h1>
+<h1>Payroll Reports</h1>
 <div class="col-lg-12 well">
 <?php 
     require_once(DIR_FS_INCLUDES."alerts.php"); 
@@ -19,12 +19,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Publish Report </label>
+                                <label>Select Report</label>
                                 <select class="form-control" name="publish_report" id="publish_report" onchange="open_reports(this.value);">
                                     <option value="1" <?php echo ($publish_report==1)?'selected':''; ?> >Broker Statement</option>
                                     <option value="2" <?php echo ($publish_report==2)?'selected':''; ?> >Company Statement</option>
                                     <option value="3" <?php echo ($publish_report==3)?'selected':''; ?> >Adjustment Report</option>
                                     <option value="4" <?php echo ($publish_report==4)?'selected':''; ?> >Reconciliation Report</option>
+                                    <option value="5" <?php echo ($publish_report==5)?'selected':''; ?> >Summary Report</option>
                                 </select>
                             </div>
                          </div>
