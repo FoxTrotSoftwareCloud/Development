@@ -27,18 +27,17 @@
     
     $creator                = "Foxtrot User";
     $last_modified_by       = "Foxtrot User";
-    $title                  = "Foxtrot Payroll Summary Report Excel";
-    $subject                = "Foxtrot Payroll Summary Report";
-    $description            = "Foxtrot Payroll Summary Report. Generated on : ".date('Y-m-d h:i:s');
-    $keywords               = "Foxtrot Payroll Summary report office 2007";
-    $category               = "Foxtrot Payroll Summary Report.";
+    $title                  = "Foxtrot ".ucwords($reportTitle)." Excel";
+    $subject                = "Foxtrot ".ucwords($reportTitle);
+    $description            = "Foxtrot ".ucwords($reportTitle).". Generated on : ".date('Y-m-d h:i:s');
+    $keywords               = "Foxtrot ".ucwords($reportTitle)." office 2007";
+    $category               = "Foxtrot ".ucwords($reportTitle);
     $total_sub_sheets       = 1;
     $sub_sheet_title_array  = array("Foxtrot Payroll Summary");
     $default_open_sub_sheet = 0; // 0 means first indexed sub sheets.
-    $excel_name             = 'Foxtrot Payroll Summary Report';
+    $excel_name             = 'Foxtrot '.ucwords(strtolower($reportTitle));
     $sheet_data             = array();
     $i=6;
-        
             
     // Set output excel array.
     /* Headers. */
@@ -47,16 +46,16 @@
         array(
             
             'A1'=>array('LOGO',array('bold','center','color'=>array('000000'),'size'=>array(16),'font_name'=>array('Calibri'),'merge'=>array('A1','B2'))),
-            'G1'=>array($system_company_name,array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('G1','I2'))),
+            'D1'=>array($system_company_name,array('bold','right','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('D1','E1'))),
             
-            'A3'=>array($reportTitle,array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('A3','I3'))),
-            'A4'=>array('ALL COMPANIES',array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A4','I4'))),
-            'A5'=>array($payroll_date,array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A5','I5'))),
-            'A6'=>array('PRODUCT CATEGORY',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'B6'=>array('TRADE COUNT',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'C6'=>array('GROSS COMMISSION',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'D6'=>array('% of GROSS',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'E6'=>array('NET COMMISSION',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')))
+            'A3'=>array($reportTitle,array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('A3','E3'))),
+            'A4'=>array('ALL COMPANIES',array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A4','E4'))),
+            'A5'=>array($payroll_date,array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A5','E5'))),
+            'A6'=>array('PRODUCT CATEGORY',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['bottom','medium',''])),
+            'B6'=>array('TRADE COUNT',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['bottom','medium',''])),
+            'C6'=>array('GROSS COMMISSION',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['bottom','medium',''])),
+            'D6'=>array('% of GROSS',array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['bottom','medium',''])),
+            'E6'=>array('NET COMMISSION',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['bottom','medium','']))
         )
     );
             
@@ -83,11 +82,11 @@
         }
         // Detail Totals
         $i++;
-        $sheet_data[0]['A'.$i] = array('* TRANSACTION TOTALS *',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
-        $sheet_data[0]['B'.$i] = array($instance->re_db_output($report_trade_count_total),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
-        $sheet_data[0]['C'.$i] = array($instance->re_db_output($instance_payroll->payroll_accounting_format($report_gross_commission_total,2)),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
-        $sheet_data[0]['D'.$i] = array('100%',array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
-        $sheet_data[0]['E'.$i] = array($instance->re_db_output($instance_payroll->payroll_accounting_format($report_net_commission_total,2)),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
+        $sheet_data[0]['A'.$i] = array('* TRANSACTION TOTALS *',array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['top','medium','black']));
+        $sheet_data[0]['B'.$i] = array($instance->re_db_output($report_trade_count_total),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['top','medium','black']));
+        $sheet_data[0]['C'.$i] = array($instance->re_db_output($instance_payroll->payroll_accounting_format($report_gross_commission_total,2)),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['top','medium','black']));
+        $sheet_data[0]['D'.$i] = array('100%',array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['top','medium','black']));
+        $sheet_data[0]['E'.$i] = array($instance->re_db_output($instance_payroll->payroll_accounting_format($report_net_commission_total,2)),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['top','medium','black']));
 
         $i++;
         $sheet_data[0]['D'.$i] = array('FINRA',array('normal','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
@@ -108,8 +107,8 @@
         $sheet_data[0]['D'.$i] = array('PRIOR BALANCES',array('normal','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'border'=>array(array('bottom'),'linestyle'=>array('continuous'),'weight'=>array('double'))));
         $sheet_data[0]['E'.$i] = array($instance->re_db_output($instance_payroll->payroll_accounting_format($summaryData[0]['PRIOR_BALANCE_TOTAL'],2)),array('normal','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
         $i++;
-        $sheet_data[0]['D'.$i] = array('TOTAL PAYROLL',array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
-        $sheet_data[0]['E'.$i] = array($instance->re_db_output($instance_payroll->payroll_accounting_format($summaryData[0]['TOTAL_PAYROLL'],2)),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
+        $sheet_data[0]['D'.$i] = array('TOTAL PAYROLL',array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['top','double','red']));
+        $sheet_data[0]['E'.$i] = array($instance->re_db_output($instance_payroll->payroll_accounting_format($summaryData[0]['TOTAL_PAYROLL'],2)),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'borders'=>['top','double','red']));
         $i += 2;
         $sheet_data[0]['D'.$i] = array('TOTAL CHECKS',array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
         $sheet_data[0]['E'.$i] = array($instance->re_db_output($instance_payroll->payroll_accounting_format($summaryData[0]['TOTAL_CHECKS'],2)),array('bold','right','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri')));
