@@ -2746,15 +2746,16 @@
 
       $q = 
         "SELECT "
-            ." `bm`.`id`,"
-            ." `bm`.`first_name`,"
-            ." `bm`.`last_name`,"
-            ." `bm`.`fund`,"
-            ." `bm`.`internal`,"
-            ." `bm`.`active_status`,"
-            ." `br1`.`id` AS `branch_id1`, `br1`.`name` AS `branch_name1`, `br1`.`company` AS `company_id1`, `co1`.`company_name` AS `company_name1`,"
-            ." `br2`.`id` AS `branch_id2`, `br2`.`name` AS `branch_name2`, `br2`.`company` AS `company_id2`, `co2`.`company_name` AS `company_name2`,"
-            ." `br3`.`id` AS `branch_id3`, `br3`.`name` AS `branch_name3`, `br3`.`company` AS `company_id3`, `co3`.`company_name` AS `company_name3`"
+            ." `bm`.`id`"
+            ." ,`bm`.`first_name`"
+            ." ,`bm`.`middle_name`"
+            ." ,`bm`.`last_name`"
+            ." ,`bm`.`fund`"
+            ." ,`bm`.`internal`"
+            ." ,`bm`.`active_status`"
+            ." ,`br1`.`id` AS `branch_id1`, `br1`.`name` AS `branch_name1`, `br1`.`company` AS `company_id1`, `co1`.`company_name` AS `company_name1`"
+            ." ,`br2`.`id` AS `branch_id2`, `br2`.`name` AS `branch_name2`, `br2`.`company` AS `company_id2`, `co2`.`company_name` AS `company_name2`"
+            ." ,`br3`.`id` AS `branch_id3`, `br3`.`name` AS `branch_name3`, `br3`.`company` AS `company_id3`, `co3`.`company_name` AS `company_name3`"
           ." FROM `ft_broker_master` AS `bm`"
           ." LEFT JOIN `ft_broker_branches` AS `repbr` ON `bm`.`id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'"
           ." LEFT JOIN `ft_branch_master` AS `br1` ON `br1`.`id`=`repbr`.`branch1` AND `br1`.`is_delete`=0"
@@ -2765,6 +2766,11 @@
           ." LEFT JOIN `ft_company_master` AS `co3` ON `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0"
           ." WHERE `bm`.`is_delete` = 0"
               .$con
+          ." ORDER BY " 
+            ." `bm`.`last_name`"
+            ." ,`bm`.`first_name`"
+            ." ,`bm`.`middle_name`"
+            ." ,`bm`.`id`"
       ;
 
       $res = $this->re_db_query($q);

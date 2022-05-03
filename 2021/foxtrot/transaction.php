@@ -15,9 +15,16 @@
     $get_sponsor = $instance->select_sponsor();
     $client_account_array=$instance->select_all_client_account_no();
     //echo '<pre>'; print_r($client_account_array); exit;
-    $get_broker =$instance->select_broker();
+    $instance_broker_master = new broker_master();
+    $instance_branches = new branch_maintenance();
+    $instance_company = new manage_company();
+    
+    $get_broker =$instance_broker_master->select_broker_by_branch_company();
     $get_client= $instance->select_client();
     $get_batch = $instance->select_batch();
+    $get_branch = $instance_branches->select(1);
+    $get_company = $instance_company->select_company();
+    
     $product_cate ='';
     $client_name='';
     $broker_name='';
@@ -27,8 +34,7 @@
     $split_broker = array();
     $split_rate = array();
     $return_splits = array();
-    $units = 0;
-    $shares = 0;
+    $shares = $units = $branch = $company = 0;
 
     if((isset($_POST['transaction'])&& $_POST['transaction']=='Save')|| (isset($_POST['transaction'])&& $_POST['transaction']=='Save & Copy')){
        // echo '<pre>';print_r($_POST);exit();

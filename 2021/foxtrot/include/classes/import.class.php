@@ -1754,6 +1754,7 @@
          * 12/13/21 Change to process all records coming into CloudFox
          *      - don't delete Client_Master & Transactions_Master that match the file $file_id
          * 02/15/22 Parameters to pull individual records. Called from this>resolve exception($data) function
+         * 05/02/22 Store Broker Branch->Company for Reporting & Payroll Processing purposes later
          * @param int $file_id
          * @return string|bool
          ***************************************************************/
@@ -2458,16 +2459,11 @@
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform($commDetailTable, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']." AND `is_delete`=0");
 
-                        $batch_id = 0;
-                        $broker_id = 0;
-                        $client_id = 0;
-                        $product_category_id = 0;
-                        $product_id = 0;
-                        $result = 0;
-                        $transaction_master_id = 0;
+                        $result = $transaction_master_id = 0;
+                        $batch_id = $broker_id = $client_id = $branch_id = $company_id = 0;
+                        $product_category_id = $product_id = $sponsor_id = 0;
                         $updateResult = [];
                         $for_import = '';
-                        $sponsor_id = 0;
                         // 04/05/22 Generic Type - sponsor dropdown added on File Fetch, so the $sponsor_id should be in the IMPORT CURRENT FILE table record
                         // if ($file_type == $this->GENERIC_file_type){
                         //     $sponsor_id = $check_data_val['sponsor_id'];
@@ -2985,15 +2981,24 @@
                                 }
 
                                 $trans_ins = new transaction();
-                                $get_branch_company_detail = $trans_ins->select_branch_company_ref($broker_id);
-                                $branch = isset($get_branch_company_detail['branch_id'])?$get_branch_company_detail['branch_id']:'';
-                                $company = isset($get_branch_company_detail['company_id'])?$get_branch_company_detail['company_id']:'';
                                 // Have to check stripos() with "!==false" because if the string is in the first position, it will return "0"
                                 if (!empty($check_data_val['comm_type']) AND (stripos($check_data_val['comm_type'], '12b')!==false OR stripos($check_data_val['comm_type'], 'trail')!==false)) {
                                     $isTrail = 1;
                                 } else if (!empty($check_data_val['commission_record_type_code']) AND $check_data_val['commission_record_type_code']=='3') {
                                     $isTrail = 1;
                                 }
+                                // 05/02/22 Store Broker branch & company
+                                $branch = $company = 0;        
+                                $broker_branch_company_detail = $instance_broker_master->select_broker_by_branch_company($broker_id);
+                                if (count($broker_branch_company_detail) > 0){
+                                    for ($i=1; $i < 4; $i++){
+                                        if (!empty($broker_branch_company_detail[0]["branch_id".$i])){
+                                            $branch = $broker_branch_company_detail[0]["branch_id".$i];
+                                            $company = $broker_branch_company_detail[0]["company_id".$i];
+                                            break;
+                                        }
+                                    }
+                                } 
                                 
                                 $q1 = "INSERT INTO `".TRANSACTION_MASTER."`"
                                         ." SET `file_id`='".$check_data_val['file_id']."'"

@@ -144,19 +144,23 @@
 		 * @param int status, default all
 		 * @return array of record if success, error message if any errors
 		 * */
-		public function select_company(){
+		public function select_company($order=0){
 			$return = array();
+			$orderBy = "`at`.`id` ASC";
+			
+			if ($order) { $orderBy = "`at`.`company_name` ASC"; }
 			
 			$q = "SELECT `at`.*
 					FROM `".$this->table."` AS `at`
                     WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                    ORDER BY $orderBy";
+
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
+
+			if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-                     
     			}
             }
 			return $return;

@@ -122,16 +122,29 @@ if(isset($_GET['broker_id']) && $_GET['broker_id'] != '')
            </td>
     </tr>
     <?php
-
-    
+      $company = 99;
+      $branch = 101;
     }
-    else{
+    else
+    {
+      $return = ['hold_commission'=>'', 'broker_id'=>$_GET['broker_id'], 'branch'=>0, 'company'=>0];
+      $broker_class = new broker_master();
+      $check_broker_commission = $broker_class->check_broker_commission_status($_GET['broker_id']);
+      if (count($check_broker_commission)){
+         $return['hold_commission'] = $check_broker_commission['hold_commissions'];
+      }
+      
+      // 05/02/22 Branch & company array 
+      $instance_broker_master = new broker_master();
+      $get_broker =$instance_broker_master->select_broker_by_branch_company($_GET['broker_id']);
+      if (count($get_broker) AND (int)$get_broker[0]['branch_id1']!=0){
+         $return['branch'] = (int)$get_broker[0]['branch_id1'];
+      }
+      if (count($get_broker) AND (int)$get_broker[0]['company_id1']!=0){
+         $return['company'] = (int)$get_broker[0]['company_id1'];
+      }
 
-          $broker_class = new broker_master();
-    $check_broker_commission = $broker_class->check_broker_commission_status($_GET['broker_id']);
-    $broker_hold_commission = $check_broker_commission['hold_commissions'];
-    echo $broker_hold_commission;
-
+      echo json_encode($return);
     }
     
 }

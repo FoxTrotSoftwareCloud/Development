@@ -389,7 +389,7 @@ document.addEventListener("click", function (e) {
                         <select class="livesearch form-control" data-required="true" name="broker_name" onchange="get_broker_hold_commission(this.value);">
                             <option value="0">Select Broker</option>
                             <?php foreach($get_broker as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>" <?php if(isset($broker_name) && $broker_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['last_name'].' '.$val['first_name'].' '.$val['middle_name'];?></option>
+                            <option value="<?php echo $val['id'];?>" <?php if(isset($broker_name) && $broker_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['last_name'].', '.$val['first_name'].' '.$val['middle_name'];?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -400,13 +400,39 @@ document.addEventListener("click", function (e) {
                         <select class="form-control" data-required="true" name="batch" onchange="get_commission_date(this.value);">            
                             <option value="0">Select Batch</option>                
                              <?php foreach($get_batch as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>" <?php if(isset($batch) && $batch==$val['id']){?> selected="true"<?php }else if(isset($key) && $key==0){?> selected="true"<?php } ?>><?php echo $val['id'].' '.$val['batch_desc'];?></option>
+                                <option value="<?php echo $val['id'];?>" <?php if(isset($batch) && $batch==$val['id']){?> selected="true"<?php }else if(isset($key) && $key==0){?> selected="true"<?php } ?>><?php echo $val['id'].' '.$val['batch_desc'];?></option>
                             <?php } ?>
-                            
                         </select>
                     </div>
                 </div>
             </div>
+            
+            <!-- 05/02/22 - Insert Branch & Company here -->
+            <div class="row">
+                 <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Branch <span class="text-red">*</span></label><br />
+                        <select class="form-control" data-required="true" name="branch" id="branch" >
+                            <option value="0">Select Branch</option>
+                             <?php foreach($get_branch as $key=>$val){?>
+                                <option value="<?php echo $val['id'];?>" <?php if(isset($branch) && $branch==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Company <span class="text-red">*</span></label><br />
+                        <select class="form-control" data-required="true" name="company"  id="company">
+                            <?php foreach($get_company as $key=>$val){?>
+                                <option value="<?php echo $val['id'];?>" <?php if(isset($company) && $company==$val['id']){?> selected="true"<?php } ?>><?php echo $val['company_name'];?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- end: Branch & Company here -->
+            
             <div class="row">
                  <div class="col-md-4">
                     <div class="form-group">
@@ -440,7 +466,7 @@ document.addEventListener("click", function (e) {
                     </div>
                 </div>
             </div>
-                
+                             
             </div>
             <div class="row">
                 <div class="col-md-4">
@@ -1162,7 +1188,6 @@ $('.decimal').chargeFormat();
 })
 
     function add_new_client_no(element){
-        console.log(element,element.value,"dsfdsf")
         if(element.value == -1){
             jQuery("#account_no_row").show();
         }
@@ -1194,7 +1219,6 @@ function get_product(category_id,selected=''){
         xmlhttp.open("GET", "ajax_get_product.php?product_category_id="+category_id+'&sponsor='+sponsor+'&selected='+selected, true);
         xmlhttp.send();
 }
-
 //get client account no on client select
 function get_client_account_no(client_id,selected){
          document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
@@ -1204,8 +1228,6 @@ function get_client_account_no(client_id,selected){
             {
                 var dropdown='';
                 var options = JSON.parse(this.responseText);
-                   console.log(options,"options")
-                   
                     dropdown+='<option value=""> Please Select  </option><option value="-1"> None </option>';
                     options.forEach(function(item){
                         $is_selected = selected == item ? "selected='selected'": "";
@@ -1217,7 +1239,6 @@ function get_client_account_no(client_id,selected){
         xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
         xmlhttp.send();
 }
-
 
 function get_client_id(client_number){
         var xmlhttp = new XMLHttpRequest();
@@ -1316,14 +1337,15 @@ function get_broker_override_rates(broker_id){
 }
 //get broker hold commission on broker select
 function get_broker_hold_commission(broker_id){
-         load_split_commission_content(broker_id);
+        load_split_commission_content(broker_id);
         var xmlhttp = new XMLHttpRequest();
-
 
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) 
             {
-                hold_commissions = this.responseText;
+                var jsonResponse = JSON.parse(this.responseText);
+                hold_commissions = jsonResponse.hold_commission;
+                
                 if(hold_commissions==1)
                 {
                     $("#hold_commission_1").prop("checked", true );
@@ -1337,6 +1359,21 @@ function get_broker_hold_commission(broker_id){
                     $("#div_hold_reason").css('display','none');
                     $("#hold_resoan").val("");
                 }
+                // 05/02/22 Deselect Branch to first
+                if (jsonResponse.branch > 0){
+                    $("#branch").val("");
+                    $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("change");
+                }
+                
+                // TEST DELETE ME
+                console.log('jsonResponse.company: ' + jsonResponse.company);
+                
+                if (jsonResponse.company > 0){
+                    $("#company").val("");
+                    $("#company option[value='"+jsonResponse.company+"']").prop("selected",true).trigger("change");
+                // TEST DELETE ME
+                console.log('jsonResponse.company: ' + jsonResponse.company);
+                }
             }
         };
         xmlhttp.open("GET", "ajax_hold_commissions.php?broker_id="+broker_id, true);
@@ -1344,21 +1381,18 @@ function get_broker_hold_commission(broker_id){
 }
 
 function load_split_commission_content(broker_id){
-       
         var xmlhttp = new XMLHttpRequest();
-
 
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) 
             {
                 $("#split_commission_modal").find(".modal-body tbody").html(this.responseText);
                 $('#demo-dp-range .input-daterange').datepicker({
-        format: "mm/dd/yyyy",
-        todayBtn: "linked",
-        autoclose: true,
-        todayHighlight: true
-    });
-                   
+                    format: "mm/dd/yyyy",
+                    todayBtn: "linked",
+                    autoclose: true,
+                    todayHighlight: true
+                });
             }
         };
         transaction_id = $("#id").val();
@@ -1381,7 +1415,7 @@ function close_other()
 jQuery(function($){
      $('[data-required="true"]').each(function(){
              $(this).on("change blur",function(){
-                 console.log($(this).prop("type"),'$(this).prop("type")')
+
                 if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
                      if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
                          isErrorFound=true;
@@ -1537,7 +1571,6 @@ var waitingDialog = waitingDialog || (function ($) {
                 }
 
                 if(isErrorFound){
-                    console.log($("#id").offset());
                    $("html,body").animate({scrollTop: $("#id").offset().top},200); 
                     return false;
                 }
