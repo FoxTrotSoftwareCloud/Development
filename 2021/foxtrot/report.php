@@ -19,7 +19,6 @@
     $report_for = '';
     
     $return_from_broker_client = array();
-
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
         $_POST['sort_by'] =  isset($_POST['payable_sort_by']) ? $_POST['payable_sort_by'] :  $_POST['sort_by'];
@@ -36,9 +35,6 @@
         $report_for = isset($_POST['report_for'])?$instance->re_db_input($_POST['report_for']):'';
         $cuttoff_date = isset($_POST['cuttoff_date'])?$instance->re_db_input($_POST['cuttoff_date']):'';
         $payable_type = isset($_POST['payable_type'])?$instance->re_db_input($_POST['payable_type']):'';
-
-
-        
         
         if($report_for == 1)
         {

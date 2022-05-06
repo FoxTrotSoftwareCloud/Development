@@ -83,6 +83,8 @@
         $shares = isset($_POST['shares'])?$instance->re_db_input($_POST['shares']):'';
         $is_1035_exchange = isset($_POST['is_1035_exchange']) ? $instance->re_db_input($_POST['is_1035_exchange']):0;
         $is_trail_trade = isset($_POST['is_trail_trade']) ? $instance->re_db_input($_POST['is_trail_trade']):0;
+        $branch = isset($_POST['branch']) ? (int)$instance->re_db_input($_POST['branch']):0;
+        $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
 
 
         $return = $instance->insert_update($_POST);

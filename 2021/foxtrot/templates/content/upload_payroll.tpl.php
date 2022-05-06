@@ -10,7 +10,7 @@
                     <select class="form-control" id="company-select" name="company-select">`
                         <option value="0">All Companies</option>
                         <?php foreach ($get_multi_company AS $companyRow) { ?>
-                            <option value="<?php echo $companyRow['id'] ?>" <?php echo ($company_number==$companyRow['id'] ? 'selected':'') ?> ><?php echo $companyRow['company_name'] ?></option>
+                            <option value="<?php echo $companyRow['id'] ?>" <?php echo ($company_id==$companyRow['id'] ? 'selected':'') ?> ><?php echo $companyRow['company_name'] ?></option>
                         <?php } ?>
                     </select>
                 </div>

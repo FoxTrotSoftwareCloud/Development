@@ -12,7 +12,6 @@ class transaction extends db{
             $client_name = isset($data['client_name'])?$this->re_db_input($data['client_name']):'0';
             $client_number = isset($data['client_number'])?$this->re_db_input($data['client_number']):'0';            
             $client_id_from_ac_no =0;
-
             //print(select_client_id($client_number));
 	        /*$client_id_from_ac_no=$this->select_client_id($client_number);
 	        if($client_id_from_ac_no=='' || $client_id_from_ac_no=='0')
@@ -23,8 +22,6 @@ class transaction extends db{
             				$res = $this->re_db_query($q);
                         }
 	        }*/
-
-
             $ch_date =isset($data['ch_date']) && $data['ch_date']!=''?$this->re_db_input(date('Y-m-d',strtotime($data['ch_date']))):'0000-00-00';
 	        $ch_amount =isset($data['ch_amount'])?$this->re_db_input(str_replace(',', '', $data['ch_amount'])):0;
 	        $ch_no =isset($data['ch_no'])?$this->re_db_input($data['ch_no']):'';
@@ -38,9 +35,8 @@ class transaction extends db{
             $invest_amount = isset($data['invest_amount'])?$this->re_db_input(str_replace(',', '', $data['invest_amount'])):0;
             $charge_amount = isset($data['charge_amount'])?$this->re_db_input(str_replace(',', '', $data['charge_amount'])):0;
             $commission_received = isset($data['commission_received'])?$this->re_db_input(str_replace(',', '', $data['commission_received'])):0;
-   //          $formatter = new NumberFormatter('de_DE', NumberFormatter::CURRENCY);
+            // $formatter = new NumberFormatter('de_DE', NumberFormatter::CURRENCY);
 			// $commission_received=var_dump($formatter->parseCurrency($data['commission_received'], $curr));
-			
             $commission_received_date = isset($data['commission_received_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['commission_received_date']))):'0000-00-00';
             $posting_date = isset($data['posting_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['posting_date']))):'0000-00-00';
             $trade_date = isset($data['trade_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['trade_date']))):'0000-00-00';
@@ -86,7 +82,7 @@ class transaction extends db{
             else if($commission_received_date=='' || $commission_received_date=='01/01/1970'){
 				$this->errors = 'Please enter commission received date.';
 			}
-   //          else if($settlement_date==''){
+            // else if($settlement_date==''){
 			// 	$this->errors = 'Please enter settlement date.';
 			// }
             else if($split==''){
@@ -109,10 +105,10 @@ class transaction extends db{
                    $q = "INSERT INTO `".CLIENT_ACCOUNT."` SET `client_id`='".$client_name."',`account_no`='".$client_number."',`sponsor_company`='".$_POST['c_sponsor']."'".$this->insert_common_sql();;
                    $res = $this->re_db_query($q);
             }
-			 
-             $get_branch_company_detail = $this->select_branch_company_ref($broker_name);
-             $branch = isset($get_branch_company_detail['branch_id'])?$get_branch_company_detail['branch_id']:'';
-             $company = isset($get_branch_company_detail['company_id'])?$get_branch_company_detail['company_id']:'';
+			 // 05/03/22 Branch & Company added to the Entry Form so user can choose a specific branch/company for the trade
+            //  $get_branch_company_detail = $this->select_branch_company_ref($broker_name);
+             $branch = isset($data['branch'])?$data['branch']:0;
+             $company = isset($data['company'])?$data['company']:0;
               
 				if($id>=0){
 					if($id==0){

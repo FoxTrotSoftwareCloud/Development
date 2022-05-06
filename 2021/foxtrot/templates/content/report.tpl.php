@@ -237,46 +237,47 @@
     </div>
 </div>
 <?php if(isset($_GET['filter']) && $_GET['filter'] != '' && $output == 1){?>
-<script>
-//location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
-$(document).ready(function(){
-    
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) 
-        {
-            document.getElementById("output_screen_content").innerHTML = this.responseText;
-        }
-    };
-    xmlhttp.open('GET', 'ajax_report.php?filter=<?php echo $_GET['filter']; ?>', true);
-    xmlhttp.send();
+    <script>
+    //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
+    $(document).ready(function(){
+        
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) 
+            {
+                document.getElementById("output_screen_content").innerHTML = this.responseText;
+            }
+        };
+        xmlhttp.open('GET', 'ajax_report.php?filter=<?php echo $_GET['filter']; ?>', true);
+        xmlhttp.send();
 
 
-    $('#myModal').modal({
-    		show: true
-    	});
-       //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, ""); 
-});
+        $('#myModal').modal({
+                show: true
+            });
+        //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, ""); 
+    });
 
-</script>
+    </script>
 <?php } ?>
+
 <?php if(isset($_GET['open']) && $_GET['open'] == "output_print" && isset($_GET['from_broker']) && $_GET['from_broker'] != ''){?>
-<script>
-window.print();
-</script>
+    <script>
+    window.print();
+    </script>
 <?php } ?>
 
 <script type="text/javascript">
-$('#demo-dp-range .input-daterange').datepicker({
+    $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
         autoclose: true,
         todayHighlight: true
-        }).on('show',function(){
-            $(".datepicker-dropdown").css("z-index",'1000000');
-        });
-jQuery(function($){
+    }).on('show',function(){
+        $(".datepicker-dropdown").css("z-index",'1000000');
+    });
 
+        jQuery(function($){
     $("#cuttoff_date").datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
@@ -295,40 +296,36 @@ jQuery(function($){
                      $("#report_filters").removeClass('payable-report');
              }
     }).trigger("change");
-     $("#report-form").submit(function(ev){
-  
-       
-             if($("input[name='output']:checked").val()== 4 || $("input[name='payable_output']:checked").val()== 4){
-                ev.preventDefault();
-                const data = new FormData(ev.target);
-                   value = Object.fromEntries(data.entries());
-                   report_for = $("select[name='report_for']").val() ;
-                  // console.log(report_for )
-                   if(report_for == "1"){
-                          url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_batch.php?filter="+JSON.stringify(value);
-                   }
-                    if(report_for == "2"){
-                        url = "http://foxtrotsoftware.com/CloudFox/report_batch.php?filter="+JSON.stringify(value);
-                    
-                   }
-                  if(report_for == "3"){
-                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_hold.php?filter="+JSON.stringify(value);
-                    
-                   }
-                   if(report_for == "4"){
-                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?filter="+JSON.stringify(value);
-                    
-                   }
 
-
-                   
-               
-                var win= window.open(url,"blank");
-                win.focus();
-                return false;
-             }
-     });
-})
+    $("#report-form").submit(function(ev){
+        if($("input[name='output']:checked").val()== 4 || $("input[name='payable_output']:checked").val()== 4){
+            ev.preventDefault();
+            const data = new FormData(ev.target);
+                value = Object.fromEntries(data.entries());
+                report_for = $("select[name='report_for']").val() ;
+                // console.log(report_for )
+                if(report_for == "1"){
+                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_batch.php?filter="+JSON.stringify(value);
+                }
+                if(report_for == "2"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_batch.php?filter="+JSON.stringify(value);
+                
+                }
+                if(report_for == "3"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_hold.php?filter="+JSON.stringify(value);
+                
+                }
+                if(report_for == "4"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?filter="+JSON.stringify(value);
+                
+                }
+            
+            var win= window.open(url,"blank");
+            win.focus();
+            return false;
+        }
+    });
+});
 
 </script>
 <style>

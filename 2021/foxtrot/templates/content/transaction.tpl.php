@@ -274,7 +274,7 @@ document.addEventListener("click", function (e) {
                 <div class="panel-control" style="float: right;">
     				<div class="btn-group dropdown">
     					<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-    					<ul class="dropdown-menu dropdown-menu-right" style="">
+    					<ul class="dropdown-menu dropdown-menu-right">
     						<li><a href="<?php echo CURRENT_PAGE; ?>?action=view"><i class="fa fa-eye"></i> View List</a></li>
     					</ul>
     				</div>
@@ -364,7 +364,7 @@ document.addEventListener("click", function (e) {
                    <div class="col-md-6">
                       <div class="form-group">
                          <label>Account No's </label><br>
-                         <input type="text" name="c_account_no" onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57" id="c_account_no" class="form-control" value="">
+                         <input type="text" name="c_account_no" onkeypress="return event.charCode >= 48 &amp; event.charCode <= 57" id="c_account_no" class="form-control" value="">
                       </div>
                    </div>
                    <div class="col-md-6">
@@ -412,7 +412,7 @@ document.addEventListener("click", function (e) {
                  <div class="col-md-4">
                     <div class="form-group">
                         <label>Branch <span class="text-red">*</span></label><br />
-                        <select class="form-control" data-required="true" name="branch" id="branch" >
+                        <select class="form-control" data-required="true" name="branch" id="branch" onchange="get_branch_company(this.value)" >
                             <option value="0">Select Branch</option>
                              <?php foreach($get_branch as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>" <?php if(isset($branch) && $branch==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
@@ -1183,18 +1183,17 @@ $('.decimal').chargeFormat();
                    return false;
             }
       });
+    });
 
-
-})
-
-    function add_new_client_no(element){
-        if(element.value == -1){
-            jQuery("#account_no_row").show();
-        }
-        else{
-                  jQuery("#account_no_row").hide();
-        }
+function add_new_client_no(element){
+    if(element.value == -1){
+        jQuery("#account_no_row").show();
     }
+    else{
+        jQuery("#account_no_row").hide();
+    }
+}
+
 function get_product(category_id,selected=''){
         category_id = document.getElementById("product_cate").value;
         transaction_id = document.getElementById("trade_number").value;
@@ -1219,6 +1218,7 @@ function get_product(category_id,selected=''){
         xmlhttp.open("GET", "ajax_get_product.php?product_category_id="+category_id+'&sponsor='+sponsor+'&selected='+selected, true);
         xmlhttp.send();
 }
+
 //get client account no on client select
 function get_client_account_no(client_id,selected){
          document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
@@ -1253,6 +1253,7 @@ function get_client_id(client_number){
         xmlhttp.open("GET", "ajax_get_client_account.php?client_number="+client_number, true);
         xmlhttp.send();
 }
+
 //get default commission date on batch date
 function get_commission_date(batch_id)
 {
@@ -1282,9 +1283,8 @@ function setnumber_format(inputtext)
     var a = inputtext.value;
     var options = { style: 'currency', currency: 'USD'};
     inputtext.value=(new Intl.NumberFormat(options).format(a));
-    
-
 }
+
 //get client split rate on client select
 function get_client_split_rates(client_id){
         
@@ -1336,47 +1336,55 @@ function get_broker_override_rates(broker_id){
         xmlhttp.send();
 }
 //get broker hold commission on broker select
+// 05/03/22 Add branch & company fetch from BROKER_BRANCHES as well
 function get_broker_hold_commission(broker_id){
-        load_split_commission_content(broker_id);
-        var xmlhttp = new XMLHttpRequest();
+    load_split_commission_content(broker_id);
+    var xmlhttp = new XMLHttpRequest();
 
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+            var jsonResponse = JSON.parse(this.responseText);
+            hold_commissions = jsonResponse.hold_commission;
+            
+            if(hold_commissions==1)
             {
+                $("#hold_commission_1").prop("checked", true );
+                $("#div_hold_reason").css('display','block');
+                $("#hold_resoan").val( "HOLD COMMISSION BY BROKER");
+            }
+            else
+            {
+                $("#hold_commission_1").prop( "checked", false );
+                $("#hold_commission_2").prop( "checked", true );
+                $("#div_hold_reason").css('display','none');
+                $("#hold_resoan").val("");
+            }
+           
+            if (jsonResponse.branch > 0){
+                $("#branch").val("");
+                $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("onchange");
+                get_branch_company(jsonResponse.branch);
+            }
+        }
+    };
+    xmlhttp.open("GET", "ajax_transaction_tpl.php?broker_id="+broker_id, true);
+    xmlhttp.send();
+}
+function get_branch_company(branch_id){
+        var xmlhttp = new XMLHttpRequest();
+        
+        xmlhttp.onreadystatechange = function(){
+            if (this.readyState == 4 && this.status == 200){
                 var jsonResponse = JSON.parse(this.responseText);
-                hold_commissions = jsonResponse.hold_commission;
-                
-                if(hold_commissions==1)
-                {
-                    $("#hold_commission_1").prop("checked", true );
-                    $("#div_hold_reason").css('display','block');
-                    $("#hold_resoan").val( "HOLD COMMISSION BY BROKER");
-                }
-                else
-                {
-                    $("#hold_commission_1").prop( "checked", false );
-                    $("#hold_commission_2").prop( "checked", true );
-                    $("#div_hold_reason").css('display','none');
-                    $("#hold_resoan").val("");
-                }
-                // 05/02/22 Deselect Branch to first
-                if (jsonResponse.branch > 0){
-                    $("#branch").val("");
-                    $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("change");
-                }
-                
-                // TEST DELETE ME
-                console.log('jsonResponse.company: ' + jsonResponse.company);
-                
-                if (jsonResponse.company > 0){
+
+                if (jsonResponse.id > 0){
                     $("#company").val("");
-                    $("#company option[value='"+jsonResponse.company+"']").prop("selected",true).trigger("change");
-                // TEST DELETE ME
-                console.log('jsonResponse.company: ' + jsonResponse.company);
+                    $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("change");
                 }
             }
         };
-        xmlhttp.open("GET", "ajax_hold_commissions.php?broker_id="+broker_id, true);
+        xmlhttp.open("GET", "ajax_transaction_tpl.php?action=branch_company&branch="+branch_id, true);
         xmlhttp.send();
 }
 
@@ -1396,7 +1404,7 @@ function load_split_commission_content(broker_id){
             }
         };
         transaction_id = $("#id").val();
-        xmlhttp.open("GET", "ajax_hold_commissions.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id, true);
+        xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id, true);
         xmlhttp.send();
 }
 function open_other()

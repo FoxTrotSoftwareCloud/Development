@@ -13,8 +13,10 @@
     $instance_client = new client_maintenance();
     $get_client = $instance_client->select();
     $instance_branch =  new branch_maintenance();
-    $get_branch= $instance_branch->select();
-    
+    $get_branch= $instance_branch->select(1);
+    $instance_company = new manage_company();
+    $get_company = $instance_company->select_company();
+
     $payroll_id='';
     $trade_number = '';
     $trade_date = '';
@@ -39,8 +41,8 @@
     $hold = '';
     $hold_reason = '';
     $cancel = '';
-    $branch = '';
-    
+    $branch = $company = '';
+
     if(isset($_POST['submit'])&& $_POST['submit']=='Save'){ 
         //echo '<pre>';print_r($_POST);exit;
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
@@ -70,6 +72,7 @@
         $hold_reason = isset($_POST['hold_reason'])?$instance->re_db_input($_POST['hold_reason']):'';
         $cancel = isset($_POST['cancel'])?$instance->re_db_input($_POST['cancel']):'';
         $branch = isset($_POST['branch'])?$instance->re_db_input($_POST['branch']):'';
+        $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
         
         $return = $instance->insert_update($_POST);
         
@@ -114,7 +117,10 @@
         $hold = isset($return['hold'])?$instance->re_db_output($return['hold']):'';
         $hold_reason = isset($return['hold_reason'])?$instance->re_db_output($return['hold_reason']):'';
         $cancel = isset($return['cancel'])?$instance->re_db_output($return['cancel']):'';
-        $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'';  
+        $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'';
+        $company = isset($return['company']) ? (int)$instance->re_db_output($return['company']):'';
+        
+
     }
     else if(isset($action) && $action=='delete' && $id>0)
     {
@@ -131,8 +137,6 @@
         $return = $instance->select($is_listing);
         
     }
-    
-    
     $content = "review_payroll";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
 ?>
