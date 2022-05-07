@@ -500,7 +500,7 @@ class payroll extends db{
                             WHERE `is_delete`=0 AND `status`='0' AND `id`='".$val_current_payroll['id']."'"
                     ;
                     $res = $this->re_db_query($q);
-    }
+                }
             }
             
             $q = "UPDATE `".PAYROLL_UPLOAD."`
@@ -513,8 +513,7 @@ class payroll extends db{
             if($res){
                 $_SESSION['success'] = "Payroll closed successfully";
                 return true;
-            }
-            else{
+            } else {
                 $_SESSION['warning'] = UNKWON_ERROR;
                 return false;
             }
@@ -918,15 +917,19 @@ class payroll extends db{
     }
 
     // For Payroll Summary Report - 4/28/22
-    public function select_review_master($payroll_id=0, $summaryByProdCat=0){
-        $return = array();
+    public function select_review_master($payroll_id=0, $summaryByProdCat=0, $company=0){
         $payroll_id = (int)$this->re_db_input($payroll_id);
+        $company = (int)$this->re_db_input($company);
+        $return = array();
         $con = '';
         
         if ($payroll_id){
             $con = " AND `a`.`payroll_id`=$payroll_id";    
         }
-        
+        if($company>0) {
+            $con .= " AND (`br1`.`company`=$company OR `br2`.`company`=$company OR `br3`.`company`=$company)";
+        }
+
         if ($summaryByProdCat){
             $q =                
                 "SELECT `a`.`payroll_id`,"
@@ -935,10 +938,25 @@ class payroll extends db{
                         ." SUM(`a`.`investment_amount`) AS `INVESTMENT_TOTAL`, "
                         ." SUM(`a`.`commission_received`) AS `GROSS_COMMISSION`," 
                         ." SUM(`a`.`commission_paid`) AS `NET_COMMISSION`,"
-                        ." COUNT(1) AS TRADE_COUNT"
+                        ." COUNT(1) AS TRADE_COUNT,"
+                        ." `br1`.`name` AS `branch_name1`, `br1`.`company` AS `branch_company1`,"
+                        ." `br2`.`name` AS `branch_name2`, `br2`.`company` AS `branch_company2`,"
+                        ." `br3`.`name` AS `branch_name3`, `br3`.`company` AS `branch_company3`,"
+                        ." CASE WHEN `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0 THEN `co1`.`company_name`"
+                            ." WHEN `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0 THEN `co2`.`company_name`"
+                            ." WHEN `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0 THEN `co3`.`company_name`"
+                            ." ELSE '* No Company *'"
+                            ." END AS `company_name`"
                 ." FROM `".PAYROLL_REVIEW_MASTER."` `a`"
                 ." LEFT JOIN `".TRANSACTION_MASTER."` `b` ON `a`.`trade_number`=`b`.`id`"
                 ." LEFT JOIN `".PRODUCT_TYPE."` `c` ON `b`.`product_cate`=`c`.`id`"
+                ." LEFT JOIN `".BROKER_BRANCHES."` AS `repbr` ON `a`.`broker_id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'"
+                ." LEFT JOIN `".BRANCH_MASTER."` AS `br1` ON `repbr`.`branch1`=`br1`.`id` AND `br1`.`is_delete`=0"
+                ." LEFT JOIN `".BRANCH_MASTER."` AS `br2` ON `repbr`.`branch2`=`br2`.`id` AND `br2`.`is_delete`=0"
+                ." LEFT JOIN `".BRANCH_MASTER."` AS `br3` ON `repbr`.`branch3`=`br3`.`id` AND `br3`.`is_delete`=0"
+                ." LEFT JOIN `".COMPANY_MASTER."` AS `co1` ON `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0"
+                ." LEFT JOIN `".COMPANY_MASTER."` AS `co2` ON `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0"
+                ." LEFT JOIN `".COMPANY_MASTER."` AS `co3` ON `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0"
                 ." WHERE `a`.`is_delete`=0"
                     .$con
                 ." GROUP BY `a`.`payroll_id`, `b`.`product_cate`, `c`.`type`"
@@ -2141,12 +2159,17 @@ class payroll extends db{
 		return $return;
 	}
     public function get_adjustments_report_data($company='',$payroll_id=0,$sort_by='',$output_type=''){
+        $company = (int)$this->re_db_input($company);
+        $payroll_id = (int)$this->re_db_input($payroll_id);
+        $sort_by = (int)$this->re_db_input($sort_by);
+        $output_type = (int)$this->re_db_input($output_type);
+        
 		$return = array();
         $con="`adj_cur`.`is_delete`='0'";
-
+        
         // Query Strings
         if($payroll_id != 0) {
-            $con.=" AND `adj_cur`.`payroll_id` = '".$payroll_id."'";
+            $con.=" AND `adj_cur`.`payroll_id` = $payroll_id";
         }
 
         if($company>0) {
@@ -2223,24 +2246,43 @@ class payroll extends db{
 	}
     
     // 4/28/22 PAYROLL SUMMARY REPORT - get Net Commissions for Splits and group by Product Category
-    function select_split_rates_by_product_category($payroll_id=0, $summaryByProdCat=0){
+    function select_split_rates_by_product_category($payroll_id=0, $summaryByProdCat=0, $company=0){
+        $payroll_id = (int)$this->re_db_input($payroll_id);
+        $company = (int)$this->re_db_input($company);
         $return = [];
         $con = '';
-        $payroll_id = (int)$this->re_db_input($payroll_id);
         
         if ($payroll_id){
             $con .= " AND `a`.`payroll_id`=$payroll_id";    
         }
-        
+        if($company>0) {
+            $con .= " AND (`br1`.`company`=$company OR `br2`.`company`=$company OR `br3`.`company`=$company)";
+        }
+
         if ($summaryByProdCat){
             $q = "SELECT `a`.`payroll_id`"
                     ." ,`b`.`product_cate` AS `PRODCAT_ID`"
                     ." ,`c`.`type` AS `PRODUCT_CATEGORY`"
                     ." ,SUM(`a`.`split_paid`) AS `NET_COMMISSION`"
                     ." ,COUNT(1) AS TRADE_COUNT"
+                    ." ,`br1`.`name` AS `branch_name1`, `br1`.`company` AS `branch_company1`"
+                    ." ,`br2`.`name` AS `branch_name2`, `br2`.`company` AS `branch_company2`"
+                    ." ,`br3`.`name` AS `branch_name3`, `br3`.`company` AS `branch_company3`"
+                    ." ,CASE WHEN `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0 THEN `co1`.`company_name`"
+                        ." WHEN `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0 THEN `co2`.`company_name`"
+                        ." WHEN `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0 THEN `co3`.`company_name`"
+                        ." ELSE '* No Company *'"
+                        ." END AS `company_name`"
                 ." FROM `".PAYROLL_SPLIT_RATES."` `a`"
                 ." LEFT JOIN `".TRANSACTION_MASTER."` `b` ON `a`.`transaction_id`=`b`.`id`"
                 ." LEFT JOIN `".PRODUCT_TYPE."` `c` ON `b`.`product_cate`=`c`.`id`"
+                ." LEFT JOIN `".BROKER_BRANCHES."` AS `repbr` ON `a`.`broker_id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'"
+                ." LEFT JOIN `".BRANCH_MASTER."` AS `br1` ON `repbr`.`branch1`=`br1`.`id` AND `br1`.`is_delete`=0"
+                ." LEFT JOIN `".BRANCH_MASTER."` AS `br2` ON `repbr`.`branch2`=`br2`.`id` AND `br2`.`is_delete`=0"
+                ." LEFT JOIN `".BRANCH_MASTER."` AS `br3` ON `repbr`.`branch3`=`br3`.`id` AND `br3`.`is_delete`=0"
+                ." LEFT JOIN `".COMPANY_MASTER."` AS `co1` ON `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0"
+                ." LEFT JOIN `".COMPANY_MASTER."` AS `co2` ON `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0"
+                ." LEFT JOIN `".COMPANY_MASTER."` AS `co3` ON `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0"
                 ." WHERE `a`.`is_delete`=0"
                     .$con
                 ." GROUP BY `a`.`payroll_id`, `b`.`product_cate`, `c`.`type`"
@@ -2268,34 +2310,54 @@ class payroll extends db{
         return $return;
     }
 
-    function select_current_payroll($payroll_id=0, $summary=0){
+    function select_current_payroll($payroll_id=0, $summary=0, $company=0){
+        $payroll_id = (int)$this->re_db_input($payroll_id);
+        $company = (int)$this->re_db_input($company);
         $return = [];
         $con = '';
-        $payroll_id = (int)$this->re_db_input($payroll_id);
         
         if ($payroll_id > 0){
             $con .= " AND `payroll_id`=$payroll_id";    
         }
+        if($company>0) {
+            $con .= " AND (`br1`.`company`=$company OR `br2`.`company`=$company OR `br3`.`company`=$company)";
+        }
+
         
         // Don't change the field names. They are used in the Payroll Summary Report as column descriptions. That's why they're in CAPS.
         if ($summary){
-            $q = "SELECT payroll_id"
-                    .", SUM(`commission_received`+`split_gross`) AS `GROSS_COMMISSION`" 
-                    .", SUM(`commission_paid`+`split_paid`) AS `NET_COMMISSON`" 
-                    .", SUM(`finra`) AS `FINRA_TOTAL`"
-                    .", SUM(`sipc`) AS `SIPC_TOTAL`" 
-                    .", SUM(`adjustments`) AS `ADJUSTMENTS_TOTAL`" 
-                    .", SUM(`taxable_adjustments`) AS `TAXABLE_ADJUSTMENTS_TOTAL`" 
-                    .", SUM(`non-taxable_adjustments`) AS `NON-TAXABLE_ADJUSTMENTS_TOTAL`" 
-                    .", SUM(`override_paid`) AS `OVERRIDES_PAID_TOTAL`" 
-                    .", SUM(`balance`) AS `PRIOR_BALANCE_TOTAL`" 
-                    .", SUM(`check_amount`) AS `TOTAL_PAYROLL`"
-                    .", SUM(IF(`check_amount`>=`minimum_check_amount`, `check_amount`, 0)) AS `TOTAL_CHECKS`"
-                    .", SUM(IF(`check_amount`>=`minimum_check_amount`, 0, `check_amount`)) AS `TOTAL_CARRIED_FORWARD`"
-                ." FROM `".PAYROLL_CURRENT_PAYROLL."`"
-                ." WHERE `is_delete`=0"
-                    .$con
-                ." GROUP BY `payroll_id`"
+            $q = "SELECT `a`.`payroll_id`"
+                    .", SUM(`a`.`commission_received`+`a`.`split_gross`) AS `GROSS_COMMISSION`" 
+                    .", SUM(`a`.`commission_paid`+`a`.`split_paid`) AS `NET_COMMISSON`" 
+                    .", SUM(`a`.`finra`) AS `FINRA_TOTAL`"
+                    .", SUM(`a`.`sipc`) AS `SIPC_TOTAL`" 
+                    .", SUM(`a`.`adjustments`) AS `ADJUSTMENTS_TOTAL`" 
+                    .", SUM(`a`.`taxable_adjustments`) AS `TAXABLE_ADJUSTMENTS_TOTAL`" 
+                    .", SUM(`a`.`non-taxable_adjustments`) AS `NON-TAXABLE_ADJUSTMENTS_TOTAL`" 
+                    .", SUM(`a`.`override_paid`) AS `OVERRIDES_PAID_TOTAL`" 
+                    .", SUM(`a`.`balance`) AS `PRIOR_BALANCE_TOTAL`" 
+                    .", SUM(`a`.`check_amount`) AS `TOTAL_PAYROLL`"
+                    .", SUM(IF(`a`.`check_amount`>=`a`.`minimum_check_amount`, `a`.`check_amount`, 0)) AS `TOTAL_CHECKS`"
+                    .", SUM(IF(`a`.`check_amount`>=`a`.`minimum_check_amount`, 0, `a`.`check_amount`)) AS `TOTAL_CARRIED_FORWARD`"
+                    .", `br1`.`name` AS `branch_name1`, `br1`.`company` AS `branch_company1`"
+                    .", `br2`.`name` AS `branch_name2`, `br2`.`company` AS `branch_company2`"
+                    .", `br3`.`name` AS `branch_name3`, `br3`.`company` AS `branch_company3`"
+                    .", CASE WHEN `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0 THEN `co1`.`company_name`"
+                        ." WHEN `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0 THEN `co2`.`company_name`"
+                        ." WHEN `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0 THEN `co3`.`company_name`"
+                        ." ELSE '* No Company *'"
+                        ." END AS `company_name`"
+                ." FROM `".PAYROLL_CURRENT_PAYROLL."` `a`"
+                    ." LEFT JOIN `".BROKER_BRANCHES."` AS `repbr` ON `a`.`broker_id`=`repbr`.`broker_id` AND `repbr`.`is_delete`='0'"
+                    ." LEFT JOIN `".BRANCH_MASTER."` AS `br1` ON `repbr`.`branch1`=`br1`.`id` AND `br1`.`is_delete`=0"
+                    ." LEFT JOIN `".BRANCH_MASTER."` AS `br2` ON `repbr`.`branch2`=`br2`.`id` AND `br2`.`is_delete`=0"
+                    ." LEFT JOIN `".BRANCH_MASTER."` AS `br3` ON `repbr`.`branch3`=`br3`.`id` AND `br3`.`is_delete`=0"
+                    ." LEFT JOIN `".COMPANY_MASTER."` AS `co1` ON `br1`.`company`=`co1`.`id` AND `co1`.`is_delete`=0"
+                    ." LEFT JOIN `".COMPANY_MASTER."` AS `co2` ON `br2`.`company`=`co2`.`id` AND `co2`.`is_delete`=0"
+                    ." LEFT JOIN `".COMPANY_MASTER."` AS `co3` ON `br3`.`company`=`co3`.`id` AND `co3`.`is_delete`=0"
+                ." WHERE `a`.`is_delete`=0"
+                        .$con
+                ." GROUP BY `a`.`payroll_id`"
             ;
         } else {
             $q = "SELECT *"
@@ -2319,8 +2381,8 @@ class payroll extends db{
         $company = (int)$this->re_db_input($company);
         $return = $found = [];
 
-        $commData = $this->select_review_master($payroll_id, 1);
-        $splitData = $this->select_split_rates_by_product_category($payroll_id, 1);
+        $commData = $this->select_review_master($payroll_id, 1, $company);
+        $splitData = $this->select_split_rates_by_product_category($payroll_id, 1, $company);
     
         /****
          * Add Split Payouts

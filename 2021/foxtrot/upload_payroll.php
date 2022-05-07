@@ -47,7 +47,6 @@
         }
     }
     else if(isset($_POST['reverse_payroll']) && $_POST['reverse_payroll']=='Reverse Payroll'){
-        
         $return = $instance->reverse_payroll($_POST);
         
         if($return===true){
@@ -57,7 +56,6 @@
         }
     }
     else if($action=='payroll_close' && (isset($_POST['close_payroll']) && $_POST['close_payroll']=='Close Payroll')){
-        
         $return = $instance->payroll_close($_POST['payroll_id']);
         
         if($return===true){
