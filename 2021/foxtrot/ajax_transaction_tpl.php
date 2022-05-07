@@ -4,7 +4,7 @@
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
 
-if((isset($_GET['broker_id']) && $_GET['broker_id'] != '') 
+if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
     || (isset($_GET['action']) && $_GET['action']=='branch_company' && !empty($_GET['branch']))
 ){
    if(isset($_GET['action']) && $_GET['action'] == 'split_commission'){
@@ -13,7 +13,7 @@ if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
       $product_category = $broker_class->select_category();
       $doc_id2=0;
       $transaction_id= !empty($_GET['transaction_id']) ? $_GET['transaction_id']: 0;
-               
+
       if(!$transaction_id)
          $edit_override = $broker_class->edit_override($_GET['broker_id']);
       else
@@ -69,7 +69,7 @@ if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
                   <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
                </td>
             </tr>
-         <?php } 
+         <?php }
             $doc_id2++ ; ?>
 
          <tr id="add_rate">
@@ -120,19 +120,19 @@ if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
               <button type="button" onclick="add_rate(<?php echo $doc_id2;?>);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
             </td>
          </tr>
-   <?php 
+   <?php
    //--- onChange(branch) -> Update Company dropdown
    } else if(isset($_GET['action']) AND $_GET['action']=='branch_company' AND !empty($_GET['branch'])) {
       $return = ["id"=>0, "company"=>0];
       $instance_branch = new branch_maintenance();
       $branchData = $instance_branch->select_branch_by_id((int)$_GET['branch']);
-      
+
       if (!empty($branchData)){
          $return = ["id"=>(int)$branchData['id'],"company"=>(int)$branchData['company']];
       }
 
       echo json_encode($return);
-   
+
    //--- Hold Commissions & Branch/Company return
    } else {
       $return = ['hold_commission'=>'', 'broker_id'=>$_GET['broker_id'], 'branch'=>0, 'company'=>0];
@@ -141,8 +141,8 @@ if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
       if (count($check_broker_commission)){
          $return['hold_commission'] = $check_broker_commission['hold_commissions'];
       }
-      
-      // 05/02/22 Branch & company array 
+
+      // 05/02/22 Branch & company array
       $instance_broker_master = new broker_master();
       $get_broker =$instance_broker_master->select_broker_by_branch_company($_GET['broker_id']);
       if (count($get_broker) AND (int)$get_broker[0]['branch_id1']!=0){
@@ -154,6 +154,6 @@ if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
 
       echo json_encode($return);
     }
-    
+
 }
 ?>

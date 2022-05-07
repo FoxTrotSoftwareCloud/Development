@@ -3,7 +3,7 @@
 <script>
 function addMoreRow(){
     var html = '<div class="row">'+
-                    
+
                     '<div class="col-md-5">'+
                         '<div class="form-group">'+
                             '<select class="form-control" name="split_broker[]">'+
@@ -26,15 +26,15 @@ function addMoreRow(){
                             '<span class="input-group-addon">%</span>'+
                         '</div>'+
                     '</div>'+
-                    
+
                     '<div class="col-md-2">'+
                         '<div class="form-group">'+
                             '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                         '</div>'+
                     '</div>'+
                 '</div>';
-                
-            
+
+
     $(html).insertAfter('#add_other_split');
     $( function() {
     $('.decimal').chargeFormat();
@@ -46,7 +46,7 @@ $(document).on('click','.remove-row',function(){
 
 var flag1=0;
 function add_override(){
-    
+
     var html = '<tr class="tr">'+
                     '<td>'+
                         '<select name="receiving_rep[]"  class="form-control" >'+
@@ -66,8 +66,8 @@ function add_override(){
                         '<button type="button" tabindex="-1" class="btn remove-row_override btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                     '</td>'+
                 '</tr>';
-                
-            
+
+
     $(html).insertAfter('#add_override');
 }
 $(document).on('click','.remove-row_override',function(){
@@ -75,6 +75,7 @@ $(document).on('click','.remove-row_override',function(){
 });
 </script>
 <style type="text/css">
+    div#add_cheque_info label {margin-right: 0px;padding-right: 20px;}
     .autocomplete {
   /*the container must be positioned relative:*/
   position: relative;
@@ -107,7 +108,7 @@ $(document).on('click','.remove-row_override',function(){
   color: #ffffff;
 }
 
-</style> 
+</style>
 <script type="text/javascript">
     function autocomplete(inp, arr) {
   /*the autocomplete function takes two arguments,
@@ -174,7 +175,7 @@ $(document).on('click','.remove-row_override',function(){
           /*and simulate a click on the "active" item:*/
           if (x) x[currentFocus].click();
         }
-        
+
       }
 
   });
@@ -213,23 +214,23 @@ document.addEventListener("click", function (e) {
 });
 }
 </script>
-<div class="container">
-<h1 class="<?php /*if($action=='add'||($action=='edit_transaction' && $id>0)){ echo 'topfixedtitle';}*/?>">Transactions</h1> 
+<div id="new_transcation_wrap" class="container">
+<h1 class="<?php /*if($action=='add'||($action=='edit_transaction' && $id>0)){ echo 'topfixedtitle';}*/?>">Transactions</h1>
     <div class="col-lg-12 well <?php /*if($action=='add'||($action=='edit_transaction' && $id>0)){ echo 'fixedwell';}*/?>">
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
-   
-    
-        <?php  
-    
-    if((isset($_GET['action']) && $_GET['action']=='add') || (isset($_GET['action']) && ($_GET['action']=='edit_transaction' && $id>0))){ 
-        
+
+
+        <?php
+
+    if((isset($_GET['action']) && $_GET['action']=='add') || (isset($_GET['action']) && ($_GET['action']=='edit_transaction' && $id>0))){
+
           //if((isset($_GET['action']) && ($_GET['action']=='edit_transaction')) || isset($product_cate)){ get_product($product_cate); }
         ?>
         <form name="frm2" method="POST" >
 
             <div id="split_commission_modal" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                 <input type="hidden" value="" id="deleted_rows" name="deleted_rows"/>
-            
+
                 <div class="modal-dialog" style="width:900px!important">
                     <div class="modal-content">
                         <div class="modal-header" style="margin-bottom: 0px !important;">
@@ -246,30 +247,83 @@ document.addEventListener("click", function (e) {
                                                             <th>Category</th>
                                                             <th>Add More</th>
                                                         </thead>
-                                                        <tbody> 
+                                                        <tbody>
                                                              <tr> <td colspan="6"> Please Wait .... </td></tr>
                                                         </tbody>
                                                     </table>
 
-                               
+
                         </div>
                         <div class="modal-footer">
                              <input type="button" name="save_override" onclick="close_other()" class="button btn btn-primary" value="Save"/>
-                        </div>    
+                        </div>
                     </div>
                 </div>
-         </div> 
+         </div>
+
+
+         <div id="add_cheque_info" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+
+                <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header" style="margin-bottom: 0px !important;">
+                    <!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button> -->
+                    <h4 class="modal-title">Add Check Information</h4>
+                </div>
+                <div class="modal-body">
+
+                        <div class="inputpopup">
+            <label>Check No:</label>
+            <input type="text" name="ch_no" id="ch_no" value="<?php if(isset($ch_no)) {echo $ch_no;}?>"  class="form-control required " />
+        </div>
+        <div class="inputpopup">
+            <label>Check Amount:</label>
+            <div class="input-group">
+                <span class="input-group-addon">$</span>
+                <input type="text" name="ch_amount" onChange="setnumber_format(this)"  value="<?php if(isset($ch_amount)) {echo $ch_amount;}?>" id="ch_amount" class="form-control two-decimals required" />
+             </div>
+        </div>
+        <div class="inputpopup">
+
+            <label>Date:</label>
+            <div id="demo-dp-range">
+                            <div class="input-daterange input-group" style="width:auto !important;" id="datepicker">
+                                <input type="text" name="ch_date" id="ch_date" value="<?php if(isset($ch_date) && $ch_date != '0000-00-00' && $ch_date!='') {echo date('m/d/Y',strtotime($ch_date));}?>" class="form-control required" />
+                            </div>
+                        </div>
+        </div>
+        <div class="inputpopup">
+            <label>Payable to:</label>
+            <input type="text" name="ch_pay_to" maxlength="40"  value="<?php if(isset($ch_pay_to)) {echo $ch_pay_to;}?>" id="ch_pay_to" class="form-control required" />
+        </div>
+        <div class="col-md-12">
+            <div id="msg">
+            </div>
+        </div>
+        <div class="inputpopup">
+        <label class="labelblank">&nbsp;</label>
+            <input type="hidden" name="id" value="0" />
+            <input type="hidden" name="submit_account" class="submit_account" value="Ok"  />&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="button" value="Ok" class="submit_account"  name="submit_account" />
+        </div>
+
+
+
+                </div><!-- End of Modal body -->
+                </div><!-- End of Modal content -->
+            </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
             <!--<div class="row">
                 <div class="col-md-12">
                     <div class="form-group"><br /><div class="selectwrap">
-                        <input type="submit" name="transaction" onclick="waitingDialog.show();" value="Save"/>	
+                        <input type="submit" name="transaction" onclick="waitingDialog.show();" value="Save"/>
 
                         <a href="<?php echo CURRENT_PAGE.'?action=view';?>"><input type="button" name="cancel" value="Cancel" /></a>
                     </div>
                  </div>
                  </div>
              </div> -->
-        <div class="panel">            
+        <div class="panel">
             <div class="panel-heading">
                 <div class="panel-control" style="float: right;">
     				<div class="btn-group dropdown">
@@ -284,31 +338,31 @@ document.addEventListener("click", function (e) {
             <div class="panel-body">
             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
 
-         
-                <div class="row"> 
+
+              <!--   <div class="row">
                      <div class="col-md-4">
                     <div class="form-group">
-                        
-                        <!-- <span class="input-group-addon"> -->
+
+
                         <input type="checkbox" disabled="true" name="is_pending_order" <?php if(isset($is_pending_order) && $is_pending_order==1){ echo'checked="true"'; }?> id="is_pending_order" style="display: inline;" value="1" />
-                        <!-- </span> -->
-                        <label>Pending Order </label>                     
+
+                        <label>Pending Order </label>
                     </div>
-                </div>                    
                 </div>
+                </div> -->
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Trade Number </label><br />
                         <input type="text" name="trade_number" id="trade_number" value="<?php if(isset($trade_number)) {echo $trade_number;}else{echo 'Assigned after saving';}?>" disabled="true" class="form-control" />
-                    </div>                
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Trade Date <span class="text-red">*</span></label><br />
                         <div id="demo-dp-range">
                             <div class="input-daterange input-group" id="datepicker">
-                                <input type="text" data-required="true" name="trade_date" id="trade_date" value="<?php if(isset($trade_date) && $trade_date != '0000-00-00') {echo date('m/d/Y',strtotime($trade_date));}?>" class="form-control" />
+                                <input type="text" autocomplete="off" data-required="true" name="trade_date" id="trade_date" value="<?php if(isset($trade_date) && $trade_date != '0000-00-00') {echo date('m/d/Y',strtotime($trade_date));}?>" class="form-control" />
                             </div>
                         </div>
                     </div>
@@ -318,40 +372,49 @@ document.addEventListener("click", function (e) {
                         <label>Settlement Date </label><br />
                         <div id="demo-dp-range">
                             <div class="input-daterange input-group" id="datepicker">
-                                <input type="text" name="settlement_date" id="settlement_date" value="<?php if(isset($settlement_date) && $settlement_date != '0000-00-00') {echo date('m/d/Y',strtotime($settlement_date));}?>" class="form-control" />
+                                <input type="text" autocomplete="off"  name="settlement_date" id="settlement_date" value="<?php if(isset($settlement_date) && $settlement_date != '0000-00-00') {echo date('m/d/Y',strtotime($settlement_date));}?>" class="form-control" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-6">
+                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Client Name <span class="text-red">* </span> </label><a href="client_maintenance.php?redirect=add_client_from_trans&action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New client</a><br />
-                        <select class="livesearch form-control" data-required="true" id="client_name" name="client_name" onchange="get_client_account_no(this.value);">
+                        <label>Search by Number </label><br />
+                         <div class="autocomplete" style="width:100%">
+                            <input type="text" autocomplete="off" class="form-control"  name="search_client_number" id="search_client_number" />
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+
+                        <label>Client Name <span class="text-red">* </span> </label><a href="#" onclick="return redirect_url('client_maintenance.php?redirect=add_client_from_trans&action=add_new','client');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New client</a><br />
+                        <select class="livesearch form-control" data-required="true" id="client_name" name="client_name" onchange="get_client_account_no(this.value,'<?php echo $client_number;?>');">
                             <option value="0">Select Client</option>
+
                             <?php foreach($get_client as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['first_name'].' '.$val['mi'].' '.$val['last_name'];?></option>
+                            <option data-brokername="<?php echo $val['broker_name'] ?>" value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['first_name'].' '.$val['mi'].' '.$val['last_name'];?></option>
                             <?php } ?>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label>Client Number <span class="text-red">*</span></label><br />
-                         <div class="autocomplete" style="width:100%">
-                            <select class="form-control" data-required="true" name="client_number" id="client_number" onchange="add_new_client_no(this)">
+                        <label>Account No <span class="text-red">* </span> </label>
+                         <select class="form-control" data-required="true" name="client_number" id="client_number" onchange="add_new_client_no(this)">
                                  <option value=""> Please Select  </option>
-                                 <option value="-1"> None </option>
+                                 <option value="-1"> Add New </option>
                                  <?php foreach($get_accounts_no as $no): ?>
                                      <option value="<?php echo $no;?>" <?php echo $no == $client_number ? "selected='selected'" : "" ; ?> ><?php echo $no;?></option>
                                  <?php endforeach;  ?>
 
                             </select>
-                        <!-- <input type="text" maxlength="26" onpropertychange ="get_client_id(this.value);"  class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57' name="client_number"  id="client_number" value="<?php if(isset($client_number)) {echo $client_number;}?>"/> -->
-                        </div>
                     </div>
                 </div>
+
                <!--  <div class="col-md-2">
                     <div class="form-group">
                         <div class="autocomplete" style="width:300px;">
@@ -364,23 +427,23 @@ document.addEventListener("click", function (e) {
                    <div class="col-md-6">
                       <div class="form-group">
                          <label>Account No's </label><br>
-                         <input type="text" name="c_account_no" onkeypress="return event.charCode >= 48 &amp; event.charCode <= 57" id="c_account_no" class="form-control" value="">
+                         <input type="text" name="c_account_no" onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57" id="c_account_no" class="form-control" value="">
                       </div>
                    </div>
-                   <div class="col-md-6">
+                   <div class="col-md-6 compnay_sponsor" id="compnay_sponsor">
                       <div class="form-group">
                          <label>Sponsor Company </label><br>
-                         
+
                              <select class="form-control" name="c_sponsor" id="c_sponsor" >
                                 <option value="">Select Sponsor</option>
                                  <?php foreach($get_sponsor as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>" ><?php echo $val['name'];?></option>
                                 <?php } ?>
                          </select>
-                         
+
                       </div>
                    </div>
-                   
+
                 </div>
             <div class="row">
                 <div class="col-md-6">
@@ -396,17 +459,17 @@ document.addEventListener("click", function (e) {
                 </div>
                   <div class="col-md-6">
                     <div class="form-group">
-                        <label>Batch <span class="text-red">*</span><a id="add_new_batch" href="batches.php?action=add_batches_from_trans" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Batch</a></label><br />
-                        <select class="form-control" data-required="true" name="batch" onchange="get_commission_date(this.value);">            
-                            <option value="0">Select Batch</option>                
+                        <label>Batch <span class="text-red">*</span><a id="add_new_batch" href="#" onclick="return redirect_url('batches.php?action=add_batches_from_trans','batch');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Batch</a></label><br />
+                        <select class="form-control" data-required="true" name="batch" onchange="get_commission_date(this.value);">
+                            <option value="0">Select Batch</option>
                              <?php foreach($get_batch as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if(isset($batch) && $batch==$val['id']){?> selected="true"<?php }else if(isset($key) && $key==0){?> selected="true"<?php } ?>><?php echo $val['id'].' '.$val['batch_desc'];?></option>
+                            <option value="<?php echo $val['id'];?>" <?php if(isset($batch) && $batch==$val['id']){?> selected="true"<?php }  ?>><?php echo $val['id'].' '.$val['batch_desc'];?></option>
                             <?php } ?>
                         </select>
                     </div>
                 </div>
             </div>
-            
+
             <!-- 05/02/22 - Insert Branch & Company here -->
             <div class="row">
                  <div class="col-md-4">
@@ -432,7 +495,7 @@ document.addEventListener("click", function (e) {
                 </div>
             </div>
             <!-- end: Branch & Company here -->
-            
+
             <div class="row">
                  <div class="col-md-4">
                     <div class="form-group">
@@ -445,28 +508,28 @@ document.addEventListener("click", function (e) {
                         </select>
                     </div>
                 </div>
+
+                <div id="div_sponsor">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Sponsor </label><br />
+                            <select class="form-control" name="sponsor" id="sponsor" onchange="get_product();">
+                                <option value="">Select Sponsor</option>
+                                <?php foreach($get_sponsor as $key=>$val){?>
+                                <option value="<?php echo $val['id'];?>" <?php if(isset($sponsor) && $sponsor==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Product <span class="text-red">*</span><a id="add_new_prod" href="product_cate.php?redirect=add_product_from_trans" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Product</a></label><br />
+                        <label>Product <span class="text-red">*</span><a id="add_new_prod" href="#" onclick="return redirect_url('product_cate.php?action=add_product&redirect=add_product_from_trans','product');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Product</a></label><br />
                         <select class="form-control" data-required="true" name="product"  id="product">
                             <option value="0">Select Product</option>
                         </select>
                     </div>
                 </div>
-                <div id="div_sponsor">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Sponsor </label><br />
-                        <select class="form-control" name="sponsor" id="sponsor" onchange="get_product();">
-                            <option value="">Select Sponsor</option>
-                             <?php foreach($get_sponsor as $key=>$val){?>
-                            <option value="<?php echo $val['id'];?>" <?php if(isset($sponsor) && $sponsor==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
-                             
             </div>
             <div class="row">
                 <div class="col-md-4">
@@ -485,7 +548,7 @@ document.addEventListener("click", function (e) {
                     <div class="form-group">
                         <label>Investment Amount</label><br />
                         <div id="demo-dp-range">
-                            <input type="text" maxlength="12" onChange="setnumber_format(this)" class="form-control" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 ' name="invest_amount" id="invest_amount"  value="<?php if(isset($invest_amount)) {echo $invest_amount;}?>"/>  
+                            <input type="text" maxlength="12" onChange="setnumber_format(this)" class="form-control" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 ' name="invest_amount" id="invest_amount"  value="<?php if(isset($invest_amount)) {echo $invest_amount;}?>"/>
                         </div>
                     </div>
                 </div>
@@ -513,11 +576,11 @@ document.addEventListener("click", function (e) {
                         <input type="text" maxlength="9" onChange="setnumber_format(this)" class="form-control" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 ' name="charge_amount"  value="<?php if(isset($charge_amount) && $charge_amount != '') {echo $charge_amount;}else{echo '0';}?>"/>
                     </div>
                 </div>
-                
-               
+
+
             </div>
             <div class="row">
-              
+
                 <div class="col-md-6">
                     <div class="form-group" id="posting_date" style="visibility: hidden;">
                         <label>Posting Date </label><br />
@@ -533,7 +596,7 @@ document.addEventListener("click", function (e) {
             <div class="row multi-checkbox-row">
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-3">                              
+                        <div class="col-md-3">
                             <a href="#" data-target="#add_cheque_info" data-toggle="modal">Client Check Received</a>
                         </div>
                         <div class="col-md-3">
@@ -562,7 +625,7 @@ document.addEventListener("click", function (e) {
                             <div class="form-group">
                                 <label>Buy/Sell </label><br />
                                 <label class="radio-inline">
-                                  <input type="radio" class="radio"  name="buy_sell" <?php if((isset($buy_sell) && $buy_sell==1) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="1"/>Buy    
+                                  <input type="radio" class="radio"  name="buy_sell" <?php if((isset($buy_sell) && $buy_sell==1) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="1"/>Buy
                                 </label>
                                 <label class="radio-inline">
                                   <input type="radio" class="radio" name="buy_sell" <?php if(isset($buy_sell) && $buy_sell==2){ echo'checked="true"'; }?> value="2" />Sell
@@ -571,10 +634,10 @@ document.addEventListener("click", function (e) {
                         </div>
                </div>
            </div>
-               
+
                 <div class="col-md-6">
                      <div class="row">
-                        
+
                          <div class="col-md-4">
                             <div class="form-group">
                                 <label>Cancel </label><br />
@@ -586,35 +649,35 @@ document.addEventListener("click", function (e) {
                                 </label>
                             </div>
                         </div>
-                          <div class="col-md-4">   
-                   
+                          <div class="col-md-4">
+
                                  <div class="form-group">
                                    <label>1035 Exchange </label><br />
                                    <label class="radio-inline">
                                       <input type="radio" class="radio" name="is_1035_exchange" <?php if(isset($is_1035_exchange) && $is_1035_exchange==1){ echo'checked="true"'; }?> value="1"/>YES
-                                     
+
                                     </label>
                                     <label class="radio-inline">
                                       <input type="radio" class="radio" name="is_1035_exchange" <?php if((isset($is_1035_exchange) && $is_1035_exchange==0) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="0" />NO
                                     </label>
-                                  
+
                                 </div>
-                            </div>    
-                             <div class="col-md-4">   
-                   
+                            </div>
+                             <div class="col-md-4">
+
                                  <div class="form-group">
                                    <label> Trail Commission </label><br />
                                    <label class="radio-inline">
                                       <input type="radio" class="radio" name="is_trail_trade" <?php if(isset($is_trail_trade) && $is_trail_trade==1){ echo'checked="true"'; }?> value="1"/>YES
-                                     
+
                                     </label>
                                     <label class="radio-inline">
                                       <input type="radio" class="radio" name="is_trail_trade" <?php if((isset($is_trail_trade) && $is_trail_trade==0) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="0" />NO
                                     </label>
-                                  
+
                                 </div>
-                            </div>    
-                        
+                            </div>
+
                     </div>
                 </div>
                 <!--<div class="col-md-8" id="split_div" <?php  if((isset($split) && $split!=1) || (isset($_GET['action']) && $_GET['action']=='add')){?>style="display: none;"<?php } ?>>
@@ -651,7 +714,7 @@ document.addEventListener("click", function (e) {
                 <?php if(isset($action) && ($action=='add'||$return_splits==array())){?>
                 <div id="client_split_row"></div>
                 <div id="broker_split_row"></div>
-                <?php } ?> 
+                <?php } ?>
                 <?php
                 if($return_splits != '')
                 {
@@ -696,10 +759,10 @@ document.addEventListener("click", function (e) {
                 <?php } ?>
                 <?php
                 if($is_broker==0)
-                {?>    
+                {?>
                 <div id="broker_split_row">
-                <?php } 
-                if($valedit_split['split_broker_id']>0){ 
+                <?php }
+                if($valedit_split['split_broker_id']>0){
                      ?>
                 <div class="row">
                     <div class="col-md-5">
@@ -726,12 +789,12 @@ document.addEventListener("click", function (e) {
                         </div>
                     </div>
                 </div>
-                
+
                 <?php }
                 if($is_broker==0){
-                $is_broker++; ?> 
+                $is_broker++; ?>
                 </div>
-                <?php } 
+                <?php }
                 if($valedit_split['split_broker_id']==0 && $valedit_split['split_client_id']==0) {?>
                 <div class="row split_edit_row">
                     <div class="col-md-5">
@@ -793,7 +856,7 @@ document.addEventListener("click", function (e) {
                                                 <button type="button" onclick="add_override();" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
                                             </td>
                                         </tr>
-                                        <?php 
+                                        <?php
                                         if(isset($action) && $action=='edit_transaction' && !empty($return_overrides)){
                                         foreach($return_overrides as $regkey=>$regval){
                                                 ?>
@@ -831,26 +894,32 @@ document.addEventListener("click", function (e) {
                         <input type="text"  class="form-control" value="<?php if(isset($hold_resoan)) {echo $hold_resoan;}?>" name="hold_resoan" id="hold_resoan"  />
                     </div>
                 </div>
-            </div> 
+            </div>
           </div>
           <div class="panel-footer fixedbtmenu">
             <div class="selectwrap">
                 <a href="<?php echo CURRENT_PAGE.'?action=view';?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                <input type="submit" name="transaction" onclick="return waitingDialog.show();" value="Save" style="float: right;"/>	
-                <input type="submit" name="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>    
+                <input type="submit" name="transaction" onclick="return waitingDialog.show();" value="Save" style="float: right;"/>
+                <?php
+
+                if(isset($_GET['action']) &&  $_GET['action'] == 'add' ) {
+                    echo ' <input type="submit" name="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>  ';
+                }
+
+                ?>
             </div>
           </div>
           </div>
-        </form>  
+        </form>
 
 
-                   
+
 
           <!-- Modal for add client notes -->
-        <!-- Lightbox strart -->                            
+        <!-- Lightbox strart -->
             <!--Modal for add joint account -->
             <div id="add_cheque_info" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            
+
                 <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header" style="margin-bottom: 0px !important;">
@@ -858,7 +927,7 @@ document.addEventListener("click", function (e) {
                     <h4 class="modal-title">Add Check Information</h4>
                 </div>
                 <div class="modal-body">
-                
+
                         <div class="inputpopup">
             <label>Check No:</label>
             <input type="text" name="ch_no" id="ch_no" value="<?php if(isset($ch_no)) {echo $ch_no;}?>"  class="form-control" />
@@ -866,7 +935,7 @@ document.addEventListener("click", function (e) {
         <div class="inputpopup">
             <label>Check Amount:</label>
             <input type="text" name="ch_amount" onChange="setnumber_format(this)"  value="<?php if(isset($ch_amount)) {echo $ch_amount;}?>" id="ch_amount" class="form-control" />
-        </div>      
+        </div>
         <div class="inputpopup">
 
             <label>Date:</label>
@@ -890,14 +959,14 @@ document.addEventListener("click", function (e) {
             <input type="hidden" name="submit_account" value="Ok"  />&nbsp;&nbsp;&nbsp;&nbsp;
             <input type="submit" value="Ok" data-dismiss="modal" name="submit_account" />
         </div>
-                    
-                             
-                
+
+
+
                 </div><!-- End of Modal body -->
                 </div><!-- End of Modal content -->
             </div><!-- End of Modal dialog -->
-        </div><!-- End of Modal -->        
-        
+        </div><!-- End of Modal -->
+
         </form>
         <?php
             }if((isset($_GET['action']) && $_GET['action']=='view') || $action=='view'){?>
@@ -908,7 +977,7 @@ document.addEventListener("click", function (e) {
                         <button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
     					<ul class="dropdown-menu dropdown-menu-right" style="">
     						<li><a href="<?php echo CURRENT_PAGE; ?>?action=add"><i class="fa fa-plus"></i> Add New</a></li>
-                            <li><a href="<?php echo CURRENT_PAGE; ?>?action=view_report"><i class="fa fa-minus"></i> Report</a></li> 
+                            <li><a href="<?php echo CURRENT_PAGE; ?>?action=view_report"><i class="fa fa-minus"></i> Report</a></li>
     					</ul>
     				</div>
     			</div>
@@ -938,7 +1007,7 @@ document.addEventListener("click", function (e) {
     			<table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
     	            <thead>
     	                <tr>
-                            
+
                             <th>Trade Number</th>
                             <th>Trade Date</th>
                             <th>Client Name</th>
@@ -951,13 +1020,13 @@ document.addEventListener("click", function (e) {
                         </tr>
     	            </thead>
     	            <tbody>
-                    <?php 
+                    <?php
                     $count = 0;
                     foreach($return as $key=>$val){
                         //print_r($val);
                         ?>
     	                   <tr>
-                                
+
                                 <td><?php echo $val['id'];?></td>
                                 <td><?php echo date('m/d/Y',strtotime($val['trade_date']));?></td>
                                 <td><?php if(isset($val['client_lastname']) && $val['client_lastname'] != ''){ echo $val['client_lastname'].','.$val['client_firstname'];}?></td>
@@ -993,7 +1062,7 @@ document.addEventListener("click", function (e) {
                 </div>
             </div>
     	</div>
-        <?php } ?> 
+        <?php } ?>
         <?php if(isset($_GET['action']) && $_GET['action']=='view_report'){?>
         <div id="view_report">
             <form method="post" target="_blank">
@@ -1032,12 +1101,13 @@ document.addEventListener("click", function (e) {
 }
 #table-scroll {
   height:400px;
-  overflow:auto;  
+  overflow:auto;
   margin-top:20px;
 }
 .multi-checkbox-row{
    font-size: 12px;
 }
+
 </style>
 <script type="text/javascript">
 function hide_hold_reason()
@@ -1055,10 +1125,10 @@ $.fn.regexMask = function(mask) {
     });
 };
 function get_cheque_info(detail_id){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("add_new_account").innerHTML = this.responseText;
                 $('#ch_no').mask("999999");
@@ -1073,7 +1143,7 @@ function formsubmit_account()
    $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
 
    var url = "client_maintenance.php"; // the script where you handle the form input.
-   
+
    $.ajax({
       type: "POST",
       url: url,
@@ -1083,22 +1153,22 @@ function formsubmit_account()
              $("#add_cheque_info").modal('hide');
             addcheckinfo();
             $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-            //window.location.href = "client_maintenance.php";//get_client_notes();   
+            //window.location.href = "client_maintenance.php";//get_client_notes();
           }
           else{
                $('#msg_account').html('<div class="alert alert-danger">'+data+'</div>');
           }
-          
+
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
            $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
       }
-      
+
    });
 
    //e.preventDefault(); // avoid to execute the actual submit of the form.
    return false;
-       
+
 }
 
 function open_hold_reason()
@@ -1137,10 +1207,10 @@ $('.decimal').chargeFormat();
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
          "columnDefs": [ { type: 'date', 'targets': [1] } ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 8,9 ] }, 
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 8,9 ] },
                         { "bSearchable": false, "aTargets": [ 8,9 ] }]
         });
-        
+
         $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
             '<div class="panel-control" style="padding-left:5px;display:inline;">'+
                     '<div class="btn-group dropdown" style="float: right;">'+
@@ -1161,14 +1231,66 @@ $('.decimal').chargeFormat();
 .chosen-container-single .chosen-single {
     height: 34px !important;
 }
+#new_transcation_wrap label{
+    min-height: 30px;
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
+<script type="text/javascript" src="/CloudFox/assets/plugins/autocomplete/jquery-ui.js"></script>
+<script type="text/javascript" src="/CloudFox/assets/plugins/autocomplete/jquery.ui.autocomplete.scroll.min.js"></script>
+ <link rel="stylesheet" href="/CloudFox/assets/plugins/autocomplete/jquery-ui.css?1">
+
+
+
 <script type="text/javascript">
+    var client_number_ = '<?php echo $client_number; ?>';
+     var transcation_form_data = '';
+    if(localStorage.getItem('transcation_form_data')){
+           var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
+          console.log(transcation_form_data,"transcation_form_data")
+         //$("")$("form[name='frm2']")
+           for(var key in transcation_form_data){
+
+              if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
+
+                 document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
+              }
+             // console.log(transcation_form_data,"transcation_form_data")
+           }
+      }
     $(document).ready(function(){
-        var client_ac_number =<?php echo json_encode($client_account_array); ?>;         
+        var client_ac_number =<?php echo json_encode($client_account_array); ?>;
        // autocomplete(document.getElementById("client_number"), client_ac_number);
+        if(localStorage.getItem('transcation_form_data')){
+
+
+        for(var key in transcation_form_data){
+                 if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product'){
+                      $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+                }
+              }
+          }
+
 
       $(".livesearch").chosen();
+      $("#search_client_number").autocomplete({
+          source: "ajax_get_client_account.php?_type=query",
+          minLength: 2,
+           maxShowItems: 3,
+          select: function( event, ui ) {
+            $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
+             $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+            //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+          }
+        }).autocomplete("instance")._renderItem = function (ul, item) {
+    return $("<li>")
+      .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
+      .appendTo(ul);
+};;
+
+
+
+
       $('#ch_no').mask("999999");
       });
 
@@ -1177,13 +1299,48 @@ $('.decimal').chargeFormat();
 
     jQuery(function($){
       $("#add_new_prod").click(function(ev){
-            if($("#product_cate").val() == 0){
+            if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
                    ev.preventDefault();
                    alert("Please select Product Category First");
                    return false;
             }
       });
+
+      $(".two-decimals").on("keypress", function (evnt) {
+            var el= this;
+          var charC = (evnt.which) ? evnt.which : evnt.keyCode;
+            if (charC == 46) {
+                if (el.value.indexOf('.') === -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                if (charC > 31 && (charC < 48 || charC > 57))
+                    return false;
+            }
+            return true;
+
+       /* var $txtBox = $(this);
+        var charCode = (evt.which) ? evt.which : evt.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46)
+            return false;
+        else {
+            var len = $txtBox.val().length;
+            var index = $txtBox.val().indexOf('.');
+            if (index > 0 && charCode == 46) {
+              return false;
+            }
+            if (index > 0) {
+                var charAfterdot = (len + 1) - index;
+                if (charAfterdot > 3) {
+                    return false;
+                }
+            }
+        }
+        return $txtBox; //for chaining*/
     });
+})
 
 function add_new_client_no(element){
     if(element.value == -1){
@@ -1193,26 +1350,35 @@ function add_new_client_no(element){
         jQuery("#account_no_row").hide();
     }
 }
-
 function get_product(category_id,selected=''){
-        category_id = document.getElementById("product_cate").value;
-        transaction_id = document.getElementById("trade_number").value;
-        sponsor = document.getElementById("sponsor").value;
-        $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans"+"&transaction_id="+transaction_id);
-      
+    category_id = category_id || document.getElementById("product_cate").value;
+    // transaction_id = document.getElementById("trade_number").value;
+    sponsor = document.getElementById("sponsor").value;
+    c_sponsor =  document.getElementById("compnay_sponsor");
+    // $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans"+"&transaction_id="+transaction_id);
+    $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans");
+    document.getElementById("product").innerHTML = "<option value=''> Please Wait...</option>";
+    div_sponsor =  document.getElementById("div_sponsor");
+
      if(category_id =='2' ||category_id =='3'|| category_id =='6'||category_id =='7'||category_id =='8')
         {
             div_sponsor.style.visibility='hidden';
+            c_sponsor.style.visibility='hidden';
         }
         else
         {
             div_sponsor.style.visibility='visible';
+             c_sponsor.style.visibility='visible';
         }
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("product").innerHTML = this.responseText;
+                 for(var key in transcation_form_data){
+                   /* if(transcation_form_data[key]['name']=='product')
+                    document.querySelector("[name='product']").value=transcation_form_data[key]["value"];*/
+                }
             }
         };
         xmlhttp.open("GET", "ajax_get_product.php?product_category_id="+category_id+'&sponsor='+sponsor+'&selected='+selected, true);
@@ -1221,31 +1387,43 @@ function get_product(category_id,selected=''){
 
 //get client account no on client select
 function get_client_account_no(client_id,selected){
+
          document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
+         var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
+
+           $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 var dropdown='';
                 var options = JSON.parse(this.responseText);
-                    dropdown+='<option value=""> Please Select  </option><option value="-1"> None </option>';
+
+
+                    dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
                     options.forEach(function(item){
+                     //   console.log(item,selected,selected == item)
                         $is_selected = selected == item ? "selected='selected'": "";
                         dropdown+="<option value='"+item+"' "+$is_selected+"  >"+item+"</option>";
                     })
                    document.getElementById("client_number").innerHTML = dropdown;
+                    for(var key in transcation_form_data){
+                    if(transcation_form_data[key]['name']=='client_number')
+                    document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
+                }
             }
         };
         xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
         xmlhttp.send();
 }
 
+
 function get_client_id(client_number){
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200 && this.responseText!='0'  && this.responseText!='' ) 
-            {            
-                    
+            if (this.readyState == 4 && this.status == 200 && this.responseText!='0'  && this.responseText!='' )
+            {
+
                 $('#client_name').val(this.responseText).trigger("chosen:updated");
              //   alert($('#client_name').val());
             }
@@ -1253,25 +1431,24 @@ function get_client_id(client_number){
         xmlhttp.open("GET", "ajax_get_client_account.php?client_number="+client_number, true);
         xmlhttp.send();
 }
-
 //get default commission date on batch date
 function get_commission_date(batch_id)
 {
     var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() 
+        xmlhttp.onreadystatechange = function()
         {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 var data=jQuery.parseJSON(this.responseText);
-                
-                $("#product_cate").val(data[0].pro_category);
+
+               // $("#product_cate").val(data[0].pro_category);
                 $("#commission_received_date").val(data[0].batch_date);
                 $("#sponsor").val(data[0].sponsor);
-                if(data[0].pro_category!='' && data[0].pro_category!='0')
+               /* if(data[0].pro_category!='' && data[0].pro_category!='0')
                  {
                     get_product(data[0].pro_category,data[0].sponsor);
-                //alert(this.responseText); 
-                 }
+                //alert(this.responseText);
+                 }*/
             }
         };
         xmlhttp.open("GET", "ajax_get_client_account.php?batch_id="+batch_id, true);
@@ -1280,22 +1457,44 @@ function get_commission_date(batch_id)
 
 function setnumber_format(inputtext)
 {
-    var a = inputtext.value;
-    var options = { style: 'currency', currency: 'USD'};
-    inputtext.value=(new Intl.NumberFormat(options).format(a));
-}
+    var number  = inputtext.value;
+    var roundedNumber = Number((Math.floor(number * 100) / 100).toFixed(2))
 
+   var options = { style: 'currency', currency: 'USD'};
+        inputtext.value=(new Intl.NumberFormat(options).format(roundedNumber));
+
+
+   /*   const formatter = new Intl.NumberFormat('en-NZ', {
+    style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    });
+
+    const fraction = new Intl.NumberFormat('en-NZ', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+    });
+
+    if(number % 1 == 0)
+        inputtext.value = (fraction.format(number));
+    else
+        inputtext.value = (formatter.format(number));*/
+
+
+
+}
 //get client split rate on client select
 function get_client_split_rates(client_id){
-        
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 $( "#split_yes" ).prop( "checked", true );
                 open_other();
                 //$('#client_split_row').replaceWith(this.responseText);
-                
+
                 document.getElementById("client_split_row").innerHTML = this.responseText;
                 //$(this.responseText).insertAfter('#add_other_split');
             }
@@ -1305,10 +1504,10 @@ function get_client_split_rates(client_id){
 }
 //get broker split rate on broker select
 function get_broker_split_rates(broker_id){
-        
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 $( "#split_yes" ).prop( "checked", true );
                 open_other();
@@ -1323,10 +1522,10 @@ function get_broker_split_rates(broker_id){
 }
 //get broker override rate on broker select
 function get_broker_override_rates(broker_id){
-        
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 $('.broker_override_class').remove();
                 $(this.responseText).insertAfter('#add_override');
@@ -1335,6 +1534,26 @@ function get_broker_override_rates(broker_id){
         xmlhttp.open("GET", "ajax_get_override_rates.php?broker_id="+broker_id, true);
         xmlhttp.send();
 }
+
+
+function redirect_url(url,selector){
+        if(selector == "product" ){
+            if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
+
+              ev.preventDefault();
+                   alert("Please select Product Category First");
+                   return false;
+            }
+            else{
+                 url = url+"&category="+$("#product_cate").val();
+            }
+        }
+       localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
+       setTimeout(function(){  window.location.href=url   },100);
+       return false;
+}
+
+
 //get broker hold commission on broker select
 // 05/03/22 Add branch & company fetch from BROKER_BRANCHES as well
 function get_broker_hold_commission(broker_id){
@@ -1342,11 +1561,11 @@ function get_broker_hold_commission(broker_id){
     var xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) 
+        if (this.readyState == 4 && this.status == 200)
         {
             var jsonResponse = JSON.parse(this.responseText);
             hold_commissions = jsonResponse.hold_commission;
-            
+
             if(hold_commissions==1)
             {
                 $("#hold_commission_1").prop("checked", true );
@@ -1360,7 +1579,7 @@ function get_broker_hold_commission(broker_id){
                 $("#div_hold_reason").css('display','none');
                 $("#hold_resoan").val("");
             }
-           
+
             if (jsonResponse.branch > 0){
                 $("#branch").val("");
                 $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("onchange");
@@ -1373,7 +1592,7 @@ function get_broker_hold_commission(broker_id){
 }
 function get_branch_company(branch_id){
         var xmlhttp = new XMLHttpRequest();
-        
+
         xmlhttp.onreadystatechange = function(){
             if (this.readyState == 4 && this.status == 200){
                 var jsonResponse = JSON.parse(this.responseText);
@@ -1392,7 +1611,7 @@ function load_split_commission_content(broker_id){
         var xmlhttp = new XMLHttpRequest();
 
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 $("#split_commission_modal").find(".modal-body tbody").html(this.responseText);
                 $('#demo-dp-range .input-daterange').datepicker({
@@ -1403,6 +1622,7 @@ function load_split_commission_content(broker_id){
                 });
             }
         };
+        client_id= $("select[name='client_name']").val();
         transaction_id = $("#id").val();
         xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id, true);
         xmlhttp.send();
@@ -1410,6 +1630,12 @@ function load_split_commission_content(broker_id){
 function open_other()
 {
     $("#split_commission_modal").modal();
+    if($("select[name='broker_name']").val() == '' || $("select[name='broker_name']").val() == 0){
+        $("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please Select Broker First!</td> </td>")
+    }
+    else{
+            //$("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please Wait....</td> </td>")
+    }
     //$('#split_div').css('display','block');
     //$('.split_edit_row').css('display','block');
 }
@@ -1442,12 +1668,12 @@ jQuery(function($){
                            $(this).removeClass("error");
                     }
                 }
-               
+
                 if($(this).prop("type") =="radio"){
                 }
-                    
+
          });
-              
+
      });
 })
 var waitingDialog = waitingDialog || (function ($) {
@@ -1488,8 +1714,8 @@ var waitingDialog = waitingDialog || (function ($) {
              var commission_received = $("input[name='commission_received']");
              var split = $("input[name='split']");
              var hold_commission = $("input[name='hold_commission']");
-             
-             
+
+
                 if($.trim(trade_date.val()) == ''){
                      isErrorFound=true;
                      trade_date.addClass("error");
@@ -1528,7 +1754,7 @@ var waitingDialog = waitingDialog || (function ($) {
                 }
 
 
-           
+
 
                 if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
                      isErrorFound=true;
@@ -1579,11 +1805,13 @@ var waitingDialog = waitingDialog || (function ($) {
                 }
 
                 if(isErrorFound){
-                   $("html,body").animate({scrollTop: $("#id").offset().top},200); 
+                   $("html,body").animate({scrollTop: $("#id").offset().top},200);
                     return false;
                 }
-                
-                
+
+                 localStorage.setItem('transcation_form_data',"");
+
+
 			// Assigning defaults
 			if (typeof options === 'undefined') {
 				options = {};
@@ -1616,7 +1844,7 @@ var waitingDialog = waitingDialog || (function ($) {
 		/**
 		 * Closes dialog
 		 */
-	
+
 	};
 
 })(jQuery);
@@ -1691,8 +1919,8 @@ function add_rate(doc){
                         '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                     '</td>'+
                 '</tr>';
-                
-            
+
+
     $(html).insertAfter('#add_rate');
     $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
@@ -1704,10 +1932,30 @@ function add_rate(doc){
 
 var deleteRows=[]
 $(document).on('click','.remove-row',function(){
-   
+
     deleteRows.push($(this).closest('.tr').data("rowid"));
     $("#deleted_rows").val(deleteRows.join(","));
     $(this).closest('.tr').remove();
+});
+
+$(document).on('click','#add_cheque_info .submit_account',function(){
+    var modalSelector = $('#add_cheque_info');
+    var isErrorFound = false;
+    modalSelector.find('input.required').each(function(){
+        var selector = $(this);
+        var value = selector.val();
+       // console.log(value);
+        if(value == '') {
+            selector.addClass('error');
+            isErrorFound = true;
+        }
+        else selector.removeClass('error');
+    })
+    if(!isErrorFound) {
+       modalSelector.modal('hide');
+
+    }
+
 });
 </script>
 <?php
@@ -1716,6 +1964,8 @@ $(document).on('click','.remove-row',function(){
         ?>
         <script type="text/javascript">
             $(document).ready(function(){
+                $("#product_cate").val(<?php echo $product_cate; ?>);
+                console.log("testtetests");
                 get_product(<?php echo $product_cate; ?>,'<?php echo $product; ?>');
             });
         </script>
@@ -1734,8 +1984,8 @@ $(document).on('click','.remove-row',function(){
         ?>
         <script type="text/javascript">
             $(document).ready(function(){
-
-                get_client_account_no(<?php echo $client_name; ?>,<?php echo $client_number; ?>);
+                   $('#client_name').val(<?php echo $client_name; ?>).trigger("chosen:updated").trigger("change");
+                    get_client_account_no('<?php echo $client_name; ?>','<?php echo $client_number; ?>');
             });
         </script>
         <?php
@@ -1744,11 +1994,14 @@ $(document).on('click','.remove-row',function(){
         ?>
         <script type="text/javascript">
             $(document).ready(function(){
+                 $('[name="batch"]').val(<?php echo $batch; ?>);
                 get_commission_date(<?php echo $batch; ?>);
             });
         </script>
         <?php
     }
+
+
     /*if($product_cate>0 && $product != ''){
         ?>
         <script type="text/javascript">

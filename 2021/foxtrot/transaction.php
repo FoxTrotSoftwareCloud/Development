@@ -18,13 +18,13 @@
     $instance_broker_master = new broker_master();
     $instance_branches = new branch_maintenance();
     $instance_company = new manage_company();
-    
+
     $get_broker =$instance_broker_master->select_broker_by_branch_company();
     $get_client= $instance->select_client();
     $get_batch = $instance->select_batch();
     $get_branch = $instance_branches->select(1);
     $get_company = $instance_company->select_company();
-    
+
     $product_cate ='';
     $client_name='';
     $broker_name='';
@@ -35,6 +35,8 @@
     $split_rate = array();
     $return_splits = array();
     $shares = $units = $branch = $company = 0;
+    $branch = isset($_POST['branch']) ? (int)$instance->re_db_input($_POST['branch']):0;
+    $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
 
     if((isset($_POST['transaction'])&& $_POST['transaction']=='Save')|| (isset($_POST['transaction'])&& $_POST['transaction']=='Save & Copy')){
        // echo '<pre>';print_r($_POST);exit();
@@ -90,13 +92,13 @@
         $return = $instance->insert_update($_POST);
 
         if($return===true){
-            if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
+           /* if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
             {
                 header("location:".SITE_URL."batches.php?action=edit_batches&id=".$_SESSION['batch_id']);
                 unset($_SESSION['batch_id']);
                 exit;
             }
-            else{
+            else{*/
                 if($_POST['transaction']=='Save & Copy')
                 {
                     $is_pending_order=1;
@@ -111,7 +113,7 @@
                 {
                     header("location:".CURRENT_PAGE."?action=view");exit;
                 }
-            }
+          /*  }*/
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
@@ -167,6 +169,8 @@
         $shares = isset($return['shares'])?$instance->re_db_output($return['shares']):'';
         $return_splits = $instance->edit_splits($id);
         $return_overrides = $instance->edit_overrides($id);
+        $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'0';
+        $company = isset($return['company'])?$instance->re_db_output($return['company']):'0';
 
     }
     else if(isset($_GET['action'])&&$_GET['action']=='transaction_delete'&&isset($_GET['id'])&&$_GET['id']>0)
