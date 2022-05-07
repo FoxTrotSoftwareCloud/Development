@@ -17,13 +17,16 @@ $html = '';
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
     $filter_array = json_decode($_GET['filter'],true);
-    $company = isset($filter_array['company'])?$filter_array['company']:0;
     $payroll_id = isset($filter_array['payroll_id'])?$filter_array['payroll_id']:'';
     $get_payroll_upload = $instance_payroll->get_payroll_uploads($payroll_id);
     $payroll_date = date('m/d/Y', strtotime($get_payroll_upload['payroll_date']));
     $output_type = isset($filter_array['output_type'])?$filter_array['output_type']:'';
+    // 5/6/22 Company Filter
+    $instance_company = new manage_company();
+    $company = isset($filter_array['company'])?$filter_array['company']:0;
+    $companyData = ($company==0) ? ['company_name'=>'All Companies']: $instance_company->select_company_by_id($company);
 
-    $summaryData = $instance_payroll->select_current_payroll($payroll_id, 1);
+    $summaryData = $instance_payroll->select_current_payroll($payroll_id, 1, $company);
     $reportData = $instance_payroll->get_payroll_summary_report_data($payroll_id, $company);
 }
 ?>
@@ -53,6 +56,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $html .= '</tr>';
             $html .=
                 '<tr>'
+                    .'<td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$companyData['company_name'].'</td>'
+                .'</tr>'
+                .'<tr>'
                     .'<td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">'.$payroll_date.'</td>'
                 .'</tr>'
         .'</table>';

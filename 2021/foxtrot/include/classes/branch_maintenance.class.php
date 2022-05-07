@@ -247,19 +247,24 @@
             }
 			return $return;
 		}
-        public function select(){
+        public function select($order=0){
 			$return = array();
+			$orderBy = "`at`.`id` ASC";
+			
+			if ($order){
+				$orderBy = "`at`.`name` ASC";
+			}
 			
 			$q = "SELECT `at`.*
 					FROM `".$this->table."` AS `at`
                     WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                    ORDER BY $orderBy";
+					
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
-                     
     			}
             }
 			return $return;
@@ -269,22 +274,24 @@
 		 * @param int $id, default all
 		 * @return 
 		 * */
-		public function select_branch_by_id($id)
-    {
-			$q = "SELECT `bm`.*
-					FROM `".$this->table."` AS `bm`
-                    WHERE `bm`.`is_delete`='0' AND `bm`.`id`=$id
-                    ORDER BY `bm`.`id` ASC";
+		public function select_branch_by_id($id=0){
+			$id = (int)$this->re_db_input($id);
+			
+			$q = "SELECT `bm`.*"
+					." FROM `".$this->table."` AS `bm`"
+					." WHERE `bm`.`is_delete`='0'"
+					." AND `bm`.`id`=$id"
+					." ORDER BY `bm`.`id` ASC";
+		
 			$res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0)
-      {
-        $row = $this->re_db_fetch_array($res);
-        return $row;
-      }
-      
-      return null;
+			if($this->re_db_num_rows($res)>0) {
+				$row = $this->re_db_fetch_array($res);
+				return $row;
+			}
+		
+			return null;
 		}
-        public function select_notes(){
+		public function select_notes(){
 			$return = array();
 			
 			$q = "SELECT `s`.*

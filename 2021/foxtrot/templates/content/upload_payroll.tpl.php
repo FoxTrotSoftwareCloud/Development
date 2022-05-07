@@ -4,18 +4,19 @@
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
         <form id="upload_payroll" method="POST">
         <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Company</label>    
-                    <select class="form-control" id="company-select" name="company-select">`
-                        <option value="0">All Companies</option>
-                        <?php foreach ($get_multi_company AS $companyRow) { ?>
-                            <option value="<?php echo $companyRow['id'] ?>" <?php echo ($company_number==$companyRow['id'] ? 'selected':'') ?> ><?php echo $companyRow['company_name'] ?></option>
-                        <?php } ?>
-                    </select>
+            <?php if (isset($action) AND $action!='payroll_close'){ ?>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Company</label>    
+                        <select class="form-control" id="company-select" name="company-select">`
+                            <option value="0">All Companies</option>
+                            <?php foreach ($get_multi_company AS $companyRow) { ?>
+                                <option value="<?php echo $companyRow['id'] ?>" <?php echo ($company_id==$companyRow['id'] ? 'selected':'') ?> ><?php echo $companyRow['company_name'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
                 </div>
-        
-            </div>
+            <?php } ?>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Payroll Date <span class="text-red">*</span></label>

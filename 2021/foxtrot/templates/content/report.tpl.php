@@ -19,7 +19,7 @@
                         <option value="1" <?php if(isset($report_for) && ($report_for == 1 || $report_for == '')){echo "selected='true'";}?>>Commission Posting Log</option>
                         <option value="2" <?php if(isset($report_for) && $report_for == 2){echo "selected='true'";}?>>Batch Report</option>
                         <option value="3" <?php if(isset($report_for) && $report_for == 3){echo "selected='true'";}?>>Hold Report</option>
-                     
+
                         <option value="4" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Payables Report</option>
                     </select>
                 </div>
@@ -29,7 +29,7 @@
         <div class="panel" id="report_filters">
         <div class="titlebox">Commission Reports</div><br />
         <div class="row">
-         
+
             <div id="category_wrapper" class="col-md-4">
                 <div class="row">
                     <div class="col-md-12">
@@ -47,9 +47,9 @@
                     </div>
                 </div>
                 <?php } ?>
-                
+
             </div>
-            
+
             <div id="company_wrapper" class="col-md-8">
                 <div class="row">
                     <div class="col-md-12">
@@ -111,9 +111,9 @@
                                </label>
                               <label class="radio-inline">
                                  <input type="radio" class="radio" name="sort_by" id="sort_by_sponsor" style="display: inline;" value="1" <?php if(isset($sort_by) && ($sort_by == 1)){echo "checked='checked'";}?>/> Sponsor&nbsp;&nbsp;&nbsp;
-                                </label> 
-                           
-                           
+                                </label>
+
+
                         </div>
                     </div>
                 </div>
@@ -130,7 +130,7 @@
                             </label>
                             <label class="radio-inline">
                                 <input type="radio" class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/>Excel&nbsp;&nbsp;&nbsp;
-                            </label>    
+                            </label>
                             <label class="radio-inline">
                                 <input type="radio" class="radio" name="output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/>Output to PDF
                             </label>
@@ -167,7 +167,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             Received on or before (cutoff):    <input type="text" name="cuttoff_date" id="cuttoff_date" class="form-control"  style="display:inline-block;width:150px;" value="<?php if(isset($cuttoff_date) && $cuttoff_date != ''){ echo $cuttoff_date;} else {echo date('m/d/Y');} ?>"/>
-                           
+
                         </div>
                     </div>
                 </div>
@@ -178,11 +178,11 @@
                             <label>Sort By</label> <br/>
                             <label class="radio-inline">
                                  <input type="radio" class="radio" name="payable_sort_by" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "checked='checked'";}?>  style="display: inline;" value="1" />  Broker
-                            </label> 
-                            <label class="radio-inline">    
+                            </label>
+                            <label class="radio-inline">
                                 <input type="radio" class="radio" name="payable_sort_by" <?php if(isset($sort_by) && ($sort_by == 2 )){echo "checked='checked'";}?> style="display: inline;" value="2" />  Sponser
                             </label>
-                        
+
                         </div>
                     </div>
                 </div>
@@ -193,8 +193,8 @@
                             <label class="radio-inline">
                                 <input type="radio" class="radio" name="payable_output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/>Screen&nbsp;&nbsp;&nbsp;
                             </label>
-                            <label class="radio-inline">    
-                            <input type="radio" class="radio" name="payable_output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Printer&nbsp;&nbsp;&nbsp; 
+                            <label class="radio-inline">
+                            <input type="radio" class="radio" name="payable_output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Printer&nbsp;&nbsp;&nbsp;
                         </label>
                             <label class="radio-inline">
                             <input type="radio" class="radio" name="payable_output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Excel&nbsp;&nbsp;&nbsp;
@@ -212,7 +212,7 @@
             <div class="selectwrap">
 				<div class="selectwrap">
                     <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-					<input type="submit" name="submit"  value="Proceed" style="float: right;"/>	
+					<input type="submit" name="submit"  value="Proceed" style="float: right;"/>
                 </div>
             </div>
         </div>
@@ -224,7 +224,7 @@
             			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
             			<h4 class="modal-title">Report</h4>
             		</div>-->
-                    
+
         			<div class="modal-body" id="output_screen_content">Loading...</div>
                     <!--<div class="modal-footer" style="margin-bottom: 0px !important;">
             			<a href="<?php echo SITE_URL;?>report_batch.php?open=output_print&filter=<?php if(isset($_GET['filter']) && $_GET['filter']){ echo $_GET['filter']; }?>" class="btn btn-warning">Output to Printer</a>
@@ -237,98 +237,94 @@
     </div>
 </div>
 <?php if(isset($_GET['filter']) && $_GET['filter'] != '' && $output == 1){?>
-<script>
-//location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
-$(document).ready(function(){
-    
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) 
-        {
-            document.getElementById("output_screen_content").innerHTML = this.responseText;
-        }
-    };
-    xmlhttp.open('GET', 'ajax_report.php?filter=<?php echo $_GET['filter']; ?>', true);
-    xmlhttp.send();
+    <script>
+    //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
+    $(document).ready(function(){
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200)
+            {
+                document.getElementById("output_screen_content").innerHTML = this.responseText;
+            }
+        };
+        xmlhttp.open('GET', 'ajax_report.php?filter=<?php echo $_GET['filter']; ?>', true);
+        xmlhttp.send();
 
 
-    $('#myModal').modal({
-    		show: true
-    	});
-       //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, ""); 
-});
+        $('#myModal').modal({
+                show: true
+            });
+        //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
+    });
 
-</script>
+    </script>
 <?php } ?>
+
 <?php if(isset($_GET['open']) && $_GET['open'] == "output_print" && isset($_GET['from_broker']) && $_GET['from_broker'] != ''){?>
-<script>
-window.print();
-</script>
+    <script>
+    window.print();
+    </script>
 <?php } ?>
 
 <script type="text/javascript">
 $('#demo-dp-range .input-daterange').datepicker({
-        format: "mm/dd/yyyy",
-        todayBtn: "linked",
-        autoclose: true,
-        todayHighlight: true
-        }).on('show',function(){
-            $(".datepicker-dropdown").css("z-index",'1000000');
-        });
+    format: "mm/dd/yyyy",
+    todayBtn: "linked",
+    autoclose: true,
+    todayHighlight: true
+}).on('show',function(){
+    $(".datepicker-dropdown").css("z-index",'1000000');
+});
 jQuery(function($){
-
     $("#cuttoff_date").datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
         autoclose: true,
         todayHighlight: true
-        }).on('show',function(){
-            //$(".datepicker-dropdown").css("z-index",'1000000');
-        });
+    }).on('show',function(){
+        //$(".datepicker-dropdown").css("z-index",'1000000');
+    });
 
     $("select[name='report_for']").change(function(){
-             console.log(this.value,"this.value")
-             if(this.value ==4){
-                  $("#report_filters").addClass('payable-report');
-             }
-             else{
-                     $("#report_filters").removeClass('payable-report');
-             }
+        // console.log(this.value,"this.value")
+        if(this.value ==4){
+            $("#report_filters").addClass('payable-report');
+        }
+        else{
+            $("#report_filters").removeClass('payable-report');
+        }
     }).trigger("change");
-     $("#report-form").submit(function(ev){
-  
-       
-             if($("input[name='output']:checked").val()== 4 || $("input[name='payable_output']:checked").val()== 4){
-                ev.preventDefault();
-                const data = new FormData(ev.target);
-                   value = Object.fromEntries(data.entries());
-                   report_for = $("select[name='report_for']").val() ;
-                  // console.log(report_for )
-                   if(report_for == "1"){
-                          url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_batch.php?filter="+JSON.stringify(value);
-                   }
-                    if(report_for == "2"){
-                        url = "http://foxtrotsoftware.com/CloudFox/report_batch.php?filter="+JSON.stringify(value);
-                    
-                   }
-                  if(report_for == "3"){
-                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_hold.php?filter="+JSON.stringify(value);
-                    
-                   }
-                   if(report_for == "4"){
-                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?filter="+JSON.stringify(value);
-                    
-                   }
 
+    $("#report-form").submit(function(ev){
+        if($("input[name='output']:checked").val()== 4 || $("input[name='payable_output']:checked").val()== 4){
+            ev.preventDefault();
+            const data = new FormData(ev.target);
+                value = Object.fromEntries(data.entries());
+                report_for = $("select[name='report_for']").val() ;
+                // console.log(report_for )
+                if(report_for == "1"){
+                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_batch.php?filter="+JSON.stringify(value);
+                }
+                if(report_for == "2"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_batch.php?filter="+JSON.stringify(value);
 
-                   
-               
-                var win= window.open(url,"blank");
-                win.focus();
-                return false;
-             }
-     });
-})
+                }
+                if(report_for == "3"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_hold.php?filter="+JSON.stringify(value);
+
+                }
+                if(report_for == "4"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?filter="+JSON.stringify(value);
+
+                }
+
+            var win= window.open(url,"blank");
+            win.focus();
+            return false;
+        }
+    });
+});
 
 </script>
 <style>

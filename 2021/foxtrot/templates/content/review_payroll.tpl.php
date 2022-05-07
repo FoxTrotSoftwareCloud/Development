@@ -22,7 +22,7 @@
                                         <div class="panel-control" style="float: right;">
                             				<div class="btn-group dropdown">
                             					<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-                                				<ul class="dropdown-menu dropdown-menu-right" style="">
+                                				<ul class="dropdown-menu dropdown-menu-right" >
                                 					<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
                                 				</ul>
                             				</div>
@@ -240,13 +240,23 @@
                                             </div>
                                        </div> 
                                        <div class="row">
-                                            <div class="col-md-10">
+                                            <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Branch </label>
-                                                    <select class="form-control" name="branch" id="branch">
+                                                    <select class="form-control" name="branch" id="branch" onchange="get_branch_company(this.value)">
                                                         <option value="0">Select Branch</option>
                                                         <?php foreach($get_branch as $key=>$val){?>
                                                         <option value="<?php echo $val['id'];?>" <?php if(isset($branch) && $branch==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Company <span class="text-red">*</span></label><br />
+                                                    <select class="form-control" data-required="true" name="company"  id="company">
+                                                        <?php foreach($get_company as $key=>$val){?>
+                                                            <option value="<?php echo $val['id'];?>" <?php if(isset($company) && $company==$val['id']){?> selected="true"<?php } ?>><?php echo $val['company_name'];?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
@@ -460,6 +470,23 @@ function get_investment_amount()
         $("#investment_amount").val(invest_amount);
     }
 }
+function get_branch_company(branch_id){
+        var xmlhttp = new XMLHttpRequest();
+        
+        xmlhttp.onreadystatechange = function(){
+            if (this.readyState == 4 && this.status == 200){
+                var jsonResponse = JSON.parse(this.responseText);
+
+                if (jsonResponse.id > 0){
+                    $("#company").val("");
+                    $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("change");
+                }
+            }
+        };
+        xmlhttp.open("GET", "ajax_transaction_tpl.php?action=branch_company&branch="+branch_id, true);
+        xmlhttp.send();
+}
+
 </script>
 <style>
 /* , .table>thead>tr>td, .table>thead>tr>th 

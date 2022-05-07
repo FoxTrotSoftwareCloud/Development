@@ -1,10 +1,10 @@
 <?php
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
-    
+
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
-    
+
     $instance = new payroll();
     $instance_broker = new broker_master();
     $get_broker = $instance_broker->select();
@@ -13,8 +13,10 @@
     $instance_client = new client_maintenance();
     $get_client = $instance_client->select();
     $instance_branch =  new branch_maintenance();
-    $get_branch= $instance_branch->select();
-    
+    $get_branch= $instance_branch->select(1);
+    $instance_company = new manage_company();
+    $get_company = $instance_company->select_company();
+
     $payroll_id='';
     $trade_number = '';
     $trade_date = '';
@@ -34,18 +36,18 @@
     $clearing_charge = '';
     $product_category = '';
     $product = '';
-    
+
     $buy_sell = '';
     $hold = '';
     $hold_reason = '';
     $cancel = '';
-    $branch = '';
-    
-    if(isset($_POST['submit'])&& $_POST['submit']=='Save'){ 
+    $branch = $company = '';
+
+    if(isset($_POST['submit'])&& $_POST['submit']=='Save'){
         //echo '<pre>';print_r($_POST);exit;
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $payroll_id = isset($_POST['payroll_id'])?$instance->re_db_input($_POST['payroll_id']):0;
-        
+
         $trade_number = isset($_POST['trade_number'])?$instance->re_db_input($_POST['trade_number']):'';
         $trade_date = isset($_POST['trade_date'])?$instance->re_db_input($_POST['trade_date']):'';
         //$investment = isset($_POST['investment'])?$instance->re_db_input($_POST['investment']):'';
@@ -64,33 +66,34 @@
         //$clearing_charge = isset($_POST['clearing_charge'])?$instance->re_db_input($_POST['clearing_charge']):'';
         $product_category = isset($_POST['product_category'])?$instance->re_db_input($_POST['product_category']):'';
         $product = isset($_POST['product'])?$instance->re_db_input($_POST['product']):'';
-        
+
         $buy_sell = isset($_POST['buy_sell'])?$instance->re_db_input($_POST['buy_sell']):'';
         $hold = isset($_POST['hold'])?$instance->re_db_input($_POST['hold']):'';
         $hold_reason = isset($_POST['hold_reason'])?$instance->re_db_input($_POST['hold_reason']):'';
         $cancel = isset($_POST['cancel'])?$instance->re_db_input($_POST['cancel']):'';
         $branch = isset($_POST['branch'])?$instance->re_db_input($_POST['branch']):'';
-        
+        $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
+
         $return = $instance->insert_update($_POST);
-        
+
         if($return===true){
-            
+
             header("location:".CURRENT_PAGE."?action=view");exit;
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }
- 
+
     }
     else if($action=='edit' && $id>0){
         $return = $instance->edit_review_payroll($id);//echo '<pre>';print_r($return);exit;
         $transaction_id=isset($return['trade_number'])?$return['trade_number']:'';
         //$return_trade_splits = $instance->edit_review_trade_splits($id,$transaction_id);
         //$return_trade_overrides = $instance->edit_review_trade_overrides($id,$transaction_id);
-        
+
         $id = isset($return['id'])?$instance->re_db_output($return['id']):0;
         $payroll_id = isset($return['payroll_id'])?$instance->re_db_output($return['payroll_id']):0;
-        
+
         $trade_number = isset($return['trade_number'])?$instance->re_db_output($return['trade_number']):'';
         $trade_date = isset($return['trade_date'])?$instance->re_db_output($return['trade_date']):'';
         //$investment = isset($return['investment'])?$instance->re_db_output($return['investment']):'';
@@ -109,12 +112,13 @@
         //$clearing_charge = isset($return['clearing_charge'])?$instance->re_db_output($return['clearing_charge']):'';
         $product_category = isset($return['product_category'])?$instance->re_db_output($return['product_category']):'';
         $product = isset($return['product'])?$instance->re_db_output($return['product']):'';
-        
+
         $buy_sell = isset($return['buy_sell'])?$instance->re_db_output($return['buy_sell']):'';
         $hold = isset($return['hold'])?$instance->re_db_output($return['hold']):'';
         $hold_reason = isset($return['hold_reason'])?$instance->re_db_output($return['hold_reason']):'';
         $cancel = isset($return['cancel'])?$instance->re_db_output($return['cancel']):'';
-        $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'';  
+        $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'';
+        $company = isset($return['company']) ? (int)$instance->re_db_output($return['company']):'';
     }
     else if(isset($action) && $action=='delete' && $id>0)
     {
@@ -129,10 +133,8 @@
     else if($action=='view'){
         $is_listing=1;
         $return = $instance->select($is_listing);
-        
+
     }
-    
-    
     $content = "review_payroll";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
 ?>
