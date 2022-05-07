@@ -427,7 +427,7 @@ document.addEventListener("click", function (e) {
                    <div class="col-md-6">
                       <div class="form-group">
                          <label>Account No's </label><br>
-                         <input type="text" name="c_account_no" onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57" id="c_account_no" class="form-control" value="">
+                         <input type="text" name="c_account_no" onkeypress="return event.charCode >= 48 &amp; event.charCode <= 57" id="c_account_no" class="form-control" value="">
                       </div>
                    </div>
                    <div class="col-md-6 compnay_sponsor" id="compnay_sponsor">
