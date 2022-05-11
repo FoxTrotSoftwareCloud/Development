@@ -1617,10 +1617,16 @@
               }
               $originalHash = md5(json_encode($originalArray));
               $newHash = md5(json_encode($newValues));
+/*
+              echo '<pre>';
+              print_r($originalArray);
+              print_r($newValues);
+              var_dump($originalArray == $newValues );
+              die;*/
               /* ---- GET NEW VALUES END -------------*/
               if($variable>0)
               {
-                if ($originalHash != $newHash)
+                if ($originalArray != $newValues)
                 {
                   foreach ($newValues as $key => $value)
                   {
@@ -1628,7 +1634,7 @@
                       `approval_date`='".$value['approval_date']."' , `expiration_date`='".$value['expiration_date']."' ,`reason`='".$value['reason']."' ".$this->update_common_sql()." WHERE  `license_id`='".$value['license_id']."' and `broker_id`='".$id."'";
                       $res = $this->re_db_query($q);
                   }
-               //   $this->update_routine_history(BROKER_HISTORY, 'broker_id', $id, 'Series Registrations', "", "Updated the values");
+                  $this->update_routine_history(BROKER_HISTORY, 'broker_id', $id, 'Series Registrations', "", "Updated the values");
                 }
               }
               else
@@ -2675,6 +2681,35 @@
     			     $return[$row['charge_type_id']][$row['charge_name_id']][$row['account_type']][$row['account_process']]=$row['value'];
     			}
             }//echo "<pre>"; print_r($return);exit;
+			return $return;
+		}
+
+		public function transcation_edit_override($id,$client_id){
+			$return = array();
+
+			 $q = "SELECT `at`.*
+					FROM `".BROKER_PAYOUT_OVERRIDE."` AS `at`
+                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."'";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+
+    			}
+            }
+
+
+         $client = new client_maintenance();
+         $client_row= $client->select_client_master($client_id);
+
+         if(!empty($client_row['split_broker'])) {
+
+             $return[]=array("id"=>"","rap"=>$client_row['split_broker'],"per"=>$client_row['split_rate'],"from"=>$client_row['split_rate_from'],"to"=>$client_row['split_rate_to'],"product_category"=>$client_row['split_rate_category']);
+         }
+
+
+
 			return $return;
 		}
 

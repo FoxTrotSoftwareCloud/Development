@@ -918,7 +918,7 @@ document.addEventListener("click", function (e) {
           <!-- Modal for add client notes -->
         <!-- Lightbox strart -->
             <!--Modal for add joint account -->
-            <div id="add_cheque_info" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <!-- <div id="add_cheque_info" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 
                 <div class="modal-dialog">
                 <div class="modal-content">
@@ -966,12 +966,12 @@ document.addEventListener("click", function (e) {
                 </div><!-- End of Modal content -->
             </div><!-- End of Modal dialog -->
         </div><!-- End of Modal -->
-
+ -->
         </form>
         <?php
             }if((isset($_GET['action']) && $_GET['action']=='view') || $action=='view'){?>
         <div class="panel">
-    		<!--<div class="panel-heading">
+            <!--<div class="panel-heading">
                 <div class="panel-control">
                     <div class="btn-group dropdown" style="float: right;">
                         <button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
@@ -1306,20 +1306,25 @@ $('.decimal').chargeFormat();
             }
       });
 
-      $(".two-decimals").on("keypress", function (evnt) {
-            var el= this;
-          var charC = (evnt.which) ? evnt.which : evnt.keyCode;
-            if (charC == 46) {
-                if (el.value.indexOf('.') === -1) {
-                    return true;
-                } else {
-                    return false;
-                }
+    $(".two-decimals").inputmask('currency', {
+        prefix: '',
+        rightAlign: false
+    });
+
+    $(".dddtwo-decimals").on("keypress", function (evnt) {
+        var el= this;
+        var charC = (evnt.which) ? evnt.which : evnt.keyCode;
+        if (charC == 46) {
+            if (el.value.indexOf('.') === -1) {
+                return true;
             } else {
-                if (charC > 31 && (charC < 48 || charC > 57))
-                    return false;
+                return false;
             }
-            return true;
+        } else {
+            if (charC > 31 && (charC < 48 || charC > 57))
+                return false;
+        }
+        return true;
 
        /* var $txtBox = $(this);
         var charCode = (evt.which) ? evt.which : evt.keyCode
@@ -1343,6 +1348,7 @@ $('.decimal').chargeFormat();
 })
 
 function add_new_client_no(element){
+    console.log(element,element.value,"dsfdsf")
     if(element.value == -1){
         jQuery("#account_no_row").show();
     }
@@ -1351,16 +1357,14 @@ function add_new_client_no(element){
     }
 }
 function get_product(category_id,selected=''){
+  //console.log(category_id,"category_id");
+
     category_id = category_id || document.getElementById("product_cate").value;
-    // transaction_id = document.getElementById("trade_number").value;
     sponsor = document.getElementById("sponsor").value;
     c_sponsor =  document.getElementById("compnay_sponsor");
-    // $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans"+"&transaction_id="+transaction_id);
     $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans");
     document.getElementById("product").innerHTML = "<option value=''> Please Wait...</option>";
-    div_sponsor =  document.getElementById("div_sponsor");
-
-     if(category_id =='2' ||category_id =='3'|| category_id =='6'||category_id =='7'||category_id =='8')
+    if(category_id =='2' ||category_id =='3'|| category_id =='6'||category_id =='7'||category_id =='8')
         {
             div_sponsor.style.visibility='hidden';
             c_sponsor.style.visibility='hidden';
@@ -1649,7 +1653,7 @@ function close_other()
 jQuery(function($){
      $('[data-required="true"]').each(function(){
              $(this).on("change blur",function(){
-
+                 console.log($(this).prop("type"),'$(this).prop("type")')
                 if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
                      if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
                          isErrorFound=true;
@@ -1805,6 +1809,7 @@ var waitingDialog = waitingDialog || (function ($) {
                 }
 
                 if(isErrorFound){
+                    console.log($("#id").offset());
                    $("html,body").animate({scrollTop: $("#id").offset().top},200);
                     return false;
                 }
