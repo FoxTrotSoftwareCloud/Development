@@ -535,7 +535,7 @@ $(document).on('click','.remove-row',function(){
 	<div class="modal-content">
 	<div class="modal-header" style="margin-bottom: 0px !important;">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-		<h4 class="modal-title">Sponsor Transactions</h4>
+		<h4 class="modal-title"><?php echo $sponsor_name ?> Transactions (past year)</h4>
 	</div>
 	<div class="modal-body">
     <form method="post">
@@ -543,31 +543,33 @@ $(document).on('click','.remove-row',function(){
         <div class="table-responsive" id="table-scroll" style="margin: 0px 5px 0px 5px;">
             <table class="table table-bordered table-stripped table-hover">
                 <thead>
-                    <th>#NO</th>
                     <th>Trade No</th>
                     <th>Date</th>
                     <th>Product</th>
-                    <th>Client No</th>
+                    <th>Client</th>
+                    <th>Broker</th>
                     <th>Trade Amount</th>
+                    <th>Commission Received</th>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>30</td>
-                        <td>28/11/2017</td>
-                        <td>Electronics</td>
-                        <td>20</td>
-                        <td>$200</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>30</td>
-                        <td>28/11/2017</td>
-                        <td>Mobile accessories</td>
-                        <td>20</td>
-                        <td>$200</td>
-                    </tr>
-              </tbody>
+
+                <?php if (count($sponsor_trades)){ 
+                    $instance_payroll = new payroll(); ?>
+                    <tbody>
+                        <?php foreach ($sponsor_trades AS $trade){ ?>
+                            <tr>
+                                <td><?php echo $trade['id']; ?></td>
+                                <td><?php echo date('m/d/Y', strtotime($trade['trade_date'])); ?></td>
+                                <td><?php echo $trade['product_name']; ?></td>
+                                <td><?php echo $trade['client_name']; ?></td>
+                                <td><?php echo $trade['broker_name']; ?></td>
+                                <td><?php echo $instance_payroll->payroll_accounting_format($trade['invest_amount'],2); ?></td>
+                                <td><?php echo $instance_payroll->payroll_accounting_format($trade['commission_received'],2); ?></td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                <?php } else { ?>
+                        <tr><td>* No trades found *</td></tr>
+                <?php } ?>
             </table>
         </div>
 	</div>

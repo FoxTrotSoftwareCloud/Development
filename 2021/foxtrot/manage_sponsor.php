@@ -128,6 +128,7 @@
         $sdazl_import = isset($return['dazl_importing'])?$instance->re_db_output($return['dazl_importing']):0;
         $sdtcc_nscc = isset($return['dtcc_nscc_id'])?$instance->re_db_output($return['dtcc_nscc_id']):'';
         $sclr_firm = isset($return['clearing_firm_id'])?$instance->re_db_output($return['clearing_firm_id']):0;
+        $sponsor_trades = $instance->sponsor_transactions($sponsor_id);
     }
     else if(isset($_GET['action'])&&$_GET['action']=='sponsor_delete'&&isset($_GET['sponsor_id'])&&$_GET['sponsor_id']>0)
     {

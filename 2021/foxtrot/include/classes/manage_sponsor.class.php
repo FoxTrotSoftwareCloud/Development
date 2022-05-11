@@ -529,17 +529,45 @@
 				return false;
 			}
 		}
-		
+
 		/** 05/07/22 For the "Transaction " button on the Maintain Sponsor form
-		 * @param mixed $id 
+		 * @param mixed $id
 		 * @return array of trades
 		 */
 		public function sponsor_transactions($id, $end_date=''){
 			$id = (int)$this->re_db_input($id);
-			// Only show the trades for the last year to limit the data set
-			if (){
+			// Default: Only show the trades for the last year to limit the data set
+			// For now, may add a begin/end parameters later for other programs
+			$begin_date = date('Y-m-d', strtotime('')); // date('Y-m-d', strtotime('-1 year'));
+			$return = [];
+
+			if ($id){
+				// Limit field size for faster querying, since this for a simple display grid
+				$q = "SELECT `a`.`id`, `a`.`client_name` AS `client_id`, `a`.`broker_name` AS `broker_id`"
+							.", `a`.`batch`, `a`.`invest_amount`, `a`.`charge_amount`, `a`.`commission_received`, `a`.`trade_date`, `a`.`cancel`"
+							.", `a`.`buy_sell`, `a`.`branch`, `a`.`company`, `a`.`payroll_id`"
+							.", `a`.`product`, `b`.`category` AS `product_category`, `b`.`name` AS `product_name`"
+							.", `b`.`sponsor`, `c`.`name` AS `sponsor_name`"
+							.", CONCAT(`d`.`last_name`,IF(`d`.`last_name`>'' AND `d`.`first_name`>'',', ',''),`d`.`first_name`) AS `client_name`"
+							.", CONCAT(`e`.`last_name`,IF(`e`.`last_name`>'' AND `e`.`first_name`>'',', ',''),`e`.`first_name`) AS `broker_name`"
+					." FROM `".TRANSACTION_MASTER."` `a`"
+					." LEFT JOIN `".PRODUCT_LIST."` `b` ON `a`.`product` = `b`.`id` AND `b`.`is_delete` = 0"
+					." LEFT JOIN `".SPONSOR_MASTER."` `c` ON  `b`.`sponsor` = `c`.`id` AND `c`.`is_delete` = 0"
+					." LEFT JOIN `".CLIENT_MASTER."` `d` ON `a`.`client_name` = `d`.`id` AND `d`.`is_delete` = 0"
+					." LEFT JOIN `".BROKER_MASTER."` `e` ON `a`.`broker_name` = `e`.`id` AND `d`.`is_delete` = 0"
+					." WHERE `a`.`is_delete` = 0"
+					." AND  `a`.`trade_date` >= '$begin_date'"
+					." AND  `b`.`sponsor` = $id"
+					." ORDER BY `a`.`id` DESC"
+				;
+				$res = $this->re_db_query($q);
 				
+				if ($this->re_db_num_rows($res)){
+					$return = $this->re_db_fetch_all($res);
+				}
 			}
+			
+			return $return;
 		}
     }
 ?>
