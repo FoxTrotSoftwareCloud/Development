@@ -54,7 +54,7 @@
           $res = $this->re_db_query($q);
           $return = $this->re_db_num_rows($res);
           if($return>0){
-            $this->errors = 'This sponsor is already exists.';
+            $this->errors = 'This sponsor already exists.';
           }
 
 			if($this->errors!=''){
@@ -561,12 +561,12 @@
 					." ORDER BY `a`.`id` DESC"
 				;
 				$res = $this->re_db_query($q);
-				
+
 				if ($this->re_db_num_rows($res)){
 					$return = $this->re_db_fetch_all($res);
 				}
 			}
-			
+
 			return $return;
 		}
     }
