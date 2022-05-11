@@ -534,12 +534,16 @@
 		 * @param mixed $id
 		 * @return array of trades
 		 */
-		public function sponsor_transactions($id, $end_date=''){
+		public function sponsor_transactions($id, $begin_date=''){
 			$id = (int)$this->re_db_input($id);
 			// Default: Only show the trades for the last year to limit the data set
 			// For now, may add a begin/end parameters later for other programs
-			$begin_date = date('Y-m-d', strtotime('')); // date('Y-m-d', strtotime('-1 year'));
+			$begin_date = date('Y-m-d', strtotime('-1 year'));
 			$return = [];
+
+			if (!empty($begin_date)){
+				$begin_date = date('Y-m-d', strtotime($begin_date));
+			}
 
 			if ($id){
 				// Limit field size for faster querying, since this for a simple display grid
