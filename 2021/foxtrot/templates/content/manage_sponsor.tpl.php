@@ -11,8 +11,8 @@ function addMoreNotes(){
                     '<a href="<?php echo CURRENT_PAGE; ?>?action=delete&id=" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>'+
                     '</td>'+
                 '</tr>';
-                
-            
+
+
     $(html).insertBefore('#add_row_notes');
 }
 $(document).on('click','.remove-row',function(){
@@ -91,8 +91,8 @@ function addMoreAttach(){
                     '<a href="<?php echo CURRENT_PAGE; ?>?action=delete&id=" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>'+
                     '</td>'+
                 '</tr>';
-                
-            
+
+
     $(html).insertBefore('#add_row_attach');
 }
 $(document).on('click','.remove-row',function(){
@@ -104,7 +104,7 @@ $(document).on('click','.remove-row',function(){
 <h1 class="<?php /*if($action=='add_sponsor'||($action=='edit_sponsor' && $_GET['sponsor_id']>0)){ echo 'topfixedtitle';}*/?>">Sponsor Maintenance</h1>
 <div class="col-lg-12 well <?php /*if($action=='add_sponsor'||($action=='edit_sponsor' && $_GET['sponsor_id']>0)){ echo 'fixedwell';}*/?>">
 <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
-<?php  
+<?php
     if((isset($_GET['action']) && $_GET['action']=='add_sponsor') || (isset($_GET['action']) && ($_GET['action']=='edit_sponsor' && $sponsor_id>0))){
         ?>
         <form name="frm2" method="POST" >
@@ -117,8 +117,8 @@ $(document).on('click','.remove-row',function(){
                         <?php } ?>
                         <a href="#sponsor_notes" data-toggle="modal"><input type="button" onclick="get_sponsor_notes();" name="notes" value="Notes" /></a>
                         <a href="#sponsor_attach" data-toggle="modal"><input type="button"  onclick="get_sponsor_attach();" name="attach" value="Attachments" /></a>
-                        <a href="#client_transactions" data-toggle="modal"><input type="button"  name="transactions" value="Transactions" /></a>
-                        <input type="submit" name="sponser" onclick="waitingDialog.show();" value="Save"/>	
+                        <a href="#sponsor_transactions" data-toggle="modal"><input type="button"  name="transactions" value="Transactions" /></a>
+                        <input type="submit" name="sponsor" onclick="waitingDialog.show();" value="Save"/>
                         <a href="<?php echo CURRENT_PAGE.'?action=view_sponsor';?>"><input type="button" name="cancel" value="Cancel" /></a>
                         <?php if($_GET['action']=='edit_sponsor' && $_GET['sponsor_id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $sponsor_id;?>&send=next" class="next next_previous_a" style="float: right;"><input type="button" name="next" value="Next &raquo;" /></a><?php } ?>
                     </div>
@@ -126,7 +126,7 @@ $(document).on('click','.remove-row',function(){
                  </div>
              </div>
             <br />-->
-        <div class="panel">            
+        <div class="panel">
             <div class="panel-heading">
                 <div class="panel-control" style="float: right;">
     				<div class="btn-group dropdown">
@@ -143,7 +143,7 @@ $(document).on('click','.remove-row',function(){
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Sponsor Name <span class="text-red">*</span></label><br />
-                        <input type="text" maxlength="50" class="form-control" name="sponser_name" value="<?php echo $sponser_name;?>"  />
+                        <input type="text" maxlength="50" class="form-control" name="sponsor_name" value="<?php echo $sponsor_name;?>"  />
                     </div>
                 </div>
             </div>
@@ -315,15 +315,15 @@ $(document).on('click','.remove-row',function(){
                 <input type="hidden" name="sponsor_id" id="sponsor_id" value="<?php echo $sponsor_id; ?>" />
                 <?php if($_GET['action']=='edit_sponsor' && $_GET['sponsor_id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $sponsor_id;?>&send=previous" class="previous next_previous_a" style="float: left;"><input type="button" name="previous" value="&laquo; Previous" /></a><?php } ?>
                 <?php if($_GET['action']=='edit_sponsor' && $_GET['sponsor_id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $sponsor_id;?>&send=next" class="next next_previous_a"><input type="button" name="next" value="Next &raquo;" /></a><?php } ?>
-                
+
                 <?php if($action=='edit_sponsor' && $sponsor_id>0){?>
                 <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10% !important;"/></a>
                 <?php } ?>
                 <a href="#sponsor_notes" data-toggle="modal"><input type="button" onclick="get_sponsor_notes();" name="notes" value="Notes" /></a>
-                <a href="#client_transactions" data-toggle="modal"><input type="button"  name="transactions" value="Transactions" /></a>
+                <a href="#sponsor_transactions" data-toggle="modal"><input type="button"  name="transactions" value="Transactions" /></a>
                 <a href="#sponsor_attach" data-toggle="modal"><input type="button"  onclick="get_sponsor_attach();" name="attach" value="Attachments" style="margin-right: 10% !important;"/></a>
                 <a href="<?php echo CURRENT_PAGE.'?action=view_sponsor';?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                <input type="submit" name="sponser" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
+                <input type="submit" name="sponsor" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
             </div>
            </div>
       </div>
@@ -389,9 +389,9 @@ $(document).on('click','.remove-row',function(){
                 </div>
     		</div>
     	</div>
-        <?php } ?> 
-        
-<!-- Lightbox strart -->							
+        <?php } ?>
+
+<!-- Lightbox strart -->
 <!-- Modal for transaction list -->
 <div id="view_changes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 	<div class="modal-dialog">
@@ -414,30 +414,30 @@ $(document).on('click','.remove-row',function(){
                     <th>New Value</th>
                 </thead>
                 <tbody>
-                <?php 
+                <?php
                 $count = 0;
                 $feild_name='';
                 $lable_array = array();
                 $lable_array = array('name' => 'Sponsor Name','address1' => 'Address 1','address2' => 'Address 2
 ','city' => 'City','state' => 'State','zip_code' => 'Zip Code','email' => 'E-Mail','website' => 'Web Site','general_contact' => 'General Contact','general_phone' => 'General Phone','operations_contact' => 'Operations Contact','operations_phone' => 'Operations Phone','dst_system_id' => 'DST System ID','dst_mgmt_code' => 'DST Mgmt Code','dst_importing' => 'Exclude from DST Importing','dazl_importing' => 'Exclude from DAZL Importing','dazl_code' => 'DAZL Code','dtcc_nscc_id' => 'DTCC/NSCC ID','clearing_firm_id' => 'Clearing Firm ID');
                 foreach($sponsor_data as $key=>$val){
-                    
+
                     if(isset($lable_array[$val['field']])){
                         $feild_name = $lable_array[$val['field']];
                     }else {
                         $feild_name = $val['field'];
                     }?>
                     <tr>
-                    
+
                         <td><?php echo ++$count; ?></td>
                         <td><?php echo $val['user_initial'];?></td>
                         <td><?php echo date('m/d/Y',strtotime($val['modified_time']));?></td>
                         <td><?php echo $feild_name;?></td>
-                        <?php 
+                        <?php
                         if($feild_name == 'Exclude from DST Importing' && $val['old_value'] == 0){?>
                         <td><?php echo 'UnChecked';?></td>
                         <td><?php echo 'Checked';?></td>
-                        <?php } 
+                        <?php }
                         else if($feild_name == 'Exclude from DST Importing' && $val['old_value'] == 1){?>
                         <td><?php echo 'Checked';?></td>
                         <td><?php echo 'UnChecked';?></td>
@@ -445,7 +445,7 @@ $(document).on('click','.remove-row',function(){
                         else if($feild_name == 'Exclude from DAZL Importing' && $val['old_value'] == 0){?>
                         <td><?php echo 'UnChecked';?></td>
                         <td><?php echo 'Checked';?></td>
-                        <?php } 
+                        <?php }
                         else if($feild_name == 'Exclude from DAZL Importing' && $val['old_value'] == 1){?>
                         <td><?php echo 'Checked';?></td>
                         <td><?php echo 'UnChecked';?></td>
@@ -469,9 +469,9 @@ $(document).on('click','.remove-row',function(){
     </div><!-- End of Modal body -->
 	</div><!-- End of Modal content -->
 	</div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->           
-<!-- Lightbox strart -->							
-	<!-- Modal for add client notes -->    
+</div><!-- End of Modal -->
+<!-- Lightbox strart -->
+	<!-- Modal for add client notes -->
 	<div id="sponsor_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 		<div class="modal-dialog">
 		<div class="modal-content">
@@ -480,26 +480,26 @@ $(document).on('click','.remove-row',function(){
 			<h4 class="modal-title">Sponsor's Notes</h4>
 		</div>
 		<div class="modal-body">
-        
+
         <div class="inputpopup">
             <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newnotes();"><i class="fa fa-plus"></i> Add New</a></li>
 		</div>
-        
+
         <div class="col-md-12">
             <div id="msg_notes">
             </div>
         </div>
-       
+
         <div class="inputpopup">
             <div class="table-responsive" id="ajax_notes" style="margin: 0px 5px 0px 5px;">
-                
+
             </div>
 		</div>
         </div><!-- End of Modal body -->
 		</div><!-- End of Modal content -->
 		</div><!-- End of Modal dialog -->
 </div><!-- End of Modal -->
-<!-- Lightbox strart -->							
+<!-- Lightbox strart -->
 	<!-- Modal for add client notes -->
 	<div id="sponsor_attach" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 		<div class="modal-dialog">
@@ -509,33 +509,33 @@ $(document).on('click','.remove-row',function(){
 			<h4 class="modal-title">Sponsor's Attach</h4>
 		</div>
 		<div class="modal-body">
-        
+
         <div class="inputpopup">
             <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newattach();"><i class="fa fa-plus"></i> Add New</a></li>
 		</div>
-        
+
         <div class="col-md-12">
             <div id="msg_attach">
             </div>
         </div>
-       
+
         <div class="inputpopup">
             <div class="table-responsive" id="ajax_attach" style="margin: 0px 5px 0px 5px;">
-                
+
             </div>
 		</div>
         </div><!-- End of Modal body -->
 		</div><!-- End of Modal content -->
 		</div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->  
-<!-- Lightbox strart -->							
+</div><!-- End of Modal -->
+<!-- Lightbox strart -->
 <!-- Modal for transaction list -->
-<div id="client_transactions" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+<div id="sponsor_transactions" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 	<div class="modal-dialog">
 	<div class="modal-content">
 	<div class="modal-header" style="margin-bottom: 0px !important;">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-		<h4 class="modal-title">Client's Transactions</h4>
+		<h4 class="modal-title"><?php echo $sponsor_name ?> Transactions (past year)</h4>
 	</div>
 	<div class="modal-body">
     <form method="post">
@@ -543,31 +543,33 @@ $(document).on('click','.remove-row',function(){
         <div class="table-responsive" id="table-scroll" style="margin: 0px 5px 0px 5px;">
             <table class="table table-bordered table-stripped table-hover">
                 <thead>
-                    <th>#NO</th>
                     <th>Trade No</th>
                     <th>Date</th>
                     <th>Product</th>
-                    <th>Client No</th>
+                    <th>Client</th>
+                    <th>Broker</th>
                     <th>Trade Amount</th>
+                    <th>Commission Received</th>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>30</td>
-                        <td>28/11/2017</td>
-                        <td>Electronics</td>
-                        <td>20</td>
-                        <td>$200</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>30</td>
-                        <td>28/11/2017</td>
-                        <td>Mobile accessories</td>
-                        <td>20</td>
-                        <td>$200</td>
-                    </tr>
-              </tbody>
+
+                <?php if (count($sponsor_trades)){ 
+                    $instance_payroll = new payroll(); ?>
+                    <tbody>
+                        <?php foreach ($sponsor_trades AS $trade){ ?>
+                            <tr>
+                                <td><?php echo $trade['id']; ?></td>
+                                <td><?php echo date('m/d/Y', strtotime($trade['trade_date'])); ?></td>
+                                <td><?php echo $trade['product_name']; ?></td>
+                                <td><?php echo $trade['client_name']; ?></td>
+                                <td><?php echo $trade['broker_name']; ?></td>
+                                <td><?php echo $instance_payroll->payroll_accounting_format($trade['invest_amount'],2); ?></td>
+                                <td><?php echo $instance_payroll->payroll_accounting_format($trade['commission_received'],2); ?></td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                <?php } else { ?>
+                        <tr><td>* No trades found *</td></tr>
+                <?php } ?>
             </table>
         </div>
 	</div>
@@ -575,12 +577,12 @@ $(document).on('click','.remove-row',function(){
     </div><!-- End of Modal body -->
 	</div><!-- End of Modal content -->
 	</div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->                                            
+</div><!-- End of Modal -->
     </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function() {
-        
+
         $('#data-table').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -588,10 +590,10 @@ $(document).on('click','.remove-row',function(){
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 2 ] }, 
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 2 ] },
                         { "bSearchable": false, "aTargets": [ 2 ] }]
         });
-        
+
         $("div.toolbar").html('<div class="panel-control">'+
                     '<div class="btn-group dropdown" style="float: right;">'+
                         '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
@@ -620,10 +622,10 @@ function open_newattach()
 </script>
 <script>
 function get_sponsor_attach(){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 document.getElementById("ajax_attach").innerHTML = this.responseText;
             }
@@ -632,10 +634,10 @@ function get_sponsor_attach(){
         xmlhttp.send();
 }
 function get_sponsor_notes(){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) 
+            if (this.readyState == 4 && this.status == 200)
             {
                 console.info(this.responseText);
                 document.getElementById("ajax_notes").innerHTML = this.responseText;
@@ -645,10 +647,10 @@ function get_sponsor_notes(){
         xmlhttp.send();
 }
 function openedit(note_id){
-    
+
     var frm_element = document.getElementById("add_sponsor_notes_"+note_id);
     //var ele = frm_element.getElementById("client_note");
-    name = frm_element.elements["sponsor_note"].removeAttribute("style"); 
+    name = frm_element.elements["sponsor_note"].removeAttribute("style");
     //$(name).css('pointer-events','');
     console.log(name);
 }
@@ -658,7 +660,7 @@ function openedit(note_id){
 function notessubmit(note_id)
 {
    $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
-    
+
    var url = "manage_sponsor.php"; // the script where you handle the form input.
    //alert("#add_client_notes_"+note_id);
    $.ajax({
@@ -667,32 +669,32 @@ function notessubmit(note_id)
       data: $("#add_sponsor_notes_"+note_id).serialize(), // serializes the form's elements.
       success: function(data){
           if(data=='1'){
-            
+
             get_sponsor_notes();
             $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-            //window.location.href = "client_maintenance.php";//get_client_notes();   
+            //window.location.href = "client_maintenance.php";//get_client_notes();
           }
           else{
                $('#msg_notes').html('<div class="alert alert-danger">'+data+'</div>');
           }
-          
+
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
            $('#msg_notes').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
       }
-      
+
    });
 
    //e.preventDefault(); // avoid to execute the actual submit of the form.
-   return false;       
+   return false;
 }
 function attachsubmit(attach_id)
-{ 
+{
         var myForm = document.getElementById('add_client_attach_'+attach_id);
         form_data = new FormData(myForm);
         $.ajax({
-            url: 'manage_sponsor.php', // point to server-side PHP script 
-            
+            url: 'manage_sponsor.php', // point to server-side PHP script
+
             cache: false,
             contentType: false,
             processData: false,
@@ -700,50 +702,50 @@ function attachsubmit(attach_id)
             type: 'post',
             success: function(data){
                   if(data=='1'){
-                    
+
                     get_sponsor_attach();
                     $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-                    //window.location.href = "client_maintenance.php";//get_client_attach();   
+                    //window.location.href = "client_maintenance.php";//get_client_attach();
                   }
                   else{
                        $('#msg_attach').html('<div class="alert alert-danger">'+data+'</div>');
-                  } 
+                  }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                    $('#msg_attach').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
               }
         });
-               
-        
-   return false; 
-       
+
+
+   return false;
+
 }
 function delete_notes(note_id){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
                 if(data=='1'){
-                   get_sponsor_notes(); 
+                   get_sponsor_notes();
                    $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Note deleted Successfully.</div>');
                   }
                   else{
                        $('#msg_notes').html('<div class="alert alert-danger">'+data+'</div>');
-                  } 
+                  }
             }
         };
         xmlhttp.open("GET", "manage_sponsor.php?delete_action=delete_notes&note_id="+note_id, true);
         xmlhttp.send();
 }
 function delete_attach(attach_id){
-    
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
                 if(data=='1'){
-                   get_sponsor_attach(); 
+                   get_sponsor_attach();
                    $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Attach deleted Successfully.</div>');
                   }
                   else{
@@ -823,7 +825,7 @@ var waitingDialog = waitingDialog || (function ($) {
 		/**
 		 * Closes dialog
 		 */
-	
+
 	};
 
 })(jQuery);

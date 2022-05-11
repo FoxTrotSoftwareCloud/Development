@@ -1,9 +1,9 @@
 <?php
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
-    
+
     $search_text_sponsor = '';
-    $sponser_name = '';
+    $sponsor_name = '';
     $saddress1 = '';
     $saddress2 = '';
     $scity = '';
@@ -25,24 +25,23 @@
 
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view_sponsor';
     $sponsor_id = isset($_GET['sponsor_id'])&&$_GET['sponsor_id']!=''?$dbins->re_db_input($_GET['sponsor_id']):0;
-    
-    
+
+
     $instance = new manage_sponsor();
     $get_sponsor = $instance->select_sponsor();
     $get_state = $instance->select_state();
-    
+
     if(isset($_POST['next'])&& $_POST['next']=='Next'){
-        
+
         $category = isset($_POST['set_category'])?$instance->re_db_input($_POST['set_category']):'';
-        
+
         if($category!=''){
             header("location:".CURRENT_PAGE.'?action=add_product&category='.$category.'');exit;
         }
     }
-    else if(isset($_POST['sponser'])&& $_POST['sponser']=='Save'){
-        
+    else if(isset($_POST['sponsor'])&& $_POST['sponsor']=='Save'){
         $sponsor_id = isset($_POST['sponsor_id'])?$instance->re_db_input($_POST['sponsor_id']):0;
-        $sponser_name = isset($_POST['sponser_name'])?$instance->re_db_input($_POST['sponser_name']):'';
+        $sponsor_name = isset($_POST['sponsor_name'])?$instance->re_db_input($_POST['sponsor_name']):'';
         $saddress1 = isset($_POST['saddress1'])?$instance->re_db_input($_POST['saddress1']):'';
         $saddress2 = isset($_POST['saddress2'])?$instance->re_db_input($_POST['saddress2']):'';
         $scity = isset($_POST['scity'])?$instance->re_db_input($_POST['scity']):'';
@@ -61,15 +60,15 @@
         $sdazl_import = isset($_POST['sdazl_import'])?$instance->re_db_input($_POST['sdazl_import']):'';
         $sdtcc_nscc = isset($_POST['sdtcc_nscc'])?$instance->re_db_input($_POST['sdtcc_nscc']):'';
         $sclr_firm = isset($_POST['sclr_firm'])?$instance->re_db_input($_POST['sclr_firm']):'';
-        
+
         //for import module
         $for_import = isset($_POST['for_import'])?$instance->re_db_input($_POST['for_import']):'false';
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
-        
+
         $return = $instance->insert_update_sponsor($_POST);
-        
+
         if($return===true){
-            
+
             if($for_import == 'true')
             {
                 if(isset($file_id) && $file_id >0 )
@@ -104,13 +103,13 @@
         }
         echo $error;
         exit;
-        
+
     }
     else if($action=='edit_sponsor' && $sponsor_id>0){
         $return = $instance->edit_sponsor($sponsor_id);
         $sponsor_data = $instance->get_sponsor_changes($sponsor_id);
         $sponsor_id = isset($return['id'])?$instance->re_db_output($return['id']):0;
-        $sponser_name = isset($return['name'])?$instance->re_db_output($return['name']):'';
+        $sponsor_name = isset($return['name'])?$instance->re_db_output($return['name']):'';
         $saddress1 = isset($return['address1'])?$instance->re_db_output($return['address1']):'';
         $saddress2 = isset($return['address2'])?$instance->re_db_output($return['address2']):'';
         $scity = isset($return['city'])?$instance->re_db_output($return['city']):'';
@@ -128,7 +127,8 @@
         $sdazl_code = isset($return['dazl_code'])?$instance->re_db_output($return['dazl_code']):'';
         $sdazl_import = isset($return['dazl_importing'])?$instance->re_db_output($return['dazl_importing']):0;
         $sdtcc_nscc = isset($return['dtcc_nscc_id'])?$instance->re_db_output($return['dtcc_nscc_id']):'';
-        $sclr_firm = isset($return['clearing_firm_id'])?$instance->re_db_output($return['clearing_firm_id']):0;        
+        $sclr_firm = isset($return['clearing_firm_id'])?$instance->re_db_output($return['clearing_firm_id']):0;
+        $sponsor_trades = $instance->sponsor_transactions($sponsor_id);
     }
     else if(isset($_GET['action'])&&$_GET['action']=='sponsor_delete'&&isset($_GET['sponsor_id'])&&$_GET['sponsor_id']>0)
     {
@@ -144,9 +144,9 @@
     else if(isset($_POST['add_notes'])&& $_POST['add_notes']=='Add Notes'){
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
-       
+
         $return = $instance->insert_update_sponsor_notes($_POST);
-        
+
         if($return===true){
             echo '1';exit;
         }
@@ -155,7 +155,7 @@
         }
         echo $error;
         exit;
-    } 
+    }
     else if(isset($_GET['delete_action'])&&$_GET['delete_action']=='delete_notes'&&isset($_GET['note_id'])&&$_GET['note_id']>0)
     {
         $note_id = $instance->re_db_input($_GET['note_id']);
@@ -168,14 +168,14 @@
         }
         echo $error;
         exit;
-    } 
+    }
     else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){//print_r($_FILES);exit;
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
         $file = isset($_FILES['add_attach'])?$_FILES['add_attach']:array();
-        
+
         $return = $instance->insert_update_sponsor_attach($_POST);
-        
+
         if($return===true){
             echo '1';exit;
         }
@@ -201,9 +201,9 @@
     else if(isset($_GET['send'])&&$_GET['send']=='previous' && isset($_GET['id'])&&$_GET['id']>0 && $_GET['id']!='')
     {
         $id = $instance->re_db_input($_GET['id']);
-        
+
         $return = $instance->get_previous_sponsor($id);
-            
+
         if($return!=false){
             $id=$return['id'];
             header("location:".CURRENT_PAGE."?action=edit_sponsor&sponsor_id=".$id."");exit;
@@ -211,14 +211,14 @@
         else{
             header("location:".CURRENT_PAGE."?action=edit_sponsor&sponsor_id=".$id."");exit;
         }
-        
+
     }
     else if(isset($_GET['send'])&&$_GET['send']=='next' && isset($_GET['id'])&&$_GET['id']>0 && $_GET['id']!='')
     {
         $id = $instance->re_db_input($_GET['id']);
-        
+
         $return = $instance->get_next_sponsor($id);
-            
+
         if($return!=false){
             $id=$return['id'];
             header("location:".CURRENT_PAGE."?action=edit_sponsor&sponsor_id=".$id."");exit;
@@ -226,8 +226,8 @@
         else{
             header("location:".CURRENT_PAGE."?action=edit_sponsor&sponsor_id=".$id."");exit;
         }
-        
-    }   
+
+    }
     else if(isset($_GET['action'])&&$_GET['action']=='sponsor_status'&&isset($_GET['sponsor_id'])&&$_GET['sponsor_id']>0&&isset($_GET['status'])&&($_GET['status']==0 || $_GET['status']==1))
     {
         $sponsor_id = $instance->re_db_input($_GET['sponsor_id']);
@@ -239,15 +239,15 @@
         else{
             header('location:'.CURRENT_PAGE.'?action=view_sponsor');exit;
         }
-    }  
+    }
     else if(isset($_POST['search_sponsor'])&&$_POST['search_sponsor']=='Search'){
-       $search_text_sponsor = isset($_POST['search_text_sponsor'])?$instance->re_db_input($_POST['search_text_sponsor']):''; 
+       $search_text_sponsor = isset($_POST['search_text_sponsor'])?$instance->re_db_input($_POST['search_text_sponsor']):'';
        $return = $instance->search_sponsor($search_text_sponsor);
     }
     else if($action=='view_sponsor'){
-        
+
         $return = $instance->select_sponsor();
-        
+
     }
     $content = "manage_sponsor";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
