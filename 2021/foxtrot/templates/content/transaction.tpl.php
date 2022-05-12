@@ -430,7 +430,7 @@ document.addEventListener("click", function (e) {
                          <input type="text" name="c_account_no" onkeypress="return event.charCode >= 48 &amp; event.charCode <= 57" id="c_account_no" class="form-control" value="">
                       </div>
                    </div>
-                   <div class="col-md-6 compnay_sponsor" id="compnay_sponsor">
+                   <div class="col-md-6 company_sponsor" id="company_sponsor">
                       <div class="form-group">
                          <label>Sponsor Company </label><br>
 
@@ -1236,11 +1236,9 @@ $('.decimal').chargeFormat();
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
-<script type="text/javascript" src="/CloudFox/assets/plugins/autocomplete/jquery-ui.js"></script>
-<script type="text/javascript" src="/CloudFox/assets/plugins/autocomplete/jquery.ui.autocomplete.scroll.min.js"></script>
- <link rel="stylesheet" href="/CloudFox/assets/plugins/autocomplete/jquery-ui.css?1">
-
-
+<script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery.ui.autocomplete.scroll.min.js"></script>
+<link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.css?1">
 
 <script type="text/javascript">
     var client_number_ = '<?php echo $client_number; ?>';
@@ -1357,36 +1355,38 @@ function add_new_client_no(element){
     }
 }
 function get_product(category_id,selected=''){
-  //console.log(category_id,"category_id");
+  console.log(category_id,"category_id");
 
     category_id = category_id || document.getElementById("product_cate").value;
+
+    console.log("after: " + category_id,"category_id");
+
     sponsor = document.getElementById("sponsor").value;
-    c_sponsor =  document.getElementById("compnay_sponsor");
+    c_sponsor =  document.getElementById("company_sponsor");
     $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans");
+
     document.getElementById("product").innerHTML = "<option value=''> Please Wait...</option>";
-    if(category_id =='2' ||category_id =='3'|| category_id =='6'||category_id =='7'||category_id =='8')
+    if(category_id =='2' ||category_id =='3'|| category_id =='6'||category_id =='7'||category_id =='8') {
+        div_sponsor.style.visibility='hidden';
+        c_sponsor.style.visibility='hidden';
+    } else {
+        div_sponsor.style.visibility='visible';
+        c_sponsor.style.visibility='visible';
+    }
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
         {
-            div_sponsor.style.visibility='hidden';
-            c_sponsor.style.visibility='hidden';
-        }
-        else
-        {
-            div_sponsor.style.visibility='visible';
-             c_sponsor.style.visibility='visible';
-        }
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
-                document.getElementById("product").innerHTML = this.responseText;
-                 for(var key in transcation_form_data){
-                   /* if(transcation_form_data[key]['name']=='product')
-                    document.querySelector("[name='product']").value=transcation_form_data[key]["value"];*/
-                }
+            document.getElementById("product").innerHTML = this.responseText;
+                for(var key in transcation_form_data){
+                /* if(transcation_form_data[key]['name']=='product')
+                document.querySelector("[name='product']").value=transcation_form_data[key]["value"];*/
             }
-        };
-        xmlhttp.open("GET", "ajax_get_product.php?product_category_id="+category_id+'&sponsor='+sponsor+'&selected='+selected, true);
-        xmlhttp.send();
+        }
+    };
+    xmlhttp.open("GET", "ajax_get_product.php?product_category_id="+category_id+'&sponsor='+sponsor+'&selected='+selected, true);
+    xmlhttp.send();
 }
 
 //get client account no on client select
