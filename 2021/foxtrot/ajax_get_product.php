@@ -11,6 +11,8 @@ if(isset($_GET['product_category_id']) && $_GET['product_category_id'] > 0)
     
 ?>
     
+    console.log("ajax_get_product: product_category_id: " + $_GET['product_category_id'] + ", " + $_GET['sponsor'] + ", selected:" + $_GET['selected']); // TEST only. Delete Me 
+    
     <select name="product" class="form-control"  id="product">
         <option value="0">Select Product</option>
         <?php foreach($get_product as $key=>$val){?>

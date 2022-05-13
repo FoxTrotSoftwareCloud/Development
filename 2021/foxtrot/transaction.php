@@ -26,7 +26,7 @@
     $get_company = $instance_company->select_company();
 
     $product_cate ='';
-    $client_name='';
+    $client_name = $client_number = '';
     $broker_name='';
     $product = '';
     $is_pending_order='';

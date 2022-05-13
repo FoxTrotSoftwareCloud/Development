@@ -449,7 +449,7 @@ document.addEventListener("click", function (e) {
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Broker Name <span class="text-red">*</span></label><br />
-                        <select class="livesearch form-control" data-required="true" name="broker_name" onchange="get_broker_hold_commission(this.value);">
+                        <select class="livesearch form-control" data-required="true" name="broker_name" id="broker_name" onchange="get_broker_hold_commission(this.value);">
                             <option value="0">Select Broker</option>
                             <?php foreach($get_broker as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>" <?php if(isset($broker_name) && $broker_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['last_name'].', '.$val['first_name'].' '.$val['middle_name'];?></option>
@@ -1241,8 +1241,8 @@ $('.decimal').chargeFormat();
 <link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.css?1">
 
 <script type="text/javascript">
-    var client_number_ = '<?php echo $client_number; ?>';
-     var transcation_form_data = '';
+    var client_number_ = "<?php echo $client_number; ?>";
+    var transcation_form_data = "";
     if(localStorage.getItem('transcation_form_data')){
            var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
           console.log(transcation_form_data,"transcation_form_data")
@@ -1304,10 +1304,10 @@ $('.decimal').chargeFormat();
             }
       });
 
-    $(".two-decimals").inputmask('currency', {
-        prefix: '',
-        rightAlign: false
-    });
+    // $(".two-decimals").inputmask('currency', {
+    //     prefix: '',
+    //     rightAlign: false
+    // });
 
     $(".dddtwo-decimals").on("keypress", function (evnt) {
         var el= this;
@@ -1392,10 +1392,11 @@ function get_product(category_id,selected=''){
 //get client account no on client select
 function get_client_account_no(client_id,selected){
 
-         document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
-         var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
-
-           $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
+        document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
+        var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
+console.log("get_client_account_no(client_id,selected): ", client_id, selected);
+        $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
+        
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200)
@@ -1420,7 +1421,6 @@ function get_client_account_no(client_id,selected){
         xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
         xmlhttp.send();
 }
-
 
 function get_client_id(client_number){
         var xmlhttp = new XMLHttpRequest();
@@ -1562,32 +1562,40 @@ function redirect_url(url,selector){
 // 05/03/22 Add branch & company fetch from BROKER_BRANCHES as well
 function get_broker_hold_commission(broker_id){
     load_split_commission_content(broker_id);
-    var xmlhttp = new XMLHttpRequest();
 
+    var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
         {
-            var jsonResponse = JSON.parse(this.responseText);
-            hold_commissions = jsonResponse.hold_commission;
+            if (this.responseText){
+                var jsonResponse = JSON.parse(this.responseText);
 
-            if(hold_commissions==1)
-            {
-                $("#hold_commission_1").prop("checked", true );
-                $("#div_hold_reason").css('display','block');
-                $("#hold_resoan").val( "HOLD COMMISSION BY BROKER");
-            }
-            else
-            {
+                hold_commissions = jsonResponse.hold_commission;
+
+                if(hold_commissions==1)
+                {
+                    $("#hold_commission_1").prop("checked", true );
+                    $("#div_hold_reason").css('display','block');
+                    $("#hold_resoan").val( "HOLD COMMISSION BY BROKER");
+                }
+                else
+                {
+                    $("#hold_commission_1").prop( "checked", false );
+                    $("#hold_commission_2").prop( "checked", true );
+                    $("#div_hold_reason").css('display','none');
+                    $("#hold_resoan").val("");
+                }
+
+                if (jsonResponse.branch > 0){
+                    $("#branch").val("");
+                    $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("onchange");
+                    get_branch_company(jsonResponse.branch);
+                }
+            } else {
                 $("#hold_commission_1").prop( "checked", false );
                 $("#hold_commission_2").prop( "checked", true );
                 $("#div_hold_reason").css('display','none');
                 $("#hold_resoan").val("");
-            }
-
-            if (jsonResponse.branch > 0){
-                $("#branch").val("");
-                $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("onchange");
-                get_branch_company(jsonResponse.branch);
             }
         }
     };
@@ -1651,34 +1659,33 @@ function close_other()
 }
 
 jQuery(function($){
-     $('[data-required="true"]').each(function(){
-             $(this).on("change blur",function(){
-                 console.log($(this).prop("type"),'$(this).prop("type")')
-                if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
-                     if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
-                         isErrorFound=true;
-                         if($(this).next("div").find("a.chosen-single").length){
-                              $(this).next("div").find("a.chosen-single").addClass("error");
-                         }
-                         else
-                         $(this).addClass("error");
+    $('[data-required="true"]').each(function(){
+        $(this).on("change blur",function(){
+            if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
+                if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
+                    isErrorFound=true;
+
+                    if($(this).next("div").find("a.chosen-single").length){
+                        $(this).next("div").find("a.chosen-single").addClass("error");
                     }
-                    else{
-
-                         if($(this).next("div").find("a.chosen-single").length){
-                              $(this).next("div").find("a.chosen-single").removeClass("error");
-                         }
-                         else
-                           $(this).removeClass("error");
+                    else
+                        $(this).addClass("error");
+                }
+                else
+                {
+                    if($(this).next("div").find("a.chosen-single").length){
+                        $(this).next("div").find("a.chosen-single").removeClass("error");
                     }
+                    else
+                        $(this).removeClass("error");
                 }
+            }
 
-                if($(this).prop("type") =="radio"){
-                }
+            if($(this).prop("type") =="radio"){
+            }
+        });
 
-         });
-
-     });
+    });
 })
 var waitingDialog = waitingDialog || (function ($) {
     'use strict';
@@ -1976,15 +1983,6 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
         </script>
         <?php
     }
-    if($broker_name>0){
-        ?>
-        <script type="text/javascript">
-            $(document).ready(function(){
-                get_broker_hold_commission(<?php echo $broker_name; ?>);
-            });
-        </script>
-        <?php
-    }
     if($client_name>0){
         ?>
         <script type="text/javascript">
@@ -2001,6 +1999,17 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
             $(document).ready(function(){
                  $('[name="batch"]').val(<?php echo $batch; ?>);
                 get_commission_date(<?php echo $batch; ?>);
+            });
+        </script>
+        <?php
+    }
+    if($broker_name>0){
+        ?>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $("#broker_name").val("");
+                $("#broker_name").val(<?php echo $broker_name; ?>).trigger("chosen:updated").trigger("change");
+                // get_broker_hold_commission(<?php echo $broker_name; ?>);
             });
         </script>
         <?php
