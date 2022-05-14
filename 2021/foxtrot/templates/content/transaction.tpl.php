@@ -74,9 +74,11 @@ $(document).on('click','.remove-row_override',function(){
     $(this).closest('.tr').remove();
 });
 </script>
+
 <style type="text/css">
-    div#add_cheque_info label {margin-right: 0px;padding-right: 20px;}
-    .autocomplete {
+div#add_cheque_info label {margin-right: 0px;padding-right: 20px;}
+
+.autocomplete {
   /*the container must be positioned relative:*/
   position: relative;
   display: inline-block;
@@ -107,10 +109,11 @@ $(document).on('click','.remove-row_override',function(){
   background-color: DodgerBlue !important;
   color: #ffffff;
 }
-
 </style>
+
 <script type="text/javascript">
-    function autocomplete(inp, arr) {
+    
+function autocomplete(inp, arr) {
   /*the autocomplete function takes two arguments,
   the text field element and an array of possible autocompleted values:*/
   var currentFocus;
@@ -120,6 +123,7 @@ $(document).on('click','.remove-row_override',function(){
       /*close any already open lists of autocompleted values*/
       closeAllLists();
       if (!val) { return false;}
+      
       currentFocus = -1;
       /*create a DIV element that will contain the items (values):*/
       a = document.createElement("DIV");
@@ -156,6 +160,7 @@ $(document).on('click','.remove-row_override',function(){
   inp.addEventListener("keydown", function(e) {
       var x = document.getElementById(this.id + "autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
+     
       if (e.keyCode == 40) {
         /*If the arrow DOWN key is pressed,
         increase the currentFocus variable:*/
@@ -175,10 +180,9 @@ $(document).on('click','.remove-row_override',function(){
           /*and simulate a click on the "active" item:*/
           if (x) x[currentFocus].click();
         }
-
       }
-
   });
+
   function addActive(x) {
     /*a function to classify an item as "active":*/
     if (!x) return false;
@@ -203,15 +207,14 @@ $(document).on('click','.remove-row_override',function(){
     var x = document.getElementsByClassName("autocomplete-items");
     for (var i = 0; i < x.length; i++) {
       if (elmnt != x[i] && elmnt != inp) {
-      x[i].parentNode.removeChild(x[i]);
+        x[i].parentNode.removeChild(x[i]);
+      }
     }
   }
-}
-/*execute a function when someone clicks in the document:*/
-document.addEventListener("click", function (e) {
-
+  /*execute a function when someone clicks in the document:*/
+  document.addEventListener("click", function (e) {
     closeAllLists(e.target);
-});
+  });
 }
 </script>
 <div id="new_transcation_wrap" class="container">
@@ -390,13 +393,11 @@ document.addEventListener("click", function (e) {
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-
                         <label>Client Name <span class="text-red">* </span> </label><a href="#" onclick="return redirect_url('client_maintenance.php?redirect=add_client_from_trans&action=add_new','client');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New client</a><br />
                         <select class="livesearch form-control" data-required="true" id="client_name" name="client_name" onchange="get_client_account_no(this.value,'<?php echo $client_number;?>');">
                             <option value="0">Select Client</option>
-
                             <?php foreach($get_client as $key=>$val){?>
-                            <option data-brokername="<?php echo $val['broker_name'] ?>" value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['first_name'].' '.$val['mi'].' '.$val['last_name'];?></option>
+                                <option data-brokername="<?php echo $val['broker_name'] ?>" value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['first_name'].' '.$val['mi'].' '.$val['last_name'];?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -1071,7 +1072,7 @@ document.addEventListener("click", function (e) {
                     <div class="form-group">
                         <label>Batch </label><br />
                         <select class="form-control" name="view_batch">
-                            <option value="">All Batches</option>
+                            <option value="">All Batches</optionf>
                              <?php foreach($get_batch as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>" <?php if(isset($batch) && $batch==$val['id']){?> selected="true"<?php } ?>><?php echo $val['id'];?></option>
                             <?php } ?>
@@ -1109,33 +1110,37 @@ document.addEventListener("click", function (e) {
 }
 
 </style>
+
 <script type="text/javascript">
 function hide_hold_reason()
 {
     $("#hold_resoan").val("");
     $("#div_hold_reason").css('display','none');
 }
+
 $.fn.regexMask = function(mask) {
     $(this).keypress(function (event) {
         if (!event.charCode) return true;
+
         var part1 = this.value.substring(0, this.selectionStart);
         var part2 = this.value.substring(this.selectionEnd, this.value.length);
+
         if (!mask.test(part1 + String.fromCharCode(event.charCode) + part2))
             return false;
     });
 };
-function get_cheque_info(detail_id){
 
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
-                document.getElementById("add_new_account").innerHTML = this.responseText;
-                $('#ch_no').mask("999999");
-            }
-        };
-        xmlhttp.open("GET", "ajax_transaction_cheque_info.php?id="+detail_id, true);
-        xmlhttp.send();
+function get_cheque_info(detail_id){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+        {
+            document.getElementById("add_new_account").innerHTML = this.responseText;
+            $('#ch_no').mask("999999");
+        }
+    };
+    xmlhttp.open("GET", "ajax_transaction_cheque_info.php?id="+detail_id, true);
+    xmlhttp.send();
 }
 
 function formsubmit_account()
@@ -1168,11 +1173,9 @@ function formsubmit_account()
 
    //e.preventDefault(); // avoid to execute the actual submit of the form.
    return false;
-
 }
 
-function open_hold_reason()
-{
+function open_hold_reason() {
     $("#div_hold_reason").css('display','block');
 }
 function handleChange(input) {
@@ -1180,49 +1183,50 @@ function handleChange(input) {
     if (input.value > 100) input.value = 100.00;
 }
 (function($) {
-$.fn.chargeFormat = function() {
-    this.each( function( i ) {
-        $(this).change( function( e ){
-            if( isNaN( parseFloat( this.value ) ) ) return;
-            this.value = parseFloat(this.value).toFixed(2);
+    $.fn.chargeFormat = function() {
+        this.each( function( i ) {
+            $(this).change( function( e ){
+                if( isNaN( parseFloat( this.value ) ) ) return;
+                this.value = parseFloat(this.value).toFixed(2);
+            });
         });
-    });
-    return this; //for chaining
-}
+        return this; //for chaining
+    }
 })( jQuery );
 
-
 $( function() {
-$('.decimal').chargeFormat();
+    $('.decimal').chargeFormat();
 });
-    $(document).ready(function() {
-        $.fn.dataTable.moment('MM/DD/YYYY');
-        $('#data-table').DataTable({
-        "pageLength": 25,
-        "bLengthChange": false,
-        "bFilter": true,
-         order: [[ 1, 'desc' ]],
-        /*"order": [[ 1, "desc" ]],*/
-        "bInfo": false,
-        "bAutoWidth": false,
-        "dom": '<"toolbar">frtip',
-         "columnDefs": [ { type: 'date', 'targets': [1] } ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 8,9 ] },
-                        { "bSearchable": false, "aTargets": [ 8,9 ] }]
-        });
 
-        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
-            '<div class="panel-control" style="padding-left:5px;display:inline;">'+
-                    '<div class="btn-group dropdown" style="float: right;">'+
-                        '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
-    					'<ul class="dropdown-menu dropdown-menu-right" style="">'+
-    						/*'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add"><i class="fa fa-plus"></i> Add New</a></li>'+*/
-                            '<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_report"><i class="fa fa-minus"></i> Report</a></li>'+
-                        '</ul>'+
-    				'</div>'+
-    			'</div>');
-} );
+$(document).ready(function() {
+    $.fn.dataTable.moment('MM/DD/YYYY');
+    $('#data-table').DataTable({
+    "pageLength": 25,
+    "bLengthChange": false,
+    "bFilter": true,
+        order: [[ 1, 'desc' ]],
+    /*"order": [[ 1, "desc" ]],*/
+    "bInfo": false,
+    "bAutoWidth": false,
+    "dom": '<"toolbar">frtip',
+        "columnDefs": [ { type: 'date', 'targets': [1] } ],
+    "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 8,9 ] },
+                    { "bSearchable": false, "aTargets": [ 8,9 ] }]
+    });
+
+    $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
+        '<div class="panel-control" style="padding-left:5px;display:inline;">'+
+                '<div class="btn-group dropdown" style="float: right;">'+
+                    '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
+                    '<ul class="dropdown-menu dropdown-menu-right" style="">'+
+                        /*'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add"><i class="fa fa-plus"></i> Add New</a></li>'+*/
+                        '<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_report"><i class="fa fa-minus"></i> Report</a></li>'+
+                    '</ul>'+
+                '</div>'+
+            '</div>');
+});
 </script>
+
 <style type="text/css">
 .toolbar {
     float: right;
@@ -1235,6 +1239,7 @@ $('.decimal').chargeFormat();
     min-height: 30px;
 }
 </style>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.js"></script>
 <script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery.ui.autocomplete.scroll.min.js"></script>
@@ -1243,54 +1248,47 @@ $('.decimal').chargeFormat();
 <script type="text/javascript">
     var client_number_ = "<?php echo $client_number; ?>";
     var transcation_form_data = "";
+
     if(localStorage.getItem('transcation_form_data')){
-           var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
-          console.log(transcation_form_data,"transcation_form_data")
-         //$("")$("form[name='frm2']")
-           for(var key in transcation_form_data){
-
-              if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
-
-                 document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
-              }
-             // console.log(transcation_form_data,"transcation_form_data")
-           }
-      }
-    $(document).ready(function(){
-        var client_ac_number =<?php echo json_encode($client_account_array); ?>;
-       // autocomplete(document.getElementById("client_number"), client_ac_number);
-        if(localStorage.getItem('transcation_form_data')){
-
+        var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
 
         for(var key in transcation_form_data){
-                 if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product'){
-                      $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+            if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
+                document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
+            }
+        }
+    }
+
+    $(document).ready(function(){
+        var client_ac_number =<?php echo json_encode($client_account_array); ?>;
+
+        if(localStorage.getItem('transcation_form_data')){
+            for(var key in transcation_form_data){
+                if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
+                    $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
                 }
-              }
-          }
+            }
+        }
 
+        $(".livesearch").chosen();
+        $("#search_client_number").autocomplete({
+            source: "ajax_get_client_account.php?_type=query",
+            minLength: 2,
+            maxShowItems: 3,
 
-      $(".livesearch").chosen();
-      $("#search_client_number").autocomplete({
-          source: "ajax_get_client_account.php?_type=query",
-          minLength: 2,
-           maxShowItems: 3,
-          select: function( event, ui ) {
-            $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
-             $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-            //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-          }
+            select: function( event, ui ) {
+                $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
+                $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+                //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+            }
         }).autocomplete("instance")._renderItem = function (ul, item) {
-    return $("<li>")
-      .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
-      .appendTo(ul);
-};;
+            return $("<li>")
+            .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
+        .appendTo(ul);
+        };;
 
-
-
-
-      $('#ch_no').mask("999999");
-      });
+        $('#ch_no').mask("999999");
+    });
 
 </script>
 <script type="text/javascript">
@@ -1346,7 +1344,8 @@ $('.decimal').chargeFormat();
 })
 
 function add_new_client_no(element){
-    console.log(element,element.value,"dsfdsf")
+    //5/13/22 TEST? console.log(element,element.value,"dsfdsf")
+
     if(element.value == -1){
         jQuery("#account_no_row").show();
     }
@@ -1354,13 +1353,9 @@ function add_new_client_no(element){
         jQuery("#account_no_row").hide();
     }
 }
+
 function get_product(category_id,selected=''){
-  console.log(category_id,"category_id");
-
     category_id = category_id || document.getElementById("product_cate").value;
-
-    console.log("after: " + category_id,"category_id");
-
     sponsor = document.getElementById("sponsor").value;
     c_sponsor =  document.getElementById("company_sponsor");
     $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans");
@@ -1379,7 +1374,7 @@ function get_product(category_id,selected=''){
         if (this.readyState == 4 && this.status == 200)
         {
             document.getElementById("product").innerHTML = this.responseText;
-                for(var key in transcation_form_data){
+            for(var key in transcation_form_data){
                 /* if(transcation_form_data[key]['name']=='product')
                 document.querySelector("[name='product']").value=transcation_form_data[key]["value"];*/
             }
@@ -1391,72 +1386,72 @@ function get_product(category_id,selected=''){
 
 //get client account no on client select
 function get_client_account_no(client_id,selected){
+    document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
+    var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
 
-        document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
-        var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
-console.log("get_client_account_no(client_id,selected): ", client_id, selected);
-        $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
-        
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
-                var dropdown='';
-                var options = JSON.parse(this.responseText);
+    // 5/13/22 TEST? --> console.log("get_client_account_no(client_id,selected): ", client_id, selected);
+    $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+        {
+            var dropdown='';
+            var options = JSON.parse(this.responseText);
 
 
-                    dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
-                    options.forEach(function(item){
-                     //   console.log(item,selected,selected == item)
-                        $is_selected = selected == item ? "selected='selected'": "";
-                        dropdown+="<option value='"+item+"' "+$is_selected+"  >"+item+"</option>";
-                    })
-                   document.getElementById("client_number").innerHTML = dropdown;
-                    for(var key in transcation_form_data){
-                    if(transcation_form_data[key]['name']=='client_number')
-                    document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
-                }
+                dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
+                options.forEach(function(item){
+                    //   console.log(item,selected,selected == item)
+                    $is_selected = selected == item ? "selected='selected'": "";
+                    dropdown+="<option value='"+item+"' "+$is_selected+"  >"+item+"</option>";
+                })
+                document.getElementById("client_number").innerHTML = dropdown;
+                for(var key in transcation_form_data){
+                if(transcation_form_data[key]['name']=='client_number')
+                document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
             }
-        };
-        xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
-        xmlhttp.send();
+        }
+    };
+    xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
+    xmlhttp.send();
 }
 
 function get_client_id(client_number){
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200 && this.responseText!='0'  && this.responseText!='' )
-            {
-
-                $('#client_name').val(this.responseText).trigger("chosen:updated");
-             //   alert($('#client_name').val());
-            }
-        };
-        xmlhttp.open("GET", "ajax_get_client_account.php?client_number="+client_number, true);
-        xmlhttp.send();
-}
-//get default commission date on batch date
-function get_commission_date(batch_id)
-{
     var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function()
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200 && this.responseText!='0'  && this.responseText!='' )
         {
-            if (this.readyState == 4 && this.status == 200)
-            {
-                var data=jQuery.parseJSON(this.responseText);
 
-               // $("#product_cate").val(data[0].pro_category);
-                $("#commission_received_date").val(data[0].batch_date);
-                $("#sponsor").val(data[0].sponsor);
-               /* if(data[0].pro_category!='' && data[0].pro_category!='0')
-                 {
-                    get_product(data[0].pro_category,data[0].sponsor);
-                //alert(this.responseText);
-                 }*/
-            }
-        };
-        xmlhttp.open("GET", "ajax_get_client_account.php?batch_id="+batch_id, true);
-        xmlhttp.send();
+            $('#client_name').val(this.responseText).trigger("chosen:updated");
+            //   alert($('#client_name').val());
+        }
+    };
+    xmlhttp.open("GET", "ajax_get_client_account.php?client_number="+client_number, true);
+    xmlhttp.send();
+}
+
+//get default commission date on batch date
+function get_commission_date(batch_id){
+    var xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+        {
+            var data=jQuery.parseJSON(this.responseText);
+
+            // $("#product_cate").val(data[0].pro_category);
+            $("#commission_received_date").val(data[0].batch_date);
+            $("#sponsor").val(data[0].sponsor);
+            /* if(data[0].pro_category!='' && data[0].pro_category!='0')
+                {
+                get_product(data[0].pro_category,data[0].sponsor);
+            //alert(this.responseText);
+                }*/
+        }
+    };
+    xmlhttp.open("GET", "ajax_get_client_account.php?batch_id="+batch_id, true);
+    xmlhttp.send();
 }
 
 function setnumber_format(inputtext)
@@ -1464,99 +1459,94 @@ function setnumber_format(inputtext)
     var number  = inputtext.value;
     var roundedNumber = Number((Math.floor(number * 100) / 100).toFixed(2))
 
-   var options = { style: 'currency', currency: 'USD'};
+    var options = { style: 'currency', currency: 'USD'};
         inputtext.value=(new Intl.NumberFormat(options).format(roundedNumber));
 
 
-   /*   const formatter = new Intl.NumberFormat('en-NZ', {
-    style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    });
+    /*   const formatter = new Intl.NumberFormat('en-NZ', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        });
 
-    const fraction = new Intl.NumberFormat('en-NZ', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    });
+        const fraction = new Intl.NumberFormat('en-NZ', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        });
 
-    if(number % 1 == 0)
-        inputtext.value = (fraction.format(number));
-    else
-        inputtext.value = (formatter.format(number));*/
-
-
-
+        if(number % 1 == 0)
+            inputtext.value = (fraction.format(number));
+        else
+            inputtext.value = (formatter.format(number));*/
 }
+
 //get client split rate on client select
 function get_client_split_rates(client_id){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+        {
+            $( "#split_yes" ).prop( "checked", true );
+            open_other();
+            //$('#client_split_row').replaceWith(this.responseText);
 
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
-                $( "#split_yes" ).prop( "checked", true );
-                open_other();
-                //$('#client_split_row').replaceWith(this.responseText);
-
-                document.getElementById("client_split_row").innerHTML = this.responseText;
-                //$(this.responseText).insertAfter('#add_other_split');
-            }
-        };
-        xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id, true);
-        xmlhttp.send();
+            document.getElementById("client_split_row").innerHTML = this.responseText;
+            //$(this.responseText).insertAfter('#add_other_split');
+        }
+    };
+    xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id, true);
+    xmlhttp.send();
 }
+
 //get broker split rate on broker select
 function get_broker_split_rates(broker_id){
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
-                $( "#split_yes" ).prop( "checked", true );
-                open_other();
-                //$('#broker_split_row').replaceWith(this.responseText);
-                document.getElementById("broker_split_row").innerHTML = this.responseText;
-                //$(this.responseText).insertAfter('#add_other_split');
-                //document.getElementById("split").value = this.responseText;
-            }
-        };
-        xmlhttp.open("GET", "ajax_get_split_rates.php?broker_id="+broker_id, true);
-        xmlhttp.send();
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+        {
+            $( "#split_yes" ).prop( "checked", true );
+            open_other();
+            //$('#broker_split_row').replaceWith(this.responseText);
+            document.getElementById("broker_split_row").innerHTML = this.responseText;
+            //$(this.responseText).insertAfter('#add_other_split');
+            //document.getElementById("split").value = this.responseText;
+        }
+    };
+    xmlhttp.open("GET", "ajax_get_split_rates.php?broker_id="+broker_id, true);
+    xmlhttp.send();
 }
+
 //get broker override rate on broker select
 function get_broker_override_rates(broker_id){
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
-                $('.broker_override_class').remove();
-                $(this.responseText).insertAfter('#add_override');
-            }
-        };
-        xmlhttp.open("GET", "ajax_get_override_rates.php?broker_id="+broker_id, true);
-        xmlhttp.send();
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+        {
+            $('.broker_override_class').remove();
+            $(this.responseText).insertAfter('#add_override');
+        }
+    };
+    xmlhttp.open("GET", "ajax_get_override_rates.php?broker_id="+broker_id, true);
+    xmlhttp.send();
 }
-
 
 function redirect_url(url,selector){
-        if(selector == "product" ){
-            if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
+    if(selector == "product" ){
+        if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
 
-              ev.preventDefault();
-                   alert("Please select Product Category First");
-                   return false;
-            }
-            else{
-                 url = url+"&category="+$("#product_cate").val();
-            }
+            ev.preventDefault();
+                alert("Please select Product Category First");
+                return false;
         }
-       localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
-       setTimeout(function(){  window.location.href=url   },100);
-       return false;
+        else{
+                url = url+"&category="+$("#product_cate").val();
+        }
+    }
+    localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
+    setTimeout(function(){  window.location.href=url   },100);
+    return false;
 }
-
 
 //get broker hold commission on broker select
 // 05/03/22 Add branch & company fetch from BROKER_BRANCHES as well
@@ -1602,45 +1592,46 @@ function get_broker_hold_commission(broker_id){
     xmlhttp.open("GET", "ajax_transaction_tpl.php?broker_id="+broker_id, true);
     xmlhttp.send();
 }
+
 function get_branch_company(branch_id){
-        var xmlhttp = new XMLHttpRequest();
+    var xmlhttp = new XMLHttpRequest();
 
-        xmlhttp.onreadystatechange = function(){
-            if (this.readyState == 4 && this.status == 200){
-                var jsonResponse = JSON.parse(this.responseText);
+    xmlhttp.onreadystatechange = function(){
+        if (this.readyState == 4 && this.status == 200){
+            var jsonResponse = JSON.parse(this.responseText);
 
-                if (jsonResponse.id > 0){
-                    $("#company").val("");
-                    $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("change");
-                }
+            if (jsonResponse.id > 0){
+                $("#company").val("");
+                $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("change");
             }
-        };
-        xmlhttp.open("GET", "ajax_transaction_tpl.php?action=branch_company&branch="+branch_id, true);
-        xmlhttp.send();
+        }
+    };
+    xmlhttp.open("GET", "ajax_transaction_tpl.php?action=branch_company&branch="+branch_id, true);
+    xmlhttp.send();
 }
 
 function load_split_commission_content(broker_id){
-        var xmlhttp = new XMLHttpRequest();
+    var xmlhttp = new XMLHttpRequest();
 
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
-                $("#split_commission_modal").find(".modal-body tbody").html(this.responseText);
-                $('#demo-dp-range .input-daterange').datepicker({
-                    format: "mm/dd/yyyy",
-                    todayBtn: "linked",
-                    autoclose: true,
-                    todayHighlight: true
-                });
-            }
-        };
-        client_id= $("select[name='client_name']").val();
-        transaction_id = $("#id").val();
-        xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id, true);
-        xmlhttp.send();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+        {
+            $("#split_commission_modal").find(".modal-body tbody").html(this.responseText);
+            $('#demo-dp-range .input-daterange').datepicker({
+                format: "mm/dd/yyyy",
+                todayBtn: "linked",
+                autoclose: true,
+                todayHighlight: true
+            });
+        }
+    };
+    client_id= $("select[name='client_name']").val();
+    transaction_id = $("#id").val();
+    xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id, true);
+    xmlhttp.send();
 }
-function open_other()
-{
+
+function open_other(){
     $("#split_commission_modal").modal();
     if($("select[name='broker_name']").val() == '' || $("select[name='broker_name']").val() == 0){
         $("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please Select Broker First!</td> </td>")
@@ -1651,8 +1642,8 @@ function open_other()
     //$('#split_div').css('display','block');
     //$('.split_edit_row').css('display','block');
 }
-function close_other()
-{
+
+function close_other() {
     $("#split_commission_modal").modal("hide");
    // $('#split_div').css('display','none');
     //$('.split_edit_row').css('display','none');
@@ -1687,12 +1678,11 @@ jQuery(function($){
 
     });
 })
+
 var waitingDialog = waitingDialog || (function ($) {
     'use strict';
 
-
-
-	// Creating modal dialog's DOM
+    // Creating modal dialog's DOM
 	var $dialog = $(
 		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
 		'<div class="modal-dialog modal-m">' +
@@ -1725,7 +1715,6 @@ var waitingDialog = waitingDialog || (function ($) {
              var commission_received = $("input[name='commission_received']");
              var split = $("input[name='split']");
              var hold_commission = $("input[name='hold_commission']");
-
 
                 if($.trim(trade_date.val()) == ''){
                      isErrorFound=true;
@@ -1763,9 +1752,6 @@ var waitingDialog = waitingDialog || (function ($) {
                 else{
                        batch.removeClass("error");
                 }
-
-
-
 
                 if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
                      isErrorFound=true;
@@ -1816,8 +1802,8 @@ var waitingDialog = waitingDialog || (function ($) {
                 }
 
                 if(isErrorFound){
-                    console.log($("#id").offset());
-                   $("html,body").animate({scrollTop: $("#id").offset().top},200);
+                // 5/13/22 TEST? --> console.log($("#id").offset());
+                    $("html,body").animate({scrollTop: $("#id").offset().top},200);
                     return false;
                 }
 
@@ -1863,28 +1849,30 @@ var waitingDialog = waitingDialog || (function ($) {
 
 
 $('#demo-dp-range .input-daterange').datepicker({
-        format: "mm/dd/yyyy",
-        todayBtn: "linked",
-        autoclose: true,
-        todayHighlight: true
-    });
-function get_investment_amount()
-{
+    format: "mm/dd/yyyy",
+    todayBtn: "linked",
+    autoclose: true,
+    todayHighlight: true
+});
+
+function get_investment_amount() {
     var units = $("#units").val();
     var shares = $("#shares").val();
-    if((units > 0) && (shares > 0))
-    {
+
+    if((units > 0) && (shares > 0)) {
         var invest_amount = units*shares;
         $("#invest_amount").val(invest_amount);
     }
 }
 
 var flag1=0;
+
 function add_rate(doc){
     if(flag1==0){
         flag1=doc+1;
-        }
-    else{ flag1++ ; }
+    }
+    else { flag1++ ; }
+
     var html = '<tr class="tr">'+
                     '<td>'+
                         '<select name="override[receiving_rep1]['+flag1+']"  class="form-control" >'+
@@ -1944,7 +1932,6 @@ function add_rate(doc){
 
 var deleteRows=[]
 $(document).on('click','.remove-row',function(){
-
     deleteRows.push($(this).closest('.tr').data("rowid"));
     $("#deleted_rows").val(deleteRows.join(","));
     $(this).closest('.tr').remove();
@@ -1956,33 +1943,33 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
     modalSelector.find('input.required').each(function(){
         var selector = $(this);
         var value = selector.val();
-       // console.log(value);
+
         if(value == '') {
             selector.addClass('error');
             isErrorFound = true;
         }
         else selector.removeClass('error');
     })
+
     if(!isErrorFound) {
        modalSelector.modal('hide');
-
     }
-
 });
 </script>
 <?php
-
+    // Default dropdowns after the load()
     if($product_cate>0){
         ?>
         <script type="text/javascript">
             $(document).ready(function(){
                 $("#product_cate").val(<?php echo $product_cate; ?>);
-                console.log("testtetests");
+                // 5/13/22 TEST? --> console.log("testtetests");
                 get_product(<?php echo $product_cate; ?>,'<?php echo $product; ?>');
             });
         </script>
         <?php
     }
+
     if($client_name>0){
         ?>
         <script type="text/javascript">
@@ -1993,6 +1980,7 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
         </script>
         <?php
     }
+
     if(isset($_GET['batch_id']) && ($_GET['batch_id'] != '' || $batch>0)){
         ?>
         <script type="text/javascript">
@@ -2003,10 +1991,15 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
         </script>
         <?php
     }
+
+    // 5/13/22 Put Broker -> Company -> Branch last, because the Client change() will revert these back to what's in CLIENT_MASTER
+    // AND NOT, what's stored in TRANSACTION_MASTER
     if($broker_name>0){
         ?>
         <script type="text/javascript">
-            $(document).ready(function(){
+                console.log("$broker_name>0, $broker_name = " + <?php echo $broker_name?>); // 5/13/22 TEST DELETE ME
+
+                $(document).ready(function(){
                 $("#broker_name").val("");
                 $("#broker_name").val(<?php echo $broker_name; ?>).trigger("chosen:updated").trigger("change");
                 // get_broker_hold_commission(<?php echo $broker_name; ?>);
@@ -2014,7 +2007,31 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
         </script>
         <?php
     }
+    // Call this BEFORE #company, because this will change the #company to the "company" field in BRANCH_MASTER table
+    if($branch>0){
+        ?>
+        <script type="text/javascript">
+            console.log("$branch>0, $branch = " + <?php echo $branch?>); // 5/13/22 TEST DELETE ME
 
+            $(document).ready(function(){
+                $("#branch").val("");
+                $("#branch").val(<?php echo $branch; ?>).trigger("change");
+            });
+        </script>
+        <?php
+    }
+    if($company>0){
+        ?>
+        <script type="text/javascript">
+            console.log("$company>0, $company = " + <?php echo $company?>); // 5/13/22 TEST DELETE ME
+
+            $(document).ready(function(){
+                $("#company").val("");
+                $("#company").val(<?php echo $company; ?>).trigger("change");
+            });
+        </script>
+        <?php
+    }
 
     /*if($product_cate>0 && $product != ''){
         ?>
@@ -2025,6 +2042,4 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
         </script>
         <?php
     }*/
-
-
 ?>
