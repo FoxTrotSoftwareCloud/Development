@@ -1,5 +1,11 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.12/sorting/datetime-moment.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery.ui.autocomplete.scroll.min.js"></script>
+<link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.css?1">
+
 <script>
 function addMoreRow(){
     var html = '<div class="row">'+
@@ -476,9 +482,7 @@ function autocomplete(inp, arr) {
                  <div class="col-md-4">
                     <div class="form-group">
                         <label>Branch <span class="text-red">*</span></label><br />
-                        <!-- 5/14/22 Turned off "data-required" property(false). Making my life miserable. -->
-                        <!-- <select class="form-control" data-required="true" name="branch" id="branch" onchange="get_branch_company(this.value)" > -->
-                        <select class="form-control" data-required="false" name="branch" id="branch" onchange="get_branch_company(this.value)" >
+                        <select class="form-control" data-required="true" name="branch" id="branch" onchange="get_branch_company(this.value)" >
                             <!-- <option value="0">Select Branch</option> -->
                              <?php foreach($get_branch as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>" <?php if(isset($branch) && $branch==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
@@ -1098,32 +1102,16 @@ function autocomplete(inp, arr) {
         <?php } ?>
     </div>
 </div>
-<style>
-.btn-primary {
-    color: #fff;
-    background-color: #337ab7 !important;
-    border-color: #2e6da4 !important;
-}
-#table-scroll {
-  height:400px;
-  overflow:auto;
-  margin-top:20px;
-}
-.multi-checkbox-row{
-   font-size: 12px;
-}
-
-</style>
 
 <script type="text/javascript">
 $(document).ready(function() {
     console.log("(function($){})( jQuery ); - Line 1186"); // 5/14/22 TEST
     $.fn.chargeFormat = function() {
-        this.each( function( i ) {
-            $(this).change( function( e ){
-                if( isNaN( parseFloat( this.value ) ) ) return;
-                this.value = parseFloat(this.value).toFixed(2);
-            });
+            this.each( function( i ) {
+                $(this).change( function( e ){
+                    if( isNaN( parseFloat( this.value ) ) ) return;
+                    this.value = parseFloat(this.value).toFixed(2);
+                });
         });
         return this; //for chaining
     }
@@ -1159,26 +1147,29 @@ $(document).ready(function() {
     console.log("document.ready() - Line 1262"); // 5/14/22 TEST
     var client_ac_number =<?php echo json_encode($client_account_array); ?>;
 
-    if(localStorage.getItem('transcation_form_data')){
-        for(var key in transcation_form_data){
-            if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
-                $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
-            }
-        }
-    }
+    // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
+    // if(localStorage.getItem('transcation_form_data')){
+    //     for(var key in transcation_form_data){
+    //         if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
+    //             $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+    //         }
+    //     }
+    // }
 
-    $(".livesearch").chosen();
-    $("#search_client_number").autocomplete({
-        source: "ajax_get_client_account.php?_type=query",
-        minLength: 2,
-        maxShowItems: 3,
+    // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
+    // $(".livesearch").chosen();
+    // $("#search_client_number").autocomplete({
+    //     source: "ajax_get_client_account.php?_type=query",
+    //     minLength: 2,
+    //     maxShowItems: 3,
 
-        select: function( event, ui ) {
-            $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
-            $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-            //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-        }
-    })
+    //     select: function( event, ui ) {
+    //         $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
+    //         $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+    //         //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+    //     }
+    // })
+
     // 5/14/22 Commented out, CAUSING ERROR:
     // .autocomplete("instance")._renderItem = function (ul, item) {
     //     return $("<li>")
@@ -1215,8 +1206,8 @@ $(document).ready(function() {
             }
         });
     });
-        console.log("jQuery(function($) - Line 1665, this.name = " + $(this).attr("name")); // 5/14/22 TEST
 
+    console.log("jQuery(function($) - Line 1665, this.name = " + $(this).attr("name")); // 5/14/22 TEST
     $('[data-required="true"]').each(function(){
         $(this).on("change blur",function(){
             if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
@@ -1265,7 +1256,9 @@ $(document).ready(function() {
     // 5/13/22 Put Broker -> Company -> Branch last, because the Client change() will revert these back to what's in CLIENT_MASTER
     // AND NOT, what's stored in TRANSACTION_MASTER
     <?php if($broker_name>0){ ?>
-        console.log("$broker_name>0, $broker_name = " + <?php echo $broker_name?>); // 5/13/22 TEST DELETE ME
+        var currentdate = new Date();
+        var datetime = Date.now().toString().substr(7);
+        console.log("("+datetime+")" + "$broker_name>0, $broker_name = " + <?php echo $broker_name?>); // 5/13/22 TEST DELETE ME
 
         $("#broker_name").val("");
         $("#broker_name").val(<?php echo $broker_name; ?>).trigger("chosen:updated").trigger("change");
@@ -1274,18 +1267,40 @@ $(document).ready(function() {
 
     // Call this BEFORE #company, because this will change the #company to the "company" field in BRANCH_MASTER table
     <?php if($branch>0){ ?>
-        console.log("$branch>0, $branch = " + <?php echo $branch?>); // 5/13/22 TEST DELETE ME
+        var currentdate = new Date();
+        var datetime = Date.now().toString().substr(7);
+        console.log("("+datetime+")" + "$branch>0, $branch = " + <?php echo $branch?>); // 5/13/22 TEST DELETE ME
 
         $("#branch").val("");
         $("#branch").val(<?php echo $branch; ?>).trigger("chosen:updated").trigger("change");
     <?php } ?>
 
     <?php if($company>0){ ?>
-        console.log("$company>0, $company = " + <?php echo $company?>); // 5/13/22 TEST DELETE ME
+        var currentdate = new Date();
+        var datetime = Date.now().toString().substr(7);
+        console.log("("+datetime+")" + "$company>0, $company = " + <?php echo $company?>); // 5/13/22 TEST DELETE ME
 
         $("#company").val("");
         $("#company").val(<?php echo $company; ?>).trigger("chosen:updated").trigger("change");
     <?php } ?>
+
+    $("#add_new_prod").click(function(ev){
+        if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
+                ev.preventDefault();
+                alert("Please select Product Category First");
+                return false;
+        }
+        console.log("jQuery(function($) - Line 1304"); // 5/14/22 TEST
+    });
+
+        var currentdate = new Date();
+        var datetime = Date.now().toString().substr(7);
+        console.log("("+datetime+")" + "$(#company).val() = " + $("#company").val())
+        console.log("("+datetime+")" + "$(#company option:selected).val() = " + $("#company option:selected").val())
+
+        console.log("("+datetime+")" + "$(#branch).val() = " + $("#branch").val())
+        console.log("("+datetime+")" + "$(#branch option:selected).html() = " + $("#branch option:selected").html())
+        console.log("*** ("+datetime+")" + "Done with doc.ready() ***")
 })
 
 function hide_hold_reason()
@@ -1376,40 +1391,19 @@ $( function() {
     $('.decimal').chargeFormat();
 });
 
+// 05/14/22 Commented out. Not sure if this is necessary
+// var client_number_ = "<?php echo $client_number; ?>";
+// var transcation_form_data = "";
 
-</script>
+// if(localStorage.getItem('transcation_form_data')){
+//     var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
 
-<style type="text/css">
-.toolbar {
-    float: right;
-    padding-left: 5px;
-}
-.chosen-container-single .chosen-single {
-    height: 34px !important;
-}
-#new_transcation_wrap label{
-    min-height: 30px;
-}
-</style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.js"></script>
-<script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery.ui.autocomplete.scroll.min.js"></script>
-<link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.css?1">
-
-<script type="text/javascript">
-    var client_number_ = "<?php echo $client_number; ?>";
-    var transcation_form_data = "";
-
-    if(localStorage.getItem('transcation_form_data')){
-        var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
-
-        for(var key in transcation_form_data){
-            if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
-                document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
-            }
-        }
-    }
+//     for(var key in transcation_form_data){
+//         if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
+//             document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
+//         }
+//     }
+// }
 
     // $(document).ready(function (){
     //     console.log("document.ready() - Line 1267"); // 5/14/22 TEST
@@ -1446,16 +1440,17 @@ $( function() {
     //     $('#ch_no').mask("999999");
     // });
 
-    jQuery(function($){
-      $("#add_new_prod").click(function(ev){
-            if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
-                   ev.preventDefault();
-                   alert("Please select Product Category First");
-                   return false;
-            }
-        console.log("jQuery(function($) - Line 1304"); // 5/14/22 TEST
-      });
-    })
+    // 5/14/22 Moved to doc.ready() section
+    // jQuery(function($){
+    //   $("#add_new_prod").click(function(ev){
+    //         if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
+    //                ev.preventDefault();
+    //                alert("Please select Product Category First");
+    //                return false;
+    //         }
+    //     console.log("jQuery(function($) - Line 1304"); // 5/14/22 TEST
+    //   });
+    // })
 
     // 5/14/22 Not sure what this code is for. Should it be in the read()?
     // $(".two-decimals").inputmask('currency', {
@@ -1530,10 +1525,10 @@ function get_product(category_id,selected=''){
         if (this.readyState == 4 && this.status == 200)
         {
             document.getElementById("product").innerHTML = this.responseText;
-            for(var key in transcation_form_data){
+            // for(var key in transcation_form_data){
                 /* if(transcation_form_data[key]['name']=='product')
                 document.querySelector("[name='product']").value=transcation_form_data[key]["value"];*/
-            }
+            // }
         }
     };
     xmlhttp.open("GET", "ajax_get_product.php?product_category_id="+category_id+'&sponsor='+sponsor+'&selected='+selected, true);
@@ -1544,8 +1539,9 @@ function get_product(category_id,selected=''){
 function get_client_account_no(client_id,selected){
     document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
     var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
-
-    // 5/13/22 TEST? --> console.log("get_client_account_no(client_id,selected): ", client_id, selected);
+    
+    var datetime = Date.now().toString().substr(7);
+    console.log("("+datetime+")" + "get_client_account_no(client_id,selected): ", client_id, selected); // 5/13/22 TEST
     $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
 
     var xmlhttp = new XMLHttpRequest();
@@ -1563,10 +1559,11 @@ function get_client_account_no(client_id,selected){
                     dropdown+="<option value='"+item+"' "+$is_selected+"  >"+item+"</option>";
                 })
                 document.getElementById("client_number").innerHTML = dropdown;
-                for(var key in transcation_form_data){
-                if(transcation_form_data[key]['name']=='client_number')
-                document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
-            }
+                // 05/15/22 Commented out - not sure what this is doing
+                // for(var key in transcation_form_data){
+                //     if(transcation_form_data[key]['name']=='client_number')
+                //     document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
+                // }
         }
     };
     xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
@@ -1616,7 +1613,7 @@ function setnumber_format(inputtext)
     var roundedNumber = Number((Math.floor(number * 100) / 100).toFixed(2))
 
     var options = { style: 'currency', currency: 'USD'};
-        inputtext.value=(new Intl.NumberFormat(options).format(roundedNumber));
+    inputtext.value=(new Intl.NumberFormat(options).format(roundedNumber));
 
 
     /*   const formatter = new Intl.NumberFormat('en-NZ', {
@@ -1699,7 +1696,7 @@ function redirect_url(url,selector){
                 url = url+"&category="+$("#product_cate").val();
         }
     }
-    localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
+    // localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
     setTimeout(function(){  window.location.href=url   },100);
     return false;
 }
@@ -1735,10 +1732,11 @@ function get_broker_hold_commission(broker_id){
                 if (jsonResponse.branch > 0){
                     $("#branch").val("");
                     $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("change");
-
-                    console.log("get_broker_hold_commission(" + broker_id + "):get_branch_company(" + jsonResponse.branch + ")"); // 5/14/22 TEST
-
                     get_branch_company(jsonResponse.branch);
+
+                    var currentdate = new Date();
+                    var datetime = Date.now().toString().substr(7);
+                    console.log("(" + datetime + ")" + "get_broker_hold_commission(" + broker_id + "):get_branch_company(" + jsonResponse.branch + ")"); // 5/14/22 TEST
                 }
             } else {
                 $("#hold_commission_1").prop( "checked", false );
@@ -1754,13 +1752,7 @@ function get_broker_hold_commission(broker_id){
 
 function get_branch_company(branch_id){
     var currentdate = new Date();
-    var datetime = Date.now(); 
-    // var datetime = currentdate.getDate() + "/"
-    //                 + (currentdate.getMonth()+1)  + "/" 
-    //                 + currentdate.getFullYear() + " @ "  
-    //                 + currentdate.getHours() + ":"  
-    //                 + currentdate.getMinutes() + ":" 
-    //                 + currentdate.getSeconds();
+    var datetime = Date.now().toString().substr(7);
     console.log("(" + datetime + ")" + "BEGIN: get-branch-company("+branch_id+") branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
 
     var jsonResponse = '';
@@ -1770,13 +1762,13 @@ function get_branch_company(branch_id){
     xmlhttp.onreadystatechange = function(){
         if (this.readyState == 4 && this.status == 200){
             jsonResponse = JSON.parse(this.responseText);
-        console.log("(" + datetime + ")get-branch-company("+branch_id+") this.readyState==4: jsonResponse= " + jsonResponse)
 
             if (jsonResponse.id > 0){
                 $("#company").val("");
                 $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("chosen:updated").trigger("change");
 
-                console.log("(" + datetime + ")" + "get-branch-company("+branch_id+") jsonResponse.id = " + jsonResponse.id + ", branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
+                var datetime2 = Date.now().toString().substr(7);
+                console.log("(" + datetime + "-" + datetime2 + ")" + "get-branch-company("+branch_id+") jsonResponse.id = " + jsonResponse.id + ", branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
 
             }
         }
@@ -1867,173 +1859,174 @@ function close_other() {
 //     });
 // })
 
-var waitingDialog = waitingDialog || (function ($) {
-    'use strict';
+// 05/14/22 Removed - messing up opening page values
+// var waitingDialog = waitingDialog || (function ($) {
+//     'use strict';
 
-    // Creating modal dialog's DOM
-	var $dialog = $(
-		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-		'<div class="modal-dialog modal-m">' +
-		'<div class="modal-content">' +
-			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-			'<div class="modal-body">' +
-				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-			'</div>' +
-		'</div></div></div>');
+//     // Creating modal dialog's DOM
+// 	var $dialog = $(
+// 		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+// 		'<div class="modal-dialog modal-m">' +
+// 		'<div class="modal-content">' +
+// 			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+// 			'<div class="modal-body">' +
+// 				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+// 			'</div>' +
+// 		'</div></div></div>');
 
-	return {
-		/**
-		 * Opens our dialog
-		 * @param message Custom message
-		 * @param options Custom options:
-		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "sm", "m";
-		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
-		 */
-		show: function (message, options) {
-             var isErrorFound= false;
-             var trade_date = $("#trade_date");
-             var client_name = $("#client_name");
-             var client_name_dropdown = $("#client_name_chosen");
-             var client_number = $("#client_number");
-             var broker_name = $("select[name='broker_name']");
-             var batch = $("select[name='batch']");
-             var product_cate = $("#product_cate");
-             var product = $("#product");
-             var commission_received_date = $("#commission_received_date");
-             var commission_received = $("input[name='commission_received']");
-             var split = $("input[name='split']");
-             var hold_commission = $("input[name='hold_commission']");
+// 	return {
+// 		/**
+// 		 * Opens our dialog
+// 		 * @param message Custom message
+// 		 * @param options Custom options:
+// 		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "sm", "m";
+// 		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+// 		 */
+// 		show: function (message, options) {
+//              var isErrorFound= false;
+//              var trade_date = $("#trade_date");
+//              var client_name = $("#client_name");
+//              var client_name_dropdown = $("#client_name_chosen");
+//              var client_number = $("#client_number");
+//              var broker_name = $("select[name='broker_name']");
+//              var batch = $("select[name='batch']");
+//              var product_cate = $("#product_cate");
+//              var product = $("#product");
+//              var commission_received_date = $("#commission_received_date");
+//              var commission_received = $("input[name='commission_received']");
+//              var split = $("input[name='split']");
+//              var hold_commission = $("input[name='hold_commission']");
 
-                if($.trim(trade_date.val()) == ''){
-                     isErrorFound=true;
-                     trade_date.addClass("error");
-                }
-                else{
-                       trade_date.removeClass("error");
-                }
-                if($.trim(client_name.val()) == '' || $.trim(client_name.val()) == '0'){
-                     isErrorFound=true;
+//                 if($.trim(trade_date.val()) == ''){
+//                      isErrorFound=true;
+//                      trade_date.addClass("error");
+//                 }
+//                 else{
+//                        trade_date.removeClass("error");
+//                 }
+//                 if($.trim(client_name.val()) == '' || $.trim(client_name.val()) == '0'){
+//                      isErrorFound=true;
 
-                     client_name.next("div").find("a.chosen-single").addClass("error");
-                }
-                else{
-                       client_name.next("div").find("a.chosen-single").removeClass("error");
-                }
-                if($.trim(client_number.val()) == ''){
-                     isErrorFound=true;
-                     client_number.addClass("error");
-                }
-                else{
-                       client_number.removeClass("error");
-                }
-                if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
-                     isErrorFound=true;
-                     broker_name.next("div").find("a.chosen-single").addClass("error");
-                }
-                else{
-                       broker_name.next("div").find("a.chosen-single").removeClass("error");
-                }
-                if($.trim(batch.val()) == ''){
-                     isErrorFound=true;
-                     batch.addClass("error");
-                }
-                else{
-                       batch.removeClass("error");
-                }
+//                      client_name.next("div").find("a.chosen-single").addClass("error");
+//                 }
+//                 else{
+//                        client_name.next("div").find("a.chosen-single").removeClass("error");
+//                 }
+//                 if($.trim(client_number.val()) == ''){
+//                      isErrorFound=true;
+//                      client_number.addClass("error");
+//                 }
+//                 else{
+//                        client_number.removeClass("error");
+//                 }
+//                 if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
+//                      isErrorFound=true;
+//                      broker_name.next("div").find("a.chosen-single").addClass("error");
+//                 }
+//                 else{
+//                        broker_name.next("div").find("a.chosen-single").removeClass("error");
+//                 }
+//                 if($.trim(batch.val()) == ''){
+//                      isErrorFound=true;
+//                      batch.addClass("error");
+//                 }
+//                 else{
+//                        batch.removeClass("error");
+//                 }
 
-                if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
-                     isErrorFound=true;
-                     product_cate.addClass("error");
-                }
-                else{
-                       product_cate.removeClass("error");
-                }
+//                 if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
+//                      isErrorFound=true;
+//                      product_cate.addClass("error");
+//                 }
+//                 else{
+//                        product_cate.removeClass("error");
+//                 }
 
-                if($.trim(product.val()) == '' || $.trim(product.val()) == '0'){
-                     isErrorFound=true;
-                     product.addClass("error");
-                }
-                else{
-                       product.removeClass("error");
-                }
+//                 if($.trim(product.val()) == '' || $.trim(product.val()) == '0'){
+//                      isErrorFound=true;
+//                      product.addClass("error");
+//                 }
+//                 else{
+//                        product.removeClass("error");
+//                 }
 
-                if($.trim(commission_received_date.val()) == ''){
-                     isErrorFound=true;
-                     commission_received_date.addClass("error");
-                }
-                else{
-                       commission_received_date.removeClass("error");
-                }
+//                 if($.trim(commission_received_date.val()) == ''){
+//                      isErrorFound=true;
+//                      commission_received_date.addClass("error");
+//                 }
+//                 else{
+//                        commission_received_date.removeClass("error");
+//                 }
 
-                if($.trim(commission_received.val()) == ''){
-                     isErrorFound=true;
-                     commission_received.addClass("error");
-                }
-                else{
-                       commission_received.removeClass("error");
-                }
+//                 if($.trim(commission_received.val()) == ''){
+//                      isErrorFound=true;
+//                      commission_received.addClass("error");
+//                 }
+//                 else{
+//                        commission_received.removeClass("error");
+//                 }
 
-                if($.trim(split.val()) == ''){
-                     isErrorFound=true;
-                     split.addClass("error");
-                }
-                else{
-                       split.removeClass("error");
-                }
+//                 if($.trim(split.val()) == ''){
+//                      isErrorFound=true;
+//                      split.addClass("error");
+//                 }
+//                 else{
+//                        split.removeClass("error");
+//                 }
 
-                if($.trim(hold_commission.val()) == ''){
-                     isErrorFound=true;
-                     hold_commission.addClass("error");
-                }
-                else{
-                       hold_commission.removeClass("error");
-                }
+//                 if($.trim(hold_commission.val()) == ''){
+//                      isErrorFound=true;
+//                      hold_commission.addClass("error");
+//                 }
+//                 else{
+//                        hold_commission.removeClass("error");
+//                 }
 
-                if(isErrorFound){
-                // 5/13/22 TEST? --> console.log($("#id").offset());
-                    $("html,body").animate({scrollTop: $("#id").offset().top},200);
-                    return false;
-                }
+//                 if(isErrorFound){
+//                 // 5/13/22 TEST? --> console.log($("#id").offset());
+//                     $("html,body").animate({scrollTop: $("#id").offset().top},200);
+//                     return false;
+//                 }
 
-                 localStorage.setItem('transcation_form_data',"");
+//                  localStorage.setItem('transcation_form_data',"");
 
 
-			// Assigning defaults
-			if (typeof options === 'undefined') {
-				options = {};
-			}
-			if (typeof message === 'undefined') {
-				message = 'Saving...';
-			}
-			var settings = $.extend({
-				dialogSize: 'm',
-				progressType: '',
-				onHide: null // This callback runs after the dialog was hidden
-			}, options);
+// 			// Assigning defaults
+// 			if (typeof options === 'undefined') {
+// 				options = {};
+// 			}
+// 			if (typeof message === 'undefined') {
+// 				message = 'Saving...';
+// 			}
+// 			var settings = $.extend({
+// 				dialogSize: 'm',
+// 				progressType: '',
+// 				onHide: null // This callback runs after the dialog was hidden
+// 			}, options);
 
-			// Configuring dialog
-			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-			$dialog.find('.progress-bar').attr('class', 'progress-bar');
-			if (settings.progressType) {
-				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-			}
-			$dialog.find('h3').text(message);
-			// Adding callbacks
-			if (typeof settings.onHide === 'function') {
-				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
-					settings.onHide.call($dialog);
-				});
-			}
-			// Opening dialog
-			$dialog.modal();
-		},
-		/**
-		 * Closes dialog
-		 */
+// 			// Configuring dialog
+// 			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+// 			$dialog.find('.progress-bar').attr('class', 'progress-bar');
+// 			if (settings.progressType) {
+// 				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+// 			}
+// 			$dialog.find('h3').text(message);
+// 			// Adding callbacks
+// 			if (typeof settings.onHide === 'function') {
+// 				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+// 					settings.onHide.call($dialog);
+// 				});
+// 			}
+// 			// Opening dialog
+// 			$dialog.modal();
+// 		},
+// 		/**
+// 		 * Closes dialog
+// 		 */
 
-	};
+// 	};
 
-})(jQuery);
+// })(jQuery);
 
 
 $('#demo-dp-range .input-daterange').datepicker({
@@ -2144,3 +2137,30 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
     }
 });
 </script>
+
+<style type="text/css">
+.toolbar {
+    float: right;
+    padding-left: 5px;
+}
+.chosen-container-single .chosen-single {
+    height: 34px !important;
+}
+#new_transcation_wrap label{
+    min-height: 30px;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #337ab7 !important;
+    border-color: #2e6da4 !important;
+}
+#table-scroll {
+  height:400px;
+  overflow:auto;
+  margin-top:20px;
+}
+.multi-checkbox-row{
+   font-size: 12px;
+}
+</style>
