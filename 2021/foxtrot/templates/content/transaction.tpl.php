@@ -112,7 +112,7 @@ div#add_cheque_info label {margin-right: 0px;padding-right: 20px;}
 </style>
 
 <script type="text/javascript">
-    
+
 function autocomplete(inp, arr) {
   /*the autocomplete function takes two arguments,
   the text field element and an array of possible autocompleted values:*/
@@ -123,7 +123,7 @@ function autocomplete(inp, arr) {
       /*close any already open lists of autocompleted values*/
       closeAllLists();
       if (!val) { return false;}
-      
+
       currentFocus = -1;
       /*create a DIV element that will contain the items (values):*/
       a = document.createElement("DIV");
@@ -160,7 +160,7 @@ function autocomplete(inp, arr) {
   inp.addEventListener("keydown", function(e) {
       var x = document.getElementById(this.id + "autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
-     
+
       if (e.keyCode == 40) {
         /*If the arrow DOWN key is pressed,
         increase the currentFocus variable:*/
@@ -476,8 +476,10 @@ function autocomplete(inp, arr) {
                  <div class="col-md-4">
                     <div class="form-group">
                         <label>Branch <span class="text-red">*</span></label><br />
-                        <select class="form-control" data-required="true" name="branch" id="branch" onchange="get_branch_company(this.value)" >
-                            <option value="0">Select Branch</option>
+                        <!-- 5/14/22 Turned off "data-required" property(false). Making my life miserable. -->
+                        <!-- <select class="form-control" data-required="true" name="branch" id="branch" onchange="get_branch_company(this.value)" > -->
+                        <select class="form-control" data-required="false" name="branch" id="branch" onchange="get_branch_company(this.value)" >
+                            <!-- <option value="0">Select Branch</option> -->
                              <?php foreach($get_branch as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>" <?php if(isset($branch) && $branch==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
                             <?php } ?>
@@ -487,7 +489,9 @@ function autocomplete(inp, arr) {
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Company <span class="text-red">*</span></label><br />
-                        <select class="form-control" data-required="true" name="company"  id="company">
+                        <!-- 5/14/22 Turned off "data-required" property(false). Making my life miserable. -->
+                        <!-- <select class="form-control" data-required="true" name="company"  id="company"> -->
+                        <select class="form-control" data-required="false" name="company"  id="company">
                             <?php foreach($get_company as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>" <?php if(isset($company) && $company==$val['id']){?> selected="true"<?php } ?>><?php echo $val['company_name'];?></option>
                             <?php } ?>
@@ -1112,6 +1116,178 @@ function autocomplete(inp, arr) {
 </style>
 
 <script type="text/javascript">
+$(document).ready(function() {
+    console.log("(function($){})( jQuery ); - Line 1186"); // 5/14/22 TEST
+    $.fn.chargeFormat = function() {
+        this.each( function( i ) {
+            $(this).change( function( e ){
+                if( isNaN( parseFloat( this.value ) ) ) return;
+                this.value = parseFloat(this.value).toFixed(2);
+            });
+        });
+        return this; //for chaining
+    }
+
+    console.log("document.ready() - Line 1204"); // 5/14/22 TEST
+    $.fn.dataTable.moment('MM/DD/YYYY');
+    $('#data-table').DataTable({
+        "pageLength": 25,
+        "bLengthChange": false,
+        "bFilter": true,
+            order: [[ 1, 'desc' ]],
+        /*"order": [[ 1, "desc" ]],*/
+        "bInfo": false,
+        "bAutoWidth": false,
+        "dom": '<"toolbar">frtip',
+            "columnDefs": [ { type: 'date', 'targets': [1] } ],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 8,9 ] },
+                        { "bSearchable": false, "aTargets": [ 8,9 ] }]
+    });
+
+    $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
+        '<div class="panel-control" style="padding-left:5px;display:inline;">'+
+                '<div class="btn-group dropdown" style="float: right;">'+
+                    '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
+                    '<ul class="dropdown-menu dropdown-menu-right" style="">'+
+                        /*'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add"><i class="fa fa-plus"></i> Add New</a></li>'+*/
+                        '<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_report"><i class="fa fa-minus"></i> Report</a></li>'+
+                    '</ul>'+
+                '</div>'+
+            '</div>');
+
+
+    console.log("document.ready() - Line 1262"); // 5/14/22 TEST
+    var client_ac_number =<?php echo json_encode($client_account_array); ?>;
+
+    if(localStorage.getItem('transcation_form_data')){
+        for(var key in transcation_form_data){
+            if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
+                $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+            }
+        }
+    }
+
+    $(".livesearch").chosen();
+    $("#search_client_number").autocomplete({
+        source: "ajax_get_client_account.php?_type=query",
+        minLength: 2,
+        maxShowItems: 3,
+
+        select: function( event, ui ) {
+            $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
+            $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+            //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+        }
+    })
+    // 5/14/22 Commented out, CAUSING ERROR:
+    // .autocomplete("instance")._renderItem = function (ul, item) {
+    //     return $("<li>")
+    //     .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
+    // .appendTo(ul);
+    // };;
+
+    $('#ch_no').mask("999999");
+
+    console.log("document.ready() - Line 1651"); // 5/14/22 TEST
+    $('[data-required="true"]').each(function(){
+        $(this).on("change blur",function(){
+            if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
+                if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
+                    isErrorFound=true;
+
+                    if($(this).next("div").find("a.chosen-single").length){
+                        $(this).next("div").find("a.chosen-single").addClass("error");
+                    }
+                    else
+                        $(this).addClass("error");
+                }
+                else
+                {
+                    if($(this).next("div").find("a.chosen-single").length){
+                        $(this).next("div").find("a.chosen-single").removeClass("error");
+                    }
+                    else
+                        $(this).removeClass("error");
+                }
+            }
+
+            if($(this).prop("type") =="radio"){
+            }
+        });
+    });
+        console.log("jQuery(function($) - Line 1665, this.name = " + $(this).attr("name")); // 5/14/22 TEST
+
+    $('[data-required="true"]').each(function(){
+        $(this).on("change blur",function(){
+            if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
+                if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
+                    isErrorFound=true;
+
+                    if($(this).next("div").find("a.chosen-single").length){
+                        $(this).next("div").find("a.chosen-single").addClass("error");
+                    }
+                    else
+                        $(this).addClass("error");
+                }
+                else
+                {
+                    if($(this).next("div").find("a.chosen-single").length){
+                        $(this).next("div").find("a.chosen-single").removeClass("error");
+                    }
+                    else
+                        $(this).removeClass("error");
+                }
+            }
+
+            if($(this).prop("type") =="radio"){
+            }
+        });
+
+    });
+
+    console.log("document.ready() - Line 1958"); // 5/14/22 TEST
+    // Default dropdowns after the load()
+    <?php if($product_cate>0){ ?>
+        $("#product_cate").val(<?php echo $product_cate; ?>);
+        get_product(<?php echo $product_cate; ?>,'<?php echo $product; ?>');
+    <?php } ?>
+
+    <?php if($client_name>0){ ?>
+        $('#client_name').val(<?php echo $client_name; ?>).trigger("chosen:updated").trigger("change");
+        get_client_account_no('<?php echo $client_name; ?>','<?php echo $client_number; ?>');
+    <?php } ?>
+
+    <?php if(isset($_GET['batch_id']) && ($_GET['batch_id'] != '' || $batch>0)){ ?>
+        $('[name="batch"]').val(<?php echo $batch; ?>);
+        get_commission_date(<?php echo $batch; ?>);
+    <?php } ?>
+
+    // 5/13/22 Put Broker -> Company -> Branch last, because the Client change() will revert these back to what's in CLIENT_MASTER
+    // AND NOT, what's stored in TRANSACTION_MASTER
+    <?php if($broker_name>0){ ?>
+        console.log("$broker_name>0, $broker_name = " + <?php echo $broker_name?>); // 5/13/22 TEST DELETE ME
+
+        $("#broker_name").val("");
+        $("#broker_name").val(<?php echo $broker_name; ?>).trigger("chosen:updated").trigger("change");
+        // get_broker_hold_commission(<?php echo $broker_name; ?>);
+    <?php } ?>
+
+    // Call this BEFORE #company, because this will change the #company to the "company" field in BRANCH_MASTER table
+    <?php if($branch>0){ ?>
+        console.log("$branch>0, $branch = " + <?php echo $branch?>); // 5/13/22 TEST DELETE ME
+
+        $("#branch").val("");
+        $("#branch").val(<?php echo $branch; ?>).trigger("chosen:updated").trigger("change");
+    <?php } ?>
+
+    <?php if($company>0){ ?>
+        console.log("$company>0, $company = " + <?php echo $company?>); // 5/13/22 TEST DELETE ME
+
+        $("#company").val("");
+        $("#company").val(<?php echo $company; ?>).trigger("chosen:updated").trigger("change");
+    <?php } ?>
+})
+
 function hide_hold_reason()
 {
     $("#hold_resoan").val("");
@@ -1182,49 +1358,25 @@ function handleChange(input) {
     if (input.value < 0) input.value = 0.00;
     if (input.value > 100) input.value = 100.00;
 }
-(function($) {
-    $.fn.chargeFormat = function() {
-        this.each( function( i ) {
-            $(this).change( function( e ){
-                if( isNaN( parseFloat( this.value ) ) ) return;
-                this.value = parseFloat(this.value).toFixed(2);
-            });
-        });
-        return this; //for chaining
-    }
-})( jQuery );
+// (function($) {
+//     console.log("(function($){})( jQuery ); - Line 1186"); // 5/14/22 TEST
+
+//     $.fn.chargeFormat = function() {
+//         this.each( function( i ) {
+//             $(this).change( function( e ){
+//                 if( isNaN( parseFloat( this.value ) ) ) return;
+//                 this.value = parseFloat(this.value).toFixed(2);
+//             });
+//         });
+//         return this; //for chaining
+//     }
+// })( jQuery );
 
 $( function() {
     $('.decimal').chargeFormat();
 });
 
-$(document).ready(function() {
-    $.fn.dataTable.moment('MM/DD/YYYY');
-    $('#data-table').DataTable({
-    "pageLength": 25,
-    "bLengthChange": false,
-    "bFilter": true,
-        order: [[ 1, 'desc' ]],
-    /*"order": [[ 1, "desc" ]],*/
-    "bInfo": false,
-    "bAutoWidth": false,
-    "dom": '<"toolbar">frtip',
-        "columnDefs": [ { type: 'date', 'targets': [1] } ],
-    "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 8,9 ] },
-                    { "bSearchable": false, "aTargets": [ 8,9 ] }]
-    });
 
-    $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
-        '<div class="panel-control" style="padding-left:5px;display:inline;">'+
-                '<div class="btn-group dropdown" style="float: right;">'+
-                    '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
-                    '<ul class="dropdown-menu dropdown-menu-right" style="">'+
-                        /*'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add"><i class="fa fa-plus"></i> Add New</a></li>'+*/
-                        '<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_report"><i class="fa fa-minus"></i> Report</a></li>'+
-                    '</ul>'+
-                '</div>'+
-            '</div>');
-});
 </script>
 
 <style type="text/css">
@@ -1259,39 +1411,40 @@ $(document).ready(function() {
         }
     }
 
-    $(document).ready(function(){
-        var client_ac_number =<?php echo json_encode($client_account_array); ?>;
+    // $(document).ready(function (){
+    //     console.log("document.ready() - Line 1267"); // 5/14/22 TEST
 
-        if(localStorage.getItem('transcation_form_data')){
-            for(var key in transcation_form_data){
-                if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
-                    $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
-                }
-            }
-        }
+    //     var client_ac_number =<?php //echo json_encode($client_account_array); ?>;
 
-        $(".livesearch").chosen();
-        $("#search_client_number").autocomplete({
-            source: "ajax_get_client_account.php?_type=query",
-            minLength: 2,
-            maxShowItems: 3,
+    //     if(localStorage.getItem('transcation_form_data')){
+    //         for(var key in transcation_form_data){
+    //             if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
+    //                 $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+    //             }
+    //         }
+    //     }
 
-            select: function( event, ui ) {
-                $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
-                $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-                //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-            }
-        }).autocomplete("instance")._renderItem = function (ul, item) {
-            return $("<li>")
-            .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
-        .appendTo(ul);
-        };;
+    //     $(".livesearch").chosen();
+    //     $("#search_client_number").autocomplete({
+    //         source: "ajax_get_client_account.php?_type=query",
+    //         minLength: 2,
+    //         maxShowItems: 3,
 
-        $('#ch_no').mask("999999");
-    });
+    //         select: function( event, ui ) {
+    //             $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
+    //             $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+    //             //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+    //         }
+    //     })
+    //     // 5/14/22 Commented out, CAUSING ERROR:
+    //     // .autocomplete("instance")._renderItem = function (ul, item) {
+    //     //     return $("<li>")
+    //     //     .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
+    //     // .appendTo(ul);
+    //     // };;
 
-</script>
-<script type="text/javascript">
+    //     $('#ch_no').mask("999999");
+    // });
 
     jQuery(function($){
       $("#add_new_prod").click(function(ev){
@@ -1300,8 +1453,11 @@ $(document).ready(function() {
                    alert("Please select Product Category First");
                    return false;
             }
+        console.log("jQuery(function($) - Line 1304"); // 5/14/22 TEST
       });
+    })
 
+    // 5/14/22 Not sure what this code is for. Should it be in the read()?
     // $(".two-decimals").inputmask('currency', {
     //     prefix: '',
     //     rightAlign: false
@@ -1341,7 +1497,7 @@ $(document).ready(function() {
         }
         return $txtBox; //for chaining*/
     });
-})
+// })
 
 function add_new_client_no(element){
     //5/13/22 TEST? console.log(element,element.value,"dsfdsf")
@@ -1578,7 +1734,10 @@ function get_broker_hold_commission(broker_id){
 
                 if (jsonResponse.branch > 0){
                     $("#branch").val("");
-                    $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("onchange");
+                    $("#branch option[value='"+jsonResponse.branch+"']").prop("selected",true).trigger("change");
+
+                    console.log("get_broker_hold_commission(" + broker_id + "):get_branch_company(" + jsonResponse.branch + ")"); // 5/14/22 TEST
+
                     get_branch_company(jsonResponse.branch);
                 }
             } else {
@@ -1594,20 +1753,47 @@ function get_broker_hold_commission(broker_id){
 }
 
 function get_branch_company(branch_id){
+    var currentdate = new Date();
+    var datetime = Date.now(); 
+    // var datetime = currentdate.getDate() + "/"
+    //                 + (currentdate.getMonth()+1)  + "/" 
+    //                 + currentdate.getFullYear() + " @ "  
+    //                 + currentdate.getHours() + ":"  
+    //                 + currentdate.getMinutes() + ":" 
+    //                 + currentdate.getSeconds();
+    console.log("(" + datetime + ")" + "BEGIN: get-branch-company("+branch_id+") branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
+
+    var jsonResponse = '';
+    var company_id = company_name = 0
     var xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function(){
         if (this.readyState == 4 && this.status == 200){
-            var jsonResponse = JSON.parse(this.responseText);
+            jsonResponse = JSON.parse(this.responseText);
+        console.log("(" + datetime + ")get-branch-company("+branch_id+") this.readyState==4: jsonResponse= " + jsonResponse)
 
             if (jsonResponse.id > 0){
                 $("#company").val("");
-                $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("change");
+                $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("chosen:updated").trigger("change");
+
+                console.log("(" + datetime + ")" + "get-branch-company("+branch_id+") jsonResponse.id = " + jsonResponse.id + ", branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
+
             }
         }
     };
     xmlhttp.open("GET", "ajax_transaction_tpl.php?action=branch_company&branch="+branch_id, true);
     xmlhttp.send();
+
+    console.log("(" + datetime + ")" + "END: get-branch-company("+branch_id+") branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
+
+    // 5/14/22 TEST: See if taking the code outside the AJAX retrieve changes anything
+    // if (jsonResponse.id){
+    //     console.log("get-branch-company("+branch_id+") jsonResponse.id = " + jsonResponse.id + ", branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
+
+    //     $("#company").val("");
+    //     $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("change");
+    // }
+    // console.log("get-branch-company("+branch_id+") branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
 }
 
 function load_split_commission_content(broker_id){
@@ -1649,35 +1835,37 @@ function close_other() {
     //$('.split_edit_row').css('display','none');
 }
 
-jQuery(function($){
-    $('[data-required="true"]').each(function(){
-        $(this).on("change blur",function(){
-            if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
-                if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
-                    isErrorFound=true;
+// jQuery(function($){
+//     console.log("jQuery(function($) - Line 1665, this.name = " + $(this).attr("name")); // 5/14/22 TEST
 
-                    if($(this).next("div").find("a.chosen-single").length){
-                        $(this).next("div").find("a.chosen-single").addClass("error");
-                    }
-                    else
-                        $(this).addClass("error");
-                }
-                else
-                {
-                    if($(this).next("div").find("a.chosen-single").length){
-                        $(this).next("div").find("a.chosen-single").removeClass("error");
-                    }
-                    else
-                        $(this).removeClass("error");
-                }
-            }
+//     $('[data-required="true"]').each(function(){
+//         $(this).on("change blur",function(){
+//             if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
+//                 if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0'){
+//                     isErrorFound=true;
 
-            if($(this).prop("type") =="radio"){
-            }
-        });
+//                     if($(this).next("div").find("a.chosen-single").length){
+//                         $(this).next("div").find("a.chosen-single").addClass("error");
+//                     }
+//                     else
+//                         $(this).addClass("error");
+//                 }
+//                 else
+//                 {
+//                     if($(this).next("div").find("a.chosen-single").length){
+//                         $(this).next("div").find("a.chosen-single").removeClass("error");
+//                     }
+//                     else
+//                         $(this).removeClass("error");
+//                 }
+//             }
 
-    });
-})
+//             if($(this).prop("type") =="radio"){
+//             }
+//         });
+
+//     });
+// })
 
 var waitingDialog = waitingDialog || (function ($) {
     'use strict';
@@ -1956,90 +2144,3 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
     }
 });
 </script>
-<?php
-    // Default dropdowns after the load()
-    if($product_cate>0){
-        ?>
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $("#product_cate").val(<?php echo $product_cate; ?>);
-                // 5/13/22 TEST? --> console.log("testtetests");
-                get_product(<?php echo $product_cate; ?>,'<?php echo $product; ?>');
-            });
-        </script>
-        <?php
-    }
-
-    if($client_name>0){
-        ?>
-        <script type="text/javascript">
-            $(document).ready(function(){
-                   $('#client_name').val(<?php echo $client_name; ?>).trigger("chosen:updated").trigger("change");
-                    get_client_account_no('<?php echo $client_name; ?>','<?php echo $client_number; ?>');
-            });
-        </script>
-        <?php
-    }
-
-    if(isset($_GET['batch_id']) && ($_GET['batch_id'] != '' || $batch>0)){
-        ?>
-        <script type="text/javascript">
-            $(document).ready(function(){
-                 $('[name="batch"]').val(<?php echo $batch; ?>);
-                get_commission_date(<?php echo $batch; ?>);
-            });
-        </script>
-        <?php
-    }
-
-    // 5/13/22 Put Broker -> Company -> Branch last, because the Client change() will revert these back to what's in CLIENT_MASTER
-    // AND NOT, what's stored in TRANSACTION_MASTER
-    if($broker_name>0){
-        ?>
-        <script type="text/javascript">
-                console.log("$broker_name>0, $broker_name = " + <?php echo $broker_name?>); // 5/13/22 TEST DELETE ME
-
-                $(document).ready(function(){
-                $("#broker_name").val("");
-                $("#broker_name").val(<?php echo $broker_name; ?>).trigger("chosen:updated").trigger("change");
-                // get_broker_hold_commission(<?php echo $broker_name; ?>);
-            });
-        </script>
-        <?php
-    }
-    // Call this BEFORE #company, because this will change the #company to the "company" field in BRANCH_MASTER table
-    if($branch>0){
-        ?>
-        <script type="text/javascript">
-            console.log("$branch>0, $branch = " + <?php echo $branch?>); // 5/13/22 TEST DELETE ME
-
-            $(document).ready(function(){
-                $("#branch").val("");
-                $("#branch").val(<?php echo $branch; ?>).trigger("change");
-            });
-        </script>
-        <?php
-    }
-    if($company>0){
-        ?>
-        <script type="text/javascript">
-            console.log("$company>0, $company = " + <?php echo $company?>); // 5/13/22 TEST DELETE ME
-
-            $(document).ready(function(){
-                $("#company").val("");
-                $("#company").val(<?php echo $company; ?>).trigger("change");
-            });
-        </script>
-        <?php
-    }
-
-    /*if($product_cate>0 && $product != ''){
-        ?>
-        <script type="text/javascript">
-            $(document).ready(function(){
-                get_product(<?php echo $product_cate; ?>,'<?php echo $product; ?>');
-            });
-        </script>
-        <?php
-    }*/
-?>
