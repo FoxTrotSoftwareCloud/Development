@@ -171,11 +171,22 @@ $.fn.decimalFormat = function() {
     });
     return this; //for chaining
 }
+let dataTable = $('#data-table')
+    .DataTable({
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "dom": '<"toolbar">frtip',
+        pageLength: 25,
+        paging: true,
+        stateSave: false
+    })
 })( jQuery );
 
 
 $( function() {
-$('.decimal').decimalFormat();
+    $('.decimal').decimalFormat();
 });
 function handleChange(input) {
     if (input.value < 0) input.value = 0;
