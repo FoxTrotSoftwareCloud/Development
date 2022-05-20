@@ -1,6 +1,6 @@
 <div class="container">
     <h1>Rules Engine</h1>
-    
+
     <div class="col-lg-12 well">
         <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
         <form method="post">
@@ -16,8 +16,8 @@
                         </tr>
     	            </thead>
     	            <tbody>
-                    <?php 
-                    if(isset($return) && !empty($return)){                   
+                    <?php
+                    if(isset($return) && !empty($return)){
                         $count = 0;
                         foreach($return as $get_key=>$get_val){
                             foreach($get_rules as $key=>$val){
@@ -138,9 +138,9 @@
                                         </select>
                                     </div>-->
                                 </td>
-                                
+
                             </tr>
-                    
+
                             <?php } }?>
                     </tbody>
                 </table>
@@ -150,13 +150,13 @@
                     <div class="form-group "><br />-->
                     <div class="selectwrap">
                         <a href="<?php echo SITE_URL.'branch_maintenance.php';?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
-                        <input type="submit" name="rule" onclick="waitingDialog.show();" value="Save" style="float: right;" />	
+                        <input type="submit" name="rule" onclick="waitingDialog.show();" value="Save" style="float: right;" />
                     </div>
                    <!-- </div>
                  </div>-->
             </div>
         </form>
-    
+
     </div>
 </div>
 
@@ -203,7 +203,7 @@ function open_other(tag)
         $('#other_div_3'+tag).css('display','block');
     }
     else
-    { 
+    {
         $('#other_div'+tag).css('display','block');
         $('#other_div_1'+tag).css('display','none');
         $('#other_div_2'+tag).css('display','block');
