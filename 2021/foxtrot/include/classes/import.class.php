@@ -1770,6 +1770,7 @@
             $instance_manage_sponsor = new manage_sponsor();
             $instance_client_maintenance = new client_maintenance();
             $instance_product_maintenance = new product_maintenance();
+            $instance_rules = new rules();
 
             if($file_id > 0){
                 $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `process_completed`='1' AND `id`=$file_id";
@@ -2460,8 +2461,8 @@
                         $this->re_db_perform($commDetailTable, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']." AND `is_delete`=0");
 
                         $result = $transaction_master_id = 0;
-                        $batch_id = $broker_id = $client_id = $branch_id = $company_id = 0;
-                        $product_category_id = $product_id = $sponsor_id = 0;
+                        $batch_id = $broker_id = $client_id = 0;
+                        $product_category_id = $product_id = $sponsor_id = $error_code_id = $last_inserted_exception = 0;
                         $updateResult = [];
                         $for_import = '';
                         // 04/05/22 Generic Type - sponsor dropdown added on File Fetch, so the $sponsor_id should be in the IMPORT CURRENT FILE table record
@@ -2535,6 +2536,7 @@
                                                 .",`file_type` = $commissionFileType"
                                                 .$insert_exception_string;
                                     $res = $this->re_db_query($q);
+                                    $last_inserted_exception = $this->re_db_insert_id();
                                     $result++;
                                 } else {
                                     $broker_id = (!empty($broker) ? $broker['id'] : $brokerAlias['broker_id']);
@@ -2569,6 +2571,7 @@
                                                         .",`file_type`=$commissionFileType"
                                                         .$insert_exception_string;
                                             $res = $this->re_db_query($q);
+                                            $last_inserted_exception = $this->re_db_insert_id();
 
                                             $result++;
                                         }
@@ -2582,6 +2585,8 @@
                                             .",`file_type`=$commissionFileType"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
+                                $last_inserted_exception = $this->re_db_insert_id();
+
                                 $result++;
                             }
                         }
@@ -2596,6 +2601,8 @@
                                         .",`file_type`=$commissionFileType"
                                         .$insert_exception_string;
                             $res = $this->re_db_query($q);
+                            $last_inserted_exception = $this->re_db_insert_id();
+
                             $result++;
                             $productFound = -1;
                         } else {
@@ -2654,6 +2661,8 @@
                                                 .",`file_type`=$commissionFileType"
                                                 .$insert_exception_string;
                                         $res = $this->re_db_query($q);
+                                        $last_inserted_exception = $this->re_db_insert_id();
+
                                         $result++;
                                     }
                                 }
@@ -2678,6 +2687,8 @@
                                             .",`file_type`=$commissionFileType"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
+                                $last_inserted_exception = $this->re_db_insert_id();
+
                                 $result++;
                             }
                         }
@@ -2691,6 +2702,8 @@
                                         .",`file_type`=$commissionFileType"
                                         .$insert_exception_string;
                             $res = $this->re_db_query($q);
+                            $last_inserted_exception = $this->re_db_insert_id();
+
                             $result++;
                         } else {
                             if ($reassignClient){
@@ -2735,6 +2748,8 @@
                                                 .",`file_type`=$commissionFileType"
                                                 .$insert_exception_string;
                                         $res = $this->re_db_query($q);
+                                        $last_inserted_exception = $this->re_db_insert_id();
+
                                         $result++;
                                     } else {
                                         // $sponsor_id should be part of the file information, and never be empty - 4/5/22
@@ -2772,6 +2787,8 @@
                                                     .",`file_type`=$commissionFileType"
                                                     .$insert_exception_string;
                                             $res = $this->re_db_query($q);
+                                            $last_inserted_exception = $this->re_db_insert_id();
+
                                             $result++;
                                         }
                                     }
@@ -2824,6 +2841,8 @@
                                         .",`file_type`=$commissionFileType"
                                         .$insert_exception_string;
                                 $res = $this->re_db_query($q);
+                                $last_inserted_exception = $this->re_db_insert_id();
+
                                 $client_id = 0;
                                 $result++;
                             }
@@ -2858,6 +2877,8 @@
                                                     .",`file_type`=$commissionFileType"
                                                 .$insert_exception_string;
                                         $res = $this->re_db_query($q);
+                                        $last_inserted_exception = $this->re_db_insert_id();
+
                                         $result++;
                                     }
                                 }
@@ -2878,19 +2899,55 @@
 
                                             $q ="UPDATE `".$commDetailTable."`"
                                                 ." SET `on_hold`=1"
+                                                    .$this->update_common_sql()
                                                 ." WHERE `is_delete`=0 AND `id`=".$check_data_val['id']
                                             ;
                                             $res = $this->re_db_query($q);
                                         }
                                     } else {
+                                        // Rule Engine - 5/21/22
+                                        $error_code_id = 6;
+                                        $ruleAction = $instance_rules->get_action(null, $error_code_id);
+                                        $ruleExceptionUpdate = '';
+                                        switch ((int)$ruleAction[0]['import_id']){
+                                            case 1:
+                                                // Hold Commission
+                                                $check_data_val['on_hold'] = 1;
+                                                array_push($resolveHoldCommission, $error_code_id);
+
+                                                // Update the table import tables
+                                                $q ="UPDATE `".$commDetailTable."`"
+                                                    ." SET `on_hold`=1"
+                                                        .$this->update_common_sql()
+                                                    ." WHERE `is_delete`=0 AND `id`=".$check_data_val['id']
+                                                ;
+                                                $res = $this->re_db_query($q);
+
+                                                $ruleExceptionUpdate =
+                                                    ",`rule_action`=".($ruleAction[0]['id'])
+                                                    .",`rule_parameter1`=".($ruleAction[0]['rule_parameter1'])
+                                                    .",`rule_parameter2`=".($ruleAction[0]['rule_parameter2']);
+                                                break;
+                                        }
+
+                                        //-- Broker not licensed appropriately --//
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                ." SET  `error_code_id`='6'"
+                                                ." SET  `error_code_id`=$error_code_id"
                                                     .",`field`='active_check'"
                                                     .",`field_value`='".$product_category_id." / ".$clientAccount['state']."'"
                                                     .",`file_type`=$commissionFileType"
-                                                    .$insert_exception_string;
+                                                    .$ruleExceptionUpdate
+                                                    .$insert_exception_string
+                                                    .$this->insert_common_sql()
+                                        ;
                                         $res = $this->re_db_query($q);
-                                        $result++;
+                                        $last_inserted_exception = $this->re_db_insert_id();
+
+                                        if (!in_array((int)$ruleAction[0]['import_action_id'], [1])) {
+                                            $result++;
+                                        } else {
+                                            $res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$check_data_val['id']}", 'resolve_exceptions', $last_inserted_exception);
+                                        }
                                     }
                                 }
                             }
@@ -2962,6 +3019,8 @@
                                             .$this->insert_common_sql()
                                 ;
                                 $res = $this->re_db_query($q);
+                                $last_inserted_exception = $this->re_db_insert_id();
+
                                 $result = 0;
 
                                 $check_broker_commission = $instance_broker_master->check_broker_commission_status($broker_id);
