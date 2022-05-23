@@ -2907,46 +2907,43 @@
                                     } else {
                                         // Rule Engine - 5/21/22
                                         $error_code_id = 6;
-                                        $ruleAction = $instance_rules->get_action(null, $error_code_id);
-                                        $ruleExceptionUpdate = '';
-                                        switch ((int)$ruleAction[0]['import_id']){
-                                            case 1:
-                                                // Hold Commission
-                                                $check_data_val['on_hold'] = 1;
-                                                array_push($resolveHoldCommission, $error_code_id);
+                                        $tempArray = import_rule($error_code_id, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                        $check_data_val = $tempArray;
 
-                                                // Update the table import tables
-                                                $q ="UPDATE `".$commDetailTable."`"
-                                                    ." SET `on_hold`=1"
-                                                        .$this->update_common_sql()
-                                                    ." WHERE `is_delete`=0 AND `id`=".$check_data_val['id']
-                                                ;
-                                                $res = $this->re_db_query($q);
-
-                                                $ruleExceptionUpdate =
-                                                    ",`rule_action`=".($ruleAction[0]['id'])
-                                                    .",`rule_parameter1`=".($ruleAction[0]['rule_parameter1'])
-                                                    .",`rule_parameter2`=".($ruleAction[0]['rule_parameter2']);
-                                                break;
-                                        }
-
+                                        // Stopped here 5/22/22 9:51 PM
+                                        Have to assign values to:
+                                        // 1. Hold Commission
+                                        $resolveHoldCommission
+                                        $ruleProceed
+                                        
+                                        // 3. Reassign Broker
+                                        $broker
+                                        $brokerAlias
+                                        $broker_id
+                                        $reassignBroker
+                                        // 4. Delete/Skip
+                                        $result
+                                        $ruleProceed
+                                        // All
+                                        $result
+                                        // Stopped here 5/22/22 9:51 PM
+                                        
                                         //-- Broker not licensed appropriately --//
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                 ." SET  `error_code_id`=$error_code_id"
                                                     .",`field`='active_check'"
                                                     .",`field_value`='".$product_category_id." / ".$clientAccount['state']."'"
                                                     .",`file_type`=$commissionFileType"
-                                                    .$ruleExceptionUpdate
+                                                    .$check_data_val['ruleExceptionUpdate']
                                                     .$insert_exception_string
-                                                    .$this->insert_common_sql()
                                         ;
                                         $res = $this->re_db_query($q);
                                         $last_inserted_exception = $this->re_db_insert_id();
 
-                                        if (!in_array((int)$ruleAction[0]['import_action_id'], [1])) {
-                                            $result++;
-                                        } else {
+                                        if (!empty($check_data_val['ruleProceed'])) {
                                             $res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$check_data_val['id']}", 'resolve_exceptions', $last_inserted_exception);
+                                        } else {
+                                            $result++;
                                         }
                                     }
                                 }

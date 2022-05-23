@@ -34,7 +34,7 @@
                     WHERE `ce`.`is_delete`='0' AND `ce`.`client_id`=$clientId
                     ORDER BY `ce`.`id` ASC";
 			$res = $this->re_db_query($q);
-      		
+
 			if($this->re_db_num_rows($res)>0)
       		{
         		$row = $this->re_db_fetch_array($res);
@@ -55,7 +55,7 @@
                     WHERE `cs`.`is_delete`='0' AND `cs`.`client_id`=$clientId
                     ORDER BY `cs`.`id` ASC";
 			$res = $this->re_db_query($q);
-      		
+
 			if($this->re_db_num_rows($res)>0)
       		{
         		$row = $this->re_db_fetch_array($res);
@@ -118,7 +118,7 @@
 				$_SESSION[$for_import]['insert_update_master'] = 0;
 			}
 			$file_id = isset($data['file_id']) ? (int)$this->re_db_input($data['file_id']) : 0;
-			
+
 			if($lname==''){
 				$this->errors = 'Please enter last name.';
 			} else if($broker_name==''){
@@ -195,7 +195,7 @@
 										.",`file_id`=$file_id"
 										.$this->insert_common_sql()
 						;
-						
+
 						$res = $this->re_db_query($q);
 						$client_id= $this->re_db_insert_id();
 						$_SESSION['client_id'] = $client_id;
@@ -243,7 +243,7 @@
 					return false;
 				}
 			}
-			
+
 		}
 
 		public function updateClientObjectives($client_id,$postObjectives){
@@ -366,16 +366,16 @@
 							// $importClass->reprocess_current_files($file_id);
 							$importClass = new import();
 							$otherFieldUpdates = [];
-							$file_type = (isset($_SESSION['client_maintenance_for_import']['file_type']) ? (int)$_SESSION['client_maintenance_for_import']['file_type'] : 0); 
-							
+							$file_type = (isset($_SESSION['client_maintenance_for_import']['file_type']) ? (int)$_SESSION['client_maintenance_for_import']['file_type'] : 0);
+
 							if ($file_type == 1){
 								$otherFieldUpdates = ['account_no_id'=>$id];
 							}
-							
+
 							$importClass->resolve_exception_5AddNew('client_id', $_SESSION['client_id'], $_GET['exception_record_id'], $otherFieldUpdates);
 						} else if ($for_import === 'reprocess_add_client_on_the_fly') {
 							$_SESSION[$for_import]['insert_update_account'] = $id;
-						}							
+						}
 
 						$_SESSION['success'] = INSERT_MESSAGE;
     					return true;
@@ -389,10 +389,12 @@
 			else if($id>0){
 			    $account_data = $this->get_account_no($id);
 			    $sponsor_data = $this->get_sponsor_data($id);
-                $q = "UPDATE `".CLIENT_ACCOUNT."` SET `is_delete`='1' WHERE `client_id`='".$id."'";
+
+				$q = "UPDATE `".CLIENT_ACCOUNT."` SET `is_delete`=1 ".$this->update_common_sql()." WHERE `client_id`='".$id."' AND `is_delete`=0";
 				$res = $this->re_db_query($q);
-                if($account_no[0] != '')
-                {
+
+				// 5/22/22 Removed this check because the screen defaults a blank Account at the tab of the Client's Account # list->$account_no[0]
+                // if($account_no[0] != '') {
                     foreach($account_no as $key_acc=>$val_acc)
                     {
                         if($val_acc != '' && $sponsor[$key_acc]>0)
@@ -424,7 +426,7 @@
     					$_SESSION['warning'] = UNKWON_ERROR;
     					return false;
     				}
-                }
+                // } // if($account_no[0] != '')
 			}
         }
         public function insert_update_suitability($data){
@@ -1161,14 +1163,14 @@
 		public function edit($id){
 			$return = array();
 			$id = (int)$this->re_db_input($id);
-			
+
 			$q = "SELECT `at`.*"
 					." FROM `".$this->table."` AS `at`"
                     ." WHERE `at`.`is_delete` = 0"
 					." AND `at`.`id` = $id"
 			;
 			$res = $this->re_db_query($q);
-            
+
 			if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
             }
