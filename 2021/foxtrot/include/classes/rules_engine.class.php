@@ -183,8 +183,8 @@
 			// Initialize the Return array
 			$tradeDetailArray = $tradeDetailParameter;
 			$tradeDetailArray['ruleExceptionUpdate'] = '';
-			$tradeDetailArray['broker'] = [];
-			$tradeDetailArray['result'] = $tradeDetailArray['ruleProceed'] = 0;
+			// $tradeDetailArray['broker'] = [];
+			// $tradeDetailArray['result'] = $tradeDetailArray['ruleProceed'] = 0;
 
 			$ruleAction = $this->get_action(null, $error_code_id, 1);
 			$tradeDetailArray['import_action_id'] = (int)$ruleAction[0]['import_action_id'];
@@ -252,11 +252,11 @@
 					$res = $this->re_db_query($q);
 
 					$tradeDetailArray['ruleExceptionUpdate'] =
-							",`rule_action`=".($ruleAction[0]['action_id'])
+						 ",`rule_action`=".($ruleAction[0]['action_id'])
 						.",`is_delete`=1";
 
 					// Increment result so the trade won't be entered, but "serial field" has to be triggered
-					$tradeDetailArray['result'] = 1;
+					$tradeDetailArray['resultIncrement'] = 1;
 					$tradeDetailArray['ruleProceed'] = 1;
 					break;
 			}
