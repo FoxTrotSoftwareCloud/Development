@@ -188,77 +188,91 @@
 
 			$ruleAction = $this->get_action(null, $error_code_id, 1);
 			$tradeDetailArray['import_action_id'] = (int)$ruleAction[0]['import_action_id'];
+			$tradeDetailArray['rule_action_id'] = (int)$ruleAction[0]['action_id'];
 
-			switch ((int)$ruleAction[0]['import_action_id']){
-				case 1:
-					// Hold Commission
-					$tradeDetailArray['on_hold'] = 1;
-					array_push($resolveHoldCommission, $error_code_id);
-					$tradeDetailArray['resolveHoldCommission'] = $resolveHoldCommission;
-
-					// Update the table import tables
-					$q ="UPDATE `".$commDetailTable."`"
-						." SET `on_hold`=1"
-							.$instance_import->update_common_sql()
-						." WHERE `is_delete`=0"
-						." AND `id`=".$tradeDetailArray['id']
-					;
-					$res = $this->re_db_query($q);
-
+			if ($ruleAction[0]['in_force']) {
+				// DO nothing, populate variables to let the trade through
+				if ($tradeDetailArray['rule_action_id']==1){
 					$tradeDetailArray['ruleExceptionUpdate'] =
-						", `rule_action`=".($ruleAction[0]['action_id'])
-						.", `is_delete`=1";
-
-					$tradeDetailArray['ruleProceed'] = 1;
-					break;
-				case 3:
-					// Reassign to another broker
-					if ((int)$ruleAction[0]['parameter1']){
-						$ruleBroker = $instance_broker_master->select_broker_by_id($ruleAction[0]['parameter1']);
-
-						if (!empty($ruleBroker)){
-							$tradeDetailArray['broker'] = $ruleBroker;
-							$tradeDetailArray['brokerAlias'] = [];
-							$tradeDetailArray['broker_id'] = $ruleBroker['id'];
-							$tradeDetailArray['reassignBroker'] = $error_code_id;
-
-							// Update the table import tables
-							$q ="UPDATE `".$commDetailTable."`"
-								." SET `broker_id`=".(int)$this->re_db_input($ruleAction[0]['parameter1'])
-										.$this->update_common_sql()
-								." WHERE `is_delete`=0"
-								." AND `id`=".$tradeDetailArray['id']
-							;
-							$res = $this->re_db_query($q);
-
-							$tradeDetailArray['ruleExceptionUpdate'] =
-									", `rule_action`=".($ruleAction[0]['action_id'])
-								.", `rule_parameter1`='".($ruleAction[0]['parameter1'])."'"
-								.", `is_delete`=1";
-
-							$tradeDetailArray['ruleProceed'] = 1;
-						}
-					}
-					break;
-				case 4:
-					// Delete/Remove Trade
-					// Update the table import tables
-					$q ="UPDATE `".$commDetailTable."`"
-						." SET `is_delete` = 1"
-								.$this->update_common_sql()
-						." WHERE `is_delete`=0"
-						." AND `id`=".$tradeDetailArray['id']
-					;
-					$res = $this->re_db_query($q);
-
-					$tradeDetailArray['ruleExceptionUpdate'] =
-						 ",`rule_action`=".($ruleAction[0]['action_id'])
+						",`rule_action`=".($ruleAction[0]['action_id'])
 						.",`is_delete`=1";
 
 					// Increment result so the trade won't be entered, but "serial field" has to be triggered
-					$tradeDetailArray['resultIncrement'] = 1;
+					$tradeDetailArray['resultIncrement'] = 0;
 					$tradeDetailArray['ruleProceed'] = 1;
-					break;
+				}
+
+				switch ((int)$ruleAction[0]['import_action_id']){
+					case 1:
+						// Hold Commission
+						$tradeDetailArray['on_hold'] = 1;
+						array_push($resolveHoldCommission, $error_code_id);
+						$tradeDetailArray['resolveHoldCommission'] = $resolveHoldCommission;
+
+						// Update the table import tables
+						$q ="UPDATE `".$commDetailTable."`"
+							." SET `on_hold`=1"
+								.$instance_import->update_common_sql()
+							." WHERE `is_delete`=0"
+							." AND `id`=".$tradeDetailArray['id']
+						;
+						$res = $this->re_db_query($q);
+
+						$tradeDetailArray['ruleExceptionUpdate'] =
+							", `rule_action`=".($ruleAction[0]['action_id'])
+							.", `is_delete`=1";
+
+						$tradeDetailArray['ruleProceed'] = 1;
+						break;
+					case 3:
+						// Reassign to another broker
+						if ((int)$ruleAction[0]['parameter1']){
+							$ruleBroker = $instance_broker_master->select_broker_by_id($ruleAction[0]['parameter1']);
+
+							if (!empty($ruleBroker)){
+								$tradeDetailArray['broker'] = $ruleBroker;
+								$tradeDetailArray['brokerAlias'] = [];
+								$tradeDetailArray['broker_id'] = $ruleBroker['id'];
+								$tradeDetailArray['reassignBroker'] = $error_code_id;
+
+								// Update the table import tables
+								$q ="UPDATE `".$commDetailTable."`"
+									." SET `broker_id`=".(int)$this->re_db_input($ruleAction[0]['parameter1'])
+											.$this->update_common_sql()
+									." WHERE `is_delete`=0"
+									." AND `id`=".$tradeDetailArray['id']
+								;
+								$res = $this->re_db_query($q);
+
+								$tradeDetailArray['ruleExceptionUpdate'] =
+										", `rule_action`=".($ruleAction[0]['action_id'])
+									.", `rule_parameter1`='".($ruleAction[0]['parameter1'])."'"
+									.", `is_delete`=1";
+
+								$tradeDetailArray['ruleProceed'] = 1;
+							}
+						}
+						break;
+					case 4:
+						// Delete/Remove Trade
+						// Update the table import tables
+						$q ="UPDATE `".$commDetailTable."`"
+							." SET `is_delete` = 1"
+									.$this->update_common_sql()
+							." WHERE `is_delete`=0"
+							." AND `id`=".$tradeDetailArray['id']
+						;
+						$res = $this->re_db_query($q);
+
+						$tradeDetailArray['ruleExceptionUpdate'] =
+							",`rule_action`=".($ruleAction[0]['action_id'])
+							.",`is_delete`=1";
+
+						// Increment result so the trade won't be entered, but "serial field" has to be triggered
+						$tradeDetailArray['resultIncrement'] = 1;
+						$tradeDetailArray['ruleProceed'] = 1;
+						break;
+				}
 			}
 
 			return $tradeDetailArray;

@@ -2585,7 +2585,6 @@
                                                     break;
                                             }
 
-                                            //-- Broker not Active --//
                                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                     ." SET  `error_code_id`=$error_code_id"
                                                         .",`field`='$fieldName'"
@@ -2902,16 +2901,48 @@
                                                 $res = $this->re_db_query($q);
                                             }
                                     } else {
+                                        // --- Rule Engine - 5/21/22 --- //
+                                        $error_code_id = 9;
+                                        $fieldName = 'objectives';
+                                        $fieldValue = $foundProduct['objective'];
+                                        // Populate an array of resulting changes and update the "Comm" table
+                                        $arrayRuleClass = $instance_rules->import_rule($error_code_id, $commDetailTable, $check_data_val, $resolveHoldCommission);
+
+                                        switch ($arrayRuleClass['import_action_id']){
+                                            case 1:
+                                                // 1. Hold Commission
+                                                $resolveHoldCommission = isset($arrayRuleClass['resolveHoldCommission']) ? $arrayRuleClass['resolveHoldCommission'] : $resolveHoldCommission;
+                                                $check_data_val['on_hold'] = isset($arrayRuleClass['on_hold']) ? $arrayRuleClass['on_hold'] : $check_data_val['on_hold'];
+                                                break;
+                                            case 3:
+                                                // 3. Reassign Broker
+                                                $broker = isset($arrayRuleClass['broker']) ? $arrayRuleClass['broker'] : $broker;
+                                                $brokerAlias = isset($arrayRuleClass['brokerAlias']) ? $arrayRuleClass['brokerAlias'] : $brokerAlias;
+                                                $broker_id = !empty($arrayRuleClass['broker_id']) ? $arrayRuleClass['broker_id'] : $broker_id;
+                                                $reassignBroker = isset($arrayRuleClass['reassignBroker']) ? $arrayRuleClass['reassignBroker'] : $reassignBroker;
+                                                break;
+                                        }
+
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                ." SET `error_code_id`='9'"
-                                                    .",`field`='objectives'"
-                                                    .",`field_value`='".$foundProduct['objective']."'"
+                                                ." SET  `error_code_id`=$error_code_id"
+                                                    .",`field`='$fieldName'"
+                                                    .",`field_value`='".$fieldValue."'"
                                                     .",`file_type`=$commissionFileType"
-                                                .$insert_exception_string;
+                                                    .$arrayRuleClass['ruleExceptionUpdate']
+                                                    .$insert_exception_string
+                                        ;
                                         $res = $this->re_db_query($q);
                                         $last_inserted_exception = $this->re_db_insert_id();
 
-                                        $result++;
+                                        // Rule takes precedence over Exception
+                                        if (!empty($arrayRuleClass['ruleProceed'])) {
+                                            $res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$check_data_val['id']}", 'resolve_exceptions', $last_inserted_exception);
+                                            if (!empty($arrayRuleClass['resultIncrement']))
+                                                $result++;
+                                        } else {
+                                            $result++;
+                                        }
+                                        // END--- Rule Engine 5/24/22 --- //
                                     }
                                 }
                             }
@@ -2960,7 +2991,6 @@
                                                 break;
                                         }
 
-                                        //-- Broker not licensed appropriately --//
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                 ." SET  `error_code_id`=$error_code_id"
                                                     .",`field`='active_check'"
