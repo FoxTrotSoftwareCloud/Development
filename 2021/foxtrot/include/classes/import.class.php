@@ -2896,7 +2896,8 @@
 
                                                 $q ="UPDATE `".$commDetailTable."`"
                                                     ." SET `on_hold`=1"
-                                                    ." WHERE `is_delete`=0 AND `id`=".$check_data_val['id']
+                                                    ." WHERE `is_delete`=0"
+                                                    ." AND `id`=".$check_data_val['id']
                                                 ;
                                                 $res = $this->re_db_query($q);
                                             }

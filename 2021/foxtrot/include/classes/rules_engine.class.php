@@ -60,9 +60,12 @@
         public function select_rules(){
 			$return = array();
 
-			$q = "SELECT `at`.*
-					FROM `".RULE_MASTER."` AS `at`
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*"
+					." FROM `".RULE_MASTER."` AS `at`"
+					." WHERE `at`.`is_delete`=0"
+                    ." ORDER BY `at`.`id` ASC"
+			;
+
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -75,9 +78,10 @@
         public function select_rules_action($rule_id=null, $error_code_id=0){
 			$return = array();
 
-			$q = "SELECT `at`.*
-					FROM `".RULE_ACTION_MASTER."` AS `at`
-					ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*"
+					." FROM `".RULE_ACTION_MASTER."` AS `at`"
+					." WHERE `at`.`is_delete`=0"
+					." ORDER BY `at`.`id` ASC";
 
 			$res = $this->re_db_query($q);
 
@@ -158,8 +162,8 @@
 					.",`a`.`parameter2`"
 					.",`a`.`parameter_2`"
 				." FROM `".RULE_DETAILS."` `a` "
-				." LEFT JOIN `".RULE_MASTER."` `b` ON `a`.`rule` = `b`.`id`"
-				." LEFT JOIN `".RULE_ACTION_MASTER."` `c` ON `a`.`action` = `c`.`id`"
+				." LEFT JOIN `".RULE_MASTER."` `b` ON `a`.`rule` = `b`.`id` AND `b`.`is_delete`=0"
+				." LEFT JOIN `".RULE_ACTION_MASTER."` `c` ON `a`.`action` = `c`.`id` AND `c`.`is_delete`=0"
 				." WHERE `a`.`is_delete` = 0"
 					.$con
 				." ORDER BY `a`.`rule`";
