@@ -534,7 +534,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                             	<div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Number </label>
-                                                        <input type="number" name="number" id="number" class="form-control" value="<?php echo $number; ?>"/>
+                                                        <input type="text" name="number" id="number" class="form-control" value="<?php echo $number; ?>"/>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">

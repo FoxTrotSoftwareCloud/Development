@@ -4451,6 +4451,53 @@
             }
             echo $js_code;
         }
+        
+        /** Check if client's NAF date is entered - for Rule Engine/Compliance module - 5/27/2022
+         * @param int $clientId 
+         * @param string $checkDate 
+         * @return bool|int 
+         */
+        function check_client_documentation($clientId=0){
+            $return = $res = 0;
+            $blankDate = date("Y-m-d 00:00:00", strtotime(''));
+            $clientId = (int)$this->re_db_input($clientId);
+            
+            if ($clientId){
+                $instance_client_maintenance = new client_maintenance();
+                $res = $instance_client_maintenance->select_client_master($clientId);
+            }
 
+            if ($res){
+                // So far, only NAF (New Account Form) is mandatory - Save room for more later
+                $return = (
+                    $res['naf_date'] > $blankDate
+                );
+            }
+
+            return $return;
+        }
+
+        function check_client_identity($clientId=0, $checkDate=''){
+            $return = $res = 0;
+            $blankDate = date("Y-m-d 00:00:00", strtotime(''));
+            $checkDate = empty($checkDate) ? date("Y-m-d 00:00:00") : date("Y-m-d 00:00:00", strtotime($this->re_db_input($checkDate)));
+
+            if ($clientId AND $checkDate){
+                $instance_client_maintenance = new client_maintenance();
+                $res = $instance_client_maintenance->select_client_employment_by_id($clientId);
+            }
+
+            if ($res){
+                $return = (
+                        (in_array($res['options'], [1,2]) OR ($res['options']==3 AND $res['other']!=''))
+                    AND $res['number'] != ''
+                    AND $res['expiration'] >= $checkDate
+                    AND ($res['options']!=1 OR $res['state'] > 0)
+                    AND $res['date_verified'] > $blankDate
+                );
+            }
+
+            return $return;
+        }
   }
 ?>
