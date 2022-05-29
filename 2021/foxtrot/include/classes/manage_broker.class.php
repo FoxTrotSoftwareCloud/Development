@@ -2240,20 +2240,30 @@
             }
 			return $return;
 		}
-    public function edit_alias($id){
+    // Specific sponsor added - 5/28/22
+    public function edit_alias($id, $sponsor=0){
 			$return = array();
+      $con = "";
+      $id = (int)$this->re_db_input($id);
+      $sponsor = (int)$this->re_db_input($sponsor);
 
-			$q = "SELECT `at`.*
-					FROM `".BROKER_ALIAS."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."'";
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
+      if ($sponsor) {
+        $con = " AND `at`.`sponsor_company`=$sponsor";
+      }
 
-    			}
-            }
+			$q = "SELECT `at`.*"
+					  ." FROM `".BROKER_ALIAS."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'"
+            ." AND `at`.`broker_id`=$id"
+            .$con
+      ;
+
+      $res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0){
+        while($row = $this->re_db_fetch_array($res)){
+          array_push($return,$row);
+        }
+      }
 			return $return;
 		}
 
@@ -2713,8 +2723,8 @@
 			return $return;
 		}
 
-   function load_broker_state_fee(){
-    		$return = array();
+    function load_broker_state_fee(){
+      $return = array();
 
 			$q = "SELECT feeStateId,stateFee from ft_broker_state_fee_master;";
 			$res = $this->re_db_query($q);
@@ -2726,27 +2736,24 @@
             }
 
 			return $return;
-    	}
+    }
 
     function save_broker_state_fee($state_id = 0,$state_fee= 0){
+        $q = "SELECT * from ft_broker_state_fee_master where feeStateId='".$state_id."'";
 
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+              $q = "update  `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."' where feeStateId='".$state_id."'";
+              $res = $this->re_db_query($q);
+        }
+        else{
 
-    	  	  $q = "SELECT * from ft_broker_state_fee_master where feeStateId='".$state_id."'";
+              $q = "INSERT INTO `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."',feeStateId='".$state_id."' ".$this->insert_common_sql();
+              $res = $this->re_db_query($q);
+        }
 
-
-						$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-              	 $q = "update  `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."' where feeStateId='".$state_id."'";
-              		$res = $this->re_db_query($q);
-            }
-            else{
-
-            	   	$q = "INSERT INTO `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."',feeStateId='".$state_id."' ".$this->insert_common_sql();
-									$res = $this->re_db_query($q);
-            }
-
-    	  	   return true;
-         }
+        return true;
+    }
 
     // Generic Typing - return based on parameter data type passed-> (NULL/Empty/default)$statusParameter->entire array, (integer)$statusParameter->return Description(statuses[key value/$statusParameter]), (string)$statusParameter->return key/index value(if string is found in the array)
     function active_statuses($statusParameter=NULL){

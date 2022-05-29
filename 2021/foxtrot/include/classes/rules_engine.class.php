@@ -7,55 +7,55 @@
 
 
         public function insert_update($data){
+			//echo '<pre>';print_r($data);exit;
 
-                //echo '<pre>';print_r($data);exit;
+			$qq="UPDATE ".$this->table." SET `is_delete`='1'";
+			$this->re_db_query($qq);
 
-                $qq="UPDATE ".$this->table." SET `is_delete`='1'";
-                $this->re_db_query($qq);
+			foreach($data['data'] as $key=>$val){
+				$in_force= isset($val['in_force'])?$this->re_db_input($val['in_force']):'0';
+				$rule= isset($val['rule'])?$this->re_db_input($val['rule']):'';
+				$action= isset($val['action'])?$this->re_db_input($val['action']):'0';
+				$parameter_1= isset($val['parameter_1'])?$this->re_db_input($val['parameter_1']):'';
+				$parameter1= isset($val['parameter1'])?$this->re_db_input($val['parameter1']):0;
+				$parameter_2= isset($val['parameter_2'])?$this->re_db_input($val['parameter_2']):'';
+				$parameter2= isset($val['parameter2'])?$this->re_db_input($val['parameter2']):0;
 
-                foreach($data['data'] as $key=>$val){
-                    $in_force= isset($val['in_force'])?$this->re_db_input($val['in_force']):'0';
-                    $rule= isset($val['rule'])?$this->re_db_input($val['rule']):'';
-                    $action= isset($val['action'])?$this->re_db_input($val['action']):'0';
-                    $parameter_1= isset($val['parameter_1'])?$this->re_db_input($val['parameter_1']):'';
-        			$parameter1= isset($val['parameter1'])?$this->re_db_input($val['parameter1']):0;
-                    $parameter_2= isset($val['parameter_2'])?$this->re_db_input($val['parameter_2']):'';
-                    $parameter2= isset($val['parameter2'])?$this->re_db_input($val['parameter2']):0;
-
-        			if($parameter1=='0'&& $action=='5'){
-        				$this->errors = 'Please select broker1.';
-        			}
-                    /*else if($parameter2=='0'&& $action=='5'){
-        				$this->errors = 'Please select broker2.';
-        			}*/
-        			else if(isset($in_force) && $in_force != 0 && $action=='0'){
-        				$this->errors = 'Please select action.';
-        			}
-                    /*else if($parameter_1=='' && $action != 5){
-        				$this->errors = 'Please enter parameter1.';
-        			}
-        			else if($parameter_2==''&& $action != 5){
-        				$this->errors = 'Please select parameter2.';
-        			}*/
-        			if($this->errors!=''){
-        				return $this->errors;
-        			}
-                    else{
-        				$q = "INSERT INTO ".$this->table." SET `in_force`='".$in_force."',`rule`='".$rule."',`action`='".$action."',
-                        `parameter_1`='".$parameter_1."',`parameter1`='".$parameter1."',`parameter_2`='".$parameter_2."',
-                        `parameter2`='".$parameter2."'".$this->insert_common_sql();
-
-                        $res = $this->re_db_query($q);
-                    }
-			     }
-                if($res){
-				    $_SESSION['success'] = INSERT_MESSAGE;
-					return true;
+				if($parameter1=='0'&& $action=='5'){
+					$this->errors = 'Please select broker1.';
+				}
+				/*else if($parameter2=='0'&& $action=='5'){
+					$this->errors = 'Please select broker2.';
+				}*/
+				else if(isset($in_force) && $in_force != 0 && $action=='0'){
+					$this->errors = 'Please select action.';
+				}
+				/*else if($parameter_1=='' && $action != 5){
+					$this->errors = 'Please enter parameter1.';
+				}
+				else if($parameter_2==''&& $action != 5){
+					$this->errors = 'Please select parameter2.';
+				}*/
+				if($this->errors!=''){
+					return $this->errors;
 				}
 				else{
-					$_SESSION['warning'] = UNKWON_ERROR;
-					return false;
+					$q = "INSERT INTO ".$this->table." SET `in_force`='".$in_force."',`rule`='".$rule."',`action`='".$action."',
+					`parameter_1`='".$parameter_1."',`parameter1`='".$parameter1."',`parameter_2`='".$parameter_2."',
+					`parameter2`='".$parameter2."'".$this->insert_common_sql();
+
+					$res = $this->re_db_query($q);
 				}
+			}
+
+			if($res){
+				$_SESSION['success'] = INSERT_MESSAGE;
+				return true;
+			}
+			else{
+				$_SESSION['warning'] = UNKWON_ERROR;
+				return false;
+			}
 		}
         public function select_rules(){
 			$return = array();
@@ -105,12 +105,21 @@
             }
 			return $return;
 		}
-        public function select(){
+        public function select($ruleId=0){
 			$return = array();
+			$con = '';
+			$ruleId = (int)$this->re_db_input($ruleId);
 
-			$q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at` WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+			if ($ruleId){
+				$con = " AND `rule`=$ruleId";
+			}
+
+			$q = "SELECT `at`.*"
+					." FROM `".$this->table."` AS `at`"
+					." WHERE `at`.`is_delete`='0'"
+						.$con
+                    ." ORDER BY `at`.`id` ASC"
+			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -282,5 +291,113 @@
 			return $tradeDetailArray;
 		}
 
+		/** Check if client's NAF date is entered - for Rule Engine/Compliance module - 5/27/2022
+         * @param int $clientId
+         * @param string $checkDate
+         * @return bool|int
+         */
+        function check_client_documentation($clientId=0){
+			// Rule #4
+            $return = $res = 0;
+            $blankDate = date("Y-m-d 00:00:00", strtotime(''));
+            $clientId = (int)$this->re_db_input($clientId);
+
+            if ($clientId){
+                $instance_client_maintenance = new client_maintenance();
+                $res = $instance_client_maintenance->select_client_master($clientId);
+            }
+
+            if ($res){
+                // So far, only NAF (New Account Form) is mandatory - Save room for more later
+                $return = (
+                    $res['naf_date'] > $blankDate
+                );
+            }
+
+            return $return;
+        }
+
+		// -- Calculate Age - probably another somewhere, but I can't find it - 5/28/22
+		function getAge($birthDate=''){
+			$birthDate = $this->re_db_input($birthDate);
+			if (empty($birthDate))
+				return 0;
+
+			$age = date("Y") - date("Y", strtotime($birthDate));
+			if (date("m-d", strtotime($birthDate)) > date("m-d"))
+				$age--;
+			return $age;
+		}
+
+		function check_client_age($clientId=0){
+			// Rule #14 - default to "true" if the "birth_date" is not populated in CLIENT MASTER
+            $return = $res = $res2 = $age = 0;
+			$ruleId = 14; // Client of Legal Age
+			$min = 18;
+			$max = 999;
+            $blankDate = date("Y-m-d 00:00:00", strtotime(''));
+            $clientId = (int)$this->re_db_input($clientId);
+
+            if ($clientId){
+                $instance_client_maintenance = new client_maintenance();
+                $res = $instance_client_maintenance->select_client_master($clientId);
+				$res2 = $this->select($ruleId);
+            }
+
+            if ($res AND $res2){
+				if (in_array($res['birth_date'], [$blankDate, "0000-00-00 00:00:00"])){
+					$return = 1;
+				} else {
+					$age = $this->getAge($res['birth_date']);
+					$min = (empty($res2[0]['parameter_1']) ? $min : (int)$res2[0]['parameter_1']);
+					$max = (empty($res2[0]['parameter_2']) ? $max : (int)$res2[0]['parameter_2']);
+
+					$return = (
+						$min <= $age 
+						AND $age <= $max
+					);
+				}
+            }
+
+			return $return;
+		}
+
+        function check_client_identity($clientId=0, $checkDate=''){
+			// Rule #17
+            $return = $res = 0;
+            $blankDate = date("Y-m-d 00:00:00", strtotime(''));
+            $checkDate = empty($checkDate) ? date("Y-m-d 00:00:00") : date("Y-m-d 00:00:00", strtotime($this->re_db_input($checkDate)));
+
+            if ($clientId AND $checkDate){
+                $instance_client_maintenance = new client_maintenance();
+                $res = $instance_client_maintenance->select_client_employment_by_id($clientId);
+            }
+
+            if ($res){
+                $return = (
+                        (in_array($res['options'], [1,2]) OR ($res['options']==3 AND $res['other']!=''))
+                    AND $res['number'] != ''
+                    AND $res['expiration'] >= $checkDate
+                    AND ($res['options']!=1 OR $res['state'] > 0)
+                    AND $res['date_verified'] > $blankDate
+                );
+            }
+
+            return $return;
+        }
+
+        function check_broker_sponsor($brokerId=0, $sponsorId=0){
+            $return = $res = 0;
+			$brokerId = (int)$this->re_db_input($brokerId);
+			$sponsorId = (int)$this->re_db_input($sponsorId);
+
+            if ($brokerId AND $sponsorId){
+                $instance_broker_master = new broker_master();
+                $res = $instance_broker_master->edit_alias($brokerId, $sponsorId);
+				$return = count($res);
+            }
+
+            return $return;
+        }
 	}
 ?>

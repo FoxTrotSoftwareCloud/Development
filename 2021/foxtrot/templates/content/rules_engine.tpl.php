@@ -36,32 +36,32 @@
                                         </td>
                                         <td>
                                             <?php if($val['id'] == 3){?>
-                                            <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
-                                                 <div class="input-group">
-                                                  <input type="text" class="form-control decimal" onchange="handleChange(this);" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="13" />
-                                                  <span class="input-group-addon">%</span>
+                                                <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
+                                                    <div class="input-group">
+                                                    <input type="text" class="form-control decimal" onchange="handleChange(this);" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="13" />
+                                                    <span class="input-group-addon">%</span>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             <?php } else if($val['id'] == 16){?>
-                                            <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
-                                                 <div class="input-group">
-                                                  <input type="text" class="form-control" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="4" />
-                                                  <span class="input-group-addon">$</span>
+                                                <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
+                                                    <div class="input-group">
+                                                    <input type="text" class="form-control" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="4" />
+                                                    <span class="input-group-addon">$</span>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             <?php } else { ?>
-                                            <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
-                                                <input type="text" class="form-control" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="13" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode==46 || event.charCode==45' />
-                                            </div>
+                                                <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
+                                                    <input type="text" class="form-control" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="13" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode==46 || event.charCode==45' />
+                                                </div>
                                             <?php } ?>
-                                            <div id="other_div_1<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']!='5'){?>style="display: none;"<?php } ?>>
-                                                <select class="form-control" name="data[<?php echo $key; ?>][parameter1]">
-                                                    <option value="0">Select Broker</option>
-                                                    <?php foreach($get_broker as $key2=>$val2){?>
-                                                    <option value="<?php echo $val2['id'];?>" <?php if(isset($get_val['parameter1']) && $get_val['parameter1']==$val2['id']){ ?>selected="true"<?php } ?>><?php echo $val2['first_name'].' '.$val2['last_name'];?></option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
+                                                <div id="other_div_1<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']!='5'){?>style="display: none;"<?php } ?>>
+                                                    <select class="form-control" name="data[<?php echo $key; ?>][parameter1]">
+                                                        <option value="0">Select Broker</option>
+                                                        <?php foreach($get_broker as $key2=>$val2){?>
+                                                        <option value="<?php echo $val2['id'];?>" <?php if(isset($get_val['parameter1']) && $get_val['parameter1']==$val2['id']){ ?>selected="true"<?php } ?>><?php echo $val2['first_name'].' '.$val2['last_name'];?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
                                         </td>
                                         <td>
                                             <?php if($val['id'] != 3 && $val['id'] != 16){?>
