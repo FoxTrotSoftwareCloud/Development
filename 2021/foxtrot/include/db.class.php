@@ -543,6 +543,10 @@ class db
             return FALSE;
     	}
     }
+    function isEmptyDate($date=''){
+        $date = $this->re_db_input($date);
+        return ($this->is_date($date) OR substr($date,0,10)=="0000-00-00" OR in_array(date('Y-m-d',strtotime($date)), ["-0001-11-30","1969-12-31"]));
+    }
 
     //email validation function.......................
     public function is_email($email)

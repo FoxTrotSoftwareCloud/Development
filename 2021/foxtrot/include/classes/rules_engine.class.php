@@ -320,7 +320,7 @@
 		// -- Calculate Age - probably another somewhere, but I can't find it - 5/28/22
 		function getAge($birthDate=''){
 			$birthDate = $this->re_db_input($birthDate);
-			if (empty($birthDate))
+			if ( $this->isEmptyDate($birthDate)  )
 				return 0;
 
 			$age = date("Y") - date("Y", strtotime($birthDate));
@@ -328,7 +328,7 @@
 				$age--;
 			return $age;
 		}
-
+		
 		function check_client_age($clientId=0){
 			// Rule #14 - default to "true" if the "birth_date" is not populated in CLIENT MASTER
             $return = $res = $res2 = $age = 0;
@@ -345,7 +345,7 @@
             }
 
             if ($res AND $res2){
-				if (in_array($res['birth_date'], [$blankDate, "0000-00-00 00:00:00"])){
+				if ($this->isEmptyDate($res['birth_date'])){
 					$return = 1;
 				} else {
 					$age = $this->getAge($res['birth_date']);
@@ -353,7 +353,7 @@
 					$max = (empty($res2[0]['parameter_2']) ? $max : (int)$res2[0]['parameter_2']);
 
 					$return = (
-						$min <= $age 
+						$min <= $age
 						AND $age <= $max
 					);
 				}
@@ -399,5 +399,29 @@
 
             return $return;
         }
+
+		function check_client_field($clientId=0, $fieldName='id', $ifEqualsValue=''){
+			// Rule #14 - default to "true" if the "birth_date" is not populated in CLIENT MASTER
+            $return = $res = $res2 = 0;
+            $clientId = (int)$this->re_db_input($clientId);
+			$fieldName = strtolower($this->re_db_input($fieldName));
+
+            if ($clientId){
+                $instance_client_maintenance = new client_maintenance();
+                $res = $instance_client_maintenance->select_client_master($clientId);
+            }
+
+            if ($res){
+				if (array_key_exists($fieldName, $res)){
+					$fieldValue = trim($this->re_db_input($res[$fieldName]));
+					$return = (!empty($fieldValue));
+				} else {
+					$return = null;
+				}
+            }
+
+			return $return;
+		}
+
 	}
 ?>
