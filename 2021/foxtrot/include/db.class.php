@@ -543,10 +543,11 @@ class db
             return FALSE;
     	}
     }
-    // 5/29/22 New Function to test input/output fields for Rules Engine - not done yet
+    // 5/29/22 New Function to test input/output fields for Rules Engine - php/MySQL defaults to weird values for NULL date/datetime columns
     function isEmptyDate($date=''){
         $date = $this->re_db_input($date);
-        return ($this->is_date($date) OR substr($date,0,10)=="0000-00-00" OR in_array(date('Y-m-d',strtotime($date)), ["-0001-11-30","1969-12-31"]));
+        $YmdDate = date("Y-m-d",strtotime($date));
+        return (!$this->is_date($YmdDate) OR in_array($YmdDate, ["0000-00-00","1000-01-01","-0001-11-30","1969-12-31"]));
     }
 
     //email validation function.......................

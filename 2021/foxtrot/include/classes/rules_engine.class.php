@@ -185,7 +185,7 @@
 			return $return;
 		}
 
-		function import_rule($error_code_id, $commDetailTable='', $tradeDetailParameter=[], $resolveHoldCommission=[]){
+		function import_rule($error_code_id, $fieldName='', $fieldValue='', $insert_exception_string='', $commDetailTable='', $tradeDetailParameter=[], $resolveHoldCommission=[]){
 			$instance_import = new import();
 			$instance_broker_master = new broker_master();
 			// Return nothing if all the parameters are not specified
@@ -204,23 +204,9 @@
 			$tradeDetailArray['rule_action_id'] = (int)$ruleAction[0]['action_id'];
 
 			if ($ruleAction[0]['in_force']) {
-				// DO nothing, populate variables to let the trade through
-				if ($tradeDetailArray['rule_action_id']==1){
-					$tradeDetailArray['ruleExceptionUpdate'] =
-						",`rule_action`=".($ruleAction[0]['action_id'])
-						.",`is_delete`=1";
-
-					// Increment result so the trade won't be entered, but "serial field" has to be triggered
-					$tradeDetailArray['resultIncrement'] = 0;
-					$tradeDetailArray['ruleProceed'] = 1;
-				}
-
 				switch ((int)$ruleAction[0]['import_action_id']){
 					case 1:
-						// Hold Commission
-						$tradeDetailArray['on_hold'] = 1;
-						array_push($resolveHoldCommission, $error_code_id);
-						$tradeDetailArray['resolveHoldCommission'] = $resolveHoldCommission;
+						//-- Hold Commission
 
 						// Update the table import tables
 						$q ="UPDATE `".$commDetailTable."`"
@@ -232,10 +218,12 @@
 						$res = $this->re_db_query($q);
 
 						$tradeDetailArray['ruleExceptionUpdate'] =
-							", `rule_action`=".($ruleAction[0]['action_id'])
+							 ", `rule_action`=".($ruleAction[0]['action_id'])
 							.", `is_delete`=1";
-
 						$tradeDetailArray['ruleProceed'] = 1;
+						$tradeDetailArray['on_hold'] = 1;
+						array_push($resolveHoldCommission, $error_code_id);
+						$tradeDetailArray['XXresolveHoldCommission'] = $resolveHoldCommission;
 						break;
 					case 3:
 						// Reassign to another broker
@@ -243,11 +231,6 @@
 							$ruleBroker = $instance_broker_master->select_broker_by_id($ruleAction[0]['parameter1']);
 
 							if (!empty($ruleBroker)){
-								$tradeDetailArray['broker'] = $ruleBroker;
-								$tradeDetailArray['brokerAlias'] = [];
-								$tradeDetailArray['broker_id'] = $ruleBroker['id'];
-								$tradeDetailArray['reassignBroker'] = $error_code_id;
-
 								// Update the table import tables
 								$q ="UPDATE `".$commDetailTable."`"
 									." SET `broker_id`=".(int)$this->re_db_input($ruleAction[0]['parameter1'])
@@ -258,11 +241,15 @@
 								$res = $this->re_db_query($q);
 
 								$tradeDetailArray['ruleExceptionUpdate'] =
-										", `rule_action`=".($ruleAction[0]['action_id'])
+									", `rule_action`=".($ruleAction[0]['action_id'])
 									.", `rule_parameter1`='".($ruleAction[0]['parameter1'])."'"
 									.", `is_delete`=1";
 
 								$tradeDetailArray['ruleProceed'] = 1;
+								$tradeDetailArray['XXbroker'] = $ruleBroker;
+								$tradeDetailArray['XXbrokerAlias'] = [];
+								$tradeDetailArray['XXbroker_id'] = $ruleBroker['id'];
+								$tradeDetailArray['XXreassignBroker'] = $error_code_id;
 							}
 						}
 						break;
@@ -282,10 +269,32 @@
 							.",`is_delete`=1";
 
 						// Increment result so the trade won't be entered, but "serial field" has to be triggered
-						$tradeDetailArray['resultIncrement'] = 1;
+						$tradeDetailArray['YYresult'] = 1;
 						$tradeDetailArray['ruleProceed'] = 1;
 						break;
+					default:
+						// Display Warning(Manual Entry) / Create Exception (Import)
+						$tradeDetailArray['ruleExceptionUpdate'] =
+							",`rule_action`=".($ruleAction[0]['action_id'])
+							.",`is_delete`=0";
+						$tradeDetailArray['YYresult'] = 1;
+						$tradeDetailArray['ruleProceed'] = 0;
 				}
+			}
+
+			$q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+				." SET  `error_code_id`=$error_code_id"
+						.",`field`='$fieldName'"
+						.",`field_value`='".$fieldValue."'"
+						.",`file_type`={$tradeDetailArray['file_type']}"
+						.$tradeDetailArray['ruleExceptionUpdate']
+						.$insert_exception_string
+				;
+			$res = $this->re_db_query($q);
+			$last_inserted_exception = $this->re_db_insert_id();
+
+			if (!empty($tradeDetailArray['ruleProceed'])) {
+			    $res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$tradeDetailArray['id']}", 'resolve_exceptions', $last_inserted_exception);
 			}
 
 			return $tradeDetailArray;
@@ -310,7 +319,7 @@
             if ($res){
                 // So far, only NAF (New Account Form) is mandatory - Save room for more later
                 $return = (
-                    $res['naf_date'] > $blankDate
+                    !$this->isEmptyDate($res['naf_date'])
                 );
             }
 
@@ -328,7 +337,7 @@
 				$age--;
 			return $age;
 		}
-		
+
 		function check_client_age($clientId=0){
 			// Rule #14 - default to "true" if the "birth_date" is not populated in CLIENT MASTER
             $return = $res = $res2 = $age = 0;
@@ -401,7 +410,7 @@
         }
 
 		function check_client_field($clientId=0, $fieldName='id', $ifEqualsValue=''){
-			// Rule #14 - default to "true" if the "birth_date" is not populated in CLIENT MASTER
+			// Rule 15(Birth Date), 18(State), 21(Import VS Client Broker)
             $return = $res = $res2 = 0;
             $clientId = (int)$this->re_db_input($clientId);
 			$fieldName = strtolower($this->re_db_input($fieldName));
@@ -414,7 +423,14 @@
             if ($res){
 				if (array_key_exists($fieldName, $res)){
 					$fieldValue = trim($this->re_db_input($res[$fieldName]));
-					$return = (!empty($fieldValue));
+
+					if (strpos($fieldName, 'date')){
+						$return = (empty($ifEqualsValue) ? !$this->isEmptyDate($fieldValue) : $fieldValue==$ifEqualsValue);
+					// } else if (in_array($fieldName, ["state", "broker_name"])) {
+
+					} else {
+						$return = (empty($ifEqualsValue) ? !empty($fieldValue) : $fieldValue==$ifEqualsValue);
+					}
 				} else {
 					$return = null;
 				}

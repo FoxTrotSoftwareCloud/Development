@@ -2724,7 +2724,7 @@
                             }
                         }
 
-                        // IDC CLIENT validation
+                        //--- IDC CLIENT validation ---//
                         if(!$reassignClient AND empty($check_data_val['customer_account_number'])){
                             $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='13'"
@@ -2743,7 +2743,7 @@
                             } else {
                                 // CLIENT SEARCH BY ACCOUNT #
                                 $q =
-                                    "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
+                                    "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`,`cm`.`naf_date`"
                                         ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                         ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
                                         ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
@@ -2838,7 +2838,7 @@
                                     // Both Client Master & Account entered
                                     if ($updateResult['insert_client_master'] AND $updateResult['insert_client_account']){
                                         $q =
-                                            "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`"
+                                            "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`,`cm`.`naf_date`"
                                                 ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                                 ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
                                                 ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
@@ -2990,11 +2990,11 @@
                                                 $broker_id = !empty($arrayRuleClass['broker_id']) ? $arrayRuleClass['broker_id'] : $broker_id;
                                                 $reassignBroker = isset($arrayRuleClass['reassignBroker']) ? $arrayRuleClass['reassignBroker'] : $reassignBroker;
                                                 break;
-                                        }
+                                            }
 
                                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                                 ." SET  `error_code_id`=$error_code_id"
-                                                    .",`field`='active_check'"
+                                                    .",`field`='$fieldName'"
                                                     .",`field_value`='".$fieldValue."'"
                                                     .",`file_type`=$commissionFileType"
                                                     .$arrayRuleClass['ruleExceptionUpdate']
@@ -3016,6 +3016,54 @@
                                 }
                             }
                         }
+
+                        //--- Final Rules Engine checks - added 5/30/22
+                        if (!empty($client_id)){
+                            if (!$instance_rules->check_client_documentation($client_id)){
+                                $error_code_id = 21;
+                                $fieldName = 'documentation';
+                                $fieldValue = $clientAccount['naf_date'];
+                                $check_data_val['file_type'] = $commissionFileType;
+                                
+                                // Populate an array of resulting changes and update the "Comm" table
+                                $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                // Populate the vars back from initialized in "import_rules(...)"
+                                foreach ($arrayRuleClass AS $key=>$value){
+                                    if (substr($key, 0, 2)==="XX"){
+                                        $res = substr($key,2);
+                                        $$res = $value;
+
+                                    } else if (substr($key, 0, 2)==="YY"){
+                                        $res = substr($key,2);
+                                        $$res += $value;
+                                    }
+                                }
+                            }
+                            
+                // TEST
+                $sponsor_id = 99;
+                            
+                            if (!$instance_rules->check_broker_sponsor($broker_id, $sponsor_id)){
+                                $error_code_id = 25;
+                                $fieldName = 'sponsor appointment';
+                                $fieldValue = $sponsor_id;
+                                $check_data_val['file_type'] = $commissionFileType;
+
+                                // Populate an array of resulting changes and update the "Comm" table
+                                $check_data_val = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                // Populate the vars back from initialized in "import_rules(...)"
+                                foreach ($check_data_val AS $key=>$value){
+                                    if (substr($key, 0, 2)==="XX"){
+                                        $res = substr($key,2);
+                                        $$res = $value;
+                                    } else if (substr($key, 0, 2)==="YY"){
+                                        $res = substr($key,2);
+                                        $$res += $value;
+                                    }
+                                }
+                            }
+                        }
+                        //--- END: Final Rules Engine checks - added 5/30/22
 
                         // INSERT the IDC record
                         if(isset($result) && $result == 0){
