@@ -547,7 +547,7 @@ class db
     function isEmptyDate($date=''){
         $date = $this->re_db_input($date);
         $YmdDate = date("Y-m-d",strtotime($date));
-        return (!$this->is_date($YmdDate) OR in_array($YmdDate, ["0000-00-00","1000-01-01","-0001-11-30","1969-12-31"]));
+        return (!$this->is_date($YmdDate) OR in_array($YmdDate, ["0000-00-00","0001-01-01","1000-01-01","-0001-11-30","1969-12-31"]));
     }
 
     //email validation function.......................

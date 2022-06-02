@@ -185,29 +185,28 @@
 			return $return;
 		}
 
-		function import_rule($error_code_id, $fieldName='', $fieldValue='', $insert_exception_string='', $commDetailTable='', $tradeDetailParameter=[], $resolveHoldCommission=[]){
+		function import_rule($error_code_id, $fieldName='', $fieldValue='', $insert_exception_string='', $commDetailTable='', &$tradeDetailArray=[], $resolveHoldCommission=[]){
 			$instance_import = new import();
 			$instance_broker_master = new broker_master();
 			// Return nothing if all the parameters are not specified
-			if (empty($error_code_id) OR empty($commDetailTable) OR empty($tradeDetailParameter)){
+			if (empty($error_code_id) OR empty($commDetailTable) OR empty($tradeDetailArray)){
 				return [];
 			}
 
 			// Initialize the Return array
-			$tradeDetailArray = $tradeDetailParameter;
-			$tradeDetailArray['ruleExceptionUpdate'] = '';
+			$tradeDetailArray['importExceptionUpdate'] = '';
 			// $tradeDetailArray['broker'] = [];
 			// $tradeDetailArray['result'] = $tradeDetailArray['ruleProceed'] = 0;
 
 			$ruleAction = $this->get_action(null, $error_code_id, 1);
 			$tradeDetailArray['import_action_id'] = (int)$ruleAction[0]['import_action_id'];
 			$tradeDetailArray['rule_action_id'] = (int)$ruleAction[0]['action_id'];
-
+			$tradeDetailArray['in_force'] = $ruleAction[0]['in_force'];
+			
 			if ($ruleAction[0]['in_force']) {
 				switch ((int)$ruleAction[0]['import_action_id']){
 					case 1:
 						//-- Hold Commission
-
 						// Update the table import tables
 						$q ="UPDATE `".$commDetailTable."`"
 							." SET `on_hold`=1"
@@ -217,7 +216,7 @@
 						;
 						$res = $this->re_db_query($q);
 
-						$tradeDetailArray['ruleExceptionUpdate'] =
+						$tradeDetailArray['importExceptionUpdate'] =
 							 ", `rule_action`=".($ruleAction[0]['action_id'])
 							.", `is_delete`=1";
 						$tradeDetailArray['ruleProceed'] = 1;
@@ -240,7 +239,7 @@
 								;
 								$res = $this->re_db_query($q);
 
-								$tradeDetailArray['ruleExceptionUpdate'] =
+								$tradeDetailArray['importExceptionUpdate'] =
 									", `rule_action`=".($ruleAction[0]['action_id'])
 									.", `rule_parameter1`='".($ruleAction[0]['parameter1'])."'"
 									.", `is_delete`=1";
@@ -264,7 +263,7 @@
 						;
 						$res = $this->re_db_query($q);
 
-						$tradeDetailArray['ruleExceptionUpdate'] =
+						$tradeDetailArray['importExceptionUpdate'] =
 							",`rule_action`=".($ruleAction[0]['action_id'])
 							.",`is_delete`=1";
 
@@ -274,27 +273,27 @@
 						break;
 					default:
 						// Display Warning(Manual Entry) / Create Exception (Import)
-						$tradeDetailArray['ruleExceptionUpdate'] =
+						$tradeDetailArray['importExceptionUpdate'] =
 							",`rule_action`=".($ruleAction[0]['action_id'])
 							.",`is_delete`=0";
 						$tradeDetailArray['YYresult'] = 1;
 						$tradeDetailArray['ruleProceed'] = 0;
 				}
-			}
-
-			$q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-				." SET  `error_code_id`=$error_code_id"
-						.",`field`='$fieldName'"
-						.",`field_value`='".$fieldValue."'"
-						.",`file_type`={$tradeDetailArray['file_type']}"
-						.$tradeDetailArray['ruleExceptionUpdate']
-						.$insert_exception_string
+	
+				$q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+					." SET  `error_code_id`=$error_code_id"
+							.",`field`='$fieldName'"
+							.",`field_value`='".$fieldValue."'"
+							.",`file_type`={$tradeDetailArray['file_type']}"
+							.$tradeDetailArray['importExceptionUpdate']
+							.$insert_exception_string
 				;
-			$res = $this->re_db_query($q);
-			$last_inserted_exception = $this->re_db_insert_id();
-
-			if (!empty($tradeDetailArray['ruleProceed'])) {
-			    $res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$tradeDetailArray['id']}", 'resolve_exceptions', $last_inserted_exception);
+				$res = $this->re_db_query($q);
+				$last_inserted_exception = $this->re_db_insert_id();
+	
+				if (!empty($tradeDetailArray['ruleProceed'])) {
+					$res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$tradeDetailArray['id']}", 'resolve_exceptions', $last_inserted_exception);
+				}
 			}
 
 			return $tradeDetailArray;
@@ -339,11 +338,12 @@
 		}
 
 		function check_client_age($clientId=0){
-			// Rule #14 - default to "true" if the "birth_date" is not populated in CLIENT MASTER
+			// Rule #14 - Client of Legal Age - default to "true" if the "birth_date" is not populated in CLIENT MASTER
             $return = $res = $res2 = $age = 0;
-			$ruleId = 14; // Client of Legal Age
-			$min = 18;
-			$max = 999;
+			$ruleId = 14;
+			// Defaults - to be populated later, per client's feedback(Beta Tes)
+			$min = 18; //0;
+			$max = 80; //999;
             $blankDate = date("Y-m-d 00:00:00", strtotime(''));
             $clientId = (int)$this->re_db_input($clientId);
 
@@ -374,7 +374,6 @@
         function check_client_identity($clientId=0, $checkDate=''){
 			// Rule #17
             $return = $res = 0;
-            $blankDate = date("Y-m-d 00:00:00", strtotime(''));
             $checkDate = empty($checkDate) ? date("Y-m-d 00:00:00") : date("Y-m-d 00:00:00", strtotime($this->re_db_input($checkDate)));
 
             if ($clientId AND $checkDate){
@@ -388,7 +387,7 @@
                     AND $res['number'] != ''
                     AND $res['expiration'] >= $checkDate
                     AND ($res['options']!=1 OR $res['state'] > 0)
-                    AND $res['date_verified'] > $blankDate
+                    AND !$this->isEmptyDate($res['date_verified'])
                 );
             }
 
@@ -426,8 +425,6 @@
 
 					if (strpos($fieldName, 'date')){
 						$return = (empty($ifEqualsValue) ? !$this->isEmptyDate($fieldValue) : $fieldValue==$ifEqualsValue);
-					// } else if (in_array($fieldName, ["state", "broker_name"])) {
-
 					} else {
 						$return = (empty($ifEqualsValue) ? !empty($fieldValue) : $fieldValue==$ifEqualsValue);
 					}

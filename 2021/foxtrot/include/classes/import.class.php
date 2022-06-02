@@ -2743,7 +2743,8 @@
                             } else {
                                 // CLIENT SEARCH BY ACCOUNT #
                                 $q =
-                                    "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`,`cm`.`naf_date`"
+                                    "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,"
+                                            ."`cm`.`state`,`cm`.`naf_date`,`cm`.`birth_date`,`cm`.`broker_name`"
                                         ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                         ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
                                         ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
@@ -2838,7 +2839,8 @@
                                     // Both Client Master & Account entered
                                     if ($updateResult['insert_client_master'] AND $updateResult['insert_client_account']){
                                         $q =
-                                            "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`,`cm`.`naf_date`"
+                                            "SELECT `cm`.`id`,`ca`.`id` AS `account_id`,`ca`.`account_no`,`ca`.`sponsor_company`,`cm`.`state`,"
+                                                     ."`cm`.`naf_date`,`cm`.`birth_date`,`cm`.`broker_name`"
                                                 ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                                 ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
                                                 ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
@@ -3018,7 +3020,7 @@
                         }
 
                         //--- Final Rules Engine checks - added 5/30/22
-                        if (!empty($client_id)){
+                        if ($client_id!=0){
                             if (!$instance_rules->check_client_documentation($client_id)){
                                 $error_code_id = 21;
                                 $fieldName = 'documentation';
@@ -3032,27 +3034,22 @@
                                     if (substr($key, 0, 2)==="XX"){
                                         $res = substr($key,2);
                                         $$res = $value;
-
                                     } else if (substr($key, 0, 2)==="YY"){
                                         $res = substr($key,2);
                                         $$res += $value;
                                     }
                                 }
                             }
-                            
-                // TEST
-                $sponsor_id = 99;
-                            
-                            if (!$instance_rules->check_broker_sponsor($broker_id, $sponsor_id)){
-                                $error_code_id = 25;
-                                $fieldName = 'sponsor appointment';
-                                $fieldValue = $sponsor_id;
+                            if (!$instance_rules->check_client_age($client_id)){
+                                $error_code_id = 26;
+                                $fieldName = 'client age';
+                                $fieldValue = $clientAccount['birth_date'];
                                 $check_data_val['file_type'] = $commissionFileType;
-
+                                
                                 // Populate an array of resulting changes and update the "Comm" table
-                                $check_data_val = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
                                 // Populate the vars back from initialized in "import_rules(...)"
-                                foreach ($check_data_val AS $key=>$value){
+                                foreach ($arrayRuleClass AS $key=>$value){
                                     if (substr($key, 0, 2)==="XX"){
                                         $res = substr($key,2);
                                         $$res = $value;
@@ -3060,6 +3057,102 @@
                                         $res = substr($key,2);
                                         $$res += $value;
                                     }
+                                }
+                            }
+                            if (!$instance_rules->check_client_field($client_id, "birth_date")){
+                                $error_code_id = 27;
+                                $fieldName = 'birth_date';
+                                $fieldValue = $clientAccount['birth_date'];
+                                $check_data_val['file_type'] = $commissionFileType;
+                                
+                                // Populate an array of resulting changes and update the "Comm" table
+                                $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                // Populate the vars back from initialized in "import_rules(...)"
+                                foreach ($arrayRuleClass AS $key=>$value){
+                                    if (substr($key, 0, 2)==="XX"){
+                                        $res = substr($key,2);
+                                        $$res = $value;
+                                    } else if (substr($key, 0, 2)==="YY"){
+                                        $res = substr($key,2);
+                                        $$res += $value;
+                                    }
+                                }
+                            }
+                            if (!$instance_rules->check_client_identity($client_id, $check_data_val['trade_date'])){
+                                $error_code_id = 28;
+                                $fieldName = 'identity';
+                                $fieldValue = '';
+                                $check_data_val['file_type'] = $commissionFileType;
+                                
+                                // Populate an array of resulting changes and update the "Comm" table
+                                $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                // Populate the vars back from initialized in "import_rules(...)"
+                                foreach ($arrayRuleClass AS $key=>$value){
+                                    if (substr($key, 0, 2)==="XX"){
+                                        $res = substr($key,2);
+                                        $$res = $value;
+                                    } else if (substr($key, 0, 2)==="YY"){
+                                        $res = substr($key,2);
+                                        $$res += $value;
+                                    }
+                                }
+                            }
+                            if (!$instance_rules->check_client_field($client_id, "state")){
+                                $error_code_id = 29;
+                                $fieldName = 'client state';
+                                $fieldValue = '';
+                                $check_data_val['file_type'] = $commissionFileType;
+                                
+                                // Populate an array of resulting changes and update the "Comm" table
+                                $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                // Populate the vars back from initialized in "import_rules(...)"
+                                foreach ($arrayRuleClass AS $key=>$value){
+                                    if (substr($key, 0, 2)==="XX"){
+                                        $res = substr($key,2);
+                                        $$res = $value;
+                                    } else if (substr($key, 0, 2)==="YY"){
+                                        $res = substr($key,2);
+                                        $$res += $value;
+                                    }
+                                }
+                            }
+                        }
+                        if ($broker_id!=0 AND $sponsor_id!=0 AND !$instance_rules->check_broker_sponsor($broker_id, $sponsor_id)){
+                            $error_code_id = 25;
+                            $fieldName = 'sponsor appointment';
+                            $fieldValue = $sponsor_id;
+                            $check_data_val['file_type'] = $commissionFileType;
+
+                            // Populate an array of resulting changes and update the "Comm" table
+                            $check_data_val = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                            // Populate the vars back from initialized in "import_rules(...)"
+                            foreach ($check_data_val AS $key=>$value){
+                                if (substr($key, 0, 2)==="XX"){
+                                    $res = substr($key,2);
+                                    $$res = $value;
+                                } else if (substr($key, 0, 2)==="YY"){
+                                    $res = substr($key,2);
+                                    $$res += $value;
+                                }
+                            }
+                        }
+                        
+                        if ($broker_id!=0 AND $reassignBroker==0 AND !empty($clientAccount['broker_name']) AND $broker_id!=(int)$clientAccount['broker_name']){
+                            $error_code_id = 30;
+                            $fieldName = 'client broker';
+                            $fieldValue = "$broker_id / {$clientAccount['broker_name']}";
+                            $check_data_val['file_type'] = $commissionFileType;
+
+                            // Populate an array of resulting changes and update the "Comm" table
+                            $check_data_val = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                            // Populate the vars back from initialized in "import_rules(...)"
+                            foreach ($check_data_val AS $key=>$value){
+                                if (substr($key, 0, 2)==="XX"){
+                                    $res = substr($key,2);
+                                    $$res = $value;
+                                } else if (substr($key, 0, 2)==="YY"){
+                                    $res = substr($key,2);
+                                    $$res += $value;
                                 }
                             }
                         }
@@ -3146,6 +3239,19 @@
                                     $con .=",`hold_commission`=1, `hold_resoan`='BROKER LICENCE ERROR'";
                                 } else if($check_data_val['on_hold'] AND in_array(9,$resolveHoldCommission)){
                                     $con .=",`hold_commission`=1, `hold_resoan`='CLIENT<>PRODUCT OBJECTIVE'";
+                                } else if($check_data_val['on_hold'] AND count($resolveHoldCommission)>0){
+                                    // Create of Rule Names to insert into Transactions Master->hold_resoan[sic]
+                                    $res = 0;
+                                    $q = '';
+                                    foreach($resolveHoldCommission AS $value){
+                                        $res = $instance_rules->get_action(null, $value, 1);
+                                        if (!empty($res[0]['rule_name'])){
+                                            $q = (empty($q) ? "" : ",").($this->re_db_input($res[0]['rule_name']));
+                                        }
+                                    }
+                                    $con .=",`hold_commission`=1, `hold_resoan`='$q'";
+                                    
+                                    $res = $q = 0;
                                 } else if($broker_hold_commission == 1){
                                     $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
                                 } else {
