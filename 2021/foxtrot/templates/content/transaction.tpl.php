@@ -400,7 +400,7 @@ function autocomplete(inp, arr) {
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Client Name <span class="text-red">* </span> </label><a href="#" onclick="return redirect_url('client_maintenance.php?redirect=add_client_from_trans&action=add_new','client');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New client</a><br />
-                        <select class="livesearch form-control" data-required="true" id="client_name" name="client_name" onchange="get_client_account_no(this.value,'<?php echo $client_number;?>');">
+                        <select class="livesearch form-control" data-required="true" id="client_name" name="client_name">
                             <option value="0">Select Client</option>
                             <?php foreach($get_client as $key=>$val){?>
                                 <option data-brokername="<?php echo $val['broker_name'] ?>" value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['first_name'].' '.$val['mi'].' '.$val['last_name'];?></option>
@@ -411,7 +411,7 @@ function autocomplete(inp, arr) {
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Account No <span class="text-red">* </span> </label>
-                         <select class="form-control" data-required="true" name="client_number" id="client_number" onchange="add_new_client_no(this)">
+                         <select class="form-control" data-required="true" name="client_number" id="client_number">
                                  <option value=""> Please Select  </option>
                                  <option value="-1"> Add New </option>
                                  <?php foreach($get_accounts_no as $no): ?>
@@ -456,7 +456,7 @@ function autocomplete(inp, arr) {
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Broker Name <span class="text-red">*</span></label><br />
-                        <select class="livesearch form-control" data-required="true" name="broker_name" id="broker_name" onchange="get_broker_hold_commission(this.value);">
+                        <select class="livesearch form-control" data-required="true" name="broker_name" id="broker_name">
                             <option value="0">Select Broker</option>
                             <?php foreach($get_broker as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>" <?php if(isset($broker_name) && $broker_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['last_name'].', '.$val['first_name'].' '.$val['middle_name'];?></option>
@@ -467,7 +467,7 @@ function autocomplete(inp, arr) {
                   <div class="col-md-6">
                     <div class="form-group">
                         <label>Batch <span class="text-red">*</span><a id="add_new_batch" href="#" onclick="return redirect_url('batches.php?action=add_batches_from_trans','batch');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Batch</a></label><br />
-                        <select class="form-control" data-required="true" name="batch" onchange="get_commission_date(this.value);">
+                        <select class="form-control" data-required="true" name="batch">
                             <option value="0">Select Batch</option>
                              <?php foreach($get_batch as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>" <?php if(isset($batch) && $batch==$val['id']){?> selected="true"<?php }  ?>><?php echo $val['id'].' '.$val['batch_desc'];?></option>
@@ -482,7 +482,7 @@ function autocomplete(inp, arr) {
                  <div class="col-md-4">
                     <div class="form-group">
                         <label>Branch <span class="text-red">*</span></label><br />
-                        <select class="form-control" data-required="true" name="branch" id="branch" onchange="get_branch_company(this.value)" >
+                        <select class="form-control" data-required="true" name="branch" id="branch">
                             <!-- <option value="0">Select Branch</option> -->
                              <?php foreach($get_branch as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>" <?php if(isset($branch) && $branch==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
@@ -509,7 +509,7 @@ function autocomplete(inp, arr) {
                  <div class="col-md-4">
                     <div class="form-group">
                         <label>Product Category <span class="text-red">*</span></label><br />
-                        <select class="form-control" data-required="true" name="product_cate" id="product_cate" onchange="get_product(this.value);">
+                        <select class="form-control" data-required="true" name="product_cate" id="product_cate">
                             <option value="0">Select Product category</option>
                              <?php foreach($product_category as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>" <?php if(isset($product_cate) && $product_cate==$val['id']){?> selected="true"<?php } ?>><?php echo $val['type'];?></option>
@@ -522,7 +522,7 @@ function autocomplete(inp, arr) {
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Sponsor </label><br />
-                            <select class="form-control" name="sponsor" id="sponsor" onchange="get_product();">
+                            <select class="form-control" name="sponsor" id="sponsor">
                                 <option value="">Select Sponsor</option>
                                 <?php foreach($get_sponsor as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>" <?php if(isset($sponsor) && $sponsor==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
@@ -623,11 +623,12 @@ function autocomplete(inp, arr) {
                             <div class="form-group">
                                 <label>Hold Commission <span class="text-red">*</span></label><br />
                                 <label class="radio-inline">
-                                  <input type="radio" class="radio" data-required="true" id="hold_commission_1"  name="hold_commission" onclick="open_hold_reason();"<?php if(isset($hold_commission) && $hold_commission==1){ echo'checked="true"'; }?> value="1"/>YES
-                                </label>
+                                  <input type="radio" class="radio" data-required="true" id="hold_commission_1"  name="hold_commission" <?php echo 'checked="true"' ?> onclick="open_hold_reason();" value="1" />
+                                YES</label>
                                 <label class="radio-inline">
-                                  <input type="radio" class="radio" data-required="true" id="hold_commission_2" name="hold_commission" onclick="hide_hold_reason();" <?php if((isset($hold_commission) && $hold_commission==2) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?> value="2" />NO
-                                </label>
+                                    <!-- <?php //if((isset($hold_commission) && $hold_commission!='1') || (isset($_GET['action']) && $_GET['action']=='add')){ $TestDeleteMe="echo 'checked='true'"; }?> -->
+                                  <input type="radio" class="radio" data-required="true" id="hold_commission_2" name="hold_commission" <?php echo 'checked="false"' ?> onclick="hide_hold_reason();" value="2" />
+                                NO</label>
                             </div>
                         </div>
                          <div class="col-md-3">
@@ -1258,7 +1259,6 @@ $(document).ready(function() {
     <?php if($broker_name>0){ ?>
         var currentdate = new Date();
         var datetime = Date.now().toString().substr(7);
-        console.log("("+datetime+")" + "$broker_name>0, $broker_name = " + <?php echo $broker_name?>); // 5/13/22 TEST DELETE ME
 
         $("#broker_name").val("");
         $("#broker_name").val(<?php echo $broker_name; ?>).trigger("chosen:updated").trigger("change");
@@ -1269,7 +1269,6 @@ $(document).ready(function() {
     <?php if($branch>0){ ?>
         var currentdate = new Date();
         var datetime = Date.now().toString().substr(7);
-        console.log("("+datetime+")" + "$branch>0, $branch = " + <?php echo $branch?>); // 5/13/22 TEST DELETE ME
 
         $("#branch").val("");
         $("#branch").val(<?php echo $branch; ?>).trigger("chosen:updated").trigger("change");
@@ -1278,7 +1277,6 @@ $(document).ready(function() {
     <?php if($company>0){ ?>
         var currentdate = new Date();
         var datetime = Date.now().toString().substr(7);
-        console.log("("+datetime+")" + "$company>0, $company = " + <?php echo $company?>); // 5/13/22 TEST DELETE ME
 
         $("#company").val("");
         $("#company").val(<?php echo $company; ?>).trigger("chosen:updated").trigger("change");
@@ -1292,15 +1290,15 @@ $(document).ready(function() {
         }
         console.log("jQuery(function($) - Line 1304"); // 5/14/22 TEST
     });
-
-        var currentdate = new Date();
-        var datetime = Date.now().toString().substr(7);
-        console.log("("+datetime+")" + "$(#company).val() = " + $("#company").val())
-        console.log("("+datetime+")" + "$(#company option:selected).val() = " + $("#company option:selected").val())
-
-        console.log("("+datetime+")" + "$(#branch).val() = " + $("#branch").val())
-        console.log("("+datetime+")" + "$(#branch option:selected).html() = " + $("#branch option:selected").html())
-        console.log("*** ("+datetime+")" + "Done with doc.ready() ***")
+    
+    // 06/02/22 Bind the "change()" functions to the elements AFTER the page is loaded, so it doesn't change the default values from TRANSACTION MASTER -> (if $action="edit_transaction")
+    $("#broker_name").change(function(e){get_broker_hold_commission($(this).val());});
+    $("#client_name").change(function(e){get_client_account_no($(this).val(),'<?php echo $client_number;?>');});
+    $("#client_number").change(function(e){add_new_client_no($(this));});
+    $("select[name='batch']").change(function(e){get_commission_date($(this).val());});
+    $("#branch").change(function(e){get_branch_company($(this).val());});
+    $("#product_cate").change(function(e){get_product($(this).val());});
+    $("#sponsor").change(function(e){get_product();});
 })
 
 function hide_hold_reason()
@@ -1541,7 +1539,7 @@ function get_client_account_no(client_id,selected){
     var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
     
     var datetime = Date.now().toString().substr(7);
-    console.log("("+datetime+")" + "get_client_account_no(client_id,selected): ", client_id, selected); // 5/13/22 TEST
+    console.log("("+datetime+")" + "get_client_account_no(client_id,selected): , ", client_id, selected); // 5/13/22 TEST
     $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
 
     var xmlhttp = new XMLHttpRequest();
@@ -1550,7 +1548,6 @@ function get_client_account_no(client_id,selected){
         {
             var dropdown='';
             var options = JSON.parse(this.responseText);
-
 
                 dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
                 options.forEach(function(item){
@@ -1705,7 +1702,7 @@ function redirect_url(url,selector){
 // 05/03/22 Add branch & company fetch from BROKER_BRANCHES as well
 function get_broker_hold_commission(broker_id){
     load_split_commission_content(broker_id);
-
+    
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
@@ -1860,173 +1857,174 @@ function close_other() {
 // })
 
 // 05/14/22 Removed - messing up opening page values
-// var waitingDialog = waitingDialog || (function ($) {
-//     'use strict';
+// 06/02/22 Reinstated - causing an error on "Save" submit
+var waitingDialog = waitingDialog || (function ($) {
+    'use strict';
 
-//     // Creating modal dialog's DOM
-// 	var $dialog = $(
-// 		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-// 		'<div class="modal-dialog modal-m">' +
-// 		'<div class="modal-content">' +
-// 			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-// 			'<div class="modal-body">' +
-// 				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-// 			'</div>' +
-// 		'</div></div></div>');
+    // Creating modal dialog's DOM
+	var $dialog = $(
+		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+		'<div class="modal-dialog modal-m">' +
+		'<div class="modal-content">' +
+			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+			'<div class="modal-body">' +
+				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+			'</div>' +
+		'</div></div></div>');
 
-// 	return {
-// 		/**
-// 		 * Opens our dialog
-// 		 * @param message Custom message
-// 		 * @param options Custom options:
-// 		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "sm", "m";
-// 		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
-// 		 */
-// 		show: function (message, options) {
-//              var isErrorFound= false;
-//              var trade_date = $("#trade_date");
-//              var client_name = $("#client_name");
-//              var client_name_dropdown = $("#client_name_chosen");
-//              var client_number = $("#client_number");
-//              var broker_name = $("select[name='broker_name']");
-//              var batch = $("select[name='batch']");
-//              var product_cate = $("#product_cate");
-//              var product = $("#product");
-//              var commission_received_date = $("#commission_received_date");
-//              var commission_received = $("input[name='commission_received']");
-//              var split = $("input[name='split']");
-//              var hold_commission = $("input[name='hold_commission']");
+	return {
+		/**
+		 * Opens our dialog
+		 * @param message Custom message
+		 * @param options Custom options:
+		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "sm", "m";
+		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+		 */
+		show: function (message, options) {
+             var isErrorFound= false;
+             var trade_date = $("#trade_date");
+             var client_name = $("#client_name");
+             var client_name_dropdown = $("#client_name_chosen");
+             var client_number = $("#client_number");
+             var broker_name = $("select[name='broker_name']");
+             var batch = $("select[name='batch']");
+             var product_cate = $("#product_cate");
+             var product = $("#product");
+             var commission_received_date = $("#commission_received_date");
+             var commission_received = $("input[name='commission_received']");
+             var split = $("input[name='split']");
+             var hold_commission = $("input[name='hold_commission']");
 
-//                 if($.trim(trade_date.val()) == ''){
-//                      isErrorFound=true;
-//                      trade_date.addClass("error");
-//                 }
-//                 else{
-//                        trade_date.removeClass("error");
-//                 }
-//                 if($.trim(client_name.val()) == '' || $.trim(client_name.val()) == '0'){
-//                      isErrorFound=true;
+                if($.trim(trade_date.val()) == ''){
+                     isErrorFound=true;
+                     trade_date.addClass("error");
+                }
+                else{
+                       trade_date.removeClass("error");
+                }
+                if($.trim(client_name.val()) == '' || $.trim(client_name.val()) == '0'){
+                     isErrorFound=true;
 
-//                      client_name.next("div").find("a.chosen-single").addClass("error");
-//                 }
-//                 else{
-//                        client_name.next("div").find("a.chosen-single").removeClass("error");
-//                 }
-//                 if($.trim(client_number.val()) == ''){
-//                      isErrorFound=true;
-//                      client_number.addClass("error");
-//                 }
-//                 else{
-//                        client_number.removeClass("error");
-//                 }
-//                 if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
-//                      isErrorFound=true;
-//                      broker_name.next("div").find("a.chosen-single").addClass("error");
-//                 }
-//                 else{
-//                        broker_name.next("div").find("a.chosen-single").removeClass("error");
-//                 }
-//                 if($.trim(batch.val()) == ''){
-//                      isErrorFound=true;
-//                      batch.addClass("error");
-//                 }
-//                 else{
-//                        batch.removeClass("error");
-//                 }
+                     client_name.next("div").find("a.chosen-single").addClass("error");
+                }
+                else{
+                       client_name.next("div").find("a.chosen-single").removeClass("error");
+                }
+                if($.trim(client_number.val()) == ''){
+                     isErrorFound=true;
+                     client_number.addClass("error");
+                }
+                else{
+                       client_number.removeClass("error");
+                }
+                if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
+                     isErrorFound=true;
+                     broker_name.next("div").find("a.chosen-single").addClass("error");
+                }
+                else{
+                       broker_name.next("div").find("a.chosen-single").removeClass("error");
+                }
+                if($.trim(batch.val()) == ''){
+                     isErrorFound=true;
+                     batch.addClass("error");
+                }
+                else{
+                       batch.removeClass("error");
+                }
 
-//                 if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
-//                      isErrorFound=true;
-//                      product_cate.addClass("error");
-//                 }
-//                 else{
-//                        product_cate.removeClass("error");
-//                 }
+                if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
+                     isErrorFound=true;
+                     product_cate.addClass("error");
+                }
+                else{
+                       product_cate.removeClass("error");
+                }
 
-//                 if($.trim(product.val()) == '' || $.trim(product.val()) == '0'){
-//                      isErrorFound=true;
-//                      product.addClass("error");
-//                 }
-//                 else{
-//                        product.removeClass("error");
-//                 }
+                if($.trim(product.val()) == '' || $.trim(product.val()) == '0'){
+                     isErrorFound=true;
+                     product.addClass("error");
+                }
+                else{
+                       product.removeClass("error");
+                }
 
-//                 if($.trim(commission_received_date.val()) == ''){
-//                      isErrorFound=true;
-//                      commission_received_date.addClass("error");
-//                 }
-//                 else{
-//                        commission_received_date.removeClass("error");
-//                 }
+                if($.trim(commission_received_date.val()) == ''){
+                     isErrorFound=true;
+                     commission_received_date.addClass("error");
+                }
+                else{
+                       commission_received_date.removeClass("error");
+                }
 
-//                 if($.trim(commission_received.val()) == ''){
-//                      isErrorFound=true;
-//                      commission_received.addClass("error");
-//                 }
-//                 else{
-//                        commission_received.removeClass("error");
-//                 }
+                if($.trim(commission_received.val()) == ''){
+                     isErrorFound=true;
+                     commission_received.addClass("error");
+                }
+                else{
+                       commission_received.removeClass("error");
+                }
 
-//                 if($.trim(split.val()) == ''){
-//                      isErrorFound=true;
-//                      split.addClass("error");
-//                 }
-//                 else{
-//                        split.removeClass("error");
-//                 }
+                if($.trim(split.val()) == ''){
+                     isErrorFound=true;
+                     split.addClass("error");
+                }
+                else{
+                       split.removeClass("error");
+                }
 
-//                 if($.trim(hold_commission.val()) == ''){
-//                      isErrorFound=true;
-//                      hold_commission.addClass("error");
-//                 }
-//                 else{
-//                        hold_commission.removeClass("error");
-//                 }
+                if($.trim(hold_commission.val()) == ''){
+                     isErrorFound=true;
+                     hold_commission.addClass("error");
+                }
+                else{
+                       hold_commission.removeClass("error");
+                }
 
-//                 if(isErrorFound){
-//                 // 5/13/22 TEST? --> console.log($("#id").offset());
-//                     $("html,body").animate({scrollTop: $("#id").offset().top},200);
-//                     return false;
-//                 }
+                if(isErrorFound){
+                // 5/13/22 TEST? --> console.log($("#id").offset());
+                    $("html,body").animate({scrollTop: $("#id").offset().top},200);
+                    return false;
+                }
 
-//                  localStorage.setItem('transcation_form_data',"");
+                 localStorage.setItem('transcation_form_data',"");
 
 
-// 			// Assigning defaults
-// 			if (typeof options === 'undefined') {
-// 				options = {};
-// 			}
-// 			if (typeof message === 'undefined') {
-// 				message = 'Saving...';
-// 			}
-// 			var settings = $.extend({
-// 				dialogSize: 'm',
-// 				progressType: '',
-// 				onHide: null // This callback runs after the dialog was hidden
-// 			}, options);
+			// Assigning defaults
+			if (typeof options === 'undefined') {
+				options = {};
+			}
+			if (typeof message === 'undefined') {
+				message = 'Saving...';
+			}
+			var settings = $.extend({
+				dialogSize: 'm',
+				progressType: '',
+				onHide: null // This callback runs after the dialog was hidden
+			}, options);
 
-// 			// Configuring dialog
-// 			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-// 			$dialog.find('.progress-bar').attr('class', 'progress-bar');
-// 			if (settings.progressType) {
-// 				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-// 			}
-// 			$dialog.find('h3').text(message);
-// 			// Adding callbacks
-// 			if (typeof settings.onHide === 'function') {
-// 				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
-// 					settings.onHide.call($dialog);
-// 				});
-// 			}
-// 			// Opening dialog
-// 			$dialog.modal();
-// 		},
-// 		/**
-// 		 * Closes dialog
-// 		 */
+			// Configuring dialog
+			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+			$dialog.find('.progress-bar').attr('class', 'progress-bar');
+			if (settings.progressType) {
+				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+			}
+			$dialog.find('h3').text(message);
+			// Adding callbacks
+			if (typeof settings.onHide === 'function') {
+				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+					settings.onHide.call($dialog);
+				});
+			}
+			// Opening dialog
+			$dialog.modal();
+		},
+		/**
+		 * Closes dialog
+		 */
 
-// 	};
+	};
 
-// })(jQuery);
+})(jQuery);
 
 
 $('#demo-dp-range .input-daterange').datepicker({

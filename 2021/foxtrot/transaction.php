@@ -162,7 +162,7 @@
         $another_level = isset($return['another_level'])?$instance->re_db_output($return['another_level']):'';
         $cancel = isset($return['cancel'])?$instance->re_db_output($return['cancel']):'';
         $buy_sell = isset($return['buy_sell'])?$instance->re_db_output($return['buy_sell']):'';
-        $hold_commission = isset($return['hold_commission'])?$instance->re_db_output($return['hold_commission']):'';
+        $hold_commission = (isset($return['hold_commission']) ? $instance->re_db_output($return['hold_commission']) : '2');
         $hold_resoan = isset($return['hold_resoan'])?$instance->re_db_output($return['hold_resoan']):'';
         $posting_date = isset($return['posting_date'])?$instance->re_db_output($return['posting_date']):'';
         $units = isset($return['units'])?$instance->re_db_output($return['units']):'';
