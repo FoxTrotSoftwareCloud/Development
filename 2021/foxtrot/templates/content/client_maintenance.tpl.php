@@ -250,7 +250,10 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <select name="broker_name" data-required="true" id="broker_name" class="form-control">
                                                            <option value="">Select Broker</option>
                                                             <?php foreach($get_broker as $key=>$val){?>
-                                                            <option value="<?php echo $val['id'];?>" <?php if($broker_name != '' && $broker_name==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['last_name'];?></option>
+                                                            <option value="<?php echo $val['id'];?>" 
+                                                                <?php if($broker_name != '' && $broker_name==$val['id']){echo "selected";} ?>>
+                                                                <?php echo strtoupper($val['last_name'].(($val['last_name']!="" AND $val['first_name']!="") ? ", " : "").$val['first_name']); ?>
+                                                            </option>
                                                             <?php } ?>
                                                         </select>
                                                     </div>
@@ -263,7 +266,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <select name="split_broker" id="split_broker" class="form-control">
                                                             <option value="">Select Broker</option>
                                                             <?php foreach($get_broker as $key=>$val){?>
-                                                            <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['last_name'];?></option>
+                                                            <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected";} ?>><?php echo strtoupper($val['last_name'].(($val['last_name']!="" AND $val['first_name']!="") ? ", " : "").$val['first_name']); ?></option>
                                                             <?php } ?>
                                                         </select>
                                                     </div>

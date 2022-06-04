@@ -2567,44 +2567,20 @@
                                             $error_code_id = 2;
                                             $fieldName = 'u5';
                                             $fieldValue = $check_broker_termination;
+                                            $check_data_val['file_type'] = $commissionFileType;
+
                                             // Populate an array of resulting changes and update the "Comm" table
-                                            $arrayRuleClass = $instance_rules->import_rule($error_code_id, $commDetailTable, $check_data_val, $resolveHoldCommission);
-
-                                            switch ($arrayRuleClass['import_action_id']){
-                                                case 1:
-                                                    // 1. Hold Commission
-                                                    $resolveHoldCommission = isset($arrayRuleClass['resolveHoldCommission']) ? $arrayRuleClass['resolveHoldCommission'] : $resolveHoldCommission;
-                                                    $check_data_val['on_hold'] = isset($arrayRuleClass['on_hold']) ? $arrayRuleClass['on_hold'] : $check_data_val['on_hold'];
-                                                    break;
-                                                case 3:
-                                                    // 3. Reassign Broker
-                                                    $broker = isset($arrayRuleClass['broker']) ? $arrayRuleClass['broker'] : $broker;
-                                                    $brokerAlias = isset($arrayRuleClass['brokerAlias']) ? $arrayRuleClass['brokerAlias'] : $brokerAlias;
-                                                    $broker_id = !empty($arrayRuleClass['broker_id']) ? $arrayRuleClass['broker_id'] : $broker_id;
-                                                    $reassignBroker = isset($arrayRuleClass['reassignBroker']) ? $arrayRuleClass['reassignBroker'] : $reassignBroker;
-                                                    break;
+                                            $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                            // Populate the vars back from initialized in "import_rules(...)"
+                                            foreach ($arrayRuleClass AS $key=>$value){
+                                                if (substr($key, 0, 2)==="XX"){
+                                                    $res = substr($key,2);
+                                                    $$res = $value;
+                                                } else if (substr($key, 0, 2)==="YY"){
+                                                    $res = substr($key,2);
+                                                    $$res += $value;
+                                                }
                                             }
-
-                                            $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                    ." SET  `error_code_id`=$error_code_id"
-                                                        .",`field`='$fieldName'"
-                                                        .",`field_value`='".$fieldValue."'"
-                                                        .",`file_type`=$commissionFileType"
-                                                        .$arrayRuleClass['ruleExceptionUpdate']
-                                                        .$insert_exception_string
-                                            ;
-                                            $res = $this->re_db_query($q);
-                                            $last_inserted_exception = $this->re_db_insert_id();
-
-                                            // Rule takes precedence over Exception
-                                            if (!empty($arrayRuleClass['ruleProceed'])) {
-                                                $res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$check_data_val['id']}", 'resolve_exceptions', $last_inserted_exception);
-                                                if (!empty($arrayRuleClass['resultIncrement']))
-                                                    $result++;
-                                            } else {
-                                                $result++;
-                                            }
-                                            // END--- Rule Engine 5/24/22 --- //
                                         }
                                     }
                                 }
@@ -2908,42 +2884,19 @@
                                         $error_code_id = 9;
                                         $fieldName = 'objectives';
                                         $fieldValue = $foundProduct['objective'];
+                                        $check_data_val['file_type'] = $commissionFileType;
+
                                         // Populate an array of resulting changes and update the "Comm" table
-                                        $arrayRuleClass = $instance_rules->import_rule($error_code_id, $commDetailTable, $check_data_val, $resolveHoldCommission);
-
-                                        switch ($arrayRuleClass['import_action_id']){
-                                            case 1:
-                                                // 1. Hold Commission
-                                                $resolveHoldCommission = isset($arrayRuleClass['resolveHoldCommission']) ? $arrayRuleClass['resolveHoldCommission'] : $resolveHoldCommission;
-                                                $check_data_val['on_hold'] = isset($arrayRuleClass['on_hold']) ? $arrayRuleClass['on_hold'] : $check_data_val['on_hold'];
-                                                break;
-                                            case 3:
-                                                // 3. Reassign Broker
-                                                $broker = isset($arrayRuleClass['broker']) ? $arrayRuleClass['broker'] : $broker;
-                                                $brokerAlias = isset($arrayRuleClass['brokerAlias']) ? $arrayRuleClass['brokerAlias'] : $brokerAlias;
-                                                $broker_id = !empty($arrayRuleClass['broker_id']) ? $arrayRuleClass['broker_id'] : $broker_id;
-                                                $reassignBroker = isset($arrayRuleClass['reassignBroker']) ? $arrayRuleClass['reassignBroker'] : $reassignBroker;
-                                                break;
-                                        }
-
-                                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                ." SET  `error_code_id`=$error_code_id"
-                                                    .",`field`='$fieldName'"
-                                                    .",`field_value`='".$fieldValue."'"
-                                                    .",`file_type`=$commissionFileType"
-                                                    .$arrayRuleClass['ruleExceptionUpdate']
-                                                    .$insert_exception_string
-                                        ;
-                                        $res = $this->re_db_query($q);
-                                        $last_inserted_exception = $this->re_db_insert_id();
-
-                                        // Rule takes precedence over Exception
-                                        if (!empty($arrayRuleClass['ruleProceed'])) {
-                                            $res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$check_data_val['id']}", 'resolve_exceptions', $last_inserted_exception);
-                                            if (!empty($arrayRuleClass['resultIncrement']))
-                                                $result++;
-                                        } else {
-                                            $result++;
+                                        $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                        // Populate the vars back from initialized in "import_rules(...)"
+                                        foreach ($arrayRuleClass AS $key=>$value){
+                                            if (substr($key, 0, 2)==="XX"){
+                                                $res = substr($key,2);
+                                                $$res = $value;
+                                            } else if (substr($key, 0, 2)==="YY"){
+                                                $res = substr($key,2);
+                                                $$res += $value;
+                                            }
                                         }
                                         // END--- Rule Engine 5/24/22 --- //
                                     }
@@ -2975,43 +2928,19 @@
                                         $error_code_id = 6;
                                         $fieldName = 'active_check';
                                         $fieldValue = $product_category_id." / ".$clientAccount['state'];
+                                        $check_data_val['file_type'] = $commissionFileType;
 
                                         // Populate an array of resulting changes and update the "Comm" table
-                                        $arrayRuleClass = $instance_rules->import_rule($error_code_id, $commDetailTable, $check_data_val, $resolveHoldCommission);
-
-                                        switch ($arrayRuleClass['import_action_id']){
-                                            case 1:
-                                                // 1. Hold Commission
-                                                $resolveHoldCommission = isset($arrayRuleClass['resolveHoldCommission']) ? $arrayRuleClass['resolveHoldCommission'] : $resolveHoldCommission;
-                                                $check_data_val['on_hold'] = isset($arrayRuleClass['on_hold']) ? $arrayRuleClass['on_hold'] : $check_data_val['on_hold'];
-                                                break;
-                                            case 3:
-                                                // 3. Reassign Broker
-                                                $broker = isset($arrayRuleClass['broker']) ? $arrayRuleClass['broker'] : $broker;
-                                                $brokerAlias = isset($arrayRuleClass['brokerAlias']) ? $arrayRuleClass['brokerAlias'] : $brokerAlias;
-                                                $broker_id = !empty($arrayRuleClass['broker_id']) ? $arrayRuleClass['broker_id'] : $broker_id;
-                                                $reassignBroker = isset($arrayRuleClass['reassignBroker']) ? $arrayRuleClass['reassignBroker'] : $reassignBroker;
-                                                break;
+                                        $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission);
+                                        // Populate the vars back from initialized in "import_rules(...)"
+                                        foreach ($arrayRuleClass AS $key=>$value){
+                                            if (substr($key, 0, 2)==="XX"){
+                                                $res = substr($key,2);
+                                                $$res = $value;
+                                            } else if (substr($key, 0, 2)==="YY"){
+                                                $res = substr($key,2);
+                                                $$res += $value;
                                             }
-
-                                        $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                                ." SET  `error_code_id`=$error_code_id"
-                                                    .",`field`='$fieldName'"
-                                                    .",`field_value`='".$fieldValue."'"
-                                                    .",`file_type`=$commissionFileType"
-                                                    .$arrayRuleClass['ruleExceptionUpdate']
-                                                    .$insert_exception_string
-                                        ;
-                                        $res = $this->re_db_query($q);
-                                        $last_inserted_exception = $this->re_db_insert_id();
-
-                                        // Rule takes precedence over Exception
-                                        if (!empty($arrayRuleClass['ruleProceed'])) {
-                                            $res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$check_data_val['id']}", 'resolve_exceptions', $last_inserted_exception);
-                                            if (!empty($arrayRuleClass['resultIncrement']))
-                                                $result++;
-                                        } else {
-                                            $result++;
                                         }
                                         // END--- Rule Engine 5/24/22 --- //
                                     }

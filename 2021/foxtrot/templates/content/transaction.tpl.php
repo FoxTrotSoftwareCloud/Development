@@ -415,7 +415,7 @@ function autocomplete(inp, arr) {
                                  <option value=""> Please Select  </option>
                                  <option value="-1"> Add New </option>
                                  <?php foreach($get_accounts_no as $no): ?>
-                                     <option value="<?php echo $no;?>" <?php echo $no == $client_number ? "selected='selected'" : "" ; ?> ><?php echo $no;?></option>
+                                     <option value="<?php echo trim($no);?>" "selected" data-test="datatest"><?php echo $no;?></option>
                                  <?php endforeach;  ?>
 
                             </select>
@@ -623,11 +623,11 @@ function autocomplete(inp, arr) {
                             <div class="form-group">
                                 <label>Hold Commission <span class="text-red">*</span></label><br />
                                 <label class="radio-inline">
-                                  <input type="radio" class="radio" data-required="true" id="hold_commission_1"  name="hold_commission" <?php echo 'checked="true"' ?> onclick="open_hold_reason();" value="1" />
+                                  <input type="radio" class="radio" data-required="true" id="hold_commission_1"  name="hold_commission" onclick="open_hold_reason();" value="1" <?php if(isset($hold_commission) AND $hold_commission=='1'){ echo 'checked'; } ?>/>
                                 YES</label>
                                 <label class="radio-inline">
                                     <!-- <?php //if((isset($hold_commission) && $hold_commission!='1') || (isset($_GET['action']) && $_GET['action']=='add')){ $TestDeleteMe="echo 'checked='true'"; }?> -->
-                                  <input type="radio" class="radio" data-required="true" id="hold_commission_2" name="hold_commission" <?php echo 'checked="false"' ?> onclick="hide_hold_reason();" value="2" />
+                                  <input type="radio" class="radio" data-required="true" id="hold_commission_2" name="hold_commission"  onclick="hide_hold_reason();" value="2" <?php if(!(isset($hold_commission) AND $hold_commission=='1')){ echo 'checked'; } ?> />
                                 NO</label>
                             </div>
                         </div>
@@ -1106,7 +1106,6 @@ function autocomplete(inp, arr) {
 
 <script type="text/javascript">
 $(document).ready(function() {
-    console.log("(function($){})( jQuery ); - Line 1186"); // 5/14/22 TEST
     $.fn.chargeFormat = function() {
             this.each( function( i ) {
                 $(this).change( function( e ){
@@ -1117,7 +1116,6 @@ $(document).ready(function() {
         return this; //for chaining
     }
 
-    console.log("document.ready() - Line 1204"); // 5/14/22 TEST
     $.fn.dataTable.moment('MM/DD/YYYY');
     $('#data-table').DataTable({
         "pageLength": 25,
@@ -1145,7 +1143,6 @@ $(document).ready(function() {
             '</div>');
 
 
-    console.log("document.ready() - Line 1262"); // 5/14/22 TEST
     var client_ac_number =<?php echo json_encode($client_account_array); ?>;
 
     // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
@@ -1180,7 +1177,6 @@ $(document).ready(function() {
 
     $('#ch_no').mask("999999");
 
-    console.log("document.ready() - Line 1651"); // 5/14/22 TEST
     $('[data-required="true"]').each(function(){
         $(this).on("change blur",function(){
             if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
@@ -1208,7 +1204,6 @@ $(document).ready(function() {
         });
     });
 
-    console.log("jQuery(function($) - Line 1665, this.name = " + $(this).attr("name")); // 5/14/22 TEST
     $('[data-required="true"]').each(function(){
         $(this).on("change blur",function(){
             if($(this).prop("type") =="text" || $(this).prop("type") =="select-one"){
@@ -1237,7 +1232,6 @@ $(document).ready(function() {
 
     });
 
-    console.log("document.ready() - Line 1958"); // 5/14/22 TEST
     // Default dropdowns after the load()
     <?php if($product_cate>0){ ?>
         $("#product_cate").val(<?php echo $product_cate; ?>);
@@ -1246,7 +1240,7 @@ $(document).ready(function() {
 
     <?php if($client_name>0){ ?>
         $('#client_name').val(<?php echo $client_name; ?>).trigger("chosen:updated").trigger("change");
-        get_client_account_no('<?php echo $client_name; ?>','<?php echo $client_number; ?>');
+        get_client_account_no('<?php echo $client_name; ?>','<?php echo $client_number; ?>', 1);
     <?php } ?>
 
     <?php if(isset($_GET['batch_id']) && ($_GET['batch_id'] != '' || $batch>0)){ ?>
@@ -1288,7 +1282,6 @@ $(document).ready(function() {
                 alert("Please select Product Category First");
                 return false;
         }
-        console.log("jQuery(function($) - Line 1304"); // 5/14/22 TEST
     });
     
     // 06/02/22 Bind the "change()" functions to the elements AFTER the page is loaded, so it doesn't change the default values from TRANSACTION MASTER -> (if $action="edit_transaction")
@@ -1372,7 +1365,6 @@ function handleChange(input) {
     if (input.value > 100) input.value = 100.00;
 }
 // (function($) {
-//     console.log("(function($){})( jQuery ); - Line 1186"); // 5/14/22 TEST
 
 //     $.fn.chargeFormat = function() {
 //         this.each( function( i ) {
@@ -1404,7 +1396,6 @@ $( function() {
 // }
 
     // $(document).ready(function (){
-    //     console.log("document.ready() - Line 1267"); // 5/14/22 TEST
 
     //     var client_ac_number =<?php //echo json_encode($client_account_array); ?>;
 
@@ -1446,7 +1437,6 @@ $( function() {
     //                alert("Please select Product Category First");
     //                return false;
     //         }
-    //     console.log("jQuery(function($) - Line 1304"); // 5/14/22 TEST
     //   });
     // })
 
@@ -1493,7 +1483,6 @@ $( function() {
 // })
 
 function add_new_client_no(element){
-    //5/13/22 TEST? console.log(element,element.value,"dsfdsf")
 
     if(element.value == -1){
         jQuery("#account_no_row").show();
@@ -1534,13 +1523,14 @@ function get_product(category_id,selected=''){
 }
 
 //get client account no on client select
-function get_client_account_no(client_id,selected){
+function get_client_account_no(client_id,selected,skipBroker=0){
     document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
-    var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
     
-    var datetime = Date.now().toString().substr(7);
-    console.log("("+datetime+")" + "get_client_account_no(client_id,selected): , ", client_id, selected); // 5/13/22 TEST
-    $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
+    // Skip on the page load
+    if (!skipBroker){
+        var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
+        $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
+    }
 
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
@@ -1549,18 +1539,18 @@ function get_client_account_no(client_id,selected){
             var dropdown='';
             var options = JSON.parse(this.responseText);
 
-                dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
-                options.forEach(function(item){
-                    //   console.log(item,selected,selected == item)
-                    $is_selected = selected == item ? "selected='selected'": "";
-                    dropdown+="<option value='"+item+"' "+$is_selected+"  >"+item+"</option>";
-                })
-                document.getElementById("client_number").innerHTML = dropdown;
-                // 05/15/22 Commented out - not sure what this is doing
-                // for(var key in transcation_form_data){
-                //     if(transcation_form_data[key]['name']=='client_number')
-                //     document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
-                // }
+            dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
+            options.forEach(function(item){
+                $is_selected = (selected.trim() == item.trim() ? "selected" : "");
+                dropdown+="<option value='"+item.trim()+"' "+$is_selected+">"+item+"</option>";
+            })
+            document.getElementById("client_number").innerHTML = dropdown;
+
+            // 05/15/22 Commented out - not sure what this is doing
+            // for(var key in transcation_form_data){
+            //     if(transcation_form_data[key]['name']=='client_number')
+            //     document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
+            // }
         }
     };
     xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
@@ -1733,7 +1723,6 @@ function get_broker_hold_commission(broker_id){
 
                     var currentdate = new Date();
                     var datetime = Date.now().toString().substr(7);
-                    console.log("(" + datetime + ")" + "get_broker_hold_commission(" + broker_id + "):get_branch_company(" + jsonResponse.branch + ")"); // 5/14/22 TEST
                 }
             } else {
                 $("#hold_commission_1").prop( "checked", false );
@@ -1750,7 +1739,6 @@ function get_broker_hold_commission(broker_id){
 function get_branch_company(branch_id){
     var currentdate = new Date();
     var datetime = Date.now().toString().substr(7);
-    console.log("(" + datetime + ")" + "BEGIN: get-branch-company("+branch_id+") branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
 
     var jsonResponse = '';
     var company_id = company_name = 0
@@ -1765,7 +1753,6 @@ function get_branch_company(branch_id){
                 $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("chosen:updated").trigger("change");
 
                 var datetime2 = Date.now().toString().substr(7);
-                console.log("(" + datetime + "-" + datetime2 + ")" + "get-branch-company("+branch_id+") jsonResponse.id = " + jsonResponse.id + ", branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
 
             }
         }
@@ -1773,16 +1760,13 @@ function get_branch_company(branch_id){
     xmlhttp.open("GET", "ajax_transaction_tpl.php?action=branch_company&branch="+branch_id, true);
     xmlhttp.send();
 
-    console.log("(" + datetime + ")" + "END: get-branch-company("+branch_id+") branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
 
     // 5/14/22 TEST: See if taking the code outside the AJAX retrieve changes anything
     // if (jsonResponse.id){
-    //     console.log("get-branch-company("+branch_id+") jsonResponse.id = " + jsonResponse.id + ", branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
 
     //     $("#company").val("");
     //     $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("change");
     // }
-    // console.log("get-branch-company("+branch_id+") branch.value = " + $("#branch").val() + ", company.value = " + $("#company").val())
 }
 
 function load_split_commission_content(broker_id){
@@ -1825,7 +1809,6 @@ function close_other() {
 }
 
 // jQuery(function($){
-//     console.log("jQuery(function($) - Line 1665, this.name = " + $(this).attr("name")); // 5/14/22 TEST
 
 //     $('[data-required="true"]').each(function(){
 //         $(this).on("change blur",function(){
@@ -1981,7 +1964,6 @@ var waitingDialog = waitingDialog || (function ($) {
                 }
 
                 if(isErrorFound){
-                // 5/13/22 TEST? --> console.log($("#id").offset());
                     $("html,body").animate({scrollTop: $("#id").offset().top},200);
                     return false;
                 }

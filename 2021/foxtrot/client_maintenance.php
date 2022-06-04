@@ -115,7 +115,7 @@
     $get_time_for_exp = $instance_client_suitability->select_time_for_exp();
     $get_account_use = $instance_client_suitability->select_account_use();
     $instance_broker = new broker_master();
-    $get_broker = $instance_broker->select();
+    $get_broker = $instance_broker->select(1);
     $user_instance=new user_master();
     $u_id=$_SESSION['user_id'];
     $logged_user=$user_instance->get_user($u_id);
