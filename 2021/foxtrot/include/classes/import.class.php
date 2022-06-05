@@ -152,6 +152,8 @@
                 $exception_value = isset($data['existing_ticker_symbol'])?$this->re_db_input($data['existing_ticker_symbol']):'';
             } else if($exception_field == 'major_security_type' && $error_code_id == '17'){
                 $exception_value = isset($data['assign_cusip_product_category'])?$this->re_db_input($data['assign_cusip_product_category']):'';
+            } else if($exception_field == 'rule_engine'){
+                $exception_value = isset($data['resolve_broker_terminated'])?$this->re_db_input($data['resolve_broker_terminated']):'';
             } else {
                 $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
             }
@@ -303,16 +305,14 @@
                 }
                 //--- 02/03/22 Active Broker Licence check added to this section($exception_field=='active_check').
                 //--- Populates the "resolve_broker_terminated" elements in "import.tpl.php". Re-activate Rep (resolve_broker_terminated==2) is compleletely different --//
-                if(in_array($exception_field, ['u5', 'active_check', 'objectives']))
+                if(in_array($exception_field, ['u5', 'active_check', 'objectives', 'rule_engine']))
                 {
                     if(!isset($data['resolve_broker_terminated'])||$data['resolve_broker_terminated']=='')
                     {
                         $this->errors = 'Please select one option.';
                         return $this->errors;
-                    }
-                    else{
-                        if($resolveAction == 1)
-                        {
+                    } else {
+                        if($resolveAction == 1) {
                             // Put HOLD on trade
                             $q = "UPDATE `".$commDetailTable."`"
                                 ." SET `on_hold`=1"
@@ -336,9 +336,7 @@
 
                                 $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
                             }
-                        }
-                        else if($resolveAction == 2)
-                        {   // ADD\UPDATE CloudFox Broker\Client\Product
+                        } else if($resolveAction == 2) {   // ADD\UPDATE CloudFox Broker\Client\Product
                             if ($exception_field=='u5'){
                                 $result = $this->resolve_exception_2Reactivate($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id, $error_code_id);
                             } else if ($exception_field=='active_check'){
@@ -510,11 +508,63 @@
                                         }
                                     }
                                 }
+                            } else if($exception_field == 'rule_engine') {
+                                // Documentation (NAF Date as of 06/04/22)
+                                $instance_client = new client_maintenance();
+
+                                switch ($commDetailTable){
+                                    case IMPORT_IDC_DETAIL_DATA:
+                                        $detailData = $this->select_existing_idc_data($exception_data_id);
+                                        break;
+                                    case IMPORT_GEN_DETAIL_DATA:
+                                        $detailData = $this->select_existing_gen_data($exception_data_id);
+                                        break;
+                                }
+                                // 06/04/22 Write: New function to update exception field
+                                $res = $this->resolve_exception_2AddClientValues($detailData['client_id'], ['naf_date'=>date('Y-m-d')], $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+
+                                if($res){
+                                    // Update "resolve_exceptions" field to flag detail as "special handling" record
+                                    $res = $this->read_update_serial_field($commDetailTable, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
+
+                                    $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                            ." SET `resolve_action`=2"
+                                                .",`resolve_assign_to`='Client:".$detailData['client_id'].", Objective:".$data['objectives']."'"
+                                                    .$this->update_common_sql()
+                                            ." WHERE `id`=".$exception_record_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                    if ($res){
+                                        $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
+
+                                        // Check if this update can clear other exceptions in the file
+                                        // Clear all the Exceptions for the same Exception and Client #
+                                        $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`client_id`"
+                                                ." FROM `".IMPORT_EXCEPTION."` `ex`"
+                                                ." LEFT JOIN `".$commDetailTable."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
+                                                ." WHERE `ex`.`file_id`=$exception_file_id"
+                                                ." AND `ex`.`file_type`=$exception_file_type"
+                                                ." AND `ex`.`error_code_id`=$error_code_id"
+                                                ." AND `ex`.`is_delete`=0"
+                                                ." AND `det`.`client_id`=".$detailData['client_id']
+                                        ;
+                                        $res = $this->re_db_query($q);
+
+                                        if ($this->re_db_num_rows($res)) {
+                                            $excArray = $this->re_db_fetch_all($res);
+
+                                            foreach ($excArray AS $excRow){
+                                                $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $excRow['temp_data_id']);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                         else if($resolveAction == 3)
                         { // REASSIGN Broker/Client
-                            if ($exception_field == "objectives"){
+                            if (in_array($exception_field, ["objectives","documentation"])){
                                 $result = $this->resolve_exception_3Reassign('client_id', $acc_for_client, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                             } else {
                                 $result = $this->resolve_exception_3Reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
@@ -878,6 +928,96 @@
                                 ." AND `ex`.`error_code_id`={$excArray[0]['error_code_id']}"
                                 ." AND `ex`.`is_delete`=0"
                                 ." AND `ex`.`rep`='".$brokerAlias."'"
+                            ;
+                            $res = $this->re_db_query($q);
+
+                            if ($this->re_db_num_rows($res)) {
+                                $excArray = $this->re_db_fetch_all($res);
+
+                                foreach ($excArray AS $excRow){
+                                    $result = $this->reprocess_current_files($file_id, $file_type, $excRow['temp_data_id']);
+                                }
+                            }
+                        }
+			        }
+                }
+            }
+            return $result;
+        }
+        function resolve_exception_2AddClientValues($clientId=0, $fieldArray=[], $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
+            $result = $res = 0;
+            $clientId = (int)$this->re_db_input($clientId);
+            
+            if ($clientId!='' AND count($fieldArray) AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+                $importFileTable = '';
+                $instance_client = new client_maintenance();
+                $clientDetail = $instance_client->select_client_master($clientId);
+                
+                if ($clientDetail){
+                    $updateString = '';
+                    
+                    foreach($fieldArray AS $key=>$value){
+                        if (isset($clientDetail[$key])){
+                            $updateString .= (empty($updateString) ? "" : ",")."`$key`='".($this->re_db_input($value))."'";
+                        }
+                    }
+                    
+                    if ($updateString!=""){
+                        $q = "UPDATE `".CLIENT_MASTER."`"
+                                ." SET "
+                                    .$updateString
+                                    .$this->update_common_sql()
+                                ." WHERE `id`=$clientId"
+                        ;
+                        $res = $this->re_db_query($q);
+                    }
+                }
+
+                if($res){
+                    $res = 0;
+
+                    switch ($file_type){
+                        case 1:
+                            $importFileTable = IMPORT_DETAIL_DATA;
+                            break;
+                        case 2:
+                            $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                            break;
+                        case 3:
+                            $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                            break;
+                        case $this->GENERIC_file_type:
+                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                            break;
+                    }
+
+                    // Update "resolve_exceptions" field to flag detail as "special handling" record
+                    $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
+
+                    $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                            ." SET `resolve_action`=2"
+                                .",`resolve_assign_to`='$clientId'"
+                                .$this->update_common_sql()
+                            ." WHERE `id`=".$exception_record_id
+                    ;
+                    $res = $this->re_db_query($q);
+
+                    $result = $this->reprocess_current_files($file_id, $file_type, $detail_data_id);
+
+                    if ($result){
+                        $q = $res = $excArray = '';
+                        $excArray = $this->select_exception_data(0, $exception_record_id);
+
+                        if ($excArray){
+                            // Check if this update can clear other exceptions in the file
+                            // Clear all the Exceptions for the same Exception and Broker #
+                            $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`"
+                                ." FROM `".IMPORT_EXCEPTION."` `ex`"
+                                ." WHERE `ex`.`file_id`=$file_id"
+                                ." AND `ex`.`file_type`=$file_type"
+                                ." AND `ex`.`error_code_id`={$excArray[0]['error_code_id']}"
+                                ." AND `ex`.`is_delete`=0"
+                                ." AND `ex`.`account_no`='{$excArray[0]['account_no']}'"
                             ;
                             $res = $this->re_db_query($q);
 
@@ -2500,8 +2640,8 @@
                                     $reassignBroker = $errorKey;
                                 }
 
-                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['customer_account_number', 'objectives'])
-                                    OR ($exceptionArray[$errorKey]['resolve_action']=='add' AND in_array($exceptionArray[$errorKey]['field'], ['objectives']))
+                                if ($exceptionArray[$errorKey]['resolve_action']=='reassign' AND in_array($exceptionArray[$errorKey]['field'], ['customer_account_number', 'objectives', 'rule_engine'])
+                                    OR ($exceptionArray[$errorKey]['resolve_action']=='add' AND in_array($exceptionArray[$errorKey]['field'], ['objectives','rule_engine']))
                                 ){
                                     // Assign error code so the program knows way it's skipping the Client Account # search
                                     $reassignClient = $errorKey;
@@ -2952,8 +3092,9 @@
                         if ($client_id!=0){
                             if (!$instance_rules->check_client_documentation($client_id)){
                                 $error_code_id = 21;
-                                $fieldName = 'documentation';
-                                $fieldValue = $clientAccount['naf_date'];
+                                // $fieldName = 'documentation';
+                                $fieldName = 'rule_engine';
+                                $fieldValue = 'No NAF Date';
                                 $check_data_val['file_type'] = $commissionFileType;
                                 
                                 // Populate an array of resulting changes and update the "Comm" table
@@ -2971,8 +3112,9 @@
                             }
                             if (!$instance_rules->check_client_age($client_id)){
                                 $error_code_id = 26;
-                                $fieldName = 'client age';
-                                $fieldValue = $clientAccount['birth_date'];
+                                // $fieldName = 'client age';
+                                $fieldName = 'rule_engine';
+                                $fieldValue = 'client_legal_age';
                                 $check_data_val['file_type'] = $commissionFileType;
                                 
                                 // Populate an array of resulting changes and update the "Comm" table
@@ -2990,8 +3132,9 @@
                             }
                             if (!$instance_rules->check_client_field($client_id, "birth_date")){
                                 $error_code_id = 27;
-                                $fieldName = 'birth_date';
-                                $fieldValue = $clientAccount['birth_date'];
+                                // $fieldName = 'birth_date';
+                                $fieldName = 'rule_engine';
+                                $fieldValue = 'no_birth_date';
                                 $check_data_val['file_type'] = $commissionFileType;
                                 
                                 // Populate an array of resulting changes and update the "Comm" table
@@ -3009,8 +3152,9 @@
                             }
                             if (!$instance_rules->check_client_identity($client_id, $check_data_val['trade_date'])){
                                 $error_code_id = 28;
-                                $fieldName = 'identity';
-                                $fieldValue = '';
+                                // $fieldName = 'identity';
+                                $fieldName = 'rule_engine';
+                                $fieldValue = 'proof_of_identity';
                                 $check_data_val['file_type'] = $commissionFileType;
                                 
                                 // Populate an array of resulting changes and update the "Comm" table
@@ -3028,8 +3172,9 @@
                             }
                             if (!$instance_rules->check_client_field($client_id, "state")){
                                 $error_code_id = 29;
-                                $fieldName = 'client state';
-                                $fieldValue = '';
+                                // $fieldName = 'client state';
+                                $fieldName = 'rule_engine';
+                                $fieldValue = 'client_state';
                                 $check_data_val['file_type'] = $commissionFileType;
                                 
                                 // Populate an array of resulting changes and update the "Comm" table
@@ -3048,7 +3193,8 @@
                         }
                         if ($broker_id!=0 AND $sponsor_id!=0 AND !$instance_rules->check_broker_sponsor($broker_id, $sponsor_id)){
                             $error_code_id = 25;
-                            $fieldName = 'sponsor appointment';
+                            // $fieldName = 'sponsor appointment';
+                            $fieldName = 'rule_engine';
                             $fieldValue = $sponsor_id;
                             $check_data_val['file_type'] = $commissionFileType;
 
@@ -3068,7 +3214,8 @@
                         
                         if ($broker_id!=0 AND $reassignBroker==0 AND !empty($clientAccount['broker_name']) AND $broker_id!=(int)$clientAccount['broker_name']){
                             $error_code_id = 30;
-                            $fieldName = 'client broker';
+                            // $fieldName = 'client broker';
+                            $fieldName = 'rule_engine';
                             $fieldValue = "$broker_id / {$clientAccount['broker_name']}";
                             $check_data_val['file_type'] = $commissionFileType;
 

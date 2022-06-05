@@ -195,15 +195,12 @@
 
 			// Initialize the Return array
 			$tradeDetailArray['importExceptionUpdate'] = '';
-			// $tradeDetailArray['broker'] = [];
-			// $tradeDetailArray['result'] = $tradeDetailArray['ruleProceed'] = 0;
-
 			$ruleAction = $this->get_action(null, $error_code_id, 1);
 			$tradeDetailArray['import_action_id'] = (int)$ruleAction[0]['import_action_id'];
 			$tradeDetailArray['rule_action_id'] = (int)$ruleAction[0]['action_id'];
 			$tradeDetailArray['in_force'] = $ruleAction[0]['in_force'];
 			
-			if ($ruleAction[0]['in_force']) {
+			if ($ruleAction[0]['in_force'] AND !in_array($error_code_id, $resolveHoldCommission)) {
 				switch ((int)$ruleAction[0]['import_action_id']){
 					case 1:
 						//-- Hold Commission
