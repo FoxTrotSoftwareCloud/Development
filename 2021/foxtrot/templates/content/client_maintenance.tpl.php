@@ -9,9 +9,7 @@
         font-size: 16px;
     }
     ul.ms-list {
-    margin-top: 10
-px
-;
+    margin-top: 10px;
 }
 </style>
 <script>
@@ -250,7 +248,10 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <select name="broker_name" data-required="true" id="broker_name" class="form-control">
                                                            <option value="">Select Broker</option>
                                                             <?php foreach($get_broker as $key=>$val){?>
-                                                            <option value="<?php echo $val['id'];?>" <?php if($broker_name != '' && $broker_name==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['last_name'];?></option>
+                                                            <option value="<?php echo $val['id'];?>" 
+                                                                <?php if($broker_name != '' && $broker_name==$val['id']){echo "selected";} ?>>
+                                                                <?php echo strtoupper($val['last_name'].(($val['last_name']!="" AND $val['first_name']!="") ? ", " : "").$val['first_name']); ?>
+                                                            </option>
                                                             <?php } ?>
                                                         </select>
                                                     </div>
@@ -263,7 +264,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <select name="split_broker" id="split_broker" class="form-control">
                                                             <option value="">Select Broker</option>
                                                             <?php foreach($get_broker as $key=>$val){?>
-                                                            <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['last_name'];?></option>
+                                                            <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected";} ?>><?php echo strtoupper($val['last_name'].(($val['last_name']!="" AND $val['first_name']!="") ? ", " : "").$val['first_name']); ?></option>
                                                             <?php } ?>
                                                         </select>
                                                     </div>
@@ -272,6 +273,33 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                     <div class="form-group">
                                                         <label>Split Rate<span class="text-red"></span></label>
                                                         <input type="text" onblur="round(this.value);" min="0" name="split_rate" id="split_rate" placeholder='00.0' class="currency1 form-control" value="<?php echo $split_rate; ?>" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                             <div class="row">
+                                                 <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label>Split  From<span class="text-red"></span></label>
+                                                        <input type="text"  name="split_rate_from" id="split_rate_from"  class="form-control" value="<?php echo $split_rate_from; ?>" />
+                                                    </div>
+                                                   </div>  
+                                                <div class="col-md-3">
+                                                    <div class="form-group ">
+                                                        <label>Split To<span class="text-red"></span></label>
+                                                        <input type="text"   name="split_rate_to" id="split_rate_to" class=" form-control" value="<?php echo $split_rate_to; ?>" />
+                                                    </div>
+                                                </div>
+                                               
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Split Category<span class="text-red"></span></label>
+                                                       <select name="split_rate_category"  class="form-control">
+                                                            <option value="">Select Product Category</option>
+                                                            <option <?php if(isset($split_rate_category) && $split_rate_category=='0'){?> selected="true"<?php } ?> value="0">All Product Categories</option>
+                                                            <?php foreach($product_category as $key=>$val){?>
+                                                            <option value="<?php echo $val['id'];?>" <?php if(isset($split_rate_category) && $split_rate_category==$val['id']){?> selected="true"<?php } ?>><?php echo $val['type'];?></option>
+                                                            <?php } ?>
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -534,7 +562,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                             	<div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Number </label>
-                                                        <input type="number" name="number" id="number" class="form-control" value="<?php echo $number; ?>"/>
+                                                        <input type="text" name="number" id="number" class="form-control" value="<?php echo $number; ?>"/>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -1544,12 +1572,14 @@ function open_newaccount()
 }
 </script>
 <script>
-$('#demo-dp-range .input-daterange').datepicker({
+       $(document).ready(function(){
+$('#demo-dp-range .input-daterange,#split_rate_from,#split_rate_to').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
         autoclose: true,
         todayHighlight: true
     });
+   });
 function open_other()
 {
     $('#other_div').css('display','block');

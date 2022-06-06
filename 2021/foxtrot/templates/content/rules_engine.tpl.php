@@ -1,6 +1,6 @@
 <div class="container">
     <h1>Rules Engine</h1>
-    
+
     <div class="col-lg-12 well">
         <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
         <form method="post">
@@ -16,8 +16,8 @@
                         </tr>
     	            </thead>
     	            <tbody>
-                    <?php 
-                    if(isset($return) && !empty($return)){                   
+                    <?php
+                    if(isset($return) && !empty($return)){
                         $count = 0;
                         foreach($return as $get_key=>$get_val){
                             foreach($get_rules as $key=>$val){
@@ -36,32 +36,32 @@
                                         </td>
                                         <td>
                                             <?php if($val['id'] == 3){?>
-                                            <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
-                                                 <div class="input-group">
-                                                  <input type="text" class="form-control decimal" onchange="handleChange(this);" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="13" />
-                                                  <span class="input-group-addon">%</span>
+                                                <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
+                                                    <div class="input-group">
+                                                    <input type="text" class="form-control decimal" onchange="handleChange(this);" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="13" />
+                                                    <span class="input-group-addon">%</span>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             <?php } else if($val['id'] == 16){?>
-                                            <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
-                                                 <div class="input-group">
-                                                  <input type="text" class="form-control" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="4" />
-                                                  <span class="input-group-addon">$</span>
+                                                <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
+                                                    <div class="input-group">
+                                                    <input type="text" class="form-control" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="4" />
+                                                    <span class="input-group-addon">$</span>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             <?php } else { ?>
-                                            <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
-                                                <input type="text" class="form-control" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="13" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode==46 || event.charCode==45' />
-                                            </div>
+                                                <div id="other_div<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']=='5'){?>style="display: none;"<?php }?>>
+                                                    <input type="text" class="form-control" value="<?php if(isset($get_val['parameter_1']) && $get_val['parameter_1']!=''){echo $get_val['parameter_1'];}?>" name="data[<?php echo $key; ?>][parameter_1]" maxlength="13" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode==46 || event.charCode==45' />
+                                                </div>
                                             <?php } ?>
-                                            <div id="other_div_1<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']!='5'){?>style="display: none;"<?php } ?>>
-                                                <select class="form-control" name="data[<?php echo $key; ?>][parameter1]">
-                                                    <option value="0">Select Broker</option>
-                                                    <?php foreach($get_broker as $key2=>$val2){?>
-                                                    <option value="<?php echo $val2['id'];?>" <?php if(isset($get_val['parameter1']) && $get_val['parameter1']==$val2['id']){ ?>selected="true"<?php } ?>><?php echo $val2['first_name'].' '.$val2['last_name'];?></option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
+                                                <div id="other_div_1<?php echo $key;?>" class="form-group" <?php if(isset($get_val['action']) && $get_val['action']!='5'){?>style="display: none;"<?php } ?>>
+                                                    <select class="form-control" name="data[<?php echo $key; ?>][parameter1]">
+                                                        <option value="0">Select Broker</option>
+                                                        <?php foreach($get_broker as $key2=>$val2){?>
+                                                        <option value="<?php echo $val2['id'];?>" <?php if(isset($get_val['parameter1']) && $get_val['parameter1']==$val2['id']){ ?>selected="true"<?php } ?>><?php echo $val2['first_name'].' '.$val2['last_name'];?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
                                         </td>
                                         <td>
                                             <?php if($val['id'] != 3 && $val['id'] != 16){?>
@@ -138,9 +138,9 @@
                                         </select>
                                     </div>-->
                                 </td>
-                                
+
                             </tr>
-                    
+
                             <?php } }?>
                     </tbody>
                 </table>
@@ -149,14 +149,14 @@
                 <!--<div class="col-md-12">
                     <div class="form-group "><br />-->
                     <div class="selectwrap">
-                        <a href="<?php echo SITE_URL.'branch_maintenance.php';?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
-                        <input type="submit" name="rule" onclick="waitingDialog.show();" value="Save" style="float: right;" />	
+                        <a href="<?php echo SITE_URL.'home.php';?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
+                        <input type="submit" name="rule" onclick="waitingDialog.show();" value="Save" style="float: right;" />
                     </div>
                    <!-- </div>
                  </div>-->
             </div>
         </form>
-    
+
     </div>
 </div>
 
@@ -171,11 +171,22 @@ $.fn.decimalFormat = function() {
     });
     return this; //for chaining
 }
+let dataTable = $('#data-table')
+    .DataTable({
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "dom": '<"toolbar">frtip',
+        pageLength: 25,
+        paging: true,
+        stateSave: false
+    })
 })( jQuery );
 
 
 $( function() {
-$('.decimal').decimalFormat();
+    $('.decimal').decimalFormat();
 });
 function handleChange(input) {
     if (input.value < 0) input.value = 0;
@@ -192,12 +203,69 @@ function open_other(tag)
         $('#other_div_3'+tag).css('display','block');
     }
     else
-    { 
+    {
         $('#other_div'+tag).css('display','block');
         $('#other_div_1'+tag).css('display','none');
         $('#other_div_2'+tag).css('display','block');
         $('#other_div_3'+tag).css('display','none');
     }
 }
+var waitingDialog = waitingDialog || (function ($) {
+    'use strict';
 
+	// Creating modal dialog's DOM
+	var $dialog = $(
+		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+		'<div class="modal-dialog modal-m">' +
+		'<div class="modal-content">' +
+			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+			'<div class="modal-body">' +
+				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+			'</div>' +
+		'</div></div></div>');
+
+	return {
+		/**
+		 * Opens our dialog
+		 * @param message Custom message
+		 * @param options Custom options:
+		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "sm", "m";
+		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+		 */
+		show: function (message, options) {
+			// Assigning defaults
+			if (typeof options === 'undefined') {
+				options = {};
+			}
+			if (typeof message === 'undefined') {
+				message = 'Saving...';
+			}
+			var settings = $.extend({
+				dialogSize: 'm',
+				progressType: '',
+				onHide: null // This callback runs after the dialog was hidden
+			}, options);
+
+			// Configuring dialog
+			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+			$dialog.find('.progress-bar').attr('class', 'progress-bar');
+			if (settings.progressType) {
+				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+			}
+			$dialog.find('h3').text(message);
+			// Adding callbacks
+			if (typeof settings.onHide === 'function') {
+				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+					settings.onHide.call($dialog);
+				});
+			}
+			// Opening dialog
+			$dialog.modal();
+		},
+		/**
+		 * Closes dialog
+		 */
+
+	};
+})(jQuery);
 </script>

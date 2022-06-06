@@ -577,6 +577,8 @@ PostResult( msg );
                                                                 }
 
                                                                 // Exception Types
+                                                                 $existing_field_value = trim($error_val['field_value']);
+                                                                 
                                                                 if($error_val['field'] == 'customer_account_number') {
                                                                     $existing_field_value = $return_commission_existing_data['customer_account_number'];
                                                                 }
@@ -1353,13 +1355,13 @@ PostResult( msg );
                     </div>
                     <div class="col-md-6">
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/>
-                            <label> Hold commission</label><br />
+                            <label for="hold_commission"> Hold commission</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/>
-                            <label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
+                            <label id="lbl_broker_active_trades" for="broker_active_trade"> Remove U5 Date</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/>
-                            <label id="lbl_reassign_broker_trades"> Reassign Trade to Another Broker</label><br />
+                            <label id="lbl_reassign_broker_trades" for="reassign_broker"> Reassign Trade to Another Broker</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/>
-                            <label> Skip/Remove Trade Exception</label><br />
+                            <label for="delete_record"> Delete Trade Record</label><br />
                     </div>
                 </div>
                 <div class="row" style="display: none;" id="broker_termination_options_clients">
@@ -1497,6 +1499,7 @@ PostResult( msg );
                         <input type="hidden" name="exception_record_id" id="exception_record_id" value=""/>
                         <input type="hidden" name="resolveAction" id="resolveAction" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />
+                        <input type="hidden" name="exception_value_2" id="exception_value_2" value="" />
         	            <button type="submit" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
                         <!--Deprecated 03/04/22 -- style="alignment-adjustment: center !important;" -->
                     </div>
@@ -1706,13 +1709,13 @@ $('#demo-dp-range .input-daterange').datepicker({
 });
 function reassign_broker_(value)
 {
-    $exceptionField = document.getElementById('broker_termination_options_trades').dataset.exceptionField;
+    exceptionField = document.getElementById('broker_termination_options_trades').dataset.exceptionField;
     $("#assign_rep_to_broker").css('display','none');
     $("#assign_client_to_account").css('display','none');
 
     if(value==3)
     {
-        if ($exceptionField == 'objectives'){
+        if (['objectives','rule_engine'].includes(exceptionField)){
             $("#assign_client_to_account").css('display','block');
         } else {
             $("#assign_rep_to_broker").css('display','block');
@@ -1925,25 +1928,46 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#exception_value").css('display','none');
 
         result += 1;
-    } else if(exception_field == 'objectives'){
+    } else if(['objectives', 'rule_engine'].includes(exception_field)){
         // Use #broker_termination_options_trades row
         $("#objectives").css('display','none');
 
-        document.getElementById("field_label").innerHTML = 'Product Objective';
+        switch (exception_field) {
+            case 'objectives':
+                fieldLabel = 'Product Objective';
+                activeTradeLabel = 'Add Product Objective to Client';
+                break;
+            default:
+                // exception_field == 'rule_engine'
+                fieldLabel = 'Rule Exception';
+                $("#exception_value_2").val(existing_field_value);
+                
+                switch (existing_field_value) {
+                    case 'no_naf_date':
+                        activeTradeLabel = 'Add NAF Date to Client';
+                        break;
+                    default:
+                        activeTradeLabel = 'Ignore Exception/Pass Trade Through';
+                        break;
+                }
+                break;
+        }
+        
+        $("#field_label").html(fieldLabel);
         $("#field_label").css('display','block');
         $("#exception_value").css('display','none');
-        $("#exception_value").prop( "disabled", true );
+        $("#exception_value").prop('disabled', true );
+        $("#exception_value").val(existing_field_value);
         $("#exception_value_dis").css('display','block');
         $("#exception_value_dis").prop( "disabled", true );
-        document.getElementById("exception_value").value = existing_field_value;
-        document.getElementById("exception_value_dis").value = existing_field_value;
+        $("#exception_value_dis").val(existing_field_value);
 
         /* Show Hold/Assign/Reassign/Delete radio buttons */
         $("#broker_termination_options_trades").css('display','block');
-        document.getElementById("broker_termination_options_trades").dataset.exceptionField = "objectives";
-        document.getElementById("lbl_broker_active_trades").innerHTML = 'Add Product Objective to Client';
-        document.getElementById("lbl_reassign_broker_trades").innerHTML = 'Reassign Trade to Another Client';
-        document.getElementById("hold_commission").checked = true;
+        $("#broker_termination_options_trades").attr('data-exception-field', exception_field);
+        $("#lbl_broker_active_trades").html(activeTradeLabel);
+        $("#lbl_reassign_broker_trades").html('Reassign Trade to Another Client');
+        $("#hold_commission").prop('checked', true);
 
         result += 1;
     } else if (exception_field == 'sponsor'){
@@ -2056,7 +2080,7 @@ function exception_submit()
                window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>+"&file_type="+<?php echo $file_type; ?>;//get_client_notes();
           }
           else{
-               $('#msg_exception').html('<div class="alert alert-danger">'+data+'</div>');
+               $('#msg_exception').html('<div class="alert alert-danger">'+(data="" ? "Bad POST. Try again" : data)+'</div>');
           }
 
       },

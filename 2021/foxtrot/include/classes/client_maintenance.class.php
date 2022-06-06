@@ -34,7 +34,7 @@
                     WHERE `ce`.`is_delete`='0' AND `ce`.`client_id`=$clientId
                     ORDER BY `ce`.`id` ASC";
 			$res = $this->re_db_query($q);
-      		
+
 			if($this->re_db_num_rows($res)>0)
       		{
         		$row = $this->re_db_fetch_array($res);
@@ -55,7 +55,7 @@
                     WHERE `cs`.`is_delete`='0' AND `cs`.`client_id`=$clientId
                     ORDER BY `cs`.`id` ASC";
 			$res = $this->re_db_query($q);
-      		
+
 			if($this->re_db_num_rows($res)>0)
       		{
         		$row = $this->re_db_fetch_array($res);
@@ -113,12 +113,15 @@
 			$naf_date = isset($data['naf_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['naf_date']))):'0000-00-00';
 			$last_contacted = isset($data['last_contacted'])?$this->re_db_input(date('Y-m-d',strtotime($data['last_contacted']))):'0000-00-00';
 			$objectives = isset($data['objectives']) ? ($data['objectives']) : array();
+			$split_rate_category = isset($data['split_rate_category'])?$this->re_db_input($data['split_rate_category']):'';
+			$split_rate_to = isset($data['split_rate_to'])?$this->re_db_input($data['split_rate_to']):'';
+			$split_rate_from = isset($data['split_rate_from'])?$this->re_db_input($data['split_rate_from']):'';
 			$for_import = isset($data['for_import'])?$this->re_db_input($data['for_import']):'';
 			if ($for_import == 'reprocess_add_client_on_the_fly'){
 				$_SESSION[$for_import]['insert_update_master'] = 0;
 			}
 			$file_id = isset($data['file_id']) ? (int)$this->re_db_input($data['file_id']) : 0;
-			
+
 			if($lname==''){
 				$this->errors = 'Please enter last name.';
 			} else if($broker_name==''){
@@ -192,10 +195,13 @@
 										.",`reviewed_at`='".$reviewed_at."'"
 										.",`reviewed_by`='".$reviewed_by."'"
 										.",`is_reviewed`='".$is_reviewed."'"
+										.",`split_rate_to`='".$split_rate_to."'"
+										.",`split_rate_from`='".$split_rate_from."'"
+										.",`split_rate_category`='".$split_rate_category."'"
 										.",`file_id`=$file_id"
 										.$this->insert_common_sql()
 						;
-						
+
 						$res = $this->re_db_query($q);
 						$client_id= $this->re_db_insert_id();
 						$_SESSION['client_id'] = $client_id;
@@ -219,7 +225,7 @@
 							return false;
 						}
 				} else if ($id>0) {
-					$q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`mi`='".$mi."',`do_not_contact`='".$do_not_contact."',`active`='".$active."',`ofac_check`='".$ofak_check."',`fincen_check`='".$fincen_check."',`long_name`='".$long_name."',`client_file_number`='".$client_file_number."',`clearing_account`='".$clearing_account."',`client_ssn`='".$client_ssn."',`house_hold`='".$household."',`split_broker`='".$split_broker."',`split_rate`='".$split_rate."',`address1`='".$address1."',`address2`='".$address2."',`city`='".$city."',`state`='".$state."',`zip_code`='".$zip_code."',`citizenship`='".$citizenship."',`birth_date`='".$birth_date."',`date_established`='".$date_established."',`age`='".$age."',`open_date`='".$open_date."',`naf_date`='".$naf_date."',`last_contacted`='".$last_contacted."',`account_type`='".$account_type."',`broker_name`='".$broker_name."',`telephone`='".$telephone."',`contact_status`='".$contact_status."',`reviewed_at`='".$reviewed_at."',`reviewed_by`='".$reviewed_by."',`is_reviewed`='".$is_reviewed."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+					$q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`mi`='".$mi."',`do_not_contact`='".$do_not_contact."',`active`='".$active."',`ofac_check`='".$ofak_check."',`fincen_check`='".$fincen_check."',`long_name`='".$long_name."',`client_file_number`='".$client_file_number."',`clearing_account`='".$clearing_account."',`client_ssn`='".$client_ssn."',`house_hold`='".$household."',`split_broker`='".$split_broker."',`split_rate`='".$split_rate."',`address1`='".$address1."',`address2`='".$address2."',`city`='".$city."',`state`='".$state."',`zip_code`='".$zip_code."',`citizenship`='".$citizenship."',`birth_date`='".$birth_date."',`date_established`='".$date_established."',`age`='".$age."',`open_date`='".$open_date."',`naf_date`='".$naf_date."',`last_contacted`='".$last_contacted."',`account_type`='".$account_type."',`broker_name`='".$broker_name."',`telephone`='".$telephone."',`contact_status`='".$contact_status."',`reviewed_at`='".$reviewed_at."',`reviewed_by`='".$reviewed_by."',`is_reviewed`='".$is_reviewed."' ,`split_rate_to`='".$split_rate_to."',`split_rate_from`='".$split_rate_from."',`split_rate_category`='".$split_rate_category."' ".$this->update_common_sql()." WHERE `id`='".$id."'";
 					$res = $this->re_db_query($q);
 
 					if ($res){
@@ -243,7 +249,7 @@
 					return false;
 				}
 			}
-			
+
 		}
 
 		public function updateClientObjectives($client_id,$postObjectives){
@@ -366,16 +372,16 @@
 							// $importClass->reprocess_current_files($file_id);
 							$importClass = new import();
 							$otherFieldUpdates = [];
-							$file_type = (isset($_SESSION['client_maintenance_for_import']['file_type']) ? (int)$_SESSION['client_maintenance_for_import']['file_type'] : 0); 
-							
+							$file_type = (isset($_SESSION['client_maintenance_for_import']['file_type']) ? (int)$_SESSION['client_maintenance_for_import']['file_type'] : 0);
+
 							if ($file_type == 1){
 								$otherFieldUpdates = ['account_no_id'=>$id];
 							}
-							
+
 							$importClass->resolve_exception_5AddNew('client_id', $_SESSION['client_id'], $_GET['exception_record_id'], $otherFieldUpdates);
 						} else if ($for_import === 'reprocess_add_client_on_the_fly') {
 							$_SESSION[$for_import]['insert_update_account'] = $id;
-						}							
+						}
 
 						$_SESSION['success'] = INSERT_MESSAGE;
     					return true;
@@ -389,10 +395,12 @@
 			else if($id>0){
 			    $account_data = $this->get_account_no($id);
 			    $sponsor_data = $this->get_sponsor_data($id);
-                $q = "UPDATE `".CLIENT_ACCOUNT."` SET `is_delete`='1' WHERE `client_id`='".$id."'";
+
+				$q = "UPDATE `".CLIENT_ACCOUNT."` SET `is_delete`=1 ".$this->update_common_sql()." WHERE `client_id`='".$id."' AND `is_delete`=0";
 				$res = $this->re_db_query($q);
-                if($account_no[0] != '')
-                {
+
+				// 5/22/22 Removed this check because the screen defaults a blank Account at the tab of the Client's Account # list->$account_no[0]
+                // if($account_no[0] != '') {
                     foreach($account_no as $key_acc=>$val_acc)
                     {
                         if($val_acc != '' && $sponsor[$key_acc]>0)
@@ -424,7 +432,7 @@
     					$_SESSION['warning'] = UNKWON_ERROR;
     					return false;
     				}
-                }
+                // } // if($account_no[0] != '')
 			}
         }
         public function insert_update_suitability($data){
@@ -1161,14 +1169,14 @@
 		public function edit($id){
 			$return = array();
 			$id = (int)$this->re_db_input($id);
-			
+
 			$q = "SELECT `at`.*"
 					." FROM `".$this->table."` AS `at`"
                     ." WHERE `at`.`is_delete` = 0"
 					." AND `at`.`id` = $id"
 			;
 			$res = $this->re_db_query($q);
-            
+
 			if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
             }
@@ -1310,6 +1318,21 @@
 				return false;
 			}
 		}
+		function search_client_record($value){
+		 	   $return=array();
+		 	     $q = "SELECT cm.id as id ,CONCAT(`cm`.last_name,', ',`cm`.first_name) as name,ca.account_no,client_file_number,client_ssn,broker_name
+					FROM `" . $this->table . "` AS `cm` left join `".CLIENT_ACCOUNT."` as ca on (ca.client_id=cm.id)
+                    WHERE `cm`.`is_delete`='0' and `ca`.`is_delete`='0' and (ca.account_no like '".$value."%' or client_file_number like '".$value."%' or client_ssn like '".$value."%' )
+                    ORDER BY `cm`.`id` ASC limit 10";
+					$res = $this->re_db_query($q);
+					  if($this->re_db_num_rows($res)>0){
+					  	while($row = $this->re_db_fetch_array($res)){
+					  			$row['value']=$row['name'];
 
+    								$return[] = $row;
+    						}
+            }
+				return $return;
+		 }
     }
 ?>

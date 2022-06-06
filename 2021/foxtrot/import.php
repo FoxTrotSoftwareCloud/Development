@@ -17,7 +17,7 @@
     $get_file_data = '';
     $return_exception = array();
     $total_commission_amount = 0;
-    $dataTableOrder = isset($_GET['reprocessed']) ? '[3, "desc"], [0, "asc"], [1, "asc"]' : '';
+    $dataTableOrder = (isset($_GET['reprocessed']) ? '[3, "desc"], [0, "asc"], [1, "asc"]' : '');
     
     $instance = new import();
     $get_product_category = $instance->select_category();
@@ -31,8 +31,7 @@
     $instance_batches = new batches();
     $instance_importGeneric = new import_generic();
 
-    if(isset($_GET['id']) && $_GET['id'] !='')
-    {
+    if(isset($_GET['id']) && $_GET['id'] !='') {
         $get_total_commission = $instance->get_total_commission_amount($_GET['id']);
         $total_commission_amount = $get_total_commission;
     }
@@ -155,9 +154,7 @@
 
         $return = $instance->insert_update_ftp($_POST);
         if($return===true){
-
             header("location:".CURRENT_PAGE."?tab=open_ftp");exit;
-
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
@@ -257,7 +254,6 @@
     else if(isset($_GET['tab']) && $_GET['tab'] =='get_ftp' && $ftp_id>0)
     {
         $return_ftp_host = $instance->select_ftp_user($ftp_id);
-
     }
     else if(isset($_GET['action'])&&$_GET['action']=='ftp_status' && $ftp_id>0 &&isset($_GET['status'])&&($_GET['status']==0 || $_GET['status']==1))
     {

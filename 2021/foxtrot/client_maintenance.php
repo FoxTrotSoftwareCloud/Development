@@ -21,6 +21,9 @@
     $broker_name = '';
     $split_broker = '';
     $split_rate = '';
+    $split_rate_category ="";
+    $split_rate_to = '';
+    $split_rate_from = '';
     $address1 = '';
     $address2 = '';
     $city = '';
@@ -115,12 +118,12 @@
     $get_time_for_exp = $instance_client_suitability->select_time_for_exp();
     $get_account_use = $instance_client_suitability->select_account_use();
     $instance_broker = new broker_master();
-    $get_broker = $instance_broker->select();
+    $get_broker = $instance_broker->select(1);
     $user_instance=new user_master();
     $u_id=$_SESSION['user_id'];
     $logged_user=$user_instance->get_user($u_id);
     $redirect = isset($_GET['redirect'])&&$_GET['redirect']!=''?$instance->re_db_input($_GET['redirect']):'';
-
+    $product_category = $instance_broker->select_category();
 
 
     if((isset($_POST['submit'])&& $_POST['submit']=='Save')
@@ -145,6 +148,9 @@
         $broker_name = isset($_POST['broker_name'])?$instance->re_db_input($_POST['broker_name']):'';
         $split_broker = isset($_POST['split_broker'])?$instance->re_db_input($_POST['split_broker']):'';
         $split_rate = isset($_POST['split_rate'])?$instance->re_db_input($_POST['split_rate']):'';
+        $split_rate_category = isset($_POST['split_rate_category'])?$instance->re_db_input($_POST['split_rate_category']):'';
+        $split_rate_to = isset($_POST['split_rate_to'])?$instance->re_db_input($_POST['split_rate_to']):'';
+        $split_rate_from = isset($_POST['split_rate_from'])?$instance->re_db_input($_POST['split_rate_from']):'';
         $address1 = isset($_POST['address1'])?$instance->re_db_input($_POST['address1']):'';
         $address2 = isset($_POST['address2'])?$instance->re_db_input($_POST['address2']):'';
         $city = isset($_POST['city'])?$instance->re_db_input($_POST['city']):'';
@@ -489,6 +495,9 @@
         $household = isset($return['house_hold'])?$instance->re_db_output($return['house_hold']):'';
         $split_broker = isset($return['split_broker'])?$instance->re_db_output($return['split_broker']):'';
         $split_rate = isset($return['split_rate'])?$instance->re_db_output($return['split_rate']):'';
+        $split_rate_category = isset($return['split_rate_category'])?$instance->re_db_input($return['split_rate_category']):'';
+        $split_rate_to = isset($return['split_rate_to'])?$instance->re_db_input($return['split_rate_to']):'';
+        $split_rate_from = isset($return['split_rate_from'])?$instance->re_db_input($return['split_rate_from']):'';
         $address1 = isset($return['address1'])?$instance->re_db_output($return['address1']):'';
         $address2 = isset($return['address2'])?$instance->re_db_output($return['address2']):'';
         $city = isset($return['city'])?$instance->re_db_output($return['city']):'';

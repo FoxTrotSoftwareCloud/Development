@@ -97,7 +97,7 @@ class transaction extends db{
 				$this->errors = 'Please enter split rate commission received.';
 			}*/
             else if($hold_commission=='1' && $hold_resoan==''){
-                $this->errors = 'Please enter commission hold resons.';
+                $this->errors = 'Please enter commission hold reason.';
             }
 			if($this->errors!=''){
 				return $this->errors;
