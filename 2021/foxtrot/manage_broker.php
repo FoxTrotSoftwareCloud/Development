@@ -1,7 +1,10 @@
 <?php
+
 	require_once("include/config.php");
 	require_once(DIR_FS."islogin.php");
-	
+	   $higher_risk =  0 ;
+        $exam_notes = '' ;
+        $finra_exam_date =  '' ;
     $error = '';
     $broker_trans=array();
     $return = array();
@@ -22,7 +25,7 @@
     $branch_name = '';
     $branch_office = '';
     $search_text = '';
-    
+
     $active_status_cdd1 = '';
     $telephone = '';
     $cell = '';
@@ -52,7 +55,7 @@
     $to_date = '';
     $sponsor_company = '';
     $day_after_u5 = 0;
-    
+
     $branch_broker = '';
 	$branch_1 = '';
 	$branch_office_1 = '';
@@ -65,10 +68,10 @@
 	$stamp = 0;
 	$stamp_certification = 0;
 	$stamp_indemnification = 0;
-    
+
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
-    
+
     $instance = new broker_master();
     $instance_branch =  new branch_maintenance();
     $get_state  = $instance->select_state();
@@ -81,19 +84,19 @@
     $select_percentage= $instance->select_percentage();
     $broker_charge=$instance->select_broker_charge($id);
     $charge_type_arr=$instance->select_charge_type();
-    $get_broker = $instance->select();
+    $get_broker = $instance->select(1);
     $select_docs = $instance->select_docs();
     $select_broker_docs = $instance->get_broker_doc_name();
     $product_category = $instance->select_category();
     $product_category_based_on_series = $instance->select_category_based_on_series();
-    
+
     $get_payout_schedule = $instance->get_payout_schedule();
     $get_branch_office = $instance->select_branch_office();
-    
-    if((isset($_POST['submit'])&& $_POST['submit']=='Save') 
+
+    if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
         || (isset($_POST['submit'])&& $_POST['submit']=='Next') )
-    {//echo '<pre>';print_r($_POST);exit;
+    {
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $fname = isset($_POST['fname'])?$instance->re_db_input($_POST['fname']):'';
     	$lname = isset($_POST['lname'])?$instance->re_db_input($_POST['lname']):'';
@@ -114,7 +117,7 @@
         $file_id = isset($_POST['file_id'])?$instance->re_db_input($_POST['file_id']):0;
         $file_type = isset($_POST['file_type'])?$instance->re_db_input($_POST['file_type']):0;
         //echo '<pre>';print_r($_POST);exit;
-        
+
         $home_general = isset($_POST['home_general'])?$instance->re_db_input($_POST['home_general']):'';
         $home_address1_general = isset($_POST['home_address1_general'])?$instance->re_db_input($_POST['home_address1_general']):'';
 		$home_address2_general = isset($_POST['home_address2_general'])?$instance->re_db_input($_POST['home_address2_general']):'';
@@ -163,7 +166,7 @@
         $cfa_general = isset($_POST['cfa_general'])?$instance->re_db_input($_POST['cfa_general']):0;
         $ria_general = isset($_POST['ria_general'])?$instance->re_db_input($_POST['ria_general']):0;
 		$insurance_general = isset($_POST['insurance_general'])?$instance->re_db_input($_POST['insurance_general']):0;//echo '<pre>';print_r($_POST);exit;
-    
+
         $branch_broker = isset($_POST['branch_broker'])?$instance->re_db_input($_POST['branch_broker']):'';
 		$branch_1 = isset($_POST['branch_1'])?$instance->re_db_input($_POST['branch_1']):'';
 		$branch_office_1 = isset($_POST['branch_office_1'])?$instance->re_db_input($_POST['branch_office_1']):'';
@@ -176,44 +179,47 @@
 		$stamp = isset($_POST['stamp'])?$instance->re_db_input($_POST['stamp']):0;
 		$stamp_certification = isset($_POST['stamp_certification'])?$instance->re_db_input($_POST['stamp_certification']):0;
 		$stamp_indemnification = isset($_POST['stamp_indemnification'])?$instance->re_db_input($_POST['stamp_indemnification']):0;
-            
+
         $return = $instance->insert_update($_POST);
-        
+
         $return1 = $instance->insert_update_general($_POST);
-        
+
         //payout tab
         $return2 = $instance->insert_update_payout($_POST);
-        $return_fixed_rates = $instance->insert_update_payout_fixed_rates($_POST,$_POST['id']); 
+        $return_fixed_rates = $instance->insert_update_payout_fixed_rates($_POST,$_POST['id']);
         $return3 = $instance->insert_update_payout_grid($instance->reArrayFiles_grid($_POST['leval']),$_POST['id']);
         $return4 = $instance->insert_update_payout_override($instance->reArrayFiles_override($_POST['override']),$_POST['id'],$_POST['override']['receiving_rep1']);
         $return5 = $instance->insert_update_payout_split($instance->reArrayFiles_split($_POST['split']),$_POST['id']);
         //echo '<pre>';print_r($return5);exit;
         //security tab
-        $return6 = $instance->insert_update_licences($_POST);
-        
+
+        // $returnSecurity = $instance->insert_update_licences_security($_POST);
+
+
+        $return6 = $instance->insert_update_licences1($_POST);
         //insurance tab
-        $return7 = $instance->insert_update_licences1($_POST);
-        
+        $return7 = $instance->insert_update_licences_security($_POST);
+
         //ria tab
         $return8 = $instance->insert_update_licences2($_POST);
-        
+
         //register tab
-        $return9 = $instance->insert_update_register($_POST); 
-        
+        $return9 = $instance->insert_update_register($_POST);
+
         //requered documents tab
         $return10 = $instance->insert_update_req_doc($instance->reArrayFiles($_POST['data']),$id);
-        
+
         //alias & appoinments
         $return12 = $instance->insert_update_alias($instance->reArrayFiles_alias($_POST['alias']),$id);
         //charges tab
         $return11 = $instance->insert_update_charges($_POST);
-        
+
         //for broker branches
         $return_broker_branches = $instance->insert_update_branches($_POST);
-        
-        
+
+
         if($return==true && $_POST['submit']=='Save'){
-            
+
             if($for_import == 'true')
             {
                 if (isset($_SESSION['manage_broker_from_import'])){
@@ -239,7 +245,7 @@
         else if($return==true && $_POST['submit']=='Next')
         {
             $return = $instance->get_next_broker($id);
-            
+
             if($return!=false){
                 $id=$return['id'];
                 header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
@@ -250,8 +256,9 @@
         }
         else if($return==true && $_POST['submit']=='Previous')
         {
+          //  print_r($_POST);
             $return = $instance->get_Previous_broker($id);
-            
+          //  var_dump($return); die;
             if($return!=false){
                 $id=$return['id'];
                 header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
@@ -266,7 +273,7 @@
     }
     /*else if(isset($_POST['payout'])&& $_POST['payout']=='Save'){
         //echo '<pre>';print_r($_POST['leval']);exit;
-        $return2 = $instance->insert_update_payout($_POST);   
+        $return2 = $instance->insert_update_payout($_POST);
         $return1 = $instance->insert_update_payout_grid($instance->reArrayFiles_grid($_POST['leval']),$_POST['id']);
         $return2 = $instance->insert_update_payout_override($instance->reArrayFiles_override($_POST['override']),$_POST['id'],$_POST['receiving_rep']);
         $return3 = $instance->insert_update_payout_split($instance->reArrayFiles_split($_POST['split']),$_POST['id']);
@@ -280,13 +287,13 @@
                 header("location:".CURRENT_PAGE."?action=".$action."&tab=charges");exit;
             }
         }
-        else{            
-            $error = !isset($_SESSION['warning'])?$return:'';            
+        else{
+            $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
      else if(isset($_POST['securities'])&& $_POST['securities']=='Save'){
        //echo '<pre>';print_r($_POST);exit;
-        $return = $instance->insert_update_licences($_POST);   
+        $return = $instance->insert_update_licences($_POST);
         if($return===true){
             if($action == 'edit')
             {
@@ -302,7 +309,7 @@
         }
     }
     else if(isset($_POST['insurance'])&& $_POST['insurance']=='Save'){
-        $return = $instance->insert_update_licences1($_POST);   
+        $return = $instance->insert_update_licences1($_POST);
         if($return===true){
             if($action == 'edit')
             {
@@ -318,7 +325,7 @@
         }
     }
     else if(isset($_POST['ria'])&& $_POST['ria']=='Save'){
-        $return = $instance->insert_update_licences2($_POST);   
+        $return = $instance->insert_update_licences2($_POST);
         if($return===true){
             if($action == 'edit')
             {
@@ -334,9 +341,9 @@
         }
     }
     else if(isset($_POST['register'])&& $_POST['register']=='Save'){
-        
+
             //echo '<pre>';print_r($_POST);exit;
-            $return = $instance->insert_update_register($_POST); 
+            $return = $instance->insert_update_register($_POST);
             if($return===true){
             if($action == 'edit')
             {
@@ -351,11 +358,11 @@
             $error = !isset($_SESSION['warning'])?$return:'';
         }
     }
-     else if(isset($_POST['req_doc'])&& $_POST['req_doc']=='Save'){
+     else if(issePt($_POST['req_doc'])&& $_POST['req_doc']=='Save'){
              //echo '<pre>';print_r($_POST);exit;
              $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
-             
-            $return = $instance->insert_update_req_doc($instance->reArrayFiles($_POST['data']),$id); 
+
+            $return = $instance->insert_update_req_doc($instance->reArrayFiles($_POST['data']),$id);
             if($return===true){
             if($action == 'edit')
             {
@@ -368,12 +375,12 @@
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
-        } 
+        }
     }
     else if(isset($_POST['charges'])&& $_POST['charges']=='Save'){
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $return = $instance->insert_update_charges($_POST);
-        
+
         if($return===true){
             if($action == 'edit')
             {
@@ -391,7 +398,7 @@
     else if(isset($_POST['submit_new_payout'])&& $_POST['submit_new_payout']=='Save'){//echo '<pre>';print_r($_POST);exit;
         $return = $instance->insert_update_payout_schedule($_POST);
         $return1 = $instance->insert_update_payout_grid($instance->reArrayFiles_grid($_POST['leval']),$_POST['id']);
-        
+
         if($return===true){
             echo '1';exit;
         }
@@ -402,11 +409,12 @@
         exit;
     }
     else if($action=='edit' && $id>0){
-        $return = $instance->edit($id);
+        // $return = $instance->edit($id);
+        $return = $instance->alledit($id);
         $broker_data = $instance->get_broker_changes($id);
         $payrolls_instance = new payroll();
         $prior_payrolls_data = $payrolls_instance->select_prior_payrolls_master($id);
-        $edit_general = $instance->edit_general($id);//print_r($edit_general);exit;
+        $edit_general = $instance->edit_allgeneral($id);//print_r($edit_general);exit;
         $edit_licences_securities = $instance->edit_licences_securities($id);
         $edit_licences_ria = $instance->edit_licences_ria($id);
         $edit_licences_insurance = $instance->edit_licences_insurance($id);
@@ -421,7 +429,7 @@
         $edit_alias = $instance->edit_alias($id);
         $edit_branches = $instance->edit_branches($id);
         //echo '<pre>';print_r($edit_charge_check);exit;//echo '<pre>';print_r($edit_override);exit;
-        
+
         $_SESSION['last_insert_id']=$id;
         $fname = isset($return['first_name'])?$instance->re_db_output($return['first_name']):'';
         $lname = isset($return['last_name'])?$instance->re_db_output($return['last_name']):'';
@@ -439,7 +447,7 @@
     	/*$branch_manager = isset($return['branch_manager'])?$instance->re_db_output($return['branch_manager']):'';
         $branch_name = isset($return['branch_name'])?$instance->re_db_output($return['branch_name']):'';
         $branch_office = isset($return['branch_office'])?$instance->re_db_output($return['branch_office']):'';*/
-    	
+
     	$home = isset($edit_general['home'])?$instance->re_db_output($edit_general['home']):'';
         $home_address1_general = isset($edit_general['home_address1_general'])?$instance->re_db_output($edit_general['home_address1_general']):'';
         $home_address2_general = isset($edit_general['home_address2_general'])?$instance->re_db_output($edit_general['home_address2_general']):'';
@@ -497,14 +505,18 @@
 		$stamp = isset($edit_branches['stamp'])?$instance->re_db_output($edit_branches['stamp']):0;
 		$stamp_certification = isset($edit_branches['stamp_certification'])?$instance->re_db_output($edit_branches['stamp_certification']):0;
 		$stamp_indemnification = isset($edit_branches['stamp_indemnification'])?$instance->re_db_output($edit_branches['stamp_indemnification']):0;
-           
+
+        $higher_risk = isset($edit_general['higher_risk']) ?  $edit_general['higher_risk'] : 0 ;
+        $exam_notes = isset($edit_general['exam_notes']) ?  $edit_general['exam_notes'] : '' ;
+        $finra_exam_date = isset($edit_general['finra_exam_date']) ?  date('m/d/Y',strtotime($edit_general['finra_exam_date'])) : '' ;
+
     }
     else if(isset($_GET['send'])&&$_GET['send']=='previous' && isset($_GET['id'])&&$_GET['id']>0 && $_GET['id']!='')
     {
         $id = $instance->re_db_input($_GET['id']);
-        
+
         $return = $instance->get_previous_broker($id);
-            
+
         if($return!=false){
             $id=$return['id'];
             header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
@@ -512,14 +524,14 @@
         else{
             header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
         }
-        
+
     }
     else if(isset($_GET['send'])&&$_GET['send']=='next' && isset($_GET['id'])&&$_GET['id']>0 && $_GET['id']!='')
     {
         $id = $instance->re_db_input($_GET['id']);
-        
+
         $return = $instance->get_next_broker($id);
-            
+
         if($return!=false){
             $id=$return['id'];
             header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
@@ -527,11 +539,11 @@
         else{
             header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
         }
-        
+
     }
     else if(isset($_POST['submit'])&&$_POST['submit']=='Search'){
-        
-       $search_text = isset($_POST['search_text'])?$instance->re_db_input($_POST['search_text']):''; 
+
+       $search_text = isset($_POST['search_text'])?$instance->re_db_input($_POST['search_text']):'';
        $return = $instance->search($search_text);
     }
     else if(isset($_GET['action'])&&$_GET['action']=='status'&&isset($_GET['id'])&&$_GET['id']>0&&isset($_GET['status'])&&($_GET['status']==0 || $_GET['status']==1))
@@ -545,7 +557,7 @@
         else{
             header('location:'.CURRENT_PAGE);exit;
         }
-    }  
+    }
     else if(isset($_GET['action'])&&$_GET['action']=='delete'&&isset($_GET['id'])&&$_GET['id']>0)
     {
         $id = $instance->re_db_input($_GET['id']);
@@ -560,9 +572,9 @@
     else if(isset($_POST['add_notes'])&& $_POST['add_notes']=='Add Notes'){
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
-       
+
         $return = $instance->insert_update_broker_notes($_POST);
-        
+
         if($return===true){
             echo '1';exit;
         }
@@ -571,14 +583,14 @@
         }
         echo $error;
         exit;
-    } 
+    }
     else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){//print_r($_FILES);exit;
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
         $file = isset($_FILES['add_attach'])?$_FILES['add_attach']:array();
-        
+
         $return = $instance->insert_update_broker_attach($_POST);
-        
+
         if($return===true){
             echo '1';exit;
         }
@@ -613,17 +625,17 @@
         }
         echo $error;
         exit;
-    } 
+    }
     else if(isset($_GET['file_id']) && ($_GET['file_id'] && $_GET['exception_data_id']) >0 )
     {
-        // 04/03/22 I moved this from the top of the file. I think this is old code that over wrote the new code. Doesn't work as well, and is not coded for 
+        // 04/03/22 I moved this from the top of the file. I think this is old code that over wrote the new code. Doesn't work as well, and is not coded for
         // any other dowmload except for DST Clients. Can't find a newer version. Have to work with it.
         $file_id = $_GET['file_id'];
         $temp_data_id = $_GET['exception_data_id'];
         $rep = $_GET['rep_no'];
         $instance_import= new import();
         $return_exception_detail = $instance_import->select_single_exception_data($file_id,$temp_data_id);
-        
+
         foreach($return_exception_detail as $key=>$val)
         {
             $rep_name = explode(' ',$val['rep_name']);
@@ -636,7 +648,7 @@
                 $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
                 $alias_number = $rep;
             }
-        
+
             if(isset($rep_name[2]) && $rep_name[2] != '')
             {
                 $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
@@ -663,7 +675,7 @@
             $params = (!empty($file_id) ? '&id='.$file_id : '')
                       .(!empty($file_type) ? '&file_type='.$file_type : '');
             unset($_SESSION['manage_broker_from_import']);
-            
+
             header("location:".SITE_URL."import.php?tab=review_files".$params);
             exit;
         } else {
@@ -674,7 +686,7 @@
     else if($action=='view'){
         $_SESSION['last_insert_id']='';
         $return = $instance->select();
-    }    
+    }
 	$content = "manage_broker";
 	require_once(DIR_WS_TEMPLATES."main_page.tpl.php");
 ?>

@@ -184,10 +184,10 @@
             }
 			return $return;
 		}
-		
-		
+
+
 		/**
-		 * NOTE: $tradeDetailArray is passed as REFERENCE, so be careful when manipulating it 
+		 * NOTE: $tradeDetailArray is passed as REFERENCE, so be careful when manipulating it
 		 **/
 		function import_rule($error_code_id, $fieldName='', $fieldValue='', $insert_exception_string='', $commDetailTable='', &$tradeDetailArray=[], $resolveHoldCommission=[], $ignoreException=[]){
 			$instance_import = new import();
@@ -203,7 +203,7 @@
 			$tradeDetailArray['import_action_id'] = (int)$ruleAction[0]['import_action_id'];
 			$tradeDetailArray['rule_action_id'] = (int)$ruleAction[0]['action_id'];
 			$tradeDetailArray['in_force'] = $ruleAction[0]['in_force'];
-			
+
 			if ($ruleAction[0]['in_force'] AND !in_array($error_code_id, $resolveHoldCommission)) {
 				switch ((int)$ruleAction[0]['import_action_id']){
 					case 1:
@@ -280,7 +280,7 @@
 						$tradeDetailArray['YYresult'] = 1;
 						$tradeDetailArray['ruleProceed'] = 0;
 				}
-	
+
 				$q = "INSERT INTO `".IMPORT_EXCEPTION."`"
 					." SET  `error_code_id`=$error_code_id"
 							.",`field`='$fieldName'"
@@ -291,7 +291,7 @@
 				;
 				$res = $this->re_db_query($q);
 				$last_inserted_exception = $this->re_db_insert_id();
-	
+
 				if (!empty($tradeDetailArray['ruleProceed'])) {
 					$res = $this->read_update_serial_field($commDetailTable, "WHERE `id`={$tradeDetailArray['id']}", 'resolve_exceptions', $last_inserted_exception);
 				}

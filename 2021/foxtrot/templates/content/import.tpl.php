@@ -1361,7 +1361,7 @@ PostResult( msg );
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/>
                             <label id="lbl_reassign_broker_trades" for="reassign_broker"> Reassign Trade to Another Broker</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/>
-                            <label for="delete_record"> Skip/Remove Trade Exception</label><br />
+                            <label for="delete_record"> Delete Trade Record</label><br />
                     </div>
                 </div>
                 <div class="row" style="display: none;" id="broker_termination_options_clients">
@@ -1713,10 +1713,6 @@ function reassign_broker_(value)
     $("#assign_rep_to_broker").css('display','none');
     $("#assign_client_to_account").css('display','none');
 
-    
-    // Test Delete Me
-    console.log('reassign_broker_(' + value + '), exceptionField = ' + exceptionField)
-    
     if(value==3)
     {
         if (['objectives','rule_engine'].includes(exceptionField)){

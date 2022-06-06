@@ -265,7 +265,7 @@ var waitingDialog = waitingDialog || (function ($) {
 		/**
 		 * Closes dialog
 		 */
-	
+
 	};
 })(jQuery);
 </script>

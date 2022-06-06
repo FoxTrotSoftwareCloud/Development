@@ -1053,132 +1053,316 @@
             return $originalArray;
 		}
 
-        public function insert_update_licences($data)
-        { //echo '<pre>';print_r($data['id']);exit;
+     public function insert_update_licences_security($data){
+
+                    // echo '<pre>';print_r($data); die;
+
           $id = isset($data['id'])?$this->re_db_input($data['id']):0;
-          $type_of_licences =isset($data['type'])?$this->re_db_input($data['type']):'';
-          $waive_home_state_fee = isset($data['pass_through'])?$this->re_db_input($data['pass_through']):'0';
-          $product_category = (isset($data['product_category']) && strlen($data['product_category'] > 0))?$this->re_db_input($data['product_category']):'0';
-
-          if($id==0){
-				    foreach($data['data1'] as $key=>$val)
-            {
-              $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
-              $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
-              $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00';
-              $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00';
-              $reason=isset($val['reason'])?$this->re_db_input($val['reason']):'';
-
-              $q = "INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$type_of_licences."' ,`state_id`='".$key."' ,
-              `waive_home_state_fee`='".$waive_home_state_fee."' , `product_category`='".$product_category."' ,`active_check`='".$active_check."' ,`fee`='".$fee."' ,
-              `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."', `status`=1".$this->insert_common_sql();
-              $res = $this->re_db_query($q);
-            }
-
-            if($res){
-
-              $_SESSION['success'] = INSERT_MESSAGE;
-              return true;
-            }
-            /*else{
-							$_SESSION['warning'] = UNKWON_ERROR;
-							return false;
-						}*/
-
-    			}
-          else if($id>0){   //echo $id;exit;
-            $qq="select broker_id from ".BROKER_LICENCES_SECURITIES." where `broker_id`=".$id."";
-            $re=$this->re_db_query($qq);
-            $variable=$this->re_db_num_rows($re);
-
-            /* ---- GET INITIAL VALUES START -----------*/
-            $qq1="SELECT broker_id, type_of_licences, state_id, waive_home_state_fee, product_category, active_check, fee, received, `terminated`, reson FROM `".BROKER_LICENCES_SECURITIES."` WHERE is_delete=0 AND `broker_id`=".$id."";
-            $res = $this->re_db_query($qq1);
-            $originalArray = array();
-            if($this->re_db_num_rows($res)>0)
-            {
-              while($row = $this->re_db_fetch_array($res)){
-                array_push($originalArray,$row);
+          // print_r($id); die;
+          // $active=isset($data['active'])?$this->re_db_input($data['active']):'0';
+          // $categorey=isset($data['category'])?$this->re_db_input($data['category']):'';
+          $query=$this->re_db_query("select id from ".BROKER_LICENCES_SECURITIES." where `broker_id`=".$id." and is_delete=0");
+          $alreadyExistedRecords=array();
+          if($this->re_db_num_rows($query)>0)
+          {
+              while($row = $this->re_db_fetch_array($query)){
+                  array_push($alreadyExistedRecords,$row['id']);
               }
-            }
-            /* ---- GET INITIAL VALUES END -----------*/
-            $newValues = array();
-            foreach($data['data1'] as $key=>$val)
-            {
-              $newRow = array(
-                'broker_id' => $id,
-                'type_of_licences' => $type_of_licences,
-                'state_id' => strval($key),
-                'waive_home_state_fee' => $waive_home_state_fee,
-                'product_category' => $product_category,
-                'active_check' => isset($val['active_check'])?$this->re_db_input($val['active_check']):'0',
-                'fee' => isset($val['fee'])?$this->re_db_input($val['fee']):'',
-                'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00',
-                'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00',
-                'reson' => isset($val['reason'])?$this->re_db_input($val['reason']):''
-              );
-              array_push($newValues, $newRow);
-            }
+           }
 
-            $originalHash = md5(json_encode($originalArray));
-            $newHash = md5(json_encode($newValues));
-            if($variable > 0)
-            {
-              if ($originalHash != $newHash)
-              {
-                foreach ($newValues as $key => $value)
-                {
-                  $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
-                  `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `product_category`='".$value['product_category']."' ,`active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
-                  `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
+           $postedData = $data['data_sec'];
+           $postedRowIds=$postedData['row_id'];
+           $updateRows=array_intersect($postedData['row_id'], $alreadyExistedRecords);
+           $newInsertRows=array_diff($postedData['row_id'],$alreadyExistedRecords);
+           $deletedRows=array_diff($alreadyExistedRecords,$postedData['row_id']);
+           // ECHO'<PRE>';print_r( $deletedRows); DIE;
 
-                  $res = $this->re_db_query($q);
-                }
-                $this->update_routine_history(BROKER_HISTORY, 'broker_id', $id, 'License Securities', "", "Updated the values");
-              }
+           $rowCounter=0;
+           if($id==0){
+            // Array ( [1] => 1009 [2] => 1010 [3] => 1019 )
+               foreach($newInsertRows as $key=>$row){
+                    // $active = $postedData['active'][$key];
+                    $category = $postedData['category'][$key];
+                     $state= $postedData["state"][$key];
+                     $from= $postedData["from"][$key];
+                     $to= $postedData["to"][$key];
+                     $reason= $postedData["reason"][$key];
+                     $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."', `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
+                      $res = $this->re_db_query($q);
+               }
+           }else{
+           // updating Records
+               foreach($newInsertRows as $key=>$row){
+                    // $active = $postedData['active'][$key];
+               			$category = $postedData['category'][$key];
+                     $state= $postedData["state"][$key];
+                     $from= $postedData["from"][$key];
+                     $to= $postedData["to"][$key];
+                     $reason= $postedData["reason"][$key];
+                    if(!empty($category) and !empty($state) and !empty($from) and !empty($to)){
+                   	 		 $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."',
+                            `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
+                          $res = $this->re_db_query($q);
+                    }
+                  }
+               foreach($updateRows as $key=>$row){
+                 // $from= date('y-m-d'(strtotime($postedData["from"][$key],0000));
+                 // $active = $postedData['active'][$key];
+                 $category = $postedData['category'][$key];
+                 $state= $postedData["state"][$key];
+                 $from= $postedData["from"][$key];
+                 $to= $postedData["to"][$key];
+                 $reason= $postedData["reason"][$key];
+                   $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$category."' ,`state_id`='".$state."',  `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'";
+                   $res = $this->re_db_query($q);
+                   $rowCounter = 1;
+               }
+               foreach($deletedRows as $key=>$row){
+                       // $active = $postedData['active'][$key];
+                      $category = $postedData['category'][$key];
+                       $state= $postedData["state"][$key];
+                       $from= $postedData["from"][$key];
+                       $to= $postedData["to"][$key];
+                       $reason= $postedData["reason"][$key];
+                    if(empty($category) and empty($state) and empty($from) and empty($to)){
+                       $q="DELETE FROM `".BROKER_LICENCES_SECURITIES."` where broker_id='".$id."' and id='".$row."' ";
+                        $res = $this->re_db_query($q);
+                    }
+                        //$this->update_routine_histandy(BROKER_HISTORY, 'broker_id', $id, 'License Insurance', "", "Updated the values");
+                 }
             }
-            else
-            {
-              foreach ($newValues as $key => $value) {
-                $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."' ,`type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
-                  `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `product_category`='".$value['product_category']."' ,`active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
-                  `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->insert_common_sql();
-                $res = $this->re_db_query($q);
-              }
-            }
-            if($res){
-              $_SESSION['success'] = UPDATE_MESSAGE;
-              return true;
-            }
-            /*else{
-							$_SESSION['warning'] = UNKWON_ERROR;
-							return false;
-						}*/
-          }
-          //echo $id;
-          //exit;
+            return ;
+            // if($id==0)
+            // {
+            //   foreach($data['data_sec'] as $key=>$val)
+            //   {
+            //     $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
+            //     $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00';
+            //     $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00';
+            //     $reason=isset($val['reason'])?$this->re_db_input($val['reason']):'';
+
+            //     $q = "INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`product_category`='".$categorey."' ,`state_id`='".$key."' , `active_check`='".$active_check."' ,`received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."' ".$this->insert_common_sql();
+            //     $res = $this->re_db_query($q);
+            //   }
+            //   if($res)
+            //   {
+            //     $_SESSION['success'] = INSERT_MESSAGE;
+            //     return true;
+            //   }
+
+            // }
+            // else if($id > 0)
+            // {
+            //   $qq="select broker_id from ".BROKER_LICENCES_SECURITIES." where `broker_id`=".$id."";
+            //   $re=$this->re_db_query($qq);
+            //   $variable=$this->re_db_num_rows($re);
+
+            //   /* ---- GET INITIAL VALUES START -----------*/
+            //   $qq1="SELECT broker_id, product_category, state_id, received, `terminated`, reson FROM `".BROKER_LICENCES_SECURITIES."` WHERE is_delete=0 AND `broker_id`=".$id."";
+            //   $res = $this->re_db_query($qq1);
+            //   $originalArray = array();
+            //   if($this->re_db_num_rows($res)>0)
+            //   {
+            //     while($row = $this->re_db_fetch_array($res)){
+            //       array_push($originalArray,$row);
+            //     }
+            //   }
+
+            //   /* ---- GET INITIAL VALUES END -----------*/
+            //   /* ---- GET NEW VALUES START -------------*/
+            //   $newValues = array();
+            //   $postedData = $data['data_sec'];
+
+            //   foreach($postedData['category'] as $key=>$val)
+            //   {
+            //      $category = $val;
+            //      $state= $postedData["state"][$key];
+            //      $from= $postedData["from"][$key];
+            //      $to= $postedData["to"][$key];
+            //      $reason= $postedData["reason"][$key];
+            //       $newRow = array(
+            //          'broker_id' => $id,
+            //           'product_category' => $category,
+            //           'state' => $state,
+            //           'received' => $from,
+            //           'terminated' => $to,
+            //           'reson' => $reason
+            //       );
+            //     array_push($newValues, $newRow);
+            //   }
+
+            //   $originalHash = md5(json_encode($originalArray));
+            //   $newHash = md5(json_encode($newValues));
+
+            //   /* ---- GET NEW VALUES END -------------*/
+            //   if($variable>0)
+            //   {
+            //     if ($originalHash != $newHash)
+            //     {
+            //       foreach ($newValues as $key => $value){
+            //                // echo '<pre>'; print_r($value);
+            //                // echo '<pre>'; print_r($value); die;
+            //       $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$value['product_category']."' ,`state_id`='".$value['state']."',
+            //         `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state']."' and `broker_id`='".$id."'";
+
+            //   // echo $q; die;
+            //         $res = $this->re_db_query($q);
+            //       }
+            //       $this->update_routine_history(BROKER_HISTORY, 'broker_id', $id, 'License Insurance', "", "Updated the values");
+            //     }
+            //   }
+            //   else
+            //   {
+            //     foreach ($newValues as $key => $value)
+            //     {
+            //       $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."' ,`product_category`='".$value['product_category']."' ,`state_id`='".$value['state']."' ,`active_check`='".$value['active']."' ,`received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->insert_common_sql();
+            //       $res = $this->re_db_query($q);
+            //     }
+            //   }
+            //   if($res)
+            //   {
+            //     $_SESSION['success'] = UPDATE_MESSAGE;
+            //     return true;
+            //   }
+            // }
         }
+
+
+
+      //   public function insert_update_licences($data)
+      //   {
+      //     // ECHO '<pre>';print_r($data); die();
+      //     $id = isset($data['id'])?$this->re_db_input($data['id']):0;
+      //     $type_of_licences =isset($data['type'])?$this->re_db_input($data['type']):'';
+      //     $waive_home_state_fee = isset($data['pass_through'])?$this->re_db_input($data['pass_through']):'0';
+      //     $product_category = (isset($data['product_category']) && strlen($data['product_category'] > 0))?$this->re_db_input($data['product_category']):'0';
+
+      //     if($id==0){
+				  //   foreach($data['data1'] as $key=>$cat_row)
+      //       {
+
+      //       	foreach($cat_row as $cat_id=>$val){
+      //           // print_r($val); die;
+		    //           $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
+		    //           $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
+		    //           $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00';
+		    //           $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00';
+		    //           $reason=isset($val['reason'])?$this->re_db_input($val['reason']):'';
+
+		    //           $q = "INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$type_of_licences."' ,`state_id`='".$key."' ,
+		    //           `waive_home_state_fee`='".$waive_home_state_fee."' , `product_category`='".$product_category."' ,`active_check`='".$active_check."' ,`fee`='".$fee."' ,
+		    //           `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."', `status`=1".$this->insert_common_sql();
+		    //           $res = $this->re_db_query($q);
+      //       }
+      //       }
+
+      //       if($res){
+
+      //         $_SESSION['success'] = INSERT_MESSAGE;
+      //         return true;
+      //       }
+      //       /*else{
+						// 	$_SESSION['warning'] = UNKWON_ERROR;
+						// 	return false;
+						// }*/
+
+    		// 	}
+      //     else if($id>0){   //echo $id;exit;
+      //       $qq="select broker_id from ".BROKER_LICENCES_SECURITIES." where `broker_id`=".$id."";
+      //       $re=$this->re_db_query($qq);
+      //       $variable=$this->re_db_num_rows($re);
+
+      //       /* ---- GET INITIAL VALUES START -----------*/
+      //       $qq1="SELECT broker_id, type_of_licences, state_id, waive_home_state_fee, product_category, active_check, fee, received, `terminated`, reson FROM `".BROKER_LICENCES_SECURITIES."` WHERE is_delete=0 AND `broker_id`=".$id."";
+      //       $res = $this->re_db_query($qq1);
+      //       $originalArray = array();
+      //       if($this->re_db_num_rows($res)>0)
+      //       {
+      //         while($row = $this->re_db_fetch_array($res)){
+      //           array_push($originalArray,$row);
+      //         }
+      //       }
+      //       /* ---- GET INITIAL VALUES END -----------*/
+      //       $newValues = array();
+      //       foreach($data['data1'] as $key=>$val)
+      //       {
+      //         $newRow = array(
+      //           'broker_id' => $id,
+      //           'type_of_licences' => $type_of_licences,
+      //           'state_id' => strval($key),
+      //           'waive_home_state_fee' => $waive_home_state_fee,
+      //           'product_category' => $product_category,
+      //           'active_check' => isset($val['active_check'])?$this->re_db_input($val['active_check']):'0',
+      //           'fee' => isset($val['fee'])?$this->re_db_input($val['fee']):'',
+      //           'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00',
+      //           'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00',
+      //           'reson' => isset($val['reason'])?$this->re_db_input($val['reason']):''
+      //         );
+      //         array_push($newValues, $newRow);
+      //       }
+
+      //       $originalHash = md5(json_encode($originalArray));
+      //       $newHash = md5(json_encode($newValues));
+      //       if($variable > 0)
+      //       {
+      //         if ($originalHash != $newHash)
+      //         {
+      //           foreach ($newValues as $key => $value)
+      //           {
+      //             print_r($value); DIE;
+      //             $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
+      //             `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `product_category`='".$value['product_category']."' ,`active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
+      //             `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
+
+      //             $res = $this->re_db_query($q);
+      //           }
+      //           $this->update_routine_history(BROKER_HISTORY, 'broker_id', $id, 'License Securities', "", "Updated the values");
+      //         }
+      //       }
+      //       else
+      //       {
+      //         foreach ($newValues as $key => $value) {
+      //            print_r($value); DIE;
+      //           $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."' ,`type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
+      //             `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `product_category`='".$value['product_category']."' ,`active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
+      //             `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->insert_common_sql();
+      //           $res = $this->re_db_query($q);
+      //         }
+      //       }
+      //       if($res){
+      //         $_SESSION['success'] = UPDATE_MESSAGE;
+      //         return true;
+      //       }
+      //       /*else{
+						// 	$_SESSION['warning'] = UNKWON_ERROR;
+						// 	return false;
+						// }*/
+      //     }
+      //     //echo $id;
+      //     //exit;
+      //   }
         public function insert_update_licences1($data)
         {
-          //echo '<pre>';print_r($data);
+          // echo '<pre>';print_r($data); die;
           $id = isset($data['id'])?$this->re_db_input($data['id']):0;
-          $type_of_licences =isset($data['type'])?$this->re_db_input($data['type']):'';
-          $waive_home_state_fee = isset($data['pass_through'])?$this->re_db_input($data['pass_through']):'0';
-          $product_category = (isset($data['product_category']) && strlen($data['product_category'] > 0))?$this->re_db_input($data['product_category']):'0';
+          $categorey=isset($data['category'])?$this->re_db_input($data['category']):'';
+          // $type_of_licences =isset($data['type'])?$this->re_db_input($data['type']):'';
+          // $ = isset($data['pass_through'])?$this->re_db_input($data['pass_through']):'0';
+          // $product_category = (isset($data['product_category']) && strlen($data['product_category'] > 0))?$this->re_db_input($data['product_category']):'0';
           if($id>=0)
           {
             if($id==0)
             {
+                // echo '<pre>';print_r($data['data2']); die;
               foreach($data['data2'] as $key=>$val)
               {
-                $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
-                $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
+                // $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
+                // $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
                 $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00';
                 $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00';
                 $reason=isset($val['reason'])?$this->re_db_input($val['reason']):'';
 
-                $q = "INSERT INTO `".BROKER_LICENCES_INSURANCE."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$type_of_licences."' ,`state_id`='".$key."' ,
-                  `waive_home_state_fee`='".$waive_home_state_fee."' , `product_category`='".$product_category."' ,`active_check`='".$active_check."' ,`fee`='".$fee."' ,
+                $q = "INSERT INTO `".BROKER_LICENCES_INSURANCE."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$categorey."' ,`state_id`='".$key."' , `active_check`='".$active_check."' ,`fee`='".$fee."' ,
                   `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."' ".$this->insert_common_sql();
                 $res = $this->re_db_query($q);
               }
@@ -1196,7 +1380,7 @@
               $variable=$this->re_db_num_rows($re);
 
               /* ---- GET INITIAL VALUES START -----------*/
-              $qq1="SELECT broker_id, type_of_licences, state_id, waive_home_state_fee, product_category, active_check, fee, received, `terminated`, reson FROM `".BROKER_LICENCES_INSURANCE."` WHERE is_delete=0 AND `broker_id`=".$id."";
+              $qq1="SELECT broker_id, type_of_licences, state_id, received, `terminated`, reson FROM `".BROKER_LICENCES_INSURANCE."` WHERE is_delete=0 AND `broker_id`=".$id."";
               $res = $this->re_db_query($qq1);
               $originalArray = array();
               if($this->re_db_num_rows($res)>0)
@@ -1205,6 +1389,7 @@
                   array_push($originalArray,$row);
                 }
               }
+
               /* ---- GET INITIAL VALUES END -----------*/
               /* ---- GET NEW VALUES START -------------*/
               $newValues = array();
@@ -1212,12 +1397,12 @@
               {
                 $newRow = array(
                   'broker_id' => $id,
-                  'type_of_licences' => $type_of_licences,
+                  'type_of_licences' => $categorey,
                   'state_id' => strval($key),
-                  'waive_home_state_fee' => $waive_home_state_fee,
-                  'product_category' => $product_category,
-                  'active_check' => isset($val['active_check'])?$this->re_db_input($val['active_check']):'0',
-                  'fee' => isset($val['fee'])?$this->re_db_input($val['fee']):'',
+                  // 'waive_home_state_fee' => $waive_home_state_fee,
+                  // 'product_category' => $product_category,
+                  // 'active_check' => isset($val['active_check'])?$this->re_db_input($val['active_check']):'0',
+                  // 'fee' => isset($val['fee'])?$this->re_db_input($val['fee']):'',
                   'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00',
                   'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00',
                   'reson' => isset($val['reason'])?$this->re_db_input($val['reason']):''
@@ -1226,15 +1411,17 @@
               }
               $originalHash = md5(json_encode($originalArray));
               $newHash = md5(json_encode($newValues));
+
               /* ---- GET NEW VALUES END -------------*/
               if($variable>0)
               {
                 if ($originalHash != $newHash)
                 {
+                           // echo '<pre>'; print_r($value); die;
                   foreach ($newValues as $key => $value)
                   {
-                    $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
-                    `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `product_category`='".$value['product_category']."' ,`active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
+                                                              // echo '<pre>';print_r($value); die;
+                    $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['category']."' ,`state_id`='".$value['state_id']."' ,
                     `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
 
                     $res = $this->re_db_query($q);
@@ -1260,6 +1447,7 @@
             }
           }
         }
+
         public function insert_update_licences2($data)
         {
           //echo '<pre>';print_r($data);
@@ -1431,7 +1619,7 @@
                 ." SET"
                     ." `broker_id`='".$_SESSION['last_insert_id']."'"
                     .",`received`='".$docs_receive."'"
-                    ."`description`='".$docs_description."'"
+                    .",`description`='".$docs_description."'"
                     .",`date`='".$docs_date."'"
                     .",`required`='".$docs_required."'"
                     .$this->insert_common_sql()
@@ -1656,7 +1844,8 @@
         }
         /** Insert update charges data for broker. **/
         public function insert_update_charges1231321564($data){
-        $id = isset($data['id'])?$this->re_db_input($data['id']):0;
+/*          echo '<pre>';print_r($data);exit;
+*/        $id = isset($data['id'])?$this->re_db_input($data['id']):0;
 				if($id==0){
 
 				        foreach($data as $key=>$val)
@@ -1920,7 +2109,26 @@
 					return $broker_trans;
 		}
 
-    public function select_category_based_on_series() {}
+    public function select_category_based_on_series() {
+
+         	$return = array();
+         /*(21,16,1,4,5,12,6,3,22)*/
+			 $q = "SELECT `at`.*
+					FROM `".PRODUCT_TYPE."` AS `at`
+                    WHERE `at`.`is_delete`='0' and id in (21,16,1,4,5,12,6,3,22)
+                    ORDER BY `at`.`id` ASC";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+
+    			}
+            }
+			return $return;
+
+
+    }
         public function select_category(){
 			$return = array();
 
@@ -2032,7 +2240,7 @@
 			$q = "SELECT `at`.*,u.first_name as user_initial
 					FROM `".BROKER_HISTORY."` AS `at`
                     LEFT JOIN `".USER_MASTER."` as `u` on `u`.`id`=`at`.`modified_by`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."'";
+                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."' order by at.id desc";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			while($row = $this->re_db_fetch_array($res)){
@@ -2240,30 +2448,20 @@
             }
 			return $return;
 		}
-    // Specific sponsor added - 5/28/22
-    public function edit_alias($id, $sponsor=0){
+    public function edit_alias($id){
 			$return = array();
-      $con = "";
-      $id = (int)$this->re_db_input($id);
-      $sponsor = (int)$this->re_db_input($sponsor);
 
-      if ($sponsor) {
-        $con = " AND `at`.`sponsor_company`=$sponsor";
-      }
+			$q = "SELECT `at`.*
+					FROM `".BROKER_ALIAS."` AS `at`
+                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."'";
+            $res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
 
-			$q = "SELECT `at`.*"
-					  ." FROM `".BROKER_ALIAS."` AS `at`"
-            ." WHERE `at`.`is_delete`='0'"
-            ." AND `at`.`broker_id`=$id"
-            .$con
-      ;
-
-      $res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0){
-        while($row = $this->re_db_fetch_array($res)){
-          array_push($return,$row);
-        }
-      }
+    			}
+            }
 			return $return;
 		}
 
@@ -2285,44 +2483,55 @@
 		}
         public function get_previous_broker($id){
 
-        	$broker_name = isset($_REQUEST['lname']) ?  $_REQUEST['lname'].', '.$_REQUEST['fname'] : '';
-        	//var_dump($broker_name);
-			$return = array();
-
-            $q = "SELECT `at`.*
+         	$q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name
 					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`id`<".$id."
-                    ORDER BY `at`.`id` DESC LIMIT 1";
-            if(!empty($broker_name)) {
+                    WHERE `at`.`is_delete`='0'   group by id
+                    ORDER BY GROUP_CONCAT(last_name,' ',first_name) DESC ";
+				   	$res = $this->re_db_query($q);
+				   	$isFind =false;
+		            if($this->re_db_num_rows($res)>0){
 
-            	//$q = "SELECT *,concat_ws(', ',last_name,first_name) as full_name FROM ".$this->table." where concat_ws(', ',last_name,first_name) < '".$broker_name."' order by full_name asc  LIMIT 1";
-            }
-         //   echo $q;
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $return = $this->re_db_fetch_array($res);
-            }
-            else
-            {
-                return false;
-            }
+		                while($row = $this->re_db_fetch_array($res)){
+		                	       if($isFind)
+		                	       	  return $row;
+		                	      
+		                	       if($row['id']== $id)
+                                 $isFind=true;
+		                	       
+
+		                }
+		            }
+		            else
+		            {
+		                return false;
+		            }
 			return $return;
 		}
         public function get_next_broker($id){
 			$return = array();
 
-            $q = "SELECT `at`.*
+            $q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name
 					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0' and `at`.`id`>".$id."
-                    ORDER BY `at`.`id` ASC LIMIT 1";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $return = $this->re_db_fetch_array($res);
-            }
-            else
-            {
-                return false;
-            }
+                    WHERE `at`.`is_delete`='0'   group by id
+                    ORDER BY GROUP_CONCAT(last_name,' ',first_name) ASC ";
+				   	$res = $this->re_db_query($q);
+				   	$isFind =false;
+		            if($this->re_db_num_rows($res)>0){
+
+		                while($row = $this->re_db_fetch_array($res)){
+		                	       if($isFind)
+		                	       	  return $row;
+		                	      
+		                	       if($row['id']== $id)
+                                 $isFind=true;
+		                	       
+
+		                }
+		            }
+		            else
+		            {
+		                return false;
+		            }
 			return $return;
 		}
         public function select_sponsor(){
@@ -2419,18 +2628,51 @@
 		 * @param int id
 		 * @return array of record if success, error message if any errors
 		 * */
-		public function edit($id){
+//  public function editall_general(){
+    //   $return = array();
+    //   $q = "SELECT `at`.*
+    //       FROM `".BROKER_GENERAL."` AS `at`
+    //                 WHERE `at`.`is_delete`='0'";
+    //         $res = $this->re_db_query($q);
+    //         if($this->re_db_num_rows($res)>0){
+    //           while($row = $this->re_db_fetch_array($res)){
+    //             array_push($return, $row)
+    //           } 
+    //         }
+    //   return $return;
+    // }
+
+		public function alledit(){
 			$return = array();
 			$q = "SELECT `at`.*
 					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."' ";
+                    WHERE `at`.`is_delete`='0'";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_array($res);
+              while($row=$this->re_db_fetch_array($res)){
+                array_push($return,$row);
+              }
             }
 			return $return;
 		}
-        public function edit_general($id){
+
+    public function edit_allgeneral(){
+      $return = array();
+      $q = "SELECT `at`.*
+          FROM `".BROKER_GENERAL."` AS `at`
+                    WHERE `at`.`is_delete`='0'";
+            $res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+            while($row=$this->re_db_fetch_array($res)){
+                  array_push($return,$row);
+                }
+            }
+      return $return;
+    }
+
+
+
+   public function edit_general($id){
 			$return = array();
 			$q = "SELECT `at`.*
 					FROM `".BROKER_GENERAL."` AS `at`
@@ -2723,8 +2965,8 @@
 			return $return;
 		}
 
-    function load_broker_state_fee(){
-      $return = array();
+   function load_broker_state_fee(){
+    		$return = array();
 
 			$q = "SELECT feeStateId,stateFee from ft_broker_state_fee_master;";
 			$res = $this->re_db_query($q);
@@ -2736,24 +2978,27 @@
             }
 
 			return $return;
-    }
+    	}
 
     function save_broker_state_fee($state_id = 0,$state_fee= 0){
-        $q = "SELECT * from ft_broker_state_fee_master where feeStateId='".$state_id."'";
 
-        $res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-              $q = "update  `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."' where feeStateId='".$state_id."'";
-              $res = $this->re_db_query($q);
-        }
-        else{
 
-              $q = "INSERT INTO `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."',feeStateId='".$state_id."' ".$this->insert_common_sql();
-              $res = $this->re_db_query($q);
-        }
+    	  	  $q = "SELECT * from ft_broker_state_fee_master where feeStateId='".$state_id."'";
 
-        return true;
-    }
+
+						$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+              	 $q = "update  `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."' where feeStateId='".$state_id."'";
+              		$res = $this->re_db_query($q);
+            }
+            else{
+
+            	   	$q = "INSERT INTO `ft_broker_state_fee_master` SET `stateFee`='".$state_fee."',feeStateId='".$state_id."' ".$this->insert_common_sql();
+									$res = $this->re_db_query($q);
+            }
+
+    	  	   return true;
+         }
 
     // Generic Typing - return based on parameter data type passed-> (NULL/Empty/default)$statusParameter->entire array, (integer)$statusParameter->return Description(statuses[key value/$statusParameter]), (string)$statusParameter->return key/index value(if string is found in the array)
     function active_statuses($statusParameter=NULL){
