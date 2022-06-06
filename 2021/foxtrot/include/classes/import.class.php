@@ -564,15 +564,15 @@
                                     }
                                 }
                             }
-                            
+
                         //-- REASSIGN Broker/Client --//
-                        } else if($resolveAction == 3) { 
+                        } else if($resolveAction == 3) {
                             if (in_array($exception_field, ["objectives","rule_engine"]) OR !empty($acc_for_client)){
                                 $result = $this->resolve_exception_3Reassign('client_id', $acc_for_client, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                             } else {
                                 $result = $this->resolve_exception_3Reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                             }
-                            
+
                         //-- DELETE/SKIP TRADE --//
                         } else if($resolveAction == 4) {
                             $result = $this->resolve_exception_4Delete($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
@@ -951,21 +951,21 @@
         function resolve_exception_2AddClientValues($clientId=0, $fieldArray=[], $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
             $result = $res = 0;
             $clientId = (int)$this->re_db_input($clientId);
-            
+
             if ($clientId!='' AND count($fieldArray) AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
                 $importFileTable = '';
                 $instance_client = new client_maintenance();
                 $clientDetail = $instance_client->select_client_master($clientId);
-                
+
                 if ($clientDetail){
                     $updateString = '';
-                    
+
                     foreach($fieldArray AS $key=>$value){
                         if (isset($clientDetail[$key])){
                             $updateString .= (empty($updateString) ? "" : ",")."`$key`='".($this->re_db_input($value))."'";
                         }
                     }
-                    
+
                     if ($updateString!=""){
                         $q = "UPDATE `".CLIENT_MASTER."`"
                                 ." SET "
@@ -1354,7 +1354,7 @@
         /*** Action 6: IGNORE Exception */
         function resolve_exception_6Ignore($file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0){
             $result = 0;
-            
+
             if ($file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
                 $importFileTable = $q = $res = $row = '';
 
@@ -1372,7 +1372,7 @@
                         $importFileTable = IMPORT_GEN_DETAIL_DATA;
                         break;
                 }
-    
+
                 // Update "resolve_exceptions" field to flag detail as "special handling" record
                 $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=$detail_data_id", 'resolve_exceptions', $exception_record_id);
 
@@ -1382,11 +1382,11 @@
                     ." WHERE `id`=".$exception_record_id
                 ;
                 $res = $this->re_db_query($q);
-                
+
                 if ($res)
                     $result = $this->reprocess_current_files($file_id, $file_type, $detail_data_id);
             }
-            
+
             return $result;
         }
 
@@ -3143,7 +3143,7 @@
                                 $fieldName = 'rule_engine';
                                 $fieldValue = 'no_naf_date';
                                 $check_data_val['file_type'] = $commissionFileType;
-                                
+
                                 // Populate an array of resulting changes and update the "Comm" table
                                 $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission, $ignoreException);
                                 // Populate the vars back from initialized in "import_rules(...)"
@@ -3163,7 +3163,7 @@
                                 $fieldName = 'rule_engine';
                                 $fieldValue = 'client_legal_age';
                                 $check_data_val['file_type'] = $commissionFileType;
-                                
+
                                 // Populate an array of resulting changes and update the "Comm" table
                                 $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission, $ignoreException);
                                 // Populate the vars back from initialized in "import_rules(...)"
@@ -3183,7 +3183,7 @@
                                 $fieldName = 'rule_engine';
                                 $fieldValue = 'no_birth_date';
                                 $check_data_val['file_type'] = $commissionFileType;
-                                
+
                                 // Populate an array of resulting changes and update the "Comm" table
                                 $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission, $ignoreException);
                                 // Populate the vars back from initialized in "import_rules(...)"
@@ -3203,7 +3203,7 @@
                                 $fieldName = 'rule_engine';
                                 $fieldValue = 'proof_of_identity';
                                 $check_data_val['file_type'] = $commissionFileType;
-                                
+
                                 // Populate an array of resulting changes and update the "Comm" table
                                 $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission, $ignoreException);
                                 // Populate the vars back from initialized in "import_rules(...)"
@@ -3223,7 +3223,7 @@
                                 $fieldName = 'rule_engine';
                                 $fieldValue = 'client_state';
                                 $check_data_val['file_type'] = $commissionFileType;
-                                
+
                                 // Populate an array of resulting changes and update the "Comm" table
                                 $arrayRuleClass = $instance_rules->import_rule($error_code_id, $fieldName, $fieldValue, $insert_exception_string, $commDetailTable, $check_data_val, $resolveHoldCommission, $ignoreException);
                                 // Populate the vars back from initialized in "import_rules(...)"
@@ -3258,7 +3258,7 @@
                                 }
                             }
                         }
-                        
+
                         if ($broker_id!=0 AND $reassignBroker==0  AND $reassignClient==0 AND !empty($clientAccount['broker_name']) AND $broker_id!=(int)$clientAccount['broker_name']){
                             $error_code_id = 30;
                             // $fieldName = 'client broker';
@@ -3373,7 +3373,7 @@
                                         }
                                     }
                                     $con .=",`hold_commission`=1, `hold_resoan`='$q'";
-                                    
+
                                     $res = $q = 0;
                                 } else if($broker_hold_commission == 1){
                                     $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
