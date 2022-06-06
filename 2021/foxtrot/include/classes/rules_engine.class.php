@@ -184,13 +184,17 @@
             }
 			return $return;
 		}
-
-		function import_rule($error_code_id, $fieldName='', $fieldValue='', $insert_exception_string='', $commDetailTable='', &$tradeDetailArray=[], $resolveHoldCommission=[]){
+		
+		
+		/**
+		 * NOTE: $tradeDetailArray is passed as REFERENCE, so be careful when manipulating it 
+		 **/
+		function import_rule($error_code_id, $fieldName='', $fieldValue='', $insert_exception_string='', $commDetailTable='', &$tradeDetailArray=[], $resolveHoldCommission=[], $ignoreException=[]){
 			$instance_import = new import();
 			$instance_broker_master = new broker_master();
 			// Return nothing if all the parameters are not specified
-			if (empty($error_code_id) OR empty($commDetailTable) OR empty($tradeDetailArray)){
-				return [];
+			if (empty($error_code_id) OR empty($commDetailTable) OR empty($tradeDetailArray) OR in_array((int)$error_code_id, $ignoreException)){
+				return $tradeDetailArray;
 			}
 
 			// Initialize the Return array

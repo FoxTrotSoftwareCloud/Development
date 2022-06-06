@@ -1355,13 +1355,13 @@ PostResult( msg );
                     </div>
                     <div class="col-md-6">
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="hold_commission" style="display: inline;" value="1" onclick="reassign_broker_(this.value);" checked/>
-                            <label> Hold commission</label><br />
+                            <label for="hold_commission"> Hold commission</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="broker_active_trade" style="display: inline;" value="2" onclick="reassign_broker_(this.value);"/>
-                            <label id="lbl_broker_active_trades"> Remove U5 Date</label><br />
+                            <label id="lbl_broker_active_trades" for="broker_active_trade"> Remove U5 Date</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="reassign_broker" style="display: inline;" value="3" onclick="reassign_broker_(this.value);"/>
-                            <label id="lbl_reassign_broker_trades"> Reassign Trade to Another Broker</label><br />
+                            <label id="lbl_reassign_broker_trades" for="reassign_broker"> Reassign Trade to Another Broker</label><br />
                         <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);"/>
-                            <label> Skip/Remove Trade Exception</label><br />
+                            <label for="delete_record"> Skip/Remove Trade Exception</label><br />
                     </div>
                 </div>
                 <div class="row" style="display: none;" id="broker_termination_options_clients">
@@ -1499,6 +1499,7 @@ PostResult( msg );
                         <input type="hidden" name="exception_record_id" id="exception_record_id" value=""/>
                         <input type="hidden" name="resolveAction" id="resolveAction" value=""/>
                         <input type="hidden" name="resolve_exception" id="resolve_exception" value="Resolve Exception" />
+                        <input type="hidden" name="exception_value_2" id="exception_value_2" value="" />
         	            <button type="submit" class="btn btn-sm btn-warning" name="resolve_exception" value="Resolve Exception"><i class="fa fa-save"></i> Save</button>
                         <!--Deprecated 03/04/22 -- style="alignment-adjustment: center !important;" -->
                     </div>
@@ -1940,10 +1941,19 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
                 fieldLabel = 'Product Objective';
                 activeTradeLabel = 'Add Product Objective to Client';
                 break;
-        
             default:
-                fieldLabel = 'Client Documentation';
-                activeTradeLabel = 'Add NAF Date to Client';
+                // exception_field == 'rule_engine'
+                fieldLabel = 'Rule Exception';
+                $("#exception_value_2").val(existing_field_value);
+                
+                switch (existing_field_value) {
+                    case 'no_naf_date':
+                        activeTradeLabel = 'Add NAF Date to Client';
+                        break;
+                    default:
+                        activeTradeLabel = 'Ignore Exception/Pass Trade Through';
+                        break;
+                }
                 break;
         }
         
@@ -2074,7 +2084,7 @@ function exception_submit()
                window.location.href = "import.php?tab=review_files&id="+<?php echo $id;?>+"&file_type="+<?php echo $file_type; ?>;//get_client_notes();
           }
           else{
-               $('#msg_exception').html('<div class="alert alert-danger">'+data+'</div>');
+               $('#msg_exception').html('<div class="alert alert-danger">'+(data="" ? "Bad POST. Try again" : data)+'</div>');
           }
 
       },
