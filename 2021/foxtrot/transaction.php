@@ -2,9 +2,8 @@
 
     require_once("include/config.php");
 	require_once(DIR_FS."islogin.php");
-
-    $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
-    $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
+    $action = isset($_GET['action']) && $_GET['action']!='' ? $dbins->re_db_input($_GET['action']) : 'view';
+    $id = isset($_GET['id']) && $_GET['id']!='' ? $dbins->re_db_input($_GET['id']) : 0;
     $ch_date ='';
     $ch_amount ='';
     $ch_no ='';
@@ -14,7 +13,6 @@
     $product_category = $instance->select_category();
     $get_sponsor = $instance->select_sponsor();
     $client_account_array=$instance->select_all_client_account_no();
-    //echo '<pre>'; print_r($client_account_array); exit;
     $instance_broker_master = new broker_master();
     $instance_branches = new branch_maintenance();
     $instance_company = new manage_company();
@@ -38,11 +36,8 @@
     $branch = isset($_POST['branch']) ? (int)$instance->re_db_input($_POST['branch']):0;
     $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
 
-    if((isset($_POST['transaction'])&& $_POST['transaction']=='Save')|| (isset($_POST['transaction'])&& $_POST['transaction']=='Save & Copy')){
-       // echo '<pre>';print_r($_POST);exit();
-
+    if((isset($_POST['transaction']) && $_POST['transaction']=='Save')|| (isset($_POST['transaction']) && $_POST['transaction']=='Save & Copy')){
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
-
         //$trade_number = isset($_POST['trade_number'])?$instance->re_db_input($_POST['trade_number']):0;
         $client_name = isset($_POST['client_name'])?$instance->re_db_input($_POST['client_name']):'';
         $client_number = isset($_POST['client_number'])?$instance->re_db_input($_POST['client_number']):'';
@@ -88,7 +83,6 @@
         $branch = isset($_POST['branch']) ? (int)$instance->re_db_input($_POST['branch']):0;
         $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
 
-
         $return = $instance->insert_update($_POST);
 
         if($return===true){
@@ -120,7 +114,7 @@
         }
 
     }
-    else if(isset($_GET['action'])&&$_GET['action']=='add' && isset($_GET['batch_id'])&&$_GET['batch_id']>0)
+    else if(isset($_GET['action']) && $_GET['action']=='add' && isset($_GET['batch_id']) && $_GET['batch_id']>0)
     {
         $batch = $instance->re_db_input($_GET['batch_id']);
         $_SESSION['batch_id'] = isset($batch)?$instance->re_db_output($batch):'';
@@ -149,11 +143,10 @@
         $commission_received = isset($return['commission_received'])?$instance->re_db_output($return['commission_received']):'';
         $is_1035_exchange = isset($return['is_1035_exchange']) ? $instance->re_db_input($return['is_1035_exchange']):0;
         $is_trail_trade = isset($return['is_trail_trade']) ? $instance->re_db_input($return['is_trail_trade']):0;
-         $ch_date =isset($return['ch_date']) && $return['ch_date']!=''?$instance->re_db_output($return['ch_date']):'';
-            $ch_amount =isset($return['ch_amount'])?$instance->re_db_output($return['ch_amount']):'';
-            $ch_no =isset($return['ch_no'])?$instance->re_db_output($return['ch_no']):'';
-            $ch_pay_to =isset($return['ch_pay_to'])?$instance->re_db_output($return['ch_pay_to']):'';
-
+        $ch_date =isset($return['ch_date']) && $return['ch_date']!=''?$instance->re_db_output($return['ch_date']):'';
+        $ch_amount =isset($return['ch_amount'])?$instance->re_db_output($return['ch_amount']):'';
+        $ch_no =isset($return['ch_no'])?$instance->re_db_output($return['ch_no']):'';
+        $ch_pay_to =isset($return['ch_pay_to'])?$instance->re_db_output($return['ch_pay_to']):'';
 
         $commission_received_date = isset($return['commission_received_date'])?$instance->re_db_output($return['commission_received_date']):'';
         $trade_date = isset($return['trade_date'])?$instance->re_db_output($return['trade_date']):'';
@@ -171,9 +164,8 @@
         $return_overrides = $instance->edit_overrides($id);
         $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'0';
         $company = isset($return['company'])?$instance->re_db_output($return['company']):'0';
-
     }
-    else if(isset($_GET['action'])&&$_GET['action']=='transaction_delete'&&isset($_GET['id'])&&$_GET['id']>0)
+    else if(isset($_GET['action']) && $_GET['action']=='transaction_delete' && isset($_GET['id']) && $_GET['id']>0)
     {
         $id = $instance->re_db_input($_GET['id']);
         $return = $instance->delete($id);
@@ -184,21 +176,19 @@
             header('location:'.CURRENT_PAGE.'?action=view');exit;
         }
     }
-    else if(isset($_POST['view_report'])&&$_POST['view_report']=='View Report')
+    else if(isset($_POST['view_report']) && $_POST['view_report']=='View Report')
     {
         $batch_view_id = isset($_POST['view_batch'])?$instance->re_db_input($_POST['view_batch']):'';
         header('location:report_transaction_by_batch.php?batch_id='.$batch_view_id);exit;
     }
-    else if(isset($_POST['search_transaction'])&& $_POST['search_transaction']=='Search')
-    {   //echo '<pre>';print_r($_POST);exit;
+    else if(isset($_POST['search_transaction']) && $_POST['search_transaction']=='Search')
+    {
         $search_type= isset($_POST['search_type'])?$instance->re_db_input($_POST['search_type']):'';
         $search_text= isset($_POST['search_text'])?$instance->re_db_input($_POST['search_text']):'';
         $return = $instance->search_transcation($_POST);
     }
     else if($action=='view'){
-
-        $return = $instance->select();//echo'<pre>';print_r($return);exit;
-
+        $return = $instance->select();
     }
 
     if(isset($_GET['p_id']) && isset($_GET['cat_id'])){
@@ -214,5 +204,4 @@
 
     $content = "transaction";
 	require_once(DIR_WS_TEMPLATES."main_page.tpl.php");
-
 ?>

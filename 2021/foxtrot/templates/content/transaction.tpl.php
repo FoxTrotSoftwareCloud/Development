@@ -228,15 +228,10 @@ function autocomplete(inp, arr) {
     <div class="col-lg-12 well <?php /*if($action=='add'||($action=='edit_transaction' && $id>0)){ echo 'fixedwell';}*/?>">
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
 
-
-        <?php
-
-    if((isset($_GET['action']) && $_GET['action']=='add') || (isset($_GET['action']) && ($_GET['action']=='edit_transaction' && $id>0))){
-
+    <?php if((isset($_GET['action']) && $_GET['action']=='add') || (isset($_GET['action']) && ($_GET['action']=='edit_transaction' && $id>0))){
           //if((isset($_GET['action']) && ($_GET['action']=='edit_transaction')) || isset($product_cate)){ get_product($product_cate); }
-        ?>
+    ?>
         <form name="frm2" method="POST" >
-
             <div id="split_commission_modal" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                 <input type="hidden" value="" id="deleted_rows" name="deleted_rows"/>
 
@@ -1033,10 +1028,8 @@ function autocomplete(inp, arr) {
                     <?php
                     $count = 0;
                     foreach($return as $key=>$val){
-                        //print_r($val);
                         ?>
     	                   <tr>
-
                                 <td><?php echo $val['id'];?></td>
                                 <td><?php echo date('m/d/Y',strtotime($val['trade_date']));?></td>
                                 <td><?php if(isset($val['client_lastname']) && $val['client_lastname'] != ''){ echo $val['client_lastname'].','.$val['client_firstname'];}?></td>
@@ -1102,7 +1095,55 @@ function autocomplete(inp, arr) {
         </div>
         <?php } ?>
     </div>
+
+    <!-- 06/07/22 Rule Engine Modal Window -->
+    <div id="resolve_rule_engine_modal" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header" style="margin-bottom: 0px !important;">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+            <h4 class="modal-title">Rule Engine Exceptions</h4>
+        </div>
+        <div class="modal-body">
+            <div class="col-md-12">
+                <div id="msg_exception" class="text-red"></div>
+            </div>
+            <br/>
+            <div class="col-md-12" >
+                <form method="post" id="resolve_rule_engine_form" name="resolve_rule_engine_form" onsubmit="return resolve_rule_engine_submit();">
+                    <div class="row" style="display: block;" id="resolve_rule_engine_row">
+                        <div class="col-md-5">
+                            <div class="inputpopup">
+                                <label id="resolve_rule_engine_label" class="pull-right" style="display:inline-block; margin-top:5px;">Select Option: </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="radio" class="radio" name="resolve_rule_engine" id="resolve_rule_engine_hold_commission" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="1" checked/>
+                                <label for="resolve_rule_engine" style="display:inline-block">Hold Commission</label><br />
+                            <input type="radio" class="radio" name="resolve_rule_engine" id="resolve_rule_engine_ignore" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="2"/>
+                                <label id="lbl_resolve_rule_engine_ignore" for="resolve_rule_engine" style="display:inline-block">Ignore Exception(s) / Enter Trade</label><br />
+                            <input type="radio" class="radio" name="resolve_rule_engine" id="resolve_rule_engine_cancel" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="3"/>
+                                <label id="lbl_resolve_rule_engine_cancel" for="resolve_rule_engine" style="display:inline-block"> Cancel</label><br />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5"></div>
+                        <div class="col-md-2">
+                            <div class="inputpopup">
+                                <input type="hidden" name="resolve_rule_engine_sample" id="resolve_rule_engine_sample" value="" />
+                                <button type="submit" class="btn btn-sm btn-warning" name="resolve_rule_engine_proceed" value="Resolve Exception"><i class="fa fa-save"></i> Proceed</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <br/>
+        </div><!-- End of Modal body -->
+        </div><!-- End of Modal content -->
+        </div><!-- End of Modal dialog -->
+    </div>
 </div>
+
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -1292,6 +1333,10 @@ $(document).ready(function() {
     $("#branch").change(function(e){get_branch_company($(this).val());});
     $("#product_cate").change(function(e){get_product($(this).val());});
     $("#sponsor").change(function(e){get_product();});
+    
+    // 06/07/22 Rule Engine Modal Window
+    if (<?php echo isset($_SESSION['transaction_rule_engine']) ? 1 : 0 ?>)
+        resolve_rule_engine(<?php echo $_SESSION['transaction_rule_engine']['exceptions'] ?>);
 })
 
 function hide_hold_reason()
@@ -2116,6 +2161,35 @@ $(document).on('click','#add_cheque_info .submit_account',function(){
        modalSelector.modal('hide');
     }
 });
+function resolve_rule_engine(msg='')
+{
+    $("#msg_exception").html(msg);
+    $("#resolve_rule_engine_modal").modal("show");
+    
+}
+function resolve_rule_engine_submit() {
+    $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+
+    var url = "transaction.php"; // the script where you handle the form input.
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: $("#resolve_rule_engine_form").serialize(), // serializes the form's elements.
+        success: function(data){
+            if(data=='1'){
+                window.location.href = "transaction.php"
+            } else{
+                $('#msg_exception').html('<div class="alert alert-danger">'+(data="" ? "Bad POST. Try again" : data)+'</div>');
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            $('#msg_exception').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
+        }
+   });
+
+   //e.preventDefault(); // avoid to execute the actual submit of the form.
+   return false;
+}
 </script>
 
 <style type="text/css">
