@@ -398,7 +398,7 @@ function autocomplete(inp, arr) {
                         <select class="livesearch form-control" data-required="true" id="client_name" name="client_name">
                             <option value="0">Select Client</option>
                             <?php foreach($get_client as $key=>$val){?>
-                                <option data-brokername="<?php echo $val['broker_name'] ?>" value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['first_name'].' '.$val['mi'].' '.$val['last_name'];?></option>
+                                <option data-brokername="<?php echo $val['broker_name'] ?>" value="<?php echo $val['id'];?>" <?php if(isset($client_name) && $client_name==$val['id']){ ?>selected="true"<?php } ?>><?php echo $val['last_name'].(empty($val['first_name'])||empty($val['last_name']) ? "":", ").$val['first_name'].' '.$val['mi'];?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -1107,8 +1107,9 @@ function autocomplete(inp, arr) {
         <div class="modal-body">
             <div class="col-md-12">
                 <div id="msg_exception" class="text-red"></div>
+                <br>
             </div>
-            <br/>
+            <br>
             <div class="col-md-12" >
                 <form method="post" id="resolve_rule_engine_form" name="resolve_rule_engine_form" onsubmit="return resolve_rule_engine_submit();">
                     <div class="row" style="display: block;" id="resolve_rule_engine_row">
@@ -1335,8 +1336,10 @@ $(document).ready(function() {
     $("#sponsor").change(function(e){get_product();});
     
     // 06/07/22 Rule Engine Modal Window
-    if (<?php echo isset($_SESSION['transaction_rule_engine']) ? 1 : 0 ?>)
-        resolve_rule_engine(<?php echo $_SESSION['transaction_rule_engine']['exceptions'] ?>);
+    <?php if (!empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
+        console.log("<?php echo $_SESSION['transaction_rule_engine']['warnings'] ?>");
+        resolve_rule_engine("<?php echo $_SESSION['transaction_rule_engine']['warnings']; ?>");
+    <?php } ?>
 })
 
 function hide_hold_reason()

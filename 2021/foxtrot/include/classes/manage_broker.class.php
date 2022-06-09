@@ -2641,18 +2641,36 @@
     //         }
     //   return $return;
     // }
-
-		public function alledit(){
+    
+    /**
+     * 06/08/22 Changed on 5/31/22 - Called from manage_broker php - only used once
+     * (1) id parameter removed
+     * (2) returns an array within an array instead of just one dimension that is used in manage_broker php
+     *  */  
+		public function alledit($id=0){
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0'";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-              while($row=$this->re_db_fetch_array($res)){
-                array_push($return,$row);
-              }
-            }
+      $con = "";
+      $id = (int)$this->re_db_input($id);
+      
+      if ($id){
+        $con = " AND `at`.`id`=$id";
+      }
+			
+      $q = "SELECT `at`.*"
+					 ." FROM `".$this->table."` AS `at`"
+           ." WHERE `at`.`is_delete`='0'"
+           .$con
+      ;
+			
+      $res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0){
+        //--- 06/08/22 Create a one dimensional array - that's what the colling program is expecting
+        $return = $this->re_db_fetch_array($res);
+        // while($row=$this->re_db_fetch_array($res)){
+        //   array_push($return,$row);
+        // }
+        
+      }
 			return $return;
 		}
 

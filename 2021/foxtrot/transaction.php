@@ -121,13 +121,13 @@
         $get_batch_data = $instance_batch->edit_batches($batch);
         $product_cate = isset($get_batch_data['pro_category'])?$instance->re_db_output($get_batch_data['pro_category']):0;
         $sponsor = isset($get_batch_data['sponsor'])?$instance->re_db_output($get_batch_data['sponsor']):0;
+        unset($_SESSION['transaction_rule_engine']);
 
     }
     else if($action=='edit_transaction' && $id>0){
         $return = $instance->edit_transaction($id);
         $batch_id = isset($return['batch'])?$instance->re_db_output($return['batch']):0;
         $get_batch_date = $instance->get_batch_date($batch_id);
-        //echo '<pre>';print_r($get_batch_date);exit;
         $batch_date = isset($get_batch_date)?$get_batch_date:'0000-00-00';
         $id = isset($return['id'])?$instance->re_db_output($return['id']):0;
         $trade_number = isset($return['id'])?$instance->re_db_output($return['id']):0;
@@ -189,6 +189,7 @@
     }
     else if($action=='view'){
         $return = $instance->select();
+        unset($_SESSION['transaction_rule_engine']);
     }
 
     if(isset($_GET['p_id']) && isset($_GET['cat_id'])){

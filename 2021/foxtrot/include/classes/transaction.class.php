@@ -8,6 +8,7 @@ class transaction extends db{
     public $product_type = PRODUCT_TYPE;
 	
     public function insert_update($data){//echo '<pre>';print_r($data);exit;
+		$instance_rules = new rules();
 		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
 		//$trade_number = isset($data['trade_number'])?$this->re_db_input($data['trade_number']):0;
 		$client_name = isset($data['client_name'])?$this->re_db_input($data['client_name']):'0';
@@ -89,13 +90,18 @@ class transaction extends db{
 		} else if($hold_commission=='1' && $hold_resoan==''){
 			$error .= "Please enter commission hold reason.<br>";
 		}
-		// TEST DELETE ME 06/07/22
-		foreach (["Please select client name.<br>","Please select broker name.<br>","Please select product category.<br>"] AS $valueTest){
-			$error .= $valueTest;
+		
+		//-- 06/08/22 Rule Engine check 
+		$ruleReturn = $instance_rules->rule_engine_manual_check($data);
+		if ($ruleReturn AND !empty($ruleReturn['warnings'])){
+			$error .= "Rule Engine Exceptions";
+			$_SESSION['transaction_rule_engine']['warnings'] = $ruleReturn['warnings'];
+		} else {
+			unset($_SESSION['transaction_rule_engine']);
 		}
 		
 		if($error!=''){
-			$this->errors = $error;
+			$this->errors = (substr($error, -4)=='<br>') ? substr($error, 0, -4) : $error;
 			return $this->errors;
 		} else{
 			$is_new_client = $client_number == -1 ;

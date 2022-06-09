@@ -105,21 +105,35 @@
             }
 			return $return;
 		}
-        public function select($ruleId=0){
+        public function select($ruleId=0, $masterAction=0){
 			$return = array();
 			$con = '';
 			$ruleId = (int)$this->re_db_input($ruleId);
-
 			if ($ruleId){
-				$con = " AND `rule`=$ruleId";
+				$con = " AND `at`.`rule`=$ruleId";
+			}
+			
+			if ($masterAction){
+				$q = "SELECT `at`.`rule` AS `master_id`, `b`.`rule` AS `rule_description`"
+				    		.",`at`.`action` AS `action_id`,`c`.`action` AS `action_description`"
+							.",`at`.`parameter_1`,`at`.`parameter1`,`at`.`parameter_2`,`at`.`parameter2`"
+							.",`at`.id AS `details_id`, `at`.`in_force`"
+						." FROM `".$this->table."` AS `at`"
+						." LEFT JOIN `".RULE_MASTER."` `b` ON `at`.`rule`=`b`.`id` AND `b`.`is_delete`=0"
+						." LEFT JOIN `".RULE_ACTION_MASTER."` `c` ON `at`.`action`=`c`.`id` AND `c`.`is_delete`=0"
+						." WHERE `at`.`is_delete`='0'"
+								.$con
+						." ORDER BY `at`.`id` ASC"
+				;
+			} else {
+				$q = "SELECT `at`.*"
+						." FROM `".$this->table."` AS `at`"
+						." WHERE `at`.`is_delete`='0'"
+							.$con
+						." ORDER BY `at`.`id` ASC"
+				;
 			}
 
-			$q = "SELECT `at`.*"
-					." FROM `".$this->table."` AS `at`"
-					." WHERE `at`.`is_delete`='0'"
-						.$con
-                    ." ORDER BY `at`.`id` ASC"
-			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -409,6 +423,28 @@
             return $return;
         }
 
+        function check_broker_license($brokerId=0, $stateId=0, $clientId=0, $productCategory=0, $tradeDate=''){
+            $return = -1; 
+			$res = $check_result = 0;
+			$brokerId = (int)$this->re_db_input($brokerId);
+			$stateId = (int)$this->re_db_input($stateId);
+			$clientId = (int)$this->re_db_input($clientId);
+			$productCategory = (int)$this->re_db_input($productCategory);
+			$tradeDate = $this->re_db_input($tradeDate);
+			// Get the License State, if not supplied
+			if ($stateId==0 AND $clientId!=0){
+				$instance_client_maintenance = new client_maintenance();
+				$res = $instance_client_maintenance->select_client_master($clientId);
+				$stateId = ($res ? $res['state'] : 0);			
+			}
+            if ($brokerId AND $stateId){
+				$instance_import = new import();
+				$return = $instance_import->checkStateLicence($brokerId, $stateId, $productCategory, $tradeDate);
+            }
+
+            return $return;
+        }
+
 		function check_client_field($clientId=0, $fieldName='id', $ifEqualsValue=''){
 			// Rule 15(Birth Date), 18(State), 21(Import VS Client Broker)
             $return = $res = $res2 = 0;
@@ -433,6 +469,54 @@
 					$return = null;
 				}
             }
+
+			return $return;
+		}
+		
+		/**
+		 * 06/08/22 Called from transaction class -> insert update(data) - return string if "Warning" action(1) is flagged 
+		 **/
+		function rule_engine_manual_check($data=[]){
+			$checkResult = $res = $ruleId = $exceptionCount = $min = $max = 0;
+			$ruleDetail = "";
+			$return = ['warnings'=>""];
+			
+			if (empty($data) OR empty($data['client_name']) OR empty($data['broker_name'])){
+				return $return;
+			} else {
+				$clientId = (int)$this->re_db_input($data['client_name']);
+				$brokerId = (int)$this->re_db_input($data['broker_name']);
+				$productCategory = isset($data['product_cate']) ? (int)$this->re_db_input($data['product_cate']) : 0;
+				$tradeDate =  $this->re_db_input(date('Y-m-d', strtotime(isset($data['trade_date']) ? $data['trade_date'] : "today")));
+			}
+			
+			// Rule ID #2 - Broker Licensed Appropriately
+			$ruleId = 2;
+			$ruleDetail = $this->select($ruleId, 1);
+			if ($ruleDetail[0]['in_force']){
+				$checkResult = $this->check_broker_license($brokerId, 0, $clientId, $productCategory, $tradeDate);
+				// 
+				if (!$checkResult){
+					$exceptionCount++;
+					$return['warnings'] .= $exceptionCount.". ".$ruleDetail[0]['rule_description']."<br>";
+				}
+			}
+			
+			// Rule ID #3 - Commission Rate Excessive
+			$ruleId = 3;
+			$ruleDetail = $this->select($ruleId, 1);
+			if ($ruleDetail[0]['in_force'] AND ((int)$ruleDetail[0]['parameter_1']>0) AND isset($data['commission_received']) AND isset($data['invest_amount'])){
+				$commission = (int)$this->re_db_input($data['commission_received']);
+				$investmentAmount = (int)$this->re_db_input($data['invest_amount']);
+				$max = (float)$this->re_db_input($ruleDetail[0]['parameter_1']);
+				
+				$checkResult = ((round($commission*100 / $investmentAmount,2)) < $max);
+				// 
+				if (!$checkResult){
+					$exceptionCount++;
+					$return['warnings'] .= $exceptionCount.". ".$ruleDetail[0]['rule_description']."<br>";
+				}
+			}
 
 			return $return;
 		}
