@@ -761,22 +761,29 @@
 
 			return $return;
 		}
-        public function select_objectives($client_id){
+        public function select_objectives($client_id, $objective=0){
 			$return = array();
+			$con = '';
+			
+			$objective = (int)$this->re_db_input($objective);
+			if ($objective){
+				$con .= " AND `o`.`objectives`=$objective";
+			}
 
-            if($client_id>0)
-            {
-    			$q = "SELECT `o`.*,co.option as oname
-    					FROM `".CLIENT_OBJECTIVES."` AS `o`
-                        LEFT JOIN `".OBJECTIVE_MASTER."` as co on co.id=o.objectives
-                        WHERE `o`.`is_delete`='0' and `o`.`client_id`=".$client_id."
-                        ORDER BY `o`.`id` ASC";
-    			$res = $this->re_db_query($q);
-                if($this->re_db_num_rows($res)>0){
-                    $a = 0;
+            if ($client_id>0){
+    			$q = "SELECT `o`.*,co.option as oname"
+    					." FROM `".CLIENT_OBJECTIVES."` AS `o`"
+                        ." LEFT JOIN `".OBJECTIVE_MASTER."` as co on co.id=o.objectives"
+                        ." WHERE `o`.`is_delete`='0'"
+						." AND `o`.`client_id`=$client_id"
+						.$con
+                        ." ORDER BY `o`.`id` ASC"
+				;
+				$res = $this->re_db_query($q);
+                
+				if($this->re_db_num_rows($res)>0){
         			while($row = $this->re_db_fetch_array($res)){
         			     array_push($return,$row);
-
         			}
                 }
             }

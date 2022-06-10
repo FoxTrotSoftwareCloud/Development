@@ -93,8 +93,9 @@ class transaction extends db{
 		
 		//-- 06/08/22 Rule Engine check 
 		$ruleReturn = $instance_rules->rule_engine_manual_check($data);
-		if ($ruleReturn AND !empty($ruleReturn['warnings'])){
-			$error .= "Rule Engine Exceptions";
+		if ($ruleReturn AND (!empty($ruleReturn['warnings']) OR !empty($ruleReturn['errors']))){
+			// Only show the "warnings" if there is not show-stopper(errors exist)
+			$error .= $ruleReturn['errors'].(empty($ruleReturn['errors']) ? 'Rule Engine Warning':'');
 			$_SESSION['transaction_rule_engine']['warnings'] = $ruleReturn['warnings'];
 		} else {
 			unset($_SESSION['transaction_rule_engine']);

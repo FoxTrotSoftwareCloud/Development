@@ -2448,20 +2448,31 @@
             }
 			return $return;
 		}
-    public function edit_alias($id){
+    //-- 06/09/22 Sponsor Search added
+    public function edit_alias($id, $sponsorId=0){
 			$return = array();
+      $con = "";
+      $id = (int)$this->re_db_input($id);
+      $sponsorId = (int)$this->re_db_input($sponsorId);
 
-			$q = "SELECT `at`.*
-					FROM `".BROKER_ALIAS."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."'";
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
-            }
+      if ($sponsorId){
+        $con .= " AND `at`.`sponsor_company`=$sponsorId";  
+      }
+      
+			$q = "SELECT `at`.*"
+					  ." FROM `".BROKER_ALIAS."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'"
+            ." AND `at`.`broker_id`=$id"
+            .$con
+      ;
+            
+      $res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0){
+        $a = 0;
+        while($row = $this->re_db_fetch_array($res)){
+          array_push($return,$row);
+        }
+      }
 			return $return;
 		}
 

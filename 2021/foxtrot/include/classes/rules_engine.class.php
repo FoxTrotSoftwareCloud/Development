@@ -409,11 +409,28 @@
             return $return;
         }
 
-        function check_broker_sponsor($brokerId=0, $sponsorId=0){
+        function check_broker_sponsor($brokerId=0, $sponsorId=0, $productId=0, &$sponsorDesc=null){
             $return = $res = 0;
 			$brokerId = (int)$this->re_db_input($brokerId);
 			$sponsorId = (int)$this->re_db_input($sponsorId);
-
+			$productId = (int)$this->re_db_input($productId);
+			// Use Product Sponsor
+			if (!$sponsorId AND $productId){
+                $instance_product_maintenance = new product_maintenance();
+                $res = $instance_product_maintenance->edit_product($productId);
+				// Just by pass any missing products, or any prodcat that doesn't use sponsors
+				if ($res AND in_array($res['category'], [1,4,5,10,14,18,19,20])){
+					$sponsorId = (empty($res['sponsor']) ? 0 : (int)$res['sponsor']);
+					// Pass the Sponsor Name back to the calling program variable
+					if (!is_null($sponsorDesc) AND $sponsorId){
+						$instance_manage_sponsor = new manage_sponsor();
+						$res = $instance_manage_sponsor->select_sponsor_by_id($sponsorId);
+						$sponsorDesc = (count($res) ? $res['name'] : "(Sponsor #$sponsorId not found)");
+					}
+				} else {
+					$return = 1;
+				}
+			}
             if ($brokerId AND $sponsorId){
                 $instance_broker_master = new broker_master();
                 $res = $instance_broker_master->edit_alias($brokerId, $sponsorId);
@@ -423,7 +440,7 @@
             return $return;
         }
 
-        function check_broker_license($brokerId=0, $stateId=0, $clientId=0, $productCategory=0, $tradeDate=''){
+        function check_broker_license($brokerId=0, $stateId=0, $clientId=0, $productCategory=0, $tradeDate='', $returnDetail=0){
             $return = -1; 
 			$res = $check_result = 0;
 			$brokerId = (int)$this->re_db_input($brokerId);
@@ -439,7 +456,7 @@
 			}
             if ($brokerId AND $stateId){
 				$instance_import = new import();
-				$return = $instance_import->checkStateLicence($brokerId, $stateId, $productCategory, $tradeDate);
+				$return = $instance_import->checkStateLicence($brokerId, $stateId, $productCategory, $tradeDate, 1);
             }
 
             return $return;
@@ -473,13 +490,45 @@
 			return $return;
 		}
 		
+		function check_client_objective($clientId=0, $productId=0, &$objectiveSearched=null){
+            $return = $res = $res2 = 0;
+            $clientId = (int)$this->re_db_input($clientId);
+            $productId = (int)$this->re_db_input($productId);
+
+            if ($clientId AND $productId){
+                $instance_client_maintenance = new client_maintenance();
+                $instance_product_maintenance = new product_maintenance();
+                $res = $instance_client_maintenance->select_client_master($clientId);
+                $res2 = $instance_product_maintenance->edit_product($productId);
+            }
+
+            if ($res AND $res2){
+				$res = $instance_client_maintenance->select_objectives($clientId, $res2['objective']);
+				$return =  (empty($res2['objective']) OR $res);
+				// Populate the Objective Description if passed in the signature
+				if (!is_null($objectiveSearched)){
+					if (empty($res2['objective'])){
+						$objectiveSearched = '(Not Specified)';
+					} else {
+						$instance_client_suitability = new client_suitebility_master();
+						$objectiveSearched = $instance_client_suitability->edit_objective($res2['objective']);
+						$objectiveSearched = $objectiveSearched['option'];
+					}
+				}
+			}
+
+			return $return;
+		}
+
 		/**
 		 * 06/08/22 Called from transaction class -> insert update(data) - return string if "Warning" action(1) is flagged 
 		 **/
 		function rule_engine_manual_check($data=[]){
-			$checkResult = $res = $ruleId = $exceptionCount = $min = $max = 0;
+			$instance_import = new import();
+			$checkResult = $res = $ruleId = $min = $max = 0;
 			$ruleDetail = "";
-			$return = ['warnings'=>""];
+			$return = ['exceptions'=>[], 'warnings'=>'', 'holds'=>'', 'reassign'=>'', 'errors'=>''];
+			$exceptionCount = ['exceptions'=>0, 'warnings'=>0, 'holds'=>0, 'reassign'=>0, 'errors'=>0];
 			
 			if (empty($data) OR empty($data['client_name']) OR empty($data['broker_name'])){
 				return $return;
@@ -490,15 +539,16 @@
 				$tradeDate =  $this->re_db_input(date('Y-m-d', strtotime(isset($data['trade_date']) ? $data['trade_date'] : "today")));
 			}
 			
+			//-- RULE CHECKS --//
 			// Rule ID #2 - Broker Licensed Appropriately
 			$ruleId = 2;
 			$ruleDetail = $this->select($ruleId, 1);
 			if ($ruleDetail[0]['in_force']){
-				$checkResult = $this->check_broker_license($brokerId, 0, $clientId, $productCategory, $tradeDate);
+				$checkResult = $this->check_broker_license($brokerId, 0, $clientId, $productCategory, $tradeDate, 1);
 				// 
-				if (!$checkResult){
-					$exceptionCount++;
-					$return['warnings'] .= $exceptionCount.". ".$ruleDetail[0]['rule_description']."<br>";
+				if (!$checkResult['result']){
+					$ruleDetail[0]['rule_description'] = "Broker Licensed Appropriately: ".$checkResult['product_category']." / ".$checkResult['state_name'];
+					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
 			
@@ -513,11 +563,99 @@
 				$checkResult = ((round($commission*100 / $investmentAmount,2)) < $max);
 				// 
 				if (!$checkResult){
-					$exceptionCount++;
-					$return['warnings'] .= $exceptionCount.". ".$ruleDetail[0]['rule_description']."<br>";
+					$ruleDetail[0]['rule_description'] .= " > ".$ruleDetail[0]['parameter_1']."%";
+					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
 
+			// Rule ID #5- Client Account Deficient Documentation
+			$ruleId = 5;
+			$ruleDetail = $this->select($ruleId, 1);
+			if ($ruleDetail[0]['in_force']){
+				$checkResult = $this->check_client_documentation($clientId);
+				// 
+				if (!$checkResult){
+					$ruleDetail[0]['rule_description'] = 'Client Documentation - Invalid NAF Date';
+					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
+				}
+			}
+
+			// Rule ID #6- Terminated Broker
+			$ruleId = 6;
+			$ruleDetail = $this->select($ruleId, 1);
+			if ($ruleDetail[0]['in_force']){
+    			$res = $instance_import->broker_termination_date('', $brokerId);
+				$checkResult = ($this->isEmptyDate($res) OR date('Y-m-d', strtotime($data['trade_date']))<=date('Y-m-d', strtotime($res)));
+				// 
+				if (!$checkResult){
+					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
+				}
+			}
+			
+			// Rule ID #7- Client <> Product Objectives
+			$ruleId = 7;
+			$ruleDetail = $this->select($ruleId, 1);
+			if ($ruleDetail[0]['in_force']){
+				$res2 = '';
+    			$checkResult = $this->check_client_objective($clientId, $data['product'], $res2);
+				// 
+				if (!$checkResult){
+					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
+					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
+				}
+			}
+
+			// Rule ID #8 - Broker Appointed to Sponsor Company
+			$ruleId = 8;
+			$ruleDetail = $this->select($ruleId, 1);
+			if ($ruleDetail[0]['in_force']){
+				$res2 = '';
+    			$checkResult = $this->check_broker_sponsor($brokerId, 0, $data['product'], $res2);
+				// 
+				if (!$checkResult){
+					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
+					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
+				}
+			}
+
+			return $return;
+		}
+		/**
+		 * Function to store Rule info for the Manual Entry Check->rule_engine_manual_check() - 06/09/22 
+		 */
+		private function ruleStoreToArray($ruleDetail, &$returnArray=0, &$exceptionCount=['exceptions'=>0, 'warnings'=>0, 'holds'=>0, 'reassign'=>0, 'errors'=>0]){
+			$return = 0;
+			$exceptionCount['exceptions']++;
+			$returnArray['exceptions'][$ruleDetail['master_id']] = ['action_id'=>$ruleDetail['action_id']];
+
+			switch ($ruleDetail['action_id']) {
+				case 3:
+					// Hold
+					$exceptionCount['holds']++;
+					$returnArray['holds'] .= (empty($returnArray['holds']?"":", ")).$ruleDetail['rule_description'];
+					$return++;
+					break;
+				case 5:
+					// Reassign to another Broker/Client
+					if (!empty($ruleDetail['parameter1']) AND (int)$ruleDetail[0]['parameter1']){
+						$exceptionCount['reassign']++;
+						$returnArray['reassign'] = (int)$ruleDetail['parameter1'];
+					}
+					$return++;
+					break;
+				case 6:
+					// Do not allow
+					$exceptionCount['errors']++;
+					$returnArray['errors'] .= $ruleDetail['rule_description']."<br>";
+					$return++;
+					break;
+				default:
+					// Exception/Warning
+					$exceptionCount['warnings']++;
+					$returnArray['warnings'] .= $exceptionCount['warnings'].". ".$ruleDetail['rule_description']."<br>";
+					$return++;
+			}
+			
 			return $return;
 		}
 

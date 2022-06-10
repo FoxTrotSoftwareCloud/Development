@@ -1102,7 +1102,7 @@ function autocomplete(inp, arr) {
         <div class="modal-content">
         <div class="modal-header" style="margin-bottom: 0px !important;">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h4 class="modal-title">Rule Engine Exceptions</h4>
+            <h4 class="modal-title">Rule Engine Warning</h4>
         </div>
         <div class="modal-body">
             <div class="col-md-12">
@@ -1124,15 +1124,15 @@ function autocomplete(inp, arr) {
                             <input type="radio" class="radio" name="resolve_rule_engine" id="resolve_rule_engine_ignore" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="2"/>
                                 <label id="lbl_resolve_rule_engine_ignore" for="resolve_rule_engine" style="display:inline-block">Ignore Exception(s) / Enter Trade</label><br />
                             <input type="radio" class="radio" name="resolve_rule_engine" id="resolve_rule_engine_cancel" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="3"/>
-                                <label id="lbl_resolve_rule_engine_cancel" for="resolve_rule_engine" style="display:inline-block"> Cancel</label><br />
+                                <label id="lbl_resolve_rule_engine_cancel" for="resolve_rule_engine" style="display:inline-block"> Cancel & Delete Trade</label><br />
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-5"></div>
-                        <div class="col-md-2">
+                        <div class="col-md-5">
                             <div class="inputpopup">
-                                <input type="hidden" name="resolve_rule_engine_sample" id="resolve_rule_engine_sample" value="" />
-                                <button type="submit" class="btn btn-sm btn-warning" name="resolve_rule_engine_proceed" value="Resolve Exception"><i class="fa fa-save"></i> Proceed</button>
+                                <button type="submit" class="btn btn-sm btn-warning" name="resolve_rule_engine_proceed" value="Resolve Exception" style="display:inline-block; vertical-align: top; text-align:center;"><i class="fa fa-save"></i> Proceed</button>
+                                <button type="button" class="btn btn-sm btn-danger" name="resolve_rule_engine_proceed" value="Resolve Exception" data-dismiss="modal" aria-hidden="true" style="display:inline-block; vertical-align: top; text-align:center"><i class="fa fa-save"></i> Edit Trade</button>
                             </div>
                         </div>
                     </div>
