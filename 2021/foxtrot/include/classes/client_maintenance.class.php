@@ -48,20 +48,20 @@
 		 * @param int $clientId, default all
 		 * @return
 		 * */
-		public function select_client_suitability_by_id($clientId)
-    	{
-			$q = "SELECT `cs`.*
-					FROM `" . CLIENT_SUITABILITY . "` AS `cs`
-                    WHERE `cs`.`is_delete`='0' AND `cs`.`client_id`=$clientId
-                    ORDER BY `cs`.`id` ASC";
+		public function select_client_suitability_by_id($clientId) {
+			$clientId = (int)$this->re_db_input($clientId);
+			
+			$q = "SELECT `cs`.*"
+					." FROM `" . CLIENT_SUITABILITY . "` AS `cs`"
+                    ." WHERE `cs`.`is_delete`='0'"
+					." AND `cs`.`client_id`=$clientId"
+                    ." ORDER BY `cs`.`id` ASC";
 			$res = $this->re_db_query($q);
 
-			if($this->re_db_num_rows($res)>0)
-      		{
+			if($this->re_db_num_rows($res)>0) {
         		$row = $this->re_db_fetch_array($res);
         		return $row;
       		}
-
       		return null;
 		}
 
@@ -287,32 +287,43 @@
 			$id = isset($data['employment_id'])?$this->re_db_input($data['employment_id']):0;
 			if ($id > 0){
 				$originalInstance = $this->select_client_employment_by_id($id);
-				$occupation = isset($data['occupation'])?$this->re_db_input($data['occupation']):'';
-				$employer = isset($data['employer'])?$this->re_db_input($data['employer']):'';
-				$address_employement = isset($data['address_employement'])?$this->re_db_input($data['address_employement']):'';
-				$position = isset($data['position'])?$this->re_db_input($data['position']):'';
-				$security_related_firm = isset($data['security_related_firm'])?$this->re_db_input($data['security_related_firm']):'';
-				$finra_affiliation = isset($data['finra_affiliation'])?$this->re_db_input($data['finra_affiliation']):'';
-				$spouse_name = isset($data['spouse_name'])?$this->re_db_input($data['spouse_name']):'';
-				$spouse_ssn_mask = isset($data['spouse_ssn'])?$this->re_db_input($data['spouse_ssn']):'';
-				$spouse_ssn = str_replace("-", '', $spouse_ssn_mask);
-				$dependents = isset($data['dependents'])?$this->re_db_input($data['dependents']):'';
-				$salutation = isset($data['salutation'])?$this->re_db_input($data['salutation']):'';
-				$options = isset($data['options'])?$this->re_db_input($data['options']):'';
-				$other = isset($data['other'])?$this->re_db_input($data['other']):'';
-				$number = isset($data['number'])?$this->re_db_input($data['number']):'';
-				$expiration = isset($data['expiration'])?$this->re_db_input(date('Y-m-d',strtotime($data['expiration']))):'0000-00-00';
-				$state_employe = isset($data['state_employe'])?$this->re_db_input($data['state_employe']):'';
-				$date_verified = isset($data['date_verified'])?$this->re_db_input(date('Y-m-d',strtotime($data['date_verified']))):'0000-00-00';
-				$telephone_mask = isset($data['telephone_employment'])?$this->re_db_input($data['telephone_employment']):'';
-				$telephone_no = str_replace("-", '', $telephone_mask);
-				$telephone_brack1 = str_replace("(", '', $telephone_no);
-				$telephone_employment = str_replace(")", '', $telephone_brack1);
+			}
+			$occupation = isset($data['occupation'])?$this->re_db_input($data['occupation']):'';
+			$employer = isset($data['employer'])?$this->re_db_input($data['employer']):'';
+			$address_employement = isset($data['address_employement'])?$this->re_db_input($data['address_employement']):'';
+			$position = isset($data['position'])?$this->re_db_input($data['position']):'';
+			$security_related_firm = isset($data['security_related_firm'])?$this->re_db_input($data['security_related_firm']):'';
+			$finra_affiliation = isset($data['finra_affiliation'])?$this->re_db_input($data['finra_affiliation']):'';
+			$spouse_name = isset($data['spouse_name'])?$this->re_db_input($data['spouse_name']):'';
+			$spouse_ssn_mask = isset($data['spouse_ssn'])?$this->re_db_input($data['spouse_ssn']):'';
+			$spouse_ssn = str_replace("-", '', $spouse_ssn_mask);
+			$dependents = isset($data['dependents'])?$this->re_db_input($data['dependents']):'';
+			$salutation = isset($data['salutation'])?$this->re_db_input($data['salutation']):'';
+			$options = isset($data['options'])?$this->re_db_input($data['options']):'';
+			$other = isset($data['other'])?$this->re_db_input($data['other']):'';
+			$number = isset($data['number'])?$this->re_db_input($data['number']):'';
+			$expiration = isset($data['expiration'])?$this->re_db_input(date('Y-m-d',strtotime($data['expiration']))):'0000-00-00';
+			$state_employe = isset($data['state_employe'])?$this->re_db_input($data['state_employe']):'';
+			$date_verified = isset($data['date_verified'])?$this->re_db_input(date('Y-m-d',strtotime($data['date_verified']))):'0000-00-00';
+			$telephone_mask = isset($data['telephone_employment'])?$this->re_db_input($data['telephone_employment']):'';
+			$telephone_no = str_replace("-", '', $telephone_mask);
+			$telephone_brack1 = str_replace("(", '', $telephone_no);
+			$telephone_employment = str_replace(")", '', $telephone_brack1);
 
-				if($id==0){
-					$q = "INSERT INTO `".CLIENT_EMPLOYMENT."` SET `client_id`='".$_SESSION['client_id']."',`occupation`='".$occupation."',`employer`='".$employer."',`address`='".$address_employement."',`position`='".$position."',`security_related_firm`='".$security_related_firm."',`finra_affiliation`='".$finra_affiliation."',`spouse_name`='".$spouse_name."',`spouse_ssn`='".$spouse_ssn."',`dependents`='".$dependents."',`salutation`='".$salutation."',`options`='".$options."',`other`='".$other."',`number`='".$number."',`expiration`='".$expiration."',`state`='".$state_employe."',`date_verified`='".$date_verified."',`telephone`='".$telephone_employment."'".$this->insert_common_sql();
+			if($id==0 OR empty($originalInstance)){
+				$res = $employmentClientId = 0;
+				// $_SESSION['client_id] only populated for "edits", so use "$id" if populated
+				if (empty($_SESSION['client_id']) AND !empty($id)){
+					$employmentClientId = $id;
+				}else {
+					$employmentClientId = $_SESSION['client_id'];
+				}					
+				
+				if ($employmentClientId){
+					$q = "INSERT INTO `".CLIENT_EMPLOYMENT."` SET `client_id`='".$employmentClientId."',`occupation`='".$occupation."',`employer`='".$employer."',`address`='".$address_employement."',`position`='".$position."',`security_related_firm`='".$security_related_firm."',`finra_affiliation`='".$finra_affiliation."',`spouse_name`='".$spouse_name."',`spouse_ssn`='".$spouse_ssn."',`dependents`='".$dependents."',`salutation`='".$salutation."',`options`='".$options."',`other`='".$other."',`number`='".$number."',`expiration`='".$expiration."',`state`='".$state_employe."',`date_verified`='".$date_verified."',`telephone`='".$telephone_employment."'".$this->insert_common_sql();
 					$res = $this->re_db_query($q);
 					$id = $this->re_db_insert_id();
+					
 					if($res){
 						$_SESSION['success'] = INSERT_MESSAGE;
 						return true;
@@ -322,22 +333,21 @@
 						return false;
 					}
 				}
-				else if($id>0){
-
-					$q = "UPDATE `".CLIENT_EMPLOYMENT."` SET `client_id`='".$id."',`occupation`='".$occupation."',`employer`='".$employer."',`address`='".$address_employement."',`position`='".$position."',`security_related_firm`='".$security_related_firm."',`finra_affiliation`='".$finra_affiliation."',`spouse_name`='".$spouse_name."',`spouse_ssn`='".$spouse_ssn."',`dependents`='".$dependents."',`salutation`='".$salutation."',`options`='".$options."',`other`='".$other."',`number`='".$number."',`expiration`='".$expiration."',`state`='".$state_employe."',`date_verified`='".$date_verified."',`telephone`='".$telephone_employment."'".$this->update_common_sql()." WHERE `client_id`='".$id."'";
-					$res = $this->re_db_query($q);
-					if($res){
-						$newInstance = $this->select_client_employment_by_id($id);
-						$fieldsToWatch = array('occupation', 'employer', 'address', 'position', 'security_related_firm', 'finra_affiliation',
-							'spouse_name', 'spouse_ssn', 'dependents', 'salutation', 'options', 'other', 'number', 'expiration', 'state', 'date_verified', 'telephone');
-						$this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
-						$_SESSION['success'] = UPDATE_MESSAGE;
-						return true;
-					}
-					else{
-						$_SESSION['warning'] = UNKWON_ERROR;
-						return false;
-					}
+			}
+			else if($id>0){
+				$q = "UPDATE `".CLIENT_EMPLOYMENT."` SET `client_id`='".$id."',`occupation`='".$occupation."',`employer`='".$employer."',`address`='".$address_employement."',`position`='".$position."',`security_related_firm`='".$security_related_firm."',`finra_affiliation`='".$finra_affiliation."',`spouse_name`='".$spouse_name."',`spouse_ssn`='".$spouse_ssn."',`dependents`='".$dependents."',`salutation`='".$salutation."',`options`='".$options."',`other`='".$other."',`number`='".$number."',`expiration`='".$expiration."',`state`='".$state_employe."',`date_verified`='".$date_verified."',`telephone`='".$telephone_employment."'".$this->update_common_sql()." WHERE `client_id`='".$id."'";
+				$res = $this->re_db_query($q);
+				if($res){
+					$newInstance = $this->select_client_employment_by_id($id);
+					$fieldsToWatch = array('occupation', 'employer', 'address', 'position', 'security_related_firm', 'finra_affiliation',
+						'spouse_name', 'spouse_ssn', 'dependents', 'salutation', 'options', 'other', 'number', 'expiration', 'state', 'date_verified', 'telephone');
+					$this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+					$_SESSION['success'] = UPDATE_MESSAGE;
+					return true;
+				}
+				else{
+					$_SESSION['warning'] = UNKWON_ERROR;
+					return false;
 				}
 			}
 		}
@@ -352,7 +362,7 @@
 				$_SESSION[$for_import]['insert_update_account'] = 0;
 			}
 
-            if($id==0){
+			if($id==0){
                 if($account_no[0] && $sponsor[0] != '')
                 {
                     foreach($account_no as $key_acc=>$val_acc)
@@ -437,8 +447,9 @@
         }
         public function insert_update_suitability($data){
             $id = isset($data['suitability_id'])?$this->re_db_input($data['suitability_id']):0;
-            if ($id > 0)
-              $originalInstance = $this->select_client_suitability_by_id($id);
+            if ($id > 0){
+				$originalInstance = $this->select_client_suitability_by_id($id);
+			}
             $income = isset($data['income'])?$this->re_db_input($data['income']):'';
             $goal_horizone = isset($data['goal_horizone'])?$this->re_db_input($data['goal_horizone']):'';
             $net_worth = isset($data['net_worth'])?$this->re_db_input($data['net_worth']):'';
@@ -454,35 +465,47 @@
             $sign_date = isset($data['sign_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['sign_date']))):'0000-00-00';
             $tax_bracket = isset($data['tax_bracket'])?$this->re_db_input($data['tax_bracket']):'';
             $tax_id = isset($data['tax_id'])?$this->re_db_input($data['tax_id']):'';
-
-
-        if($id==0){
-				$q = "INSERT INTO `".CLIENT_SUITABILITY."` SET `client_id`='".$_SESSION['client_id']."',`income`='".$income."',`goal_horizon`='".$goal_horizone."',`net_worth`='".$net_worth."',`risk_tolerance`='".$risk_tolerance."',`annual_expenses`='".$annual_expenses."',`liquidity_needs`='".$liquidity_needs."',`liquid_net_worth`='".$liquid_net_worth."',`special_expenses`='".$special_expenses."',`per_of_portfolio`='".$per_of_portfolio."',`time_frame_for_special_exp`='".$timeframe_for_special_exp."',`account_use`='".$account_use."',`signed_by`='".$signed_by."',`sign_date`='".$sign_date."',`tax_bracket`='".$tax_bracket."',`tax_id`='".$tax_id."'".$this->insert_common_sql();
-				$res = $this->re_db_query($q);
-                $id = $this->re_db_insert_id();
-				if($res){
-				    $_SESSION['success'] = INSERT_MESSAGE;
-					return true;
+			// 06/10/22 Add empty-originalInstance check, some existing clients aren't in Client Suitability database, not sure why
+			if($id==0 OR empty($originalInstance)){
+				$res = $suitabilityClientId = 0;
+				// $_SESSION['client_id] only populated for "edits", so use "$id" if populated
+				if (empty($_SESSION['client_id']) AND !empty($id)){
+					$suitabilityClientId = $id;
+				}else {
+					$suitabilityClientId = $_SESSION['client_id'];
+				}					
+				
+				if ((int)$suitabilityClientId){
+					$q = "INSERT INTO `".CLIENT_SUITABILITY."`"
+						." SET `client_id`='".$suitabilityClientId."',`income`='".$income."',`goal_horizon`='".$goal_horizone."',`net_worth`='".$net_worth."'"
+								." ,`risk_tolerance`='".$risk_tolerance."',`annual_expenses`='".$annual_expenses."',`liquidity_needs`='".$liquidity_needs."',`liquid_net_worth`='".$liquid_net_worth."'"
+								." ,`special_expenses`='".$special_expenses."',`per_of_portfolio`='".$per_of_portfolio."',`time_frame_for_special_exp`='".$timeframe_for_special_exp."'"
+								." ,`account_use`='".$account_use."',`signed_by`='".$signed_by."',`sign_date`='".$sign_date."',`tax_bracket`='".$tax_bracket."',`tax_id`='".$tax_id."'"
+								.$this->insert_common_sql()
+					;
+					$res = $this->re_db_query($q);
+					$id = $this->re_db_insert_id();
 				}
-				else{
+				
+				if($res){
+					$_SESSION['success'] = INSERT_MESSAGE;
+					return true;
+				} else {
 					$_SESSION['warning'] = UNKWON_ERROR;
 					return false;
 				}
-			}
-			else if($id>0){
-
+			} else if($id>0) {
 				$q = "UPDATE `".CLIENT_SUITABILITY."` SET `client_id`='".$id."',`income`='".$income."',`goal_horizon`='".$goal_horizone."',`net_worth`='".$net_worth."',`risk_tolerance`='".$risk_tolerance."',`annual_expenses`='".$annual_expenses."',`liquidity_needs`='".$liquidity_needs."',`liquid_net_worth`='".$liquid_net_worth."',`special_expenses`='".$special_expenses."',`per_of_portfolio`='".$per_of_portfolio."',`time_frame_for_special_exp`='".$timeframe_for_special_exp."',`account_use`='".$account_use."',`signed_by`='".$signed_by."',`sign_date`='".$sign_date."',`tax_bracket`='".$tax_bracket."',`tax_id`='".$tax_id."'".$this->update_common_sql()." WHERE `client_id`='".$id."'";
 				$res = $this->re_db_query($q);
-				if($res)
-        {
-          $newInstance = $this->select_client_suitability_by_id($id);
-          $fieldsToWatch = array('income', 'goal_horizon', 'net_worth', 'risk_tolerance', 'annual_expenses', 'liquidity_needs', 'liquid_net_worth',
-            'special_expenses', 'per_of_portfolio', 'time_frame_for_special_exp', 'account_use', 'signed_by', 'sign_date', 'tax_bracket', 'tax_id');
-          $this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
-          $_SESSION['success'] = UPDATE_MESSAGE;
+
+				if($res) {
+					$newInstance = $this->select_client_suitability_by_id($id);
+					$fieldsToWatch = array('income', 'goal_horizon', 'net_worth', 'risk_tolerance', 'annual_expenses', 'liquidity_needs', 'liquid_net_worth',
+						'special_expenses', 'per_of_portfolio', 'time_frame_for_special_exp', 'account_use', 'signed_by', 'sign_date', 'tax_bracket', 'tax_id');
+					$this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+					$_SESSION['success'] = UPDATE_MESSAGE;
 					return true;
-				}
-				else{
+				} else {
 					$_SESSION['warning'] = UNKWON_ERROR;
 					return false;
 				}

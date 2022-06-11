@@ -1421,7 +1421,12 @@
                   foreach ($newValues as $key => $value)
                   {
                                                               // echo '<pre>';print_r($value); die;
-                    $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['category']."' ,`state_id`='".$value['state_id']."' ,
+                    // 06/10/22 Just changed one piece of code below: 
+                      // OLD: SET `type_of_licences`='".$value['category']                                         
+                      // NEW: SET `type_of_licences`='".$value['type_of_licences']                                         
+                    // $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['category']."' ,`state_id`='".$value['state_id']."' ,
+                    // `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
+                    $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
                     `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
 
                     $res = $this->re_db_query($q);
@@ -2322,18 +2327,38 @@
             }
 			return $return;
 		}
-        public function get_broker_name($id){
+    public function get_broker_name($id=0, $nameOnly=0){
 			$return = array();
-			$q = "SELECT `at`.first_name as broker_name
-					FROM `".BROKER_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_array($res);
-            }
+      $id = (int)$this->re_db_input($id);
+      $con = '';
+      
+      if ($nameOnly){
+        $q = "SELECT `at`.`first_name`, `at`.`last_name`"
+              ." FROM `".BROKER_MASTER."` AS `at`"
+              ." WHERE `at`.`is_delete`='0'"
+              ." AND `at`.`id`=$id"
+        ;
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+          $con = $this->re_db_fetch_array($res);
+          $return = strtoupper($con['last_name'].((empty($con['last_name']) OR empty($con['first_name'])) ? '' : ', ').$con['first_name']);
+        } else {
+          $return = "Broker #$id";
+        }
+      } else {
+        $q = "SELECT `at`.first_name as broker_name"
+              ." FROM `".BROKER_MASTER."` AS `at`"
+              ." WHERE `at`.`is_delete`='0'"
+              ." AND `at`.`id`=$id"
+        ;
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+          $return = $this->re_db_fetch_array($res);
+        }
+      }
 			return $return;
 		}
-        public function get_product_category_name($id){
+    public function get_product_category_name($id){
 			$return = array();
 			$q = "SELECT `at`.type as product_type
 					FROM `".PRODUCT_TYPE."` AS `at`
@@ -2388,19 +2413,22 @@
             }
 			return $return;
 		}
-        public function edit_payout($id){
+    public function edit_payout($id){
 			$return = array();
+      $id = (int)$this->re_db_input($id);
 
-			$q = "SELECT `at`.*
-					FROM `".BROKER_PAYOUT_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."'";
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_array($res);
-            }
+			$q = "SELECT `at`.*"
+					  ." FROM `".BROKER_PAYOUT_MASTER."` AS `at`"
+            ." WHERE `at`.`is_delete`=0"
+            ." AND `at`.`broker_id`=$id"
+      ;
+      $res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_array($res);
+      }
 			return $return;
 		}
-        public function edit_payout_fixed_rates($id){
+    public function edit_payout_fixed_rates($id){
 			$return = array();
 
 			$q = "SELECT `at`.*,`pt`.`type`
