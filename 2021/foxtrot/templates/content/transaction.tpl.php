@@ -903,15 +903,12 @@ function autocomplete(inp, arr) {
           </div>
           <div class="panel-footer fixedbtmenu">
             <div class="selectwrap">
-                <a href="<?php echo CURRENT_PAGE.'?action=view';?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                <input type="submit" name="transaction" onclick="return waitingDialog.show();" value="Save" style="float: right;"/>
-                <?php
-
-                if(isset($_GET['action']) &&  $_GET['action'] == 'add' ) {
+                <a href="<?php echo CURRENT_PAGE.'?action=view';?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;"/></a>
+                <input type="submit" name="transaction" onclick="return waitingDialog.show();" id="save" value="Save" style="float: right;"/>
+                <?php if(isset($_GET['action']) &&  $_GET['action'] == 'add' ) {
                     echo ' <input type="submit" name="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>  ';
-                }
-
-                ?>
+                } ?>
+                <input type="hidden" name="resolve_rule_engine_proceed" id="resolve_rule_engine_proceed" value="0"/>
             </div>
           </div>
           </div>
@@ -1119,11 +1116,11 @@ function autocomplete(inp, arr) {
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <input type="radio" class="radio" name="resolve_rule_engine" id="resolve_rule_engine_hold_commission" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="1" checked/>
+                            <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_hold_commission" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="1" checked/>
                                 <label for="resolve_rule_engine" style="display:inline-block">Hold Commission</label><br />
-                            <input type="radio" class="radio" name="resolve_rule_engine" id="resolve_rule_engine_ignore" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="2"/>
+                            <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_ignore" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="2"/>
                                 <label id="lbl_resolve_rule_engine_ignore" for="resolve_rule_engine" style="display:inline-block">Ignore Exception(s) / Enter Trade</label><br />
-                            <input type="radio" class="radio" name="resolve_rule_engine" id="resolve_rule_engine_cancel" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="3"/>
+                            <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_cancel" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="3"/>
                                 <label id="lbl_resolve_rule_engine_cancel" for="resolve_rule_engine" style="display:inline-block"> Cancel & Delete Trade</label><br />
                         </div>
                     </div>
@@ -1131,8 +1128,8 @@ function autocomplete(inp, arr) {
                         <div class="col-md-5"></div>
                         <div class="col-md-5">
                             <div class="inputpopup">
-                                <button type="submit" class="btn btn-sm btn-warning" name="resolve_rule_engine_proceed" value="Resolve Exception" style="display:inline-block; vertical-align: top; text-align:center;"><i class="fa fa-save"></i> Proceed</button>
-                                <button type="button" class="btn btn-sm btn-danger" name="resolve_rule_engine_proceed" value="Resolve Exception" data-dismiss="modal" aria-hidden="true" style="display:inline-block; vertical-align: top; text-align:center"><i class="fa fa-save"></i> Edit Trade</button>
+                                <button type="submit" class="btn btn-sm btn-warning" name="resolve_rule_engine_submit_button" value="Resolve Exception" style="display:inline-block; vertical-align: top; text-align:center;"><i class="fa fa-save"></i> Proceed</button>
+                                <button type="button" class="btn btn-sm btn-danger" name="resolve_rule_engine_edit" value="Resolve Exception" data-dismiss="modal" aria-hidden="true" style="display:inline-block; vertical-align: top; text-align:center"><i class="fa fa-save"></i> Edit Trade</button>
                             </div>
                         </div>
                     </div>
@@ -1168,9 +1165,12 @@ $(document).ready(function() {
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
-            "columnDefs": [ { type: 'date', 'targets': [1] } ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 8,9 ] },
-                        { "bSearchable": false, "aTargets": [ 8,9 ] }]
+        "columnDefs": [ { type: 'date', 'targets': [1] } ],
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": [ 8,9 ] },
+            { "bSearchable": false, "aTargets": [ 8,9 ] }
+        ],
+        "order": [[0, "desc"]]
     });
 
     $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
@@ -1337,7 +1337,6 @@ $(document).ready(function() {
     
     // 06/07/22 Rule Engine Modal Window
     <?php if (!empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
-        console.log("<?php echo $_SESSION['transaction_rule_engine']['warnings'] ?>");
         resolve_rule_engine("<?php echo $_SESSION['transaction_rule_engine']['warnings']; ?>");
     <?php } ?>
 })
@@ -2168,19 +2167,20 @@ function resolve_rule_engine(msg='')
 {
     $("#msg_exception").html(msg);
     $("#resolve_rule_engine_modal").modal("show");
-    
 }
+
 function resolve_rule_engine_submit() {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
-
-    var url = "transaction.php"; // the script where you handle the form input.
+    
+     // the script where you handle the form input.
+    var url = "transaction.php?action=rule_engine_proceed";
     $.ajax({
         type: "POST",
         url: url,
         data: $("#resolve_rule_engine_form").serialize(), // serializes the form's elements.
         success: function(data){
             if(data=='1'){
-                window.location.href = "transaction.php"
+                window.location.href = "transaction.php?action=view"
             } else{
                 $('#msg_exception').html('<div class="alert alert-danger">'+(data="" ? "Bad POST. Try again" : data)+'</div>');
             }
@@ -2190,9 +2190,17 @@ function resolve_rule_engine_submit() {
         }
    });
 
-   //e.preventDefault(); // avoid to execute the actual submit of the form.
-   return false;
+    //-- 06/11/22 "Manually" go back to the main Transaction page/grid 
+    $("#resolve_rule_engine_modal").modal("hide");
+    $(".alert").remove();
+    $("#cancel").trigger("click");
+    return false;
 }
+// function resolve_rule_engine_submit() {
+//     $("#save").trigger("click");
+    
+// }
+
 </script>
 
 <style type="text/css">

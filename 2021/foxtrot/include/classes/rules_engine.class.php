@@ -562,21 +562,21 @@
 
 			return $return;
 		}
-
+		// Returns true if hold criteria are met
 		function check_broker_on_hold($brokerId=0, $date=''){
 			$instance_broker_master = new broker_master();
             $return = 0; 
 			$brokerId = (int)$this->re_db_input($brokerId);
-			$date = date("Y-m-d", strtotime($this->re_db_input($date)));
+			$date = date("Y-m-d", strtotime( ($this->isEmptyDate($date) ? 'today' : $this->re_db_input($date)) ));
 			$brokerPayout = $instance_broker_master->edit_payout($brokerId);
 			
 			if ($brokerPayout){
 				$return = (
-					$brokerPayout['hold_commission']=="1" 
+					$brokerPayout['hold_commissions']=="1" 
 					AND
-					(empty($brokerPayout['hold_commission_until']) OR $brokerPayout['hold_commission_until']>=$date)
+					($this->isEmptyDate($brokerPayout['hold_commission_until']) OR $brokerPayout['hold_commission_until']>=$date)
 					AND 
-					(empty($brokerPayout['hold_commission_after']) OR $brokerPayout['hold_commission_after']<$date)
+					($this->isEmptyDate($brokerPayout['hold_commission_after']) OR $brokerPayout['hold_commission_after']<$date)
 				);
 			}
 			
@@ -591,6 +591,8 @@
 		 **/
 		function rule_engine_manual_check($data=[]){
 			$instance_import = new import();
+			$instance_broker = new broker_master();
+
 			$checkResult = $res = $ruleId = $min = $max = 0;
 			$ruleDetail = "";
 			$return = ['exceptions'=>[], 'warnings'=>'', 'holds'=>'', 'reassign'=>'', 'errors'=>''];
@@ -606,7 +608,7 @@
 				$tradeDate =  $this->re_db_input(date('Y-m-d', strtotime(isset($data['trade_date']) ? $data['trade_date'] : "today")));
 				$commissionReceived = (isset($data['commission_received']) ? round((float)$data['commission_received'],2) : 0.00);
 				$investAmount = (isset($data['invest_amount']) ? round((float)$data['invest_amount'],2) : 0.00);
-				$tradeOnHold = (isset($data['hold_commission']) ? (int)$data['hold_commission'] : 0);
+				$tradeOnHold = (isset($data['hold_commission']) ? ($data['hold_commission']==1) : 0);
 			}
 			
 			//-- RULE CHECKS --//
@@ -617,7 +619,7 @@
 				$checkResult = $this->check_broker_license($brokerId, 0, $clientId, $productCategory, $tradeDate, 1);
 				// 
 				if (!$checkResult['result']){
-					$ruleDetail[0]['rule_description'] = "Broker Licensed Appropriately: ".$checkResult['product_category']." / ".$checkResult['state_name'];
+					$ruleDetail[0]['rule_description'] = "Broker Licensed Appropriately: ".strtoupper($checkResult['product_category'])." / ".strtoupper($checkResult['state_name']);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -680,7 +682,7 @@
     			$checkResult = $this->check_broker_sponsor($brokerId, 0, $productId, $res2);
 				// 
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
+					$ruleDetail[0]['rule_description'] .= ' - '.strtoupper($res2);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -781,7 +783,6 @@
     			$checkResult = $this->check_client_field($clientId, "broker_name", $brokerId, $res2);
 				// 
 				if (!$checkResult){
-					$instance_broker = new broker_master();
 					$res = $instance_broker->get_broker_name($brokerId,1);
 					$res2 = $instance_broker->get_broker_name($res2,1);
 					
@@ -793,12 +794,13 @@
 			// Rule ID #22 Broker Commissions Are on Hold
 			$ruleId = 22;
 			$ruleDetail = $this->select($ruleId, 1);
-			if ($ruleDetail[0]['in_force'] AND $productCategory==10){
+			if ($ruleDetail[0]['in_force']){
 				$res2 = '';
-    			$checkResult = $this->check_broker_on_hold($brokerId, $tradeDate);
-				// 
+    			$checkResult = (!$this->check_broker_on_hold($brokerId, $tradeDate) OR ($this->check_broker_on_hold($brokerId, $tradeDate) AND $tradeOnHold));
+				// Flag any trade that should have a Broker Hold, but the trade isn't on hold
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] .= ": ".$res." -> ".$res2;
+					$res2 = $instance_broker->get_broker_name($brokerId,1);
+					$ruleDetail[0]['rule_description'] .= " - $res2";
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}

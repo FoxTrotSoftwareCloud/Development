@@ -8,7 +8,10 @@ class transaction extends db{
     public $product_type = PRODUCT_TYPE;
 	
     public function insert_update($data){//echo '<pre>';print_r($data);exit;
+		// 06/11/22 Rule Engine variables
 		$instance_rules = new rules();
+		$ruleEngineProceed = (isset($data['resolve_rule_engine_proceed']) ? $data['resolve_rule_engine_proceed'] : "0");
+		
 		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
 		//$trade_number = isset($data['trade_number'])?$this->re_db_input($data['trade_number']):0;
 		$client_name = isset($data['client_name'])?$this->re_db_input($data['client_name']):'0';
@@ -64,48 +67,51 @@ class transaction extends db{
 		$is_trail_trade = isset($data['is_trail_trade']) ? $this->re_db_input($data['is_trail_trade']):0;
 		
 		//-- Validate the entries
-		$error = '';
+		$this->errors = '';
 		if($client_name=='0'){
-			$error .= "Please select client name.<br>";
+			$this->errors .= "Please select client name.<br>";
 		} else if($broker_name=='0'){
-			$error .= "Please select broker name.<br>";
+			$this->errors .= "Please select broker name.<br>";
 		} else if($product_cate=='0'){
-			$error .= "Please select product category.<br>";
+			$this->errors .= "Please select product category.<br>";
 		} else if($product=='0'){
-			$error .= "Please select product name.<br>";
+			$this->errors .= "Please select product name.<br>";
 		} else if($batch=='0'){
-			$error .= "Please select batch name.<br>";
+			$this->errors .= "Please select batch name.<br>";
 		} else if($commission_received==''){
-			$error .= "Please enter commission received.<br>";
+			$this->errors .= "Please enter commission received.<br>";
 		} else if($trade_date=='' || $trade_date=='01/01/1970'){
-			$error .= "Please enter trade date.<br>";
+			$this->errors .= "Please enter trade date.<br>";
 		} else if($commission_received_date=='' || $commission_received_date=='01/01/1970'){
-			$error .= "Please enter commission received date.<br>";
+			$this->errors .= "Please enter commission received date.<br>";
 		// } else if($settlement_date==''){
-		// 	$error .= "Please enter settlement date.<br>";
+		// 	$this->errors .= "Please enter settlement date.<br>";
 		} else if($split==''){
-			$error .= "Please select split commission .<br>";
+			$this->errors .= "Please select split commission .<br>";
 		// } else if($split_rate==array()){
-		// 	$error .= "Please enter split rate commission received.<br>";
+		// 	$this->errors .= "Please enter split rate commission received.<br>";
 		} else if($hold_commission=='1' && $hold_resoan==''){
-			$error .= "Please enter commission hold reason.<br>";
+			$this->errors .= "Please enter commission hold reason.<br>";
 		}
 		
 		//-- 06/08/22 Rule Engine check 
-		$ruleReturn = $instance_rules->rule_engine_manual_check($data);
-		if ($ruleReturn AND (!empty($ruleReturn['warnings']) OR !empty($ruleReturn['errors']))){
-			// Only show the "warnings" if there is not show-stopper(errors exist)
-			$error .= $ruleReturn['errors'].(empty($ruleReturn['errors']) ? 'Rule Engine Warning':'');
-			$_SESSION['transaction_rule_engine']['warnings'] = $ruleReturn['warnings'];
-		} else {
+		if ($ruleEngineProceed=="0"){
 			unset($_SESSION['transaction_rule_engine']);
+
+			$ruleReturn = $instance_rules->rule_engine_manual_check($data);
+			if ($ruleReturn AND (!empty($ruleReturn['warnings']) OR !empty($ruleReturn['errors']))){
+				// Only show the "warnings" if there is not show-stopper(errors exist)
+				$this->errors .= $ruleReturn['errors'].(empty($ruleReturn['errors']) ? 'Rule Engine Warning':'');
+				$_SESSION['transaction_rule_engine']['warnings'] = $ruleReturn['warnings'];
+				$_SESSION['transaction_rule_engine']['data'] = $data;
+			}
 		}
 		
-		if($error!=''){
-			$this->errors = (substr($error, -4)=='<br>') ? substr($error, 0, -4) : $error;
+		if($this->errors!=''){
+			$this->errors = (substr($this->errors, -4)=='<br>') ? substr($this->errors, 0, -4) : $this->errors;
 			return $this->errors;
 		} else{
-			$is_new_client = $client_number == -1 ;
+			$is_new_client = $client_number==-1;
 			
 			if($is_new_client){
 				$client_number= $_POST['c_account_no'];
@@ -117,86 +123,83 @@ class transaction extends db{
 			$branch = isset($data['branch'])?$data['branch']:0;
 			$company = isset($data['company'])?$data['company']:0;
 
-			if($id>=0){
-				if($id==0){
-					$q = "INSERT INTO ".$this->table." SET `client_name`='".$client_name."',`source`='MN',`client_number`='".$client_number."',`broker_name`='".$broker_name."',
-					`product_cate`='".$product_cate."',`sponsor`='".$sponsor."',`product`='".$product."',`batch`='".$batch."',
-					`invest_amount`='".$invest_amount."',`commission_received_date`='".$commission_received_date."',`posting_date`='".$posting_date."',`trade_date`='".$trade_date."',`settlement_date`='".$settlement_date."',`charge_amount`='".$charge_amount."',`commission_received`='".$commission_received."',`split`='".$split."',
-					`another_level`='".$another_level."',`cancel`='".$cancel."',`buy_sell`='".$buy_sell."',`ch_no`='".$ch_no."', `ch_pay_to`='".$ch_pay_to."', `ch_date`='".$ch_date."', `ch_amount`='".$ch_amount."',
-					`hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."'  ,`company`='".$company."'".$this->insert_common_sql();
+			if($id==0){
+				$q = "INSERT INTO ".$this->table." SET `client_name`='".$client_name."',`source`='MN',`client_number`='".$client_number."',`broker_name`='".$broker_name."',
+				`product_cate`='".$product_cate."',`sponsor`='".$sponsor."',`product`='".$product."',`batch`='".$batch."',
+				`invest_amount`='".$invest_amount."',`commission_received_date`='".$commission_received_date."',`posting_date`='".$posting_date."',`trade_date`='".$trade_date."',`settlement_date`='".$settlement_date."',`charge_amount`='".$charge_amount."',`commission_received`='".$commission_received."',`split`='".$split."',
+				`another_level`='".$another_level."',`cancel`='".$cancel."',`buy_sell`='".$buy_sell."',`ch_no`='".$ch_no."', `ch_pay_to`='".$ch_pay_to."', `ch_date`='".$ch_date."', `ch_amount`='".$ch_amount."',
+				`hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."'  ,`company`='".$company."'".$this->insert_common_sql();
 
-					$res = $this->re_db_query($q);
-					$last_inserted_id = $this->re_db_insert_id();
+				$res = $this->re_db_query($q);
+				$last_inserted_id = $this->re_db_insert_id();
 
-					$this->save_split_commission_data($last_inserted_id,$data);
+				$this->save_split_commission_data($last_inserted_id,$data);
 
-					/*foreach($split_rate as $key_rate=>$val_rate)
+				/*foreach($split_rate as $key_rate=>$val_rate)
+				{
+					if($split==1 && $val_rate != '' && $split_broker[$key_rate]>0)
 					{
-						if($split==1 && $val_rate != '' && $split_broker[$key_rate]>0)
-						{
-							$q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."` SET `transaction_id`='".$last_inserted_id."',`split_client_id`='".$split_client_id[$key_rate]."',`split_broker_id`='".$split_broker_id[$key_rate]."',`split_broker`='".$split_broker[$key_rate]."',`split_rate`='".$val_rate."'".$this->insert_common_sql();
-							$res = $this->re_db_query($q);
-						}
-					}
-					foreach($receiving_rep as $key_override=>$val_override)
-					{
-						if($val_override != '' && $per[$key_override]>0)
-						{
-							$q = "INSERT INTO `".TRANSACTION_OVERRIDES."` SET `transaction_id`='".$last_inserted_id."',`receiving_rep`='".$val_override."',`per`='".$per[$key_override]."'".$this->insert_common_sql();
-							$res = $this->re_db_query($q);
-						}
-					}*/
-
-					if($res){
-						$_SESSION['success'] = INSERT_MESSAGE;
-						return true;
-					}
-					else{
-						$_SESSION['warning'] = UNKWON_ERROR;
-						return false;
+						$q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."` SET `transaction_id`='".$last_inserted_id."',`split_client_id`='".$split_client_id[$key_rate]."',`split_broker_id`='".$split_broker_id[$key_rate]."',`split_broker`='".$split_broker[$key_rate]."',`split_rate`='".$val_rate."'".$this->insert_common_sql();
+						$res = $this->re_db_query($q);
 					}
 				}
-				else if($id>0){
-					$q = "UPDATE ".$this->table." SET `client_name`='".$client_name."',`client_number`='".$client_number."',`broker_name`='".$broker_name."',
-					`product_cate`='".$product_cate."',`sponsor`='".$sponsor."',`product`='".$product."',`batch`='".$batch."',
-					`invest_amount`='".$invest_amount."',`commission_received_date`='".$commission_received_date."',`posting_date`='".$posting_date."',`trade_date`='".$trade_date."',`settlement_date`='".$settlement_date."',`charge_amount`='".$charge_amount."',`commission_received`='".$commission_received."',`split`='".$split."',
-					`another_level`='".$another_level."',`cancel`='".$cancel."',`buy_sell`='".$buy_sell."',
-					`ch_no`='".$ch_no."', `ch_pay_to`='".$ch_pay_to."', `ch_date`='".$ch_date."', `ch_amount`='".$ch_amount."',
-					`hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."' ,`company`='".$company."'".$this->update_common_sql()." WHERE `id`='".$id."'";
-					$res = $this->re_db_query($q);
-
-					$this->save_split_commission_data($id,$data);
-
-					/*$q = "UPDATE `".TRANSACTION_TRADE_SPLITS."` SET `is_delete`='1' WHERE `transaction_id`='".$id."'";
-					$res = $this->re_db_query($q);
-
-					foreach($split_rate as $key_rate=>$val_rate)
+				foreach($receiving_rep as $key_override=>$val_override)
+				{
+					if($val_override != '' && $per[$key_override]>0)
 					{
-						if($split==1 && $val_rate != '' && $split_broker[$key_rate]>0)
-						{
-							$q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."` SET `transaction_id`='".$id."',`split_client_id`='".$split_client_id[$key_rate]."',`split_broker_id`='".$split_broker_id[$key_rate]."',`split_broker`='".$split_broker[$key_rate]."',`split_rate`='".$val_rate."'".$this->insert_common_sql();
-							$res = $this->re_db_query($q);
-						}
+						$q = "INSERT INTO `".TRANSACTION_OVERRIDES."` SET `transaction_id`='".$last_inserted_id."',`receiving_rep`='".$val_override."',`per`='".$per[$key_override]."'".$this->insert_common_sql();
+						$res = $this->re_db_query($q);
 					}
-					$q = "UPDATE `".TRANSACTION_OVERRIDES."` SET `is_delete`='1' WHERE `transaction_id`='".$id."'";
-					$res = $this->re_db_query($q);
-					foreach($receiving_rep as $key_override=>$val_override)
-					{
-						if($val_override != '' && $per[$key_override]>0)
-						{
-							$q = "INSERT INTO `".TRANSACTION_OVERRIDES."` SET `transaction_id`='".$id."',`receiving_rep`='".$val_override."',`per`='".$per[$key_override]."'".$this->insert_common_sql();
-							$res = $this->re_db_query($q);
-						}
-					}*/
+				}*/
 
-					if($res){
-						$_SESSION['success'] = UPDATE_MESSAGE;
-						return true;
+				if($res){
+					$_SESSION['success'] = INSERT_MESSAGE;
+					return true;
+				}
+				else{
+					$_SESSION['warning'] = UNKWON_ERROR;
+					return false;
+				}
+			} else if($id>0) {
+				$q = "UPDATE ".$this->table." SET `client_name`='".$client_name."',`client_number`='".$client_number."',`broker_name`='".$broker_name."',
+				`product_cate`='".$product_cate."',`sponsor`='".$sponsor."',`product`='".$product."',`batch`='".$batch."',
+				`invest_amount`='".$invest_amount."',`commission_received_date`='".$commission_received_date."',`posting_date`='".$posting_date."',`trade_date`='".$trade_date."',`settlement_date`='".$settlement_date."',`charge_amount`='".$charge_amount."',`commission_received`='".$commission_received."',`split`='".$split."',
+				`another_level`='".$another_level."',`cancel`='".$cancel."',`buy_sell`='".$buy_sell."',
+				`ch_no`='".$ch_no."', `ch_pay_to`='".$ch_pay_to."', `ch_date`='".$ch_date."', `ch_amount`='".$ch_amount."',
+				`hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."' ,`company`='".$company."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+				$res = $this->re_db_query($q);
+
+				$this->save_split_commission_data($id,$data);
+
+				/*$q = "UPDATE `".TRANSACTION_TRADE_SPLITS."` SET `is_delete`='1' WHERE `transaction_id`='".$id."'";
+				$res = $this->re_db_query($q);
+
+				foreach($split_rate as $key_rate=>$val_rate)
+				{
+					if($split==1 && $val_rate != '' && $split_broker[$key_rate]>0)
+					{
+						$q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."` SET `transaction_id`='".$id."',`split_client_id`='".$split_client_id[$key_rate]."',`split_broker_id`='".$split_broker_id[$key_rate]."',`split_broker`='".$split_broker[$key_rate]."',`split_rate`='".$val_rate."'".$this->insert_common_sql();
+						$res = $this->re_db_query($q);
 					}
-					else{
-						$_SESSION['warning'] = UNKWON_ERROR;
-						return false;
+				}
+				$q = "UPDATE `".TRANSACTION_OVERRIDES."` SET `is_delete`='1' WHERE `transaction_id`='".$id."'";
+				$res = $this->re_db_query($q);
+				foreach($receiving_rep as $key_override=>$val_override)
+				{
+					if($val_override != '' && $per[$key_override]>0)
+					{
+						$q = "INSERT INTO `".TRANSACTION_OVERRIDES."` SET `transaction_id`='".$id."',`receiving_rep`='".$val_override."',`per`='".$per[$key_override]."'".$this->insert_common_sql();
+						$res = $this->re_db_query($q);
 					}
+				}*/
+
+				if($res){
+					$_SESSION['success'] = UPDATE_MESSAGE;
+					return true;
+				}
+				else{
+					$_SESSION['warning'] = UNKWON_ERROR;
+					return false;
 				}
 			}
 			else{
