@@ -434,7 +434,8 @@
         $fname = isset($return['first_name'])?$instance->re_db_output($return['first_name']):'';
         $lname = isset($return['last_name'])?$instance->re_db_output($return['last_name']):'';
         $mname = isset($return['middle_name'])?$instance->re_db_output($return['middle_name']):'';
-        $_SESSION['broker_full_name'] = $return['first_name'].' '.$return['middle_name'].' '.$return['last_name'];
+        //--apple-- 06/08/22 Producing an error Undefined index: first_name (2) Same error: fname, lname
+        $_SESSION['broker_full_name'] = $fname.' '.$mname.' '.$lname;
         $suffix = isset($return['suffix'])?$instance->re_db_output($return['suffix']):'';
         $fund = isset($return['fund'])?$instance->re_db_output($return['fund']):'';
     	$internal = isset($return['internal'])?$instance->re_db_output($return['internal']):'';

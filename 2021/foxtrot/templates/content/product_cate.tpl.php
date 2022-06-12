@@ -720,12 +720,10 @@ $(document).on('click','.remove-row',function(){
                                     <div class="form-group">
                                         <label>Objectives </label><br />
                                         <select class="form-control" name="objectives">
-                                            <option value="">Select Objectives</option>
-                                            <option value="1" <?php if($objective==1){echo "selected='selected'";} ?>>Growth</option>
-                                            <option value="2" <?php if($objective==2){echo "selected='selected'";} ?>>Income</option>
-                                            <option value="3" <?php if($objective==3){echo "selected='selected'";} ?>>Growth &amp; Income</option>
-                                            <option value="4" <?php if($objective==4){echo "selected='selected'";} ?>>Speculative</option>
-                                            <option value="5" <?php if($objective==5){echo "selected='selected'";} ?>>Preservation of Capital</option>
+                                            <option value="">Select Objective</option>
+                                            <?php foreach($get_objective as $key=>$val){?>
+                                                <option value="<?php echo $val['id'];?>" <?php echo $objective==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                 </div>

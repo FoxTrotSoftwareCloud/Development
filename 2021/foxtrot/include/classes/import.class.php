@@ -3686,7 +3686,7 @@
 
             if ($this->re_db_num_rows($res))
                 $return = $this->re_db_fetch_array($res);
-            $return['result'] = ($return['active_check'] AND $trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR in_array($return['terminated'], ['1969-12-31', '1970-01-01'])));
+            $return['result'] = ($return['active_check'] AND $trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR $this->isEmptyDate($return['terminated'])));
 
             if ($pDetail){
                 // Just return $return
