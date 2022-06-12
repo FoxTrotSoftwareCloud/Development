@@ -39,12 +39,12 @@
     if ($action == "add"){
         unset($_SESSION['transaction_rule_engine']);
     }
-    
+
     //-- Add Transaction
     if(
-        (isset($_POST['transaction']) && $_POST['transaction']=='Save') 
+        (isset($_POST['transaction']) && $_POST['transaction']=='Save')
         || ((isset($_POST['transaction']) && $_POST['transaction']=='Save & Copy'))
-        || ($action=="rule_engine_proceed" && isset($_POST['resolve_rule_engine_action']) && in_array($_POST['resolve_rule_engine_action'], ["1","2"])) 
+        || ($action=="rule_engine_proceed" && isset($_POST['resolve_rule_engine_action']) && in_array($_POST['resolve_rule_engine_action'], ["1","2"]))
     ){
         if ($action=="rule_engine_proceed" AND isset($_SESSION['transaction_rule_engine']['data'])){
             $postData = $_SESSION['transaction_rule_engine']['data'];

@@ -1421,9 +1421,9 @@
                   foreach ($newValues as $key => $value)
                   {
                                                               // echo '<pre>';print_r($value); die;
-                    // 06/10/22 Just changed one piece of code below: 
-                      // OLD: SET `type_of_licences`='".$value['category']                                         
-                      // NEW: SET `type_of_licences`='".$value['type_of_licences']                                         
+                    // 06/10/22 Just changed one piece of code below:
+                      // OLD: SET `type_of_licences`='".$value['category']
+                      // NEW: SET `type_of_licences`='".$value['type_of_licences']
                     // $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['category']."' ,`state_id`='".$value['state_id']."' ,
                     // `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
                     $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
@@ -2331,7 +2331,7 @@
 			$return = array();
       $id = (int)$this->re_db_input($id);
       $con = '';
-      
+
       if ($nameOnly){
         $q = "SELECT `at`.`first_name`, `at`.`last_name`"
               ." FROM `".BROKER_MASTER."` AS `at`"
@@ -2484,16 +2484,16 @@
       $sponsorId = (int)$this->re_db_input($sponsorId);
 
       if ($sponsorId){
-        $con .= " AND `at`.`sponsor_company`=$sponsorId";  
+        $con .= " AND `at`.`sponsor_company`=$sponsorId";
       }
-      
+
 			$q = "SELECT `at`.*"
 					  ." FROM `".BROKER_ALIAS."` AS `at`"
             ." WHERE `at`.`is_delete`='0'"
             ." AND `at`.`broker_id`=$id"
             .$con
       ;
-            
+
       $res = $this->re_db_query($q);
       if($this->re_db_num_rows($res)>0){
         $a = 0;
@@ -2533,10 +2533,10 @@
 		                while($row = $this->re_db_fetch_array($res)){
 		                	       if($isFind)
 		                	       	  return $row;
-		                	      
+
 		                	       if($row['id']== $id)
                                  $isFind=true;
-		                	       
+
 
 		                }
 		            }
@@ -2560,10 +2560,10 @@
 		                while($row = $this->re_db_fetch_array($res)){
 		                	       if($isFind)
 		                	       	  return $row;
-		                	      
+
 		                	       if($row['id']== $id)
                                  $isFind=true;
-		                	       
+
 
 		                }
 		            }
@@ -2676,31 +2676,31 @@
     //         if($this->re_db_num_rows($res)>0){
     //           while($row = $this->re_db_fetch_array($res)){
     //             array_push($return, $row)
-    //           } 
+    //           }
     //         }
     //   return $return;
     // }
-    
+
     /**
      * 06/08/22 Changed on 5/31/22 - Called from manage_broker php - only used once
      * (1) id parameter removed
      * (2) returns an array within an array instead of just one dimension that is used in manage_broker php
-     *  */  
+     *  */
 		public function alledit($id=0){
 			$return = array();
       $con = "";
       $id = (int)$this->re_db_input($id);
-      
+
       if ($id){
         $con = " AND `at`.`id`=$id";
       }
-			
+
       $q = "SELECT `at`.*"
 					 ." FROM `".$this->table."` AS `at`"
            ." WHERE `at`.`is_delete`='0'"
            .$con
       ;
-			
+
       $res = $this->re_db_query($q);
       if($this->re_db_num_rows($res)>0){
         //--- 06/08/22 Create a one dimensional array - that's what the colling program is expecting
@@ -2708,7 +2708,7 @@
         // while($row=$this->re_db_fetch_array($res)){
         //   array_push($return,$row);
         // }
-        
+
       }
 			return $return;
 		}

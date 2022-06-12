@@ -6,12 +6,12 @@ class transaction extends db{
     public $table = TRANSACTION_MASTER;
     public $broker_master = BROKER_MASTER;
     public $product_type = PRODUCT_TYPE;
-	
+
     public function insert_update($data){//echo '<pre>';print_r($data);exit;
 		// 06/11/22 Rule Engine variables
 		$instance_rules = new rules();
 		$ruleEngineProceed = (isset($data['resolve_rule_engine_proceed']) ? $data['resolve_rule_engine_proceed'] : "0");
-		
+
 		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
 		//$trade_number = isset($data['trade_number'])?$this->re_db_input($data['trade_number']):0;
 		$client_name = isset($data['client_name'])?$this->re_db_input($data['client_name']):'0';
@@ -65,7 +65,7 @@ class transaction extends db{
 		$shares = isset($data['shares'])?$this->re_db_input($data['shares']):'';
 		$is_1035_exchange= isset($data['is_1035_exchange']) ? $this->re_db_input($data['is_1035_exchange']) : 0;
 		$is_trail_trade = isset($data['is_trail_trade']) ? $this->re_db_input($data['is_trail_trade']):0;
-		
+
 		//-- Validate the entries
 		$this->errors = '';
 		if($client_name=='0'){
@@ -93,8 +93,8 @@ class transaction extends db{
 		} else if($hold_commission=='1' && $hold_resoan==''){
 			$this->errors .= "Please enter commission hold reason.<br>";
 		}
-		
-		//-- 06/08/22 Rule Engine check 
+
+		//-- 06/08/22 Rule Engine check
 		if ($ruleEngineProceed=="0"){
 			unset($_SESSION['transaction_rule_engine']);
 
@@ -106,13 +106,13 @@ class transaction extends db{
 				$_SESSION['transaction_rule_engine']['data'] = $data;
 			}
 		}
-		
+
 		if($this->errors!=''){
 			$this->errors = (substr($this->errors, -4)=='<br>') ? substr($this->errors, 0, -4) : $this->errors;
 			return $this->errors;
 		} else{
 			$is_new_client = $client_number==-1;
-			
+
 			if($is_new_client){
 				$client_number= $_POST['c_account_no'];
 				$q = "INSERT INTO `".CLIENT_ACCOUNT."` SET `client_id`='".$client_name."',`account_no`='".$client_number."',`sponsor_company`='".$_POST['c_sponsor']."'".$this->insert_common_sql();;
