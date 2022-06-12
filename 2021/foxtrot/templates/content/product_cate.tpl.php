@@ -1748,7 +1748,7 @@ function get_product_attach(){
 function hideshow_sponser_based_on_product_category(product_category)
 {
     var divSponsorExists = document.getElementById("div_sponsor");
-    
+
     if(divSponsorExists && (product_category =='2' ||product_category =='3'|| product_category =='6'||product_category =='7'||product_category =='8'))
     {
         // document.getElementById("div_sponsor").style.visibility='hidden';

@@ -50,7 +50,7 @@
 		 * */
 		public function select_client_suitability_by_id($clientId) {
 			$clientId = (int)$this->re_db_input($clientId);
-			
+
 			$q = "SELECT `cs`.*"
 					." FROM `" . CLIENT_SUITABILITY . "` AS `cs`"
                     ." WHERE `cs`.`is_delete`='0'"
@@ -317,13 +317,13 @@
 					$employmentClientId = $id;
 				}else {
 					$employmentClientId = $_SESSION['client_id'];
-				}					
-				
+				}
+
 				if ($employmentClientId){
 					$q = "INSERT INTO `".CLIENT_EMPLOYMENT."` SET `client_id`='".$employmentClientId."',`occupation`='".$occupation."',`employer`='".$employer."',`address`='".$address_employement."',`position`='".$position."',`security_related_firm`='".$security_related_firm."',`finra_affiliation`='".$finra_affiliation."',`spouse_name`='".$spouse_name."',`spouse_ssn`='".$spouse_ssn."',`dependents`='".$dependents."',`salutation`='".$salutation."',`options`='".$options."',`other`='".$other."',`number`='".$number."',`expiration`='".$expiration."',`state`='".$state_employe."',`date_verified`='".$date_verified."',`telephone`='".$telephone_employment."'".$this->insert_common_sql();
 					$res = $this->re_db_query($q);
 					$id = $this->re_db_insert_id();
-					
+
 					if($res){
 						$_SESSION['success'] = INSERT_MESSAGE;
 						return true;
@@ -473,8 +473,8 @@
 					$suitabilityClientId = $id;
 				}else {
 					$suitabilityClientId = $_SESSION['client_id'];
-				}					
-				
+				}
+
 				if ((int)$suitabilityClientId){
 					$q = "INSERT INTO `".CLIENT_SUITABILITY."`"
 						." SET `client_id`='".$suitabilityClientId."',`income`='".$income."',`goal_horizon`='".$goal_horizone."',`net_worth`='".$net_worth."'"
@@ -486,7 +486,7 @@
 					$res = $this->re_db_query($q);
 					$id = $this->re_db_insert_id();
 				}
-				
+
 				if($res){
 					$_SESSION['success'] = INSERT_MESSAGE;
 					return true;
@@ -787,7 +787,7 @@
         public function select_objectives($client_id, $objective=0){
 			$return = array();
 			$con = '';
-			
+
 			$objective = (int)$this->re_db_input($objective);
 			if ($objective){
 				$con .= " AND `o`.`objectives`=$objective";
@@ -803,7 +803,7 @@
                         ." ORDER BY `o`.`id` ASC"
 				;
 				$res = $this->re_db_query($q);
-                
+
 				if($this->re_db_num_rows($res)>0){
         			while($row = $this->re_db_fetch_array($res)){
         			     array_push($return,$row);

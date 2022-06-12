@@ -112,7 +112,7 @@
 			if ($ruleId){
 				$con = " AND `at`.`rule`=$ruleId";
 			}
-			
+
 			if ($masterAction){
 				$q = "SELECT `at`.`rule` AS `master_id`, `b`.`rule` AS `rule_description`"
 				    		.",`at`.`action` AS `action_id`,`c`.`action` AS `action_description`"
@@ -444,7 +444,7 @@
         }
 
         function check_broker_license($brokerId=0, $stateId=0, $clientId=0, $productCategory=0, $tradeDate='', $returnDetail=0){
-            $return = -1; 
+            $return = -1;
 			$res = $check_result = 0;
 			$brokerId = (int)$this->re_db_input($brokerId);
 			$stateId = (int)$this->re_db_input($stateId);
@@ -455,7 +455,7 @@
 			if ($stateId==0 AND $clientId!=0){
 				$instance_client_maintenance = new client_maintenance();
 				$res = $instance_client_maintenance->select_client_master($clientId);
-				$stateId = ($res ? $res['state'] : 0);			
+				$stateId = ($res ? $res['state'] : 0);
 			}
             if ($brokerId AND $stateId){
 				$instance_import = new import();
@@ -492,7 +492,7 @@
 
 			return $return;
 		}
-		
+
 		function check_client_objective($clientId=0, $productId=0, &$objectiveSearched=null){
             $return = $res = $res2 = 0;
             $clientId = (int)$this->re_db_input($clientId);
@@ -546,7 +546,7 @@
 				}
 
 				$return =  (empty($res2[$productField]) OR ($res[$clientField]>=$res2[$productField]));
-					
+
 				// Populate the Objective Description if passed in the signature
 				if (!is_null($valueSearched)){
 					if (empty($res2[$productField])){
@@ -565,21 +565,21 @@
 		// Returns true if hold criteria are met
 		function check_broker_on_hold($brokerId=0, $date=''){
 			$instance_broker_master = new broker_master();
-            $return = 0; 
+            $return = 0;
 			$brokerId = (int)$this->re_db_input($brokerId);
 			$date = date("Y-m-d", strtotime( ($this->isEmptyDate($date) ? 'today' : $this->re_db_input($date)) ));
 			$brokerPayout = $instance_broker_master->edit_payout($brokerId);
-			
+
 			if ($brokerPayout){
 				$return = (
-					$brokerPayout['hold_commissions']=="1" 
+					$brokerPayout['hold_commissions']=="1"
 					AND
 					($this->isEmptyDate($brokerPayout['hold_commission_until']) OR $brokerPayout['hold_commission_until']>=$date)
-					AND 
+					AND
 					($this->isEmptyDate($brokerPayout['hold_commission_after']) OR $brokerPayout['hold_commission_after']<$date)
 				);
 			}
-			
+
             return $return;
         }
 
@@ -587,7 +587,7 @@
 		-- MANUAL ENTRY
 		-------------------------------------------*/
 		/**
-		 * 06/08/22 Called from transaction class -> insert update(data) - return string if "Warning" action(1) is flagged 
+		 * 06/08/22 Called from transaction class -> insert update(data) - return string if "Warning" action(1) is flagged
 		 **/
 		function rule_engine_manual_check($data=[]){
 			$instance_import = new import();
@@ -597,7 +597,7 @@
 			$ruleDetail = "";
 			$return = ['exceptions'=>[], 'warnings'=>'', 'holds'=>'', 'reassign'=>'', 'errors'=>''];
 			$exceptionCount = ['exceptions'=>0, 'warnings'=>0, 'holds'=>0, 'reassign'=>0, 'errors'=>0];
-			
+
 			if (empty($data) OR empty($data['client_name']) OR empty($data['broker_name'])){
 				return $return;
 			} else {
@@ -610,27 +610,27 @@
 				$investAmount = (isset($data['invest_amount']) ? round((float)$data['invest_amount'],2) : 0.00);
 				$tradeOnHold = (isset($data['hold_commission']) ? ($data['hold_commission']==1) : 0);
 			}
-			
+
 			//-- RULE CHECKS --//
 			// Rule ID #2 - Broker Licensed Appropriately
 			$ruleId = 2;
 			$ruleDetail = $this->select($ruleId, 1);
 			if ($ruleDetail[0]['in_force']){
 				$checkResult = $this->check_broker_license($brokerId, 0, $clientId, $productCategory, $tradeDate, 1);
-				// 
+				//
 				if (!$checkResult['result']){
 					$ruleDetail[0]['rule_description'] = "Broker Licensed Appropriately: ".strtoupper($checkResult['product_category'])." / ".strtoupper($checkResult['state_name']);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
-			
+
 			// Rule ID #3 - Commission Rate Excessive
 			$ruleId = 3;
 			$ruleDetail = $this->select($ruleId, 1);
 			if ($ruleDetail[0]['in_force'] AND ((int)$ruleDetail[0]['parameter_1']>0) AND $commissionReceived AND $investAmount){
 				$max = (float)$this->re_db_input($ruleDetail[0]['parameter_1']);
 				$checkResult = ((round($commissionReceived*100 / $investAmount,2)) < $max);
-				// 
+				//
 				if (!$checkResult){
 					$ruleDetail[0]['rule_description'] .= " > ".$ruleDetail[0]['parameter_1']."%";
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
@@ -642,7 +642,7 @@
 			$ruleDetail = $this->select($ruleId, 1);
 			if ($ruleDetail[0]['in_force']){
 				$checkResult = $this->check_client_documentation($clientId);
-				// 
+				//
 				if (!$checkResult){
 					$ruleDetail[0]['rule_description'] = 'Client Documentation - Invalid NAF Date';
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
@@ -655,19 +655,19 @@
 			if ($ruleDetail[0]['in_force']){
     			$res = $instance_import->broker_termination_date('', $brokerId);
 				$checkResult = ($this->isEmptyDate($res) OR $tradeDate<=date('Y-m-d', strtotime($res)));
-				// 
+				//
 				if (!$checkResult){
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
-			
+
 			// Rule ID #7 - Client <> Product Objectives
 			$ruleId = 7;
 			$ruleDetail = $this->select($ruleId, 1);
 			if ($ruleDetail[0]['in_force']){
 				$res2 = '';
     			$checkResult = $this->check_client_objective($clientId, $productId, $res2);
-				// 
+				//
 				if (!$checkResult){
 					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
@@ -680,7 +680,7 @@
 			if ($ruleDetail[0]['in_force']){
 				$res2 = '';
     			$checkResult = $this->check_broker_sponsor($brokerId, 0, $productId, $res2);
-				// 
+				//
 				if (!$checkResult){
 					$ruleDetail[0]['rule_description'] .= ' - '.strtoupper($res2);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
@@ -693,7 +693,7 @@
 			if ($ruleDetail[0]['in_force']){
 				$res2 = '';
     			$checkResult = $this->check_client_age($clientId, $res2);
-				// 
+				//
 				if (!$checkResult){
 					$ruleDetail[0]['rule_description'] .= ' - '.$res2.' yrs old';
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
@@ -706,7 +706,7 @@
 			if ($ruleDetail[0]['in_force']){
 				$res2 = '';
     			$checkResult = $this->check_client_field($clientId, "birth_date");
-				// 
+				//
 				if (!$checkResult){
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
@@ -719,7 +719,7 @@
 			// if ($ruleDetail[0]['in_force']){
 			// 	$res2 = '';
     		// 	$checkResult = $this->check_product_breakpoints($productId, $investAmount);
-			// 	// 
+			// 	//
 			// 	if (!$checkResult){
 			// 		$ruleDetail[0]['rule_description'];
 			// 		$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
@@ -732,7 +732,7 @@
 			if ($ruleDetail[0]['in_force']){
 				$res2 = '';
     			$checkResult = $this->check_client_identity($clientId, $tradeDate);
-				// 
+				//
 				if (!$checkResult){
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
@@ -743,7 +743,7 @@
 			$ruleDetail = $this->select($ruleId, 1);
 			if ($ruleDetail[0]['in_force']){
     			$checkResult = $this->check_client_field($clientId, "state");
-				// 
+				//
 				if (!$checkResult){
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
@@ -755,7 +755,7 @@
 			if ($ruleDetail[0]['in_force'] AND $productCategory==10){
 				$res2 = '';
     			$checkResult = $this->check_client_suitability($clientId, $productId, "income", $res2);
-				// 
+				//
 				if (!$checkResult){
 					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
@@ -768,7 +768,7 @@
 			if ($ruleDetail[0]['in_force'] AND $productCategory==10){
 				$res2 = '';
     			$checkResult = $this->check_client_suitability($clientId, $productId, "net_worth", $res2);
-				// 
+				//
 				if (!$checkResult){
 					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
@@ -781,11 +781,11 @@
 			if ($ruleDetail[0]['in_force'] AND $productCategory==10){
 				$res2 = '';
     			$checkResult = $this->check_client_field($clientId, "broker_name", $brokerId, $res2);
-				// 
+				//
 				if (!$checkResult){
 					$res = $instance_broker->get_broker_name($brokerId,1);
 					$res2 = $instance_broker->get_broker_name($res2,1);
-					
+
 					$ruleDetail[0]['rule_description'] .= ": ".$res." -> ".$res2;
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
@@ -808,7 +808,7 @@
 			return $return;
 		}
 		/**
-		 * Function to store Rule info for the Manual Entry Check->rule_engine_manual_check() - 06/09/22 
+		 * Function to store Rule info for the Manual Entry Check->rule_engine_manual_check() - 06/09/22
 		 **/
 		private function ruleStoreToArray($ruleDetail, &$returnArray=0, &$exceptionCount=['exceptions'=>0, 'warnings'=>0, 'holds'=>0, 'reassign'=>0, 'errors'=>0]){
 			$return = 0;
@@ -842,7 +842,7 @@
 					$returnArray['warnings'] .= $exceptionCount['warnings'].". ".$ruleDetail['rule_description']."<br>";
 					$return++;
 			}
-			
+
 			return $return;
 		}
 

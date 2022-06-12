@@ -1325,7 +1325,7 @@ $(document).ready(function() {
                 return false;
         }
     });
-    
+
     // 06/02/22 Bind the "change()" functions to the elements AFTER the page is loaded, so it doesn't change the default values from TRANSACTION MASTER -> (if $action="edit_transaction")
     $("#broker_name").change(function(e){get_broker_hold_commission($(this).val());});
     $("#client_name").change(function(e){get_client_account_no($(this).val(),'<?php echo $client_number;?>');});
@@ -1334,7 +1334,7 @@ $(document).ready(function() {
     $("#branch").change(function(e){get_branch_company($(this).val());});
     $("#product_cate").change(function(e){get_product($(this).val());});
     $("#sponsor").change(function(e){get_product();});
-    
+
     // 06/07/22 Rule Engine Modal Window
     <?php if (!empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
         resolve_rule_engine("<?php echo $_SESSION['transaction_rule_engine']['warnings']; ?>");
@@ -1572,7 +1572,7 @@ function get_product(category_id,selected=''){
 //get client account no on client select
 function get_client_account_no(client_id,selected,skipBroker=0){
     document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
-    
+
     // Skip on the page load
     if (!skipBroker){
         var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
@@ -1739,7 +1739,7 @@ function redirect_url(url,selector){
 // 05/03/22 Add branch & company fetch from BROKER_BRANCHES as well
 function get_broker_hold_commission(broker_id){
     load_split_commission_content(broker_id);
-    
+
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
@@ -2171,7 +2171,7 @@ function resolve_rule_engine(msg='')
 
 function resolve_rule_engine_submit() {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
-    
+
      // the script where you handle the form input.
     var url = "transaction.php?action=rule_engine_proceed";
     $.ajax({
@@ -2190,7 +2190,7 @@ function resolve_rule_engine_submit() {
         }
    });
 
-    //-- 06/11/22 "Manually" go back to the main Transaction page/grid 
+    //-- 06/11/22 "Manually" go back to the main Transaction page/grid
     $("#resolve_rule_engine_modal").modal("hide");
     $(".alert").remove();
     $("#cancel").trigger("click");
@@ -2198,7 +2198,7 @@ function resolve_rule_engine_submit() {
 }
 // function resolve_rule_engine_submit() {
 //     $("#save").trigger("click");
-    
+
 // }
 
 </script>
