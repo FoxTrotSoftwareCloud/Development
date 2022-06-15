@@ -93,7 +93,7 @@ class transaction extends db{
 		} else if($hold_commission=='1' && $hold_resoan==''){
 			$this->errors .= "Please enter commission hold reason.<br>";
 		}
-
+		
 		//-- 06/08/22 Rule Engine check
 		if ($ruleEngineProceed=="0"){
 			unset($_SESSION['transaction_rule_engine']);
@@ -122,7 +122,7 @@ class transaction extends db{
             //  $get_branch_company_detail = $this->select_branch_company_ref($broker_name);
 			$branch = isset($data['branch'])?$data['branch']:0;
 			$company = isset($data['company'])?$data['company']:0;
-
+			
 			if($id==0){
 				$q = "INSERT INTO ".$this->table." SET `client_name`='".$client_name."',`source`='MN',`client_number`='".$client_number."',`broker_name`='".$broker_name."',
 				`product_cate`='".$product_cate."',`sponsor`='".$sponsor."',`product`='".$product."',`batch`='".$batch."',

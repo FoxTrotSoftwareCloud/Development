@@ -1,6 +1,8 @@
 <script>
 function addMoreThreshold(){
-    var html = '<div class="row main_row" style="padding: 5px;">'+
+    var html = 
+                // '<div class="row new_row" style="padding: 5px;">'+
+                '<div name="thresholdRow[]" class="row main_row" style="padding: 5px;">'+
                     '<div class="col-md-6">'+
                         '<div class="row" style="padding: 5px;">'+
                             '<div class="col-md-5">'+
@@ -60,8 +62,49 @@ function addMoreThreshold(){
                     '</div>'+*/
                 '</div>';
 
+    // TEST DELETE ME
+    console.log("**** addMOreThreshold: START ****")
+    maxThreshold = document.getElementsByName("max_threshold[]")
+    minThreshold = document.getElementsByName("min_threshold[]")
+    minRate = document.getElementsByName("min_rate[]")
+    threshRows = $("input[name='thresholdRow[]']")
 
-    $(html).insertAfter('#add_more_threshold');
+    $("div[name='thresholdRow[]']").each(function(i, v){
+        lastRow = v
+        console.log("i = " + i)
+    })
+    
+    console.log("insertBefore")
+    
+    $(html).insertBefore('#add_more_threshold');
+    
+    console.log("insertBefore: AFTER")
+    
+    $("div[name='min_threshold[]']").each(function(i, v){
+        lastMin = v
+        console.log("i = " + i + ", value = " + v.val())
+    })
+
+    maxThreshold = document.getElementsByName("max_threshold[]")
+    minThreshold = document.getElementsByName("min_threshold[]")
+    minRate = document.getElementsByName("min_rate[]")
+    
+    console.log("min = " + minThreshold[maxThreshold.length-1].value)
+    console.log("max = " + maxThreshold[maxThreshold.length-1].value)
+    console.log("rate = " + minRate[minRate.length-1].value)
+    
+    minThreshold[maxThreshold.length-2].value = minThreshold[maxThreshold.length-1].value
+    maxThreshold[maxThreshold.length-2].value = maxThreshold[maxThreshold.length-1].value
+    minRate[minRate.length-2].value = minRate[minRate.length-1].value
+    minThreshold[minThreshold.length-1].value = parseInt(maxThreshold[minThreshold.length-2].value)+1
+    maxThreshold[maxThreshold.length-1].value = ""
+    minRate[minRate.length-1].value = ""
+    maxThreshold[maxThreshold.length-1].focus()
+    // $("input[name='max_threshold[" + document.getElementsByName("min_threshold[]").length-1 + "']").val()
+    console.log("@@@@ addMOreThreshold: END @@@@")
+    
+    //--- Old code: Replaced 06/14/22
+    // $(html).insertAfter('#add_more_threshold');
 }
 $(document).on('click','.remove-row',function(){
     $(this).closest('.main_row').remove();
@@ -387,7 +430,7 @@ $(document).on('click','.remove-row',function(){
                                         {
                                         foreach($return_rates as $keyedit_rates=>$valedit_rates){
                                         ?>
-                                       <div class="row main_row" style="padding: 5px;">
+                                       <div name="thresholdRow[]" class="row main_row" style="padding: 5px;">
                                             <div class="col-md-6">
                                                 <div class="row" style="padding: 5px;">
 
@@ -438,7 +481,7 @@ $(document).on('click','.remove-row',function(){
 
                                        </div>
                                        <?php } }?>
-                                       <div class="row" style="padding: 5px;" id="add_more_threshold">
+                                       <div name="thresholdRow[]" class="row" style="padding: 5px;" id="add_more_threshold">
                                             <div class="col-md-6">
                                                 <!--<label>Threshold </label><br />-->
                                                 <div class="row" style="padding: 5px;">

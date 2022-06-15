@@ -1094,7 +1094,10 @@ class db
 	}
 
     public function to_decimal($number,$decimal=2){
-        return number_format((float)$number, $decimal, '.', ',');
+        $number = (float)$this->re_db_input($number);
+        $decimal = (int)$this->re_db_input($decimal);
+        
+        return number_format($number, $decimal, '.', ',');
     }
 
     public function reArrayFiles($file_post) {
