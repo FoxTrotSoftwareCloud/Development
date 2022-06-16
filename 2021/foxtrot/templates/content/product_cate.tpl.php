@@ -9,7 +9,7 @@ function addMoreThreshold(){
                                 '<div class="input-group">'+
                                     '<span class="input-group-addon">$</span>'+
                                     ' <input type="hidden" value=""   class="form-control" id="threshold_id" name="threshold_id[]" placeholder="$0"  />'+
-                                    '<input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />'+
+                                    '<input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  disabled/>'+
                                 '</div>'+
                             '</div>'+
                             '<div class="col-md-2">'+
@@ -62,37 +62,13 @@ function addMoreThreshold(){
                     '</div>'+*/
                 '</div>';
 
-    // TEST DELETE ME
-    console.log("**** addMOreThreshold: START ****")
-    maxThreshold = document.getElementsByName("max_threshold[]")
-    minThreshold = document.getElementsByName("min_threshold[]")
-    minRate = document.getElementsByName("min_rate[]")
-    threshRows = $("input[name='thresholdRow[]']")
 
-    $("div[name='thresholdRow[]']").each(function(i, v){
-        lastRow = v
-        console.log("i = " + i)
-    })
-    
-    console.log("insertBefore")
-    
     $(html).insertBefore('#add_more_threshold');
-    
-    console.log("insertBefore: AFTER")
-    
-    $("div[name='min_threshold[]']").each(function(i, v){
-        lastMin = v
-        console.log("i = " + i + ", value = " + v.val())
-    })
 
     maxThreshold = document.getElementsByName("max_threshold[]")
     minThreshold = document.getElementsByName("min_threshold[]")
     minRate = document.getElementsByName("min_rate[]")
-    
-    console.log("min = " + minThreshold[maxThreshold.length-1].value)
-    console.log("max = " + maxThreshold[maxThreshold.length-1].value)
-    console.log("rate = " + minRate[minRate.length-1].value)
-    
+    // Swap data values from the bottom row "add more threshold" to the newly created row    
     minThreshold[maxThreshold.length-2].value = minThreshold[maxThreshold.length-1].value
     maxThreshold[maxThreshold.length-2].value = maxThreshold[maxThreshold.length-1].value
     minRate[minRate.length-2].value = minRate[minRate.length-1].value
@@ -100,15 +76,27 @@ function addMoreThreshold(){
     maxThreshold[maxThreshold.length-1].value = ""
     minRate[minRate.length-1].value = ""
     maxThreshold[maxThreshold.length-1].focus()
-    // $("input[name='max_threshold[" + document.getElementsByName("min_threshold[]").length-1 + "']").val()
-    console.log("@@@@ addMOreThreshold: END @@@@")
-    
-    //--- Old code: Replaced 06/14/22
-    // $(html).insertAfter('#add_more_threshold');
 }
 $(document).on('click','.remove-row',function(){
     $(this).closest('.main_row').remove();
+    default_min_threshold()
 });
+function default_min_threshold() {
+    // Default the "min" thresholds to $1 more than the prior "max"
+    minThreshold = document.getElementsByName("min_threshold[]")
+    maxThreshold = document.getElementsByName("max_threshold[]")
+
+    // TEST DELETE ME
+    console.log("default_min_threshold: maxThreshold.length = " + maxThreshold.length)
+    
+    for (var $i=0; $i < minThreshold.length; $i++){
+        if ($i == 0){
+            minThreshold[$i].value = "0"
+        } else {
+            minThreshold[$i].value = parseInt(maxThreshold[$i-1].value)+1
+        } 
+    }
+}
 </script>
 <div class="container">
 <h1 class="<?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtitle';}*/?>">  Product Maintenance  </h1>
@@ -438,7 +426,7 @@ $(document).on('click','.remove-row',function(){
                                                         <div class="input-group">
                                                             <span class="input-group-addon">$</span>
                                                             <input type="hidden" value="<?php echo $valedit_rates['id']; ?>"   class="form-control" id="threshold_id" name="threshold_id[]"   />
-                                                            <input type="number" value="<?php echo $valedit_rates['min_threshold']; ?>"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />
+                                                            <input type="number" value="<?php echo $valedit_rates['min_threshold']; ?>"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0" disabled/>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-2">
@@ -488,7 +476,7 @@ $(document).on('click','.remove-row',function(){
                                                     <div class="col-md-5">
                                                         <div class="input-group">
                                                             <span class="input-group-addon">$</span>
-                                                            <input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />
+                                                            <input type="number" value="0"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  disabled/>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-2">
@@ -1535,6 +1523,20 @@ $(document).on('click','.remove-row',function(){
     				'</div>'+
     			'</div>');
         hideshow_sponser_based_on_product_category(<?php echo $category; ?>);
+    
+        $("input").focusout(function() {
+            var currentdate = new Date(); 
+            var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+            console.log(datetime + ": max_threshold: blur")
+ 
+            default_min_threshold()
+        })
+        
 } );
 </script>
 <style type="text/css">

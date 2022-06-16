@@ -59,55 +59,84 @@
 				return $this->errors;
 			}
 			else{
+				//-- Product Threshold 
+				//- 06/15/22 Original code wasn't working - the page only stores the 1.max_threshold, 2.min_rate
+				$productRates = [];
+				$element = 0;
+				foreach ($max_threshold AS $key=>$value){
+					if (!empty($value) AND !empty($min_rate[$key])){
+						$productRates[$element]['max_threshold'] = (int)$value;
+						$productRates[$element]['min_threshold'] = $key ? (int)$max_threshold[$key-1]+1 : 0;
+						$productRates[$element]['min_rate'] = (float)$min_rate[$key];
+						
+						$element++;
+					}					
+				}
 
 				/* check duplicate record */
 				$con = '';
 				if($id>0){   // update
 					//$con = " AND `id`!='".$id."'";
 
-						$q = "UPDATE `".PRODUCT_LIST."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->update_common_sql()." WHERE `id`='".$id."'";
-			            $res = $this->re_db_query($q);
+					$q = "UPDATE `".PRODUCT_LIST."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+					$res = $this->re_db_query($q);
 
-
-			            $all_rates_ids=$this->get_product_rates_ids($id);
-			            $delete_rows= array_diff($all_rates_ids,$threshold_id);
-
-
-			            foreach($min_threshold as $key_thres=>$val_thres)
-			            {
-			                if($val_thres != '' && $min_rate[$key_thres]>0)
-			                {
-			                      if(isset($threshold_id[$key_thres])){
-                            		$q = "UPDATE `".PRODUCT_RATES."` SET `product_id`='".$id."',`min_threshold`='".$val_thres."',`max_threshold`='".$max_threshold[$key_thres]."',`min_rate`='".$min_rate[$key_thres]."',`max_rate`='".$max_rate[$key_thres]."'".$this->insert_common_sql()." WHERE `id`='".$threshold_id[$key_thres]."'";
-                                }
-                                else{
-
-                					 $q = "INSERT INTO `".PRODUCT_RATES."` SET `product_id`='".$id."',`min_threshold`='".$val_thres."',`max_threshold`='".$max_threshold[$key_thres]."',`min_rate`='".$min_rate[$key_thres]."',`max_rate`='".$max_rate[$key_thres]."'".$this->insert_common_sql();
-                                }
-                                 $res = $this->re_db_query($q);
-			                }
-			            }
-
-			            if(!empty($delete_rows)){
-			            	 foreach($delete_rows as $row_id){
-			            	 	$q="delete from `".PRODUCT_RATES."` where id='".$row_id."'";
-								$res = $this->re_db_query($q);
-			            	 }
-
-			            }
-
-						if($res){
-							//$_SESSION['tran']
-							if($isReturn){
-								$_SESSION['new_product_id']=$id;
+					$getProdRates=$this->get_product_rates_ids($id);
+					$getIndex = 0;
+					$getLastIndex = ($getProdRates ? count($getProdRates)-1 : 0);
+					
+					foreach($productRates as $key=>$row)
+					{
+						if(!empty($row['max_threshold']) && !empty($productRates[$key]['min_rate']))
+						{
+							if (isset($getProdRates[$getIndex])){
+								$q = "UPDATE `".PRODUCT_RATES."`"
+									." SET "
+										."`product_id`=".(int)$id
+										.",`min_threshold`='".$row['min_threshold']."'"
+										.",`max_threshold`='".$row['max_threshold']."'"
+										.",`min_rate`=".$row['min_rate']
+										.",`max_rate`=0"
+										.$this->update_common_sql()
+									." WHERE `id`=".(int)$getProdRates[$getIndex]
+								;
+								$getIndex++;
+							} else {
+								$q = "INSERT INTO `".PRODUCT_RATES."`"
+									." SET "
+										."`product_id`=".(int)$id
+										.",`min_threshold`='".$row['min_threshold']."'"
+										.",`max_threshold`='".$row['max_threshold']."'"
+										.",`min_rate`=".$row['min_rate']
+										.",`max_rate`=0"
+										.$this->insert_common_sql()
+								;
 							}
-							$_SESSION['success'] = UPDATE_MESSAGE;
-							return true;
+							$res = $this->re_db_query($q);
 						}
-						else{
-							$_SESSION['warning'] = UNKWON_ERROR;
-							return false;
+					}
+					
+					if ($getIndex <= $getLastIndex){
+						for ($i = $getIndex; $i <= $getLastIndex; $i++){
+							$q = "UPDATE `".PRODUCT_RATES."`"
+								." SET `is_delete`=1"
+								." WHERE id=".(int)$getProdRates[$i];
+							$res = $this->re_db_query($q);
 						}
+					}
+
+					if($res){
+						//$_SESSION['tran']
+						if($isReturn){
+							$_SESSION['new_product_id']=$id;
+						}
+						$_SESSION['success'] = UPDATE_MESSAGE;
+						return true;
+					}
+					else{
+						$_SESSION['warning'] = UNKWON_ERROR;
+						return false;
+					}
 
 				}
 				else{ // insert
