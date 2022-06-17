@@ -492,6 +492,31 @@
 
 			return $return;
 		}
+		
+		function check_product_breakpoints($productId=0, $investAmount=0, $range=0, &$nearBreak=null){
+            $return = 0;
+			$productRates = [];
+			$productId = (int)$this->re_db_input($productId);
+			$investAmount = (int)$this->re_db_input($investAmount);
+			$range = (int)$this->re_db_input($range);
+			
+			if ($productId AND $investAmount AND $range){
+				$return = 1;
+				$instance_product_maintenance = new product_maintenance();
+				$productRates = $instance_product_maintenance->edit_product_rates($productId);
+				
+				foreach ($productRates AS $row){
+					$breakPoint = (int)$row['min_threshold'];
+					if (($breakPoint!=0) AND abs($breakPoint - $investAmount)<=$range){
+						$return = 0;
+						$nearBreak = $breakPoint;
+						break;
+					}
+				}
+			}
+			
+			return $return;
+		}
 
 		function check_client_objective($clientId=0, $productId=0, &$objectiveSearched=null){
             $return = $res = $res2 = 0;
@@ -513,7 +538,7 @@
 					if (empty($res2['objective'])){
 						$objectiveSearched = '(Not Specified)';
 					} else {
-						$instance_client_suitability = new client_suitebility_master();
+						$instance_client_suitability = new client_suitability_master();
 						$objectiveSearched = $instance_client_suitability->edit_objective($res2['objective']);
 						$objectiveSearched = $objectiveSearched['option'];
 					}
@@ -544,8 +569,8 @@
 					$productField = 'networth';
 					$functionName = "get_net_worth_name";
 				}
-
-				$return =  (empty($res2[$productField]) OR ($res[$clientField]>=$res2[$productField]));
+				// Default to TRUE for: ("0")Null, ("1")Not Specified, OR ("2")Refused to Disclose
+				$return =  (in_array($res2[$productField], ["0","1","2"]) OR in_array($res[$clientField], ["0","1","2"]) OR ($res[$clientField]>=$res2[$productField]));
 
 				// Populate the Objective Description if passed in the signature
 				if (!is_null($valueSearched)){
@@ -606,8 +631,8 @@
 				$productCategory = isset($data['product_cate']) ? (int)$this->re_db_input($data['product_cate']) : 0;
 				$productId = isset($data['product']) ? (int)$this->re_db_input($data['product']) : 0;
 				$tradeDate =  $this->re_db_input(date('Y-m-d', strtotime(isset($data['trade_date']) ? $data['trade_date'] : "today")));
-				$commissionReceived = (isset($data['commission_received']) ? round((float)$data['commission_received'],2) : 0.00);
-				$investAmount = (isset($data['invest_amount']) ? round((float)$data['invest_amount'],2) : 0.00);
+				$commissionReceived = (isset($data['commission_received']) ? $this->formattedStringToNumber($data['commission_received'],1) : 0.00);
+				$investAmount = (isset($data['invest_amount']) ? $this->formattedStringToNumber($data['invest_amount'],1) : 0.00);
 				$tradeOnHold = (isset($data['hold_commission']) ? ($data['hold_commission']==1) : 0);
 			}
 
@@ -712,19 +737,20 @@
 				}
 			}
 
-			// Rule ID #16 - Principal Amount Near Product Breakpoint
+			// Rule ID #16 - Principal Amount Near Product Breakpoint (Mutual Funds Only)
 			//--- 06/10/22 Thresholds/Breakpoints are "disabled" - put this on hold
 			$ruleId = 16;
-			// $ruleDetail = $this->select($ruleId, 1);
-			// if ($ruleDetail[0]['in_force']){
-			// 	$res2 = '';
-    		// 	$checkResult = $this->check_product_breakpoints($productId, $investAmount);
-			// 	//
-			// 	if (!$checkResult){
-			// 		$ruleDetail[0]['rule_description'];
-			// 		$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
-			// 	}
-			// }
+			$ruleDetail = $this->select($ruleId, 1);
+			if ($ruleDetail[0]['in_force'] AND $productCategory==1){
+				$res2 = '';
+    			$checkResult = $this->check_product_breakpoints($productId, $investAmount, (int)$ruleDetail[0]['parameter_1'],$res2);
+				//
+				if (!$checkResult){
+					$instance_payroll = new payroll();
+					$ruleDetail[0]['rule_description'] .= ' - '.$instance_payroll->payroll_accounting_format($investAmount,2).'->'.$instance_payroll->payroll_accounting_format($res2, 2);
+					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
+				}
+			}
 
 			// Rule ID #17 - Proof of Identify Specified (Documnentation)
 			$ruleId = 17;

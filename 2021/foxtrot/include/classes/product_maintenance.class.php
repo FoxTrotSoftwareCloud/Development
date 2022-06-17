@@ -80,7 +80,9 @@
 
 					$q = "UPDATE `".PRODUCT_LIST."` SET `category`='".$category."',`name`='".strtoupper($name)."',`sponsor`='".$sponsor."',`ticker_symbol`='".$ticker_symbol."',`cusip`='".$cusip."',`security`='".$security."',`receive`='".$receive."',`income`='".$income."',`networth`='".$networth."',`networthonly`='".$networthonly."',`minimum_investment`='".$minimum_investment."',`minimum_offer`='".$minimum_offer."',`maximum_offer`='".$maximum_offer."',`objective`='".$objective."',`non_commissionable`='".$non_commissionable."',`class_type`='".$class_type."',`fund_code`='".$fund_code."',`sweep_fee`='".$sweep_fee."',`ria_specific`='".$ria_specific."',`ria_specific_type`='".$ria_specific_type."',`based`='".$based."',`fee_rate`='".$fee_rate."',`st_bo`='".$st_bo."',`m_date`='".$m_date."',`type`='".$type."',`var`='".$var."',`reg_type`='".$reg_type."'".$this->update_common_sql()." WHERE `id`='".$id."'";
 					$res = $this->re_db_query($q);
-
+					
+					//-- Product Threshold/Commission Rate Breakpoints (MF Products)
+					//- 06/16/22 Original code wasn't working - the page only stores the 1.max_threshold, 2.min_rate
 					$getProdRates=$this->get_product_rates_ids($id);
 					$getIndex = 0;
 					$getLastIndex = ($getProdRates ? count($getProdRates)-1 : 0);
@@ -711,15 +713,22 @@
             }
 			return $return;
 		}
-
-
+		
+		//-- 06/16/22 Order by lower limit, so the Maintain Product grid will be in ascending order, according to $ amount
         public function edit_product_rates($id,$category=''){
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".PRODUCT_RATES."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`product_id`='".$id."'";
+			$id = (int)$this->re_db_input($id);
+			
+			$q = "SELECT `at`.*"
+					." FROM `".PRODUCT_RATES."` AS `at`"
+                    ." WHERE `at`.`is_delete`='0'"
+					." AND `at`.`product_id`=$id"
+					." ORDER BY `at`.`min_threshold`,`at`.`max_threshold`"
+			;
+			
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
+            
+			if($this->re_db_num_rows($res)>0){
     			while($row = $this->re_db_fetch_array($res)){
     			     array_push($return,$row);
                 }

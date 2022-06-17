@@ -8,7 +8,7 @@
     
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     
-    $instance = new client_suitebility_master();
+    $instance = new client_suitability_master();
     
     if(isset($_POST['submit_objective'])&& $_POST['submit_objective']=='Save'){
         	 

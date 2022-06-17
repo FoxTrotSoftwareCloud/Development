@@ -1099,7 +1099,23 @@ class db
         
         return number_format($number, $decimal, '.', ',');
     }
+    //-- 06/16/22 Convert number strings to int or float - strip off "$" and ","
+    public function formattedStringToNumber($inString, $returnFloat=0){
+        $inString = $this->re_db_input($inString);
+        $return = 0;
+        $res = '';
+        
+        if ($returnFloat){
+            $res = filter_var($inString, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION); 
+            $return = (float)$res;
+        } else {
+            $res = filter_var($inString, FILTER_SANITIZE_NUMBER_INT); 
+            $return = (int)$res;
+        }
 
+        return $return;
+    }
+    
     public function reArrayFiles($file_post) {
         $file_ary = array();
         $file_count = count($file_post['name']);

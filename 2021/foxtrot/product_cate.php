@@ -61,8 +61,12 @@
     $product_category = $instance->select_category();
     $get_sponsor = $instance->select_sponsor();
     // 06/09/22 Remove hardcoded Objectives - didn't correspond to Maintain Client objectives #'s (<select class="form-control" name="objectives">)
-    $instance_client_suitability = new client_suitebility_master();
+    $instance_client_suitability = new client_suitability_master();
     $get_objective = $instance_client_suitability->select_objective();
+
+    $get_income = $instance_client_suitability->select_income();
+    $get_networth = $instance_client_suitability->select_networth();
+    $get_liquid_net_worth = $instance_client_suitability->select_liquid_net_worth();
 
     if($category=='' || $category=='0') {
         $get_product_transactions='';

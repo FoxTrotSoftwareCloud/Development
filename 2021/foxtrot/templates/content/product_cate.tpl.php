@@ -704,30 +704,50 @@ function default_min_threshold() {
                                     <h4><b>Suitability</b></h4><br />
                                 </div>
                            </div>
+                           <!-- 06/16/22 -- Changed 1.Income, 2.Net Worth, 3.Net Worth ONLY(Liquid Net Worth) - to dropdowns to match the Client Suitability layout -->
                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Income </label><br />
-                                        <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" value="<?php echo $income; ?>"  name="income"  />
+                                        <select name="income" id="income" class="form-control">
+                                            <?php foreach($get_income as $key=>$val){
+                                                // Skip "Refuse to Disclose" option(2)
+                                                if ($val['id']!="2"){  ?>
+                                                    <option value="<?php echo $val['id'];?>" <?php if($income != '' && $income==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
+                                            <?php }} ?>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Net Worth </label><br />
-                                        <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" value="<?php echo $networth; ?>"  name="networth"  />
+                                        <select name="networth" id="networth" class="form-control">
+                                            <?php foreach($get_networth as $key=>$val){
+                                                // Skip "Refuse to Disclose" option(2)
+                                                if ($val['id']!="2"){  ?>
+                                                <option value="<?php echo $val['id'];?>" <?php if($networth != '' && $networth==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
+                                            <?php }} ?>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Net Worth Only </label><br />
-                                        <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" value="<?php echo $networthonly; ?>"  name="networthonly"  />
+                                        <label>Liquid Net Worth </label><br />
+                                        <select name="networthonly" id="networthonly" class="form-control">
+                                            <?php foreach($get_networth as $key=>$val){
+                                                // Skip "Refuse to Disclose" option(2)
+                                                if ($val['id']!="2"){  ?>
+                                                <option value="<?php echo $val['id'];?>" <?php if($networthonly != '' && $networthonly==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
+                                            <?php }} ?>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Minimum Investment </label><br />
+                                        
                                         <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="minimum_investment" value="<?php echo $minimum_investment; ?>"  />
                                     </div>
                                 </div>
@@ -1524,16 +1544,7 @@ function default_min_threshold() {
     			'</div>');
         hideshow_sponser_based_on_product_category(<?php echo $category; ?>);
     
-        $("input").focusout(function() {
-            var currentdate = new Date(); 
-            var datetime = "Last Sync: " + currentdate.getDate() + "/"
-                + (currentdate.getMonth()+1)  + "/" 
-                + currentdate.getFullYear() + " @ "  
-                + currentdate.getHours() + ":"  
-                + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
-            console.log(datetime + ": max_threshold: blur")
- 
+        $("input[name='max_threshold[]'").focusout(function() {
             default_min_threshold()
         })
         

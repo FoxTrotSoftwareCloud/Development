@@ -1,5 +1,5 @@
 <?php
-	class client_suitebility_master extends db{
+	class client_suitability_master extends db{
 		
 		public $table_income = INCOME_MASTER;
        
