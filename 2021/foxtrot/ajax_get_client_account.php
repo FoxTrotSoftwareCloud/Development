@@ -30,6 +30,7 @@ if(isset($_GET['batch_id']) && $_GET['batch_id'] > 0)
             if(isset($val['batch_date']) && $val['batch_date'] != '')
             {
                 $get_batch_date[$key]['batch_date'] = date('m/d/Y',strtotime($val['batch_date']));
+                $commission_received_date = $get_batch_date[$key]['batch_date'];
             }
         }
     }
