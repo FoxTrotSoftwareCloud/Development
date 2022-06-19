@@ -393,23 +393,20 @@ class transaction extends db{
             }
 			return $return;
 		}
-        public function get_product($id,$sponsor=''){
+        public function get_product($id=0,$sponsor=''){
 			$return = array();
+			$id = (int)$this->re_db_input($id);
+			$sponsor = $this->re_db_input($sponsor);
             $con ='';
+            if($id != 0) { $con .= " AND category=$id"; }
+            if($sponsor != '') { $con .= " AND sponsor='$sponsor'"; }
 
-            if($sponsor != '')
-            {
-                $con = " and sponsor='".$sponsor."'";
-            }
-            if($id != '')
-            {
-                $con = " and category='".$id."'";
-            }
-
-			$q = "SELECT `at`.*
-					FROM `ft_products` AS `at`
-                    WHERE `at`.`is_delete`='0' ".$con."
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*"
+					." FROM `ft_products` AS `at`"
+                    ." WHERE `at`.`is_delete`='0' "
+					.$con
+                    ." ORDER BY `at`.`id` ASC"
+			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;

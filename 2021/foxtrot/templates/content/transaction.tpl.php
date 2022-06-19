@@ -563,15 +563,7 @@ function autocomplete(inp, arr) {
                         <label>Commission Received Date <span class="text-red">*</span></label><br />
                         <div id="demo-dp-range">
                             <div class="input-daterange input-group" >
-                                <input 
-                                    type="text" 
-                                    data-required="true" 
-                                    name="commission_received_date" id="commission_received_date"
-                                    value="<?php if(isset($commission_received_date) && $commission_received_date!='0000-00-00 00:00:00') {echo date('m/d/Y',strtotime($commission_received_date));}?>" 
-                                    class="form-control" 
-                                    onfocus="toConsole(this.value, 'commission_received_date: onfocus')"
-                                    onblur="toConsole(this.value, 'commission_received_date: onblur')"
-                                />
+                                <input name="commission_received_date" id="commission_received_date" type="text" class="form-control" data-required="true" value="<?php if(isset($commission_received_date) && $commission_received_date!='0000-00-00 00:00:00') {echo date('m/d/Y',strtotime($commission_received_date));}?>" />
                             </div>
                         </div>
                     </div>
@@ -1107,7 +1099,7 @@ function autocomplete(inp, arr) {
         <div class="modal-content">
         <div class="modal-header" style="margin-bottom: 0px !important;">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h4 class="modal-title">Rule Engine Warning</h4>
+            <h4 class="modal-title">Rule Engine Warning - Failed Tests</h4>
         </div>
         <div class="modal-body">
             <div class="col-md-12">
@@ -1648,10 +1640,10 @@ function get_commission_date(batch_id){
             $("#commission_received_date").datepicker('setDate', $("#commission_received_date").val());
             $("#sponsor").val(data[0].sponsor);
             
-            // $("#product_cate").val(data[0].pro_category);
-            /* if(data[0].pro_category!='' && data[0].pro_category!='0'){
+            $("#product_cate").val(data[0].pro_category);
+            if(data[0].pro_category!='' && data[0].pro_category!='0'){
                 get_product(data[0].pro_category,data[0].sponsor);
-            }*/
+            }
         }
     };
     xmlhttp.open("GET", "ajax_get_client_account.php?batch_id="+batch_id, true);
@@ -1662,10 +1654,8 @@ function setnumber_format(inputtext)
 {
     var number  = inputtext.value;
     var roundedNumber = Number((Math.floor(number * 100) / 100).toFixed(2))
-
     var options = { style: 'currency', currency: 'USD'};
     inputtext.value=(new Intl.NumberFormat(options).format(roundedNumber));
-
 
     /*   const formatter = new Intl.NumberFormat('en-NZ', {
         style: 'currency',
