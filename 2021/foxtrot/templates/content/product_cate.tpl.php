@@ -2028,7 +2028,13 @@ var waitingDialog = waitingDialog || (function ($) {
 
 })(jQuery);
 
+function validation() {
+    // 06/19/22 Default true - "onsubmit" call from the form name="frm"
+    return true;
+}
+
 </script>
+
 <style>
 .btn-primary {
     color: #fff;
