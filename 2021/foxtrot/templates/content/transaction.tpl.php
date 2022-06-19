@@ -562,8 +562,8 @@ function autocomplete(inp, arr) {
                     <div class="form-group">
                         <label>Commission Received Date <span class="text-red">*</span></label><br />
                         <div id="demo-dp-range">
-                            <div class="input-daterange input-group" id="datepicker">
-                                <input type="text" data-required="true" name="commission_received_date" id="commission_received_date" value="<?php if(isset($commission_received_date) && $commission_received_date!='0000-00-00 00:00:00') {echo date('m/d/Y',strtotime($commission_received_date));}else{ echo ''; }?>" class="form-control" />
+                            <div class="input-daterange input-group" >
+                                <input name="commission_received_date" id="commission_received_date" type="text" class="form-control" data-required="true" value="<?php if(isset($commission_received_date) && $commission_received_date!='0000-00-00 00:00:00') {echo date('m/d/Y',strtotime($commission_received_date));}?>" />
                             </div>
                         </div>
                     </div>
@@ -1099,7 +1099,7 @@ function autocomplete(inp, arr) {
         <div class="modal-content">
         <div class="modal-header" style="margin-bottom: 0px !important;">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h4 class="modal-title">Rule Engine Warning</h4>
+            <h4 class="modal-title">Rule Engine Warning - Failed Tests</h4>
         </div>
         <div class="modal-body">
             <div class="col-md-12">
@@ -1339,6 +1339,14 @@ $(document).ready(function() {
     <?php if (!empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
         resolve_rule_engine("<?php echo $_SESSION['transaction_rule_engine']['warnings']; ?>");
     <?php } ?>
+    
+    $('#commission-received-date').datepicker({
+        format: "mm/dd/yyyy",
+        todayBtn: "linked",
+        autoclose: true,
+        todayHighlight: true
+    });
+
 })
 
 function hide_hold_reason()
@@ -1627,14 +1635,15 @@ function get_commission_date(batch_id){
         {
             var data=jQuery.parseJSON(this.responseText);
 
-            // $("#product_cate").val(data[0].pro_category);
             $("#commission_received_date").val(data[0].batch_date);
+            // 06/17/22  Pulling up the prior date, have to initialize the Datepicker value as well.
+            $("#commission_received_date").datepicker('setDate', $("#commission_received_date").val());
             $("#sponsor").val(data[0].sponsor);
-            /* if(data[0].pro_category!='' && data[0].pro_category!='0')
-                {
+            
+            $("#product_cate").val(data[0].pro_category);
+            if(data[0].pro_category!='' && data[0].pro_category!='0'){
                 get_product(data[0].pro_category,data[0].sponsor);
-            //alert(this.responseText);
-                }*/
+            }
         }
     };
     xmlhttp.open("GET", "ajax_get_client_account.php?batch_id="+batch_id, true);
@@ -1645,10 +1654,8 @@ function setnumber_format(inputtext)
 {
     var number  = inputtext.value;
     var roundedNumber = Number((Math.floor(number * 100) / 100).toFixed(2))
-
     var options = { style: 'currency', currency: 'USD'};
     inputtext.value=(new Intl.NumberFormat(options).format(roundedNumber));
-
 
     /*   const formatter = new Intl.NumberFormat('en-NZ', {
         style: 'currency',
@@ -1806,14 +1813,6 @@ function get_branch_company(branch_id){
     };
     xmlhttp.open("GET", "ajax_transaction_tpl.php?action=branch_company&branch="+branch_id, true);
     xmlhttp.send();
-
-
-    // 5/14/22 TEST: See if taking the code outside the AJAX retrieve changes anything
-    // if (jsonResponse.id){
-
-    //     $("#company").val("");
-    //     $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("change");
-    // }
 }
 
 function load_split_commission_content(broker_id){
@@ -2200,7 +2199,6 @@ function resolve_rule_engine_submit() {
 //     $("#save").trigger("click");
 
 // }
-
 </script>
 
 <style type="text/css">

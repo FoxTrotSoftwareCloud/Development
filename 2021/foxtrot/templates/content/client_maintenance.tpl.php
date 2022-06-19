@@ -855,7 +855,6 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                     <div class="form-group">
                                                         <label>Income </label>
                                                         <select name="income" id="income" class="form-control">
-                                                            <option value="">Select Income</option>
                                                             <?php foreach($get_income as $key=>$val){?>
                                                             <option value="<?php echo $val['id'];?>" <?php if($income != '' && $income==$val['id']){echo "selected='selected'";} ?>><?php echo $val['option'];?></option>
                                                             <?php } ?>
@@ -879,7 +878,6 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                     <div class="form-group">
                                                         <label>Net Worth </label>
                                                         <select name="net_worth" id="net_worth" class="form-control">
-                                                            <option value="">Select Net Worth</option>
                                                             <?php foreach($get_networth as $key=>$val){?>
                                                             <option value="<?php echo $val['id'];?>" <?php if($net_worth != '' && $net_worth==$val['id']){echo "selected='selected'";} ?>><?php echo $val['option'];?></option>
                                                             <?php } ?>
@@ -927,7 +925,6 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                     <div class="form-group">
                                                         <label>Liquid Net Worth </label>
                                                         <select name="liquid_net_worth" id="liquid_net_worth" class="form-control">
-                                                            <option value="">Select Liquid Net Worth</option>
                                                             <?php foreach($get_liquid_net_worth as $key=>$val){?>
                                                             <option value="<?php echo $val['id'];?>" <?php if($liquid_net_worth != '' && $liquid_net_worth==$val['id']){echo "selected='selected'";} ?>><?php echo $val['option'];?></option>
                                                             <?php } ?>

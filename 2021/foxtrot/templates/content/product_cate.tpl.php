@@ -1,13 +1,15 @@
 <script>
 function addMoreThreshold(){
-    var html = '<div class="row main_row" style="padding: 5px;">'+
+    var html = 
+                // '<div class="row new_row" style="padding: 5px;">'+
+                '<div name="thresholdRow[]" class="row main_row" style="padding: 5px;">'+
                     '<div class="col-md-6">'+
                         '<div class="row" style="padding: 5px;">'+
                             '<div class="col-md-5">'+
                                 '<div class="input-group">'+
                                     '<span class="input-group-addon">$</span>'+
                                     ' <input type="hidden" value=""   class="form-control" id="threshold_id" name="threshold_id[]" placeholder="$0"  />'+
-                                    '<input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />'+
+                                    '<input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  disabled/>'+
                                 '</div>'+
                             '</div>'+
                             '<div class="col-md-2">'+
@@ -61,11 +63,40 @@ function addMoreThreshold(){
                 '</div>';
 
 
-    $(html).insertAfter('#add_more_threshold');
+    $(html).insertBefore('#add_more_threshold');
+
+    maxThreshold = document.getElementsByName("max_threshold[]")
+    minThreshold = document.getElementsByName("min_threshold[]")
+    minRate = document.getElementsByName("min_rate[]")
+    // Swap data values from the bottom row "add more threshold" to the newly created row    
+    minThreshold[maxThreshold.length-2].value = minThreshold[maxThreshold.length-1].value
+    maxThreshold[maxThreshold.length-2].value = maxThreshold[maxThreshold.length-1].value
+    minRate[minRate.length-2].value = minRate[minRate.length-1].value
+    minThreshold[minThreshold.length-1].value = parseInt(maxThreshold[minThreshold.length-2].value)+1
+    maxThreshold[maxThreshold.length-1].value = ""
+    minRate[minRate.length-1].value = ""
+    maxThreshold[maxThreshold.length-1].focus()
 }
 $(document).on('click','.remove-row',function(){
     $(this).closest('.main_row').remove();
+    default_min_threshold()
 });
+function default_min_threshold() {
+    // Default the "min" thresholds to $1 more than the prior "max"
+    minThreshold = document.getElementsByName("min_threshold[]")
+    maxThreshold = document.getElementsByName("max_threshold[]")
+
+    // TEST DELETE ME
+    console.log("default_min_threshold: maxThreshold.length = " + maxThreshold.length)
+    
+    for (var $i=0; $i < minThreshold.length; $i++){
+        if ($i == 0){
+            minThreshold[$i].value = "0"
+        } else {
+            minThreshold[$i].value = parseInt(maxThreshold[$i-1].value)+1
+        } 
+    }
+}
 </script>
 <div class="container">
 <h1 class="<?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtitle';}*/?>">  Product Maintenance  </h1>
@@ -387,7 +418,7 @@ $(document).on('click','.remove-row',function(){
                                         {
                                         foreach($return_rates as $keyedit_rates=>$valedit_rates){
                                         ?>
-                                       <div class="row main_row" style="padding: 5px;">
+                                       <div name="thresholdRow[]" class="row main_row" style="padding: 5px;">
                                             <div class="col-md-6">
                                                 <div class="row" style="padding: 5px;">
 
@@ -395,7 +426,7 @@ $(document).on('click','.remove-row',function(){
                                                         <div class="input-group">
                                                             <span class="input-group-addon">$</span>
                                                             <input type="hidden" value="<?php echo $valedit_rates['id']; ?>"   class="form-control" id="threshold_id" name="threshold_id[]"   />
-                                                            <input type="number" value="<?php echo $valedit_rates['min_threshold']; ?>"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />
+                                                            <input type="number" value="<?php echo $valedit_rates['min_threshold']; ?>"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0" disabled/>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-2">
@@ -438,14 +469,14 @@ $(document).on('click','.remove-row',function(){
 
                                        </div>
                                        <?php } }?>
-                                       <div class="row" style="padding: 5px;" id="add_more_threshold">
+                                       <div name="thresholdRow[]" class="row" style="padding: 5px;" id="add_more_threshold">
                                             <div class="col-md-6">
                                                 <!--<label>Threshold </label><br />-->
                                                 <div class="row" style="padding: 5px;">
                                                     <div class="col-md-5">
                                                         <div class="input-group">
                                                             <span class="input-group-addon">$</span>
-                                                            <input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  />
+                                                            <input type="number" value="0"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  disabled/>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-2">
@@ -673,30 +704,50 @@ $(document).on('click','.remove-row',function(){
                                     <h4><b>Suitability</b></h4><br />
                                 </div>
                            </div>
+                           <!-- 06/16/22 -- Changed 1.Income, 2.Net Worth, 3.Net Worth ONLY(Liquid Net Worth) - to dropdowns to match the Client Suitability layout -->
                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Income </label><br />
-                                        <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" value="<?php echo $income; ?>"  name="income"  />
+                                        <select name="income" id="income" class="form-control">
+                                            <?php foreach($get_income as $key=>$val){
+                                                // Skip "Refuse to Disclose" option(2)
+                                                if ($val['id']!="2"){  ?>
+                                                    <option value="<?php echo $val['id'];?>" <?php if($income != '' && $income==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
+                                            <?php }} ?>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Net Worth </label><br />
-                                        <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" value="<?php echo $networth; ?>"  name="networth"  />
+                                        <select name="networth" id="networth" class="form-control">
+                                            <?php foreach($get_networth as $key=>$val){
+                                                // Skip "Refuse to Disclose" option(2)
+                                                if ($val['id']!="2"){  ?>
+                                                <option value="<?php echo $val['id'];?>" <?php if($networth != '' && $networth==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
+                                            <?php }} ?>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Net Worth Only </label><br />
-                                        <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" value="<?php echo $networthonly; ?>"  name="networthonly"  />
+                                        <label>Liquid Net Worth </label><br />
+                                        <select name="networthonly" id="networthonly" class="form-control">
+                                            <?php foreach($get_networth as $key=>$val){
+                                                // Skip "Refuse to Disclose" option(2)
+                                                if ($val['id']!="2"){  ?>
+                                                <option value="<?php echo $val['id'];?>" <?php if($networthonly != '' && $networthonly==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
+                                            <?php }} ?>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Minimum Investment </label><br />
+                                        
                                         <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="minimum_investment" value="<?php echo $minimum_investment; ?>"  />
                                     </div>
                                 </div>
@@ -1492,6 +1543,11 @@ $(document).on('click','.remove-row',function(){
     				'</div>'+
     			'</div>');
         hideshow_sponser_based_on_product_category(<?php echo $category; ?>);
+    
+        $("input[name='max_threshold[]'").focusout(function() {
+            default_min_threshold()
+        })
+        
 } );
 </script>
 <style type="text/css">

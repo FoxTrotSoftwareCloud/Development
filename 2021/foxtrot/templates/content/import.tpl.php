@@ -558,7 +558,7 @@ PostResult( msg );
                                                                 $instance_product = new product_maintenance();
                                                                 $instance_broker = new broker_master();
                                                                 $instance_import = new import();
-                                                                $instance_suitability = new client_suitebility_master();
+                                                                $instance_suitability = new client_suitability_master();
 
                                                                 if (!empty($return_commission_existing_data['broker_id'])) {
                                                                     $brokerRow = $instance_broker->select_broker_by_id($return_commission_existing_data['broker_id']);

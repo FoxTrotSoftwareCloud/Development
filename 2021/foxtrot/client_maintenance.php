@@ -104,7 +104,7 @@
     $instance_sponsor = new manage_sponsor();
     $instance_product = new product_maintenance();
     $get_sponsor = $instance_product->select_sponsor();
-    $instance_client_suitability = new client_suitebility_master();
+    $instance_client_suitability = new client_suitability_master();
     $get_objectives = $instance_client_suitability->select_objective();
     $get_income = $instance_client_suitability->select_income();
     $get_horizon = $instance_client_suitability->select_horizon();
