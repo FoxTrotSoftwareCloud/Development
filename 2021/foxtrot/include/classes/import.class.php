@@ -3357,13 +3357,13 @@
                                 $con = '';
 
                                 if ($check_data_val['on_hold'] AND in_array(2,$resolveHoldCommission)){
-                                    $con .=",`hold_commission`=1,`hold_resoan`='BROKER TERMINATED'";
+                                    $con .=",`hold_commission`=1,`hold_reason`='BROKER TERMINATED'";
                                 } else if($check_data_val['on_hold'] AND in_array(6,$resolveHoldCommission)){
-                                    $con .=",`hold_commission`=1, `hold_resoan`='BROKER LICENCE ERROR'";
+                                    $con .=",`hold_commission`=1, `hold_reason`='BROKER LICENCE ERROR'";
                                 } else if($check_data_val['on_hold'] AND in_array(9,$resolveHoldCommission)){
-                                    $con .=",`hold_commission`=1, `hold_resoan`='CLIENT<>PRODUCT OBJECTIVE'";
+                                    $con .=",`hold_commission`=1, `hold_reason`='CLIENT<>PRODUCT OBJECTIVE'";
                                 } else if($check_data_val['on_hold'] AND count($resolveHoldCommission)>0){
-                                    // Create of Rule Names to insert into Transactions Master->hold_resoan[sic]
+                                    // Create of Rule Names to insert into Transactions Master->hold_reason[sic]
                                     $res = 0;
                                     $q = '';
                                     foreach($resolveHoldCommission AS $value){
@@ -3372,11 +3372,11 @@
                                             $q = (empty($q) ? "" : ",").($this->re_db_input($res[0]['rule_name']));
                                         }
                                     }
-                                    $con .=",`hold_commission`=1, `hold_resoan`='$q'";
+                                    $con .=",`hold_commission`=1, `hold_reason`='$q'";
 
                                     $res = $q = 0;
                                 } else if($broker_hold_commission == 1){
-                                    $con .=",`hold_commission`='".$broker_hold_commission."',`hold_resoan`='HOLD COMMISSION BY BROKER'";
+                                    $con .=",`hold_commission`='".$broker_hold_commission."',`hold_reason`='HOLD COMMISSION BY BROKER'";
                                 } else {
                                     $con .=",`hold_commission`='2'";
                                 }

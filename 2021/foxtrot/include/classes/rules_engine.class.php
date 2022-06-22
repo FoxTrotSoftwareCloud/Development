@@ -854,7 +854,7 @@
 				case 3:
 					// Hold
 					$exceptionCount['holds']++;
-					$returnArray['holds'] .= (empty($returnArray['holds']?"":", ")).$ruleDetail['rule_warning'];
+					$returnArray['holds'] .= "RH-".$exceptionCount['holds'].". ".$ruleDetail['rule_warning']."<br>";
 					$return++;
 					break;
 				case 5:
@@ -869,13 +869,13 @@
 				case 6:
 					// Do not allow
 					$exceptionCount['errors']++;
-					$returnArray['errors'] .= $ruleDetail['rule_warning']."<br>";
+					$returnArray['errors'] .= "RS-".$exceptionCount['errors'].". ".$ruleDetail['rule_warning']."<br>";
 					$return++;
 					break;
 				default:
 					// Exception/Warning
 					$exceptionCount['warnings']++;
-					$returnArray['warnings'] .= $exceptionCount['warnings'].". ".$ruleDetail['rule_warning']."<br>";
+					$returnArray['warnings'] .= "RW-".$exceptionCount['warnings'].". ".$ruleDetail['rule_warning']."<br>";
 					$return++;
 			}
 

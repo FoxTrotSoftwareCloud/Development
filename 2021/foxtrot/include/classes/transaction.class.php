@@ -60,7 +60,7 @@ class transaction extends db{
 		$cancel = isset($data['cancel'])?$this->re_db_input($data['cancel']):'';
 		$buy_sell = isset($data['buy_sell'])?$this->re_db_input($data['buy_sell']):'';
 		$hold_commission = isset($data['hold_commission'])?$this->re_db_input($data['hold_commission']):'';
-		$hold_resoan = isset($data['hold_resoan'])?$this->re_db_input($data['hold_resoan']):'';
+		$hold_reason = isset($data['hold_reason'])?$this->re_db_input($data['hold_reason']):'';
 		$units = isset($data['units'])?$this->re_db_input($data['units']):'';
 		$shares = isset($data['shares'])?$this->re_db_input($data['shares']):'';
 		$is_1035_exchange= isset($data['is_1035_exchange']) ? $this->re_db_input($data['is_1035_exchange']) : 0;
@@ -90,7 +90,7 @@ class transaction extends db{
 			$this->errors .= "Please select split commission .<br>";
 		// } else if($split_rate==array()){
 		// 	$this->errors .= "Please enter split rate commission received.<br>";
-		} else if($hold_commission=='1' && $hold_resoan==''){
+		} else if($hold_commission=='1' && $hold_reason==''){
 			$this->errors .= "Please enter commission hold reason.<br>";
 		}
 		
@@ -112,7 +112,7 @@ class transaction extends db{
 			$data['broker_name'] = $broker_name;
 		}
 		if (!empty($_SESSION['transaction_rule_engine']['ruleReturn']['holds'])){
-			$hold_resoan .= $_SESSION['transaction_rule_engine']['ruleReturn']['holds'];
+			$hold_reason .= $_SESSION['transaction_rule_engine']['ruleReturn']['holds'];
 			$data['hold_commission'] = 1;
 			$hold_commission = $data['hold_commission'];
 		}
@@ -139,7 +139,7 @@ class transaction extends db{
 				`product_cate`='".$product_cate."',`sponsor`='".$sponsor."',`product`='".$product."',`batch`='".$batch."',
 				`invest_amount`='".$invest_amount."',`commission_received_date`='".$commission_received_date."',`posting_date`='".$posting_date."',`trade_date`='".$trade_date."',`settlement_date`='".$settlement_date."',`charge_amount`='".$charge_amount."',`commission_received`='".$commission_received."',`split`='".$split."',
 				`another_level`='".$another_level."',`cancel`='".$cancel."',`buy_sell`='".$buy_sell."',`ch_no`='".$ch_no."', `ch_pay_to`='".$ch_pay_to."', `ch_date`='".$ch_date."', `ch_amount`='".$ch_amount."',
-				`hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."'  ,`company`='".$company."'".$this->insert_common_sql();
+				`hold_reason`='".$hold_reason."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."'  ,`company`='".$company."'".$this->insert_common_sql();
 
 				$res = $this->re_db_query($q);
 				$last_inserted_id = $this->re_db_insert_id();
@@ -177,7 +177,7 @@ class transaction extends db{
 				`invest_amount`='".$invest_amount."',`commission_received_date`='".$commission_received_date."',`posting_date`='".$posting_date."',`trade_date`='".$trade_date."',`settlement_date`='".$settlement_date."',`charge_amount`='".$charge_amount."',`commission_received`='".$commission_received."',`split`='".$split."',
 				`another_level`='".$another_level."',`cancel`='".$cancel."',`buy_sell`='".$buy_sell."',
 				`ch_no`='".$ch_no."', `ch_pay_to`='".$ch_pay_to."', `ch_date`='".$ch_date."', `ch_amount`='".$ch_amount."',
-				`hold_resoan`='".$hold_resoan."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."' ,`company`='".$company."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+				`hold_reason`='".$hold_reason."',`hold_commission`='".$hold_commission."',`units`='".$units."',`shares`='".$shares."',`branch`='".$branch."' ,`is_1035_exchange`='".$is_1035_exchange."',`trail_trade`='".$is_trail_trade."' ,`company`='".$company."'".$this->update_common_sql()." WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
 
 				$this->save_split_commission_data($id,$data);

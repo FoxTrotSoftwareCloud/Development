@@ -370,7 +370,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 <td STYLE="font-size:10px;font-weight:normal;text-align:left;"> <?php  echo $trans_data['client_name'] ?></td>
                                 <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['invest_amount'],2); ?></td>
                                 <td STYLE="font-size:10px;font-weight:normal;text-align:right;"> <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['commission_received'],2); ?></td></td>
-                                 <td STYLE="font-size:10px;font-weight:normal;text-align:center;"><?php  echo $trans_data['hold_resoan'] ?><br><?php if($trans_data['commission_received_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($trans_data['commission_received_date'])); } ?></td>
+                                 <td STYLE="font-size:10px;font-weight:normal;text-align:center;"><?php  echo $trans_data['hold_reason'] ?><br><?php if($trans_data['commission_received_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($trans_data['commission_received_date'])); } ?></td>
                                  
                             </tr>
                         <?php } 

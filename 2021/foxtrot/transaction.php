@@ -52,7 +52,7 @@
             // user opted to "Hold Commissions"
             if ($postData['resolve_rule_engine_proceed']=="1"){
                 $postData['hold_commission'] = "1";
-                $postData['hold_resoan'] = $_SESSION['transaction_rule_engine']['warnings'];
+                $postData['hold_reason'] = $_SESSION['transaction_rule_engine']['warnings'];
             }
         } else {
             $postData = $_POST;
@@ -94,7 +94,6 @@
         $cancel = isset($postData['cancel'])?$instance->re_db_input($postData['cancel']):'';
         $buy_sell = isset($postData['buy_sell'])?$instance->re_db_input($postData['buy_sell']):'';
         $hold_commission = isset($postData['hold_commission'])?$instance->re_db_input($postData['hold_commission']):'';
-        $hold_resoan = isset($postData['hold_resoan'])?$instance->re_db_input($postData['hold_resoan']):'';
         $posting_date = isset($postData['posting_date'])?$instance->re_db_input($postData['posting_date']):'';
         $units = isset($postData['units'])?$instance->re_db_input($postData['units']):'';
         $shares = isset($postData['shares'])?$instance->re_db_input($postData['shares']):'';
@@ -102,7 +101,10 @@
         $is_trail_trade = isset($postData['is_trail_trade']) ? $instance->re_db_input($postData['is_trail_trade']):0;
         $branch = isset($postData['branch']) ? (int)$instance->re_db_input($postData['branch']):0;
         $company = isset($postData['company']) ? (int)$instance->re_db_input($postData['company']):0;
-
+        // 06/22/22 Reinsert the <br> elements so the reasons will appear correct in the HTML popups
+        $hold_reason = isset($postData['hold_reason'])?$instance->re_db_input($postData['hold_reason']):'';
+        $hold_reason = str_replace("\r\n", "<br>", $hold_reason);
+        
         $return = $instance->insert_update($postData);
 
         if($return===true){
@@ -176,7 +178,7 @@
         $cancel = isset($return['cancel'])?$instance->re_db_output($return['cancel']):'';
         $buy_sell = isset($return['buy_sell'])?$instance->re_db_output($return['buy_sell']):'';
         $hold_commission = (isset($return['hold_commission']) ? $instance->re_db_output($return['hold_commission']) : '2');
-        $hold_resoan = isset($return['hold_resoan'])?$instance->re_db_output($return['hold_resoan']):'';
+        $hold_reason = isset($return['hold_reason'])?$instance->re_db_output($return['hold_reason']):'';
         $posting_date = isset($return['posting_date'])?$instance->re_db_output($return['posting_date']):'';
         $units = isset($return['units'])?$instance->re_db_output($return['units']):'';
         $shares = isset($return['shares'])?$instance->re_db_output($return['shares']):'';
@@ -184,6 +186,12 @@
         $return_overrides = $instance->edit_overrides($id);
         $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'0';
         $company = isset($return['company'])?$instance->re_db_output($return['company']):'0';
+        
+        // Format the Hold Reasons for the <textarea> element - 06/22/22
+        if (!empty($hold_reason)){
+            $hold_reason = str_replace("&lt;br&gt;", "\r\n", trim($hold_reason));
+            $a = 0;
+        }
     }
     else if(isset($_GET['action']) && $_GET['action']=='transaction_delete' && isset($_GET['id']) && $_GET['id']>0)
     {
