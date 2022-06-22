@@ -5,9 +5,9 @@
 
     $instance = new rules();
     $get_rules_action = $instance->select_rules_action();
-    $get_rules = $instance->select_rules();
+    $rulesMasterArray = $instance->select_rules();
     $get_broker = $instance->get_broker_name();
-    $return = $instance->select();
+    $rulesDetailArray = $instance->select(0,0,1);
     if(isset($_POST['rule'])&& $_POST['rule']=='Save'){
         //echo '<pre>';print_r($_POST);exit();
         $in_force = isset($_POST['in_force'])?$instance->re_db_input($_POST['in_force']):0;

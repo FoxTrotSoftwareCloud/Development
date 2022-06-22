@@ -20,21 +20,19 @@ class ofac_fincen extends db{
             {
                 if(strlen($val_name)>2)
                 {
-                    if($i == 1)
-                    {
-                        $con .= " and `at`.`first_name` LIKE '%".$val_name."%' OR `at`.`last_name` LIKE '%".$val_name."%' ";
-                    }
-                    else
-                    {
+                    if($i == 1) {
+                        $con .= " AND `at`.`first_name` LIKE '%".$val_name."%' OR `at`.`last_name` LIKE '%".$val_name."%' ";
+                    } else {
                         $con .= " OR `at`.`first_name` LIKE '%".$val_name."%' OR `at`.`last_name` LIKE '%".$val_name."%' ";
                     }
                     $i++;
                 }
             }
-            $q = "SELECT `at`.*
-    				FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0' ".$con."
-                    ";
+            $q = "SELECT `at`.*"
+    				." FROM `".$this->table."` AS `at`"
+                    ." WHERE `at`.`is_delete`='0'"
+					.$con
+			;
     		$res = $this->re_db_query($q);
             
             if($this->re_db_num_rows($res)>0){

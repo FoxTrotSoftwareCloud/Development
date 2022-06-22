@@ -103,9 +103,20 @@ class transaction extends db{
 				// Only show the "warnings" if there is not show-stopper(errors exist)
 				$this->errors .= $ruleReturn['errors'].(empty($ruleReturn['errors']) ? 'Rule Engine Warning':'');
 				$_SESSION['transaction_rule_engine']['warnings'] = $ruleReturn['warnings'];
+				$_SESSION['transaction_rule_engine']['ruleReturn'] = $ruleReturn;
 				$_SESSION['transaction_rule_engine']['data'] = $data;
 			}
 		}
+		if (!empty($_SESSION['transaction_rule_engine']['ruleReturn']['reassign'])){
+			$broker_name = $_SESSION['transaction_rule_engine']['ruleReturn']['reassign'];
+			$data['broker_name'] = $broker_name;
+		}
+		if (!empty($_SESSION['transaction_rule_engine']['ruleReturn']['holds'])){
+			$hold_resoan .= $_SESSION['transaction_rule_engine']['ruleReturn']['holds'];
+			$data['hold_commission'] = 1;
+			$hold_commission = $data['hold_commission'];
+		}
+
 
 		if($this->errors!=''){
 			$this->errors = (substr($this->errors, -4)=='<br>') ? substr($this->errors, 0, -4) : $this->errors;
