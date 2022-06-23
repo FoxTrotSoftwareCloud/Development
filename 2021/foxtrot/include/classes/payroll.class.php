@@ -73,7 +73,7 @@ class payroll extends db{
                         .",`commission_received`='".$commission_received."'"
                         .",`buy_sell`='".$buy_sell."'"
                         .",`hold_commission`='".$hold."'"
-                        .",`hold_resoan`='".$hold_reason."'"
+                        .",`hold_reason`='".$hold_reason."'"
                         .",`cancel`='".$cancel."'"
                         .",`branch`='".$branch."'"
                         .",`company`=$company"
@@ -137,7 +137,7 @@ class payroll extends db{
                         .",`commission_received`='".$commission_received."'"
                         .",`buy_sell`='".$buy_sell."'"
                         .",`hold_commission`='".$hold."'"
-                        .",`hold_resoan`='".$hold_reason."'"
+                        .",`hold_reason`='".$hold_reason."'"
                         .",`cancel`='".$cancel."'"
                         .",`branch`='".$branch."'"
                         .",`company`=$company"
@@ -231,7 +231,7 @@ class payroll extends db{
                         ." SET `payroll_id`='".$last_inserted_id."',`trade_number`='".$val['id']."',`trade_date`='".$val['trade_date']."' ,`product`='".$val['product']."',`product_category`='".$val['product_cate']."'"
                                 .",`client_account_number`='".$val['client_number']."',`client_name`='".$val['client_name']."',`broker_id`='".$val['broker_name']."',`quantity`='".$val['units']."',`price`='".$val['shares']."'"
                                 .",`investment_amount`='".$val['invest_amount']."',`commission_expired`='',`charge`='".$val['charge_amount']."',`date_received`='".date('Y-m-d',strtotime($val['commission_received_date']))."'"
-                                .",`commission_received`='".$val['commission_received']."',`buy_sell`='".$val['buy_sell']."',`hold`='".$val['hold_commission']."',`hold_reason`='".$val['hold_resoan']."',`is_split`='".$val['split']."'"
+                                .",`commission_received`='".$val['commission_received']."',`buy_sell`='".$val['buy_sell']."',`hold`='".$val['hold_commission']."',`hold_reason`='".$val['hold_reason']."',`is_split`='".$val['split']."'"
                                 .",`cancel`='".$val['cancel']."',`branch`='".$val['branch']."'"
                                 .", `company`=".$this->re_db_input($val['company'])
                                 .$this->insert_common_sql()
@@ -269,7 +269,7 @@ class payroll extends db{
                         .",`commission_received`='".$val['commission_received']."'"
                         .",`buy_sell`='".$val['buy_sell']."'"
                         .",`hold`='".$val['hold_commission']."'"
-                        .",`hold_reason`='".$val['hold_resoan']."'"
+                        .",`hold_reason`='".$val['hold_reason']."'"
                         .",`is_split`='".$val['split']."'"
                         .",`cancel`='".$val['cancel']."'"
                         .",`branch`='".$val['branch']."'"
@@ -843,6 +843,8 @@ class payroll extends db{
         $net_production = isset($data['net_production'])?$this->re_db_input($data['net_production']):'';
         $adjustments = isset($data['adjustments'])?$this->re_db_input($data['adjustments']):'';
         $net_earnings = isset($data['net_earnings'])?$this->re_db_input($data['net_earnings']):'';
+        $taxable_adjustments= isset($data['taxable_adjustments'])?$this->re_db_output($data['taxable_adjustments']):''; 
+        $non_taxable_adjustments= isset($data['non_taxable_adjustments'])?$this->re_db_output($data['non_taxable_adjustments']):'';
         // 11/20/21 Update the fields that correspond to the "new" fields for the Payroll Calculation
         $commission_received = $gross_production;
         $commission_paid = $net_production;
@@ -859,6 +861,8 @@ class payroll extends db{
                         `adjustments`='".$adjustments."',
                         `net_earnings`='".$net_earnings."',
                         `commission_received`='".$commission_received."',
+                        `taxable_adjustments`='".$taxable_adjustments."',
+                        `non-taxable_adjustments`='".$non_taxable_adjustments."',   
                         `commission_paid`='".$commission_paid."'
                         ".$this->insert_common_sql();
 			$res = $this->re_db_query($q);
@@ -884,6 +888,8 @@ class payroll extends db{
                         `adjustments`='".$adjustments."',
                         `net_earnings`='".$net_earnings."',
                         `commission_received`='".$commission_received."',
+                        `taxable_adjustments`='".$taxable_adjustments."',
+                        `non-taxable_adjustments`='".$non_taxable_adjustments."', 
                         `commission_paid`='".$commission_paid."'
                         ".$this->update_common_sql()." 
                     WHERE `id`='".$id."'";

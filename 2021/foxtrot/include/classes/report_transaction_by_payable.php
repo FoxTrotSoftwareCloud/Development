@@ -138,7 +138,7 @@ $total_charges = 0;
                            <td style="font-size:8px;font-weight:normal;text-align:left;">'.$trans_data["client_last_name"].', '.$trans_data["client_name"].'</td>
                            <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data["invest_amount"]).'</td>
                            <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data["commission_received"]).'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data["hold_resoan"].'<br>'.$commission_received_date.'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trans_data["hold_reason"].'<br>'.$commission_received_date.'</td>
                          
                         </tr>';
             }

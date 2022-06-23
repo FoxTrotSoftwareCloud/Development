@@ -9,19 +9,16 @@
         public function insert_update($data){
 			//echo '<pre>';print_r($data);exit;
 
-			$qq="UPDATE ".$this->table." SET `is_delete`='1'";
-			$this->re_db_query($qq);
-
 			foreach($data['data'] as $key=>$val){
 				$in_force= isset($val['in_force'])?$this->re_db_input($val['in_force']):'0';
 				$rule= isset($val['rule'])?$this->re_db_input($val['rule']):'';
 				$action= isset($val['action'])?$this->re_db_input($val['action']):'0';
 				$parameter_1= isset($val['parameter_1'])?$this->re_db_input($val['parameter_1']):'';
-				$parameter1= isset($val['parameter1'])?$this->re_db_input($val['parameter1']):0;
+				$parameter1= isset($val['parameter1'])?(int)$this->re_db_input($val['parameter1']):0;
 				$parameter_2= isset($val['parameter_2'])?$this->re_db_input($val['parameter_2']):'';
-				$parameter2= isset($val['parameter2'])?$this->re_db_input($val['parameter2']):0;
+				$parameter2= isset($val['parameter2'])?(int)$this->re_db_input($val['parameter2']):0;
 
-				if($parameter1=='0'&& $action=='5'){
+				if($action=='5' AND (($rule!='3' AND $parameter1==0) OR ($rule=='3' AND $parameter2==0))){
 					$this->errors = 'Please select broker1.';
 				}
 				/*else if($parameter2=='0'&& $action=='5'){
@@ -45,6 +42,11 @@
 					`parameter2`='".$parameter2."'".$this->insert_common_sql();
 
 					$res = $this->re_db_query($q);
+					
+					if ($res){
+						$qq="UPDATE ".$this->table." SET `is_delete`=1 WHERE `id`=".$val['detail_id'];
+						$this->re_db_query($qq);
+					}
 				}
 			}
 
@@ -94,9 +96,13 @@
 		}
         public function get_broker_name(){
 			$return = array();
-			$q = "SELECT `at`.id,`at`.first_name,`at`.last_name
-					FROM `".BROKER_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' ";
+
+			$q = "SELECT `at`.id,UPPER(`at`.`first_name`) AS `first_name`,UPPER(`at`.`last_name`) AS `last_name`"
+					." FROM `".BROKER_MASTER."` AS `at`"
+					." WHERE `at`.`is_delete`='0' "
+					." ORDER BY `last_name`, `first_name`, `at`.`id`"
+			;
+			
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			while($row = $this->re_db_fetch_array($res)){
@@ -105,16 +111,19 @@
             }
 			return $return;
 		}
-        public function select($ruleId=0, $masterAction=0){
+		// 06/21/22 OrderBy added for Rule Engine table
+        public function select($ruleId=0, $masterAction=0, $orderBy=0){
 			$return = array();
 			$con = '';
 			$ruleId = (int)$this->re_db_input($ruleId);
-			if ($ruleId){
-				$con = " AND `at`.`rule`=$ruleId";
-			}
+			$orderBy = (int)$this->re_db_input($orderBy);
+			$conOrder = "`at`.`id` ASC";
+			
+			if ($ruleId){ $con = " AND `at`.`rule`=$ruleId"; }
+			if ($orderBy){ $conOrder = "`at`.`rule`"; }
 
 			if ($masterAction){
-				$q = "SELECT `at`.`rule` AS `master_id`, `b`.`rule` AS `rule_description`"
+				$q = "SELECT `at`.`rule` AS `master_id`, `b`.`rule` AS `rule_description`, `b`.`warning` AS `rule_warning`"
 				    		.",`at`.`action` AS `action_id`,`c`.`action` AS `action_description`"
 							.",`at`.`parameter_1`,`at`.`parameter1`,`at`.`parameter_2`,`at`.`parameter2`"
 							.",`at`.id AS `details_id`, `at`.`in_force`"
@@ -130,7 +139,7 @@
 						." FROM `".$this->table."` AS `at`"
 						." WHERE `at`.`is_delete`='0'"
 							.$con
-						." ORDER BY `at`.`id` ASC"
+						." ORDER BY ".$conOrder
 				;
 			}
 
@@ -644,7 +653,7 @@
 				$checkResult = $this->check_broker_license($brokerId, 0, $clientId, $productCategory, $tradeDate, 1);
 				//
 				if (!$checkResult['result']){
-					$ruleDetail[0]['rule_description'] = "Broker Licensed Appropriately: ".strtoupper($checkResult['product_category'])." / ".strtoupper($checkResult['state_name']);
+					$ruleDetail[0]['rule_warning'] = "Broker NOT Licensed Appropriately: ".strtoupper($checkResult['product_category'])." / ".strtoupper($checkResult['state_name']);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -657,7 +666,7 @@
 				$checkResult = ((round($commissionReceived*100 / $investAmount,2)) < $max);
 				//
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] .= " > ".$ruleDetail[0]['parameter_1']."%";
+					$ruleDetail[0]['rule_warning'] .= " > ".$ruleDetail[0]['parameter_1']."%";
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -669,7 +678,7 @@
 				$checkResult = $this->check_client_documentation($clientId);
 				//
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] = 'Client Documentation - Invalid NAF Date';
+					$ruleDetail[0]['rule_warning'] = 'Invalid Client Documentation - NAF Date';
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -694,7 +703,7 @@
     			$checkResult = $this->check_client_objective($clientId, $productId, $res2);
 				//
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
+					$ruleDetail[0]['rule_warning'] .= ' - '.$res2;
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -707,7 +716,7 @@
     			$checkResult = $this->check_broker_sponsor($brokerId, 0, $productId, $res2);
 				//
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] .= ' - '.strtoupper($res2);
+					$ruleDetail[0]['rule_warning'] .= ' - '.strtoupper($res2);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -720,7 +729,7 @@
     			$checkResult = $this->check_client_age($clientId, $res2);
 				//
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] .= ' - '.$res2.' yrs old';
+					$ruleDetail[0]['rule_warning'] .= ' - '.$res2.' yrs old';
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -747,7 +756,7 @@
 				//
 				if (!$checkResult){
 					$instance_payroll = new payroll();
-					$ruleDetail[0]['rule_description'] .= ' - '.$instance_payroll->payroll_accounting_format($investAmount,2).'->'.$instance_payroll->payroll_accounting_format($res2, 2);
+					$ruleDetail[0]['rule_warning'] .= ' - '.$instance_payroll->payroll_accounting_format($investAmount,2).'->'.$instance_payroll->payroll_accounting_format($res2, 2);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -783,7 +792,7 @@
     			$checkResult = $this->check_client_suitability($clientId, $productId, "income", $res2);
 				//
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
+					$ruleDetail[0]['rule_warning'] .= ' - '.$res2;
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -796,7 +805,7 @@
     			$checkResult = $this->check_client_suitability($clientId, $productId, "net_worth", $res2);
 				//
 				if (!$checkResult){
-					$ruleDetail[0]['rule_description'] .= ' - '.$res2;
+					$ruleDetail[0]['rule_warning'] .= ' - '.$res2;
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -812,7 +821,7 @@
 					$res = $instance_broker->get_broker_name($brokerId,1);
 					$res2 = $instance_broker->get_broker_name($res2,1);
 
-					$ruleDetail[0]['rule_description'] .= ": ".$res." -> ".$res2;
+					$ruleDetail[0]['rule_warning'] .= ": ".$res." -> ".$res2;
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -826,7 +835,7 @@
 				// Flag any trade that should have a Broker Hold, but the trade isn't on hold
 				if (!$checkResult){
 					$res2 = $instance_broker->get_broker_name($brokerId,1);
-					$ruleDetail[0]['rule_description'] .= " - $res2";
+					$ruleDetail[0]['rule_warning'] .= " - $res2";
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -837,7 +846,7 @@
 		 * Function to store Rule info for the Manual Entry Check->rule_engine_manual_check() - 06/09/22
 		 **/
 		private function ruleStoreToArray($ruleDetail, &$returnArray=0, &$exceptionCount=['exceptions'=>0, 'warnings'=>0, 'holds'=>0, 'reassign'=>0, 'errors'=>0]){
-			$return = 0;
+			$return = $reassignBroker = 0;
 			$exceptionCount['exceptions']++;
 			$returnArray['exceptions'][$ruleDetail['master_id']] = ['action_id'=>$ruleDetail['action_id']];
 
@@ -845,27 +854,28 @@
 				case 3:
 					// Hold
 					$exceptionCount['holds']++;
-					$returnArray['holds'] .= (empty($returnArray['holds']?"":", ")).$ruleDetail['rule_description'];
+					$returnArray['holds'] .= "RH-".$exceptionCount['holds'].". ".$ruleDetail['rule_warning']."<br>";
 					$return++;
 					break;
 				case 5:
 					// Reassign to another Broker/Client
-					if (!empty($ruleDetail['parameter1']) AND (int)$ruleDetail[0]['parameter1']){
+					$reassignBroker = ($ruleDetail['master_id']=='3' ? 'parameter2' : 'parameter1');
+					if (!empty($ruleDetail[$reassignBroker]) AND (int)$ruleDetail[$reassignBroker]){
 						$exceptionCount['reassign']++;
-						$returnArray['reassign'] = (int)$ruleDetail['parameter1'];
+						$returnArray['reassign'] = (int)$ruleDetail[$reassignBroker];
 					}
 					$return++;
 					break;
 				case 6:
 					// Do not allow
 					$exceptionCount['errors']++;
-					$returnArray['errors'] .= $ruleDetail['rule_description']."<br>";
+					$returnArray['errors'] .= "RS-".$exceptionCount['errors'].". ".$ruleDetail['rule_warning']."<br>";
 					$return++;
 					break;
 				default:
 					// Exception/Warning
 					$exceptionCount['warnings']++;
-					$returnArray['warnings'] .= $exceptionCount['warnings'].". ".$ruleDetail['rule_description']."<br>";
+					$returnArray['warnings'] .= "RW-".$exceptionCount['warnings'].". ".$ruleDetail['rule_warning']."<br>";
 					$return++;
 			}
 

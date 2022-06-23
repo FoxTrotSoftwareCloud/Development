@@ -896,7 +896,10 @@ function autocomplete(inp, arr) {
                  <div class="col-md-6" id="div_hold_reason" style="<?php if(isset($hold_commission) && $hold_commission==1){ echo'display:true'; }else{ echo'display:none'; }?>">
                     <div class="form-group">
                         <label>Hold Reason </label><br />
-                        <input type="text"  class="form-control" value="<?php if(isset($hold_resoan)) {echo $hold_resoan;}?>" name="hold_resoan" id="hold_resoan"  />
+                        <!-- <input type="text"  class="form-control" value="<?php //if(isset($hold_reason)) {echo $hold_reason;}?>" name="hold_reason" id="hold_reason"  /> -->
+                        <textarea type="text"  class="form-control" name="hold_reason" id="hold_reason" rows="5" wrap="off"  />
+                            <?php if(isset($hold_reason)) {echo $hold_reason;}?>
+                        </textarea>
                     </div>
                 </div>
             </div>
@@ -1347,11 +1350,16 @@ $(document).ready(function() {
         todayHighlight: true
     });
 
+    // 06/22/22 Hold Reason textarea adding left spaces. Don't know why 
+    if ($("#hold_reason").length != 0){
+        var reasonText = $("#hold_reason").html().trim();
+        $("#hold_reason").html(reasonText);
+    }
 })
 
 function hide_hold_reason()
 {
-    $("#hold_resoan").val("");
+    // $("#hold_reason").val("");
     $("#div_hold_reason").css('display','none');
 }
 
@@ -1760,14 +1768,14 @@ function get_broker_hold_commission(broker_id){
                 {
                     $("#hold_commission_1").prop("checked", true );
                     $("#div_hold_reason").css('display','block');
-                    $("#hold_resoan").val( "HOLD COMMISSION BY BROKER");
+                    $("#hold_reason").val( "HOLD COMMISSION BY BROKER");
                 }
                 else
                 {
                     $("#hold_commission_1").prop( "checked", false );
                     $("#hold_commission_2").prop( "checked", true );
                     $("#div_hold_reason").css('display','none');
-                    $("#hold_resoan").val("");
+                    $("#hold_reason").val("");
                 }
 
                 if (jsonResponse.branch > 0){
@@ -1782,7 +1790,7 @@ function get_broker_hold_commission(broker_id){
                 $("#hold_commission_1").prop( "checked", false );
                 $("#hold_commission_2").prop( "checked", true );
                 $("#div_hold_reason").css('display','none');
-                $("#hold_resoan").val("");
+                $("#hold_reason").val("");
             }
         }
     };

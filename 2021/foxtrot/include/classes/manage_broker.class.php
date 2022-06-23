@@ -2327,11 +2327,11 @@
             }
 			return $return;
 		}
-    public function get_broker_name($id=0, $nameOnly=0){
+    public function get_broker_name($id=0, $nameOnly=0, $sortOrder=0){
 			$return = array();
       $id = (int)$this->re_db_input($id);
       $con = '';
-
+      
       if ($nameOnly){
         $q = "SELECT `at`.`first_name`, `at`.`last_name`"
               ." FROM `".BROKER_MASTER."` AS `at`"

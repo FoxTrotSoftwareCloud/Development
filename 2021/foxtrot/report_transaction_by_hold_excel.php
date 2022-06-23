@@ -121,7 +121,7 @@
                     if($val['commission_received_date'] != '0000-00-00'){ $commission_received_date = date('m/d/Y',strtotime($val['commission_received_date'])); }
                       $first_c= $val['id']. ' - '. $trade_date;
                       $client_name = $val["client_name"];
-                      $last_c = $trans_data["hold_resoan"].chr(10) . chr(13).$commission_received_date;
+                      $last_c = $trans_data["hold_reason"].chr(10) . chr(13).$commission_received_date;
                         
                         $sheet_data[0]['A'.$i] = array($first_c,array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('A'.$i,'B'.$i)));
                         $sheet_data[0]['C'.$i] = array($instance->re_db_output($val['product_name']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
