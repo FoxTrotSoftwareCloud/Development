@@ -843,6 +843,8 @@ class payroll extends db{
         $net_production = isset($data['net_production'])?$this->re_db_input($data['net_production']):'';
         $adjustments = isset($data['adjustments'])?$this->re_db_input($data['adjustments']):'';
         $net_earnings = isset($data['net_earnings'])?$this->re_db_input($data['net_earnings']):'';
+        $taxable_adjustments= isset($data['taxable_adjustments'])?$this->re_db_output($data['taxable_adjustments']):''; 
+        $non_taxable_adjustments= isset($data['non_taxable_adjustments'])?$this->re_db_output($data['non_taxable_adjustments']):'';
         // 11/20/21 Update the fields that correspond to the "new" fields for the Payroll Calculation
         $commission_received = $gross_production;
         $commission_paid = $net_production;
@@ -859,6 +861,8 @@ class payroll extends db{
                         `adjustments`='".$adjustments."',
                         `net_earnings`='".$net_earnings."',
                         `commission_received`='".$commission_received."',
+                        `taxable_adjustments`='".$taxable_adjustments."',
+                        `non-taxable_adjustments`='".$non_taxable_adjustments."',   
                         `commission_paid`='".$commission_paid."'
                         ".$this->insert_common_sql();
 			$res = $this->re_db_query($q);
@@ -884,6 +888,8 @@ class payroll extends db{
                         `adjustments`='".$adjustments."',
                         `net_earnings`='".$net_earnings."',
                         `commission_received`='".$commission_received."',
+                        `taxable_adjustments`='".$taxable_adjustments."',
+                        `non-taxable_adjustments`='".$non_taxable_adjustments."', 
                         `commission_paid`='".$commission_paid."'
                         ".$this->update_common_sql()." 
                     WHERE `id`='".$id."'";
