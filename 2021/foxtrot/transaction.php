@@ -106,7 +106,7 @@
         $hold_reason = str_replace("\r\n", "<br>", $hold_reason);
         
         $return = $instance->insert_update($postData);
-
+        
         if($return===true){
            /* if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
             {
@@ -133,7 +133,7 @@
           /*  }*/
         }
         else{
-            $error = !isset($_SESSION['warning'])?$return:'';
+            $error = (!isset($_SESSION['warning']) ? $return : '');
         }
 
     }

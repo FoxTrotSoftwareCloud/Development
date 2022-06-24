@@ -117,6 +117,17 @@ class transaction extends db{
 			$hold_commission = $data['hold_commission'];
 		}
 
+		
+        // TEST DELETE ME - 06/23/22
+        $test101 = "INSERT INTO `loren_test`"
+                    ." SET "
+                        ."`entry` = NOW()"
+                        .",`program` = 'transaction.class.php'"
+                        .",`message` = ".("'"."Line 122: \$this->errors: ".($this->errors).", client_name = $client_name"."'")
+        ;
+        $test102 = $this->re_db_query($test101); 
+                    
+
 
 		if($this->errors!=''){
 			$this->errors = (substr($this->errors, -4)=='<br>') ? substr($this->errors, 0, -4) : $this->errors;

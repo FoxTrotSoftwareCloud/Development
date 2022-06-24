@@ -1283,7 +1283,7 @@ $(document).ready(function() {
         get_product(<?php echo $product_cate; ?>,'<?php echo $product; ?>');
     <?php } ?>
 
-    <?php if($client_name>0){ ?>
+    <?php if(!empty($client_name) AND $client_name!='0'){ ?>
         $('#client_name').val(<?php echo $client_name; ?>).trigger("chosen:updated").trigger("change");
         get_client_account_no('<?php echo $client_name; ?>','<?php echo $client_number; ?>', 1);
     <?php } ?>
@@ -1350,7 +1350,7 @@ $(document).ready(function() {
         todayHighlight: true
     });
 
-    // 06/22/22 Hold Reason textarea adding left spaces. Don't know why 
+    // 06/22/22 Hold Reason text area adding left spaces. Don't know why 
     if ($("#hold_reason").length != 0){
         var reasonText = $("#hold_reason").html().trim();
         $("#hold_reason").html(reasonText);
