@@ -2428,6 +2428,9 @@ class payroll extends db{
     
     function payroll_accounting_format($number=null, $precision=0){
         $return = "";
+        if (!is_null($number) AND gettype($number)=='string'){
+            $number = (float)$this->re_db_input($number);
+        }
         
         if (!is_null($number)){
             $return = "$".number_format($number, $precision);

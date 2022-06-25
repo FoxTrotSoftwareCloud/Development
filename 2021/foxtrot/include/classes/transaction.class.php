@@ -22,11 +22,11 @@ class transaction extends db{
 		/*$client_id_from_ac_no=$this->select_client_id($client_number);
 		if($client_id_from_ac_no=='' || $client_id_from_ac_no=='0')
 		{
-					if($client_number != '' && $client_name!='0' && $client_name!='')
-					{
-						$q = "INSERT INTO `".CLIENT_ACCOUNT."` SET `client_id`='".$client_name."',`account_no`='".$client_number."'".$this->insert_common_sql();
-						$res = $this->re_db_query($q);
-					}
+			if($client_number != '' && $client_name!='0' && $client_name!='')
+			{
+				$q = "INSERT INTO `".CLIENT_ACCOUNT."` SET `client_id`='".$client_name."',`account_no`='".$client_number."'".$this->insert_common_sql();
+				$res = $this->re_db_query($q);
+			}
 		}*/
 
 		$ch_date =isset($data['ch_date']) && $data['ch_date']!=''?$this->re_db_input(date('Y-m-d',strtotime($data['ch_date']))):'0000-00-00';
@@ -68,7 +68,8 @@ class transaction extends db{
 
 		//-- Validate the entries
 		$this->errors = '';
-		if($client_name=='0'){
+
+		if(empty($client_name) OR $client_name=='0'){
 			$this->errors .= "Please select client name.<br>";
 		} else if($broker_name=='0'){
 			$this->errors .= "Please select broker name.<br>";
@@ -116,7 +117,6 @@ class transaction extends db{
 			$data['hold_commission'] = 1;
 			$hold_commission = $data['hold_commission'];
 		}
-
 
 		if($this->errors!=''){
 			$this->errors = (substr($this->errors, -4)=='<br>') ? substr($this->errors, 0, -4) : $this->errors;

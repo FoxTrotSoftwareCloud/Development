@@ -756,7 +756,7 @@
 				//
 				if (!$checkResult){
 					$instance_payroll = new payroll();
-					$ruleDetail[0]['rule_warning'] .= ' - '.$instance_payroll->payroll_accounting_format($investAmount,2).'->'.$instance_payroll->payroll_accounting_format($res2, 2);
+					$ruleDetail[0]['rule_warning'] .= ' - '.$instance_payroll->payroll_accounting_format($investAmount,2).'->'.$instance_payroll->payroll_accounting_format((float)$res2, 2);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
