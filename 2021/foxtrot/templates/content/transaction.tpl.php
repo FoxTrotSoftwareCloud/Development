@@ -1283,7 +1283,7 @@ $(document).ready(function() {
         get_product(<?php echo $product_cate; ?>,'<?php echo $product; ?>');
     <?php } ?>
 
-    <?php if(!empty($client_name) AND $client_name!='0'){ ?>
+    <?php if(!empty($client_name) AND ((int)$client_name > 0)){ ?>
         $('#client_name').val(<?php echo $client_name; ?>).trigger("chosen:updated").trigger("change");
         get_client_account_no('<?php echo $client_name; ?>','<?php echo $client_number; ?>', 1);
     <?php } ?>
@@ -1625,7 +1625,6 @@ function get_client_id(client_number){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200 && this.responseText!='0'  && this.responseText!='' )
         {
-
             $('#client_name').val(this.responseText).trigger("chosen:updated");
             //   alert($('#client_name').val());
         }
@@ -2187,7 +2186,7 @@ function resolve_rule_engine_submit() {
         data: $("#resolve_rule_engine_form").serialize(), // serializes the form's elements.
         success: function(data){
             if(data=='1'){
-                window.location.href = "transaction.php?action=view"
+                window.location.href = "transaction.php?action=add"
             } else{
                 $('#msg_exception').html('<div class="alert alert-danger">'+(data="" ? "Bad POST. Try again" : data)+'</div>');
             }
