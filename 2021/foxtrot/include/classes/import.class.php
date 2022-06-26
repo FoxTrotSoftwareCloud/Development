@@ -3657,7 +3657,7 @@
                 $state_name = '';
             }
 
-            if (in_array($product_category, ['ria'])) {
+            if (in_array($product_category, ['ria', 'program manager'])) {
                 $licenceTable = 'BROKER_LICENCES_RIA';
             } else if (preg_match('(life|insurance|annuities|annuity)', $product_category)) {
                 $licenceTable = 'BROKER_LICENCES_INSURANCE';

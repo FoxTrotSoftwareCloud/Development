@@ -115,8 +115,7 @@
                 exit;
             }
             else{*/
-                if($_POST['transaction']=='Save & Copy')
-                {
+                if(isset($postData['transaction']) AND $postData['transaction']=='Save & Copy') {
                     $is_pending_order=1;
                     $trade_number='';
                     $commission_received='';
@@ -124,9 +123,9 @@
                     $invest_amount ='';
                     $shares=0;
                     $charge_amount ='';
-                }
-                else
-                {
+                    // header("location:".CURRENT_PAGE."?action=add");
+                    // exit;
+                } else {
                     header("location:".CURRENT_PAGE."?action=view");
                     exit;
                 }

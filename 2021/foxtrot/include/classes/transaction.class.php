@@ -296,8 +296,9 @@ class transaction extends db{
 			return $return;
 		}
         public function delete($id){
-			$id = trim($this->re_db_input($id));
-			if($id>0 && ($status==0 || $status==1) ){
+			$id = (int)$this->re_db_input($id);
+			
+			if($id > 0){
 				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){
@@ -1609,7 +1610,7 @@ class transaction extends db{
             }
 			return $return;
 		}
-		function select_monthly_broker_production_report($company='',$earning_by=[]) {
+		function select_monthly_broker_production_report($company='',$earning_by=[],$limit=0) {
 
 		        // 11/1/21 li - phase out field "rep_name", and rename "rep_number" to "broker_id" to normalize database
 		    	$return = array();
@@ -1631,7 +1632,8 @@ class transaction extends db{
 		        	if($earning_type == 2) $where.=" and tm.trade_date between '".date('Y-m-d',strtotime($start_date))."' and '".date('Y-m-d',strtotime($end_date))."' ";
 		        }
 
-
+				$limit_query = '';
+		        if(!empty($limit)) $limit_query = 'LIMIT '.$limit;
 
 		        $q = "SELECT
 		        	SUM(tm.invest_amount) as total_investment,
@@ -1667,36 +1669,25 @@ class transaction extends db{
 		        }
 		    return $return;
 		}
-		function select_monthly_branch_office_report($company=0,$branch=0,$end_date = '',$start_date= '' ) {
-
-		        // 11/1/21 li - phase out field "rep_name", and rename "rep_number" to "broker_id" to normalize database
+		function select_monthly_branch_office_report($company=0, $branch=0, $end_date='', $start_date='', $limit=0) {
+		        $company = (int)$this->re_db_input($company);
+		        $branch = (int)$this->re_db_input($branch);
+		        $limit = (int)$this->re_db_input($limit);
+				// 11/1/21 li - phase out field "rep_name", and rename "rep_number" to "broker_id" to normalize database
 		    	$return = array();
-
-
-
-		        $where = '';
+				$where = '';
 		        $order_by = 'order by  bm.last_name desc';
-		        if($company > 0) {
-		        	$where.= ' AND tm.company='.$company;
-		        }
-		        if($branch > 0) {
-		        	$where.= ' AND tm.branch='.$branch;
-		        }
+		        $limit_query = '';
 
-		        if(!empty($end_date)) {
-		        	$where.= ' AND tm.trade_date <="'.date('Y-m-d',strtotime($end_date)).'"  ';
-		        }
-
-		        if(!empty($start_date)) {
-		        	$where.= ' AND tm.trade_date >="'.date('Y-m-d',strtotime($start_date)).'"  ';
-		        }
+				if($company > 0) { $where.= ' AND tm.company='.$company; }
+		        if($branch > 0) { $where.= ' AND tm.branch='.$branch; }
+		        if(!empty($end_date)) { $where.= ' AND tm.trade_date <="'.date('Y-m-d',strtotime($end_date)).'"  '; }
+		        if(!empty($start_date)) { $where.= ' AND tm.trade_date >="'.date('Y-m-d',strtotime($start_date)).'"  '; }
+				if($limit > 0) { $limit_query = 'LIMIT '.$limit; }
 		        /*if(!empty($earning_by)&&is_array($earning_by)) {
-
 		        	list('earning_by'=>$earning_type,'beginning_date'=>$start_date,'ending_date'=>$end_date) = $earning_by;
 		        	if($earning_type == 2) $where.=" and tm.trade_date between '".date('Y-m-d',strtotime($start_date))."' and '".date('Y-m-d',strtotime($end_date))."' ";
 		        }*/
-
-
 
 		        $q = "SELECT
 		        	SUM(tm.invest_amount) as total_investment,

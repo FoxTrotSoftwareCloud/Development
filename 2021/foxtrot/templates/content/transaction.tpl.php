@@ -405,8 +405,8 @@ function autocomplete(inp, arr) {
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Account No <span class="text-red">* </span> </label>
-                         <select class="form-control" data-required="true" name="client_number" id="client_number">
+                        <label>Account No</label>
+                         <select class="form-control" data-required="false" name="client_number" id="client_number">
                                  <option value=""> Please Select  </option>
                                  <option value="-1"> Add New </option>
                                  <?php foreach($get_accounts_no as $no): ?>
@@ -1946,13 +1946,14 @@ var waitingDialog = waitingDialog || (function ($) {
                 else{
                        client_name.next("div").find("a.chosen-single").removeClass("error");
                 }
-                if($.trim(client_number.val()) == ''){
-                     isErrorFound=true;
-                     client_number.addClass("error");
-                }
-                else{
-                       client_number.removeClass("error");
-                }
+                // 06/25/22 Client Account Number not required
+                // if($.trim(client_number.val()) == ''){
+                //      isErrorFound=true;
+                //      client_number.addClass("error");
+                // }
+                // else{
+                //        client_number.removeClass("error");
+                // }
                 if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
                      isErrorFound=true;
                      broker_name.next("div").find("a.chosen-single").addClass("error");
@@ -2177,9 +2178,13 @@ function resolve_rule_engine(msg='')
 
 function resolve_rule_engine_submit() {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
-
-     // the script where you handle the form input.
+    
+    // 06/25/22 Change action to "add" to see if the Add\Edit screens comes up if the next screen is up
     var url = "transaction.php?action=rule_engine_proceed";
+    // var url = "transaction.php?action=add";
+    // 06/25/22 Change the hidden value to be passed to POST
+    $("#resolve_rule_engine_proceed").val("1");
+    
     $.ajax({
         type: "POST",
         url: url,
