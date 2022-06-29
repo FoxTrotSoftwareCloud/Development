@@ -2180,10 +2180,8 @@ function resolve_rule_engine_submit() {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
     
     // 06/25/22 Change action to "add" to see if the Add\Edit screens comes up if the next screen is up
-    var url = "transaction.php?action=rule_engine_proceed";
-    // var url = "transaction.php?action=add";
-    // 06/25/22 Change the hidden value to be passed to POST
-    $("#resolve_rule_engine_proceed").val("1");
+    // var url = "transaction.php?action=rule_engine_proceed";
+    var url = "transaction.php?action=add";
     
     $.ajax({
         type: "POST",

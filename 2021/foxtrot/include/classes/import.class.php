@@ -3636,10 +3636,6 @@
 		}
 
         /** Check the state licensing for the specified Broker and Product Category 12/17/21
-         * @param int $pBroker_id
-         * @param int $pClient_state
-         * @param mixed $pProduct_category_id
-         * @param string $pTerm_date
          * @return bool TRUE - good licensing, FALSE - broker licence not found or not active
          */
         function checkStateLicence($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date='',$pDetail=0){
@@ -3684,8 +3680,9 @@
             ;
             $res = $this->re_db_query($q);
 
-            if ($this->re_db_num_rows($res))
-                $return = $this->re_db_fetch_array($res);
+            if ($this->re_db_num_rows($res)) { 
+                $return = $this->re_db_fetch_array($res); 
+            }
             $return['result'] = ($return['active_check'] AND $trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR $this->isEmptyDate($return['terminated'])));
 
             if ($pDetail){

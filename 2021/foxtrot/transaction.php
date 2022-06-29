@@ -37,16 +37,19 @@
     $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
     // Rule engine array should only exist AFTER submit - 06/11/22
     if ($action == "add"){
-        unset($_SESSION['transaction_rule_engine']);
+        if (isset($_POST['resolve_rule_engine_action']) && in_array($_POST['resolve_rule_engine_action'], ['1','2'])){
+            // Adding a transaction after the Rule Engine came up
+        } else {
+            unset($_SESSION['transaction_rule_engine']);
+        }
     }
 
     //-- Add Transaction
     if(
-        (isset($_POST['transaction']) && $_POST['transaction']=='Save')
-        || ((isset($_POST['transaction']) && $_POST['transaction']=='Save & Copy'))
-        || ($action=="rule_engine_proceed" && isset($_POST['resolve_rule_engine_action']) && in_array($_POST['resolve_rule_engine_action'], ["1","2"]))
+        (isset($_POST['transaction']) && in_array($_POST['transaction'],['Save','Save & Copy']))
+        || (in_array($action,['rule_engine_proceed','add']) && isset($_POST['resolve_rule_engine_action']) && in_array($_POST['resolve_rule_engine_action'], ['1','2']))
     ){
-        if ($action=="rule_engine_proceed" AND isset($_SESSION['transaction_rule_engine']['data'])){
+        if (in_array($action,['rule_engine_proceed','add']) AND isset($_SESSION['transaction_rule_engine']['data'])){
             $postData = $_SESSION['transaction_rule_engine']['data'];
             $postData['resolve_rule_engine_proceed'] = $_POST['resolve_rule_engine_action'];
             // user opted to "Hold Commissions"
@@ -108,6 +111,8 @@
         $return = $instance->insert_update($postData);
         
         if($return===true){
+            unset($_SESSION['transaction_rule_engine']);
+            
            /* if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
             {
                 header("location:".SITE_URL."batches.php?action=edit_batches&id=".$_SESSION['batch_id']);
