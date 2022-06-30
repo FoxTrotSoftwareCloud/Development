@@ -32,7 +32,7 @@
     $split_broker = array();
     $split_rate = array();
     $return_splits = array();
-    $shares = $units = $branch = $company = 0;
+    $shares = $units = $branch = $company = $isCopyAndSave = 0;
     $branch = isset($_POST['branch']) ? (int)$instance->re_db_input($_POST['branch']):0;
     $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
     // Rule engine array should only exist AFTER submit - 06/11/22
@@ -111,17 +111,20 @@
         $return = $instance->insert_update($postData);
         
         if($return===true){
+            $isCopyAndSave = 1;
             unset($_SESSION['transaction_rule_engine']);
             
-           /* if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
+            /* if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
             {
                 header("location:".SITE_URL."batches.php?action=edit_batches&id=".$_SESSION['batch_id']);
                 unset($_SESSION['batch_id']);
                 exit;
             }
             else{*/
+                
                 if(isset($postData['transaction']) AND $postData['transaction']=='Save & Copy') {
-                    $is_pending_order=1;
+                    unset($postData);
+                    $isCopyAndSave = 2;
                     $trade_number='';
                     $commission_received='';
                     $units=0;
@@ -135,6 +138,7 @@
                     exit;
                 }
           /*  }*/
+          
         }
         else{
             $error = (!isset($_SESSION['warning']) ? $return : '');

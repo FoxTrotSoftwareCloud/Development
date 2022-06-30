@@ -1120,11 +1120,11 @@ function autocomplete(inp, arr) {
                         </div>
                         <div class="col-md-6">
                             <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_hold_commission" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="1" checked/>
-                                <label for="resolve_rule_engine" style="display:inline-block">Hold Commission</label><br />
+                                <label for="resolve_rule_engine_hold_commission" style="display:inline-block">Hold Commission</label><br />
                             <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_ignore" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="2"/>
-                                <label id="lbl_resolve_rule_engine_ignore" for="resolve_rule_engine" style="display:inline-block">Ignore Exception(s) / Enter Trade</label><br />
+                                <label id="lbl_resolve_rule_engine_ignore" for="resolve_rule_engine_ignore" style="display:inline-block">Ignore Exception(s) / Enter Trade</label><br />
                             <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_cancel" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="3"/>
-                                <label id="lbl_resolve_rule_engine_cancel" for="resolve_rule_engine" style="display:inline-block"> Cancel & Delete Trade</label><br />
+                                <label id="lbl_resolve_rule_engine_cancel" for="resolve_rule_engine_cancel" style="display:inline-block"> Cancel & Delete Trade</label><br />
                         </div>
                     </div>
                     <div class="row">
@@ -1355,10 +1355,13 @@ $(document).ready(function() {
         var reasonText = $("#hold_reason").html().trim();
         $("#hold_reason").html(reasonText);
     }
+    
+    console.log("Resolve_Rule_Engine_Modal.display = " + $("#resolve_rule_engine_modal").attr("style"));
 })
 
 function hide_hold_reason()
 {
+    // 06/29/22 Don't delete the Hold Reason may by needed for Compliance reports
     // $("#hold_reason").val("");
     $("#div_hold_reason").css('display','none');
 }
@@ -2198,11 +2201,18 @@ function resolve_rule_engine_submit() {
             $('#msg_exception').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
         }
    });
-
+    
     //-- 06/11/22 "Manually" go back to the main Transaction page/grid
     $("#resolve_rule_engine_modal").modal("hide");
     $(".alert").remove();
-    $("#cancel").trigger("click");
+    //-- 06/29/22 May have to skip Click trigger for "Save & Copy"
+    <?php if (isset($isCopyAndSave) AND $isCopyAndSave==1) { ?>
+        $("#cancel").trigger("click");
+    <?php } else if (isset($isCopyAndSave) AND $isCopyAndSave==2) { ?>
+        console.log("Test");
+    <? php } ?>
+    
+    e.preventDefault(); // avoid to execute the actual submit of the form.
     return false;
 }
 // function resolve_rule_engine_submit() {

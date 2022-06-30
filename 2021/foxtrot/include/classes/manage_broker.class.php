@@ -1084,45 +1084,46 @@
                     // $active = $postedData['active'][$key];
                     $category = $postedData['category'][$key];
                      $state= $postedData["state"][$key];
-                     $from= $postedData["from"][$key];
-                     $to= $postedData["to"][$key];
+                     $from= date('Y-m-d', strtotime($postedData["from"][$key]));
+                     $to= date('Y-m-d', strtotime($postedData["to"][$key]));
                      $reason= $postedData["reason"][$key];
                      $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."', `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
                       $res = $this->re_db_query($q);
                }
            }else{
            // updating Records
-               foreach($newInsertRows as $key=>$row){
-                    // $active = $postedData['active'][$key];
-               			$category = $postedData['category'][$key];
-                     $state= $postedData["state"][$key];
-                     $from= $postedData["from"][$key];
-                     $to= $postedData["to"][$key];
-                     $reason= $postedData["reason"][$key];
-                    if(!empty($category) and !empty($state) and !empty($from) and !empty($to)){
-                   	 		 $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."',
-                            `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
-                          $res = $this->re_db_query($q);
-                    }
+                foreach($newInsertRows as $key=>$row){
+                  // $active = $postedData['active'][$key];
+                  $category = $postedData['category'][$key];
+                  $state= $postedData["state"][$key];
+                  $from= date('Y-m-d', strtotime($postedData["from"][$key]));
+                  $to= date('Y-m-d', strtotime($postedData["to"][$key]));
+                  $reason= $postedData["reason"][$key];
+                  if(!empty($category) and !empty($state) and !empty($from) and !empty($to)){
+                        $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."',
+                          `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
+                        $res = $this->re_db_query($q);
                   }
-               foreach($updateRows as $key=>$row){
-                 // $from= date('y-m-d'(strtotime($postedData["from"][$key],0000));
-                 // $active = $postedData['active'][$key];
-                 $category = $postedData['category'][$key];
-                 $state= $postedData["state"][$key];
-                 $from= $postedData["from"][$key];
-                 $to= $postedData["to"][$key];
-                 $reason= $postedData["reason"][$key];
-                   $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$category."' ,`state_id`='".$state."',  `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'";
-                   $res = $this->re_db_query($q);
-                   $rowCounter = 1;
-               }
-               foreach($deletedRows as $key=>$row){
+                }
+                foreach($updateRows as $key=>$row){
+                  // $from= date('y-m-d'(strtotime($postedData["from"][$key],0000));
+                  // $active = $postedData['active'][$key];
+                  $category = $postedData['category'][$key];
+                  $state= $postedData["state"][$key];
+                  $from= date('Y-m-d', strtotime($postedData["from"][$key]));
+                  $to= date('Y-m-d', strtotime($postedData["to"][$key]));
+                  $reason= $postedData["reason"][$key];
+                   
+                  $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$category."' ,`state_id`='".$state."',  `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'";
+                  $res = $this->re_db_query($q);
+                  $rowCounter = 1;
+                }
+                foreach($deletedRows as $key=>$row){
                        // $active = $postedData['active'][$key];
                       $category = $postedData['category'][$key];
                        $state= $postedData["state"][$key];
-                       $from= $postedData["from"][$key];
-                       $to= $postedData["to"][$key];
+                       $from= date('Y-m-d', strtotime($postedData["from"][$key]));
+                       $to= date('Y-m-d', strtotime($postedData["to"][$key]));
                        $reason= $postedData["reason"][$key];
                     if(empty($category) and empty($state) and empty($from) and empty($to)){
                        $q="DELETE FROM `".BROKER_LICENCES_SECURITIES."` where broker_id='".$id."' and id='".$row."' ";
