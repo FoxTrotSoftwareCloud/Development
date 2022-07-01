@@ -10,7 +10,7 @@ class transaction extends db{
     public function insert_update($data){//echo '<pre>';print_r($data);exit;
 		// 06/11/22 Rule Engine variables
 		$instance_rules = new rules();
-		$ruleEngineProceed = (isset($data['resolve_rule_engine_proceed']) ? $data['resolve_rule_engine_proceed'] : "0");
+		$ruleEngineProceed = (isset($data['rule_engine_warning_action']) ? $data['rule_engine_warning_action'] : "0");
 
 		$id = isset($data['id'])?$this->re_db_input($data['id']):0;
 		//$trade_number = isset($data['trade_number'])?$this->re_db_input($data['trade_number']):0;
@@ -222,7 +222,7 @@ class transaction extends db{
 
 		public function save_split_commission_data($transaction_id,$data){
 			//print_r($data);
-			$val = $data['override'];
+			$val = isset($data['override']) ? $data['override'] : ['receiving_rep1'=>[]];
 			foreach($val['receiving_rep1'] as $index =>$rap){
 
                        $row_id = isset($val['row_id'][$index])?$this->re_db_input($val['row_id'][$index]):'';

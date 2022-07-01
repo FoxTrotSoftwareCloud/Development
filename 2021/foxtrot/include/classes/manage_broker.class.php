@@ -1359,9 +1359,10 @@
               {
                 // $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
                 // $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
-                $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00';
-                $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00';
-                $reason=isset($val['reason'])?$this->re_db_input($val['reason']):'';
+                $received = isset($val['received']) ? $this->re_db_input(date('Y-m-d',strtotime($val['received']))) : '0000-00-00';
+                $terminated = isset($val['terminated']) ? $this->re_db_input(date('Y-m-d',strtotime($val['terminated']))) : '0000-00-00';
+                $reason = isset($val['reason']) ? $this->re_db_input($val['reason']) : '';
+                $active_check = isset($val['active_check']) ? (int)$this->re_db_input($val['active_check']) : 0;
 
                 $q = "INSERT INTO `".BROKER_LICENCES_INSURANCE."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$categorey."' ,`state_id`='".$key."' , `active_check`='".$active_check."' ,`fee`='".$fee."' ,
                   `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."' ".$this->insert_common_sql();

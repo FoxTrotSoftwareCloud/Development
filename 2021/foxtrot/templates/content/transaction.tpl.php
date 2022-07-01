@@ -909,9 +909,9 @@ function autocomplete(inp, arr) {
                 <a href="<?php echo CURRENT_PAGE.'?action=view';?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;"/></a>
                 <input type="submit" name="transaction" onclick="return waitingDialog.show();" id="save" value="Save" style="float: right;"/>
                 <?php if(isset($_GET['action']) &&  $_GET['action'] == 'add' ) {
-                    echo ' <input type="submit" name="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>  ';
+                    echo ' <input type="submit" name="transaction" id="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>  ';
                 } ?>
-                <input type="hidden" name="resolve_rule_engine_proceed" id="resolve_rule_engine_proceed" value="0"/>
+                <input type="hidden" name="rule_engine_warning_action" id="rule_engine_warning_action" value="0"/>
             </div>
           </div>
           </div>
@@ -1111,7 +1111,9 @@ function autocomplete(inp, arr) {
             </div>
             <br>
             <div class="col-md-12" >
-                <form method="post" id="resolve_rule_engine_form" name="resolve_rule_engine_form" onsubmit="return resolve_rule_engine_submit();">
+                <!-- 06/30/22 Try removing the "onsubmit=...." -->
+                <!-- <form method="post" id="resolve_rule_engine_form" name="resolve_rule_engine_form" onsubmit="return resolve_rule_engine_submit();"> -->
+                <form method="post" id="resolve_rule_engine_form" name="resolve_rule_engine_form">
                     <div class="row" style="display: block;" id="resolve_rule_engine_row">
                         <div class="col-md-5">
                             <div class="inputpopup">
@@ -1356,7 +1358,12 @@ $(document).ready(function() {
         $("#hold_reason").html(reasonText);
     }
     
-    console.log("Resolve_Rule_Engine_Modal.display = " + $("#resolve_rule_engine_modal").attr("style"));
+    // 06/30/22 Don't submit the Rule Warning back to transaction.php
+    $("#resolve_rule_engine_modal").on('submit', function(e){
+        e.preventDefault();
+        var data = $("#resolve_rule_engine_modal :input").serializeArray();
+        resolve_rule_engine_submit(data);
+    });
 })
 
 function hide_hold_reason()
@@ -2179,46 +2186,95 @@ function resolve_rule_engine(msg='')
     $("#resolve_rule_engine_modal").modal("show");
 }
 
-function resolve_rule_engine_submit() {
+// 06/30/22 Keep processing on this page, and trigger the Save/Save&Copy/Cancel buttons programmitically
+function resolve_rule_engine_submit(posts) {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+    $("#rule_engine_warning_action").val(posts[0]['value']); 
     
-    // 06/25/22 Change action to "add" to see if the Add\Edit screens comes up if the next screen is up
-    // var url = "transaction.php?action=rule_engine_proceed";
-    var url = "transaction.php?action=add";
+    var action = '';
+    <?php if (isset($_SESSION['transaction_rule_engine']['data']['transaction'])) { ?>
+        action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
+    <?php } ?>
     
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: $("#resolve_rule_engine_form").serialize(), // serializes the form's elements.
-        success: function(data){
-            if(data=='1'){
-                window.location.href = "transaction.php?action=add"
-            } else{
-                $('#msg_exception').html('<div class="alert alert-danger">'+(data="" ? "Bad POST. Try again" : data)+'</div>');
-            }
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            $('#msg_exception').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
-        }
-   });
-    
+    //-- CLEAN UP --//
     //-- 06/11/22 "Manually" go back to the main Transaction page/grid
     $("#resolve_rule_engine_modal").modal("hide");
     $(".alert").remove();
-    //-- 06/29/22 May have to skip Click trigger for "Save & Copy"
-    <?php if (isset($isCopyAndSave) AND $isCopyAndSave==1) { ?>
-        $("#cancel").trigger("click");
-    <?php } else if (isset($isCopyAndSave) AND $isCopyAndSave==2) { ?>
-        console.log("Test");
-    <? php } ?>
     
-    e.preventDefault(); // avoid to execute the actual submit of the form.
+    switch (action){
+        case 'Save':
+            $("#save").trigger("click");
+            break;
+        case 'Save & Copy':
+            $("#transaction").trigger("click");
+            break;
+        default:
+            $("#cancel").trigger("click");
+    }
+    
     return false;
 }
-// function resolve_rule_engine_submit() {
-//     $("#save").trigger("click");
 
-// }
+var waitingDialog = waitingDialog || (function ($) {
+    'use strict';
+
+	// Creating modal dialog's DOM
+	var $dialog = $(
+		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+		'<div class="modal-dialog modal-m">' +
+		'<div class="modal-content">' +
+			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+			'<div class="modal-body">' +
+				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+			'</div>' +
+		'</div></div></div>');
+
+	return {
+		/**
+		 * Opens our dialog
+		 * @param message Custom message
+		 * @param options Custom options:
+		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "md", "m";
+		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+		 */
+		show: function (message, options) {
+			// Assigning defaults
+			if (typeof options === 'undefined') {
+				options = {};
+			}
+			if (typeof message === 'undefined') {
+				message = 'Saving...';
+			}
+			var settings = $.extend({
+				dialogSize: 'm',
+				progressType: '',
+				onHide: null // This callback runs after the dialog was hidden
+			}, options);
+
+			// Configuring dialog
+			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+			$dialog.find('.progress-bar').attr('class', 'progress-bar');
+			if (settings.progressType) {
+				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+			}
+			$dialog.find('h3').text(message);
+			// Adding callbacks
+			if (typeof settings.onHide === 'function') {
+				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+					settings.onHide.call($dialog);
+				});
+			}
+			// Opening dialog
+			$dialog.modal();
+		},
+		/**
+		 * Closes dialog
+		 */
+	
+	};
+
+})(jQuery);
+
 </script>
 
 <style type="text/css">

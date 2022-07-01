@@ -32,12 +32,12 @@
     $split_broker = array();
     $split_rate = array();
     $return_splits = array();
-    $shares = $units = $branch = $company = $isCopyAndSave = 0;
+    $shares = $units = $branch = $company = 0;
     $branch = isset($_POST['branch']) ? (int)$instance->re_db_input($_POST['branch']):0;
     $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
     // Rule engine array should only exist AFTER submit - 06/11/22
     if ($action == "add"){
-        if (isset($_POST['resolve_rule_engine_action']) && in_array($_POST['resolve_rule_engine_action'], ['1','2'])){
+        if (isset($_POST['rule_engine_warning_action']) && in_array($_POST['rule_engine_warning_action'], ['1','2'])){
             // Adding a transaction after the Rule Engine came up
         } else {
             unset($_SESSION['transaction_rule_engine']);
@@ -47,19 +47,21 @@
     //-- Add Transaction
     if(
         (isset($_POST['transaction']) && in_array($_POST['transaction'],['Save','Save & Copy']))
-        || (in_array($action,['rule_engine_proceed','add']) && isset($_POST['resolve_rule_engine_action']) && in_array($_POST['resolve_rule_engine_action'], ['1','2']))
+        && ($_POST['rule_engine_warning_action']!='3')
     ){
-        if (in_array($action,['rule_engine_proceed','add']) AND isset($_SESSION['transaction_rule_engine']['data'])){
+        if (in_array($_POST['rule_engine_warning_action'],['1','2'])){
             $postData = $_SESSION['transaction_rule_engine']['data'];
-            $postData['resolve_rule_engine_proceed'] = $_POST['resolve_rule_engine_action'];
+            $postData['rule_engine_warning_action'] = $_POST['rule_engine_warning_action'];
+            
             // user opted to "Hold Commissions"
-            if ($postData['resolve_rule_engine_proceed']=="1"){
+            if ($postData['rule_engine_warning_action']=="1"){
                 $postData['hold_commission'] = "1";
                 $postData['hold_reason'] = $_SESSION['transaction_rule_engine']['warnings'];
             }
         } else {
             $postData = $_POST;
-        }
+        }         
+
         $id = isset($postData['id'])?$instance->re_db_input($postData['id']):0;
         //$trade_number = isset($postData['trade_number'])?$instance->re_db_input($postData['trade_number']):0;
         $client_name = isset($postData['client_name'])?$instance->re_db_input($postData['client_name']):'';
@@ -96,7 +98,6 @@
         $another_level = isset($postData['another_level'])?$instance->re_db_input($postData['another_level']):'';
         $cancel = isset($postData['cancel'])?$instance->re_db_input($postData['cancel']):'';
         $buy_sell = isset($postData['buy_sell'])?$instance->re_db_input($postData['buy_sell']):'';
-        $hold_commission = isset($postData['hold_commission'])?$instance->re_db_input($postData['hold_commission']):'';
         $posting_date = isset($postData['posting_date'])?$instance->re_db_input($postData['posting_date']):'';
         $units = isset($postData['units'])?$instance->re_db_input($postData['units']):'';
         $shares = isset($postData['shares'])?$instance->re_db_input($postData['shares']):'';
@@ -107,11 +108,11 @@
         // 06/22/22 Reinsert the <br> elements so the reasons will appear correct in the HTML popups
         $hold_reason = isset($postData['hold_reason'])?$instance->re_db_input($postData['hold_reason']):'';
         $hold_reason = str_replace("\r\n", "<br>", $hold_reason);
+        $hold_commission = isset($postData['hold_commission'])?$instance->re_db_input($postData['hold_commission']):'';
         
         $return = $instance->insert_update($postData);
         
         if($return===true){
-            $isCopyAndSave = 1;
             unset($_SESSION['transaction_rule_engine']);
             
             /* if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
@@ -124,13 +125,13 @@
                 
                 if(isset($postData['transaction']) AND $postData['transaction']=='Save & Copy') {
                     unset($postData);
-                    $isCopyAndSave = 2;
                     $trade_number='';
                     $commission_received='';
                     $units=0;
                     $invest_amount ='';
                     $shares=0;
                     $charge_amount ='';
+                    $hold_reason = $hold_commission = '';
                     // header("location:".CURRENT_PAGE."?action=add");
                     // exit;
                 } else {
