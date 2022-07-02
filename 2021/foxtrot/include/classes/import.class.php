@@ -3683,7 +3683,8 @@
             if ($this->re_db_num_rows($res)) { 
                 $return = $this->re_db_fetch_array($res); 
             }
-            $return['result'] = ($return['active_check'] AND $trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR $this->isEmptyDate($return['terminated'])));
+            // 07/01/22 $return['active_check'] AND... --> 'active_check' field deprecated from the Maintain Broker/Licenses page 
+            $return['result'] = ($trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR $this->isEmptyDate($return['terminated'])));
 
             if ($pDetail){
                 // Just return $return

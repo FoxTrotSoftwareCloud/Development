@@ -2,9 +2,9 @@
 
 	require_once("include/config.php");
 	require_once(DIR_FS."islogin.php");
-	   $higher_risk =  0 ;
-        $exam_notes = '' ;
-        $finra_exam_date =  '' ;
+    $higher_risk =  0 ;
+    $exam_notes = '' ;
+    $finra_exam_date =  '' ;
     $error = '';
     $broker_trans=array();
     $return = array();
