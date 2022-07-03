@@ -56,7 +56,11 @@
             // user opted to "Hold Commissions"
             if ($postData['rule_engine_warning_action']=="1"){
                 $postData['hold_commission'] = "1";
-                $postData['hold_reason'] = $_SESSION['transaction_rule_engine']['warnings'];
+                $_SESSION['transaction_rule_engine']['warnings'] = (substr($_SESSION['transaction_rule_engine']['warnings'], -4)=='<br>') ? trim(substr($_SESSION['transaction_rule_engine']['warnings'], 0, -4)) : $_SESSION['transaction_rule_engine']['warnings'];
+
+                if (strpos($postData['hold_reason'], $_SESSION['transaction_rule_engine']['warnings']) === false){
+                    $postData['hold_reason'] .= (empty($postData['hold_reason'])?'':"<br>").$_SESSION['transaction_rule_engine']['warnings'];
+                }
             }
         } else {
             $postData = $_POST;
@@ -106,40 +110,31 @@
         $branch = isset($postData['branch']) ? (int)$instance->re_db_input($postData['branch']):0;
         $company = isset($postData['company']) ? (int)$instance->re_db_input($postData['company']):0;
         // 06/22/22 Reinsert the <br> elements so the reasons will appear correct in the HTML popups
-        $hold_reason = isset($postData['hold_reason'])?$instance->re_db_input($postData['hold_reason']):'';
-        $hold_reason = str_replace("\r\n", "<br>", $hold_reason);
         $hold_commission = isset($postData['hold_commission'])?$instance->re_db_input($postData['hold_commission']):'';
+        $hold_reason = isset($postData['hold_reason'])?$instance->re_db_input($postData['hold_reason']):'';
+        $hold_reason = str_replace("\\r\\n", "<br>", $hold_reason);
+        $postData['hold_reason'] = $hold_reason;
         
         $return = $instance->insert_update($postData);
         
         if($return===true){
             unset($_SESSION['transaction_rule_engine']);
-            
-            /* if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
-            {
-                header("location:".SITE_URL."batches.php?action=edit_batches&id=".$_SESSION['batch_id']);
-                unset($_SESSION['batch_id']);
+
+            if(isset($postData['transaction']) AND $postData['transaction']=='Save & Copy') {
+                unset($postData);
+                $trade_number='';
+                $commission_received='';
+                $units=0;
+                $invest_amount ='';
+                $shares=0;
+                $charge_amount ='';
+                $hold_reason = $hold_commission = '';
+                // header("location:".CURRENT_PAGE."?action=add");
+                // exit;
+            } else {
+                header("location:".CURRENT_PAGE."?action=view");
                 exit;
             }
-            else{*/
-                
-                if(isset($postData['transaction']) AND $postData['transaction']=='Save & Copy') {
-                    unset($postData);
-                    $trade_number='';
-                    $commission_received='';
-                    $units=0;
-                    $invest_amount ='';
-                    $shares=0;
-                    $charge_amount ='';
-                    $hold_reason = $hold_commission = '';
-                    // header("location:".CURRENT_PAGE."?action=add");
-                    // exit;
-                } else {
-                    header("location:".CURRENT_PAGE."?action=view");
-                    exit;
-                }
-          /*  }*/
-          
         }
         else{
             $error = (!isset($_SESSION['warning']) ? $return : '');
@@ -224,11 +219,16 @@
         $search_text= isset($_POST['search_text'])?$instance->re_db_input($_POST['search_text']):'';
         $return = $instance->search_transcation($_POST);
     }
-    else if($action=='view'){
+    else if($action=='view' OR $action=='cancel'){
         $return = $instance->select();
         unset($_SESSION['transaction_rule_engine']);
+        
+        if ($action == 'cancel'){
+            $action = 'view';
+            $instance->cancel_procedure();
+        }
     }
-
+    // Set up the Transaction Page    
     if(isset($_GET['p_id']) && isset($_GET['cat_id'])){
         $product_cate= $_GET['cat_id'];
         $product= $_GET['p_id'];

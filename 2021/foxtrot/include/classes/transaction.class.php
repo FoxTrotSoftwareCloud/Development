@@ -59,12 +59,14 @@ class transaction extends db{
 		$another_level = isset($data['another_level'])?$this->re_db_input($data['another_level']):'';
 		$cancel = isset($data['cancel'])?$this->re_db_input($data['cancel']):'';
 		$buy_sell = isset($data['buy_sell'])?$this->re_db_input($data['buy_sell']):'';
-		$hold_commission = isset($data['hold_commission'])?$this->re_db_input($data['hold_commission']):'';
-		$hold_reason = isset($data['hold_reason'])?$this->re_db_input($data['hold_reason']):'';
 		$units = isset($data['units'])?$this->re_db_input($data['units']):'';
 		$shares = isset($data['shares'])?$this->re_db_input($data['shares']):'';
 		$is_1035_exchange= isset($data['is_1035_exchange']) ? $this->re_db_input($data['is_1035_exchange']) : 0;
 		$is_trail_trade = isset($data['is_trail_trade']) ? $this->re_db_input($data['is_trail_trade']):0;
+        // 06/22/22 Reinsert the <br> elements so the reasons will appear correct in the HTML popups
+        $hold_reason = isset($data['hold_reason'])?$this->re_db_input($data['hold_reason']):'';
+        $hold_reason = str_replace("\\r\\n", "<br>", $hold_reason);
+        $hold_commission = isset($data['hold_commission'])?$this->re_db_input($data['hold_commission']):'';
 
 		//-- Validate the entries
 		$this->errors = '';
@@ -113,7 +115,9 @@ class transaction extends db{
 			$data['broker_name'] = $broker_name;
 		}
 		if (!empty($_SESSION['transaction_rule_engine']['ruleReturn']['holds'])){
-			$hold_reason .= $_SESSION['transaction_rule_engine']['ruleReturn']['holds'];
+			if (!strpos($_SESSION['transaction_rule_engine']['ruleReturn']['holds'], $hold_reason)){
+				$hold_reason .= $_SESSION['transaction_rule_engine']['ruleReturn']['holds'];
+			}
 			$data['hold_commission'] = 1;
 			$hold_commission = $data['hold_commission'];
 		}
@@ -1732,6 +1736,11 @@ class transaction extends db{
 		    		}
 		        }
 		    return $return;
+		}
+	
+		function cancel_procedure(){
+			$_SESSION['info'] = USER_CANCEL_MESSAGE;
+			return true;
 		}
 
 }

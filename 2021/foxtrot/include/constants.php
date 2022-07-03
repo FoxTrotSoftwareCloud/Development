@@ -28,6 +28,7 @@
     define('INSERT_MESSAGE','Data successfully saved.');
     define('UPDATE_MESSAGE','Data updated successfully.');
     define('UNKWON_ERROR','Something went wrong, please try again.');
+    define('USER_CANCEL_MESSAGE', 'User cancelled procedure.');
 	
     define('PASSWORD_UPDATE_SUCCESS','Your password updated successfully.');
     define('DATE_FORMAT', 'm/d/Y');

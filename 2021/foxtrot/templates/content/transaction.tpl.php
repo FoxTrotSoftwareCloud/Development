@@ -906,7 +906,7 @@ function autocomplete(inp, arr) {
           </div>
           <div class="panel-footer fixedbtmenu">
             <div class="selectwrap">
-                <a href="<?php echo CURRENT_PAGE.'?action=view';?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;"/></a>
+                <a id="anchor_cancel" href="<?php echo CURRENT_PAGE.'?action=cancel';?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;"/></a>
                 <input type="submit" name="transaction" onclick="return waitingDialog.show();" id="save" value="Save" style="float: right;"/>
                 <?php if(isset($_GET['action']) &&  $_GET['action'] == 'add' ) {
                     echo ' <input type="submit" name="transaction" id="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>  ';
@@ -1362,6 +1362,10 @@ $(document).ready(function() {
     $("#resolve_rule_engine_modal").on('submit', function(e){
         e.preventDefault();
         var data = $("#resolve_rule_engine_modal :input").serializeArray();
+
+        //-- 07/02/22 TEST DELETE ME
+        console.log("Bind submit: Line1367: data[0]['name'] = " + data[0]['name'] + ", data[0]['value']" + data[0]['value']);
+
         resolve_rule_engine_submit(data);
     });
 })
@@ -2190,12 +2194,18 @@ function resolve_rule_engine(msg='')
 function resolve_rule_engine_submit(posts) {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
     $("#rule_engine_warning_action").val(posts[0]['value']); 
-    
+
     var action = '';
     <?php if (isset($_SESSION['transaction_rule_engine']['data']['transaction'])) { ?>
-        action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
+            action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
     <?php } ?>
-    
+    if ($("#rule_engine_warning_action").val() == '3'){
+        action = 'Cancel';    
+    }
+        
+    //-- 07/02/22 TEST DELETE ME
+    console.log("Line 2208: resolve_rule_engine_submit(), action = " + action + ", value = " + $("#rule_engine_warning_action").val());
+
     //-- CLEAN UP --//
     //-- 06/11/22 "Manually" go back to the main Transaction page/grid
     $("#resolve_rule_engine_modal").modal("hide");
@@ -2209,7 +2219,7 @@ function resolve_rule_engine_submit(posts) {
             $("#transaction").trigger("click");
             break;
         default:
-            $("#cancel").trigger("click");
+            $("#cancel").click();
     }
     
     return false;

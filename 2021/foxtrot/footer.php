@@ -33,6 +33,9 @@
 $(".alert-success").fadeTo(2000, 500).slideUp(1000, function(){
     $(".alert-success").slideUp(1000);
 });
+$(".alert-info").fadeTo(2000, 500).slideUp(1000, function(){
+    $(".alert-info").slideUp(1000);
+});
 </script>
 </body>
 </html>
