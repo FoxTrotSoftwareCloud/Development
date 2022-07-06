@@ -469,22 +469,61 @@ class transaction extends db{
             }
 			return $return;
 		}
-		public function select_all_client_account_no(){
+		public function select_all_client_account_no($type='', $pattern=''){
 			$return = array();
+			$type = $this->re_db_input($type);
+			$pattern = $this->re_db_input($pattern);
+			$con = $con2 = '';
+			
+			if ($type == 'autocomplete') {
+				if (!empty($pattern)) { 
+					$con = " AND `at`.`account_no` LIKE '$pattern%'"; 
+					$con2 = " AND CONVERT(`cm2`.`id`,char) LIKE '$pattern%'";
+				}
+				
+				$q = "SELECT TRIM(`at`.`account_no`) AS `label`"
+							.", CONVERT(`at`.`client_id`,char) AS `value`"
+							.", CONCAT(TRIM(`cm`.`first_name`),' ',TRIM(`cm`.`last_name`)) AS `name`"
+							.", `cm`.`client_file_number`"
+							.", `cm`.`client_ssn`"
+					." FROM `".CLIENT_ACCOUNT."` AS `at`"
+					." LEFT JOIN `".CLIENT_MASTER."` `cm` ON `at`.`client_id`=`cm`.`id`"
+					." WHERE `at`.`is_delete`=0 AND `cm`.`is_delete`=0"
+						    .$con
+					." UNION "
+					."SELECT CONVERT(`cm2`.`id`,char) AS `label`"
+							.", CONVERT(`cm2`.`id`,char) AS `value`"
+							.", CONCAT(TRIM(`cm2`.`first_name`),' ',TRIM(`cm2`.`last_name`)) AS `name`"
+							.", `cm2`.`client_file_number`"
+							.", `cm2`.`client_ssn`"
+					." FROM `".CLIENT_MASTER."` `cm2`"
+					." WHERE `cm2`.`is_delete`=0"
+						    .$con2
+					." ORDER BY `label`, `name`, `value`";
+				;
 
-			$q = "SELECT `at`.`account_no`
-					FROM `".CLIENT_ACCOUNT."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row['account_no']);
-
-    			}
-
-            }
+				$res = $this->re_db_query($q);
+				
+				if($this->re_db_num_rows($res)>0){
+					$return = $this->re_db_fetch_all($res);
+					$x = 0;
+				}
+			} else {
+				$q = "SELECT `at`.`account_no`
+						FROM `".CLIENT_ACCOUNT."` AS `at`
+						WHERE `at`.`is_delete`='0'
+						ORDER BY `at`.`id` "
+				;
+				$res = $this->re_db_query($q);
+				
+				if($this->re_db_num_rows($res)>0){
+					// $return = $this->re_db_fetch_all($res);
+					while($row = $this->re_db_fetch_array($res)){
+						 array_push($return,$row['account_no']);
+					}
+				}
+			}
+			
 
 			return $return;
 		}

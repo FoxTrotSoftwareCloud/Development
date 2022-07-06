@@ -324,7 +324,7 @@ class ofac_fincen extends db{
 		//-- 07/03/22 "name" key is populated, not "tmp_name"
 		// $filename = $_FILES["file"]["tmp_name"];	
 		$filePathAndName = $this->local_folder."sdn.csv";
-		$array = array();
+		$SdnArray = array();
 		$get_array_data = array();
 
 		if (file_exists($filePathAndName)){
@@ -338,19 +338,18 @@ class ofac_fincen extends db{
 				$program = isset($getData[3])?$this->re_db_input($getData[3]):'';
 				$remarks = isset($getData[11])?$this->re_db_input($getData[11]):'';
 				
-				$array[]=array("id_no"=>$id_no,"sdn_type"=>$sdn_type,"sdn_name"=>$sdn_name,"program"=>$program,"other_data"=>$remarks);
+				$SdnArray[]=array("id_no"=>$id_no,"sdn_type"=>$sdn_type,"sdn_name"=>$sdn_name,"program"=>$program,"remarks"=>$remarks);
 			}
-			foreach($array as $key=>$val)
+			foreach($SdnArray as $key=>$val)
 			{ 
-				$checkName=$this->get_ofac_data($val['sdn_name'],$val['other_data']);
+				$checkName=$this->get_ofac_data($val['sdn_name'],$val['remarks']);
 				if(is_array($checkName) && count($checkName)>0){
 					
 					$get_array_data[$key] = $checkName;
 					array_push($get_array_data[$key],$val);                     
 				}
-				//$get_array_data[$key] = $val;
-			}//echo '<pre>';print_r($get_array_data);exit;
-			$total_scan = isset($array)?$this->re_db_input(count($array)):0;
+			}
+			$total_scan = isset($SdnArray)?$this->re_db_input(count($SdnArray)):0;
 			
 			if($get_array_data != array())
 			{

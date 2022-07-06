@@ -5,6 +5,8 @@
 <script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.js"></script>
 <script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery.ui.autocomplete.scroll.min.js"></script>
 <link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.css?1">
+<!-- 07/05/22 jQuery "inputmask(...) is not a function" error. Just removed it. It's not used in the code. -->
+<!-- <script src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script> -->
 
 <script>
 function addMoreRow(){
@@ -387,7 +389,7 @@ function autocomplete(inp, arr) {
                     <div class="form-group">
                         <label>Search by Number </label><br />
                          <div class="autocomplete" style="width:100%">
-                            <input type="text" autocomplete="off" class="form-control"  name="search_client_number" id="search_client_number" />
+                            <input type="text" autocomplete="on" class="form-control"  name="search_client_number" id="search_client_number" />
 
                         </div>
                     </div>
@@ -1190,37 +1192,37 @@ $(document).ready(function() {
             '</div>');
 
 
-    var client_ac_number =<?php echo json_encode($client_account_array); ?>;
+    var client_ac_number = <?php echo empty(json_encode($client_account_array)) ? '' : json_encode($client_account_array); ?>;
 
     // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
-    // if(localStorage.getItem('transcation_form_data')){
-    //     for(var key in transcation_form_data){
-    //         if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
-    //             $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
-    //         }
-    //     }
-    // }
+    if(localStorage.getItem('transcation_form_data')){
+        for(var key in transcation_form_data){
+            if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
+                $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+            }
+        }
+    }
 
     // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
-    // $(".livesearch").chosen();
-    // $("#search_client_number").autocomplete({
-    //     source: "ajax_get_client_account.php?_type=query",
-    //     minLength: 2,
-    //     maxShowItems: 3,
-
-    //     select: function( event, ui ) {
-    //         $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
-    //         $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-    //         //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-    //     }
-    // })
-
     // 5/14/22 Commented out, CAUSING ERROR:
-    // .autocomplete("instance")._renderItem = function (ul, item) {
-    //     return $("<li>")
-    //     .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
-    // .appendTo(ul);
-    // };;
+    // 07/05/22 Reinstated - part of the "Search By Number
+    $(".livesearch").chosen();
+    $("#search_client_number").autocomplete({
+        source: "ajax_get_client_account.php?_type=query",
+        // source: [{'label':'test','value':'7','name':'Test 7'}, {'label':'test1','value':'2','name':'Test 2'}, {'label':'test3','value':'3','name':'Test 3'} ],
+        minLength: 1,
+        maxShowItems: 20,
+        select: function( event, ui ) {
+            console.log('ui.item' + ui.item.name);
+            $('select[id="client_name"]').val(ui.item.value).trigger("chosen:updated").trigger("change");;;
+            // $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+        }
+    })
+    .autocomplete("instance")._renderItem = function (ul, item) {
+        return $("<li>")
+        .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.label+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
+    .appendTo(ul);
+    };;
 
     $('#ch_no').mask("999999");
 
@@ -1459,65 +1461,66 @@ $( function() {
 });
 
 // 05/14/22 Commented out. Not sure if this is necessary
-// var client_number_ = "<?php echo $client_number; ?>";
-// var transcation_form_data = "";
+var client_number_ = "<?php echo $client_number; ?>";
+var transcation_form_data = "";
 
-// if(localStorage.getItem('transcation_form_data')){
-//     var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
+if(localStorage.getItem('transcation_form_data')){
+    var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
 
-//     for(var key in transcation_form_data){
-//         if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
-//             document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
-//         }
-//     }
-// }
+    for(var key in transcation_form_data){
+        if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
+            document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
+        }
+    }
+}
 
-    // $(document).ready(function (){
+    $(document).ready(function (){
 
-    //     var client_ac_number =<?php //echo json_encode($client_account_array); ?>;
+        var client_ac_number = <?php echo empty(json_encode($client_account_array)) ? '' : json_encode($client_account_array); ?>;
 
-    //     if(localStorage.getItem('transcation_form_data')){
-    //         for(var key in transcation_form_data){
-    //             if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
-    //                 $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
-    //             }
-    //         }
-    //     }
+        if(localStorage.getItem('transcation_form_data')){
+            for(var key in transcation_form_data){
+                if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
+                    $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+                }
+            }
+        }
+        //-- 07/05/22 Commented out - already in the ready()
+        // $(".livesearch").chosen();
+        // $("#search_client_number").autocomplete({
+        //     source: "ajax_get_client_account.php?_type=query",
+        //     minLength: 2,
+        //     maxShowItems: 3,
 
-    //     $(".livesearch").chosen();
-    //     $("#search_client_number").autocomplete({
-    //         source: "ajax_get_client_account.php?_type=query",
-    //         minLength: 2,
-    //         maxShowItems: 3,
+        //     select: function( event, ui ) {
+        //         $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
+        //         $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+        //         //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+        //     }
+        // })
+        // 5/14/22 Commented out, CAUSING ERROR:
+        // .autocomplete("instance")._renderItem = function (ul, item) {
+        //     return $("<li>")
+        //     .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
+        // .appendTo(ul);
+        // };;
 
-    //         select: function( event, ui ) {
-    //             $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
-    //             $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-    //             //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-    //         }
-    //     })
-    //     // 5/14/22 Commented out, CAUSING ERROR:
-    //     // .autocomplete("instance")._renderItem = function (ul, item) {
-    //     //     return $("<li>")
-    //     //     .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
-    //     // .appendTo(ul);
-    //     // };;
-
-    //     $('#ch_no').mask("999999");
-    // });
+        $('#ch_no').mask("999999");
+    });
 
     // 5/14/22 Moved to doc.ready() section
-    // jQuery(function($){
-    //   $("#add_new_prod").click(function(ev){
-    //         if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
-    //                ev.preventDefault();
-    //                alert("Please select Product Category First");
-    //                return false;
-    //         }
-    //   });
-    // })
+    jQuery(function($){
+      $("#add_new_prod").click(function(ev){
+            if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
+                   ev.preventDefault();
+                   alert("Please select Product Category First");
+                   return false;
+            }
+      });
+    })
 
-    // 5/14/22 Not sure what this code is for. Should it be in the read()?
+    // 5/14/22 Not sure what this code is for. Should it be in the ready()? 
+    //-- 07/05/22 jQuery Inputmask() -> "not a function" error. Try cap'ing the "i" inputmask(...) -> commented out - not referenced in the code
     // $(".two-decimals").inputmask('currency', {
     //     prefix: '',
     //     rightAlign: false
@@ -2225,65 +2228,66 @@ function resolve_rule_engine_submit(posts) {
     return false;
 }
 
-var waitingDialog = waitingDialog || (function ($) {
-    'use strict';
+//-- 07/05/22 Commented Out - Commented the "good" one above. Causing some stalls in the code. - Delete if "waitingDialog" does not exist disappears.
+// var waitingDialog = waitingDialog || (function ($) {
+//     'use strict';
 
-	// Creating modal dialog's DOM
-	var $dialog = $(
-		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-		'<div class="modal-dialog modal-m">' +
-		'<div class="modal-content">' +
-			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-			'<div class="modal-body">' +
-				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-			'</div>' +
-		'</div></div></div>');
+// 	// Creating modal dialog's DOM
+// 	var $dialog = $(
+// 		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+// 		'<div class="modal-dialog modal-m">' +
+// 		'<div class="modal-content">' +
+// 			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+// 			'<div class="modal-body">' +
+// 				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+// 			'</div>' +
+// 		'</div></div></div>');
 
-	return {
-		/**
-		 * Opens our dialog
-		 * @param message Custom message
-		 * @param options Custom options:
-		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "md", "m";
-		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
-		 */
-		show: function (message, options) {
-			// Assigning defaults
-			if (typeof options === 'undefined') {
-				options = {};
-			}
-			if (typeof message === 'undefined') {
-				message = 'Saving...';
-			}
-			var settings = $.extend({
-				dialogSize: 'm',
-				progressType: '',
-				onHide: null // This callback runs after the dialog was hidden
-			}, options);
+// 	return {
+// 		/**
+// 		 * Opens our dialog
+// 		 * @param message Custom message
+// 		 * @param options Custom options:
+// 		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "md", "m";
+// 		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+// 		 */
+// 		show: function (message, options) {
+// 			// Assigning defaults
+// 			if (typeof options === 'undefined') {
+// 				options = {};
+// 			}
+// 			if (typeof message === 'undefined') {
+// 				message = 'Saving...';
+// 			}
+// 			var settings = $.extend({
+// 				dialogSize: 'm',
+// 				progressType: '',
+// 				onHide: null // This callback runs after the dialog was hidden
+// 			}, options);
 
-			// Configuring dialog
-			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-			$dialog.find('.progress-bar').attr('class', 'progress-bar');
-			if (settings.progressType) {
-				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-			}
-			$dialog.find('h3').text(message);
-			// Adding callbacks
-			if (typeof settings.onHide === 'function') {
-				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
-					settings.onHide.call($dialog);
-				});
-			}
-			// Opening dialog
-			$dialog.modal();
-		},
-		/**
-		 * Closes dialog
-		 */
+// 			// Configuring dialog
+// 			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+// 			$dialog.find('.progress-bar').attr('class', 'progress-bar');
+// 			if (settings.progressType) {
+// 				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+// 			}
+// 			$dialog.find('h3').text(message);
+// 			// Adding callbacks
+// 			if (typeof settings.onHide === 'function') {
+// 				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+// 					settings.onHide.call($dialog);
+// 				});
+// 			}
+// 			// Opening dialog
+// 			$dialog.modal();
+// 		},
+// 		/**
+// 		 * Closes dialog
+// 		 */
 	
-	};
+// 	};
 
-})(jQuery);
+// })(jQuery);
 
 </script>
 

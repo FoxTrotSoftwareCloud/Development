@@ -35,5 +35,10 @@ if(isset($_GET['batch_id']) && $_GET['batch_id'] > 0)
     }
     echo json_encode($get_batch_date);
 }
+if(isset($_GET['_type']) AND $_GET['_type']=='query')
+{
+    $get_client_account = $instance->select_all_client_account_no('autocomplete', $_GET['term']);
+    echo json_encode($get_client_account);
+}
     
 ?>
