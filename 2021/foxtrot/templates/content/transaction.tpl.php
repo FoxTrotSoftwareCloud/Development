@@ -390,7 +390,6 @@ function autocomplete(inp, arr) {
                         <label>Search by Number </label><br />
                          <div class="autocomplete" style="width:100%">
                             <input type="text" autocomplete="on" class="form-control"  name="search_client_number" id="search_client_number" />
-
                         </div>
                     </div>
                 </div>
@@ -530,7 +529,7 @@ function autocomplete(inp, arr) {
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Product <span class="text-red">*</span><a id="add_new_prod" href="#" onclick="return redirect_url('product_cate.php?action=add_product&redirect=add_product_from_trans','product');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Product</a></label><br />
+                        <label>Product <span class="text-red">*</span><a id="add_new_prod" href="#" onclick="return redirect_url('product_cate.php?action=add_product&redirect=add_product_from_trans&transaction_id='+<?php echo $id ?>,'product');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Product</a></label><br />
                         <select class="form-control" data-required="true" name="product"  id="product">
                             <option value="0">Select Product</option>
                         </select>
@@ -1209,7 +1208,6 @@ $(document).ready(function() {
     $(".livesearch").chosen();
     $("#search_client_number").autocomplete({
         source: "ajax_get_client_account.php?_type=query",
-        // source: [{'label':'test','value':'7','name':'Test 7'}, {'label':'test1','value':'2','name':'Test 2'}, {'label':'test3','value':'3','name':'Test 3'} ],
         minLength: 1,
         maxShowItems: 20,
         select: function( event, ui ) {
@@ -1220,7 +1218,9 @@ $(document).ready(function() {
     })
     .autocomplete("instance")._renderItem = function (ul, item) {
         return $("<li>")
-        .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.label+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
+        .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Cloudfox ID:</strong>'+item.value+'</span><br/>'+
+                (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') + 
+                '<span><strong>Client SSN:</strong>'+item.client_ssn+'</span><br/><span><strong>Client File Number:</strong>'+item.client_file_number+'</span></div>')
     .appendTo(ul);
     };;
 
@@ -1361,13 +1361,9 @@ $(document).ready(function() {
     }
     
     // 06/30/22 Don't submit the Rule Warning back to transaction.php
-    $("#resolve_rule_engine_modal").on('submit', function(e){
-        e.preventDefault();
+    $("#resolve_rule_engine_modal").on('submit', function(event){
+        event.preventDefault();
         var data = $("#resolve_rule_engine_modal :input").serializeArray();
-
-        //-- 07/02/22 TEST DELETE ME
-        console.log("Bind submit: Line1367: data[0]['name'] = " + data[0]['name'] + ", data[0]['value']" + data[0]['value']);
-
         resolve_rule_engine_submit(data);
     });
 })
@@ -1473,9 +1469,7 @@ if(localStorage.getItem('transcation_form_data')){
         }
     }
 }
-
     $(document).ready(function (){
-
         var client_ac_number = <?php echo empty(json_encode($client_account_array)) ? '' : json_encode($client_account_array); ?>;
 
         if(localStorage.getItem('transcation_form_data')){
@@ -1485,26 +1479,6 @@ if(localStorage.getItem('transcation_form_data')){
                 }
             }
         }
-        //-- 07/05/22 Commented out - already in the ready()
-        // $(".livesearch").chosen();
-        // $("#search_client_number").autocomplete({
-        //     source: "ajax_get_client_account.php?_type=query",
-        //     minLength: 2,
-        //     maxShowItems: 3,
-
-        //     select: function( event, ui ) {
-        //         $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
-        //         $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-        //         //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-        //     }
-        // })
-        // 5/14/22 Commented out, CAUSING ERROR:
-        // .autocomplete("instance")._renderItem = function (ul, item) {
-        //     return $("<li>")
-        //     .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
-        // .appendTo(ul);
-        // };;
-
         $('#ch_no').mask("999999");
     });
 
@@ -1576,7 +1550,7 @@ function get_product(category_id,selected=''){
     category_id = category_id || document.getElementById("product_cate").value;
     sponsor = document.getElementById("sponsor").value;
     c_sponsor =  document.getElementById("company_sponsor");
-    $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans");
+    $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans&transaction_id="+<?php echo $id ?>);
 
     document.getElementById("product").innerHTML = "<option value=''> Please Wait...</option>";
     if(category_id =='2' ||category_id =='3'|| category_id =='6'||category_id =='7'||category_id =='8') {
@@ -1621,8 +1595,8 @@ function get_client_account_no(client_id,selected,skipBroker=0){
 
             dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
             options.forEach(function(item){
-                $is_selected = (selected.trim() == item.trim() ? "selected" : "");
-                dropdown+="<option value='"+item.trim()+"' "+$is_selected+">"+item+"</option>";
+                is_selected = (selected.trim() == item.trim() ? "selected" : "");
+                dropdown+="<option value='"+item.trim()+"' "+is_selected+">"+item+"</option>";
             })
             document.getElementById("client_number").innerHTML = dropdown;
 
@@ -1752,17 +1726,36 @@ function get_broker_override_rates(broker_id){
 function redirect_url(url,selector){
     if(selector == "product" ){
         if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
-
-            ev.preventDefault();
-                alert("Please select Product Category First");
-                return false;
+            $('#add_new_prod').click(function (event) {
+                event.preventDefault();
+            });
+            alert("Please select Product Category First");
+            return false;
         }
         else{
-                url = url+"&category="+$("#product_cate").val();
+            url = url+"&category="+$("#product_cate").val();
+            var data = $('form[name="frm2"] :input').serializeArray();
+            data.forEach((x,i) => console.log(x));
+            
+            
+            // $('form[name="frm2"] input[type="radio"][checked="true"]').each(function(index, element){
+            //     // console.log('redirect_url: name = ' + $( this ).attr('name') + ', value = ' + $( this ).val());
+            //     console.log('radio buttons: name = ' + $(this).attr('name') + ', value = ' + $(this).val() + ', checked = ' + $(this).attr('checked'));
+            // })
+            // $('form[name="frm2"] select').each(function(index, element){
+            //     // console.log('redirect_url: name = ' + $( this ).attr('name') + ', value = ' + $( this ).val());
+            //     console.log('select: name = ' + $(this).attr('name') + ', value = ' + $(this).val());
+            // })
+            // $('form[name="frm2"] input[type="text"]').each(function(index, element){
+            //     // console.log('redirect_url: name = ' + $( this ).attr('name') + ', value = ' + $( this ).val());
+            //     console.log('input/text boxes: name = ' + $(this).attr('name') + ', value = ' + $(this).val());
+            // })
+
         }
     }
     // localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
-    setTimeout(function(){  window.location.href=url   },100);
+    //-- 07/06/22 DELETE ME Uncomment the code below to redirect to the Add Product page
+    // setTimeout(function(){  window.location.href=url   },100);
     return false;
 }
 

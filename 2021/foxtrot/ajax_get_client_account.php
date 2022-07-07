@@ -7,9 +7,9 @@ if(isset($_GET['client_id']) && $_GET['client_id'] > 0)
     $client_id = isset($_GET['client_id'])?$instance->re_db_input($_GET['client_id']):'';
     if(isset($_GET['action']) && $_GET['action'] == 'all'){
         $get_client_account = json_encode($instance->select_client_all_account_no($client_id));
+    } else {
+        $get_client_account = $instance->select_client_account_no($client_id);
     }
-    else
-    $get_client_account = $instance->select_client_account_no($client_id);    
     echo $get_client_account;
 }
 

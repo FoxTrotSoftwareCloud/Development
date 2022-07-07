@@ -479,26 +479,62 @@ class transaction extends db{
 				if (!empty($pattern)) { 
 					$con = " AND `at`.`account_no` LIKE '$pattern%'"; 
 					$con2 = " AND CONVERT(`cm2`.`id`,char) LIKE '$pattern%'";
+					$con3 = " AND `cm3`.`client_ssn`!='' AND `cm3`.`client_ssn` LIKE '$pattern%'";
+					$con4 = " AND CONCAT(TRIM(`cm4`.`last_name`),IF(`cm4`.`last_name`='' OR `cm4`.`first_name`='', '', ', '),TRIM(`cm4`.`first_name`)) LIKE '%$pattern%'";
+					$con5 = " AND `cm5`.`client_file_number`!='' AND `cm5`.`client_file_number` LIKE '$pattern%'";
 				}
 				
 				$q = "SELECT TRIM(`at`.`account_no`) AS `label`"
 							.", CONVERT(`at`.`client_id`,char) AS `value`"
-							.", CONCAT(TRIM(`cm`.`first_name`),' ',TRIM(`cm`.`last_name`)) AS `name`"
+							.", CONCAT(TRIM(`cm`.`last_name`),IF(`cm`.`last_name`='' OR `cm`.`first_name`='', '', ', '),TRIM(`cm`.`first_name`)) AS `name`"
 							.", `cm`.`client_file_number`"
 							.", `cm`.`client_ssn`"
+							.", TRIM(`at`.`account_no`) AS `account_number`"
 					." FROM `".CLIENT_ACCOUNT."` AS `at`"
 					." LEFT JOIN `".CLIENT_MASTER."` `cm` ON `at`.`client_id`=`cm`.`id`"
-					." WHERE `at`.`is_delete`=0 AND `cm`.`is_delete`=0"
-						    .$con
+					." WHERE `at`.`is_delete`=0"
+					." AND `cm`.`is_delete`=0"
+						.$con
 					." UNION "
 					."SELECT CONVERT(`cm2`.`id`,char) AS `label`"
 							.", CONVERT(`cm2`.`id`,char) AS `value`"
-							.", CONCAT(TRIM(`cm2`.`first_name`),' ',TRIM(`cm2`.`last_name`)) AS `name`"
+							.", CONCAT(TRIM(`cm2`.`last_name`),IF(`cm2`.`last_name`='' OR `cm2`.`first_name`='', '', ', '),TRIM(`cm2`.`first_name`)) AS `name`"
 							.", `cm2`.`client_file_number`"
 							.", `cm2`.`client_ssn`"
+							.", '' AS `account_number`"
 					." FROM `".CLIENT_MASTER."` `cm2`"
 					." WHERE `cm2`.`is_delete`=0"
 						    .$con2
+					." UNION "
+					."SELECT `cm3`.`client_ssn` AS `label`"
+							.", CONVERT(`cm3`.`id`,char) AS `value`"
+							.", CONCAT(TRIM(`cm3`.`last_name`),IF(`cm3`.`last_name`='' OR `cm3`.`first_name`='', '', ', '),TRIM(`cm3`.`first_name`)) AS `name`"
+							.", `cm3`.`client_file_number`"
+							.", `cm3`.`client_ssn`"
+							.", '' AS `account_number`"
+					." FROM `".CLIENT_MASTER."` `cm3`"
+					." WHERE `cm3`.`is_delete`=0"
+						    .$con3
+					." UNION "
+					."SELECT CONCAT(TRIM(`cm4`.`last_name`),IF(`cm4`.`last_name`='' OR `cm4`.`first_name`='', '', ', '),TRIM(`cm4`.`first_name`)) AS `label`"
+							.", CONVERT(`cm4`.`id`,char) AS `value`"
+							.", CONCAT(TRIM(`cm4`.`last_name`),IF(`cm4`.`last_name`='' OR `cm4`.`first_name`='', '', ', '),TRIM(`cm4`.`first_name`)) AS `name`"
+							.", `cm4`.`client_file_number`"
+							.", `cm4`.`client_ssn`"
+							.", '' AS `account_number`"
+					." FROM `".CLIENT_MASTER."` `cm4`"
+					." WHERE `cm4`.`is_delete`=0"
+						    .$con4
+					." UNION "
+					."SELECT `cm5`.`client_file_number` AS `label`"
+							.", CONVERT(`cm5`.`id`,char) AS `value`"
+							.", CONCAT(TRIM(`cm5`.`last_name`),IF(`cm5`.`last_name`='' OR `cm5`.`first_name`='', '', ', '),TRIM(`cm5`.`first_name`)) AS `name`"
+							.", `cm5`.`client_file_number`"
+							.", `cm5`.`client_ssn`"
+							.", '' AS `account_number`"
+					." FROM `".CLIENT_MASTER."` `cm5`"
+					." WHERE `cm5`.`is_delete`=0"
+						    .$con5
 					." ORDER BY `label`, `name`, `value`";
 				;
 
@@ -506,7 +542,6 @@ class transaction extends db{
 				
 				if($this->re_db_num_rows($res)>0){
 					$return = $this->re_db_fetch_all($res);
-					$x = 0;
 				}
 			} else {
 				$q = "SELECT `at`.`account_no`
@@ -547,12 +582,14 @@ class transaction extends db{
 
 		public function select_client_all_account_no($client_id){
 			$return=array();
-           $q = "SELECT `at`.`account_no`
+           	$q = "SELECT `at`.`account_no`
 					FROM `".CLIENT_ACCOUNT."` AS `at`
                     WHERE `at`.`is_delete`='0' AND `at`.`client_id`='".$client_id."'
-                    ORDER BY `at`.`id` ASC ";
+                    ORDER BY `at`.`id` ASC "
+			;
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
+
+			if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
     			     $return[] = $row['account_no'];
