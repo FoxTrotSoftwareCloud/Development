@@ -1734,28 +1734,21 @@ function redirect_url(url,selector){
         }
         else{
             url = url+"&category="+$("#product_cate").val();
-            var data = $('form[name="frm2"] :input').serializeArray();
-            data.forEach((x,i) => console.log(x));
-            
-            
-            // $('form[name="frm2"] input[type="radio"][checked="true"]').each(function(index, element){
-            //     // console.log('redirect_url: name = ' + $( this ).attr('name') + ', value = ' + $( this ).val());
-            //     console.log('radio buttons: name = ' + $(this).attr('name') + ', value = ' + $(this).val() + ', checked = ' + $(this).attr('checked'));
-            // })
-            // $('form[name="frm2"] select').each(function(index, element){
-            //     // console.log('redirect_url: name = ' + $( this ).attr('name') + ', value = ' + $( this ).val());
-            //     console.log('select: name = ' + $(this).attr('name') + ', value = ' + $(this).val());
-            // })
-            // $('form[name="frm2"] input[type="text"]').each(function(index, element){
-            //     // console.log('redirect_url: name = ' + $( this ).attr('name') + ', value = ' + $( this ).val());
-            //     console.log('input/text boxes: name = ' + $(this).attr('name') + ', value = ' + $(this).val());
-            // })
-
+            // 07/07/22 Store user inputs so the form can be repopulated when redirected back here from product_cate.php
+            var formdata = $('form[name="frm2"] :input').serializeArray();
+            $.ajax({
+                type: "POST",
+                url: "ajax_transaction_tpl.php",
+                data: {addProdFromTrans: formdata},
+                success: function(value){
+                    console.log('Form Data posted...');
+                },
+            })            
         }
     }
     // localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
     //-- 07/06/22 DELETE ME Uncomment the code below to redirect to the Add Product page
-    // setTimeout(function(){  window.location.href=url   },100);
+    setTimeout(function(){  window.location.href=url   },100);
     return false;
 }
 

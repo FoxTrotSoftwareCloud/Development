@@ -438,8 +438,9 @@
         // 07/06/22 if user is Adding a trade, it's not pulling up the New Transactio screen
         $sessionId = 'product_cate_add_product_from_trans';
         $sendArguments =
-            (empty($_SESSION['product_cate_add_product_from_trans']['redirect_id']) ? '?action=add&fromtrans=1' : '?action='.'edit_transaction&id='.$_SESSION['product_cate_add_product_from_trans']['redirect_id'])
+            (empty($_SESSION['product_cate_add_product_from_trans']['redirect_id']) ? '?action=add' : '?action='.'edit_transaction&id='.$_SESSION['product_cate_add_product_from_trans']['redirect_id'])
             .(empty($pArgs) ? '' : '&'.trim($pArgs))
+            .'&redirectedFromProdCate=1'
         ;
 
         header("location:".SITE_URL."transaction.php".$sendArguments);

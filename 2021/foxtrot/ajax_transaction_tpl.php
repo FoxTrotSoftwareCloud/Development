@@ -4,8 +4,10 @@
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
 
-if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
-    || (isset($_GET['action']) && $_GET['action']=='branch_company' && !empty($_GET['branch']))
+
+if(
+   (isset($_GET['broker_id']) && $_GET['broker_id'] != '')
+   || (isset($_GET['action']) && $_GET['action']=='branch_company' && !empty($_GET['branch']))
 ){
    if(isset($_GET['action']) && $_GET['action'] == 'split_commission'){
       $broker_class = new broker_master();
@@ -130,7 +132,6 @@ if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
       if (!empty($branchData)){
          $return = ["id"=>(int)$branchData['id'],"company"=>(int)$branchData['company']];
       }
-
       echo json_encode($return);
 
    //--- Hold Commissions & Branch/Company return
@@ -155,5 +156,13 @@ if((isset($_GET['broker_id']) && $_GET['broker_id'] != '')
       echo json_encode($return);
     }
 
+} else if(isset($_POST['addProdFromTrans'])) {
+   $_SESSION['addProdFromTrans'] = [];
+   
+   foreach ($_POST['addProdFromTrans'] AS $row){
+      $_SESSION['addProdFromTrans'][$row['name']] = $row['value'];   
+   }
+   
+   $x = 0;
 }
 ?>

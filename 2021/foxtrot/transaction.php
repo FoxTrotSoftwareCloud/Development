@@ -150,8 +150,18 @@
         $sponsor = isset($get_batch_data['sponsor'])?$instance->re_db_output($get_batch_data['sponsor']):0;
 
     }
-    else if($action=='edit_transaction' && $id>0){
-        $return = $instance->edit_transaction($id);
+    else if(
+            ($action=='edit_transaction' && $id>0)
+            || (isset($_GET['redirectedFromProdCate']) && $_GET['redirectedFromProdCate']=='1' && !empty($_SESSION['addProdFromTrans']))
+          )
+    {
+        // 07/07/22 Use data stored from the original transaction entries before being redirected to Add Product page (product_cate.*.php)
+        if (isset($_GET['redirectedFromProdCate']) && $_GET['redirectedFromProdCate']=='1' && !empty($_SESSION['addProdFromTrans'])){
+            $return = $_SESSION['addProdFromTrans'];
+        } else {
+            $return = $instance->edit_transaction($id);
+        }
+        
         $batch_id = isset($return['batch'])?$instance->re_db_output($return['batch']):0;
         $get_batch_date = $instance->get_batch_date($batch_id);
         $batch_date = isset($get_batch_date)?$get_batch_date:'0000-00-00';
@@ -196,6 +206,8 @@
             $hold_reason = str_replace("&lt;br&gt;", "\r\n", trim($hold_reason));
             $a = 0;
         }
+        
+        unset($_SESSION['addProdFromTrans']);
     }
     else if(isset($_GET['action']) && $_GET['action']=='transaction_delete' && isset($_GET['id']) && $_GET['id']>0)
     {
