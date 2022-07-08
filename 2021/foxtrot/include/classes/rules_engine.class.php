@@ -626,6 +626,7 @@
 		function rule_engine_manual_check($data=[]){
 			$instance_import = new import();
 			$instance_broker = new broker_master();
+			$instance_product_master = new product_master();
 
 			$checkResult = $res = $ruleId = $min = $max = 0;
 			$ruleDetail = "";
@@ -647,13 +648,25 @@
 
 			//-- RULE CHECKS --//
 			// Rule ID #2 - Broker Licensed Appropriately
+			// 06/26/22 Skip License check for PROGRAM MANAGER(13) category - too obscure to categorize - Security? Insurance? RIA?
 			$ruleId = 2;
 			$ruleDetail = $this->select($ruleId, 1);
-			if ($ruleDetail[0]['in_force']){
+			$skipCategories = [13];
+			
+			if ($ruleDetail[0]['in_force'] AND !in_array($productCategory, $skipCategories)){
 				$checkResult = $this->check_broker_license($brokerId, 0, $clientId, $productCategory, $tradeDate, 1);
 				//
 				if (!$checkResult['result']){
-					$ruleDetail[0]['rule_warning'] = "Broker NOT Licensed Appropriately: ".strtoupper($checkResult['product_category'])." / ".strtoupper($checkResult['state_name']);
+					if ($checkResult == -1){
+						$productCategoryDescription = $instance_product_master->edit($productCategory);
+						$productCategoryDescription = $productCategoryDescription['type'];
+						$state = '(Empty/Invalid State)';
+					} else {
+						$productCategoryDescription = $checkResult['product_category'];
+						$state = $checkResult['state_name'];
+					}
+					
+					$ruleDetail[0]['rule_warning'] = "Broker NOT Licensed Appropriately: ".strtoupper($productCategoryDescription)." / ".strtoupper($state);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);
 				}
 			}
@@ -754,7 +767,7 @@
 				$res2 = '';
     			$checkResult = $this->check_product_breakpoints($productId, $investAmount, (int)$ruleDetail[0]['parameter_1'],$res2);
 				//
-				if (!$checkResult){
+				if ($productId!=0 AND $investAmount!=0 AND !$checkResult){
 					$instance_payroll = new payroll();
 					$ruleDetail[0]['rule_warning'] .= ' - '.$instance_payroll->payroll_accounting_format($investAmount,2).'->'.$instance_payroll->payroll_accounting_format((float)$res2, 2);
 					$res = $this->ruleStoreToArray($ruleDetail[0], $return, $exceptionCount);

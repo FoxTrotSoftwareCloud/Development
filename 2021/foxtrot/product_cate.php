@@ -435,11 +435,12 @@
     }
     //-- Callback to Maintain Transactions --//
     function fromTrans($added=0, $pArgs='') {
+        // 07/06/22 if user is Adding a trade, it's not pulling up the New Transactio screen
         $sessionId = 'product_cate_add_product_from_trans';
         $sendArguments =
-            '?action=edit_transaction'
-            .(empty($_SESSION['product_cate_add_product_from_trans']['redirect_id']) ? '' : '&id='.$_SESSION['product_cate_add_product_from_trans']['redirect_id'])
+            (empty($_SESSION['product_cate_add_product_from_trans']['redirect_id']) ? '?action=add' : '?action='.'edit_transaction&id='.$_SESSION['product_cate_add_product_from_trans']['redirect_id'])
             .(empty($pArgs) ? '' : '&'.trim($pArgs))
+            .'&redirectedFromProdCate=1'
         ;
 
         header("location:".SITE_URL."transaction.php".$sendArguments);

@@ -9,7 +9,7 @@
     define('DEFAULT_URSER_IMAGE','default.jpg');
     
     define('CURRENT_FILE',basename($_SERVER['SCRIPT_FILENAME']));
-    //10/30/21 li - Removed the "parse_url" section. Was cutting off the first section of the domain "localhost\<RootDirectory>"
+    //10/30/21 - Localhost: Removed the "parse_url" section. Was cutting off the first section of the domain "localhost\<RootDirectory>"
     if ($_SERVER['SERVER_NAME']=='localhost') {
         $uriArray = parse_url($_SERVER['REQUEST_URI']);
         $uriHost = isset($uriArray['host']) ? $uriArray['host'] : '';
@@ -28,6 +28,7 @@
     define('INSERT_MESSAGE','Data successfully saved.');
     define('UPDATE_MESSAGE','Data updated successfully.');
     define('UNKWON_ERROR','Something went wrong, please try again.');
+    define('USER_CANCEL_MESSAGE', 'User cancelled procedure.');
 	
     define('PASSWORD_UPDATE_SUCCESS','Your password updated successfully.');
     define('DATE_FORMAT', 'm/d/Y');

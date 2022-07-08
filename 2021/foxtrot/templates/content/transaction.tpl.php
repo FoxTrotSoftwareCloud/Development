@@ -5,6 +5,8 @@
 <script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.js"></script>
 <script type="text/javascript" src="<?php echo SITE_PLUGINS; ?>autocomplete/jquery.ui.autocomplete.scroll.min.js"></script>
 <link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>autocomplete/jquery-ui.css?1">
+<!-- 07/05/22 jQuery "inputmask(...) is not a function" error. Just removed it. It's not used in the code. -->
+<!-- <script src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script> -->
 
 <script>
 function addMoreRow(){
@@ -387,8 +389,7 @@ function autocomplete(inp, arr) {
                     <div class="form-group">
                         <label>Search by Number </label><br />
                          <div class="autocomplete" style="width:100%">
-                            <input type="text" autocomplete="off" class="form-control"  name="search_client_number" id="search_client_number" />
-
+                            <input type="text" autocomplete="on" class="form-control"  name="search_client_number" id="search_client_number" />
                         </div>
                     </div>
                 </div>
@@ -405,8 +406,8 @@ function autocomplete(inp, arr) {
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Account No <span class="text-red">* </span> </label>
-                         <select class="form-control" data-required="true" name="client_number" id="client_number">
+                        <label>Account No</label>
+                         <select class="form-control" data-required="false" name="client_number" id="client_number">
                                  <option value=""> Please Select  </option>
                                  <option value="-1"> Add New </option>
                                  <?php foreach($get_accounts_no as $no): ?>
@@ -528,7 +529,7 @@ function autocomplete(inp, arr) {
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Product <span class="text-red">*</span><a id="add_new_prod" href="#" onclick="return redirect_url('product_cate.php?action=add_product&redirect=add_product_from_trans','product');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Product</a></label><br />
+                        <label>Product <span class="text-red">*</span><a id="add_new_prod" href="#" onclick="return redirect_url('product_cate.php?action=add_product&redirect=add_product_from_trans&transaction_id='+<?php echo $id ?>,'product');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Product</a></label><br />
                         <select class="form-control" data-required="true" name="product"  id="product">
                             <option value="0">Select Product</option>
                         </select>
@@ -906,12 +907,12 @@ function autocomplete(inp, arr) {
           </div>
           <div class="panel-footer fixedbtmenu">
             <div class="selectwrap">
-                <a href="<?php echo CURRENT_PAGE.'?action=view';?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;"/></a>
+                <a id="anchor_cancel" href="<?php echo CURRENT_PAGE.'?action=cancel';?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;"/></a>
                 <input type="submit" name="transaction" onclick="return waitingDialog.show();" id="save" value="Save" style="float: right;"/>
                 <?php if(isset($_GET['action']) &&  $_GET['action'] == 'add' ) {
-                    echo ' <input type="submit" name="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>  ';
+                    echo ' <input type="submit" name="transaction" id="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>  ';
                 } ?>
-                <input type="hidden" name="resolve_rule_engine_proceed" id="resolve_rule_engine_proceed" value="0"/>
+                <input type="hidden" name="rule_engine_warning_action" id="rule_engine_warning_action" value="0"/>
             </div>
           </div>
           </div>
@@ -1111,7 +1112,9 @@ function autocomplete(inp, arr) {
             </div>
             <br>
             <div class="col-md-12" >
-                <form method="post" id="resolve_rule_engine_form" name="resolve_rule_engine_form" onsubmit="return resolve_rule_engine_submit();">
+                <!-- 06/30/22 Try removing the "onsubmit=...." -->
+                <!-- <form method="post" id="resolve_rule_engine_form" name="resolve_rule_engine_form" onsubmit="return resolve_rule_engine_submit();"> -->
+                <form method="post" id="resolve_rule_engine_form" name="resolve_rule_engine_form">
                     <div class="row" style="display: block;" id="resolve_rule_engine_row">
                         <div class="col-md-5">
                             <div class="inputpopup">
@@ -1120,11 +1123,11 @@ function autocomplete(inp, arr) {
                         </div>
                         <div class="col-md-6">
                             <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_hold_commission" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="1" checked/>
-                                <label for="resolve_rule_engine" style="display:inline-block">Hold Commission</label><br />
+                                <label for="resolve_rule_engine_hold_commission" style="display:inline-block">Hold Commission</label><br />
                             <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_ignore" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="2"/>
-                                <label id="lbl_resolve_rule_engine_ignore" for="resolve_rule_engine" style="display:inline-block">Ignore Exception(s) / Enter Trade</label><br />
+                                <label id="lbl_resolve_rule_engine_ignore" for="resolve_rule_engine_ignore" style="display:inline-block">Ignore Exception(s) / Enter Trade</label><br />
                             <input type="radio" class="radio" name="resolve_rule_engine_action" id="resolve_rule_engine_cancel" style="display:inline-block; vertical-align:middle; margin-top:-1px" value="3"/>
-                                <label id="lbl_resolve_rule_engine_cancel" for="resolve_rule_engine" style="display:inline-block"> Cancel & Delete Trade</label><br />
+                                <label id="lbl_resolve_rule_engine_cancel" for="resolve_rule_engine_cancel" style="display:inline-block"> Cancel & Delete Trade</label><br />
                         </div>
                     </div>
                     <div class="row">
@@ -1188,37 +1191,38 @@ $(document).ready(function() {
             '</div>');
 
 
-    var client_ac_number =<?php echo json_encode($client_account_array); ?>;
+    var client_ac_number = <?php echo empty(json_encode($client_account_array)) ? '' : json_encode($client_account_array); ?>;
 
     // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
-    // if(localStorage.getItem('transcation_form_data')){
-    //     for(var key in transcation_form_data){
-    //         if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
-    //             $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
-    //         }
-    //     }
-    // }
+    if(localStorage.getItem('transcation_form_data')){
+        for(var key in transcation_form_data){
+            if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
+                $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+            }
+        }
+    }
 
     // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
-    // $(".livesearch").chosen();
-    // $("#search_client_number").autocomplete({
-    //     source: "ajax_get_client_account.php?_type=query",
-    //     minLength: 2,
-    //     maxShowItems: 3,
-
-    //     select: function( event, ui ) {
-    //         $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
-    //         $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-    //         //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-    //     }
-    // })
-
     // 5/14/22 Commented out, CAUSING ERROR:
-    // .autocomplete("instance")._renderItem = function (ul, item) {
-    //     return $("<li>")
-    //     .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
-    // .appendTo(ul);
-    // };;
+    // 07/05/22 Reinstated - part of the "Search By Number
+    $(".livesearch").chosen();
+    $("#search_client_number").autocomplete({
+        source: "ajax_get_client_account.php?_type=query",
+        minLength: 1,
+        maxShowItems: 20,
+        select: function( event, ui ) {
+            console.log('ui.item' + ui.item.name);
+            $('select[id="client_name"]').val(ui.item.value).trigger("chosen:updated").trigger("change");;;
+            // $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+        }
+    })
+    .autocomplete("instance")._renderItem = function (ul, item) {
+        return $("<li>")
+        .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Cloudfox ID:</strong>'+item.value+'</span><br/>'+
+                (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') + 
+                '<span><strong>Client SSN:</strong>'+item.client_ssn+'</span><br/><span><strong>Client File Number:</strong>'+item.client_file_number+'</span></div>')
+    .appendTo(ul);
+    };;
 
     $('#ch_no').mask("999999");
 
@@ -1355,10 +1359,18 @@ $(document).ready(function() {
         var reasonText = $("#hold_reason").html().trim();
         $("#hold_reason").html(reasonText);
     }
+    
+    // 06/30/22 Don't submit the Rule Warning back to transaction.php
+    $("#resolve_rule_engine_modal").on('submit', function(event){
+        event.preventDefault();
+        var data = $("#resolve_rule_engine_modal :input").serializeArray();
+        resolve_rule_engine_submit(data);
+    });
 })
 
 function hide_hold_reason()
 {
+    // 06/29/22 Don't delete the Hold Reason may by needed for Compliance reports
     // $("#hold_reason").val("");
     $("#div_hold_reason").css('display','none');
 }
@@ -1445,52 +1457,30 @@ $( function() {
 });
 
 // 05/14/22 Commented out. Not sure if this is necessary
-// var client_number_ = "<?php echo $client_number; ?>";
-// var transcation_form_data = "";
+var client_number_ = "<?php echo $client_number; ?>";
+var transcation_form_data = "";
 
-// if(localStorage.getItem('transcation_form_data')){
-//     var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
+if(localStorage.getItem('transcation_form_data')){
+    var transcation_form_data = JSON.parse(localStorage.getItem('transcation_form_data'));
 
-//     for(var key in transcation_form_data){
-//         if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
-//             document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
-//         }
-//     }
-// }
+    for(var key in transcation_form_data){
+        if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product' || transcation_form_data[key]['name']=='product_cate'){
+            document.querySelector("[name='"+transcation_form_data[key]["name"]+"']").value=transcation_form_data[key]["value"];
+        }
+    }
+}
+    $(document).ready(function (){
+        var client_ac_number = <?php echo empty(json_encode($client_account_array)) ? '' : json_encode($client_account_array); ?>;
 
-    // $(document).ready(function (){
-
-    //     var client_ac_number =<?php //echo json_encode($client_account_array); ?>;
-
-    //     if(localStorage.getItem('transcation_form_data')){
-    //         for(var key in transcation_form_data){
-    //             if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
-    //                 $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
-    //             }
-    //         }
-    //     }
-
-    //     $(".livesearch").chosen();
-    //     $("#search_client_number").autocomplete({
-    //         source: "ajax_get_client_account.php?_type=query",
-    //         minLength: 2,
-    //         maxShowItems: 3,
-
-    //         select: function( event, ui ) {
-    //             $('select[id="client_name"]').val(ui.item.id).trigger("chosen:updated").trigger("change");;;
-    //             $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-    //             //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
-    //         }
-    //     })
-    //     // 5/14/22 Commented out, CAUSING ERROR:
-    //     // .autocomplete("instance")._renderItem = function (ul, item) {
-    //     //     return $("<li>")
-    //     //     .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Account No:</strong>'+item.account_no+'</span><br/> <span><strong>Client File No:</strong>'+item.client_file_number+'</span><br/><span><strong>Client SSN No:</strong>'+item.client_ssn+'</span></div>')
-    //     // .appendTo(ul);
-    //     // };;
-
-    //     $('#ch_no').mask("999999");
-    // });
+        if(localStorage.getItem('transcation_form_data')){
+            for(var key in transcation_form_data){
+                if(transcation_form_data[key]["value"]!='' && transcation_form_data[key]['name']!='product_cate' &&  transcation_form_data[key]['name']!='product') {
+                    $("[name='"+transcation_form_data[key]["name"]+"']").trigger("chosen:updated")
+                }
+            }
+        }
+        $('#ch_no').mask("999999");
+    });
 
     // 5/14/22 Moved to doc.ready() section
     // jQuery(function($){
@@ -1503,7 +1493,8 @@ $( function() {
     //   });
     // })
 
-    // 5/14/22 Not sure what this code is for. Should it be in the read()?
+    // 5/14/22 Not sure what this code is for. Should it be in the ready()? 
+    //-- 07/05/22 jQuery Inputmask() -> "not a function" error. Try cap'ing the "i" inputmask(...) -> commented out - not referenced in the code
     // $(".two-decimals").inputmask('currency', {
     //     prefix: '',
     //     rightAlign: false
@@ -1559,7 +1550,7 @@ function get_product(category_id,selected=''){
     category_id = category_id || document.getElementById("product_cate").value;
     sponsor = document.getElementById("sponsor").value;
     c_sponsor =  document.getElementById("company_sponsor");
-    $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans");
+    $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans&transaction_id="+<?php echo $id ?>);
 
     document.getElementById("product").innerHTML = "<option value=''> Please Wait...</option>";
     if(category_id =='2' ||category_id =='3'|| category_id =='6'||category_id =='7'||category_id =='8') {
@@ -1604,8 +1595,8 @@ function get_client_account_no(client_id,selected,skipBroker=0){
 
             dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
             options.forEach(function(item){
-                $is_selected = (selected.trim() == item.trim() ? "selected" : "");
-                dropdown+="<option value='"+item.trim()+"' "+$is_selected+">"+item+"</option>";
+                is_selected = (selected.trim() == item.trim() ? "selected" : "");
+                dropdown+="<option value='"+item.trim()+"' "+is_selected+">"+item+"</option>";
             })
             document.getElementById("client_number").innerHTML = dropdown;
 
@@ -1735,16 +1726,25 @@ function get_broker_override_rates(broker_id){
 function redirect_url(url,selector){
     if(selector == "product" ){
         if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
-
-            ev.preventDefault();
-                alert("Please select Product Category First");
-                return false;
+            // Code already done in documennt ready section
+            return false;
         }
         else{
-                url = url+"&category="+$("#product_cate").val();
+            url = url+"&category="+$("#product_cate").val();
+            // 07/07/22 Store user inputs so the form can be repopulated when redirected back here from product_cate.php
+            var formdata = $('form[name="frm2"] :input').serializeArray();
+            $.ajax({
+                type: "POST",
+                url: "ajax_transaction_tpl.php",
+                data: {addProdFromTrans: formdata},
+                success: function(value){
+                    console.log('Form Data posted...');
+                },
+            })            
         }
     }
     // localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
+    //-- 07/06/22 DELETE ME Uncomment the code below to redirect to the Add Product page
     setTimeout(function(){  window.location.href=url   },100);
     return false;
 }
@@ -1946,13 +1946,14 @@ var waitingDialog = waitingDialog || (function ($) {
                 else{
                        client_name.next("div").find("a.chosen-single").removeClass("error");
                 }
-                if($.trim(client_number.val()) == ''){
-                     isErrorFound=true;
-                     client_number.addClass("error");
-                }
-                else{
-                       client_number.removeClass("error");
-                }
+                // 06/25/22 Client Account Number not required
+                // if($.trim(client_number.val()) == ''){
+                //      isErrorFound=true;
+                //      client_number.addClass("error");
+                // }
+                // else{
+                //        client_number.removeClass("error");
+                // }
                 if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
                      isErrorFound=true;
                      broker_name.next("div").find("a.chosen-single").addClass("error");
@@ -2175,37 +2176,99 @@ function resolve_rule_engine(msg='')
     $("#resolve_rule_engine_modal").modal("show");
 }
 
-function resolve_rule_engine_submit() {
+// 06/30/22 Keep processing on this page, and trigger the Save/Save&Copy/Cancel buttons programmitically
+function resolve_rule_engine_submit(posts) {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+    $("#rule_engine_warning_action").val(posts[0]['value']); 
 
-     // the script where you handle the form input.
-    var url = "transaction.php?action=rule_engine_proceed";
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: $("#resolve_rule_engine_form").serialize(), // serializes the form's elements.
-        success: function(data){
-            if(data=='1'){
-                window.location.href = "transaction.php?action=add"
-            } else{
-                $('#msg_exception').html('<div class="alert alert-danger">'+(data="" ? "Bad POST. Try again" : data)+'</div>');
-            }
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            $('#msg_exception').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
-        }
-   });
+    var action = '';
+    <?php if (isset($_SESSION['transaction_rule_engine']['data']['transaction'])) { ?>
+            action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
+    <?php } ?>
+    if ($("#rule_engine_warning_action").val() == '3'){
+        action = 'Cancel';    
+    }
 
+    //-- CLEAN UP --//
     //-- 06/11/22 "Manually" go back to the main Transaction page/grid
     $("#resolve_rule_engine_modal").modal("hide");
     $(".alert").remove();
-    $("#cancel").trigger("click");
+    
+    switch (action){
+        case 'Save':
+            $("#save").trigger("click");
+            break;
+        case 'Save & Copy':
+            $("#transaction").trigger("click");
+            break;
+        default:
+            $("#cancel").click();
+    }
+    
     return false;
 }
-// function resolve_rule_engine_submit() {
-//     $("#save").trigger("click");
 
-// }
+//-- 07/05/22 Commented Out - Commented the "good" one above. Causing some stalls in the code. - Delete if "waitingDialog" does not exist disappears.
+// var waitingDialog = waitingDialog || (function ($) {
+//     'use strict';
+
+// 	// Creating modal dialog's DOM
+// 	var $dialog = $(
+// 		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+// 		'<div class="modal-dialog modal-m">' +
+// 		'<div class="modal-content">' +
+// 			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+// 			'<div class="modal-body">' +
+// 				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+// 			'</div>' +
+// 		'</div></div></div>');
+
+// 	return {
+// 		/**
+// 		 * Opens our dialog
+// 		 * @param message Custom message
+// 		 * @param options Custom options:
+// 		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "md", "m";
+// 		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+// 		 */
+// 		show: function (message, options) {
+// 			// Assigning defaults
+// 			if (typeof options === 'undefined') {
+// 				options = {};
+// 			}
+// 			if (typeof message === 'undefined') {
+// 				message = 'Saving...';
+// 			}
+// 			var settings = $.extend({
+// 				dialogSize: 'm',
+// 				progressType: '',
+// 				onHide: null // This callback runs after the dialog was hidden
+// 			}, options);
+
+// 			// Configuring dialog
+// 			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+// 			$dialog.find('.progress-bar').attr('class', 'progress-bar');
+// 			if (settings.progressType) {
+// 				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+// 			}
+// 			$dialog.find('h3').text(message);
+// 			// Adding callbacks
+// 			if (typeof settings.onHide === 'function') {
+// 				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+// 					settings.onHide.call($dialog);
+// 				});
+// 			}
+// 			// Opening dialog
+// 			$dialog.modal();
+// 		},
+// 		/**
+// 		 * Closes dialog
+// 		 */
+	
+// 	};
+
+// })(jQuery);
+
 </script>
 
 <style type="text/css">

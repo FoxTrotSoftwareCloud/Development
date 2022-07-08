@@ -3636,33 +3636,35 @@
 		}
 
         /** Check the state licensing for the specified Broker and Product Category 12/17/21
-         * @param int $pBroker_id
-         * @param int $pClient_state
-         * @param mixed $pProduct_category_id
-         * @param string $pTerm_date
          * @return bool TRUE - good licensing, FALSE - broker licence not found or not active
          */
         function checkStateLicence($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date='',$pDetail=0){
             $return = ['licence_id'=>0, 'broker_id'=>$pBroker_id, 'first_name'=>'', 'last_name'=>'', 'active_check'=>0, 'state_id'=>(int)$pClient_state, 'state_name'=>'',
                        'received'=>'', 'terminated'=>'', 'licence_table'=>'', 'product_category_id'=>$pProduct_category_id, 'product_category'=>'', 'trade_date'=>'', 'result'=>0];
-            $BatchClass = new batches();
-            $ClientClass = new client_maintenance();
+            $instance_batches = new batches();
+            $instance_client_maintenance = new client_maintenance();
+            $pBroker_id = (int)$this->re_db_input($pBroker_id);
+            $pClient_state = (int)$this->re_db_input($pClient_state);
+            $pProduct_category_id = (int)$this->re_db_input($pProduct_category_id);
 
             $trade_date = (empty($pTrade_date) ? date('Y-m-d', strtotime('1900-01-01')) : date('Y-m-d', strtotime($pTrade_date)));
-            $product_category = strtolower($BatchClass->get_product_type($pProduct_category_id));
-            $state_name = $ClientClass->get_state_name($pClient_state);
+            $product_category = strtolower($instance_batches->get_product_type($pProduct_category_id));
+            $state_name = $instance_client_maintenance->get_state_name($pClient_state);
             if ($state_name){
                 $state_name = $state_name['state_name'];
             } else {
                 $state_name = '';
             }
-
-            if (in_array($product_category, ['ria'])) {
+            // 07/02/22 General Securities has specific product categories, so another query is needed
+            $prodCatQuery = '';
+            
+            if (in_array($product_category, ['ria', 'program manager'])) {
                 $licenceTable = 'BROKER_LICENCES_RIA';
             } else if (preg_match('(life|insurance|annuities|annuity)', $product_category)) {
                 $licenceTable = 'BROKER_LICENCES_INSURANCE';
             } else {
                 $licenceTable = 'BROKER_LICENCES_SECURITIES';
+                $prodCatQuery = " AND `bls`.`product_category`=$pProduct_category_id";
             }
 
             $return['product_category'] = $product_category;
@@ -3679,21 +3681,23 @@
                     ." FROM `".constant($licenceTable)."` AS `bls`"
                     ." LEFT JOIN `".BROKER_MASTER."` `bm` ON `bls`.`broker_id`=`bm`.`id` AND `bm`.`is_delete`=0"
                     ." WHERE `bls`.`is_delete`=0"
-                    ." AND `bls`.`broker_id`='".$this->re_db_input($pBroker_id)."'"
-                    ." AND `bls`.`state_id`='".$this->re_db_input($pClient_state)."'"
+                    ." AND `bls`.`broker_id`=$pBroker_id"
+                    ." AND `bls`.`state_id`=$pClient_state"
+                    .$prodCatQuery
             ;
             $res = $this->re_db_query($q);
 
-            if ($this->re_db_num_rows($res))
-                $return = $this->re_db_fetch_array($res);
-            $return['result'] = ($return['active_check'] AND $trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR $this->isEmptyDate($return['terminated'])));
+            if ($this->re_db_num_rows($res)) { 
+                $return = $this->re_db_fetch_array($res); 
+            }
+            // 07/01/22 $return['active_check'] AND... --> 'active_check' field deprecated from the Maintain Broker/Licenses page 
+            $return['result'] = (!$this->isEmptyDate($return['received']) AND $trade_date>=$return['received'] AND ($trade_date<=$return['terminated'] OR $this->isEmptyDate($return['terminated'])));
 
-            if ($pDetail){
-                // Just return $return
-            } else {
+            // Some calling programs just need pass/fail
+            if ($pDetail == 0){
                 $return = $return['result'];
             }
-
+            
             return $return;
         }
 

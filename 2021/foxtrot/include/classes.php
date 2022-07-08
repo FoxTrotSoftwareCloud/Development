@@ -19,7 +19,7 @@
 	include_once(DIR_FS_CLASSES."header.class.php");
     include_once(DIR_FS_CLASSES."transaction.class.php");
     include_once(DIR_FS_CLASSES."broker_document.class.php");
-    include_once(DIR_FS_CLASSES."ofac_fincen.class.php");
+    include_once(DIR_FS_CLASSES."of_fi.class.php");
     include_once(DIR_FS_CLASSES."rules_engine.class.php");
     include_once(DIR_FS_CLASSES."client_ress.class.php");
     include_once(DIR_FS_CLASSES."home.class.php");

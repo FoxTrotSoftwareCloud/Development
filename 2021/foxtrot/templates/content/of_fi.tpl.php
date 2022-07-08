@@ -103,7 +103,7 @@
                     	                <?php
                                             $count = 0;
                                             foreach($return_fincen as $key=>$val){
-                                                ?>
+                                        ?>
                                                 <tr>
                                                     <td><?php echo date('m/d/Y',strtotime($val['created_time'])); ?></td>
                                                     <td><?php echo $val['total_scan']; ?></td>

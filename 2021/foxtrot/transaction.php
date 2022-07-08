@@ -37,26 +37,35 @@
     $company = isset($_POST['company']) ? (int)$instance->re_db_input($_POST['company']):0;
     // Rule engine array should only exist AFTER submit - 06/11/22
     if ($action == "add"){
-        unset($_SESSION['transaction_rule_engine']);
+        if (isset($_POST['rule_engine_warning_action']) && in_array($_POST['rule_engine_warning_action'], ['1','2'])){
+            // Adding a transaction after the Rule Engine came up
+        } else {
+            unset($_SESSION['transaction_rule_engine']);
+        }
     }
 
     //-- Add Transaction
     if(
-        (isset($_POST['transaction']) && $_POST['transaction']=='Save')
-        || ((isset($_POST['transaction']) && $_POST['transaction']=='Save & Copy'))
-        || ($action=="rule_engine_proceed" && isset($_POST['resolve_rule_engine_action']) && in_array($_POST['resolve_rule_engine_action'], ["1","2"]))
+        (isset($_POST['transaction']) && in_array($_POST['transaction'],['Save','Save & Copy']))
+        && ($_POST['rule_engine_warning_action']!='3')
     ){
-        if ($action=="rule_engine_proceed" AND isset($_SESSION['transaction_rule_engine']['data'])){
+        if (in_array($_POST['rule_engine_warning_action'],['1','2'])){
             $postData = $_SESSION['transaction_rule_engine']['data'];
-            $postData['resolve_rule_engine_proceed'] = $_POST['resolve_rule_engine_action'];
+            $postData['rule_engine_warning_action'] = $_POST['rule_engine_warning_action'];
+
             // user opted to "Hold Commissions"
-            if ($postData['resolve_rule_engine_proceed']=="1"){
+            if ($postData['rule_engine_warning_action']=="1"){
                 $postData['hold_commission'] = "1";
-                $postData['hold_reason'] = $_SESSION['transaction_rule_engine']['warnings'];
+                $_SESSION['transaction_rule_engine']['warnings'] = (substr($_SESSION['transaction_rule_engine']['warnings'], -4)=='<br>') ? trim(substr($_SESSION['transaction_rule_engine']['warnings'], 0, -4)) : $_SESSION['transaction_rule_engine']['warnings'];
+
+                if (strpos($postData['hold_reason'], $_SESSION['transaction_rule_engine']['warnings']) === false){
+                    $postData['hold_reason'] .= (empty($postData['hold_reason'])?'':"<br>").$_SESSION['transaction_rule_engine']['warnings'];
+                }
             }
         } else {
             $postData = $_POST;
         }
+
         $id = isset($postData['id'])?$instance->re_db_input($postData['id']):0;
         //$trade_number = isset($postData['trade_number'])?$instance->re_db_input($postData['trade_number']):0;
         $client_name = isset($postData['client_name'])?$instance->re_db_input($postData['client_name']):'';
@@ -93,7 +102,6 @@
         $another_level = isset($postData['another_level'])?$instance->re_db_input($postData['another_level']):'';
         $cancel = isset($postData['cancel'])?$instance->re_db_input($postData['cancel']):'';
         $buy_sell = isset($postData['buy_sell'])?$instance->re_db_input($postData['buy_sell']):'';
-        $hold_commission = isset($postData['hold_commission'])?$instance->re_db_input($postData['hold_commission']):'';
         $posting_date = isset($postData['posting_date'])?$instance->re_db_input($postData['posting_date']):'';
         $units = isset($postData['units'])?$instance->re_db_input($postData['units']):'';
         $shares = isset($postData['shares'])?$instance->re_db_input($postData['shares']):'';
@@ -102,35 +110,31 @@
         $branch = isset($postData['branch']) ? (int)$instance->re_db_input($postData['branch']):0;
         $company = isset($postData['company']) ? (int)$instance->re_db_input($postData['company']):0;
         // 06/22/22 Reinsert the <br> elements so the reasons will appear correct in the HTML popups
+        $hold_commission = isset($postData['hold_commission'])?$instance->re_db_input($postData['hold_commission']):'';
         $hold_reason = isset($postData['hold_reason'])?$instance->re_db_input($postData['hold_reason']):'';
-        $hold_reason = str_replace("\r\n", "<br>", $hold_reason);
-        
+        $hold_reason = str_replace("\\r\\n", "<br>", $hold_reason);
+        $postData['hold_reason'] = $hold_reason;
+
         $return = $instance->insert_update($postData);
-        
+
         if($return===true){
-           /* if(isset($_SESSION['batch_id']) && $_SESSION['batch_id'] >0)
-            {
-                header("location:".SITE_URL."batches.php?action=edit_batches&id=".$_SESSION['batch_id']);
-                unset($_SESSION['batch_id']);
+            unset($_SESSION['transaction_rule_engine']);
+
+            if(isset($postData['transaction']) AND $postData['transaction']=='Save & Copy') {
+                unset($postData);
+                $trade_number='';
+                $commission_received='';
+                $units=0;
+                $invest_amount ='';
+                $shares=0;
+                $charge_amount ='';
+                $hold_reason = $hold_commission = '';
+                // header("location:".CURRENT_PAGE."?action=add");
+                // exit;
+            } else {
+                header("location:".CURRENT_PAGE."?action=view");
                 exit;
             }
-            else{*/
-                if($_POST['transaction']=='Save & Copy')
-                {
-                    $is_pending_order=1;
-                    $trade_number='';
-                    $commission_received='';
-                    $units=0;
-                    $invest_amount ='';
-                    $shares=0;
-                    $charge_amount ='';
-                }
-                else
-                {
-                    header("location:".CURRENT_PAGE."?action=view");
-                    exit;
-                }
-          /*  }*/
         }
         else{
             $error = (!isset($_SESSION['warning']) ? $return : '');
@@ -146,8 +150,18 @@
         $sponsor = isset($get_batch_data['sponsor'])?$instance->re_db_output($get_batch_data['sponsor']):0;
 
     }
-    else if($action=='edit_transaction' && $id>0){
-        $return = $instance->edit_transaction($id);
+    else if(
+            ($action=='edit_transaction' && $id>0)
+            || (isset($_GET['redirectedFromProdCate']) && $_GET['redirectedFromProdCate']=='1' && !empty($_SESSION['addProdFromTrans']))
+          )
+    {
+        // 07/07/22 Use data stored from the original transaction entries before being redirected to Add Product page (product_cate.*.php)
+        if (isset($_GET['redirectedFromProdCate']) && $_GET['redirectedFromProdCate']=='1' && !empty($_SESSION['addProdFromTrans'])){
+            $return = $_SESSION['addProdFromTrans'];
+        } else {
+            $return = $instance->edit_transaction($id);
+        }
+
         $batch_id = isset($return['batch'])?$instance->re_db_output($return['batch']):0;
         $get_batch_date = $instance->get_batch_date($batch_id);
         $batch_date = isset($get_batch_date)?$get_batch_date:'0000-00-00';
@@ -186,12 +200,14 @@
         $return_overrides = $instance->edit_overrides($id);
         $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'0';
         $company = isset($return['company'])?$instance->re_db_output($return['company']):'0';
-        
+
         // Format the Hold Reasons for the <textarea> element - 06/22/22
         if (!empty($hold_reason)){
             $hold_reason = str_replace("&lt;br&gt;", "\r\n", trim($hold_reason));
             $a = 0;
         }
+
+        unset($_SESSION['addProdFromTrans']);
     }
     else if(isset($_GET['action']) && $_GET['action']=='transaction_delete' && isset($_GET['id']) && $_GET['id']>0)
     {
@@ -215,11 +231,16 @@
         $search_text= isset($_POST['search_text'])?$instance->re_db_input($_POST['search_text']):'';
         $return = $instance->search_transcation($_POST);
     }
-    else if($action=='view'){
+    else if($action=='view' OR $action=='cancel'){
         $return = $instance->select();
         unset($_SESSION['transaction_rule_engine']);
-    }
 
+        if ($action == 'cancel'){
+            $action = 'view';
+            $instance->cancel_procedure();
+        }
+    }
+    // Set up the Transaction Page
     if(isset($_GET['p_id']) && isset($_GET['cat_id'])){
         $product_cate= $_GET['cat_id'];
         $product= $_GET['p_id'];

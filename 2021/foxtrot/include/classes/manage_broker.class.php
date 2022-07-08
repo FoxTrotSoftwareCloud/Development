@@ -4,6 +4,7 @@
 		public $table = BROKER_MASTER;
 		public $errors = '';
     public $last_inserted_id = '';
+    public $defaultEmptyDate = '1000-01-01';
 
     /**
 		 * @param int $brokerId, default all
@@ -141,7 +142,6 @@
 		 * @return true if success, error message if any errors
 		 * */
 		public function insert_update($data){
-
       //echo '<pre>';print_r($_POST);exit;
       $_SESSION['last_insert_id'] = 0;
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
@@ -643,8 +643,8 @@
                foreach($data as $key=>$val)
                {
                    $rap=isset($val['receiving_rep1'])?$this->re_db_input($val['receiving_rep1']):'';
-                   $from1=isset($val['from1'])?$this->re_db_input(date('Y-m-d',strtotime($val['from1']))):'0000-00-00';
-                   $to1=isset($val['to1'])?$this->re_db_input(date('Y-m-d',strtotime($val['to1']))):'0000-00-00';
+                   $from1=isset($val['from1'])?$this->re_db_input(date('Y-m-d',strtotime($val['from1']))):$this->defaultEmptyDate;
+                   $to1=isset($val['to1'])?$this->re_db_input(date('Y-m-d',strtotime($val['to1']))):$this->defaultEmptyDate;
                    $product_category=isset($val['product_category1'])?$this->re_db_input($val['product_category1']):'';
                    $per1=isset($val['per1'])?$this->re_db_input($val['per1']):'';
                    if($from1!='' && $to1!='' && $rap != ''){
@@ -678,8 +678,8 @@
             foreach($data as $key=>$val)
             {
               $rap=isset($val['receiving_rep1'])?$this->re_db_input($val['receiving_rep1']):'';
-              $from1=isset($val['from1'])?$this->re_db_input(date('Y-m-d',strtotime($val['from1']))):'0000-00-00';
-              $to1=isset($val['to1'])?$this->re_db_input(date('Y-m-d',strtotime($val['to1']))):'0000-00-00';
+              $from1=isset($val['from1'])?$this->re_db_input(date('Y-m-d',strtotime($val['from1']))):$this->defaultEmptyDate;
+              $to1=isset($val['to1'])?$this->re_db_input(date('Y-m-d',strtotime($val['to1']))):$this->defaultEmptyDate;
               $product_category=isset($val['product_category1'])?$this->re_db_input($val['product_category1']):'';
               $per1=isset($val['per1'])?$this->re_db_input($val['per1']):'';
               if($from1!='' && $to1!='' && $rap != '')
@@ -763,8 +763,8 @@
                {
                    $rap=isset($val['rap'])?$this->re_db_input($val['rap']):'';
                    $rate=isset($val['rate'])?$this->re_db_input($val['rate']):'';
-                   $start=isset($val['start'])?$this->re_db_input(date('Y-m-d',strtotime($val['start']))):'0000-00-00';
-                   $until = isset($val['until'])?$this->re_db_input(date('Y-m-d',strtotime($val['until']))):'0000-00-00';
+                   $start=isset($val['start'])?$this->re_db_input(date('Y-m-d',strtotime($val['start']))):$this->defaultEmptyDate;
+                   $until = isset($val['until'])?$this->re_db_input(date('Y-m-d',strtotime($val['until']))):$this->defaultEmptyDate;
                    if($rap!='' && $rate!='' && $start!='' && $until != ''){
 
                        $q = "INSERT INTO `".BROKER_PAYOUT_SPLIT."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`rap`='".$rap."' ,`rate`='".$rate."' ,
@@ -798,8 +798,8 @@
             {
               $rap=isset($val['rap'])?$this->re_db_input($val['rap']):'';
               $rate=isset($val['rate'])?$this->re_db_input($val['rate']):'';
-              $start=isset($val['start'])?$this->re_db_input(date('Y-m-d',strtotime($val['start']))):'0000-00-00';
-              $until = isset($val['until'])?$this->re_db_input(date('Y-m-d',strtotime($val['until']))):'0000-00-00';
+              $start=isset($val['start'])?$this->re_db_input(date('Y-m-d',strtotime($val['start']))):$this->defaultEmptyDate;
+              $until = isset($val['until'])?$this->re_db_input(date('Y-m-d',strtotime($val['until']))):$this->defaultEmptyDate;
               if($rap!='' && $rate!='' && $start!='' && $until != '')
               {
                 $newRow = array(
@@ -924,7 +924,7 @@
             $year = isset($data['year'])?$this->re_db_input($data['year']):'';
             $calculation_detail = isset($data['calculation_detail'])?$this->re_db_input($data['calculation_detail']):'';
             $clearing_charge_deducted_from = isset($data['clearing_charge_deducted_from'])?$this->re_db_input($data['clearing_charge_deducted_from']):'';
-            $reset = isset($data['reset'])?$this->re_db_input(date('Y-m-d',strtotime($data['reset']))):'0000-00-00';
+            $reset = isset($data['reset'])?$this->re_db_input(date('Y-m-d',strtotime($data['reset']))):$this->defaultEmptyDate;
             $description_type = isset($data['description_type'])?$this->re_db_input($data['description_type']):'';
             $team_member = isset($data['team_member'])?$data['team_member']:array();
             $team_member_string = implode (",", $team_member);
@@ -932,8 +932,8 @@
             $minimum_12B1_gross = isset($data['minimum_12B1_gross'])?$this->re_db_input($data['minimum_12B1_gross']):'';
             $summarize_payroll_adjustments = isset($data['summarize_payroll_adjustments'])?$this->re_db_input($data['summarize_payroll_adjustments']):'';
             $summarize_12B1_from_autoposting = isset($data['summarize_12B1_from_autoposting'])?$this->re_db_input($data['summarize_12B1_from_autoposting']):'';
-            $start = isset($data['start'])?$this->re_db_input(date('Y-m-d',strtotime($data['start']))):'0000-00-00';
-            $until = isset($data['until'])?$this->re_db_input(date('Y-m-d',strtotime($data['until']))):'0000-00-00';
+            $start = isset($data['start'])?$this->re_db_input(date('Y-m-d',strtotime($data['start']))):$this->defaultEmptyDate;
+            $until = isset($data['until'])?$this->re_db_input(date('Y-m-d',strtotime($data['until']))):$this->defaultEmptyDate;
             $apply_to = isset($data['apply_to'])?$this->re_db_input($data['apply_to']):'';
             $product_2 = isset($data['product_2'])?$this->re_db_input($data['product_2']):'';
             $product_3 = isset($data['product_3'])?$this->re_db_input($data['product_3']):'';
@@ -1084,45 +1084,46 @@
                     // $active = $postedData['active'][$key];
                     $category = $postedData['category'][$key];
                      $state= $postedData["state"][$key];
-                     $from= $postedData["from"][$key];
-                     $to= $postedData["to"][$key];
+                     $from= date('Y-m-d', strtotime($postedData["from"][$key]));
+                     $to= date('Y-m-d', strtotime($postedData["to"][$key]));
                      $reason= $postedData["reason"][$key];
                      $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."', `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
                       $res = $this->re_db_query($q);
                }
            }else{
            // updating Records
-               foreach($newInsertRows as $key=>$row){
-                    // $active = $postedData['active'][$key];
-               			$category = $postedData['category'][$key];
-                     $state= $postedData["state"][$key];
-                     $from= $postedData["from"][$key];
-                     $to= $postedData["to"][$key];
-                     $reason= $postedData["reason"][$key];
-                    if(!empty($category) and !empty($state) and !empty($from) and !empty($to)){
-                   	 		 $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."',
-                            `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
-                          $res = $this->re_db_query($q);
-                    }
+                foreach($newInsertRows as $key=>$row){
+                  // $active = $postedData['active'][$key];
+                  $category = $postedData['category'][$key];
+                  $state= $postedData["state"][$key];
+                  $from= date('Y-m-d', strtotime($postedData["from"][$key]));
+                  $to= date('Y-m-d', strtotime($postedData["to"][$key]));
+                  $reason= $postedData["reason"][$key];
+                  if(!empty($category) and !empty($state) and !empty($from) and !empty($to)){
+                        $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."',
+                          `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
+                        $res = $this->re_db_query($q);
                   }
-               foreach($updateRows as $key=>$row){
-                 // $from= date('y-m-d'(strtotime($postedData["from"][$key],0000));
-                 // $active = $postedData['active'][$key];
-                 $category = $postedData['category'][$key];
-                 $state= $postedData["state"][$key];
-                 $from= $postedData["from"][$key];
-                 $to= $postedData["to"][$key];
-                 $reason= $postedData["reason"][$key];
-                   $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$category."' ,`state_id`='".$state."',  `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'";
-                   $res = $this->re_db_query($q);
-                   $rowCounter = 1;
-               }
-               foreach($deletedRows as $key=>$row){
+                }
+                foreach($updateRows as $key=>$row){
+                  // $from= date('y-m-d'(strtotime($postedData["from"][$key],0000));
+                  // $active = $postedData['active'][$key];
+                  $category = $postedData['category'][$key];
+                  $state= $postedData["state"][$key];
+                  $from= date('Y-m-d', strtotime($postedData["from"][$key]));
+                  $to= date('Y-m-d', strtotime($postedData["to"][$key]));
+                  $reason= $postedData["reason"][$key];
+                   
+                  $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$category."' ,`state_id`='".$state."',  `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'";
+                  $res = $this->re_db_query($q);
+                  $rowCounter = 1;
+                }
+                foreach($deletedRows as $key=>$row){
                        // $active = $postedData['active'][$key];
                       $category = $postedData['category'][$key];
                        $state= $postedData["state"][$key];
-                       $from= $postedData["from"][$key];
-                       $to= $postedData["to"][$key];
+                       $from= date('Y-m-d', strtotime($postedData["from"][$key]));
+                       $to= date('Y-m-d', strtotime($postedData["to"][$key]));
                        $reason= $postedData["reason"][$key];
                     if(empty($category) and empty($state) and empty($from) and empty($to)){
                        $q="DELETE FROM `".BROKER_LICENCES_SECURITIES."` where broker_id='".$id."' and id='".$row."' ";
@@ -1358,12 +1359,23 @@
               {
                 // $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
                 // $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
-                $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00';
-                $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00';
-                $reason=isset($val['reason'])?$this->re_db_input($val['reason']):'';
+                $received = isset($val['received']) ? $this->re_db_input(date('Y-m-d',strtotime($val['received']))) : $this->defaultEmptyDate;
+                $terminated = isset($val['terminated']) ? $this->re_db_input(date('Y-m-d',strtotime($val['terminated']))) : $this->defaultEmptyDate;
+                $reason = isset($val['reason']) ? $this->re_db_input($val['reason']) : '';
+                $active_check = isset($val['active_check']) ? (int)$this->re_db_input($val['active_check']) : 0;
 
-                $q = "INSERT INTO `".BROKER_LICENCES_INSURANCE."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$categorey."' ,`state_id`='".$key."' , `active_check`='".$active_check."' ,`fee`='".$fee."' ,
-                  `received`='".$received."' ,`terminated`='".$terminated."',`reson`='".$reason."' ".$this->insert_common_sql();
+                $q = "INSERT INTO `".BROKER_LICENCES_INSURANCE."`"
+                      ." SET "
+                        ." `broker_id`='".$_SESSION['last_insert_id']."'"
+                        .", `type_of_licences`='".$categorey."'"
+                        .", `state_id`='".$key."'"
+                        .", `active_check`='".$active_check."'"
+                        .", `fee`='".$fee."'"
+                        .", `received`='".$received."'"
+                        .", `terminated`='".$terminated."'"
+                        .", `reson`='".$reason."'"
+                        .$this->insert_common_sql()
+                ;
                 $res = $this->re_db_query($q);
               }
               if($res)
@@ -1401,10 +1413,11 @@
                   'state_id' => strval($key),
                   // 'waive_home_state_fee' => $waive_home_state_fee,
                   // 'product_category' => $product_category,
-                  // 'active_check' => isset($val['active_check'])?$this->re_db_input($val['active_check']):'0',
                   // 'fee' => isset($val['fee'])?$this->re_db_input($val['fee']):'',
-                  'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00',
-                  'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00',
+                  //-- 07/01/22 Reinstated active check, not sure why it was commented out in the first place
+                  'active_check' => isset($val['active_check']) ? (int)$this->re_db_input($val['active_check']) : 0,
+                  'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate,
+                  'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate,
                   'reson' => isset($val['reason'])?$this->re_db_input($val['reason']):''
                 );
                 array_push($newValues, $newRow);
@@ -1426,9 +1439,26 @@
                       // NEW: SET `type_of_licences`='".$value['type_of_licences']
                     // $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['category']."' ,`state_id`='".$value['state_id']."' ,
                     // `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
-                    $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`  SET `type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
-                    `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
-
+                    
+                    // 07/01/22 Active Check not being stored(not sure why. Commented out above), (b)added "input" checks to make sure bad data not being stored to the table, e.g. "0000-00-00" defaults to '1969-12-31' in MySQL default to 1000-01-01 to make clear of an empty date
+                    $this->defaultEmptyDate = '1000-01-01';
+                    $received = isset($value['received']) ? $this->re_db_input(date('Y-m-d',strtotime($value['received']))) : $this->defaultEmptyDate;
+                    $terminated = isset($value['terminated']) ? $this->re_db_input(date('Y-m-d',strtotime($value['terminated']))) : $this->defaultEmptyDate;
+                    $reason = isset($value['reson']) ? $this->re_db_input($value['reson']) : '';
+                    $active_check = isset($value['active_check']) ? (int)$this->re_db_input($value['active_check']) : 0;
+ 
+                    $q = "UPDATE `".BROKER_LICENCES_INSURANCE."`"
+                          ." SET "
+                              ."`type_of_licences`='".$value['type_of_licences']."'"
+                              .",`state_id`='".$value['state_id']."'"
+                              .",`received`='$received'"
+                              .",`terminated`='$terminated'"
+                              .",`reson`='$reason'"
+                              .",`active_check`=$active_check"
+                              .$this->update_common_sql()
+                          ." WHERE `state_id`='".$value['state_id']."'"
+                          ." AND `broker_id`='".$id."'"
+                    ;
                     $res = $this->re_db_query($q);
                   }
                   $this->update_routine_history(BROKER_HISTORY, 'broker_id', $id, 'License Insurance', "", "Updated the values");
@@ -1468,8 +1498,8 @@
               {
                 $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
                 $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
-                $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00';
-                $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00';
+                $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate;
+                $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate;
                 $reason=isset($val['reason'])?$this->re_db_input($val['reason']):'';
 
                 $q = "INSERT INTO `".BROKER_LICENCES_RIA."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$type_of_licences."' ,`state_id`='".$key."' ,
@@ -1512,8 +1542,8 @@
                   'product_category' => $product_category,
                   'active_check' => isset($val['active_check'])?$this->re_db_input($val['active_check']):'0',
                   'fee' => isset($val['fee'])?$this->re_db_input($val['fee']):'',
-                  'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00',
-                  'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):'0000-00-00',
+                  'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate,
+                  'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate,
                   'reson' => isset($val['reason'])?$this->re_db_input($val['reason']):''
                 );
                 array_push($newValues, $newRow);
@@ -1705,7 +1735,7 @@
                 {
                     $alias_name=isset($val['alias_name'])?$this->re_db_input($val['alias_name']):'';
                     $sponsor_company=isset($val['sponsor_company'])?$this->re_db_input($val['sponsor_company']):0;
-                    $date=isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):'0000-00-00';
+                    $date=isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):$this->defaultEmptyDate;
                     if($alias_name!='' && $sponsor_company!='' && $date!=''){
 
                         $q = "INSERT INTO `".BROKER_ALIAS."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`alias_name`='".$alias_name."' ,`sponsor_company`='".$sponsor_company."' ,
@@ -1724,7 +1754,7 @@
                 {
                     $alias_name=isset($val['alias_name'])?$this->re_db_input($val['alias_name']):'';
                     $sponsor_company=isset($val['sponsor_company'])?$this->re_db_input($val['sponsor_company']):0;
-                    $date=isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):'0000-00-00';
+                    $date=isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):$this->defaultEmptyDate;
                     if($alias_name!='' && $sponsor_company!='' && $date!=''){
                         if($flag8==0){
                             $qq="update `".BROKER_ALIAS."` SET is_delete=1 where `broker_id`=".$id."";
