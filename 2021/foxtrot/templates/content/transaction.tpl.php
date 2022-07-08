@@ -1483,15 +1483,15 @@ if(localStorage.getItem('transcation_form_data')){
     });
 
     // 5/14/22 Moved to doc.ready() section
-    jQuery(function($){
-      $("#add_new_prod").click(function(ev){
-            if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
-                   ev.preventDefault();
-                   alert("Please select Product Category First");
-                   return false;
-            }
-      });
-    })
+    // jQuery(function($){
+    //   $("#add_new_prod").click(function(ev){
+    //         if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
+    //                ev.preventDefault();
+    //                alert("Please select Product Category First");
+    //                return false;
+    //         }
+    //   });
+    // })
 
     // 5/14/22 Not sure what this code is for. Should it be in the ready()? 
     //-- 07/05/22 jQuery Inputmask() -> "not a function" error. Try cap'ing the "i" inputmask(...) -> commented out - not referenced in the code
@@ -1726,10 +1726,7 @@ function get_broker_override_rates(broker_id){
 function redirect_url(url,selector){
     if(selector == "product" ){
         if($("#product_cate").val() == 0 || $("#product_cate").val() == "0"){
-            $('#add_new_prod').click(function (event) {
-                event.preventDefault();
-            });
-            alert("Please select Product Category First");
+            // Code already done in documennt ready section
             return false;
         }
         else{
@@ -2191,9 +2188,6 @@ function resolve_rule_engine_submit(posts) {
     if ($("#rule_engine_warning_action").val() == '3'){
         action = 'Cancel';    
     }
-        
-    //-- 07/02/22 TEST DELETE ME
-    console.log("Line 2208: resolve_rule_engine_submit(), action = " + action + ", value = " + $("#rule_engine_warning_action").val());
 
     //-- CLEAN UP --//
     //-- 06/11/22 "Manually" go back to the main Transaction page/grid

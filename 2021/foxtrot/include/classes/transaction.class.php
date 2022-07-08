@@ -96,7 +96,7 @@ class transaction extends db{
 		} else if($hold_commission=='1' && $hold_reason==''){
 			$this->errors .= "Please enter commission hold reason.<br>";
 		}
-		
+
 		//-- 06/08/22 Rule Engine check
 		if ($ruleEngineProceed=="0"){
 			unset($_SESSION['transaction_rule_engine']);
@@ -137,7 +137,7 @@ class transaction extends db{
             //  $get_branch_company_detail = $this->select_branch_company_ref($broker_name);
 			$branch = isset($data['branch'])?$data['branch']:0;
 			$company = isset($data['company'])?$data['company']:0;
-			
+
 			if($id==0){
 				$q = "INSERT INTO ".$this->table." SET `client_name`='".$client_name."',`source`='MN',`client_number`='".$client_number."',`broker_name`='".$broker_name."',
 				`product_cate`='".$product_cate."',`sponsor`='".$sponsor."',`product`='".$product."',`batch`='".$batch."',
@@ -301,7 +301,7 @@ class transaction extends db{
 		}
         public function delete($id){
 			$id = (int)$this->re_db_input($id);
-			
+
 			if($id > 0){
 				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
@@ -474,16 +474,16 @@ class transaction extends db{
 			$type = $this->re_db_input($type);
 			$pattern = $this->re_db_input($pattern);
 			$con = $con2 = '';
-			
+
 			if ($type == 'autocomplete') {
-				if (!empty($pattern)) { 
-					$con = " AND `at`.`account_no` LIKE '$pattern%'"; 
+				if (!empty($pattern)) {
+					$con = " AND `at`.`account_no` LIKE '$pattern%'";
 					$con2 = " AND CONVERT(`cm2`.`id`,char) LIKE '$pattern%'";
 					$con3 = " AND `cm3`.`client_ssn`!='' AND `cm3`.`client_ssn` LIKE '$pattern%'";
 					$con4 = " AND CONCAT(TRIM(`cm4`.`last_name`),IF(`cm4`.`last_name`='' OR `cm4`.`first_name`='', '', ', '),TRIM(`cm4`.`first_name`)) LIKE '%$pattern%'";
 					$con5 = " AND `cm5`.`client_file_number`!='' AND `cm5`.`client_file_number` LIKE '$pattern%'";
 				}
-				
+
 				$q = "SELECT TRIM(`at`.`account_no`) AS `label`"
 							.", CONVERT(`at`.`client_id`,char) AS `value`"
 							.", CONCAT(TRIM(`cm`.`last_name`),IF(`cm`.`last_name`='' OR `cm`.`first_name`='', '', ', '),TRIM(`cm`.`first_name`)) AS `name`"
@@ -539,7 +539,7 @@ class transaction extends db{
 				;
 
 				$res = $this->re_db_query($q);
-				
+
 				if($this->re_db_num_rows($res)>0){
 					$return = $this->re_db_fetch_all($res);
 				}
@@ -550,7 +550,7 @@ class transaction extends db{
 						ORDER BY `at`.`id` "
 				;
 				$res = $this->re_db_query($q);
-				
+
 				if($this->re_db_num_rows($res)>0){
 					// $return = $this->re_db_fetch_all($res);
 					while($row = $this->re_db_fetch_array($res)){
@@ -558,7 +558,7 @@ class transaction extends db{
 					}
 				}
 			}
-			
+
 
 			return $return;
 		}
@@ -1690,7 +1690,7 @@ class transaction extends db{
             }
 			return $return;
 		}
-		function select_monthly_broker_production_report($company='',$earning_by=[],$limit=0) {
+		function select_monthly_broker_production_report($company='',$earning_by=[]) {
 
 		        // 11/1/21 li - phase out field "rep_name", and rename "rep_number" to "broker_id" to normalize database
 		    	$return = array();
@@ -1712,8 +1712,7 @@ class transaction extends db{
 		        	if($earning_type == 2) $where.=" and tm.trade_date between '".date('Y-m-d',strtotime($start_date))."' and '".date('Y-m-d',strtotime($end_date))."' ";
 		        }
 
-				$limit_query = '';
-		        if(!empty($limit)) $limit_query = 'LIMIT '.$limit;
+
 
 		        $q = "SELECT
 		        	SUM(tm.invest_amount) as total_investment,
@@ -1749,25 +1748,36 @@ class transaction extends db{
 		        }
 		    return $return;
 		}
-		function select_monthly_branch_office_report($company=0, $branch=0, $end_date='', $start_date='', $limit=0) {
-		        $company = (int)$this->re_db_input($company);
-		        $branch = (int)$this->re_db_input($branch);
-		        $limit = (int)$this->re_db_input($limit);
-				// 11/1/21 li - phase out field "rep_name", and rename "rep_number" to "broker_id" to normalize database
-		    	$return = array();
-				$where = '';
-		        $order_by = 'order by  bm.last_name desc';
-		        $limit_query = '';
+		function select_monthly_branch_office_report($company=0,$branch=0,$end_date = '',$start_date= '' ) {
 
-				if($company > 0) { $where.= ' AND tm.company='.$company; }
-		        if($branch > 0) { $where.= ' AND tm.branch='.$branch; }
-		        if(!empty($end_date)) { $where.= ' AND tm.trade_date <="'.date('Y-m-d',strtotime($end_date)).'"  '; }
-		        if(!empty($start_date)) { $where.= ' AND tm.trade_date >="'.date('Y-m-d',strtotime($start_date)).'"  '; }
-				if($limit > 0) { $limit_query = 'LIMIT '.$limit; }
+		        // 11/1/21 li - phase out field "rep_name", and rename "rep_number" to "broker_id" to normalize database
+		    	$return = array();
+
+
+
+		        $where = '';
+		        $order_by = 'order by  bm.last_name desc';
+		        if($company > 0) {
+		        	$where.= ' AND tm.company='.$company;
+		        }
+		        if($branch > 0) {
+		        	$where.= ' AND tm.branch='.$branch;
+		        }
+
+		        if(!empty($end_date)) {
+		        	$where.= ' AND tm.trade_date <="'.date('Y-m-d',strtotime($end_date)).'"  ';
+		        }
+
+		        if(!empty($start_date)) {
+		        	$where.= ' AND tm.trade_date >="'.date('Y-m-d',strtotime($start_date)).'"  ';
+		        }
 		        /*if(!empty($earning_by)&&is_array($earning_by)) {
+
 		        	list('earning_by'=>$earning_type,'beginning_date'=>$start_date,'ending_date'=>$end_date) = $earning_by;
 		        	if($earning_type == 2) $where.=" and tm.trade_date between '".date('Y-m-d',strtotime($start_date))."' and '".date('Y-m-d',strtotime($end_date))."' ";
 		        }*/
+
+
 
 		        $q = "SELECT
 		        	SUM(tm.invest_amount) as total_investment,
@@ -1813,7 +1823,7 @@ class transaction extends db{
 		        }
 		    return $return;
 		}
-	
+
 		function cancel_procedure(){
 			$_SESSION['info'] = USER_CANCEL_MESSAGE;
 			return true;

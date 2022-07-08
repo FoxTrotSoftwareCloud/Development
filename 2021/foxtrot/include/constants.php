@@ -9,7 +9,7 @@
     define('DEFAULT_URSER_IMAGE','default.jpg');
     
     define('CURRENT_FILE',basename($_SERVER['SCRIPT_FILENAME']));
-    //10/30/21 li - Removed the "parse_url" section. Was cutting off the first section of the domain "localhost\<RootDirectory>"
+    //10/30/21 - Localhost: Removed the "parse_url" section. Was cutting off the first section of the domain "localhost\<RootDirectory>"
     if ($_SERVER['SERVER_NAME']=='localhost') {
         $uriArray = parse_url($_SERVER['REQUEST_URI']);
         $uriHost = isset($uriArray['host']) ? $uriArray['host'] : '';

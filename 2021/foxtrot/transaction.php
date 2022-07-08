@@ -52,7 +52,7 @@
         if (in_array($_POST['rule_engine_warning_action'],['1','2'])){
             $postData = $_SESSION['transaction_rule_engine']['data'];
             $postData['rule_engine_warning_action'] = $_POST['rule_engine_warning_action'];
-            
+
             // user opted to "Hold Commissions"
             if ($postData['rule_engine_warning_action']=="1"){
                 $postData['hold_commission'] = "1";
@@ -64,7 +64,7 @@
             }
         } else {
             $postData = $_POST;
-        }         
+        }
 
         $id = isset($postData['id'])?$instance->re_db_input($postData['id']):0;
         //$trade_number = isset($postData['trade_number'])?$instance->re_db_input($postData['trade_number']):0;
@@ -114,9 +114,9 @@
         $hold_reason = isset($postData['hold_reason'])?$instance->re_db_input($postData['hold_reason']):'';
         $hold_reason = str_replace("\\r\\n", "<br>", $hold_reason);
         $postData['hold_reason'] = $hold_reason;
-        
+
         $return = $instance->insert_update($postData);
-        
+
         if($return===true){
             unset($_SESSION['transaction_rule_engine']);
 
@@ -161,7 +161,7 @@
         } else {
             $return = $instance->edit_transaction($id);
         }
-        
+
         $batch_id = isset($return['batch'])?$instance->re_db_output($return['batch']):0;
         $get_batch_date = $instance->get_batch_date($batch_id);
         $batch_date = isset($get_batch_date)?$get_batch_date:'0000-00-00';
@@ -200,13 +200,13 @@
         $return_overrides = $instance->edit_overrides($id);
         $branch = isset($return['branch'])?$instance->re_db_output($return['branch']):'0';
         $company = isset($return['company'])?$instance->re_db_output($return['company']):'0';
-        
+
         // Format the Hold Reasons for the <textarea> element - 06/22/22
         if (!empty($hold_reason)){
             $hold_reason = str_replace("&lt;br&gt;", "\r\n", trim($hold_reason));
             $a = 0;
         }
-        
+
         unset($_SESSION['addProdFromTrans']);
     }
     else if(isset($_GET['action']) && $_GET['action']=='transaction_delete' && isset($_GET['id']) && $_GET['id']>0)
@@ -234,13 +234,13 @@
     else if($action=='view' OR $action=='cancel'){
         $return = $instance->select();
         unset($_SESSION['transaction_rule_engine']);
-        
+
         if ($action == 'cancel'){
             $action = 'view';
             $instance->cancel_procedure();
         }
     }
-    // Set up the Transaction Page    
+    // Set up the Transaction Page
     if(isset($_GET['p_id']) && isset($_GET['cat_id'])){
         $product_cate= $_GET['cat_id'];
         $product= $_GET['p_id'];
