@@ -1,9 +1,8 @@
 <?php
 // 05/03/22 Renamed from "ajax_hold_commissions.php - renamed to make more sense
-//    * Called from transactions.tpl.php
+// * Called from transactions.tpl.php
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
-
 
 if(
    (isset($_GET['broker_id']) && $_GET['broker_id'] != '')

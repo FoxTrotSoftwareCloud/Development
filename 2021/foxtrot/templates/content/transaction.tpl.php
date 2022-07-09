@@ -245,20 +245,18 @@ function autocomplete(inp, arr) {
                         </div>
                         <div class="modal-body" style="padding: 15px!important;">
                             <table class="table table-bordered table-stripped table-hover">
-                                                        <thead>
-                                                            <th style="width: 15%;">Receiving Rep</th>
-                                                            <th width="140px">Rate</th>
-                                                            <th>From</th>
-                                                            <th>To</th>
-                                                            <th>Category</th>
-                                                            <th>Add More</th>
-                                                        </thead>
-                                                        <tbody>
-                                                             <tr> <td colspan="6"> Please Wait .... </td></tr>
-                                                        </tbody>
-                                                    </table>
-
-
+                                <thead>
+                                    <th style="width: 15%;">Receiving Rep</th>
+                                    <th width="140px">Rate</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Category</th>
+                                    <th>Add More</th>
+                                </thead>
+                                <tbody>
+                                    <tr> <td colspan="6"> Please Wait .... </td></tr>
+                                </tbody>
+                            </table>
                         </div>
                         <div class="modal-footer">
                              <input type="button" name="save_override" onclick="close_other()" class="button btn btn-primary" value="Save"/>
@@ -1204,16 +1202,14 @@ $(document).ready(function() {
 
     // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
     // 5/14/22 Commented out, CAUSING ERROR:
-    // 07/05/22 Reinstated - part of the "Search By Number
+    // 07/05/22 Reinstated - part of the "Search By Number" text box
     $(".livesearch").chosen();
     $("#search_client_number").autocomplete({
         source: "ajax_get_client_account.php?_type=query",
         minLength: 1,
         maxShowItems: 20,
         select: function( event, ui ) {
-            console.log('ui.item' + ui.item.name);
-            $('select[id="client_name"]').val(ui.item.value).trigger("chosen:updated").trigger("change");;;
-            // $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
+            $('select[id="client_name"]').val(ui.item.value).trigger("chosen:updated").trigger("change");
         }
     })
     .autocomplete("instance")._renderItem = function (ul, item) {
@@ -1222,7 +1218,7 @@ $(document).ready(function() {
                 (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') + 
                 '<span><strong>Client SSN:</strong>'+item.client_ssn+'</span><br/><span><strong>Client File Number:</strong>'+item.client_file_number+'</span></div>')
     .appendTo(ul);
-    };;
+    };
 
     $('#ch_no').mask("999999");
 

@@ -32,13 +32,15 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $report_for = isset($filter_array['report_for'])?trim($filter_array['report_for']):'';
     $beginning_date = isset($filter_array['beginning_date']) && !empty($filter_array['beginning_date']) ?date('Y-m-d H:i:s',strtotime($instance->re_db_input($filter_array['beginning_date']))):'';
     $ending_date = isset($filter_array['ending_date']) && !empty($filter_array['ending_date']) ? date('Y-m-d',strtotime($instance->re_db_input($filter_array['ending_date']))):'';
+
+    $dont_contact_client =  isset($filter_array['dont_contact_client'])?$filter_array['dont_contact_client']:0;
     $total_records=0;
     $total_records_sub=0;
     
     function get_broker_name_only($brokerA) {
         return $brokerA['first_name'].' '.$brokerA['last_name'];
     }
-    $queried_brokers=isset($broker_id) && $broker_id!=0 ? implode(",",array_map("get_broker_name_only",array_filter($get_brokers,function ($brokerA) use ($broker_id){return $brokerA['id']==$broker_id ? true :false;}))) : '(All Brokers)';
+    $queried_brokers=isset($broker_id) && $broker_id!=0 ? implode(",",array_map("get_broker_name_only",array_filter($get_brokers,function ($brokerA) use ($broker_id){return $brokerA['id']==$broker_id ? true :false;}))) : 'All Brokers';
 
     function get_sponsor_name_only($sponsorA) {
         return $sponsorA['name'];
@@ -58,9 +60,25 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $return_client_accounts= $instance->get_client_account_list($sponsor_id,$broker_id);
        /* echo "<pre>";
         print_r($return_client_accounts);die;*/
-        $queried_sponsors=isset($sponsor_id) && $sponsor_id!=0 ? implode(",",array_map("get_sponsor_name_only",array_filter($get_sponsors,function ($sponsorA) use ($sponsor_id){return $sponsorA['id']==$sponsor_id ? true :false;}))) : '(All Sponsors)';
+        $queried_sponsors=isset($sponsor_id) && $sponsor_id!=0 ? implode(",",array_map("get_sponsor_name_only",array_filter($get_sponsors,function ($sponsorA) use ($sponsor_id){return $sponsorA['id']==$sponsor_id ? true :false;}))) : 'All Sponsors';
         ?>
        <div class="print_section accounting">
+
+
+         <table border="0" width="100%">
+                    <tr>
+                         <td width="20%" align="left"><?php echo date("m/d/Y"); ?> </td>
+
+                        <td width="60%" align="center"><?php echo $img; ?> <br/>
+                            <h5>CLIENT ACCOUNT LISTING REPORT </h5> 
+                            <h6>Broker: <?php echo $queried_brokers; ?>, Sponsor: <?php echo $queried_sponsors; ?></h6> 
+                        </td>
+                         <td width="20%" align="right" 1>Page 1</td>
+                    </tr>    
+                    
+            </table>
+            <br />
+<!-- 
         <div class="print_head">
             <div class="date">
                 <?php echo  $img; ?>
@@ -68,23 +86,21 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             <div class="main_title">
                 <p style="display:block;">  
                     <?php echo $system_company_name; ?>                  
-                    <span style="margin-top: 0px;">Broker: <?php echo $queried_brokers; ?>,
-                    Client: (All Clients),
-                    Sponsor: <?php echo $queried_sponsors; ?></span>
+                    <span style="margin-top: 0px;"></span>
                 </p>
             </div>
             <div class="page_no">
                 <p><?php echo date('m/d/Y H:i:s'); ?></p>
             </div>
-        </div>
+        </div> -->
         <div class="print_content">
             <table>
                 <thead>
                     <tr style="background:#f1f1f1;text-transform: capitalize;">
-                        <th style="padding: 8px 5px;font-size: 12px;width: 15%;">Client Name</th>
-                        <th style="padding: 8px 5px;font-size: 12px;width: 15%;">Account #</th>
-                        <th style="padding: 8px 5px;font-size: 12px;">Company</th>
-                        <th></th>
+                        <th style="padding: 8px 5px;font-size: 12px;">CLIENT NAME</th>
+                        <th style="padding: 8px 5px;font-size: 12px;">ACCOUNT NO.</th>
+                        <th style="padding: 8px 5px;font-size: 12px;">COMPANY</th>
+                        <th> </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -94,17 +110,19 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $is_recrod_found=true;
                         // $is_middle_name=(!empty($client['mi'])) ? ' '.substr($client['mi'], 0,1).'.' :'';
                      ?>
-                     <tr>
-                         <td colspan="4" style="text-align: left;">
-                            <h6>Broker: <?php echo $broker['lfname'].',&nbsp;&nbsp;'.$broker['bfname'].'&nbsp;&nbsp;('.$broker['broker_fund'].')'; ?></h6>
-                            <?php foreach($broker['clients'] as $client):
+                    <tr>
+                        <td colspan="4" style="text-align: left;font-size: 12px;font-weight: bold;">
+                            Broker: <?php echo $broker['lfname'].',&nbsp;'.$broker['bfname'].'&nbsp;&nbsp;('.$broker['broker_fund'].')'; ?>
+                        </td>
+                    </tr>
+                        <?php foreach($broker['clients'] as $client):
                                 $is_middle_name=(!empty($client['mi'])) ? ' '.substr($client['mi'], 0,1).'.' :'';
-                                ?>
+                        ?>
                             <tr>
-                                <td colspan="2">
-                                    <?php echo $client['last_name'].',&nbsp;'.$client['first_name'].' '.$is_middle_name; ?>
+                                <td colspan="2" style="font-size: 12px;" > 
+                                    <?php echo $client['last_name'].',&nbsp;'.$client['first_name']; ?>
                                 </td>
-                                <td colspan="2" style="padding-left:70px;">
+                                <td colspan="2" style="padding-left:70px;font-size: 12px;">
                                     <?php echo "Client # ".$client['client_ssn']. '&nbsp;&nbsp;&nbsp; Clearing Account # '.$client['clearing_account']; ?>
                                 </td>
                             </tr>
@@ -117,12 +135,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                          ?>
                     <tr>
                         <td></td>
-                        <td style="padding-left:10px;"><?php echo $client_account['account_no']; ?></td>
-                        <td colspan="2" style="padding-left:10px;"><?php echo $client_account['sponsor_name']; ?></td>
+                        <td style="padding-left:10px;font-size: 12px;"><?php echo $client_account['account_no']; ?></td>
+                        <td  style="padding-left:10px;font-size: 12px;"><?php echo $client_account['sponsor_name']; ?></td>
+                        <td></td>
                     </tr>
                     <?php endforeach; endif; endforeach;?>
-                    </td>
-                 </tr>
+                   
                     <?php
                     
             endforeach; ?>
@@ -139,10 +157,28 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             print_r($return_broker_list);die;*/
             
             // $queried_states=isset($state_id) && $state_id!=0 ? implode(",",array_map("get_name_only",array_filter($get_states,"get_state_name"))) : 'ALL';
-            $queried_states=isset($state_id) && $state_id!=0 ? implode(",",array_map("get_short_name_only",array_filter($get_states,function ($stateA) use ($state_id){return $stateA['id']==$state_id ? true :false;}))) : 'All';    
+
+            $queried_states=isset($state_id) && $state_id!=0 ? implode(",",array_map("get_name_only",array_filter($get_states,function ($stateA) use ($state_id){return $stateA['id']==$state_id ? true :false;}))) : 'All';    
             ?>
+
+
     <div class="print_section">
-        <div class="print_head">
+
+             <table border="0" width="100%">
+                    <tr>
+                         <td width="20%" align="left"><?php echo date("m/d/Y"); ?> </td>
+
+                        <td width="60%" align="center"><?php echo $img; ?> <br/>
+                            <h5> CLIENT LIST BY STATE  </h5> 
+                            <h6>State: <?php echo $queried_states; ?>, Broker: <?php echo $queried_brokers; ?></h6> 
+                        </td>
+                         <td width="20%" align="right" 1>Page 1</td>
+                    </tr>    
+                    
+            </table>
+            <br />
+
+     <!--    <div class="print_head">
             <div class="date">
                 <?php echo $img; ?>                
             </div>
@@ -153,7 +189,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 <span>State: <p style="text-transform: uppercase;padding-left: 6px;"><?php echo $queried_states; ?></p></span>
             </div>
             <div class="page_no"><p><?php echo date('m/d/Y H:i:s'); ?></p></div>
-        </div>
+        </div> -->
         <div class="print_content">
             <table>
                 <thead>
@@ -179,9 +215,16 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                             <h6>Broker: <?php echo $broker['lfname'].',&nbsp;&nbsp;'.$broker['bfname'].'&nbsp;&nbsp;('.$broker['broker_fund'].')'; ?></h6>
                             <?php foreach($broker['clients'] as $client):
                                 $is_middle_name=(!empty($client['mi'])) ? ' '.substr($client['mi'], 0,1).'.' :'';
+                                $state_name=implode(" ",array_map("get_short_name_only",array_filter($get_states,function ($stateA) use ($client){return $stateA['id']==$client['state'] ? true :false;})));
+                                
+                                $address = !empty($client['address1']) ? $client['address1'].', ' : '';
+                                $address.= !empty($client['city']) ? $client['city'].', ' : '';
+                                $address.= !empty($client['state']) ? $state_name.' ' : '';
+                                $address.= !empty($client['zip_code']) ? $client['zip_code'].' ' : '';
+
                                 ?>
                             <tr>
-                                <td>
+                                <td style="text-transform:none;">
                                     <?php echo $client['last_name'].', '.$client['first_name'].$is_middle_name; ?>
 
                                 </td>
@@ -194,9 +237,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                             ?></td>
                                 <td><?php echo (!empty($client['open_date'])) ? date('m/d/Y',strtotime($client['open_date'])) :'/'; ?></td>
                                 <td><?php echo (!empty($client['birth_date'])) ? date('m/d/Y',strtotime($client['birth_date'])) : ''; ?></td>
-                                <td><?php
-                                 $state_name=implode(" ",array_map("get_short_name_only",array_filter($get_states,function ($stateA) use ($client){return $stateA['id']==$client['state'] ? true :false;})));
-                                echo $client['address1'].', '.$client['city'].', '.$state_name.' '.$client['zip_code']; 
+                                <td style="text-transform:none;"> <?php
+                                 
+                                echo $address; 
                             ?></td>
                             </tr>
                         <?php endforeach; ?>
@@ -213,45 +256,46 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
             elseif ($report_for==3) {
                 ?>
+
+                  
+
     <div class="client_review_report_section">
-        <div class="client_review_report_head">
-            <div class="date">
-                <?php echo $img; ?>                
-            </div>
-            <div class="title">
-                <p>
-                    CLIENT REVIEW REPORT 
-                <span><?php
+      <table border="0" width="100%">
+                    <tr>
+                         <td width="20%" align="left"><?php echo date("m/d/Y"); ?> </td>
+
+                         <td width="60%" align="center"><?php echo $img; ?> <br/>
+                          <strong><h5> CLIENT REVIEW REPORT </h5> <h6><?php
                     if (isset($filter_array['beginning_date']) && !empty($filter_array['beginning_date']) && isset($filter_array['ending_date']) && !empty($filter_array['ending_date'])) {
                         echo date('m/d/Y',strtotime($filter_array['beginning_date'])).'&nbsp; through &nbsp;'.date('m/d/Y',strtotime($filter_array['ending_date'])) ;                        
                     }
                     else {
                         echo date('1/01/1970').'&nbsp; through &nbsp;'.date('m/d/Y');
                     }
-                    ?>
-                    </span>
-                </p>
-            </div>
-            <div class="page_no"><p><?php echo date('m/d/Y H:i:s'); ?></p></div>
-        </div>
+                    ?></h6> </td>
+                         <td width="20%" align="right" 1>Page 1</td>
+                    </tr>    
+                    
+            </table>
+            <br />
         <div class="client_review_report_content">
             <table>
                 <thead>
                     <tr>
-                        <th>Client Name</th>
-                        <th>Account No.</th>
-                        <th>Client No.</th>
-                        <th>Telephone</th>
-                        <th>Review Date</th>
-                        <th>Birth Date</th>
-                        <th>Address</th>
+                        <th style="text-transform: uppercase;">Client Name</th>
+                        <th style="text-transform: uppercase;">Account No.</th>
+                        <th  style="text-transform: uppercase;">Client No.</th>
+                        <th style="text-transform: uppercase;">Telephone</th>
+                        <th style="text-transform: uppercase;">Review Date</th>
+                        <th style="text-transform: uppercase;">Birth Date</th>
+                        <th style="text-transform: uppercase;">Address</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php 
                     $last_record=0;
                     $is_recrod_found=false;
-                     $return_client_review_list = $instance->get_client_review_report($broker_id,$beginning_date,$ending_date);
+                     $return_client_review_list = $instance->get_client_review_report($broker_id,$beginning_date,$ending_date,$dont_contact_client);
                     /*echo "<pre>";
                     print_r($return_client_review_list);die;*/
                     foreach($return_client_review_list as $client_review):
@@ -259,12 +303,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     if(!empty($client_review['client_accounts'])):
                     $current_client_ac_list=array();
                     $current_client_ac_list_count=0;
-                    $supervisor_shortname=substr($client_review['lfname'], 0,1).substr($client_review['bfname'], 0,1);  
+                    $supervisor_shortname=substr($client_review['bfname'], 0,1).substr($client_review['lfname'], 0,1);  
                     ?>
                     <tr>
                         <td colspan="7">
-                            <p class="supervisior">
-                                REVIEWING SUPERVISOR: <?php echo $client_review['lfname'].'&nbsp;'.$client_review['bfname'].'&nbsp;/&nbsp;'.$supervisor_shortname.'&nbsp;('.$client_review['broker_fund'].')'; ?>
+                            <p class="supervisior"  style="text-transform: uppercase;">
+                                REVIEWING SUPERVISOR: <?php echo $client_review['bfname'].'&nbsp;'.$client_review['lfname'].'&nbsp;/&nbsp;'.$supervisor_shortname.'&nbsp;('.$client_review['broker_fund'].')'; ?>
                             </p>
                             <table>
                                 <?php 
@@ -277,7 +321,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    $is_middle_name=(!empty($current_client['mi'])) ? ' '.substr($current_client['mi'], 0,1).'.' :''; 
                                 ?>
                                     <tr>
-                                        <td colspan="2"><?php echo $current_client['last_name'].',&nbsp;'.$current_client['first_name'].' '.$is_middle_name;  ?></td>
+                                        <td colspan="2" style="text-transform: none;"><?php echo $current_client['last_name'].',&nbsp;'.$current_client['first_name'];  ?></td>
                                         <td style="width: 11%;"><?php echo $current_client['client_file_number']; ?></td>
                                         <td style="width: 11%;"><?php
                                             echo $current_client['telephone']!="" ? sprintf("(%s) %s-%s",
@@ -300,9 +344,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                     ?>
                                     <tr>
                                         <td style="width:11%;"></td>
-                                        <td colspan="2" style="background: #f1f1f1;"><?php echo $ac_no; ?></td>
-                                        <td style="background: #f1f1f1;"><?php echo date('m/d/Y',strtotime($ac_list)); ?></td>
-                                        <td colspan="2" style="background: #f1f1f1;"><?php echo $sponsor_name; ?></td>
+                                        <td colspan="2" style="background: #f1f1f1;font-size: 10px;"><?php echo $ac_no; ?></td>
+                                        <td style="background: #f1f1f1;font-size: 10px;"><?php echo date('m/d/Y',strtotime($ac_list)); ?></td>
+                                        <td colspan="2" style="background: #f1f1f1;font-size: 10px;"><?php echo $sponsor_name; ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 <?php endif;?>
@@ -316,7 +360,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     <tr>
                         <td colspan="5">
                             <hr style="height: 1px;background: #555;margin: 0;">
-                            <p style="text-transform: uppercase;font-weight: bold;font-size: 12px;">REVIEWING SUPERVISOR: <?php echo $client_review['lfname'].'&nbsp;'.$client_review['bfname'].'&nbsp;/&nbsp;'.$supervisor_shortname; ?> TOTAL: <?php echo $current_client_ac_list_count; ?></p>
+                            <p style="text-transform: uppercase;font-weight: bold;font-size: 12px;">REVIEWING SUPERVISOR: <?php echo $client_review['bfname'].'&nbsp;'.$client_review['lfname'].'&nbsp;/&nbsp;'.$supervisor_shortname; ?> TOTAL: <?php echo $current_client_ac_list_count; ?></p>
                         </td>
                     </tr>
                     <?php endif; ?>

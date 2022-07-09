@@ -1728,7 +1728,8 @@ class transaction extends db{
 		        	FROM $this->table tm
 		        	LEFT JOIN $this->broker_master as bm on bm.id = tm.broker_name
 		         	LEFT JOIN $this->product_type as pt on pt.id = tm.product_cate
-		         	where 1=1 $where  group by broker_name,product_cate $order_by  $limit_query ";
+		         	where 1=1 $where  group by broker_name,product_cate $order_by";
+		         	// where 1=1 $where  group by broker_name,product_cate $order_by  $limit_query ";
 		    	//echo $q;
 		    	$res = $this->re_db_query($q);
 		        if($this->re_db_num_rows($res)>0){
@@ -1794,7 +1795,8 @@ class transaction extends db{
 		        	LEFT JOIN $this->broker_master as bm on bm.id = tm.broker_name
 		         	LEFT JOIN $this->product_type as pt on pt.id = tm.product_cate
 		         	LEFT JOIN ft_branch_master as br on br.id = tm.branch
-		         	where 1=1 $where  group by tm.branch,tm.broker_name,tm.product_cate $order_by  $limit_query ";
+		         	where 1=1 $where  group by tm.branch,tm.broker_name,tm.product_cate $order_by";
+		         	// where 1=1 $where  group by tm.branch,tm.broker_name,tm.product_cate $order_by  $limit_query ";
 		    	//echo $q;
 		    	$res = $this->re_db_query($q);
 		        if($this->re_db_num_rows($res)>0){
