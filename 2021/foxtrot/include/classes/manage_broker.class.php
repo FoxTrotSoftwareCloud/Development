@@ -2490,20 +2490,20 @@
             }
 			return $return;
 		}
-        public function edit_split($id){
-			$return = array();
+    public function edit_split($id){
+			$id = (int)$this->re_db_input($id);
+      $return = array();
 
-			$q = "SELECT `at`.*
-					FROM `".BROKER_PAYOUT_SPLIT."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."'";
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
-            }
+			$q = "SELECT `at`.*"
+					    ." FROM `".BROKER_PAYOUT_SPLIT."` AS `at`"
+              ." WHERE `at`.`is_delete`='0'"
+              ." AND `at`.`broker_id`=$id"
+      ;
+      
+      $res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_all($res);
+      }
 			return $return;
 		}
     //-- 06/09/22 Sponsor Search added

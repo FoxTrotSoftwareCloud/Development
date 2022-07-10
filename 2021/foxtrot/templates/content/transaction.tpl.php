@@ -250,7 +250,7 @@ function autocomplete(inp, arr) {
                                     <th width="140px">Rate</th>
                                     <th>From</th>
                                     <th>To</th>
-                                    <th>Category</th>
+                                    <!-- <th>Category</th> -->
                                     <th>Add More</th>
                                 </thead>
                                 <tbody>
@@ -385,7 +385,7 @@ function autocomplete(inp, arr) {
             <div class="row">
                  <div class="col-md-4">
                     <div class="form-group">
-                        <label>Search by Number </label><br />
+                        <label>Client Search by Name/Number </label><br />
                          <div class="autocomplete" style="width:100%">
                             <input type="text" autocomplete="on" class="form-control"  name="search_client_number" id="search_client_number" />
                         </div>
@@ -1200,8 +1200,6 @@ $(document).ready(function() {
         }
     }
 
-    // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
-    // 5/14/22 Commented out, CAUSING ERROR:
     // 07/05/22 Reinstated - part of the "Search By Number" text box
     $(".livesearch").chosen();
     $("#search_client_number").autocomplete({
@@ -1824,6 +1822,10 @@ function load_split_commission_content(broker_id){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
         {
+            // TEST DELETE ME 07/09/22
+            console.log(this.responseText);
+            
+            
             $("#split_commission_modal").find(".modal-body tbody").html(this.responseText);
             $('#demo-dp-range .input-daterange').datepicker({
                 format: "mm/dd/yyyy",
@@ -1842,7 +1844,7 @@ function load_split_commission_content(broker_id){
 function open_other(){
     $("#split_commission_modal").modal();
     if($("select[name='broker_name']").val() == '' || $("select[name='broker_name']").val() == 0){
-        $("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please Select Broker First!</td> </td>")
+        $("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please select broker first</td> </td>")
     }
     else{
             //$("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please Wait....</td> </td>")

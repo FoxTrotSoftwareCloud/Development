@@ -14,34 +14,35 @@ if(
       $product_category = $broker_class->select_category();
       $doc_id2=0;
       $transaction_id= !empty($_GET['transaction_id']) ? $_GET['transaction_id']: 0;
-
+      $broker_id = empty($_GET['broker_id']) ? 0 : (int)$dbins->re_db_input($_GET['broker_id']);
+      
       if(!$transaction_id)
-         $edit_override = $broker_class->edit_override($_GET['broker_id']);
+         $edit_split = $broker_class->edit_split($broker_id);
       else
-         $edit_override = $broker_class->load_split_commission($transaction_id);
+         $edit_split = $broker_class->load_split_commission($transaction_id);
 
-         foreach($edit_override as $regkey=>$regval){  $doc_id2++;?>
-            <tr class="tr" data-rowid="<?php  echo $regval['id'] ?>">
+         foreach($edit_split as $brokerSplitKey=>$brokerSplitVal){  $doc_id2++;?>
+            <tr class="tr" data-rowid="<?php  echo $brokerSplitVal['broker_id'] ?>">
                <td>
-                  <input type="hidden" name="override[row_id][<?php echo $doc_id2;?>]" value="<?php  echo  $transaction_id ==0 ? "" : $regval['id']; ?>" />
-                  <select name="override[receiving_rep1][<?php echo $doc_id2;?>]"  class="form-control">
+                  <input type="hidden" name="split[row_id][<?php echo $doc_id2;?>]" value="<?php  echo  $transaction_id ==0 ? "" : $brokerSplitVal['broker_id']; ?>" />
+                  <select name="split[receiving_rep1][<?php echo $doc_id2;?>]"  class="form-control">
                      <option value="">Select Broker</option>
                      <?php foreach($select_broker as $key => $val) {
-                        if($val['id'] != $id){?>
-                           <option <?php if(isset($regval['rap']) && $regval['rap']==$val['id']) {?>selected="true"<?php } ?> value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>
+                        if($val['id'] != $broker_id){?>
+                           <option <?php if(isset($brokerSplitVal['rap']) && $brokerSplitVal['rap']==$val['id']) {?>selected<?php } ?> value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>
                         <?php } } ?>
                   </select>
                </td>
                <td>
                   <div class="input-group">
-                     <input type="number" step="0.001" onchange="handleChange(this);" name="override[per1][<?php echo $doc_id2;?>]" value="<?php echo $regval['per'];?>" class="form-control" /><span class="input-group-addon">%</span>
+                     <input type="number" step="0.1" onchange="handleChange(this);" name="split[per1][<?php echo $doc_id2;?>]" value="<?php echo $brokerSplitVal['rate'];?>" class="form-control" /><span class="input-group-addon">%</span>
                   </div>
                </td>
                <td>
                   <div id="demo-dp-range">
                      <div class="input-daterange input-group" id="datepicker">
-                        <input type="text" name="override[from1][<?php echo $doc_id2;?>]" value="<?php echo date('m/d/Y',strtotime($regval['from'])); ?>" class="form-control"  />
-                        <label class="input-group-addon btn" for="override[from1][<?php echo $doc_id2;?>]">
+                        <input type="text" name="split[from1][<?php echo $doc_id2;?>]" value="<?php echo date('m/d/Y',strtotime($brokerSplitVal['start'])); ?>" class="form-control"  />
+                        <label class="input-group-addon btn" for="split[from1][<?php echo $doc_id2;?>]">
                            <span class="fa fa-calendar"></span>
                         </label>
                      </div>
@@ -50,22 +51,23 @@ if(
                <td>
                   <div id="demo-dp-range">
                      <div class="input-daterange input-group" id="datepicker">
-                        <input type="text" name="override[to1][<?php echo $doc_id2;?>]" value="<?php echo date('m/d/Y',strtotime($regval['to'])); ?>" class="form-control"  />
-                        <label class="input-group-addon btn" for="override[to1][<?php echo $doc_id2;?>]">
+                        <input type="text" name="split[to1][<?php echo $doc_id2;?>]" value="<?php echo date('m/d/Y',strtotime($brokerSplitVal['until'])); ?>" class="form-control"  />
+                        <label class="input-group-addon btn" for="split[to1][<?php echo $doc_id2;?>]">
                            <span class="fa fa-calendar"></span>
                         </label>
                      </div>
                   </div>
                </td>
-               <td>
-                  <select name="override[product_category1][<?php echo $doc_id2;?>]"  class="form-control">
+               <!-- 07/09/22 No product categories for SPLITS not sure why this is here -->
+               <!-- <td>
+                  <select name="split[product_category1][<?php echo $doc_id2;?>]"  class="form-control">
                      <option value="">Select Category</option>
-                     <option value="0" <?php if(isset($regval['product_category']) && $regval['product_category']=='0'){?> selected="true"<?php } ?>>All Product Categories</option>
+                     <option value="0" <?php if(isset($brokerSplitVal['product_category']) && $brokerSplitVal['product_category']=='0'){?> selected<?php } ?>>All Product Categories</option>
                      <?php foreach($product_category as $key => $val) {?>
-                        <option <?php if(isset($regval['product_category']) && $regval['product_category']==$val['id']) {?>selected="true"<?php } ?> value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>
+                        <option <?php if(isset($brokerSplitVal['product_category']) && $brokerSplitVal['product_category']==$val['id']) {?>selected<?php } ?> value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>
                      <?php } ?>
                   </select>
-               </td>
+               </td> -->
                <td>
                   <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
                </td>
@@ -73,26 +75,26 @@ if(
          <?php }
             $doc_id2++ ; ?>
 
-         <tr id="add_rate">
+         <!-- <tr id="add_rate">
             <td>
-              <select name="override[receiving_rep1][<?php echo $doc_id2;?>]"  class="form-control">
+              <select name="split[receiving_rep1][<?php echo $doc_id2;?>]"  class="form-control">
                  <option value="">Select Broker</option>
                  <?php foreach($select_broker as $key => $val) {
-                    if($val['id'] != $id){?>
+                    if($val['id'] != $broker_id){?>
                  <option value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>
                  <?php } } ?>
               </select>
             </td>
                <td>
                <div class="input-group">
-                  <input type="number" onchange="handleChange(this);" step="0.001" name="override[per1][<?php echo $doc_id2;?>]" value="" class="form-control" /><span class="input-group-addon">%</span>
+                  <input type="number" onchange="handleChange(this);" step="0.001" name="split[per1][<?php echo $doc_id2;?>]" value="" class="form-control" /><span class="input-group-addon">%</span>
                </div>
             </td>
             <td>
                <div id="demo-dp-range">
                   <div class="input-daterange input-group" id="datepicker">
-                     <input type="text" name="override[from1][<?php echo $doc_id2;?>]" class="form-control"  />
-                     <label class="input-group-addon btn" for="override">
+                     <input type="text" name="split[from1][<?php echo $doc_id2;?>]" class="form-control"  />
+                     <label class="input-group-addon btn" for="split">
                      <span class="fa fa-calendar"></span>
                      </label>
                  </div>
@@ -101,15 +103,15 @@ if(
             <td>
                <div id="demo-dp-range">
                   <div class="input-daterange input-group" id="datepicker">
-                    <input type="text" name="override[to1][<?php echo $doc_id2;?>]" class="form-control"  />
-                    <label class="input-group-addon btn" for="override">
+                    <input type="text" name="split[to1][<?php echo $doc_id2;?>]" class="form-control"  />
+                    <label class="input-group-addon btn" for="split">
                     <span class="fa fa-calendar"></span>
                     </label>
                   </div>
                </div>
             </td>
             <td>
-               <select name="override[product_category1][<?php echo $doc_id2;?>]"  class="form-control">
+               <select name="split[product_category1][<?php echo $doc_id2;?>]"  class="form-control">
                  <option value="">Select Category</option>
                  <option value="0">All Categories</option>
                  <?php foreach($product_category as $key => $val) {?>
@@ -120,7 +122,7 @@ if(
             <td>
               <button type="button" onclick="add_rate(<?php echo $doc_id2;?>);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
             </td>
-         </tr>
+         </tr> -->
    <?php
    //--- onChange(branch) -> Update Company dropdown
    } else if(isset($_GET['action']) AND $_GET['action']=='branch_company' AND !empty($_GET['branch'])) {
