@@ -1359,11 +1359,13 @@ class payroll extends db{
   
     public function select_trade_splits($transaction_id){
     	$return = array();
-    	
-        $q = "SELECT `ts`.*
-			FROM `".TRANSACTION_TRADE_SPLITS."` AS `ts`
-            WHERE `ts`.`is_delete`='0' and `ts`.`transaction_id`='".$transaction_id."'
-            ORDER BY `ts`.`id` ASC";
+    	$transaction_id = (int)$this->re_db_input($transaction_id);
+        
+        $q = "SELECT `ts`.*"
+			    ." FROM `".TRANSACTION_TRADE_SPLITS."` AS `ts`"
+                ." WHERE `ts`.`is_delete`='0' and `ts`.`transaction_id`=$transaction_id"
+                ." ORDER BY `ts`.`id`"
+        ;
     	$res = $this->re_db_query($q);
         if($this->re_db_num_rows($res)>0){
             $a = 0;

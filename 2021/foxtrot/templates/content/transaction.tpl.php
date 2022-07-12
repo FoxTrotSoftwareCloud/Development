@@ -248,10 +248,10 @@ function autocomplete(inp, arr) {
                                 <thead>
                                     <th style="width: 15%;">Receiving Rep</th>
                                     <th width="140px">Rate</th>
-                                    <th>From</th>
-                                    <th>To</th>
+                                    <!-- <th>From</th>
+                                    <th>To</th> -->
                                     <!-- <th>Category</th> -->
-                                    <th>Add More</th>
+                                    <th>Add(+) / Remove(-)</th>
                                 </thead>
                                 <tbody>
                                     <tr> <td colspan="6"> Please Wait .... </td></tr>
@@ -1202,21 +1202,23 @@ $(document).ready(function() {
 
     // 07/05/22 Reinstated - part of the "Search By Number" text box
     $(".livesearch").chosen();
-    $("#search_client_number").autocomplete({
-        source: "ajax_get_client_account.php?_type=query",
-        minLength: 1,
-        maxShowItems: 20,
-        select: function( event, ui ) {
-            $('select[id="client_name"]').val(ui.item.value).trigger("chosen:updated").trigger("change");
-        }
-    })
-    .autocomplete("instance")._renderItem = function (ul, item) {
-        return $("<li>")
-        .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Cloudfox ID:</strong>'+item.value+'</span><br/>'+
-                (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') + 
-                '<span><strong>Client SSN:</strong>'+item.client_ssn+'</span><br/><span><strong>Client File Number:</strong>'+item.client_file_number+'</span></div>')
-    .appendTo(ul);
-    };
+    if ($("#search_client_number").length > 0){
+        $("#search_client_number").autocomplete({
+            source: "ajax_get_client_account.php?_type=query",
+            minLength: 1,
+            maxShowItems: 20,
+            select: function( event, ui ) {
+                $('select[id="client_name"]').val(ui.item.value).trigger("chosen:updated").trigger("change");
+            }
+        })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+            .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Cloudfox ID:</strong>'+item.value+'</span><br/>'+
+                    (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') + 
+                    '<span><strong>Client SSN:</strong>'+item.client_ssn+'</span><br/><span><strong>Client File Number:</strong>'+item.client_file_number+'</span></div>')
+        .appendTo(ul);
+        };
+    }
 
     $('#ch_no').mask("999999");
 
@@ -1360,6 +1362,10 @@ $(document).ready(function() {
         var data = $("#resolve_rule_engine_modal :input").serializeArray();
         resolve_rule_engine_submit(data);
     });
+    
+    if (!isNaN($("#trade_number").val())){
+        load_split_commission_content(0, $("#trade_number").val());
+    }
 })
 
 function hide_hold_reason()
@@ -1816,16 +1822,12 @@ function get_branch_company(branch_id){
     xmlhttp.send();
 }
 
-function load_split_commission_content(broker_id){
+function load_split_commission_content(broker_id=0, transaction_id=0){
     var xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
         {
-            // TEST DELETE ME 07/09/22
-            console.log(this.responseText);
-            
-            
             $("#split_commission_modal").find(".modal-body tbody").html(this.responseText);
             $('#demo-dp-range .input-daterange').datepicker({
                 format: "mm/dd/yyyy",
@@ -1836,7 +1838,8 @@ function load_split_commission_content(broker_id){
         }
     };
     client_id= $("select[name='client_name']").val();
-    transaction_id = $("#id").val();
+    //-- 07/11/22 Transaction ID / Trade number should be passed with the parameter call
+    // transaction_id = $("#id").val();
     xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id, true);
     xmlhttp.send();
 }
@@ -2081,6 +2084,7 @@ function get_investment_amount() {
 var flag1=0;
 
 function add_rate(doc){
+    //-- 07/11/22 SPLIT REP/RATE Modal window dlements - removed Start/Until dates. Not needed for Split Trades table
     if(flag1==0){
         flag1=doc+1;
     }
@@ -2088,7 +2092,7 @@ function add_rate(doc){
 
     var html = '<tr class="tr">'+
                     '<td>'+
-                        '<select name="override[receiving_rep1]['+flag1+']"  class="form-control" >'+
+                        '<select name="split_rep[]"  class="form-control" >'+
                         '<option value="">Select Broker</option>'+
                         <?php foreach($get_broker as $key => $val){
                             if($val['id'] != $id){?>
@@ -2097,44 +2101,44 @@ function add_rate(doc){
                         '</select>'+
                     '</td>'+
                     '<td>'+'<div class="input-group">'+
-                        '<input type="number" step="0.001" onchange="handleChange(this);" name="override[per1]['+flag1+']" value="" class="form-control" />'+'<span class="input-group-addon">%</span>'+'</div>'+
+                        '<input type="number" name="split_rate[]" step="0.01" onchange="handleChange(this);" value="" class="form-control" />'+'<span class="input-group-addon">%</span>'+'</div>'+
                     '</td>'+
-                    '<td>'+
-                        '<div id="demo-dp-range">'+
-                            '<div class="input-daterange input-group" id="datepicker">'+
-                                '<input type="text" name="override[from1]['+flag1+']" class="form-control" />'+
-                                '<label class="input-group-addon btn" for="override[from1]['+flag1+']">'+
-                                '<span class="fa fa-calendar"></span>'+
-                                '</label>'+
-                            '</div>'+
-                        '</div>'+
-                    '</td>'+
-                    '<td>'+
-                        '<div id="demo-dp-range">'+
-                            '<div class="input-daterange input-group" id="datepicker">'+
-                                '<input type="text" name="override[to1]['+flag1+']" class="form-control" />'+
-                                '<label class="input-group-addon btn" for="override[from1]['+flag1+']">'+
-                                '<span class="fa fa-calendar"></span>'+
-                                '</label>'+
-                            '</div>'+
-                        '</div>'+
-                    '</td>'+
-                    '<td>'+
-                        "<select name='override[product_category1]["+flag1+"]'  class='form-control' >"+
-                        "<option value=''>Select Category</option>"+
-                        "<option value='0'>All Categories</option>"+
-                        <?php foreach($product_category as $key => $val) {?>
-                        "<option value='<?php echo $val['id']?>'><?php echo $val['type']?></option>"+
-                        <?php } ?>
-                        "</select>"+
-                    '</td>'+
+                    // '<td>'+
+                    //     '<div id="demo-dp-range">'+
+                    //         '<div class="input-daterange input-group" id="datepicker">'+
+                    //             '<input type="text" name="split_start[]" class="form-control" />'+
+                    //             '<label class="input-group-addon btn" for="override[from1]['+flag1+']">'+
+                    //             '<span class="fa fa-calendar"></span>'+
+                    //             '</label>'+
+                    //         '</div>'+
+                    //     '</div>'+
+                    // '</td>'+
+                    // '<td>'+
+                    //     '<div id="demo-dp-range">'+
+                    //         '<div class="input-daterange input-group" id="datepicker">'+
+                    //             '<input type="text" name="split_until[]" class="form-control" />'+
+                    //             '<label class="input-group-addon btn" for="override[from1]['+flag1+']">'+
+                    //             '<span class="fa fa-calendar"></span>'+
+                    //             '</label>'+
+                    //         '</div>'+
+                    //     '</div>'+
+                    // '</td>'+
+                    // '<td>'+
+                    //     "<select name='override[product_category1]["+flag1+"]'  class='form-control' >"+
+                    //     "<option value=''>Select Category</option>"+
+                    //     "<option value='0'>All Categories</option>"+
+                    //     <?php foreach($product_category as $key => $val) {?>
+                    //     "<option value='<?php echo $val['id']?>'><?php echo $val['type']?></option>"+
+                    //     <?php } ?>
+                    //     "</select>"+
+                    // '</td>'+
                     '<td>'+
                         '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                     '</td>'+
                 '</tr>';
 
 
-    $(html).insertAfter('#add_rate');
+    $(html).insertBefore('#add_rate');
     $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
