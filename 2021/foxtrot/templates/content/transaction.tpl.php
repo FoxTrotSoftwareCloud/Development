@@ -246,7 +246,7 @@ function autocomplete(inp, arr) {
                         <div class="modal-body" style="padding: 15px!important;">
                             <table class="table table-bordered table-stripped table-hover">
                                 <thead>
-                                    <th style="width: 15%;">Receiving Rep</th>
+                                    <th style="width: 33%;">Receiving Rep</th>
                                     <th width="140px">Rate</th>
                                     <!-- <th>From</th>
                                     <th>To</th> -->
@@ -1838,9 +1838,10 @@ function load_split_commission_content(broker_id=0, transaction_id=0){
         }
     };
     client_id= $("select[name='client_name']").val();
+    trade_date = $("#trade_date").val(); 
     //-- 07/11/22 Transaction ID / Trade number should be passed with the parameter call
     // transaction_id = $("#id").val();
-    xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id, true);
+    xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id+"&trade_date="+trade_date, true);
     xmlhttp.send();
 }
 
@@ -2083,21 +2084,25 @@ function get_investment_amount() {
 
 var flag1=0;
 
-function add_rate(doc){
+function add_split_row(doc){
     //-- 07/11/22 SPLIT REP/RATE Modal window dlements - removed Start/Until dates. Not needed for Split Trades table
     if(flag1==0){
         flag1=doc+1;
     }
     else { flag1++ ; }
-
+    
+    // 7/11/22 TEST DELETE ME
+    addRowRep = $('#add_split_rep').val();
+    addRowRate = $('#add_split_rate').val();
+    console.log('add_split_row: Rep = ' + addRowRep + ', Rate = ' + addRowRate);
+    
     var html = '<tr class="tr">'+
                     '<td>'+
                         '<select name="split_rep[]"  class="form-control" >'+
-                        '<option value="">Select Broker</option>'+
-                        <?php foreach($get_broker as $key => $val){
-                            if($val['id'] != $id){?>
-                        '<option value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>'+
-                        <?php } } ?>
+                            '<option value="">Select Broker</option>'+
+                            <?php foreach($get_broker as $key => $val){ ?>
+                                '<option value="<?php echo $val['id']?>"><?php echo strtoupper($val['last_name'].(($val['last_name']=='' || $val['first_name']=='') ? '' : ', ').$val['first_name']) ?></option>'+
+                            <?php }?>
                         '</select>'+
                     '</td>'+
                     '<td>'+'<div class="input-group">'+
@@ -2138,13 +2143,20 @@ function add_rate(doc){
                 '</tr>';
 
 
-    $(html).insertBefore('#add_rate');
+    $(html).insertBefore('#add_split_row');
     $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
         autoclose: true,
         todayHighlight: true
     });
+    // 07/12/22 Default the new row with the Add Split row values
+    splitReps = document.getElementsByName("split_rep[]");
+    splitRates = document.getElementsByName("split_rate[]");
+    splitReps[splitReps.length-2].value = addRowRep;
+    splitRates[splitRates.length-2].value = addRowRate;
+    splitReps[splitReps.length-1].value = "";
+    splitRates[splitRates.length-1].value = "0.00";
 }
 
 var deleteRows=[]

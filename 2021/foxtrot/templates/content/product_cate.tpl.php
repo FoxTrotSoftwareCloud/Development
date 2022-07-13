@@ -85,9 +85,6 @@ function default_min_threshold() {
     // Default the "min" thresholds to $1 more than the prior "max"
     minThreshold = document.getElementsByName("min_threshold[]")
     maxThreshold = document.getElementsByName("max_threshold[]")
-
-    // TEST DELETE ME
-    console.log("default_min_threshold: maxThreshold.length = " + maxThreshold.length)
     
     for (var $i=0; $i < minThreshold.length; $i++){
         if ($i == 0){
