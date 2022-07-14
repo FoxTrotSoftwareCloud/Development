@@ -22,9 +22,17 @@ if(
       $transaction_id = ( empty($_GET['transaction_id']) ? 0 : (int)$dbins->re_db_input($_GET['transaction_id']) );
       $broker_id = ( empty($_GET['broker_id']) ? 0 : (int)$dbins->re_db_input($_GET['broker_id']) );
       $trade_date = ( empty($_GET['trade_date']) ? '' : $dbins->re_db_input($_GET['trade_date']) );
+      $useRuleData = ( empty($_GET['use_rule_data']) ? 0 : $dbins->re_db_input($_GET['use_rule_data']) );
       
       if($transaction_id) {
       	$edit_split = $payroll_class->select_trade_splits($transaction_id);
+      } else if($useRuleData) {
+      	$edit_split = [];
+         foreach ($_SESSION['transaction_rule_engine']['data']['split_rep'] AS $editSplitKey=>$editSplitVal){
+            if (!empty($editSplitVal) AND !empty($_SESSION['transaction_rule_engine']['data']['split_rate'][$editSplitKey]))
+               $edit_split[] = ['split_broker'=>$editSplitVal, 'split_rate'=>$_SESSION['transaction_rule_engine']['data']['split_rate'][$editSplitKey]];
+         }
+         
       } else {
          $edit_split = $broker_class->edit_split($broker_id);
       }
@@ -59,7 +67,7 @@ if(
                <!-- 2: Split Rate -->
                <td>
                   <div class="input-group">
-                     <input type="number" name="split_rate[]" step="0.01" onchange="handleChange(this);" value="<?php echo $splitRate;?>" class="form-control" /><span class="input-group-addon">%</span>
+                     <input type="number" name="split_rate[]" step=".01" onchange="handleChange(this);" value="<?php echo $splitRate;?>" class="form-control" /><span class="input-group-addon">%</span>
                   </div>
                </td>
                <!-- 07/11/22 Start/Until not needed for trades -->
@@ -108,7 +116,7 @@ if(
          <!-- Add/Blank 2: Split Rate -->
          <td>
             <div class="input-group">
-               <input type="number" name="split_rate[]" id="add_split_rate" onchange="handleChange(this);" step="0.01" value="" class="form-control" /><span class="input-group-addon">%</span>
+               <input type="number" name="split_rate[]" id="add_split_rate" onchange="handleChange(this);" step=".01" value="" class="form-control" /><span class="input-group-addon">%</span>
             </div>
          </td>
          <!-- Add/Blank 3: Start Date -->
@@ -138,6 +146,7 @@ if(
          </td>
       </tr>
    <?php
+   
    //--- onChange(branch) -> Update Company dropdown
    } else if(isset($_GET['action']) AND $_GET['action']=='branch_company' AND !empty($_GET['branch'])) {
       $return = ["id"=>0, "company"=>0];

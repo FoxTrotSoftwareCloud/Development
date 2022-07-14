@@ -9,49 +9,6 @@
 <!-- <script src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script> -->
 
 <script>
-function addMoreRow(){
-    var html = '<div class="row">'+
-
-                    '<div class="col-md-5">'+
-                        '<div class="form-group">'+
-                            '<select class="form-control" name="split_broker[]">'+
-                            '<option value="">Select Broker</option>'+
-                            <?php foreach($get_broker as $key=>$val){?>
-                            '<option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>'+
-                            <?php } ?>
-                            '</select>'+
-                        '</div>'+
-                        /*'<div class="form-group">'+
-                            '<label></label><br />'+
-                            '<input type="text" name="company" id="company" class="form-control" />'+
-                        '</div>'+*/
-                    '</div>'+
-                    '<div class="col-md-5">'+
-                        '<div class="input-group">'+
-                            '<input type="text" name="split_rate[]" onchange="handleChange(this);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" id="split_rate" class="form-control decimal" />'+
-                            '<input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="0" />'+
-                            '<input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="0" />'+
-                            '<span class="input-group-addon">%</span>'+
-                        '</div>'+
-                    '</div>'+
-
-                    '<div class="col-md-2">'+
-                        '<div class="form-group">'+
-                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
-                        '</div>'+
-                    '</div>'+
-                '</div>';
-
-
-    $(html).insertAfter('#add_other_split');
-    $( function() {
-    $('.decimal').chargeFormat();
-    });
-}
-$(document).on('click','.remove-row',function(){
-    $(this).closest('.row').remove();
-});
-
 var flag1=0;
 function add_override(){
 
@@ -358,7 +315,7 @@ function autocomplete(inp, arr) {
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Trade Number </label><br />
-                        <input type="text" name="trade_number" id="trade_number" value="<?php if(isset($trade_number)) {echo $trade_number;}else{echo 'Assigned after saving';}?>" disabled="true" class="form-control" />
+                        <input type="text" name="trade_number" id="trade_number" value="<?php if(!empty($trade_number)) {echo $trade_number;}else if(!empty($id)){echo $id;}else{echo 'Assigned after saving';}?>" disabled="true" class="form-control" />
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -684,150 +641,6 @@ function autocomplete(inp, arr) {
 
                     </div>
                 </div>
-                <!--<div class="col-md-8" id="split_div" <?php  if((isset($split) && $split!=1) || (isset($_GET['action']) && $_GET['action']=='add')){?>style="display: none;"<?php } ?>>
-                    <div class="row" id="add_other_split">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label>Split Broker </label><br />
-                            <select class="form-control" name="split_broker[]">
-                                <option value="">Select Broker</option>
-                                 <?php foreach($get_broker as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label>Split Rate </label><br />
-                            <div class="input-group">
-                                <input type="text" name="split_rate[]" onchange="handleChange(this);" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control decimal" value="" />
-                                <input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="0" />
-                                <input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="0" />
-                                <span class="input-group-addon">%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label></label><br />
-                            <button type="button" onclick="addMoreRow();" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <?php if(isset($action) && ($action=='add'||$return_splits==array())){?>
-                <div id="client_split_row"></div>
-                <div id="broker_split_row"></div>
-                <?php } ?>
-                <?php
-                if($return_splits != '')
-                {
-                $is_client = 0;
-                $is_broker = 0;
-                foreach($return_splits as $keyedit_split=>$valedit_split){
-                    $split_broker = $valedit_split['split_broker'];?>
-                <?php if($is_client==0){?>
-                <div id="client_split_row">
-                <?php } ?>
-                <?php if($valedit_split['split_client_id']>0){
-                      ?>
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <select class="form-control" name="split_broker[]">
-                                <option value="">Select Broker</option>
-                                 <?php foreach($get_broker as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <input type="text" name="split_rate[]" onchange="handleChange(this);"  onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control decimal" value="<?php echo number_format($valedit_split['split_rate'],2);?>" />
-                            <input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="<?php echo $valedit_split['split_client_id'];?>" />
-                            <input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="<?php echo $valedit_split['split_broker_id'];?>" />
-                            <span class="input-group-addon">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                             <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <?php } ?>
-                <?php if($is_client==0){
-                    $is_client++; ?>
-                </div>
-                <?php } ?>
-                <?php
-                if($is_broker==0)
-                {?>
-                <div id="broker_split_row">
-                <?php }
-                if($valedit_split['split_broker_id']>0){
-                     ?>
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <select class="form-control" name="split_broker[]">
-                                <option value="">Select Broker</option>
-                                 <?php foreach($get_broker as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <input type="text" name="split_rate[]" onchange="handleChange(this);"  onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control decimal" value="<?php echo number_format($valedit_split['split_rate'],2);?>" />
-                            <input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="<?php echo $valedit_split['split_client_id'];?>" />
-                            <input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="<?php echo $valedit_split['split_broker_id'];?>" />
-                            <span class="input-group-addon">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                             <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <?php }
-                if($is_broker==0){
-                $is_broker++; ?>
-                </div>
-                <?php }
-                if($valedit_split['split_broker_id']==0 && $valedit_split['split_client_id']==0) {?>
-                <div class="row split_edit_row">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <select class="form-control" name="split_broker[]">
-                                <option value="">Select Broker</option>
-                                 <?php foreach($get_broker as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <input type="text" name="split_rate[]" onchange="handleChange(this);"  onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control decimal" value="<?php echo number_format($valedit_split['split_rate'],2);?>" />
-                            <input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="<?php echo $valedit_split['split_client_id'];?>" />
-                            <input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="<?php echo $valedit_split['split_broker_id'];?>" />
-                            <span class="input-group-addon">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                             <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <?php } } }?>
-                </div>-->
-            </div>
             <!--<h4>Overrides </h4>
             <div class="panel" style="border: 1px solid #cccccc !important; padding: 10px !important;">
                 <div class="row">
@@ -1341,6 +1154,7 @@ $(document).ready(function() {
     // 06/07/22 Rule Engine Modal Window
     <?php if (!empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
         resolve_rule_engine("<?php echo $_SESSION['transaction_rule_engine']['warnings']; ?>");
+        load_split_commission_content(0, 0, 1);
     <?php } ?>
     
     $('#commission-received-date').datepicker({
@@ -1364,8 +1178,13 @@ $(document).ready(function() {
     });
     
     if (!isNaN($("#trade_number").val())){
-        load_split_commission_content(0, $("#trade_number").val());
+        <?php if (empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
+            load_split_commission_content(0, $("#trade_number").val());
+        <?php } ?>
     }
+    
+    // 07/13/22 TEST DELETE ME
+    console.log('document.ready() -> ***end of code***');
 })
 
 function hide_hold_reason()
@@ -1436,6 +1255,9 @@ function open_hold_reason() {
     $("#div_hold_reason").css('display','block');
 }
 function handleChange(input) {
+    // 07/13/22 TEST DELETE ME
+    console.log('input.value = ' + input.value);
+    
     if (input.value < 0) input.value = 0.00;
     if (input.value > 100) input.value = 100.00;
 }
@@ -1822,7 +1644,7 @@ function get_branch_company(branch_id){
     xmlhttp.send();
 }
 
-function load_split_commission_content(broker_id=0, transaction_id=0){
+function load_split_commission_content(broker_id=0, transaction_id=0, use_rule_data=0){
     var xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
@@ -1841,8 +1663,10 @@ function load_split_commission_content(broker_id=0, transaction_id=0){
     trade_date = $("#trade_date").val(); 
     //-- 07/11/22 Transaction ID / Trade number should be passed with the parameter call
     // transaction_id = $("#id").val();
-    xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id+"&trade_date="+trade_date, true);
+    xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id+"&trade_date="+trade_date+"&use_rule_data="+use_rule_data, true);
     xmlhttp.send();
+    
+    return false;
 }
 
 function open_other(){
@@ -2091,11 +1915,6 @@ function add_split_row(doc){
     }
     else { flag1++ ; }
     
-    // 7/11/22 TEST DELETE ME
-    addRowRep = $('#add_split_rep').val();
-    addRowRate = $('#add_split_rate').val();
-    console.log('add_split_row: Rep = ' + addRowRep + ', Rate = ' + addRowRate);
-    
     var html = '<tr class="tr">'+
                     '<td>'+
                         '<select name="split_rep[]"  class="form-control" >'+
@@ -2106,7 +1925,7 @@ function add_split_row(doc){
                         '</select>'+
                     '</td>'+
                     '<td>'+'<div class="input-group">'+
-                        '<input type="number" name="split_rate[]" step="0.01" onchange="handleChange(this);" value="" class="form-control" />'+'<span class="input-group-addon">%</span>'+'</div>'+
+                        '<input type="number" name="split_rate[]" step=".01" onchange="handleChange(this);" onblur="test" value="" class="form-control" />'+'<span class="input-group-addon">%</span>'+'</div>'+
                     '</td>'+
                     // '<td>'+
                     //     '<div id="demo-dp-range">'+
@@ -2141,8 +1960,6 @@ function add_split_row(doc){
                         '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                     '</td>'+
                 '</tr>';
-
-
     $(html).insertBefore('#add_split_row');
     $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
@@ -2150,11 +1967,14 @@ function add_split_row(doc){
         autoclose: true,
         todayHighlight: true
     });
-    // 07/12/22 Default the new row with the Add Split row values
+    // 07/12/22 Populate the new row with the "Add Split" row values, so the blank row(#add_split_row) will be at the bottom
+        // 7/11/22 TEST DELETE ME
+    addRowRep = $('#add_split_rep').val();
+    addRowRate = $('#add_split_rate').val();
     splitReps = document.getElementsByName("split_rep[]");
     splitRates = document.getElementsByName("split_rate[]");
     splitReps[splitReps.length-2].value = addRowRep;
-    splitRates[splitRates.length-2].value = addRowRate;
+    splitRates[splitRates.length-2].value = addRowRate!="" ? addRowRate : "0.00";
     splitReps[splitReps.length-1].value = "";
     splitRates[splitRates.length-1].value = "0.00";
 }
