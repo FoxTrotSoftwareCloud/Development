@@ -23,10 +23,13 @@ if(
       $broker_id = ( empty($_GET['broker_id']) ? 0 : (int)$dbins->re_db_input($_GET['broker_id']) );
       $trade_date = ( empty($_GET['trade_date']) ? '' : $dbins->re_db_input($_GET['trade_date']) );
       $useRuleData = ( empty($_GET['use_rule_data']) ? 0 : $dbins->re_db_input($_GET['use_rule_data']) );
+      $splitType = '';
       
       if($transaction_id) {
-      	$edit_split = $payroll_class->select_trade_splits($transaction_id);
+         $edit_split = $payroll_class->select_trade_splits($transaction_id);
+         $splitType = 'transaction='.$transaction_id;
       } else if($useRuleData) {
+         $splitType = 'ruledata='.$_SESSION['transaction_rule_engine']['data']['id'];
       	$edit_split = [];
          foreach ($_SESSION['transaction_rule_engine']['data']['split_rep'] AS $editSplitKey=>$editSplitVal){
             if (!empty($editSplitVal) AND !empty($_SESSION['transaction_rule_engine']['data']['split_rate'][$editSplitKey]))
@@ -35,6 +38,7 @@ if(
          
       } else {
          $edit_split = $broker_class->edit_split($broker_id);
+         $splitType = 'broker_id='.$broker_id;
       }
 
       foreach($edit_split as $editSplitKey=>$editSplitVal){  
@@ -53,9 +57,9 @@ if(
             $doc_id2++; 
       ?>
             <tr class="tr" data-rowid="<?php  echo $doc_id2 ?>">
+               <input type="hidden" name="split_type[]" value="<?php echo $splitType; ?>" />
                <!-- Column 1: Split Receiving Rep -->
                <td>
-                  <input type="hidden" name="split[]" value="<?php echo $transaction_id.'@/@'.$broker_id; ?>" />
                   <select name="split_rep[]"  class="form-control" style="padding-right: 30px;">
                      <option value="">Select Broker</option>
                      <?php foreach($select_broker as $key => $val) {
@@ -67,7 +71,7 @@ if(
                <!-- 2: Split Rate -->
                <td>
                   <div class="input-group">
-                     <input type="number" name="split_rate[]" step=".01" onchange="handleChange(this);" value="<?php echo $splitRate;?>" class="form-control" /><span class="input-group-addon">%</span>
+                     <input type="number" name="split_rate[]" step="1.00" onchange="handleChange(this);" value="<?php echo $splitRate;?>" class="form-control" /><span class="input-group-addon">%</span>
                   </div>
                </td>
                <!-- 07/11/22 Start/Until not needed for trades -->
@@ -103,7 +107,8 @@ if(
       ?>
 
       <tr id="add_split_row" name="add_split_row">
-            <!-- Add/Blank 1: Receiving Rep -->
+         <input type="hidden" name="split_type[]" id="add_split_type" value="<?php echo $splitType; ?>" />
+         <!-- Add/Blank 1: Receiving Rep -->
          <td>
             <select id="add_split_rep" name="split_rep[]"  class="form-control">
                <option value="">Select Broker</option>
@@ -116,7 +121,7 @@ if(
          <!-- Add/Blank 2: Split Rate -->
          <td>
             <div class="input-group">
-               <input type="number" name="split_rate[]" id="add_split_rate" onchange="handleChange(this);" step=".01" value="" class="form-control" /><span class="input-group-addon">%</span>
+               <input type="number" name="split_rate[]" id="add_split_rate" onchange="handleChange(this);" step="1.00" value="0.00" class="form-control" /><span class="input-group-addon">%</span>
             </div>
          </td>
          <!-- Add/Blank 3: Start Date -->

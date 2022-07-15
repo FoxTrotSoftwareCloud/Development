@@ -708,18 +708,20 @@ class transaction extends db{
             }
 			return $return;
 		}
-        public function get_client_split_rate($client_id){
+        public function get_client_split_rate($client_id, $all_fields=0){
 			$return = array();
-            $con='';
-
-            if($client_id>0)
-            {
-                $con.=" AND `at`.`id` = ".$client_id."";
-            }
-			$q = "SELECT `at`.`split_broker`,`at`.`split_rate`
-					FROM `".CLIENT_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' ".$con."
-                    ORDER BY `at`.`id` ASC";
+            $con = $splitFields = '';
+            
+			if($client_id>0) { $con.=" AND `at`.`id` = ".$client_id.""; }
+			if($all_fields) { $splitFields = ",`at`.`split_rate_from`,`at`.`split_rate_to`,`at`.`split_rate_category`"; }
+			
+			$q = "SELECT `at`.`split_broker`,`at`.`split_rate`"
+					.$splitFields
+					." FROM `".CLIENT_MASTER."` AS `at`"
+                    ." WHERE `at`.`is_delete`='0' "
+						.$con
+                    ." ORDER BY `at`.`id` ASC"
+			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;

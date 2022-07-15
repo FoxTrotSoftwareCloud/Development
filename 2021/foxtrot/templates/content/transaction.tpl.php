@@ -216,7 +216,7 @@ function autocomplete(inp, arr) {
                             </table>
                         </div>
                         <div class="modal-footer">
-                             <input type="button" name="save_override" onclick="close_other()" class="button btn btn-primary" value="Save"/>
+                             <input type="button" name="save_split" onclick="close_other('split_commission_modal')" class="button btn btn-primary" value="Close"/>
                         </div>
                     </div>
                 </div>
@@ -1183,8 +1183,6 @@ $(document).ready(function() {
         <?php } ?>
     }
     
-    // 07/13/22 TEST DELETE ME
-    console.log('document.ready() -> ***end of code***');
 })
 
 function hide_hold_reason()
@@ -1255,8 +1253,8 @@ function open_hold_reason() {
     $("#div_hold_reason").css('display','block');
 }
 function handleChange(input) {
-    // 07/13/22 TEST DELETE ME
-    console.log('input.value = ' + input.value);
+    // 07/13/22 Set the "value" attribute so the spinner buttons will increment the latest value
+    input.setAttribute('value',input.value);
     
     if (input.value < 0) input.value = 0.00;
     if (input.value > 100) input.value = 100.00;
@@ -1406,6 +1404,9 @@ function get_client_account_no(client_id,selected,skipBroker=0){
     if (!skipBroker){
         var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
         $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
+
+        // 07/14/22 Update client splits - skip initial "Maintain Transaction" load
+        get_client_split_rates(client_id);
     }
 
     var xmlhttp = new XMLHttpRequest();
@@ -1421,16 +1422,11 @@ function get_client_account_no(client_id,selected,skipBroker=0){
                 dropdown+="<option value='"+item.trim()+"' "+is_selected+">"+item+"</option>";
             })
             document.getElementById("client_number").innerHTML = dropdown;
-
-            // 05/15/22 Commented out - not sure what this is doing
-            // for(var key in transcation_form_data){
-            //     if(transcation_form_data[key]['name']=='client_number')
-            //     document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
-            // }
         }
     };
     xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
     xmlhttp.send();
+    
 }
 
 function get_client_id(client_number){
@@ -1496,20 +1492,43 @@ function setnumber_format(inputtext)
 }
 
 //get client split rate on client select
+// 07/14/22 Populate the Split Modal i/o of the split <div>
 function get_client_split_rates(client_id){
+    var trade_date = $("#trade_date").val();
+    var product_category = $("#product_cate").val();
+    var split_broker, split_rate;
+    split_broker = split_rate = '';
+    
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
         {
-            $( "#split_yes" ).prop( "checked", true );
-            open_other();
-            //$('#client_split_row').replaceWith(this.responseText);
+            var jsonResponse = JSON.parse(this.responseText);
+            split_broker = jsonResponse.split_broker;
+            split_rate = jsonResponse.split_rate;
 
-            document.getElementById("client_split_row").innerHTML = this.responseText;
-            //$(this.responseText).insertAfter('#add_other_split');
+            if (split_broker>0 && split_rate>0){
+                // TEST DELETE ME
+                console.log('get client split rates: split_broker='+split_broker+', split_rate='+split_rate);
+                
+                // If the "add split" row is populated add a blank row beneath to store the client split
+                if (parseFloat($('#add_split_rep').val())>0 && parseFloat($('#add_split_rate').val())>'0'){
+                    // TEST DELETE ME
+                    console.log('get client split rates: Adding a blank row');
+
+                    add_split_row(0);
+                } else {
+                    $('#add_split_rep').val(split_broker);
+                    $('#add_split_rate').val(split_rate);
+                    $('#add_split_type').val('client='+client_id);
+                }
+                add_split_row(0);
+                // TEST DELETE ME
+                console.log('get client split rates: add-split-row(0,client='+client_id+','+split_broker+','+split_rate+')');
+            }            
         }
     };
-    xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id, true);
+    xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id+"&trade_date="+trade_date+"&product_category="+product_category, true);
     xmlhttp.send();
 }
 
@@ -1677,14 +1696,12 @@ function open_other(){
     else{
             //$("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please Wait....</td> </td>")
     }
-    //$('#split_div').css('display','block');
-    //$('.split_edit_row').css('display','block');
 }
 
-function close_other() {
+function close_other(callFrom='') {
     $("#split_commission_modal").modal("hide");
-   // $('#split_div').css('display','none');
-    //$('.split_edit_row').css('display','none');
+    
+    console.log('close_other().callFrom = ' + callFrom);
 }
 
 // jQuery(function($){
@@ -1908,7 +1925,7 @@ function get_investment_amount() {
 
 var flag1=0;
 
-function add_split_row(doc){
+function add_split_row(doc, split_type='user_added', split_broker='', split_rate='0.00'){
     //-- 07/11/22 SPLIT REP/RATE Modal window dlements - removed Start/Until dates. Not needed for Split Trades table
     if(flag1==0){
         flag1=doc+1;
@@ -1916,6 +1933,7 @@ function add_split_row(doc){
     else { flag1++ ; }
     
     var html = '<tr class="tr">'+
+                    '<input type="hidden" name="split_type[]" value="' + split_type + '" />' + 
                     '<td>'+
                         '<select name="split_rep[]"  class="form-control" >'+
                             '<option value="">Select Broker</option>'+
@@ -1925,7 +1943,7 @@ function add_split_row(doc){
                         '</select>'+
                     '</td>'+
                     '<td>'+'<div class="input-group">'+
-                        '<input type="number" name="split_rate[]" step=".01" onchange="handleChange(this);" onblur="test" value="" class="form-control" />'+'<span class="input-group-addon">%</span>'+'</div>'+
+                        '<input type="number" name="split_rate[]" step="1.00" onchange="handleChange(this);" onblur="test" value="" class="form-control" />'+'<span class="input-group-addon">%</span>'+'</div>'+
                     '</td>'+
                     // '<td>'+
                     //     '<div id="demo-dp-range">'+
@@ -1968,15 +1986,14 @@ function add_split_row(doc){
         todayHighlight: true
     });
     // 07/12/22 Populate the new row with the "Add Split" row values, so the blank row(#add_split_row) will be at the bottom
-        // 7/11/22 TEST DELETE ME
     addRowRep = $('#add_split_rep').val();
     addRowRate = $('#add_split_rate').val();
     splitReps = document.getElementsByName("split_rep[]");
     splitRates = document.getElementsByName("split_rate[]");
     splitReps[splitReps.length-2].value = addRowRep;
     splitRates[splitRates.length-2].value = addRowRate!="" ? addRowRate : "0.00";
-    splitReps[splitReps.length-1].value = "";
-    splitRates[splitRates.length-1].value = "0.00";
+    splitReps[splitReps.length-1].value = split_broker;
+    splitRates[splitRates.length-1].value = split_rate;
 }
 
 var deleteRows=[]
