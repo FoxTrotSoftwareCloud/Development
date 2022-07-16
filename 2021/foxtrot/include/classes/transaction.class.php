@@ -454,9 +454,12 @@ class transaction extends db{
 
 			if ($type == 'autocomplete') {
 				if (!empty($pattern)) {
-					$con = " AND `at`.`account_no` LIKE '$pattern%'";
+					$acctPattern = ltrim($pattern,'0');
+					$ssnPattern = str_replace('-', '', $pattern);
+					
+					$con = " AND TRIM(LEADING '0' FROM `at`.`account_no`) LIKE '$acctPattern%'";
 					$con2 = " AND CONVERT(`cm2`.`id`,char) LIKE '$pattern%'";
-					$con3 = " AND `cm3`.`client_ssn`!='' AND `cm3`.`client_ssn` LIKE '$pattern%'";
+					$con3 = " AND `cm3`.`client_ssn`!='' AND REPLACE(`cm3`.`client_ssn`,'-','') LIKE '$ssnPattern%'";
 					$con4 = " AND CONCAT(TRIM(`cm4`.`last_name`),IF(`cm4`.`last_name`='' OR `cm4`.`first_name`='', '', ', '),TRIM(`cm4`.`first_name`)) LIKE '%$pattern%'";
 					$con5 = " AND `cm5`.`client_file_number`!='' AND `cm5`.`client_file_number` LIKE '$pattern%'";
 				}
@@ -483,7 +486,7 @@ class transaction extends db{
 					." WHERE `cm2`.`is_delete`=0"
 						    .$con2
 					." UNION "
-					."SELECT `cm3`.`client_ssn` AS `label`"
+					."SELECT REPLACE(`cm3`.`client_ssn`,'-','') AS `label`"
 							.", CONVERT(`cm3`.`id`,char) AS `value`"
 							.", CONCAT(TRIM(`cm3`.`last_name`),IF(`cm3`.`last_name`='' OR `cm3`.`first_name`='', '', ', '),TRIM(`cm3`.`first_name`)) AS `name`"
 							.", `cm3`.`client_file_number`"

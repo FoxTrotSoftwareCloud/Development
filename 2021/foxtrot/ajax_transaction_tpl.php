@@ -30,7 +30,8 @@ if(
          $splitType = 'transaction='.$transaction_id;
       } else if($useRuleData) {
          $splitType = 'ruledata='.$_SESSION['transaction_rule_engine']['data']['id'];
-      	$edit_split = [];
+      	$edit_split = ['split_broker'=>'', 'split_rate'=>''];
+         
          foreach ($_SESSION['transaction_rule_engine']['data']['split_rep'] AS $editSplitKey=>$editSplitVal){
             if (!empty($editSplitVal) AND !empty($_SESSION['transaction_rule_engine']['data']['split_rate'][$editSplitKey]))
                $edit_split[] = ['split_broker'=>$editSplitVal, 'split_rate'=>$_SESSION['transaction_rule_engine']['data']['split_rate'][$editSplitKey]];
@@ -114,8 +115,8 @@ if(
                <option value="">Select Broker</option>
                <?php foreach($select_broker as $key => $val) {
                   if($val['id'] != $broker_id){?>
-               <option value="<?php echo $val['id']?>"><?php echo strtoupper($val['last_name'].(($val['last_name']=='' || $val['first_name']=='') ? "" : ", ").$val['first_name']) ?></option>
-               <?php } } ?>
+                     <option value="<?php echo $val['id']?>"><?php echo strtoupper($val['last_name'].(($val['last_name']=='' || $val['first_name']=='') ? "" : ", ").$val['first_name']) ?></option>
+                  <?php } } ?>
             </select>
          </td>
          <!-- Add/Blank 2: Split Rate -->

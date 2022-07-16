@@ -783,7 +783,7 @@ function autocomplete(inp, arr) {
                 </div><!-- End of Modal content -->
             </div><!-- End of Modal dialog -->
         </div><!-- End of Modal -->
- -->
+ 
         </form>
         <?php
             }if((isset($_GET['action']) && $_GET['action']=='view') || $action=='view'){?>
@@ -824,7 +824,6 @@ function autocomplete(inp, arr) {
     			<table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
     	            <thead>
     	                <tr>
-
                             <th>Trade Number</th>
                             <th>Trade Date</th>
                             <th>Client Name</th>
@@ -1399,6 +1398,8 @@ function get_product(category_id,selected=''){
 //get client account no on client select
 function get_client_account_no(client_id,selected,skipBroker=0){
     document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
+    var dropdown='';
+    var xmlhttp = new XMLHttpRequest();
 
     // Skip on the page load
     if (!skipBroker){
@@ -1408,24 +1409,27 @@ function get_client_account_no(client_id,selected,skipBroker=0){
         // 07/14/22 Update client splits - skip initial "Maintain Transaction" load
         get_client_split_rates(client_id);
     }
+    
+    if (client_id && client_id != "0"){
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200)
+            {
+                var options = JSON.parse(this.responseText);
 
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200)
-        {
-            var dropdown='';
-            var options = JSON.parse(this.responseText);
-
-            dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
-            options.forEach(function(item){
-                is_selected = (selected.trim() == item.trim() ? "selected" : "");
-                dropdown+="<option value='"+item.trim()+"' "+is_selected+">"+item+"</option>";
-            })
-            document.getElementById("client_number").innerHTML = dropdown;
-        }
-    };
-    xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
-    xmlhttp.send();
+                dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
+                options.forEach(function(item){
+                    is_selected = (selected.trim() == item.trim() ? "selected" : "");
+                    dropdown+="<option value='"+item.trim()+"' "+is_selected+">"+item+"</option>";
+                })
+                document.getElementById("client_number").innerHTML = dropdown;
+            }
+        };
+        xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
+        xmlhttp.send();
+    } else {
+        dropdown+='<option value=""> Please Select Client</option>';
+        document.getElementById("client_number").innerHTML = dropdown;
+    }
     
 }
 
@@ -1508,14 +1512,8 @@ function get_client_split_rates(client_id){
             split_rate = jsonResponse.split_rate;
 
             if (split_broker>0 && split_rate>0){
-                // TEST DELETE ME
-                console.log('get client split rates: split_broker='+split_broker+', split_rate='+split_rate);
-                
                 // If the "add split" row is populated add a blank row beneath to store the client split
                 if (parseFloat($('#add_split_rep').val())>0 && parseFloat($('#add_split_rate').val())>'0'){
-                    // TEST DELETE ME
-                    console.log('get client split rates: Adding a blank row');
-
                     add_split_row(0);
                 } else {
                     $('#add_split_rep').val(split_broker);
@@ -1540,10 +1538,7 @@ function get_broker_split_rates(broker_id){
         {
             $( "#split_yes" ).prop( "checked", true );
             open_other();
-            //$('#broker_split_row').replaceWith(this.responseText);
             document.getElementById("broker_split_row").innerHTML = this.responseText;
-            //$(this.responseText).insertAfter('#add_other_split');
-            //document.getElementById("split").value = this.responseText;
         }
     };
     xmlhttp.open("GET", "ajax_get_split_rates.php?broker_id="+broker_id, true);
@@ -1773,100 +1768,124 @@ var waitingDialog = waitingDialog || (function ($) {
              var commission_received = $("input[name='commission_received']");
              var split = $("input[name='split']");
              var hold_commission = $("input[name='hold_commission']");
+            var idName = "#id";
+            var missingFields = "";
+            
+            if($.trim(trade_date.val()) == ''){
+                isErrorFound=true;
+                trade_date.addClass("error");
+                idName = "#trade_date";
+                missingFields += (missingFields==""?"":", ") + "Trade Date";
+            }
+            else{
+                trade_date.removeClass("error");
+            }
+            if($.trim(client_name.val()) == '' || $.trim(client_name.val()) == '0'){
+                isErrorFound=true;
+                client_name.next("div").find("a.chosen-single").addClass("error");
+                idName = "#client_name";
+                missingFields += (missingFields==""?"":", ") + "Client Name";
 
-                if($.trim(trade_date.val()) == ''){
-                     isErrorFound=true;
-                     trade_date.addClass("error");
-                }
-                else{
-                       trade_date.removeClass("error");
-                }
-                if($.trim(client_name.val()) == '' || $.trim(client_name.val()) == '0'){
-                     isErrorFound=true;
+            }
+            else{
+                client_name.next("div").find("a.chosen-single").removeClass("error");
+            }
+            // 06/25/22 Client Account Number not required
+            // if($.trim(client_number.val()) == ''){
+            //      isErrorFound=true;
+            //      client_number.addClass("error");
+            // }
+            // else{
+            //        client_number.removeClass("error");
+            // }
+            if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
+                    isErrorFound=true;
+                    broker_name.next("div").find("a.chosen-single").addClass("error");
+                    idName = "select[name='broker_name']";
+                    missingFields += (missingFields==""?"":", ") + "Broker";
+            }
+            else{
+                broker_name.next("div").find("a.chosen-single").removeClass("error");
+            }
 
-                     client_name.next("div").find("a.chosen-single").addClass("error");
-                }
-                else{
-                       client_name.next("div").find("a.chosen-single").removeClass("error");
-                }
-                // 06/25/22 Client Account Number not required
-                // if($.trim(client_number.val()) == ''){
-                //      isErrorFound=true;
-                //      client_number.addClass("error");
-                // }
-                // else{
-                //        client_number.removeClass("error");
-                // }
-                if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
-                     isErrorFound=true;
-                     broker_name.next("div").find("a.chosen-single").addClass("error");
-                }
-                else{
-                       broker_name.next("div").find("a.chosen-single").removeClass("error");
-                }
-                if($.trim(batch.val()) == ''){
-                     isErrorFound=true;
-                     batch.addClass("error");
-                }
-                else{
-                       batch.removeClass("error");
-                }
+            if($.trim(batch.val()) == '' || $.trim(batch.val()) == '0'){
+                isErrorFound=true;
+                batch.addClass("error");
+                idName = "select[name='batch']";
+                missingFields += (missingFields==""?"":", ") + "Batch";
+            }
+            else{
+                batch.removeClass("error");
+            }
 
-                if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
-                     isErrorFound=true;
-                     product_cate.addClass("error");
-                }
-                else{
-                       product_cate.removeClass("error");
-                }
+            if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
+                    isErrorFound=true;
+                    product_cate.addClass("error");
+                    idName = "#product_cate";
+                    missingFields += (missingFields==""?"":", ") + "Product Category";
+            }
+            else{
+                product_cate.removeClass("error");
+            }
 
-                if($.trim(product.val()) == '' || $.trim(product.val()) == '0'){
-                     isErrorFound=true;
-                     product.addClass("error");
-                }
-                else{
-                       product.removeClass("error");
-                }
+            if($.trim(product.val()) == '' || $.trim(product.val()) == '0'){
+                    isErrorFound=true;
+                    product.addClass("error");
+                    idName = "#product";
+                    missingFields += (missingFields==""?"":", ") + "Product";
+            }
+            else{
+                product.removeClass("error");
+            }
 
-                if($.trim(commission_received_date.val()) == ''){
-                     isErrorFound=true;
-                     commission_received_date.addClass("error");
-                }
-                else{
-                       commission_received_date.removeClass("error");
-                }
+            if($.trim(commission_received_date.val()) == ''){
+                isErrorFound=true;
+                commission_received_date.addClass("error");
+                idName = "#commission_received_date";
+                missingFields += (missingFields==""?"":", ") + "Received Date";
+            }
+            else{
+                commission_received_date.removeClass("error");
+            }
 
-                if($.trim(commission_received.val()) == ''){
-                     isErrorFound=true;
-                     commission_received.addClass("error");
-                }
-                else{
-                       commission_received.removeClass("error");
-                }
+            if($.trim(commission_received.val()) == ''){
+                isErrorFound=true;
+                commission_received.addClass("error");
+                idName = "input[name='commission_received']";
+                missingFields += (missingFields==""?"":", ") + "Commission Received";
+            }
+            else{
+                    commission_received.removeClass("error");
+            }
 
-                if($.trim(split.val()) == ''){
-                     isErrorFound=true;
-                     split.addClass("error");
-                }
-                else{
-                       split.removeClass("error");
-                }
+            if($.trim(split.val()) == ''){
+                isErrorFound=true;
+                split.addClass("error");
+                idName = "input[name='split']";
+                missingFields += (missingFields==""?"":", ") + "Split";
+            }
+            else{
+                    split.removeClass("error");
+            }
 
-                if($.trim(hold_commission.val()) == ''){
-                     isErrorFound=true;
-                     hold_commission.addClass("error");
-                }
-                else{
-                       hold_commission.removeClass("error");
-                }
+            if($.trim(hold_commission.val()) == ''){
+                isErrorFound=true;
+                hold_commission.addClass("error");
+                idName = "input[name='hold_commission']";
+                missingFields += (missingFields==""?"":", ") + "Hold Commission";
+            }
+            else{
+                hold_commission.removeClass("error");
+            }
 
-                if(isErrorFound){
-                    $("html,body").animate({scrollTop: $("#id").offset().top},200);
-                    return false;
-                }
+            if(isErrorFound){
+                alert('Please enter required field(s): ' + missingFields);
+                // 7/15/22 Scroll doesn't go to element. Tried $(window)..., focus(), new #overflow wrapper - didn't work. Have to move on. If you have a solution, please fix!
+                $("html,body").animate({scrollTop: $(idName).offset().top},200);
+                return false;
+            }
 
-                 localStorage.setItem('transcation_form_data',"");
-
+            localStorage.setItem('transcation_form_data',"");
 
 			// Assigning defaults
 			if (typeof options === 'undefined') {
@@ -2034,7 +2053,7 @@ function resolve_rule_engine_submit(posts) {
 
     var action = '';
     <?php if (isset($_SESSION['transaction_rule_engine']['data']['transaction'])) { ?>
-            action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
+        action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
     <?php } ?>
     if ($("#rule_engine_warning_action").val() == '3'){
         action = 'Cancel';    
