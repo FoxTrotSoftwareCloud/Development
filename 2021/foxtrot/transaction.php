@@ -29,7 +29,7 @@
     $product = '';
     $is_pending_order='';
     $batch = '';
-    $split_rep = array();
+    $split_broker = array();
     $split_rate = array();
     $return_splits = array();
     $shares = $units = $branch = $company = 0;
@@ -96,7 +96,7 @@
         $settlement_date = isset($postData['settlement_date'])?$instance->re_db_input($postData['settlement_date']):'';
         $split = isset($postData['split'])?$instance->re_db_input($postData['split']):'';
         // 07/13/22 Load the split array into an array to reload Split Commission modal if the insert fails
-        $split_rep = isset($postData['split_rep'])?$postData['split_rep']:array();
+        $split_broker = isset($postData['split_broker'])?$postData['split_broker']:array();
         $split_rate = isset($postData['split_rate'])?$postData['split_rate']:array();
         $receiving_rep = isset($postData['receiving_rep'])?$postData['receiving_rep']:array();
         $per = isset($postData['per'])?$postData['per']:array();

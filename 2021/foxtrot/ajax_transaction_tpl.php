@@ -32,7 +32,7 @@ if(
          $splitType = 'ruledata='.$_SESSION['transaction_rule_engine']['data']['id'];
       	$edit_split = ['split_broker'=>'', 'split_rate'=>''];
          
-         foreach ($_SESSION['transaction_rule_engine']['data']['split_rep'] AS $editSplitKey=>$editSplitVal){
+         foreach ($_SESSION['transaction_rule_engine']['data']['split_broker'] AS $editSplitKey=>$editSplitVal){
             if (!empty($editSplitVal) AND !empty($_SESSION['transaction_rule_engine']['data']['split_rate'][$editSplitKey]))
                $edit_split[] = ['split_broker'=>$editSplitVal, 'split_rate'=>$_SESSION['transaction_rule_engine']['data']['split_rate'][$editSplitKey]];
          }
@@ -61,7 +61,7 @@ if(
                <input type="hidden" name="split_type[]" value="<?php echo $splitType; ?>" />
                <!-- Column 1: Split Receiving Rep -->
                <td>
-                  <select name="split_rep[]"  class="form-control" style="padding-right: 30px;">
+                  <select name="split_broker[]"  data-test="Add_Split: 07/16/22 6:58PM" class="form-control" style="padding-right: 30px;">
                      <option value="">Select Broker</option>
                      <?php foreach($select_broker as $key => $val) {
                         if($val['id'] != $broker_id){?>
@@ -111,7 +111,7 @@ if(
          <input type="hidden" name="split_type[]" id="add_split_type" value="<?php echo $splitType; ?>" />
          <!-- Add/Blank 1: Receiving Rep -->
          <td>
-            <select id="add_split_rep" name="split_rep[]"  class="form-control">
+            <select id="add_split_broker" name="split_broker[]"  data-test="Add_Split: 07/16/22 6:58PM" class="form-control">
                <option value="">Select Broker</option>
                <?php foreach($select_broker as $key => $val) {
                   if($val['id'] != $broker_id){?>

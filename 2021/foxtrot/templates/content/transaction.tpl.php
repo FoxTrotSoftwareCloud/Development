@@ -563,7 +563,7 @@ function autocomplete(inp, arr) {
                             <div class="form-group">
                             <label>Split Commission<span class="text-red">*</span></label><br />
                             <label class="radio-inline">
-                              <input type="radio" class="radio" data-required="true" onclick="open_other()" name="split" id="split_yes" <?php if(isset($split) && $split==1){ echo'checked="true"'; }?>   value="1"/>YES
+                              <input type="radio" class="radio" data-required="true" onclick="open_split_modal()" name="split" id="split_yes" <?php if(isset($split) && $split==1){ echo'checked="true"'; }?>   value="1"/>YES
                             </label>
                             <label class="radio-inline">
                               <input type="radio" class="radio" data-required="true"  onclick="close_other()" name="split" id="split_no" <?php if((isset($split) && $split==2) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?>  value="2" />NO
@@ -1149,6 +1149,7 @@ $(document).ready(function() {
     $("#branch").change(function(e){get_branch_company($(this).val());});
     $("#product_cate").change(function(e){get_product($(this).val());});
     $("#sponsor").change(function(e){get_product();});
+    $("#trade_date").change(function(e){get_client_split_rates($("#client_name").val());});
 
     // 06/07/22 Rule Engine Modal Window
     <?php if (!empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
@@ -1366,9 +1367,9 @@ function add_new_client_no(element){
 }
 
 function get_product(category_id,selected=''){
-    category_id = category_id || document.getElementById("product_cate").value;
-    sponsor = document.getElementById("sponsor").value;
-    c_sponsor =  document.getElementById("company_sponsor");
+    var category_id = category_id || document.getElementById("product_cate").value;
+    const sponsor = document.getElementById("sponsor").value;
+    const c_sponsor =  document.getElementById("company_sponsor");
     $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans&transaction_id="+<?php echo $id ?>);
 
     document.getElementById("product").innerHTML = "<option value=''> Please Wait...</option>";
@@ -1389,6 +1390,7 @@ function get_product(category_id,selected=''){
                 /* if(transcation_form_data[key]['name']=='product')
                 document.querySelector("[name='product']").value=transcation_form_data[key]["value"];*/
             // }
+            get_client_split_rates($("#client_name").val());
         }
     };
     xmlhttp.open("GET", "ajax_get_product.php?product_category_id="+category_id+'&sponsor='+sponsor+'&selected='+selected, true);
@@ -1498,51 +1500,55 @@ function setnumber_format(inputtext)
 //get client split rate on client select
 // 07/14/22 Populate the Split Modal i/o of the split <div>
 function get_client_split_rates(client_id){
-    var trade_date = $("#trade_date").val();
-    var product_category = $("#product_cate").val();
-    var split_broker, split_rate;
-    split_broker = split_rate = '';
-    
+    const trade_date = $("#trade_date").val();
+    const product_category = $("#product_cate").val();
+    // Remove current splits
+    const clientSplits = $("input[name^='split_type[]'][value*='client=']");
+    clientSplits.each((index, elem) => {
+        $(elem).closest('tr').remove();
+    })
+
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
         {
-            var jsonResponse = JSON.parse(this.responseText);
-            split_broker = jsonResponse.split_broker;
-            split_rate = jsonResponse.split_rate;
+            const jsonResponse = JSON.parse(this.responseText);
+            const split_broker = jsonResponse.split_broker;
+            const split_rate = jsonResponse.split_rate;
 
             if (split_broker>0 && split_rate>0){
-                // If the "add split" row is populated add a blank row beneath to store the client split
-                if (parseFloat($('#add_split_rep').val())>0 && parseFloat($('#add_split_rate').val())>'0'){
+                // If the "add split" row is populated, add a blank row beneath to store the client split
+                if (parseFloat($('#add_split_broker').val())>0 && parseFloat($('#add_split_rate').val())>'0'){
                     add_split_row(0);
-                } else {
-                    $('#add_split_rep').val(split_broker);
-                    $('#add_split_rate').val(split_rate);
-                    $('#add_split_type').val('client='+client_id);
                 }
+                $("#add_split_broker").val(split_broker);
+                $("#add_split_rate").val(split_rate);
+                $("#add_split_type").val('client='+client_id);
                 add_split_row(0);
-                // TEST DELETE ME
-                console.log('get client split rates: add-split-row(0,client='+client_id+','+split_broker+','+split_rate+')');
             }            
+            update_split_yes('get_client_split_rates');
         }
     };
     xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id+"&trade_date="+trade_date+"&product_category="+product_category, true);
     xmlhttp.send();
+    
 }
 
-//get broker split rate on broker select
+// get broker split rate on broker select
 function get_broker_split_rates(broker_id){
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
         {
-            $( "#split_yes" ).prop( "checked", true );
-            open_other();
+            open_split_modal();
             document.getElementById("broker_split_row").innerHTML = this.responseText;
+            
+            update_split_yes('get_broker_split_rates');
         }
     };
     xmlhttp.open("GET", "ajax_get_split_rates.php?broker_id="+broker_id, true);
     xmlhttp.send();
+
 }
 
 //get broker override rate on broker select
@@ -1574,8 +1580,8 @@ function redirect_url(url,selector){
                 url: "ajax_transaction_tpl.php",
                 data: {addProdFromTrans: formdata},
                 success: function(value){
-                    console.log('Form Data posted...');
-                },
+                    // console.log('Form Data posted...');
+                }
             })            
         }
     }
@@ -1671,10 +1677,12 @@ function load_split_commission_content(broker_id=0, transaction_id=0, use_rule_d
                 autoclose: true,
                 todayHighlight: true
             });
+
+            update_split_yes('load_split_commission_content');
         }
     };
-    client_id= $("select[name='client_name']").val();
-    trade_date = $("#trade_date").val(); 
+    const client_id= $("select[name='client_name']").val();
+    const trade_date = $("#trade_date").val(); 
     //-- 07/11/22 Transaction ID / Trade number should be passed with the parameter call
     // transaction_id = $("#id").val();
     xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id+"&trade_date="+trade_date+"&use_rule_data="+use_rule_data, true);
@@ -1683,7 +1691,7 @@ function load_split_commission_content(broker_id=0, transaction_id=0, use_rule_d
     return false;
 }
 
-function open_other(){
+function open_split_modal(){
     $("#split_commission_modal").modal();
     if($("select[name='broker_name']").val() == '' || $("select[name='broker_name']").val() == 0){
         $("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please select broker first</td> </td>")
@@ -1693,10 +1701,20 @@ function open_other(){
     }
 }
 
+function update_split_yes(calledFrom=''){
+    //   <select name="split_broker[]"  class="form-control" style="padding-right: 30px;">
+    const splitBrokers = document.getElementsByName('split_broker[]');
+    const splitRates = document.getElementsByName('split_rate[]');
+    
+    if (splitBrokers.length==0 || splitBrokers[0]['value']=='' || parseFloat(splitRates[0]['value'])==0){
+        $("#split_no").prop('checked',true);
+    } else {
+        $("#split_yes").prop('checked',true);
+    }
+}
+
 function close_other(callFrom='') {
     $("#split_commission_modal").modal("hide");
-    
-    console.log('close_other().callFrom = ' + callFrom);
 }
 
 // jQuery(function($){
@@ -1947,14 +1965,14 @@ var flag1=0;
 function add_split_row(doc, split_type='user_added', split_broker='', split_rate='0.00'){
     //-- 07/11/22 SPLIT REP/RATE Modal window dlements - removed Start/Until dates. Not needed for Split Trades table
     if(flag1==0){
-        flag1=doc+1;
+        const flag1=doc+1;
     }
     else { flag1++ ; }
     
-    var html = '<tr class="tr">'+
+    const html = '<tr class="tr">'+
                     '<input type="hidden" name="split_type[]" value="' + split_type + '" />' + 
                     '<td>'+
-                        '<select name="split_rep[]"  class="form-control" >'+
+                        '<select name="split_broker[]"  class="form-control" >'+
                             '<option value="">Select Broker</option>'+
                             <?php foreach($get_broker as $key => $val){ ?>
                                 '<option value="<?php echo $val['id']?>"><?php echo strtoupper($val['last_name'].(($val['last_name']=='' || $val['first_name']=='') ? '' : ', ').$val['first_name']) ?></option>'+
@@ -2005,18 +2023,22 @@ function add_split_row(doc, split_type='user_added', split_broker='', split_rate
         todayHighlight: true
     });
     // 07/12/22 Populate the new row with the "Add Split" row values, so the blank row(#add_split_row) will be at the bottom
-    addRowRep = $('#add_split_rep').val();
-    addRowRate = $('#add_split_rate').val();
-    splitReps = document.getElementsByName("split_rep[]");
-    splitRates = document.getElementsByName("split_rate[]");
-    splitReps[splitReps.length-2].value = addRowRep;
+    const addRowRep = $('#add_split_broker').val();
+    const addRowRate = $('#add_split_rate').val();
+    const addRowType = $('#add_split_type').val();
+    const splitBrokers = document.getElementsByName("split_broker[]");
+    const splitRates = document.getElementsByName("split_rate[]");
+    const splitTypes = document.getElementsByName("split_type[]");
+    splitBrokers[splitBrokers.length-2].value = addRowRep;
     splitRates[splitRates.length-2].value = addRowRate!="" ? addRowRate : "0.00";
-    splitReps[splitReps.length-1].value = split_broker;
+    splitTypes[splitTypes.length-2].value = addRowType;
+    splitBrokers[splitBrokers.length-1].value = split_broker;
     splitRates[splitRates.length-1].value = split_rate;
+    splitTypes[splitTypes.length-1].value = split_type;
 }
 
-var deleteRows=[]
 $(document).on('click','.remove-row',function(){
+    var deleteRows=[]
     deleteRows.push($(this).closest('.tr').data("rowid"));
     $("#deleted_rows").val(deleteRows.join(","));
     $(this).closest('.tr').remove();

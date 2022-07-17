@@ -4237,10 +4237,12 @@
 </script>
 <script type="text/javascript">
    <?php if(!isset($edit_payout['payout_schedule_id'])){?> 
-   //alert('hiii');
    $( document ).ready(function() {
-       var a = document.getElementById("select_payout_schedule").value;
-       open_payout_schedule(a);
+      if (typeof(document.getElementById("select_payout_schedule"))!='undefined' && document.getElementById("select_payout_schedule")!=null){
+         open_payout_schedule(document.getElementById("select_payout_schedule").value);
+         //  var a = document.getElementById("select_payout_schedule").value;
+         //  open_payout_schedule(a);
+      }
    });
    <?php } ?>
 </script>

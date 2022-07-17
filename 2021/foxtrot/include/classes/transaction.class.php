@@ -195,8 +195,8 @@ class transaction extends db{
 			$res = 1;
 			$set = $q = '';
 			
-			if (!empty($data['split_rep'])) {
-				foreach($data['split_rep'] AS $index=>$rap){
+			if (!empty($data['split_broker'])) {
+				foreach($data['split_broker'] AS $index=>$rap){
 					$split_rate = (float)$this->re_db_input($data['split_rate'][$index]);
 					
 					if ($rap > 0 AND $split_rate > 0){
