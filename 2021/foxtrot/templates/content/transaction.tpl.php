@@ -783,7 +783,7 @@ function autocomplete(inp, arr) {
                 </div><!-- End of Modal content -->
             </div><!-- End of Modal dialog -->
         </div><!-- End of Modal -->
- 
+
         </form>
         <?php
             }if((isset($_GET['action']) && $_GET['action']=='view') || $action=='view'){?>
@@ -1026,7 +1026,7 @@ $(document).ready(function() {
         .autocomplete("instance")._renderItem = function (ul, item) {
             return $("<li>")
             .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Cloudfox ID:</strong>'+item.value+'</span><br/>'+
-                    (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') + 
+                    (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') +
                     '<span><strong>Client SSN:</strong>'+item.client_ssn+'</span><br/><span><strong>Client File Number:</strong>'+item.client_file_number+'</span></div>')
         .appendTo(ul);
         };
@@ -1156,7 +1156,7 @@ $(document).ready(function() {
         resolve_rule_engine("<?php echo $_SESSION['transaction_rule_engine']['warnings']; ?>");
         load_split_commission_content(0, 0, 1);
     <?php } ?>
-    
+
     $('#commission-received-date').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
@@ -1164,25 +1164,25 @@ $(document).ready(function() {
         todayHighlight: true
     });
 
-    // 06/22/22 Hold Reason text area adding left spaces. Don't know why 
+    // 06/22/22 Hold Reason text area adding left spaces. Don't know why
     if ($("#hold_reason").length != 0){
         var reasonText = $("#hold_reason").html().trim();
         $("#hold_reason").html(reasonText);
     }
-    
+
     // 06/30/22 Don't submit the Rule Warning back to transaction.php
     $("#resolve_rule_engine_modal").on('submit', function(event){
         event.preventDefault();
         var data = $("#resolve_rule_engine_modal :input").serializeArray();
         resolve_rule_engine_submit(data);
     });
-    
+
     if (!isNaN($("#trade_number").val())){
         <?php if (empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
             load_split_commission_content(0, $("#trade_number").val());
         <?php } ?>
     }
-    
+
 })
 
 function hide_hold_reason()
@@ -1255,7 +1255,7 @@ function open_hold_reason() {
 function handleChange(input) {
     // 07/13/22 Set the "value" attribute so the spinner buttons will increment the latest value
     input.setAttribute('value',input.value);
-    
+
     if (input.value < 0) input.value = 0.00;
     if (input.value > 100) input.value = 100.00;
 }
@@ -1313,7 +1313,7 @@ if(localStorage.getItem('transcation_form_data')){
     //   });
     // })
 
-    // 5/14/22 Not sure what this code is for. Should it be in the ready()? 
+    // 5/14/22 Not sure what this code is for. Should it be in the ready()?
     //-- 07/05/22 jQuery Inputmask() -> "not a function" error. Try cap'ing the "i" inputmask(...) -> commented out - not referenced in the code
     // $(".two-decimals").inputmask('currency', {
     //     prefix: '',
@@ -1407,10 +1407,10 @@ function get_client_account_no(client_id,selected,skipBroker=0){
     if (!skipBroker){
         var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
         $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
-        
+
         // 07/17/22 Client Split rates updated in get-broker-hold-commission(), because the Broker Split Ajax file wipes all splits, then populates the <tr> elements
     }
-    
+
     if (client_id && client_id != "0"){
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200)
@@ -1431,7 +1431,7 @@ function get_client_account_no(client_id,selected,skipBroker=0){
         dropdown+='<option value=""> Please Select Client</option>';
         document.getElementById("client_number").innerHTML = dropdown;
     }
-    
+
 }
 
 function get_client_id(client_number){
@@ -1460,7 +1460,7 @@ function get_commission_date(batch_id){
             // 06/17/22  Pulling up the prior date, have to initialize the Datepicker value as well.
             $("#commission_received_date").datepicker('setDate', $("#commission_received_date").val());
             $("#sponsor").val(data[0].sponsor);
-            
+
             $("#product_cate").val(data[0].pro_category);
             if(data[0].pro_category!='' && data[0].pro_category!='0'){
                 get_product(data[0].pro_category,data[0].sponsor);
@@ -1524,13 +1524,13 @@ function get_client_split_rates(client_id){
                 $("#add_split_rate").val(split_rate);
                 $("#add_split_type").val('client='+client_id);
                 add_split_row(0);
-            }            
+            }
             update_split_yes('get-client-split-rates()');
         }
     };
     xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id+"&trade_date="+trade_date+"&product_category="+product_category, true);
     xmlhttp.send();
-    
+
 }
 
 // get broker split rate on broker select
@@ -1541,7 +1541,7 @@ function get_broker_split_rates(broker_id){
         {
             open_split_modal();
             document.getElementById("broker_split_row").innerHTML = this.responseText;
-            
+
             update_split_yes('get_broker_split_rates');
         }
     };
@@ -1581,7 +1581,7 @@ function redirect_url(url,selector){
                 success: function(value){
                     // console.log('Form Data posted...');
                 }
-            })            
+            })
         }
     }
     // localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
@@ -1679,12 +1679,12 @@ function load_split_commission_content(broker_id=0, transaction_id=0, use_rule_d
         }
     };
     const client_id= $("select[name='client_name']").val();
-    const trade_date = $("#trade_date").val(); 
+    const trade_date = $("#trade_date").val();
     //-- 07/11/22 Transaction ID / Trade number should be passed with the parameter call
     // transaction_id = $("#id").val();
     xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id+"&trade_date="+trade_date+"&use_rule_data="+use_rule_data, true);
     xmlhttp.send();
-    
+
     return false;
 }
 
@@ -1702,7 +1702,7 @@ function update_split_yes(calledFrom=''){
     //   <select name="split_broker[]"  class="form-control" style="padding-right: 30px;">
     const splitBrokers = document.getElementsByName('split_broker[]');
     const splitRates = document.getElementsByName('split_rate[]');
-    
+
     if (splitBrokers.length==0 || splitBrokers[0]['value']=='' || parseFloat(splitRates[0]['value'])==0){
         $("#split_no").prop('checked',true);
     } else {
@@ -1785,7 +1785,7 @@ var waitingDialog = waitingDialog || (function ($) {
              var hold_commission = $("input[name='hold_commission']");
             var idName = "#id";
             var missingFields = "";
-            
+
             if($.trim(trade_date.val()) == ''){
                 isErrorFound=true;
                 trade_date.addClass("error");
@@ -1965,9 +1965,9 @@ function add_split_row(doc, split_type='user_added', split_broker='', split_rate
         const flag1=doc+1;
     }
     else { flag1++ ; }
-    
+
     const html = '<tr class="tr">'+
-                    '<input type="hidden" name="split_type[]" value="' + split_type + '" />' + 
+                    '<input type="hidden" name="split_type[]" value="' + split_type + '" />' +
                     '<td>'+
                         '<select name="split_broker[]"  class="form-control" >'+
                             '<option value="">Select Broker</option>'+
@@ -2013,7 +2013,7 @@ function add_split_row(doc, split_type='user_added', split_broker='', split_rate
                     '</td>'+
                 '</tr>'
     ;
-    
+
     // 07/12/22 Populate the new row with the "Add Split" row values, so the blank row(#add_split_row) will be at the bottom
     $(html).insertBefore('#add_split_row');
     const addRowRep = $('#add_split_broker').val();
@@ -2064,21 +2064,21 @@ function resolve_rule_engine(msg='')
 // 06/30/22 Keep processing on this page, and trigger the Save/Save&Copy/Cancel buttons programmitically
 function resolve_rule_engine_submit(posts) {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
-    $("#rule_engine_warning_action").val(posts[0]['value']); 
+    $("#rule_engine_warning_action").val(posts[0]['value']);
 
     var action = '';
     <?php if (isset($_SESSION['transaction_rule_engine']['data']['transaction'])) { ?>
         action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
     <?php } ?>
     if ($("#rule_engine_warning_action").val() == '3'){
-        action = 'Cancel';    
+        action = 'Cancel';
     }
 
     //-- CLEAN UP --//
     //-- 06/11/22 "Manually" go back to the main Transaction page/grid
     $("#resolve_rule_engine_modal").modal("hide");
     $(".alert").remove();
-    
+
     switch (action){
         case 'Save':
             $("#save").trigger("click");
@@ -2089,7 +2089,7 @@ function resolve_rule_engine_submit(posts) {
         default:
             $("#cancel").click();
     }
-    
+
     return false;
 }
 
@@ -2149,7 +2149,7 @@ function resolve_rule_engine_submit(posts) {
 // 		/**
 // 		 * Closes dialog
 // 		 */
-	
+
 // 	};
 
 // })(jQuery);

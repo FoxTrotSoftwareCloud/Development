@@ -489,13 +489,13 @@
         $routing = isset($edit_general['routing'])?$instance->re_db_output($edit_general['routing']):'';
         $account_no = isset($edit_general['account_no'])?$instance->re_db_output($edit_general['account_no']):'';
         // 07/17/22 General fields have "_general" added for the different table BROKER GENERAL
-        $cfp_general = isset($edit_general['cfp'])?$instance->re_db_input($edit_general['cfp']):0;
-        $chfp_general = isset($edit_general['chfp'])?$instance->re_db_input($edit_general['chfp']):0;
-		$cpa_general = isset($edit_general['cpa'])?$instance->re_db_input($edit_general['cpa']):0;
-		$clu_general = isset($edit_general['clu'])?$instance->re_db_input($edit_general['clu']):0;
-        $cfa_general = isset($edit_general['cfa'])?$instance->re_db_input($edit_general['cfa']):0;
-        $ria_general = isset($edit_general['ria'])?$instance->re_db_input($edit_general['ria']):0;
-		$insurance_general = isset($edit_general['insurance'])?$instance->re_db_input($edit_general['insurance']):0;//echo '<pre>';print_r($_POST);exit;
+        $cfp_general = isset($edit_general['cfp'])?$instance->re_db_output($edit_general['cfp']):0;
+        $chfp_general = isset($edit_general['chfp'])?$instance->re_db_output($edit_general['chfp']):0;
+		$cpa_general = isset($edit_general['cpa'])?$instance->re_db_output($edit_general['cpa']):0;
+		$clu_general = isset($edit_general['clu'])?$instance->re_db_output($edit_general['clu']):0;
+        $cfa_general = isset($edit_general['cfa'])?$instance->re_db_output($edit_general['cfa']):0;
+        $ria_general = isset($edit_general['ria'])?$instance->re_db_output($edit_general['ria']):0;
+		$insurance_general = isset($edit_general['insurance'])?$instance->re_db_output($edit_general['insurance']):0;//echo '<pre>';print_r($_POST);exit;
 
         //echo '<pre>';print_r($edit_licences_securities);exit;
         $branch_broker = isset($edit_branches['broker_name'])?$instance->re_db_output($edit_branches['broker_name']):'';

@@ -61,7 +61,7 @@ if(
                <input type="hidden" name="split_type[]" value="<?php echo $splitType; ?>" />
                <!-- Column 1: Split Receiving Rep -->
                <td>
-                  <select name="split_broker[]"  data-test="Add_Split: 07/16/22 6:58PM" class="form-control" style="padding-right: 30px;">
+                  <select name="split_broker[]" class="form-control" style="padding-right: 30px;">
                      <option value="">Select Broker</option>
                      <?php foreach($select_broker as $key => $val) {
                         if($val['id'] != $broker_id){?>
