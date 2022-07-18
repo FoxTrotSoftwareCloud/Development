@@ -150,23 +150,6 @@ class transaction extends db{
 
 				$this->save_split_commission_data($last_inserted_id,$data);
 
-				/*foreach($split_rate as $key_rate=>$val_rate)
-				{
-					if($split==1 && $val_rate != '' && $split_broker[$key_rate]>0)
-					{
-						$q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."` SET `transaction_id`='".$last_inserted_id."',`split_client_id`='".$split_client_id[$key_rate]."',`split_broker_id`='".$split_broker_id[$key_rate]."',`split_broker`='".$split_broker[$key_rate]."',`split_rate`='".$val_rate."'".$this->insert_common_sql();
-						$res = $this->re_db_query($q);
-					}
-				}
-				foreach($receiving_rep as $key_override=>$val_override)
-				{
-					if($val_override != '' && $per[$key_override]>0)
-					{
-						$q = "INSERT INTO `".TRANSACTION_OVERRIDES."` SET `transaction_id`='".$last_inserted_id."',`receiving_rep`='".$val_override."',`per`='".$per[$key_override]."'".$this->insert_common_sql();
-						$res = $this->re_db_query($q);
-					}
-				}*/
-
 				if($res){
 					$_SESSION['success'] = INSERT_MESSAGE;
 					return true;
@@ -186,28 +169,6 @@ class transaction extends db{
 
 				$this->save_split_commission_data($id,$data);
 
-				/*$q = "UPDATE `".TRANSACTION_TRADE_SPLITS."` SET `is_delete`='1' WHERE `transaction_id`='".$id."'";
-				$res = $this->re_db_query($q);
-
-				foreach($split_rate as $key_rate=>$val_rate)
-				{
-					if($split==1 && $val_rate != '' && $split_broker[$key_rate]>0)
-					{
-						$q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."` SET `transaction_id`='".$id."',`split_client_id`='".$split_client_id[$key_rate]."',`split_broker_id`='".$split_broker_id[$key_rate]."',`split_broker`='".$split_broker[$key_rate]."',`split_rate`='".$val_rate."'".$this->insert_common_sql();
-						$res = $this->re_db_query($q);
-					}
-				}
-				$q = "UPDATE `".TRANSACTION_OVERRIDES."` SET `is_delete`='1' WHERE `transaction_id`='".$id."'";
-				$res = $this->re_db_query($q);
-				foreach($receiving_rep as $key_override=>$val_override)
-				{
-					if($val_override != '' && $per[$key_override]>0)
-					{
-						$q = "INSERT INTO `".TRANSACTION_OVERRIDES."` SET `transaction_id`='".$id."',`receiving_rep`='".$val_override."',`per`='".$per[$key_override]."'".$this->insert_common_sql();
-						$res = $this->re_db_query($q);
-					}
-				}*/
-
 				if($res){
 					$_SESSION['success'] = UPDATE_MESSAGE;
 					return true;
@@ -225,56 +186,72 @@ class transaction extends db{
 	}
 
 		public function save_split_commission_data($transaction_id,$data){
-			//print_r($data);
-			$val = isset($data['override']) ? $data['override'] : ['receiving_rep1'=>[]];
-			foreach($val['receiving_rep1'] as $index =>$rap){
-
-                       $row_id = isset($val['row_id'][$index])?$this->re_db_input($val['row_id'][$index]):'';
-	                   $from1=isset($val['from1'][$index])?$this->re_db_input(date('Y-m-d',strtotime($val['from1'][$index]))):'0000-00-00';
-	                   $to1=isset($val['to1'][$index])?$this->re_db_input(date('Y-m-d',strtotime($val['to1'][$index]))):'0000-00-00';
-	                   $product_category=isset($val['product_category1'][$index])?$this->re_db_input($val['product_category1'][$index]):'';
-	                   $per1=isset($val['per1'][$index])?$this->re_db_input($val['per1'][$index]):'';
-	                   if($from1!='' && $to1!='' && $rap != ''){
-	                   	  if($row_id > 0){
-                              $q = "update `ft_transaction_split_commissions` SET `broker_id`='".$_SESSION['last_insert_id']."',`rap` = '".$rap."',`from`='".$from1."' ,`to`='".$to1."' ,`product_category`='".$product_category."',client_id='".$data['client_name']."',transaction_id='".$transaction_id."' ,`per`='".$per1."' where id='".$row_id."'";
-		                     $res = $this->re_db_query($q);
-
-	                   	  }
-	                   	  else{
-
-	                   	  	 $q = "INSERT INTO `ft_transaction_split_commissions` SET `broker_id`='".$_SESSION['last_insert_id']."',`rap` = '".$rap."',`from`='".$from1."' ,`to`='".$to1."' ,`product_category`='".$product_category."',transaction_id='".$transaction_id."',client_id='".$data['client_name']."' ,`per`='".$per1."' ".$this->insert_common_sql();
-		                     $res = $this->re_db_query($q);
-
-	                   	  }
-
-				        }
-				        if(!empty($data['deleted_rows'])){
-				        	$deleted_rows= explode(",",$data['deleted_rows']);
-				        	foreach($deleted_rows as $row_id){
-				        		if(is_numeric($row_id)){
-				        			  $q = "delete from  `ft_transaction_split_commissions`  where id='".$row_id."'";
-				        		  $res = $this->re_db_query($q);
-				        		}
-
-				        	}
-				        }
+			//-- 07/11/22 Updated to store to TRANSACTION_TRADE_SPLITS
+			$instance_payroll = new payroll();
+			$tradeSplits = $instance_payroll->select_trade_splits($transaction_id);
+			$invest_amount = isset($data['invest_amount']) ? (float)$this->re_db_input(str_replace(',', '', $data['invest_amount'])) : 0;
+			$charge_amount = isset($data['charge_amount']) ? (float)$this->re_db_input(str_replace(',', '', $data['charge_amount'])) : 0;
+			$commission_received = isset($data['commission_received']) ? (float)$this->re_db_input(str_replace(',', '', $data['commission_received'])) : 0;
+			$res = 1;
+			$set = $q = '';
+			
+			if (!empty($data['split_broker'])) {
+				foreach($data['split_broker'] AS $index=>$rap){
+					$split_rate = (float)$this->re_db_input($data['split_rate'][$index]);
+					
+					if ($rap > 0 AND $split_rate > 0){
+						$splitTrade = array_shift($tradeSplits);
+						
+						$set = " SET `transaction_id` = $transaction_id"
+									.",`split_client_id` = 0"
+									.",`split_broker_id` = {$data['broker_name']}"
+									.",`split_broker` = $rap"
+									.",`split_rate` = $split_rate"
+									.",`status` = 1"
+									.",`is_delete` = 0"
+									.",`commission_received` = $commission_received"
+									.",`trade_charge` = $charge_amount"
+									.",`split_gross` = 0"
+									.",`split_charge` = 0"
+									.",`split_paid` = 0 "
+						;
+						
+						if (is_null($splitTrade)){
+							$q = "INSERT INTO `".TRANSACTION_TRADE_SPLITS."` "
+									.$set
+									.$this->insert_common_sql();
+						} else {
+							$q = "UPDATE `".TRANSACTION_TRADE_SPLITS."` "
+									.$set
+									.$this->update_common_sql()
+									." WHERE `id` = ".$splitTrade['id']
+							;
+						}
+						
+						$res = $this->re_db_query($q);
+					}
+				}
+				if(!empty($tradeSplits)){
+					foreach($tradeSplits AS $row_id){
+						$q = "UPDATE `".TRANSACTION_TRADE_SPLITS."` SET `is_delete`=1 ".$this->update_common_sql()." WHERE id=".(int)$row_id['id'];
+						$res = $this->re_db_query($q);
+					}
+				}
 			}
-			//die;
+			
+			return $res;
+			
 		}
 
 		public function load_split_commission($transaction_id){
-			$originalArray=array();
-			$qq1="SELECT * FROM `ft_transaction_split_commissions` WHERE is_delete=0 AND `transaction_id`=".$transaction_id."";
-            $res = $this->re_db_query($qq1);
-            $originalArray = array();
-            if($this->re_db_num_rows($res)>0)
-            {
-              while($row = $this->re_db_fetch_array($res)){
-                array_push($originalArray,$row);
-              }
-            }
-            return $originalArray;
+			// 07/11/22 Use payroll version - this one was never used
+			// $originalArray=array();
+			// $qq1="SELECT * FROM `ft_transaction_split_commissions` WHERE is_delete=0 AND `transaction_id`=".$transaction_id."";
+			$payroll_class = new payroll();
+			$transaction_id = (int)$this->re_db_input($transaction_id);
+			return $payroll_class->select_trade_splits($transaction_id);
 		}
+		
         public function edit_transaction($id){
 			$return = array();
 			$q = "SELECT `at`.*
@@ -477,9 +454,12 @@ class transaction extends db{
 
 			if ($type == 'autocomplete') {
 				if (!empty($pattern)) {
-					$con = " AND `at`.`account_no` LIKE '$pattern%'";
+					$acctPattern = ltrim($pattern,'0');
+					$ssnPattern = str_replace('-', '', $pattern);
+					
+					$con = " AND TRIM(LEADING '0' FROM `at`.`account_no`) LIKE '$acctPattern%'";
 					$con2 = " AND CONVERT(`cm2`.`id`,char) LIKE '$pattern%'";
-					$con3 = " AND `cm3`.`client_ssn`!='' AND `cm3`.`client_ssn` LIKE '$pattern%'";
+					$con3 = " AND `cm3`.`client_ssn`!='' AND REPLACE(`cm3`.`client_ssn`,'-','') LIKE '$ssnPattern%'";
 					$con4 = " AND CONCAT(TRIM(`cm4`.`last_name`),IF(`cm4`.`last_name`='' OR `cm4`.`first_name`='', '', ', '),TRIM(`cm4`.`first_name`)) LIKE '%$pattern%'";
 					$con5 = " AND `cm5`.`client_file_number`!='' AND `cm5`.`client_file_number` LIKE '$pattern%'";
 				}
@@ -506,7 +486,7 @@ class transaction extends db{
 					." WHERE `cm2`.`is_delete`=0"
 						    .$con2
 					." UNION "
-					."SELECT `cm3`.`client_ssn` AS `label`"
+					."SELECT REPLACE(`cm3`.`client_ssn`,'-','') AS `label`"
 							.", CONVERT(`cm3`.`id`,char) AS `value`"
 							.", CONCAT(TRIM(`cm3`.`last_name`),IF(`cm3`.`last_name`='' OR `cm3`.`first_name`='', '', ', '),TRIM(`cm3`.`first_name`)) AS `name`"
 							.", `cm3`.`client_file_number`"
@@ -731,18 +711,20 @@ class transaction extends db{
             }
 			return $return;
 		}
-        public function get_client_split_rate($client_id){
+        public function get_client_split_rate($client_id, $all_fields=0){
 			$return = array();
-            $con='';
-
-            if($client_id>0)
-            {
-                $con.=" AND `at`.`id` = ".$client_id."";
-            }
-			$q = "SELECT `at`.`split_broker`,`at`.`split_rate`
-					FROM `".CLIENT_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' ".$con."
-                    ORDER BY `at`.`id` ASC";
+            $con = $splitFields = '';
+            
+			if($client_id>0) { $con.=" AND `at`.`id` = ".$client_id.""; }
+			if($all_fields) { $splitFields = ",`at`.`split_rate_from`,`at`.`split_rate_to`,`at`.`split_rate_category`"; }
+			
+			$q = "SELECT `at`.`split_broker`,`at`.`split_rate`"
+					.$splitFields
+					." FROM `".CLIENT_MASTER."` AS `at`"
+                    ." WHERE `at`.`is_delete`='0' "
+						.$con
+                    ." ORDER BY `at`.`id` ASC"
+			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -1728,7 +1710,8 @@ class transaction extends db{
 		        	FROM $this->table tm
 		        	LEFT JOIN $this->broker_master as bm on bm.id = tm.broker_name
 		         	LEFT JOIN $this->product_type as pt on pt.id = tm.product_cate
-		         	where 1=1 $where  group by broker_name,product_cate $order_by  $limit_query ";
+		         	where 1=1 $where  group by broker_name,product_cate $order_by";
+		         	// where 1=1 $where  group by broker_name,product_cate $order_by  $limit_query ";
 		    	//echo $q;
 		    	$res = $this->re_db_query($q);
 		        if($this->re_db_num_rows($res)>0){
@@ -1794,7 +1777,8 @@ class transaction extends db{
 		        	LEFT JOIN $this->broker_master as bm on bm.id = tm.broker_name
 		         	LEFT JOIN $this->product_type as pt on pt.id = tm.product_cate
 		         	LEFT JOIN ft_branch_master as br on br.id = tm.branch
-		         	where 1=1 $where  group by tm.branch,tm.broker_name,tm.product_cate $order_by  $limit_query ";
+		         	where 1=1 $where  group by tm.branch,tm.broker_name,tm.product_cate $order_by";
+		         	// where 1=1 $where  group by tm.branch,tm.broker_name,tm.product_cate $order_by  $limit_query ";
 		    	//echo $q;
 		    	$res = $this->re_db_query($q);
 		        if($this->re_db_num_rows($res)>0){

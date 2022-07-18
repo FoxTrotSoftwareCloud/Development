@@ -54,7 +54,7 @@
     define('BRANCH_HISTORY','ft_branch_history');
     define('BROKER_PAYOUT_GRID','ft_broker_payout_grid');
     define('BROKER_PAYOUT_OVERRIDE','ft_broker_payout_override');
-    define('BROKER_PAYOUT_SPLIT','ft_broker_payout_spilit');
+    define('BROKER_PAYOUT_SPLIT','ft_broker_payout_split');
     define('BROKER_PAYOUT_MASTER','ft_broker_payout_master');
     define('BRANCH_NOTES','ft_branch_notes');
     define('PRODUCT_NOTES','ft_product_notes');

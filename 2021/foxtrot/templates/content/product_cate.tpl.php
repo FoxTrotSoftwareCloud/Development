@@ -1,6 +1,6 @@
 <script>
 function addMoreThreshold(){
-    var html = 
+    var html =
                 // '<div class="row new_row" style="padding: 5px;">'+
                 '<div name="thresholdRow[]" class="row main_row" style="padding: 5px;">'+
                     '<div class="col-md-6">'+
@@ -68,7 +68,7 @@ function addMoreThreshold(){
     maxThreshold = document.getElementsByName("max_threshold[]")
     minThreshold = document.getElementsByName("min_threshold[]")
     minRate = document.getElementsByName("min_rate[]")
-    // Swap data values from the bottom row "add more threshold" to the newly created row    
+    // Swap data values from the bottom row "add more threshold" to the newly created row
     minThreshold[maxThreshold.length-2].value = minThreshold[maxThreshold.length-1].value
     maxThreshold[maxThreshold.length-2].value = maxThreshold[maxThreshold.length-1].value
     minRate[minRate.length-2].value = minRate[minRate.length-1].value
@@ -86,15 +86,12 @@ function default_min_threshold() {
     minThreshold = document.getElementsByName("min_threshold[]")
     maxThreshold = document.getElementsByName("max_threshold[]")
 
-    // TEST DELETE ME
-    console.log("default_min_threshold: maxThreshold.length = " + maxThreshold.length)
-    
     for (var $i=0; $i < minThreshold.length; $i++){
         if ($i == 0){
             minThreshold[$i].value = "0"
         } else {
             minThreshold[$i].value = parseInt(maxThreshold[$i-1].value)+1
-        } 
+        }
     }
 }
 </script>
@@ -747,7 +744,7 @@ function default_min_threshold() {
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Minimum Investment </label><br />
-                                        
+
                                         <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="minimum_investment" value="<?php echo $minimum_investment; ?>"  />
                                     </div>
                                 </div>
@@ -1543,11 +1540,11 @@ function default_min_threshold() {
     				'</div>'+
     			'</div>');
         hideshow_sponser_based_on_product_category(<?php echo $category; ?>);
-    
+
         $("input[name='max_threshold[]'").focusout(function() {
             default_min_threshold()
         })
-        
+
 } );
 </script>
 <style type="text/css">

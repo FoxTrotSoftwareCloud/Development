@@ -9,49 +9,6 @@
 <!-- <script src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script> -->
 
 <script>
-function addMoreRow(){
-    var html = '<div class="row">'+
-
-                    '<div class="col-md-5">'+
-                        '<div class="form-group">'+
-                            '<select class="form-control" name="split_broker[]">'+
-                            '<option value="">Select Broker</option>'+
-                            <?php foreach($get_broker as $key=>$val){?>
-                            '<option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>'+
-                            <?php } ?>
-                            '</select>'+
-                        '</div>'+
-                        /*'<div class="form-group">'+
-                            '<label></label><br />'+
-                            '<input type="text" name="company" id="company" class="form-control" />'+
-                        '</div>'+*/
-                    '</div>'+
-                    '<div class="col-md-5">'+
-                        '<div class="input-group">'+
-                            '<input type="text" name="split_rate[]" onchange="handleChange(this);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" id="split_rate" class="form-control decimal" />'+
-                            '<input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="0" />'+
-                            '<input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="0" />'+
-                            '<span class="input-group-addon">%</span>'+
-                        '</div>'+
-                    '</div>'+
-
-                    '<div class="col-md-2">'+
-                        '<div class="form-group">'+
-                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
-                        '</div>'+
-                    '</div>'+
-                '</div>';
-
-
-    $(html).insertAfter('#add_other_split');
-    $( function() {
-    $('.decimal').chargeFormat();
-    });
-}
-$(document).on('click','.remove-row',function(){
-    $(this).closest('.row').remove();
-});
-
 var flag1=0;
 function add_override(){
 
@@ -245,23 +202,21 @@ function autocomplete(inp, arr) {
                         </div>
                         <div class="modal-body" style="padding: 15px!important;">
                             <table class="table table-bordered table-stripped table-hover">
-                                                        <thead>
-                                                            <th style="width: 15%;">Receiving Rep</th>
-                                                            <th width="140px">Rate</th>
-                                                            <th>From</th>
-                                                            <th>To</th>
-                                                            <th>Category</th>
-                                                            <th>Add More</th>
-                                                        </thead>
-                                                        <tbody>
-                                                             <tr> <td colspan="6"> Please Wait .... </td></tr>
-                                                        </tbody>
-                                                    </table>
-
-
+                                <thead>
+                                    <th style="width: 33%;">Receiving Rep</th>
+                                    <th width="140px">Rate</th>
+                                    <!-- <th>From</th>
+                                    <th>To</th> -->
+                                    <!-- <th>Category</th> -->
+                                    <th>Add(+) / Remove(-)</th>
+                                </thead>
+                                <tbody>
+                                    <tr> <td colspan="6"> Please Wait .... </td></tr>
+                                </tbody>
+                            </table>
                         </div>
                         <div class="modal-footer">
-                             <input type="button" name="save_override" onclick="close_other()" class="button btn btn-primary" value="Save"/>
+                             <input type="button" name="save_split" onclick="close_other('split_commission_modal')" class="button btn btn-primary" value="Close"/>
                         </div>
                     </div>
                 </div>
@@ -360,7 +315,7 @@ function autocomplete(inp, arr) {
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Trade Number </label><br />
-                        <input type="text" name="trade_number" id="trade_number" value="<?php if(isset($trade_number)) {echo $trade_number;}else{echo 'Assigned after saving';}?>" disabled="true" class="form-control" />
+                        <input type="text" name="trade_number" id="trade_number" value="<?php if(!empty($trade_number)) {echo $trade_number;}else if(!empty($id)){echo $id;}else{echo 'Assigned after saving';}?>" disabled="true" class="form-control" />
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -387,7 +342,7 @@ function autocomplete(inp, arr) {
             <div class="row">
                  <div class="col-md-4">
                     <div class="form-group">
-                        <label>Search by Number </label><br />
+                        <label>Client Search by Name/Number </label><br />
                          <div class="autocomplete" style="width:100%">
                             <input type="text" autocomplete="on" class="form-control"  name="search_client_number" id="search_client_number" />
                         </div>
@@ -608,7 +563,7 @@ function autocomplete(inp, arr) {
                             <div class="form-group">
                             <label>Split Commission<span class="text-red">*</span></label><br />
                             <label class="radio-inline">
-                              <input type="radio" class="radio" data-required="true" onclick="open_other()" name="split" id="split_yes" <?php if(isset($split) && $split==1){ echo'checked="true"'; }?>   value="1"/>YES
+                              <input type="radio" class="radio" data-required="true" onclick="open_split_modal()" name="split" id="split_yes" <?php if(isset($split) && $split==1){ echo'checked="true"'; }?>   value="1"/>YES
                             </label>
                             <label class="radio-inline">
                               <input type="radio" class="radio" data-required="true"  onclick="close_other()" name="split" id="split_no" <?php if((isset($split) && $split==2) || (isset($_GET['action']) && $_GET['action']=='add')){ echo'checked="true"'; }?>  value="2" />NO
@@ -686,150 +641,6 @@ function autocomplete(inp, arr) {
 
                     </div>
                 </div>
-                <!--<div class="col-md-8" id="split_div" <?php  if((isset($split) && $split!=1) || (isset($_GET['action']) && $_GET['action']=='add')){?>style="display: none;"<?php } ?>>
-                    <div class="row" id="add_other_split">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label>Split Broker </label><br />
-                            <select class="form-control" name="split_broker[]">
-                                <option value="">Select Broker</option>
-                                 <?php foreach($get_broker as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label>Split Rate </label><br />
-                            <div class="input-group">
-                                <input type="text" name="split_rate[]" onchange="handleChange(this);" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control decimal" value="" />
-                                <input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="0" />
-                                <input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="0" />
-                                <span class="input-group-addon">%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label></label><br />
-                            <button type="button" onclick="addMoreRow();" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <?php if(isset($action) && ($action=='add'||$return_splits==array())){?>
-                <div id="client_split_row"></div>
-                <div id="broker_split_row"></div>
-                <?php } ?>
-                <?php
-                if($return_splits != '')
-                {
-                $is_client = 0;
-                $is_broker = 0;
-                foreach($return_splits as $keyedit_split=>$valedit_split){
-                    $split_broker = $valedit_split['split_broker'];?>
-                <?php if($is_client==0){?>
-                <div id="client_split_row">
-                <?php } ?>
-                <?php if($valedit_split['split_client_id']>0){
-                      ?>
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <select class="form-control" name="split_broker[]">
-                                <option value="">Select Broker</option>
-                                 <?php foreach($get_broker as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <input type="text" name="split_rate[]" onchange="handleChange(this);"  onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control decimal" value="<?php echo number_format($valedit_split['split_rate'],2);?>" />
-                            <input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="<?php echo $valedit_split['split_client_id'];?>" />
-                            <input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="<?php echo $valedit_split['split_broker_id'];?>" />
-                            <span class="input-group-addon">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                             <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <?php } ?>
-                <?php if($is_client==0){
-                    $is_client++; ?>
-                </div>
-                <?php } ?>
-                <?php
-                if($is_broker==0)
-                {?>
-                <div id="broker_split_row">
-                <?php }
-                if($valedit_split['split_broker_id']>0){
-                     ?>
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <select class="form-control" name="split_broker[]">
-                                <option value="">Select Broker</option>
-                                 <?php foreach($get_broker as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <input type="text" name="split_rate[]" onchange="handleChange(this);"  onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control decimal" value="<?php echo number_format($valedit_split['split_rate'],2);?>" />
-                            <input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="<?php echo $valedit_split['split_client_id'];?>" />
-                            <input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="<?php echo $valedit_split['split_broker_id'];?>" />
-                            <span class="input-group-addon">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                             <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <?php }
-                if($is_broker==0){
-                $is_broker++; ?>
-                </div>
-                <?php }
-                if($valedit_split['split_broker_id']==0 && $valedit_split['split_client_id']==0) {?>
-                <div class="row split_edit_row">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <select class="form-control" name="split_broker[]">
-                                <option value="">Select Broker</option>
-                                 <?php foreach($get_broker as $key=>$val){?>
-                                <option value="<?php echo $val['id'];?>" <?php if($split_broker != '' && $split_broker==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['middle_name'].' '.$val['last_name'];?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <input type="text" name="split_rate[]" onchange="handleChange(this);"  onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control decimal" value="<?php echo number_format($valedit_split['split_rate'],2);?>" />
-                            <input type="hidden" name="split_client_id[]" id="split_client_id" class="form-control" value="<?php echo $valedit_split['split_client_id'];?>" />
-                            <input type="hidden" name="split_broker_id[]" id="split_broker_id" class="form-control" value="<?php echo $valedit_split['split_broker_id'];?>" />
-                            <span class="input-group-addon">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                             <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <?php } } }?>
-                </div>-->
-            </div>
             <!--<h4>Overrides </h4>
             <div class="panel" style="border: 1px solid #cccccc !important; padding: 10px !important;">
                 <div class="row">
@@ -972,7 +783,7 @@ function autocomplete(inp, arr) {
                 </div><!-- End of Modal content -->
             </div><!-- End of Modal dialog -->
         </div><!-- End of Modal -->
- -->
+
         </form>
         <?php
             }if((isset($_GET['action']) && $_GET['action']=='view') || $action=='view'){?>
@@ -1013,7 +824,6 @@ function autocomplete(inp, arr) {
     			<table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
     	            <thead>
     	                <tr>
-
                             <th>Trade Number</th>
                             <th>Trade Date</th>
                             <th>Client Name</th>
@@ -1202,27 +1012,25 @@ $(document).ready(function() {
         }
     }
 
-    // 05/15/22 Commented out to see if this is triggering client change and subsequent "get_broker_hold_commission($broker_id) call
-    // 5/14/22 Commented out, CAUSING ERROR:
-    // 07/05/22 Reinstated - part of the "Search By Number
+    // 07/05/22 Reinstated - part of the "Search By Number" text box
     $(".livesearch").chosen();
-    $("#search_client_number").autocomplete({
-        source: "ajax_get_client_account.php?_type=query",
-        minLength: 1,
-        maxShowItems: 20,
-        select: function( event, ui ) {
-            console.log('ui.item' + ui.item.name);
-            $('select[id="client_name"]').val(ui.item.value).trigger("chosen:updated").trigger("change");;;
-            // $('select[name="broker_name"]').val(ui.item.broker_name).trigger("chosen:updated").trigger("change");;;
-        }
-    })
-    .autocomplete("instance")._renderItem = function (ul, item) {
-        return $("<li>")
-        .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Cloudfox ID:</strong>'+item.value+'</span><br/>'+
-                (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') + 
-                '<span><strong>Client SSN:</strong>'+item.client_ssn+'</span><br/><span><strong>Client File Number:</strong>'+item.client_file_number+'</span></div>')
-    .appendTo(ul);
-    };;
+    if ($("#search_client_number").length > 0){
+        $("#search_client_number").autocomplete({
+            source: "ajax_get_client_account.php?_type=query",
+            minLength: 1,
+            maxShowItems: 20,
+            select: function( event, ui ) {
+                $('select[id="client_name"]').val(ui.item.value).trigger("chosen:updated").trigger("change");
+            }
+        })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+            .append('<div><span><strong>Client Name:</strong>'+item.name+'</span><br/><span><strong>Cloudfox ID:</strong>'+item.value+'</span><br/>'+
+                    (item.account_number==='' ? '' : '<span><strong>Account No:</strong>'+item.account_number+'</span><br/>') +
+                    '<span><strong>Client SSN:</strong>'+item.client_ssn+'</span><br/><span><strong>Client File Number:</strong>'+item.client_file_number+'</span></div>')
+        .appendTo(ul);
+        };
+    }
 
     $('#ch_no').mask("999999");
 
@@ -1341,12 +1149,14 @@ $(document).ready(function() {
     $("#branch").change(function(e){get_branch_company($(this).val());});
     $("#product_cate").change(function(e){get_product($(this).val());});
     $("#sponsor").change(function(e){get_product();});
+    $("#trade_date").change(function(e){get_client_split_rates($("#client_name").val());});
 
     // 06/07/22 Rule Engine Modal Window
     <?php if (!empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
         resolve_rule_engine("<?php echo $_SESSION['transaction_rule_engine']['warnings']; ?>");
+        load_split_commission_content(0, 0, 1);
     <?php } ?>
-    
+
     $('#commission-received-date').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
@@ -1354,18 +1164,25 @@ $(document).ready(function() {
         todayHighlight: true
     });
 
-    // 06/22/22 Hold Reason text area adding left spaces. Don't know why 
+    // 06/22/22 Hold Reason text area adding left spaces. Don't know why
     if ($("#hold_reason").length != 0){
         var reasonText = $("#hold_reason").html().trim();
         $("#hold_reason").html(reasonText);
     }
-    
+
     // 06/30/22 Don't submit the Rule Warning back to transaction.php
     $("#resolve_rule_engine_modal").on('submit', function(event){
         event.preventDefault();
         var data = $("#resolve_rule_engine_modal :input").serializeArray();
         resolve_rule_engine_submit(data);
     });
+
+    if (!isNaN($("#trade_number").val())){
+        <?php if (empty($_SESSION['transaction_rule_engine']['warnings'])){ ?>
+            load_split_commission_content(0, $("#trade_number").val());
+        <?php } ?>
+    }
+
 })
 
 function hide_hold_reason()
@@ -1436,6 +1253,9 @@ function open_hold_reason() {
     $("#div_hold_reason").css('display','block');
 }
 function handleChange(input) {
+    // 07/13/22 Set the "value" attribute so the spinner buttons will increment the latest value
+    input.setAttribute('value',input.value);
+
     if (input.value < 0) input.value = 0.00;
     if (input.value > 100) input.value = 100.00;
 }
@@ -1493,7 +1313,7 @@ if(localStorage.getItem('transcation_form_data')){
     //   });
     // })
 
-    // 5/14/22 Not sure what this code is for. Should it be in the ready()? 
+    // 5/14/22 Not sure what this code is for. Should it be in the ready()?
     //-- 07/05/22 jQuery Inputmask() -> "not a function" error. Try cap'ing the "i" inputmask(...) -> commented out - not referenced in the code
     // $(".two-decimals").inputmask('currency', {
     //     prefix: '',
@@ -1547,9 +1367,9 @@ function add_new_client_no(element){
 }
 
 function get_product(category_id,selected=''){
-    category_id = category_id || document.getElementById("product_cate").value;
-    sponsor = document.getElementById("sponsor").value;
-    c_sponsor =  document.getElementById("company_sponsor");
+    var category_id = category_id || document.getElementById("product_cate").value;
+    const sponsor = document.getElementById("sponsor").value;
+    const c_sponsor =  document.getElementById("company_sponsor");
     $("#add_new_prod").attr("href","product_cate.php?action=add_product_from_trans&category="+category_id+"&redirect=add_product_from_trans&transaction_id="+<?php echo $id ?>);
 
     document.getElementById("product").innerHTML = "<option value=''> Please Wait...</option>";
@@ -1570,6 +1390,7 @@ function get_product(category_id,selected=''){
                 /* if(transcation_form_data[key]['name']=='product')
                 document.querySelector("[name='product']").value=transcation_form_data[key]["value"];*/
             // }
+            get_client_split_rates($("#client_name").val());
         }
     };
     xmlhttp.open("GET", "ajax_get_product.php?product_category_id="+category_id+'&sponsor='+sponsor+'&selected='+selected, true);
@@ -1579,36 +1400,38 @@ function get_product(category_id,selected=''){
 //get client account no on client select
 function get_client_account_no(client_id,selected,skipBroker=0){
     document.getElementById("client_number").innerHTML="<option value=''>Please Wait...</option>";
+    var dropdown='';
+    var xmlhttp = new XMLHttpRequest();
 
     // Skip on the page load
     if (!skipBroker){
         var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
         $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
+
+        // 07/17/22 Client Split rates updated in get-broker-hold-commission(), because the Broker Split Ajax file wipes all splits, then populates the <tr> elements
     }
 
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200)
-        {
-            var dropdown='';
-            var options = JSON.parse(this.responseText);
+    if (client_id && client_id != "0"){
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200)
+            {
+                var options = JSON.parse(this.responseText);
 
-            dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
-            options.forEach(function(item){
-                is_selected = (selected.trim() == item.trim() ? "selected" : "");
-                dropdown+="<option value='"+item.trim()+"' "+is_selected+">"+item+"</option>";
-            })
-            document.getElementById("client_number").innerHTML = dropdown;
+                dropdown+='<option value=""> Please Select  </option><option value="-1"> Add New </option>';
+                options.forEach(function(item){
+                    is_selected = (selected.trim() == item.trim() ? "selected" : "");
+                    dropdown+="<option value='"+item.trim()+"' "+is_selected+">"+item+"</option>";
+                })
+                document.getElementById("client_number").innerHTML = dropdown;
+            }
+        };
+        xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
+        xmlhttp.send();
+    } else {
+        dropdown+='<option value=""> Please Select Client</option>';
+        document.getElementById("client_number").innerHTML = dropdown;
+    }
 
-            // 05/15/22 Commented out - not sure what this is doing
-            // for(var key in transcation_form_data){
-            //     if(transcation_form_data[key]['name']=='client_number')
-            //     document.querySelector("[name='client_number']").value=transcation_form_data[key]["value"];
-            // }
-        }
-    };
-    xmlhttp.open("GET", "ajax_get_client_account.php?action=all&client_id="+client_id, true);
-    xmlhttp.send();
 }
 
 function get_client_id(client_number){
@@ -1637,7 +1460,7 @@ function get_commission_date(batch_id){
             // 06/17/22  Pulling up the prior date, have to initialize the Datepicker value as well.
             $("#commission_received_date").datepicker('setDate', $("#commission_received_date").val());
             $("#sponsor").val(data[0].sponsor);
-            
+
             $("#product_cate").val(data[0].pro_category);
             if(data[0].pro_category!='' && data[0].pro_category!='0'){
                 get_product(data[0].pro_category,data[0].sponsor);
@@ -1674,39 +1497,57 @@ function setnumber_format(inputtext)
 }
 
 //get client split rate on client select
+// 07/14/22 Populate the Split Modal i/o of the split <div>
 function get_client_split_rates(client_id){
+    const trade_date = $("#trade_date").val();
+    const product_category = $("#product_cate").val();
+    // Remove current splits
+    const clientSplits = $("input[name^='split_type[]'][value*='client=']");
+    clientSplits.each((index, elem) => {
+        $(elem).closest('tr').remove();
+    })
+
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
         {
-            $( "#split_yes" ).prop( "checked", true );
-            open_other();
-            //$('#client_split_row').replaceWith(this.responseText);
+            const jsonResponse = JSON.parse(this.responseText);
+            const split_broker = jsonResponse.split_broker;
+            const split_rate = jsonResponse.split_rate;
 
-            document.getElementById("client_split_row").innerHTML = this.responseText;
-            //$(this.responseText).insertAfter('#add_other_split');
+            if (split_broker>0 && split_rate>0){
+                // If the "add split" row is populated, add a blank row beneath to store the client split
+                if (parseFloat($('#add_split_broker').val())>0 && parseFloat($('#add_split_rate').val())>'0'){
+                    add_split_row(0);
+                }
+                $("#add_split_broker").val(split_broker);
+                $("#add_split_rate").val(split_rate);
+                $("#add_split_type").val('client='+client_id);
+                add_split_row(0);
+            }
+            update_split_yes('get-client-split-rates()');
         }
     };
-    xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id, true);
+    xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id+"&trade_date="+trade_date+"&product_category="+product_category, true);
     xmlhttp.send();
+
 }
 
-//get broker split rate on broker select
+// get broker split rate on broker select
 function get_broker_split_rates(broker_id){
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
         {
-            $( "#split_yes" ).prop( "checked", true );
-            open_other();
-            //$('#broker_split_row').replaceWith(this.responseText);
+            open_split_modal();
             document.getElementById("broker_split_row").innerHTML = this.responseText;
-            //$(this.responseText).insertAfter('#add_other_split');
-            //document.getElementById("split").value = this.responseText;
+
+            update_split_yes('get_broker_split_rates');
         }
     };
     xmlhttp.open("GET", "ajax_get_split_rates.php?broker_id="+broker_id, true);
     xmlhttp.send();
+
 }
 
 //get broker override rate on broker select
@@ -1732,15 +1573,15 @@ function redirect_url(url,selector){
         else{
             url = url+"&category="+$("#product_cate").val();
             // 07/07/22 Store user inputs so the form can be repopulated when redirected back here from product_cate.php
-            var formdata = $('form[name="frm2"] :input').serializeArray();
+            const formdata = $('form[name="frm2"] :input').serializeArray();
             $.ajax({
                 type: "POST",
                 url: "ajax_transaction_tpl.php",
                 data: {addProdFromTrans: formdata},
                 success: function(value){
-                    console.log('Form Data posted...');
-                },
-            })            
+                    // console.log('Form Data posted...');
+                }
+            })
         }
     }
     // localStorage.setItem("transcation_form_data",  JSON.stringify($("form[name='frm2']").serializeArray()));
@@ -1760,8 +1601,7 @@ function get_broker_hold_commission(broker_id){
         {
             if (this.responseText){
                 var jsonResponse = JSON.parse(this.responseText);
-
-                hold_commissions = jsonResponse.hold_commission;
+                const hold_commissions = jsonResponse.hold_commission;
 
                 if(hold_commissions==1)
                 {
@@ -1791,6 +1631,8 @@ function get_broker_hold_commission(broker_id){
                 $("#div_hold_reason").css('display','none');
                 $("#hold_reason").val("");
             }
+            // 07/14/22 Update client splits - skip initial "Maintain Transaction" load
+            get_client_split_rates($("#client_name").val());
         }
     };
     xmlhttp.open("GET", "ajax_transaction_tpl.php?broker_id="+broker_id, true);
@@ -1812,9 +1654,6 @@ function get_branch_company(branch_id){
             if (jsonResponse.id > 0){
                 $("#company").val("");
                 $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("chosen:updated").trigger("change");
-
-                var datetime2 = Date.now().toString().substr(7);
-
             }
         }
     };
@@ -1822,7 +1661,7 @@ function get_branch_company(branch_id){
     xmlhttp.send();
 }
 
-function load_split_commission_content(broker_id){
+function load_split_commission_content(broker_id=0, transaction_id=0, use_rule_data=0){
     var xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
@@ -1835,30 +1674,44 @@ function load_split_commission_content(broker_id){
                 autoclose: true,
                 todayHighlight: true
             });
+
+            update_split_yes('load_split_commission_content');
         }
     };
-    client_id= $("select[name='client_name']").val();
-    transaction_id = $("#id").val();
-    xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id, true);
+    const client_id= $("select[name='client_name']").val();
+    const trade_date = $("#trade_date").val();
+    //-- 07/11/22 Transaction ID / Trade number should be passed with the parameter call
+    // transaction_id = $("#id").val();
+    xmlhttp.open("GET", "ajax_transaction_tpl.php?action=split_commission&broker_id="+broker_id+"&transaction_id="+transaction_id+"&trade_date="+trade_date+"&use_rule_data="+use_rule_data, true);
     xmlhttp.send();
+
+    return false;
 }
 
-function open_other(){
+function open_split_modal(){
     $("#split_commission_modal").modal();
     if($("select[name='broker_name']").val() == '' || $("select[name='broker_name']").val() == 0){
-        $("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please Select Broker First!</td> </td>")
+        $("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please select broker first</td> </td>")
     }
     else{
             //$("#split_commission_modal").find(".modal-body tbody").html("<tr><td colspan='6'>Please Wait....</td> </td>")
     }
-    //$('#split_div').css('display','block');
-    //$('.split_edit_row').css('display','block');
 }
 
-function close_other() {
+function update_split_yes(calledFrom=''){
+    //   <select name="split_broker[]"  class="form-control" style="padding-right: 30px;">
+    const splitBrokers = document.getElementsByName('split_broker[]');
+    const splitRates = document.getElementsByName('split_rate[]');
+
+    if (splitBrokers.length==0 || splitBrokers[0]['value']=='' || parseFloat(splitRates[0]['value'])==0){
+        $("#split_no").prop('checked',true);
+    } else {
+        $("#split_yes").prop('checked',true);
+    }
+}
+
+function close_other(callFrom='') {
     $("#split_commission_modal").modal("hide");
-   // $('#split_div').css('display','none');
-    //$('.split_edit_row').css('display','none');
 }
 
 // jQuery(function($){
@@ -1930,100 +1783,124 @@ var waitingDialog = waitingDialog || (function ($) {
              var commission_received = $("input[name='commission_received']");
              var split = $("input[name='split']");
              var hold_commission = $("input[name='hold_commission']");
+            var idName = "#id";
+            var missingFields = "";
 
-                if($.trim(trade_date.val()) == ''){
-                     isErrorFound=true;
-                     trade_date.addClass("error");
-                }
-                else{
-                       trade_date.removeClass("error");
-                }
-                if($.trim(client_name.val()) == '' || $.trim(client_name.val()) == '0'){
-                     isErrorFound=true;
+            if($.trim(trade_date.val()) == ''){
+                isErrorFound=true;
+                trade_date.addClass("error");
+                idName = "#trade_date";
+                missingFields += (missingFields==""?"":", ") + "Trade Date";
+            }
+            else{
+                trade_date.removeClass("error");
+            }
+            if($.trim(client_name.val()) == '' || $.trim(client_name.val()) == '0'){
+                isErrorFound=true;
+                client_name.next("div").find("a.chosen-single").addClass("error");
+                idName = "#client_name";
+                missingFields += (missingFields==""?"":", ") + "Client Name";
 
-                     client_name.next("div").find("a.chosen-single").addClass("error");
-                }
-                else{
-                       client_name.next("div").find("a.chosen-single").removeClass("error");
-                }
-                // 06/25/22 Client Account Number not required
-                // if($.trim(client_number.val()) == ''){
-                //      isErrorFound=true;
-                //      client_number.addClass("error");
-                // }
-                // else{
-                //        client_number.removeClass("error");
-                // }
-                if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
-                     isErrorFound=true;
-                     broker_name.next("div").find("a.chosen-single").addClass("error");
-                }
-                else{
-                       broker_name.next("div").find("a.chosen-single").removeClass("error");
-                }
-                if($.trim(batch.val()) == ''){
-                     isErrorFound=true;
-                     batch.addClass("error");
-                }
-                else{
-                       batch.removeClass("error");
-                }
+            }
+            else{
+                client_name.next("div").find("a.chosen-single").removeClass("error");
+            }
+            // 06/25/22 Client Account Number not required
+            // if($.trim(client_number.val()) == ''){
+            //      isErrorFound=true;
+            //      client_number.addClass("error");
+            // }
+            // else{
+            //        client_number.removeClass("error");
+            // }
+            if($.trim(broker_name.val()) == '' || broker_name.val()=='0'){
+                    isErrorFound=true;
+                    broker_name.next("div").find("a.chosen-single").addClass("error");
+                    idName = "select[name='broker_name']";
+                    missingFields += (missingFields==""?"":", ") + "Broker";
+            }
+            else{
+                broker_name.next("div").find("a.chosen-single").removeClass("error");
+            }
 
-                if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
-                     isErrorFound=true;
-                     product_cate.addClass("error");
-                }
-                else{
-                       product_cate.removeClass("error");
-                }
+            if($.trim(batch.val()) == '' || $.trim(batch.val()) == '0'){
+                isErrorFound=true;
+                batch.addClass("error");
+                idName = "select[name='batch']";
+                missingFields += (missingFields==""?"":", ") + "Batch";
+            }
+            else{
+                batch.removeClass("error");
+            }
 
-                if($.trim(product.val()) == '' || $.trim(product.val()) == '0'){
-                     isErrorFound=true;
-                     product.addClass("error");
-                }
-                else{
-                       product.removeClass("error");
-                }
+            if($.trim(product_cate.val()) == '' || $.trim(product_cate.val()) == '0'){
+                    isErrorFound=true;
+                    product_cate.addClass("error");
+                    idName = "#product_cate";
+                    missingFields += (missingFields==""?"":", ") + "Product Category";
+            }
+            else{
+                product_cate.removeClass("error");
+            }
 
-                if($.trim(commission_received_date.val()) == ''){
-                     isErrorFound=true;
-                     commission_received_date.addClass("error");
-                }
-                else{
-                       commission_received_date.removeClass("error");
-                }
+            if($.trim(product.val()) == '' || $.trim(product.val()) == '0'){
+                    isErrorFound=true;
+                    product.addClass("error");
+                    idName = "#product";
+                    missingFields += (missingFields==""?"":", ") + "Product";
+            }
+            else{
+                product.removeClass("error");
+            }
 
-                if($.trim(commission_received.val()) == ''){
-                     isErrorFound=true;
-                     commission_received.addClass("error");
-                }
-                else{
-                       commission_received.removeClass("error");
-                }
+            if($.trim(commission_received_date.val()) == ''){
+                isErrorFound=true;
+                commission_received_date.addClass("error");
+                idName = "#commission_received_date";
+                missingFields += (missingFields==""?"":", ") + "Received Date";
+            }
+            else{
+                commission_received_date.removeClass("error");
+            }
 
-                if($.trim(split.val()) == ''){
-                     isErrorFound=true;
-                     split.addClass("error");
-                }
-                else{
-                       split.removeClass("error");
-                }
+            if($.trim(commission_received.val()) == ''){
+                isErrorFound=true;
+                commission_received.addClass("error");
+                idName = "input[name='commission_received']";
+                missingFields += (missingFields==""?"":", ") + "Commission Received";
+            }
+            else{
+                    commission_received.removeClass("error");
+            }
 
-                if($.trim(hold_commission.val()) == ''){
-                     isErrorFound=true;
-                     hold_commission.addClass("error");
-                }
-                else{
-                       hold_commission.removeClass("error");
-                }
+            if($.trim(split.val()) == ''){
+                isErrorFound=true;
+                split.addClass("error");
+                idName = "input[name='split']";
+                missingFields += (missingFields==""?"":", ") + "Split";
+            }
+            else{
+                    split.removeClass("error");
+            }
 
-                if(isErrorFound){
-                    $("html,body").animate({scrollTop: $("#id").offset().top},200);
-                    return false;
-                }
+            if($.trim(hold_commission.val()) == ''){
+                isErrorFound=true;
+                hold_commission.addClass("error");
+                idName = "input[name='hold_commission']";
+                missingFields += (missingFields==""?"":", ") + "Hold Commission";
+            }
+            else{
+                hold_commission.removeClass("error");
+            }
 
-                 localStorage.setItem('transcation_form_data',"");
+            if(isErrorFound){
+                alert('Please enter required field(s): ' + missingFields);
+                // 7/15/22 Scroll doesn't go to element. Tried $(window)..., focus(), new #overflow wrapper - didn't work. Have to move on. If you have a solution, please fix!
+                $("html,body").animate({scrollTop: $(idName).offset().top},200);
+                return false;
+            }
 
+            localStorage.setItem('transcation_form_data',"");
 
 			// Assigning defaults
 			if (typeof options === 'undefined') {
@@ -2082,71 +1959,79 @@ function get_investment_amount() {
 
 var flag1=0;
 
-function add_rate(doc){
+function add_split_row(doc, split_type='user_added', split_broker='', split_rate='0.00'){
+    //-- 07/11/22 SPLIT REP/RATE Modal window dlements - removed Start/Until dates. Not needed for Split Trades table
     if(flag1==0){
-        flag1=doc+1;
+        const flag1=doc+1;
     }
     else { flag1++ ; }
 
-    var html = '<tr class="tr">'+
+    const html = '<tr class="tr">'+
+                    '<input type="hidden" name="split_type[]" value="' + split_type + '" />' +
                     '<td>'+
-                        '<select name="override[receiving_rep1]['+flag1+']"  class="form-control" >'+
-                        '<option value="">Select Broker</option>'+
-                        <?php foreach($get_broker as $key => $val){
-                            if($val['id'] != $id){?>
-                        '<option value="<?php echo $val['id']?>"><?php echo $val['first_name'].' '.$val['last_name']?></option>'+
-                        <?php } } ?>
+                        '<select name="split_broker[]"  class="form-control" >'+
+                            '<option value="">Select Broker</option>'+
+                            <?php foreach($get_broker as $key => $val){ ?>
+                                '<option value="<?php echo $val['id']?>"><?php echo strtoupper($val['last_name'].(($val['last_name']=='' || $val['first_name']=='') ? '' : ', ').$val['first_name']) ?></option>'+
+                            <?php }?>
                         '</select>'+
                     '</td>'+
                     '<td>'+'<div class="input-group">'+
-                        '<input type="number" step="0.001" onchange="handleChange(this);" name="override[per1]['+flag1+']" value="" class="form-control" />'+'<span class="input-group-addon">%</span>'+'</div>'+
+                        '<input type="number" name="split_rate[]" step="1.00" onchange="handleChange(this);" onblur="test" value="" class="form-control" />'+'<span class="input-group-addon">%</span>'+'</div>'+
                     '</td>'+
-                    '<td>'+
-                        '<div id="demo-dp-range">'+
-                            '<div class="input-daterange input-group" id="datepicker">'+
-                                '<input type="text" name="override[from1]['+flag1+']" class="form-control" />'+
-                                '<label class="input-group-addon btn" for="override[from1]['+flag1+']">'+
-                                '<span class="fa fa-calendar"></span>'+
-                                '</label>'+
-                            '</div>'+
-                        '</div>'+
-                    '</td>'+
-                    '<td>'+
-                        '<div id="demo-dp-range">'+
-                            '<div class="input-daterange input-group" id="datepicker">'+
-                                '<input type="text" name="override[to1]['+flag1+']" class="form-control" />'+
-                                '<label class="input-group-addon btn" for="override[from1]['+flag1+']">'+
-                                '<span class="fa fa-calendar"></span>'+
-                                '</label>'+
-                            '</div>'+
-                        '</div>'+
-                    '</td>'+
-                    '<td>'+
-                        "<select name='override[product_category1]["+flag1+"]'  class='form-control' >"+
-                        "<option value=''>Select Category</option>"+
-                        "<option value='0'>All Categories</option>"+
-                        <?php foreach($product_category as $key => $val) {?>
-                        "<option value='<?php echo $val['id']?>'><?php echo $val['type']?></option>"+
-                        <?php } ?>
-                        "</select>"+
-                    '</td>'+
+                    // '<td>'+
+                    //     '<div id="demo-dp-range">'+
+                    //         '<div class="input-daterange input-group" id="datepicker">'+
+                    //             '<input type="text" name="split_start[]" class="form-control" />'+
+                    //             '<label class="input-group-addon btn" for="override[from1]['+flag1+']">'+
+                    //             '<span class="fa fa-calendar"></span>'+
+                    //             '</label>'+
+                    //         '</div>'+
+                    //     '</div>'+
+                    // '</td>'+
+                    // '<td>'+
+                    //     '<div id="demo-dp-range">'+
+                    //         '<div class="input-daterange input-group" id="datepicker">'+
+                    //             '<input type="text" name="split_until[]" class="form-control" />'+
+                    //             '<label class="input-group-addon btn" for="override[from1]['+flag1+']">'+
+                    //             '<span class="fa fa-calendar"></span>'+
+                    //             '</label>'+
+                    //         '</div>'+
+                    //     '</div>'+
+                    // '</td>'+
+                    // '<td>'+
+                    //     "<select name='override[product_category1]["+flag1+"]'  class='form-control' >"+
+                    //     "<option value=''>Select Category</option>"+
+                    //     "<option value='0'>All Categories</option>"+
+                    //     <?php foreach($product_category as $key => $val) {?>
+                    //     "<option value='<?php echo $val['id']?>'><?php echo $val['type']?></option>"+
+                    //     <?php } ?>
+                    //     "</select>"+
+                    // '</td>'+
                     '<td>'+
                         '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                     '</td>'+
-                '</tr>';
+                '</tr>'
+    ;
 
-
-    $(html).insertAfter('#add_rate');
-    $('#demo-dp-range .input-daterange').datepicker({
-        format: "mm/dd/yyyy",
-        todayBtn: "linked",
-        autoclose: true,
-        todayHighlight: true
-    });
+    // 07/12/22 Populate the new row with the "Add Split" row values, so the blank row(#add_split_row) will be at the bottom
+    $(html).insertBefore('#add_split_row');
+    const addRowRep = $('#add_split_broker').val();
+    const addRowRate = $('#add_split_rate').val();
+    const addRowType = $('#add_split_type').val();
+    const splitBrokers = document.getElementsByName("split_broker[]");
+    const splitRates = document.getElementsByName("split_rate[]");
+    const splitTypes = document.getElementsByName("split_type[]");
+    splitBrokers[splitBrokers.length-2].value = addRowRep;
+    splitRates[splitRates.length-2].value = addRowRate!="" ? addRowRate : "0.00";
+    splitTypes[splitTypes.length-2].value = addRowType;
+    splitBrokers[splitBrokers.length-1].value = split_broker;
+    splitRates[splitRates.length-1].value = split_rate;
+    splitTypes[splitTypes.length-1].value = split_type;
 }
 
-var deleteRows=[]
 $(document).on('click','.remove-row',function(){
+    var deleteRows=[]
     deleteRows.push($(this).closest('.tr').data("rowid"));
     $("#deleted_rows").val(deleteRows.join(","));
     $(this).closest('.tr').remove();
@@ -2179,21 +2064,21 @@ function resolve_rule_engine(msg='')
 // 06/30/22 Keep processing on this page, and trigger the Save/Save&Copy/Cancel buttons programmitically
 function resolve_rule_engine_submit(posts) {
     $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
-    $("#rule_engine_warning_action").val(posts[0]['value']); 
+    $("#rule_engine_warning_action").val(posts[0]['value']);
 
     var action = '';
     <?php if (isset($_SESSION['transaction_rule_engine']['data']['transaction'])) { ?>
-            action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
+        action = "<?php echo $_SESSION['transaction_rule_engine']['data']['transaction'] ?>";
     <?php } ?>
     if ($("#rule_engine_warning_action").val() == '3'){
-        action = 'Cancel';    
+        action = 'Cancel';
     }
 
     //-- CLEAN UP --//
     //-- 06/11/22 "Manually" go back to the main Transaction page/grid
     $("#resolve_rule_engine_modal").modal("hide");
     $(".alert").remove();
-    
+
     switch (action){
         case 'Save':
             $("#save").trigger("click");
@@ -2204,7 +2089,7 @@ function resolve_rule_engine_submit(posts) {
         default:
             $("#cancel").click();
     }
-    
+
     return false;
 }
 
@@ -2264,7 +2149,7 @@ function resolve_rule_engine_submit(posts) {
 // 		/**
 // 		 * Closes dialog
 // 		 */
-	
+
 // 	};
 
 // })(jQuery);

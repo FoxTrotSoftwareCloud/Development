@@ -1,23 +1,22 @@
-<?php 
+<?php
 
 //echo ini_get("max_input_vars"); ?>
 
 
 <script type="text/javascript">
-   $(document).ready(function(){
-       console.log("works");
-     $('#telephone_general').mask("(999) 999-9999");
-        $('#fax_general').mask("(999) 999-9999");
+$(document).ready(function(){
+   console.log("works");
+
+   $('#telephone_general').mask("(999) 999-9999");
+   $('#fax_general').mask("(999) 999-9999");
    $('#cell_general').mask("(999) 999-9999");
-    $('#ssn').mask("999-99-9999");
-     $('#tax_id').mask("99-9999999");
-      $('#business_zipcode').mask("99999?-9999");
-       $('#zip_code_general').mask("99999?-9999");
-        $('#routing_general').mask("999999999");
-         $("#day_after_u5").mask("999");
-       
-     
-   });
+   $('#ssn').mask("999-99-9999");
+   $('#tax_id').mask("99-9999999");
+   $('#business_zipcode').mask("99999?-9999");
+   $('#zip_code_general').mask("99999?-9999");
+   $('#routing_general').mask("999999999");
+   $("#day_after_u5").mask("999");
+});
 </script>
 <script type="text/javascript">
    $(function() {
@@ -35,7 +34,7 @@
    }
    #table-scroll {
    height:300px;
-   overflow:auto;  
+   overflow:auto;
    margin-top:0px;
    }
    span.multiselect-native-select {
@@ -121,7 +120,7 @@
        if(flag2==0){
            flag2=doc1+1;
            }
-           
+
        else{ flag2++ ; }
        var html = '<tr class="tr">'+
                        '<td>'+
@@ -162,8 +161,8 @@
                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                        '</td>'+
                    '</tr>';
-                   
-               
+
+
        $(html).insertAfter('#add_more_split');
    }
    $(document).on('click','.remove-row',function(){
@@ -223,8 +222,8 @@
                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                        '</td>'+
                    '</tr>';
-                   
-               
+
+
        $(html).insertAfter('#add_rate');
    }
    $(document).on('click','.remove-row',function(){
@@ -232,12 +231,12 @@
    });
    var flag=0;
    function addlevel(leval){
-           
+
        if(flag==0){
            flag=leval+1;
            }
        else{ flag++ ; }
-   
+
        var html = '<tr class="tr">'+
                        /*'<td>'+
                            '<div class="input-group dollar">'+
@@ -264,11 +263,11 @@
                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                        '</td>'+
                    '</tr>';
-                   
-               
+
+
        $(html).insertAfter('#add_level');
-       
-       
+
+
        var radio = $('input[name=transaction_type_general]:checked').val();
            if(radio=='1')
            {
@@ -283,10 +282,10 @@
               $(".dollar").children().prop('disabled',true);
               $('.dollar').css('display','none');
            }
-           
-       
+
+
    }
-   $(document).ready(function(){    
+   $(document).ready(function(){
        var radio = $('input[name=transaction_type_general]:checked').val();
            if(radio=='1')
            {
@@ -301,19 +300,19 @@
               $(".dollar").children().prop('disabled',true);
               $('.dollar').css('display','none');
            }
-           
+
        });
    $(document).on('click','.remove-row',function(){
        $(this).closest('.tr').remove();
    });
    var flag=0;
    function addlevel_new(leval){
-           
+
        if(flag==0){
            flag=leval+1;
            }
        else{ flag++ ; }
-   
+
        var html = '<tr class="tr">'+
                        '<td>'+
                        '<div class="input-group dollar_new">'+
@@ -342,11 +341,11 @@
                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                        '</td>'+
                    '</tr>';
-                   
-               
+
+
        $(html).insertAfter('#add_level_new');
-       
-       
+
+
        var radio = $('input[name=transaction_type_general_new]:checked').val();
            if(radio=='1')
            {
@@ -356,16 +355,16 @@
                $('.percentage_new').css('display','none');
            }
            else if(radio == '2'){
-             
+
               $('.percentage_new').css('display','');
               $(".percentage_new").children().prop('disabled',false);
               $(".dollar_new").children().prop('disabled',true);
               $('.dollar_new').css('display','none');
            }
-           
-       
+
+
    }
-   $(document).ready(function(){    
+   $(document).ready(function(){
        var radio = $('input[name=transaction_type_general_new]:checked').val();
            if(radio=='1')
            {
@@ -375,13 +374,13 @@
                $('.percentage_new').css('display','none');
            }
            else if(radio == '2'){
-              
+
               $('.percentage_new').css('display','');
               $(".percentage_new").children().prop('disabled',false);
               $(".dollar_new").children().prop('disabled',true);
               $('.dollar_new').css('display','none');
            }
-           
+
        });
    $(document).on('click','.remove-row',function(){
        $(this).closest('.tr').remove();
@@ -420,7 +419,7 @@
                        '<td>'+
                            ' <select name="alias[state]['+test+']" class="form-control">'
                             +'<option value="0">Select State</option>'+
-                            <?php foreach($get_state as $statekey=>$stateval){?>               
+                            <?php foreach($get_state as $statekey=>$stateval){?>
                                '<option value="<?php echo $stateval['id'];?>" ><?php echo $stateval['name'];?></option>'+
                             <?php } ?>+                                                          '</select>'+
                        '</td>'+
@@ -431,13 +430,13 @@
                                '</div>'+
                            '</div>'+
                        '</td>'+
-   
+
                        '<td>'+
                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                        '</td>'+
                    '</tr>';
-                   
-               
+
+
        $(html).insertBefore('#add_row_alias');
    }
    $(document).on('click','.remove-row',function(){
@@ -455,15 +454,15 @@
            test=note_doc+1;
            }
        else{ test++ ; }
-       
-      
-       
+
+
+
        var html = '<tr class="tr">'+
                        '<td>'+
-                           '<input type="checkbox" name="data[docs_receive]['+test+']" class="checkbox" value="1" id="docs_receive"/>'+
+                           '<input type="checkbox" name="data[docs_receive]['+test+']" class="checkbox" value="1" id="docs_receive'+test+'"/>'+
                        '</td>'+
                        '<td>'+
-                           '<select name="data[docs_description]['+test+']" id="docs_description" class="form-control">'+
+                           '<select name="data[docs_description]['+test+']" id="docs_description'+test+'" class="form-control">'+
                                '<option value="">Select Documents</option>'+
                                <?php foreach($select_broker_docs as $key_broker_doc=>$val_broker_doc){?>
                                '<option value="<?php echo $val_broker_doc['id'];?>" ><?php echo $val_broker_doc['desc'];?></option>'+
@@ -472,20 +471,20 @@
                        '</td>'+
                        '<td>'+
                            '<div id="demo-dp-range">'+
-                               '<div class="input-daterange input-group" id="datepicker">'+
-                                   '<input type="text" name="data[docs_date]['+test+']" id="docs_date" value="" class="form-control" />'+
+                               '<div class="input-daterange input-group" id="datepicker'+test+'">'+
+                                   '<input type="text" name="data[docs_date]['+test+']" id="docs_date'+test+'" value="" class="form-control" />'+
                                '</div>'+
                            '</div>'+
                        '</td>'+
                        '<td>'+
-                           '<input type="checkbox" name="data[docs_required]['+test+']" class="checkbox" value="1" id="docs_required"/>'+
+                           '<input type="checkbox" name="data[docs_required]['+test+']" class="checkbox" value="1" id="docs_required'+test+'"/>'+
                        '</td>'+
                        '<td>'+
                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                        '</td>'+
                    '</tr>';
-                   
-               
+
+
        $(html).insertBefore('#add_row_docs');
    }
    $(document).on('click','.remove-row',function(){
@@ -493,7 +492,7 @@
    });
    var waitingDialog = waitingDialog || (function ($) {
        'use strict';
-   
+
     // Creating modal dialog's DOM
     var $dialog = $(
         '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
@@ -504,7 +503,7 @@
                 '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
             '</div>' +
         '</div></div></div>');
-   
+
     return {
         /**
          * Opens our dialog
@@ -514,7 +513,7 @@
          *                options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
          */
         show: function (message, options) {
-             
+
             // Assigning defaults
             if (typeof options === 'undefined') {
                 options = {};
@@ -549,8 +548,8 @@
                 else{
                         $("#email2_general").css({"border":""})
                 }
-            }  
-            
+            }
+
             // Configuring dialog
             $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
             $dialog.find('.progress-bar').attr('class', 'progress-bar');
@@ -571,12 +570,12 @@
         /**
          * Closes dialog
          */
-    
+
     };
-   
+
    })(jQuery);
-   
-   
+
+
 </script>
 <div class="container">
    <div id="export_modal"class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
@@ -637,13 +636,13 @@
             </div>
          </ul>
          <form method="post" onsubmit="return waitingDialog.show();">
-         
+
             <div class="tab-content">
                <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="general"){ echo "active"; }else if(!isset($_GET['tab'])){echo "active";}else{ echo '';} ?>" id="tab_a">
                   <div class="panel-overlay-wrap">
                      <div class="panel">
                         <div class="panel-heading">
-                        
+
                            <div class="col-md-3" style="padding-left: 0px;">
                               <div class="form-inline"  style="text-align: right !important; display: inline !important; ">
                                  <label>Status</label>
@@ -658,7 +657,7 @@
                               </div>
                            </div>
                            <div class="col-md-9 show-inline-elements" style="padding: 0px;">
-                                <div class="form-inline"> 
+                                <div class="form-inline">
                                     <div class="input-group">
                                         <span class="input-group-addon">
                                         <input type="checkbox" class="higher_risk" name="higher_risk" <?php if(isset($higher_risk) && $higher_risk==1){ echo'checked="true"'; }?> id="higher_risk" style="display: inline;" value="1" />
@@ -678,7 +677,7 @@
                                     </div>
                                 </div>
                            </div>
-                         
+
                         </div>
                         <div class="panel-body">
                            <div class="row">
@@ -722,7 +721,7 @@
                                        ?>
                                     <input type="text" name="fund_dis" id="fund_dis" disabled="true" value="<?php echo $_GET['rep_no']; ?>" class="form-control" />
                                     <input type="hidden" name="fund" id="fund" value="<?php echo $_GET['rep_no']; ?>" class="form-control" />
-                                    <?php 
+                                    <?php
                                        }else{
                                        ?>
                                     <input type="text" name="fund" id="fund" value="<?php echo $fund; ?>" class="form-control" />
@@ -749,7 +748,7 @@
                                     ?>
                                          <input type="text" name="fund_dis" id="fund_dis" disabled="true" value="<?php echo $_GET['rep_no']; ?>" class="form-control" />
                                          <input type="hidden" name="fund" id="fund" value="<?php echo $_GET['rep_no']; ?>" class="form-control" />
-                                     <?php 
+                                     <?php
                                     }else{
                                     ?>
                                      <input type="text" name="fund" id="fund" value="<?php echo $fund; ?>" class="form-control" />
@@ -786,7 +785,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox"  name="cfp_general" <?php if(isset($cfp) && $cfp==1){ echo'checked="true"'; }?> id="cfp_general" style="display: inline;" value="1" />
+                                                <input type="checkbox"  name="cfp_general" <?php if(isset($cfp_general) && $cfp_general==1){ echo'checked'; }?> id="cfp_general" style="display: inline;" value="1" />
                                                 </span>
                                                 <label class="form-control">CFP</label>
                                              </div>
@@ -794,7 +793,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox" name="chfp_general" <?php if(isset($chfp) && $chfp==1){ echo'checked="true"'; }?> id="chfp_general" value="1" style="display: inline;" />
+                                                <input type="checkbox" name="chfp_general" <?php if(isset($chfp_general) && $chfp_general==1){ echo'checked'; }?> id="chfp_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">ChFP</label>
                                              </div>
@@ -806,7 +805,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox"  name="cpa_general" <?php if(isset($cpa) &&$cpa==1){ echo'checked="true"'; }?> id="cpa_general" value="1" style="display: inline;" />
+                                                <input type="checkbox"  name="cpa_general" <?php if(isset($cpa_general) && $cpa_general==1){ echo'checked'; }?> id="cpa_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">CPA</label>
                                              </div>
@@ -814,7 +813,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox" name="clu_general" <?php if(isset($clu) &&$clu==1){ echo'checked="true"'; }?> id="clu_general" value="1" style="display: inline;" />
+                                                <input type="checkbox" name="clu_general" <?php if(isset($clu_general) && $clu_general==1){ echo 'checked'; }?> id="clu_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">CLU</label>
                                              </div>
@@ -826,7 +825,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox" name="cfa_general" <?php if(isset($cfa) &&$cfa==1){ echo'checked="true"'; }?> id="cfa_general" value="1" style="display: inline;" />
+                                                <input type="checkbox" name="cfa_general" <?php if(isset($cfa_general) && $cfa_general==1){ echo 'checked'; }?> id="cfa_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">CFA</label>
                                              </div>
@@ -834,7 +833,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox" name="ria_general" <?php if(isset($ria) &&$ria==1){ echo'checked="true"'; }?> id="ria_general" value="1" style="display: inline;" />
+                                                <input type="checkbox" name="ria_general" <?php if(isset($ria_general) && $ria_general==1){ echo 'checked'; }?> id="ria_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">RIA</label>
                                              </div>
@@ -847,7 +846,7 @@
                                  <label>&nbsp;</label><br />
                                  <div class="input-group">
                                     <span class="input-group-addon">
-                                    <input type="checkbox" name="insurance_general" <?php if(isset($insurance) &&$insurance==1){ echo'checked="true"'; }?> id="insurance_general" value="1" style="display: inline;" />
+                                    <input type="checkbox" name="insurance_general" <?php if(isset($insurance_general) && $insurance_general==1){ echo 'checked'; }?> id="insurance_general" value="1" style="display: inline;" />
                                     </span>
                                     <label class="form-control">Insurance</label>
                                  </div>
@@ -861,8 +860,8 @@
                                        <label>Home</label>
                                        <!-- <select name="home_general" class="form-control" onchange="open_address(this.value);">
                                           <option value="">Select Option</option>
-                                          <option value="1" <?php if(isset($home) && $home == 1){echo "selected='selected'";}?> >Home</option>
-                                          <option value="2" <?php if(isset($home) && $home == 2){echo "selected='selected'";}?> >Business</option>
+                                          <option value="1" <?php if(isset($home) && $home == 1){echo "selected";}?> >Home</option>
+                                          <option value="2" <?php if(isset($home) && $home == 2){echo "selected";}?> >Business</option>
                                           </select> -->
                                     </div>
                                  </div>
@@ -1270,7 +1269,7 @@
                                  <td class="internal"><?php echo $val['internal']; ?></td>
                                  <td><?php echo date('m/d/Y',strtotime($val['u4'])); ?></td>
                                  <td>
-                                    <?php 
+                                    <?php
                                        if($val['active_status']==1)
                                        {
                                            echo "Active";
@@ -1313,7 +1312,7 @@
                   </div>
                </div>
                <?php } ?>
-               <?php if($action!='view'){?> 
+               <?php if($action!='view'){?>
                <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="payouts"){ echo "active"; } ?>" id="tab_b">
                   <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
                   <div class="panel-overlay-wrap">
@@ -1417,9 +1416,9 @@
                                                    <th>Add Level</th>
                                                 </thead>
                                                 <tbody>
-                                                   <?php $doc_id1=0; 
-                                                      if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_grid)){ 
-                                                      foreach($edit_grid as $regkey=>$regval){ $doc_id1++; 
+                                                   <?php $doc_id1=0;
+                                                      if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_grid)){
+                                                      foreach($edit_grid as $regkey=>$regval){ $doc_id1++;
                                                               ?>
                                                    <tr>
                                                       <!--<td>
@@ -1733,7 +1732,7 @@
                                                 <th>Add More</th>
                                              </thead>
                                              <tbody>
-                                                <?php $doc_id2=0; 
+                                                <?php $doc_id2=0;
                                                    if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_override)){
                                                    foreach($edit_override as $regkey=>$regval){
                                                            ?>
@@ -1875,7 +1874,7 @@
                                                 <th>Add More</th>
                                              </thead>
                                              <tbody>
-                                                <?php $doc_id3=0; 
+                                                <?php $doc_id3=0;
                                                    if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_split)){
                                                    foreach($edit_split as $regkey=>$regval){
                                                        //$doc_id3 = $regval['id'];
@@ -2048,7 +2047,7 @@
                                  </div>
                               </div>
                            </div>
-                           <?php 
+                           <?php
                               foreach($charge_type_arr as $charge_type){
                                   ?>
                            <div class="row">
@@ -2058,10 +2057,10 @@
                                  </div>
                               </div>
                            </div>
-                           <?php 
+                           <?php
                               $charge_name_arr=$instance->select_charge_name($charge_type['charge_type_id']);
-                              
-                              foreach($charge_name_arr as $charge_name){ 
+
+                              foreach($charge_name_arr as $charge_name){
                               ?>
                            <div class="row">
                               <div class="col-md-4 pass_through_charge">
@@ -2069,10 +2068,10 @@
                                     <h4 style="float: right;"><?php echo $charge_name['charge_name']; ?></h4>
                                  </div>
                               </div>
-                              <?php 
+                              <?php
                                  $charge_detail_arr=$instance->select_charge_detail($charge_type['charge_type_id'],$charge_name['charge_name_id']);
                                  foreach($charge_detail_arr as $charge_detail){
-                                     
+
                                      if($charge_detail['account_type']=='1' && $charge_detail['account_process']=='1')
                                      {
                                          ?>
@@ -2164,14 +2163,14 @@
                                  <div class="panel">
                                 <div class="panel-heading">
                                         <h4 class="panel-title" style="font-size: 16px;">
-                                           <?php if(isset($_SESSION['broker_full_name'])){echo $_SESSION['broker_full_name'];}?> 
+                                           <?php if(isset($_SESSION['broker_full_name'])){echo $_SESSION['broker_full_name'];}?>
                                        </h4>
                                     </div>
                                     <?php if(isset($edit_licences_securities)){foreach($edit_licences_securities as $key=>$val)
                                        {   $row1 = $val['waive_home_state_fee']; $row2 = $val['product_category']; }}  ?>
                                    <div class="panel-heading">
                                        <h4 class="panel-title" style="font-size: 16px;"><input type="checkbox" class="checkbox" <?php if(isset($_GET['action']) && $_GET['action'] == 'edit' && (isset($row1) && $row1 == '1'))    { ?>checked="true"<?php }?> name="pass_through" value="1" style="display: inline !important;"/> Waive Home State Fee</h4>
-                                    </div>  
+                                    </div>
                                     <div class="panel-body">
                                 <!--        <div class="row">
                                           <div class="col-md-4">
@@ -2185,7 +2184,7 @@
                                                    <option value="<?php echo $val['id'];?>" <?php if(isset($row2) && $row2==$val['id']){echo "selected='selected'";} ?>><?php echo $val['type'];?></option>
                                                    <?php } ?>
                                                 </select>
-                                              
+
                                              </div>
                                           </div>
                                        </div> -->
@@ -2208,8 +2207,8 @@
                                                         </tr>
                                                         </thead>
                                                       <tbody  id="data_sec_row">
-                                                          
-                                                          <?php $row_counter=0; 
+
+                                                          <?php $row_counter=0;
                                                            if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_licences_securities)){
                                                             foreach($edit_licences_securities as $seckey=>$secval){?>
                                                               <tr class="tr">
@@ -2218,11 +2217,11 @@
                                                                  <?php
                                                                   $row_counter++; ?>
                                                                  <!-- <td>
-                                                                      
-                                                                         <input type="checkbox" name="data_sec[active][<?php echo $row_counter; ?>]" value="1" <?php if($secval['active_check']==1){ ?>checked="true"<?php }?> class="checkbox"  /> 
+
+                                                                         <input type="checkbox" name="data_sec[active][<?php echo $row_counter; ?>]" value="1" <?php if($secval['active_check']==1){ ?>checked="true"<?php }?> class="checkbox"  />
                                                                    </td>-->
-                                                                     <td> 
-                                                                       <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="<?php echo $secval['id'] ?>"> 
+                                                                     <td>
+                                                                       <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="<?php echo $secval['id'] ?>">
                                                                       <select class="form-control" name="data_sec[category][<?php echo $row_counter; ?>]" id="data_sec[category][<?php echo $row_counter; ?>]" style="display: inline !important;">
                                                                      <option value="">Select Category</option>
                                                                      <?php
@@ -2233,7 +2232,7 @@
                                                                          <?php } ?>
                                                                   </select>
 
-                                                                     
+
                                                                   </td>
                                                                   <td>
                                                                     <select class="form-control" name="data_sec[state][<?php echo $row_counter; ?>]" id="data_sec[state][<?php echo $row_counter; ?>]" style="display: inline !important;">
@@ -2241,10 +2240,10 @@
                                                                         <option value="<?php echo $stateval['id'];?>" <?php if($secval['state_id']==$stateval['id']){echo "selected='selected'";} ?>><?php echo $stateval['name'];?></option>
                                                                        <?php endforeach; ?>
                                                                    </select>
-                                                                    
+
                                                                   </td>
                                                                   <td>
-                                                        
+
                                                                    <div id="demo-dp-range">
                                                                       <div class="input-daterange input-group" id="datepicker">
                                                                          <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]"  value="<?php echo date('m/d/Y',strtotime(trim($secval['received']))); ?>" class="form-control" />
@@ -2263,7 +2262,7 @@
                                                                   </label>
                                                                </div></div>
                                                             </td>
-                                                                  <td> 
+                                                                  <td>
                                                                      <input type="text" name="data_sec[reason][<?php echo $row_counter; ?>]" id="data_sec[reason][<?php echo $row_counter; ?>]" value="<?php echo $secval['reson']; ?>" class="form-control" />
                                                                   </td>
                                                                   <td>
@@ -2275,11 +2274,11 @@
 
                                                              <tr class="tr">
                                                                    <!--<td>
-                                                                     
-                                                                      <input type="checkbox" name="data_sec[active][<?php echo $row_counter; ?>]" class="checkbox">  
+
+                                                                      <input type="checkbox" name="data_sec[active][<?php echo $row_counter; ?>]" class="checkbox">
                                                                   </td>-->
-                                                                     <td> 
-                                                                      <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value=""> 
+                                                                     <td>
+                                                                      <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="">
                                                                       <select class="form-control" name="data_sec[category][<?php echo $row_counter; ?>]" id="data_sec['category'][<?php echo $row_counter; ?>]" style="display: inline !important;">
                                                                      <option value="">Select Category</option>
                                                                      <?php
@@ -2287,7 +2286,7 @@
                                                                          foreach($product_category_based_on_series as $key=>$val){?>
                                                                        <option value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>
                                                                        <?php } ?>
-                                                                  </select> 
+                                                                  </select>
                                                                   </td>
                                                                   <td>
                                                                        <select class="form-control" name="data_sec[state][<?php echo $row_counter; ?>]" id="data_sec['state'][<?php echo $row_counter; ?>]" style="display: inline !important;">
@@ -2296,7 +2295,7 @@
                                                                            <option value="<?php echo $stateval['id'];?>"><?php echo $stateval['name'];?></option>
                                                                        <?php endforeach; ?>
                                                                    </select>
-                                                                    
+
                                                                   </td>
                                                                   <td>
                                                                     <div id="demo-dp-range">
@@ -2318,7 +2317,7 @@
                                                                      </div>
                                                                      </div>
                                                                   </td>
-                                                                  <td> 
+                                                                  <td>
                                                                      <input type="text" name="data_sec[reason][<?php echo $row_counter; ?>]" id="data_sec['reason'][<?php echo $row_counter; ?>]" value="" class="form-control" />
                                                                   </td>
                                                                   <td>
@@ -2327,10 +2326,10 @@
                                                                </tr>
                                                       </tbody>
                                                   </table>
-                                               </div> 
+                                               </div>
                                           </div>
                                        </div>
-                                       
+
                                        <!-- <div class="license_cat_container">
                                         <?php foreach($product_category_based_on_series as $row) : ?>
                                             <div id="license_cat_wrap_<?php echo $row['id'];?>" class="license_cat_wrap">
@@ -2338,17 +2337,17 @@
                                                       <div class="col-md-2">
                                                          <div class="form-group">
                                                             <h4>Active </h4>
-                                                             <span style="font-size: 13px;">Select All</span> 
+                                                             <span style="font-size: 13px;">Select All</span>
                                                             <input type="checkbox"  style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value=""/>
                                                          </div>
                                                       </div>
-                                                      
+
                                                       <div class="col-md-2">
                                                          <div class="form-group">
                                                             <h4>State</h4>
                                                          </div>
                                                       </div>
-                                                   
+
                                                       <div class="col-md-2">
                                                          <div class="form-group">
                                                             <h4>Received</h4>
@@ -2373,13 +2372,13 @@
                                                                <input type="checkbox" name="data1[<?php echo $row['id']; ?>_<?php echo $stateval['id'] ?>][active_check]"  value="1" <?php if($val['active_check']==1){ ?>checked="true"<?php }?> id="data1[<?php echo $row['id']; ?>_<?php echo $stateval['id'] ?>][active_check]" class="checkbox"  />
                                                             </div>
                                                          </div>
-                                                         
+
                                                          <div class="col-md-2">
                                                             <div class="form-group" style="margin-bottom: 0px !important;">
                                                                <label><?php echo $stateval['name']; ?></label>
                                                             </div>
                                                          </div>
-                                                       
+
                                                          <div class="col-md-2">
                                                             <div class="form-group" style="margin-bottom: 0px !important;">
                                                                <div id="demo-dp-range">
@@ -2409,7 +2408,7 @@
                                          </div>
                                          <?php endforeach; ?>
                                         </div> -->
-                                      
+
                                        <?php if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_licences_securities )){
                                           foreach($edit_licences_securities as $key=>$val){ //echo '<pre>'; print_r($row);
                                           foreach($get_state_new as $statekey=>$stateval) { if($val['state_id']== $stateval['id']) {?>
@@ -2420,13 +2419,13 @@
                                                    <input type="checkbox" name="data1[<?php echo $stateval['id'] ?>][active_check]"  value="1" <?php if($val['active_check']==1){ ?>checked="true"<?php }?> id="data1[<?php echo $stateval['id'] ?>][active_check]" class="checkbox"  />
                                                 </div>
                                              </div>
-                                             
+
                                              <div class="col-md-2">
                                                 <div class="form-group" style="margin-bottom: 0px !important;">
                                                    <label><?php echo $stateval['name']; ?></label>
                                                 </div>
                                              </div>
-                                           
+
                                              <div class="col-md-2">
                                                 <div class="form-group" style="margin-bottom: 0px !important;">
                                                    <div id="demo-dp-range">
@@ -2453,7 +2452,7 @@
                                           </div>
                                        </div> -->
                                        <?php } } } } ?>
-                                       
+
                                     </div>
                                     <div class="panel-overlay">
                                        <div class="panel-overlay-content pad-all unselectable">
@@ -2462,7 +2461,7 @@
                                           <p></p>
                                        </div>
                                     </div>
-                                    <input type="hidden" name="id"  value="<?php echo $id; ?>" />  
+                                    <input type="hidden" name="id"  value="<?php echo $id; ?>" />
                                  </div>
                               </div>
                            </div>
@@ -2486,11 +2485,11 @@
                                           <div class="col-md-2">
                                              <div class="form-group">
                                                 <h4>Active </h4>
-                                                 <span style="font-size: 13px;">Select All</span> 
+                                                 <span style="font-size: 13px;">Select All</span>
                                                 <input type="checkbox"  style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value=""/>
                                              </div>
                                           </div>
-                                          
+
                                           <div class="col-md-2">
                                              <div class="form-group">
                                                 <h4>State</h4>
@@ -2518,7 +2517,7 @@
                                           </div>
                                        </div>
                                        <?php if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_licences_insurance)){
-                                          foreach($edit_licences_insurance as $key=>$val){ 
+                                          foreach($edit_licences_insurance as $key=>$val){
                                           foreach($get_state_new as $statekey=>$stateval) { if($val['state_id']== $stateval['id']) {?>
                                        <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important;">
                                           <div class="row">
@@ -2527,7 +2526,7 @@
                                                    <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" <?php if($val['active_check']==1){ ?>checked="true"<?php }?> value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox"  />
                                                 </div>
                                              </div>
-                                            
+
                                              <div class="col-md-2">
                                                 <div class="form-group" style="margin-bottom: 0px !important;">
                                                    <label><?php echo $stateval['name']; ?></label>
@@ -2573,7 +2572,7 @@
                                                    <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox"  />
                                                 </div>
                                              </div>
-                                            
+
                                              <div class="col-md-2">
                                                 <div class="form-group" style="margin-bottom: 0px !important;">
                                                    <label><?php echo $stateval['name']; ?></label>
@@ -2645,11 +2644,11 @@
                                           <div class="col-md-2">
                                              <div class="form-group">
                                                 <h4>Active </h4>
-                                                 <span style="font-size: 13px;">Select All</span> 
+                                                 <span style="font-size: 13px;">Select All</span>
                                                 <input type="checkbox"  style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value=""/>
                                              </div>
                                           </div>
-                                          
+
                                           <div class="col-md-2">
                                              <div class="form-group">
                                                 <h4>State</h4>
@@ -2676,8 +2675,8 @@
                                              </div>
                                           </div>
                                        </div>
-                                       <?php if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_licences_ria)){ 
-                                          foreach($edit_licences_ria as $key=>$val){ 
+                                       <?php if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_licences_ria)){
+                                          foreach($edit_licences_ria as $key=>$val){
                                           foreach($get_state_new as $statekey=>$stateval) { if($val['state_id']== $stateval['id']) {?>
                                        <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important;">
                                           <div class="row">
@@ -2686,7 +2685,7 @@
                                                    <input type="checkbox" name="data3[<?php echo $stateval['id'] ?>][active_check]" <?php if($val['active_check']==1){ ?>checked="true"<?php }?> value="1" id="data3[<?php echo $stateval['id'] ?>][active_check]" class="checkbox"  />
                                                 </div>
                                              </div>
-                                            
+
                                              <div class="col-md-2">
                                                 <div class="form-group" style="margin-bottom: 0px !important;">
                                                    <label><?php echo $stateval['name']; ?></label>
@@ -2723,7 +2722,7 @@
                                              </div>
                                           </div>
                                        </div>
-                                       <?php } } }  } else{ ?> 
+                                       <?php } } }  } else{ ?>
                                        <?php foreach($get_state_new as $statekey=>$stateval){?>
                                        <div class="panel" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important;">
                                           <div class="row">
@@ -2732,7 +2731,7 @@
                                                    <input type="checkbox" name="data3[<?php echo $stateval['id'] ?>][active_check]" value="1" id="data3[<?php echo $stateval['id'] ?>][active_check]" class="checkbox"  />
                                                 </div>
                                              </div>
-                                            
+
                                              <div class="col-md-2">
                                                 <div class="form-group" style="margin-bottom: 0px !important;">
                                                    <label><?php echo $stateval['name']; ?></label>
@@ -2811,27 +2810,27 @@
                                           <th>Reason</th>
                                        </thead>
                                        <tbody>
-                                          <?php 
+                                          <?php
                                              if(isset($_GET['action']) && $_GET['action']=='edit' && !empty($edit_registers)){
                                              foreach($get_register as $regkey=>$regval){
-                                                 foreach($edit_registers as $key=>$val){ 
+                                                 foreach($edit_registers as $key=>$val){
                                                      if($regval['id'] == $val['license_id']) {
                                                      ?>
                                           <tr>
                                              <td><?php echo $regval['id'];?></a></td>
                                              <td><?php echo $regval['type'];?></td>
-                                             <!--  
+                                             <!--
                                                 <select class="form-control" name="series_product_category" style="display: inline !important;">
                                                             <option value="">Select Category</option>
-                                                            <?php 
+                                                            <?php
                                                    $product_category_based_on_series = $instance->select_category_based_on_series($regval['id']);
                                                    foreach($product_category_based_on_series as $key_pc=>$val_pc){?>
                                                             <option value="<?php echo $val['id'];?>" <?php if(isset($row2) && $row2==$val_pc['id']){echo "selected='selected'";} ?>>
                                                                 <?php echo $val_pc['type'];?>
-                                                                    
+
                                                                 </option>
                                                             <?php } ?>
-                                                        </select>                                                                
+                                                        </select>
                                                  -->
                                              <td>
                                                 <div id="demo-dp-range">
@@ -2851,29 +2850,28 @@
                                              <input type="hidden" name="data4[<?php echo $regval['id'];?>][type]" value="<?php echo $regval['type'];?>"/>
                                           </tr>
                                           <?php } } } } else{ ?>
-                                          <?php foreach($get_register as $regkey=>$regval){?>
-                                          <tr>
-                                             <td><?php echo $regval['id'];?></a></td>
-                                             <td><?php echo $regval['type'];?></td>
-                                             <td>
-                                                <div id="demo-dp-range">
-                                                   <div class="input-daterange input-group" id="datepicker">
-                                                      <input type="text" name="data4[<?php echo $regval['id'];?>][approval_date]"  value="" class="form-control" />
+                                          <?php foreach($get_register as $regkey=>$regval) { ?>
+                                             <tr>
+                                                <td><?php echo $regval['id'];?></a></td>
+                                                <td><?php echo $regval['type'];?></td>
+                                                <td>
+                                                   <div id="demo-dp-range">
+                                                      <div class="input-daterange input-group" id="datepicker">
+                                                         <input type="text" name="data4[<?php echo $regval['id'];?>][approval_date]"  value="" class="form-control" />
+                                                      </div>
                                                    </div>
-                                                </div>
-                                             </td>
-                                             <td>
-                                                <div id="demo-dp-range">
-                                                   <div class="input-daterange input-group" id="datepicker">
-                                                      <input type="text" name="data4[<?php echo $regval['id'];?>][expiration_date]" value="" class="form-control" />
+                                                </td>
+                                                <td>
+                                                   <div id="demo-dp-range">
+                                                      <div class="input-daterange input-group" id="datepicker">
+                                                         <input type="text" name="data4[<?php echo $regval['id'];?>][expiration_date]" value="" class="form-control" />
+                                                      </div>
                                                    </div>
-                                                </div>
-                                             </td>
-                                             <td><input class="form-control" value="" name="data4[<?php echo $regval['id'];?>][register_reason]"  type="text" /></td>
-                                             <input type="hidden" name="data4[<?php echo $regval['id'];?>][type]" value="<?php echo $regval['type']; ?>"/>
-                                          </tr>
-                                          <?php }
-                                             } ?>
+                                                </td>
+                                                <td><input class="form-control" value="" name="data4[<?php echo $regval['id'];?>][register_reason]"  type="text" /></td>
+                                                <input type="hidden" name="data4[<?php echo $regval['id'];?>][type]" value="<?php echo $regval['type']; ?>"/>
+                                             </tr>
+                                          <?php } } ?>
                                        </tbody>
                                     </table>
                                  </div>
@@ -2917,14 +2915,14 @@
                                        </thead>
                                        <tbody>
                                           <?php $doc_id=0; //echo '<pre>';print_r($edit_required_docs);
-                                             if(isset($_GET['action']) && $_GET['action']=='edit' && isset($edit_required_docs) ){  
+                                             if(isset($_GET['action']) && $_GET['action']=='edit' && isset($edit_required_docs) ){
                                              foreach($edit_required_docs as $key=>$val){ $doc_id++;?>
                                           <tr>
                                              <td>
-                                                <input type="checkbox" name="data[docs_receive][<?php echo $doc_id;?>]" <?php if($val['received']==1){ ?>checked="true"<?php } ?> value="1" class="checkbox" id="docs_receive"/>
+                                                <input type="checkbox" name="data[docs_receive][<?php echo $doc_id;?>]" <?php if($val['received']==1){ ?>checked<?php } ?> value="1" class="checkbox" id="docs_receive<?php echo $doc_id;?>"/>
                                              </td>
                                              <td>
-                                                <select name="data[docs_description][<?php echo $doc_id;?>]" id="docs_description" class="form-control">
+                                                <select name="data[docs_description][<?php echo $doc_id;?>]" id="docs_description<?php echo $doc_id;?>" class="form-control">
                                                    <option value="">Select Documents</option>
                                                    <?php foreach($select_broker_docs as $key_broker_doc=>$val_broker_doc){?>
                                                    <option value="<?php echo $val_broker_doc['id'];?>" <?php if($val['description'] != '' && $val['description']==$val_broker_doc['id']){echo "selected='selected'";} ?>><?php echo $val_broker_doc['desc'];?></option>
@@ -2934,20 +2932,20 @@
                                              <td>
                                                 <div id="demo-dp-range">
                                                    <div class="input-daterange input-group" id="datepicker">
-                                                      <input type="text" name="data[docs_date][<?php echo $doc_id;?>]" id="docs_date" value="<?php if(isset($val['date']) && $val['date'] != ''){ echo date('m/d/Y',strtotime($val['date'])); }?>" class="form-control" />
+                                                      <input type="text" name="data[docs_date][<?php echo $doc_id;?>]" id="docs_date<?php echo $doc_id;?>" value="<?php if(isset($val['date']) && $val['date'] != ''){ echo date('m/d/Y',strtotime($val['date'])); }?>" class="form-control" />
                                                    </div>
                                                 </div>
                                              </td>
                                              <td>
-                                                <input type="checkbox" name="data[docs_required][<?php echo $doc_id;?>]" <?php if($val['required']==1){ ?>checked="true"<?php } ?> class="checkbox" value="1" id="docs_required"/>
+                                                <input type="checkbox" name="data[docs_required][<?php echo $doc_id;?>]" <?php if($val['required']==1){ ?>checked<?php } ?> class="checkbox" value="1" id="docs_required<?php echo $doc_id;?>"/>
                                              </td>
                                              <td>
                                                 <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
                                              </td>
                                           </tr>
                                           <?php } }$doc_id  ++;  ?>
-                                          <?php 
-                                             /*if(isset($select_docs) ){  
+                                          <?php
+                                             /*if(isset($select_docs) ){
                                              foreach($select_docs as $key=>$val){    ;?>
                                           <tr id="add_row_docs">
                                              <td>
@@ -3039,7 +3037,7 @@
                                        </thead>
                                        <tbody>
                                           <?php $doc_id=0; //echo '<pre>';print_r($edit_required_docs);
-                                             if(isset($_GET['action']) && $_GET['action']=='edit' && isset($edit_required_docs) ){  
+                                             if(isset($_GET['action']) && $_GET['action']=='edit' && isset($edit_required_docs) ){
                                              foreach($edit_alias as $key=>$val){ $doc_id++;?>
                                           <tr>
                                              <td>
@@ -3138,7 +3136,7 @@
                            </h4>
                         </div>
                         <div class="panel-body">
-                           
+
                            <div class="row">
                               <div class="col-md-12">
                                  <div class="row">
@@ -3291,8 +3289,8 @@
                         </div>
                     </div>
                     </div>
-                  </div> 
-                </div>   
+                  </div>
+                </div>
                 <div class="panel-footer fixedbtmenu">
                     <div class="selectwrap">
                          <?php if(isset($_GET['rep_no']) && ($_GET['rep_no'] != '' || $_GET['rep_no'] == '')){?>
@@ -3314,10 +3312,10 @@
                          <a href="<?php echo CURRENT_PAGE."?action=cancel";?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                          <input type="submit" name="submit" value="Save" style="float: right;"/ id="licences_security">
                     </div>
-                </div>   
+                </div>
             </form>
                  <?php } ?>
-            <!-- Lightbox strart -->                            
+            <!-- Lightbox strart -->
             <!-- Modal for add broker notes -->
             <div id="broker_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                 <div class="modal-dialog">
@@ -3327,19 +3325,19 @@
                         <h4 class="modal-title">Brokers's Notes</h4>
                     </div>
                 <div class="modal-body">
-                
+
                         <div class="inputpopup">
                             <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newnotes();"><i class="fa fa-plus"></i> Add New</a>
                         </div>
-                
+
                         <div class="col-md-12">
                             <div id="msg_notes">
                             </div>
                         </div>
-               
+
                         <div class="inputpopup">
                             <div class="table-responsive" id="ajax_notes" style="margin: 0px 5px 0px 5px;">
-                                
+
                             </div>
                         </div>
                 </div>
@@ -3347,8 +3345,8 @@
                 </div><!-- End of Modal content -->
                 </div><!-- End of Modal dialog -->
             </div><!-- End of Modal -->
-       
-           
+
+
            <!--  <div class="panel-footer fixedbtmenu">
                <div class="selectwrap">
                   <?php if(isset($_GET['rep_no']) && ($_GET['rep_no'] != '' || $_GET['rep_no'] == '')){?>
@@ -3372,7 +3370,7 @@
             </div> -->
          </form>
          <?php //} ?>
-         <!-- Lightbox strart -->                           
+         <!-- Lightbox strart -->
          <!-- Modal for add broker notes -->
          <div id="broker_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
@@ -3401,13 +3399,13 @@
             <!-- End of Modal dialog -->
          </div>
          <!-- End of Modal -->
-         <!-- Lightbox strart -->                           
+         <!-- Lightbox strart -->
          <!-- Modal for add broker notes -->
          <!-- End of Modal dialog -->
-     
+
       <!-- End of Modal -->
-      <!-- Lightbox strart -->  
-      <!-- Lightbox strart -->                          
+      <!-- Lightbox strart -->
+      <!-- Lightbox strart -->
       <!-- Modal for add client notes -->
       <div id="broker_attach" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
          <div class="modal-dialog">
@@ -3435,7 +3433,7 @@
          </div>
          <!-- End of Modal dialog -->
       </div>
-      <!-- End of Modal -->     
+      <!-- End of Modal -->
       <div id="ytd_earnings_modal" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
          <div class="modal-dialog">
             <div class="modal-content">
@@ -3498,11 +3496,11 @@
          </div>
          <!-- End of Modal dialog -->
       </div>
-      <!-- End of Modal --> 
+      <!-- End of Modal -->
       <!-- Modal for view changes list -->
-     
-      <!-- End of Modal -->      
-      <!-- Lightbox strart -->                          
+
+      <!-- End of Modal -->
+      <!-- Lightbox strart -->
       <!-- Modal for transaction list -->
       <div id="client_transactions" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
          <div class="modal-dialog">
@@ -3541,7 +3539,7 @@
                                     if(function_exists('get_product_from_cat_id_and_id')) {
                                          $product_name=$instance->get_product_from_cat_id_and_id($val['product'],$val['product_cate']);
                                     }
-                                   
+
                                     ?>
                                  <tr>
                                     <td><?php echo $val['id']; ?></td>
@@ -3551,11 +3549,11 @@
                                     <td><?php echo $val['invest_amount']; ?></td>
                                     <td><?php echo $val['commission_received']; ?></td>
                                     <td><?php echo $val['account_no']; ?></td>
-                                    <td>  
+                                    <td>
                                         <?php   $settle_date= new DateTime($val['settlement_date']);
                                                 $isExpired= $settle_date < $date_now;
 
-                                                if(!$isExpired): 
+                                                if(!$isExpired):
                                          ?>
                                         <a href="http://foxtrotsoftware.com/CloudFox/transaction.php?action=edit_transaction&id=<?php echo $val['id']; ?>&redirectback=broker_page&broker_id=<?php echo $_GET['id'] ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                     </td>
@@ -3599,18 +3597,18 @@
                                  <th>New Value</th>
                               </thead>
                               <tbody>
-                                 <?php 
+                                 <?php
                                     $count = 0;
                                     $feild_name='';
                                     $lable_array = array();
                                     $lable_array = array('first_name' => 'First Name','last_name' => 'Last Name','middle_name' => 'Middle Name','suffix' => 'Suffix','fund' => 'Fund/Clear','internal' => 'Internal','ssn' => 'SSN','tax_id' => 'Tax Id','crd' => 'CRD','active_status' => 'Active status','branch_manager' => 'Branch Manager','pay_method' => 'Pay Method',
-                                    
+
                                     'home' => 'Home/Business','home_address1_general' => 'Home Address 1','home_address2_general' => 'Home Address 2','city' => 'Home Address City','state_id' => 'Home Address State','zip_code' => 'Home address Zip code','telephone' => 'Telephone','cell' => 'Cell','fax' => 'Fax','gender' => 'Gender','marital_status' => 'Status','spouse' => 'Spouse','children' => 'Children','email1' => 'Primary Email','email2' => 'Secondary Email','web_id' => 'Web ID','web_password' => 'Web Password','dob' => 'DOB','prospect_date' => 'Prospect Date','reassign_broker' => 'Reassign Broker','u4' => 'U4','u5' => 'U5/Termination Date','dba_name' => 'DBA Name','eft_information' => 'EFT Information','start_date' => 'Start Date','transaction_type' => 'Transaction Type','routing' => 'Routing','account_no' => 'Account No','cfp' => 'CFP','chfp' => 'ChFP','cpa' => 'CPA','clu' => 'CLU','cfa' => 'CFA','ria' => 'RIA','insurance' => 'Insurance',"broker_name"=>"Broker Name"
-                                    
+
                                     ,'waive_home_state_fee' => 'Waive Home State Fee','product_category' => 'Product Category','state_id' => 'State','active_check' => 'Active','fee' => 'Fee','received' => 'Received','terminated' => 'Terminated','reson' => 'Reason','  license_name' => 'License Name / Description','approval_date' => 'Approval Date','expiration_date' => 'Expiration Date','reason' => 'Reason','business_city'=>"Business Address City",'business_zipcode'=>"Business Address Zipcode",'business_state'=>"Business Address State",'business_address1_general'=>"Business Address 1","business_address2_general"=>"Business Address 2");
-                                    
+
                                     foreach($broker_data as $key=>$val){
-                                        
+
                                         if(isset($lable_array[$val['field']])){
                                             $feild_name = $lable_array[$val['field']];
                                         }else {
@@ -3630,7 +3628,7 @@
                                     <?php } ?>
                                     <?php if($feild_name == 'EFT Information'){?>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['old_value'] == 1)
                                           {
                                               echo 'Pre-Notes';
@@ -3642,7 +3640,7 @@
                                           ?>
                                     </td>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['new_value'] == 1)
                                           {
                                               echo 'Pre-Notes';
@@ -3656,7 +3654,7 @@
                                     <?php }
                                        else if($feild_name == 'Pay Method'){?>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['old_value'] == 1)
                                           {
                                               echo 'ACH';
@@ -3668,7 +3666,7 @@
                                           ?>
                                     </td>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['new_value'] == 1)
                                           {
                                               echo 'ACH';
@@ -3682,7 +3680,7 @@
                                     <?php }
                                        else if($feild_name == 'Active status'){?>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['old_value'] == 1)
                                           {
                                               echo 'Active';
@@ -3702,7 +3700,7 @@
                                           ?>
                                     </td>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['new_value'] == 1)
                                           {
                                               echo 'Active';
@@ -3724,7 +3722,7 @@
                                     <?php }
                                        else if($feild_name == 'Home/Business'){?>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['old_value'] == 1)
                                           {
                                               echo 'Home';
@@ -3736,7 +3734,7 @@
                                           ?>
                                     </td>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['new_value'] == 1)
                                           {
                                               echo 'Home';
@@ -3750,7 +3748,7 @@
                                     <?php }
                                        else if($feild_name == 'Gender'){?>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['old_value'] == 1)
                                           {
                                               echo 'Male';
@@ -3766,7 +3764,7 @@
                                           ?>
                                     </td>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['new_value'] == 1)
                                           {
                                               echo 'Male';
@@ -3784,7 +3782,7 @@
                                     <?php }
                                        else if($feild_name == 'Status'){?>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['old_value'] == 1)
                                           {
                                               echo 'Single';
@@ -3804,7 +3802,7 @@
                                           ?>
                                     </td>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['new_value'] == 1)
                                           {
                                               echo 'Single';
@@ -3826,7 +3824,7 @@
                                     <?php }
                                        else if($feild_name == 'Transaction Type'){?>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['old_value'] == 1)
                                           {
                                               echo 'Checking';
@@ -3838,7 +3836,7 @@
                                           ?>
                                     </td>
                                     <td>
-                                       <?php 
+                                       <?php
                                           if($val['new_value'] == 1)
                                           {
                                               echo 'Checking';
@@ -3853,7 +3851,7 @@
                                        else if($feild_name == 'CFP' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'CFP' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3861,7 +3859,7 @@
                                        else if($feild_name == 'ChFP' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'ChFP' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3869,7 +3867,7 @@
                                        else if($feild_name == 'CPA' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'CPA' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3877,7 +3875,7 @@
                                        else if($feild_name == 'CLU' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'CLU' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3885,7 +3883,7 @@
                                        else if($feild_name == 'CFA' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'CFA' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3893,7 +3891,7 @@
                                        else if($feild_name == 'RIA' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'RIA' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3901,7 +3899,7 @@
                                        else if($feild_name == 'Insurance' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'Insurance' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3909,7 +3907,7 @@
                                        else if($feild_name == 'Branch Manager' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'Branch Manager' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3917,7 +3915,7 @@
                                        else if($feild_name == 'Active' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'Active' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3925,7 +3923,7 @@
                                        else if($feild_name == 'Waive Home State Fee' && $val['old_value'] == 0){?>
                                     <td><?php echo 'UnChecked';?></td>
                                     <td><?php echo 'Checked';?></td>
-                                    <?php } 
+                                    <?php }
                                        else if($feild_name == 'Waive Home State Fee' && $val['old_value'] == 1){?>
                                     <td><?php echo 'Checked';?></td>
                                     <td><?php echo 'UnChecked';?></td>
@@ -3971,9 +3969,9 @@
          <!-- End of Modal dialog -->
       </div>
       <!-- End of Modal -->
-      <!-- Lightbox strart -->                          
+      <!-- Lightbox strart -->
       <!-- Modal for joint account -->
-      <!-- Lightbox strart -->                          
+      <!-- Lightbox strart -->
       <!-- Modal for add joint account -->
       <div id="add_joint_account" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
          <div class="modal-dialog">
@@ -4055,10 +4053,10 @@
        "bInfo": false,
        "bAutoWidth": false,
        "dom": '<"toolbar">frtip',
-       "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6 ] }, 
+       "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6 ] },
                        { "bSearchable": false, "aTargets": [ 6 ] }]
        });
-      
+
        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
            '<div class="panel-control" style="padding-left:5px;display:inline;">'+
                    '<div class="btn-group dropdown" style="float: right;">'+
@@ -4070,9 +4068,9 @@
                 '</div>'+
             '</div>');
    });
-   
+
    jQuery(function($){
-       
+
        $("#export_broker_data_btn").click(function(ev){
         // alert("test");
              console.log("click");
@@ -4094,11 +4092,11 @@
                            //$a.remove();
                         },
                         error:function(){
-   
+
                         }
              })
        });
-   
+
    })
 </script>
 <style type="text/css">
@@ -4127,7 +4125,7 @@
                                '<input type="text" name="account_no[]" id="account_no" class="form-control" />'+
                            '</div>'+
                        '</div>'+
-                       
+
                        '<div class="col-md-4">'+
                            '<div class="form-group">'+
                                '<label></label><br />'+
@@ -4150,8 +4148,8 @@
                            '</div>'+
                        '</div>'+
                    '</div>';
-                   
-               
+
+
        $(html).insertAfter('#account_no_row');
    }
    $(document).on('click','.remove-row',function(){
@@ -4160,9 +4158,9 @@
 </script>
 <script type="text/javascript">
    $(document).ready(function(){
-   
-       
-   
+
+
+
        var check = $('#pass_through1').prop('checked');
        if(check == true)
        {
@@ -4176,7 +4174,7 @@
        }
    });
    function pass_through_check()
-   {   
+   {
        var check = $('#pass_through1').prop('checked');
        if(check == true)
        {
@@ -4198,7 +4196,7 @@
    {
        document.getElementById("add_row_attach").style.display = "";
    }
-   
+
    function display_icon(value)
    {
        if(value=='1')
@@ -4214,7 +4212,7 @@
            $(".dollar").children().prop('disabled',true);
            $('.dollar').css('display','none');
        }
-       
+
    }
    function display_icon_new(value)
    {
@@ -4231,25 +4229,27 @@
            $(".dollar_new").children().prop('disabled',true);
            $('.dollar_new').css('display','none');
        }
-       
+
    }
-   
+
 </script>
 <script type="text/javascript">
-   <?php if(!isset($edit_payout['payout_schedule_id'])){?> 
-   //alert('hiii');
+   <?php if(!isset($edit_payout['payout_schedule_id'])){?>
    $( document ).ready(function() {
-       var a = document.getElementById("select_payout_schedule").value;
-       open_payout_schedule(a);
+      if (typeof(document.getElementById("select_payout_schedule"))!='undefined' && document.getElementById("select_payout_schedule")!=null){
+         open_payout_schedule(document.getElementById("select_payout_schedule").value);
+         //  var a = document.getElementById("select_payout_schedule").value;
+         //  open_payout_schedule(a);
+      }
    });
    <?php } ?>
 </script>
 <script type="text/javascript">
    function get_broker_attach(){
-       
+
            var xmlhttp = new XMLHttpRequest();
            xmlhttp.onreadystatechange = function() {
-               if (this.readyState == 4 && this.status == 200) 
+               if (this.readyState == 4 && this.status == 200)
                {
                    document.getElementById("ajax_attach").innerHTML = this.responseText;
                }
@@ -4260,7 +4260,7 @@
    function open_payout_schedule(value){
        var xmlhttp = new XMLHttpRequest();
        xmlhttp.onreadystatechange = function() {
-           if (this.readyState == 4 && this.status == 200) 
+           if (this.readyState == 4 && this.status == 200)
            {
                document.getElementById("payout_schedule").innerHTML = this.responseText;
                var radio = $('input[name=transaction_type_general]:checked').val();
@@ -4287,10 +4287,10 @@
                     .find('[data-bind="bs-drp-sel-label"]').text($(this).find('a').html());
                 return false;
             });
-               
+
                $('.sel').trigger('click');
                $('.bs-dropdown-to-select-group').removeClass('open');
-               
+
                $('.chosen-select').chosen();
            }
        };
@@ -4298,10 +4298,10 @@
        xmlhttp.send();
    }
    function get_broker_notes(){
-       
+
            var xmlhttp = new XMLHttpRequest();
            xmlhttp.onreadystatechange = function() {
-               if (this.readyState == 4 && this.status == 200) 
+               if (this.readyState == 4 && this.status == 200)
                {
                    document.getElementById("ajax_notes").innerHTML = this.responseText;
                }
@@ -4310,11 +4310,11 @@
            xmlhttp.send();
    }
    function openedit(note_id){
-       
+
        var frm_element = document.getElementById("add_client_notes_"+note_id);
        //var ele = frm_element.getElementById("client_note");
-       name = frm_element.elements["client_note"].removeAttribute("style"); 
-       frm_element.elements["add_notes_btn"].removeAttribute("style"); 
+       name = frm_element.elements["client_note"].removeAttribute("style");
+       frm_element.elements["add_notes_btn"].removeAttribute("style");
         frm_element.querySelector('.edit-btn').style.display="none";
        //$(name).css('pointer-events','');
        console.log(name,frm_element.elements);
@@ -4333,15 +4333,15 @@
                      }
            })
 
-           
+
     }
    function payout_schedule_submit()
    {
       $('#msg_payout').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
-   
+
       var url = "manage_broker.php"; // the script where you handle the form input.
       console.log($("#form_payout_schedule").serialize());
-      
+
       $.ajax({
          type: "POST",
          url: url,
@@ -4350,17 +4350,17 @@
              if(data=='1'){
                //alert("hiii");
                $( "#form_payout_schedule" ).load(window.location.href + " #form_payout_schedule" );
-               $('#msg_payout').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');  
+               $('#msg_payout').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
              }
              else{
                   $('#msg_payout').html('<div class="alert alert-danger">'+data+'</div>');
              }
-             
+
          },
          error: function(XMLHttpRequest, textStatus, errorThrown) {
               $('#msg_payout').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
          }
-         
+
       });
       return false;
    }
@@ -4368,7 +4368,7 @@
    function notessubmit(note_id)
    {
       $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
-   
+
       var url = "manage_broker.php"; // the script where you handle the form input.
       //alert("#add_client_notes_"+note_id);
       $.ajax({
@@ -4377,29 +4377,29 @@
          data: $("#add_client_notes_"+note_id).serialize(), // serializes the form's elements.
          success: function(data){
              if(data=='1'){
-               
+
                get_broker_notes();
-               $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');  
+               $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
              }
              else{
                   $('#msg_notes').html('<div class="alert alert-danger">'+data+'</div>');
              }
-             
+
          },
          error: function(XMLHttpRequest, textStatus, errorThrown) {
               $('#msg_notes').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
          }
-         
+
       });
-      return false;     
+      return false;
    }
    function attachsubmit(attach_id)
-   { 
+   {
            var myForm = document.getElementById('add_client_attach_'+attach_id);
            form_data = new FormData(myForm);
            $.ajax({
-               url: 'manage_broker.php',  
-               
+               url: 'manage_broker.php',
+
                cache: false,
                contentType: false,
                processData: false,
@@ -4407,50 +4407,50 @@
                type: 'post',
                success: function(data){
                      if(data=='1'){
-                       
+
                        get_broker_attach();
                        $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-                          
+
                      }
                      else{
                           $('#msg_attach').html('<div class="alert alert-danger">'+data+'</div>');
-                     } 
+                     }
                },
                error: function(XMLHttpRequest, textStatus, errorThrown) {
                       $('#msg_attach').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
                  }
-           });    
-      return false; 
+           });
+      return false;
    }
    function delete_notes(note_id){
-       
+
            var xmlhttp = new XMLHttpRequest();
            xmlhttp.onreadystatechange = function() {
                if (this.readyState == 4 && this.status == 200) {
                    var data = this.responseText;
                    if(data=='1'){
-                      get_broker_notes(); 
+                      get_broker_notes();
                       $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Note deleted Successfully.</div>');
                       //get_client_notes();
-                     
+
                      }
                      else{
                           $('#msg_notes').html('<div class="alert alert-danger">'+data+'</div>');
                      }
-                   
+
                }
            };
            xmlhttp.open("GET", "manage_broker.php?delete_action=delete_notes&note_id="+note_id, true);
            xmlhttp.send();
    }
    function delete_attach(attach_id){
-       
+
            var xmlhttp = new XMLHttpRequest();
            xmlhttp.onreadystatechange = function() {
                if (this.readyState == 4 && this.status == 200) {
                    var data = this.responseText;
                    if(data=='1'){
-                      get_broker_attach(); 
+                      get_broker_attach();
                       $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Attach deleted Successfully.</div>');
                      }
                      else{
@@ -4475,15 +4475,15 @@
                        '<a href="<?php echo CURRENT_PAGE; ?>?action=delete&id=" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>'+
                        '</td>'+
                    '</tr>';
-                   
-               
+
+
        $(html).insertBefore('#add_row_attach');
    }
    $(document).on('click','.remove-row',function(){
        $(this).closest('tr').remove();
    });
-   
-   
+
+
 </script>
 <script type="text/javascript">
    function validation()
@@ -4510,14 +4510,14 @@
                return false;
        });
    };
-   
-   
+
+
 </script>
 <script type="text/javascript">
    $(document).ready(function(){
-       
-     
-        
+
+
+
        $('body').on('focus',".input-daterange",function(){
            $(this).datepicker({
                format: "mm/dd/yyyy",
@@ -4526,8 +4526,8 @@
                todayHighlight: true
            });
        });
-       
-       
+
+
        /*
        $('body').on('focus',".input-daterange", function(){
            $(this).datepicker({
@@ -4538,10 +4538,10 @@
            });
         });?
         */
-       
+
    });
-   
-   
+
+
 </script>
 <script>
    $("#fname").on("blur",function () {
@@ -4576,8 +4576,8 @@
        return this; //for chaining
    }
    })( jQuery );
-   
-   
+
+
    $( function() {
    $('.charge').chargeFormat();
    });
@@ -4603,9 +4603,9 @@
    }
    /* stop the glowing blue shadow */
    .add-on .form-control:focus {
-   -webkit-box-shadow: none; 
+   -webkit-box-shadow: none;
    box-shadow: none;
-   border-color:#cccccc; 
+   border-color:#cccccc;
    }
 </style>
 <script>
@@ -4636,21 +4636,24 @@
    width: 100% !important;
    }
 </style>
-<script type="text/javascript">     
-   function filter_state_records(selector){
-      $("#license_cat_wrap_"+selector.value).siblings().hide().end().show();
-   }
-   filter_state_records($("#security_product_cat")[0]);
-  function ask_confirmation(url){
 
-        var answer = confirm(" are you sure want to delete transcation?");
-            if(answer){
-                       window.location.href=url;
-                       return;
-            } 
-            return false;
-  }    
-   $(document).ready(function(e){
+<script type="text/javascript">
+function filter_state_records(selector){
+   if (selector != null)
+     $("#license_cat_wrap_"+selector.value).siblings().hide().end().show();
+}
+filter_state_records($("#security_product_cat")[0]);
+
+function ask_confirmation(url){
+   var answer = confirm(" are you sure want to delete transcation?");
+   if(answer){
+      window.location.href=url;
+      return;
+   }
+   return false;
+}
+
+$(document).ready(function(e){
     $(document).on('change','.higher_risk',function(){
           var isChecked = $(this).is(':checked');
           if(isChecked) {
@@ -4664,7 +4667,7 @@
     $('.higher_risk').trigger('change');
         $('.date-picker').datepicker({
                format: "mm/dd/yyyy",
-             
+
            });
          <?php if(isset($_GET['role']) && $_GET['role'] =='open_t_popup') : ?>
             $('a[href="#client_transactions"]').trigger('click');
@@ -4688,31 +4691,31 @@
             .find('[data-bind="bs-drp-sel-label"]').text($(this).find('a').html());
         return false;
     });
-       
+
        $('.sel').trigger('click');
        $('.bs-dropdown-to-select-group').removeClass('open');
-       
+
        $('.chosen-select').chosen();
-       
+
    });
     // function Toggle() {
     //        var temp = document.getElementById("web_password_general");
     //       // var temp_show_eye = document.getElementById("togglePassword");
     //        //'fa-eye-slash'
-    //        if (temp.type === "password") 
+    //        if (temp.type === "password")
     //        {
-   
+
     //            temp.type = "text";
     //        }
     //        else {
-   
+
     //            temp.type = "password";
     //        }
     //    }
-   
+
    const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#web_password_general');
-   
+
    if(togglePassword != null){
     togglePassword.addEventListener('click', function (e) {
    // toggle the type attribute
@@ -4721,12 +4724,12 @@
    // toggle the eye slash icon
    this.classList.toggle('fa-eye-slash');
    });
-   
+
    }
-   
-   
-   
-   
+
+
+
+
 </script>
 <!-- <script type="text/javascript">
     $category = $("#licences_security").val();
@@ -4739,62 +4742,73 @@
 </style>
 
 <script type="text/javascript">
-    var row_counter = 0;
-    function add_sec_row(row){
-       $('#demo-dp-range .input-daterange').datepicker({
-           format: "mm/dd/yyyy",
-           todayBtn: "linked",
-           autoclose: true,
-           todayHighlight: true
-       });
-       if(row_counter == 0){
-          row_counter = row + 1;
-       }else{
-          row_counter++;
-       }
-       var html='';
-            html='<tr class="tr">'+
-                   //'<td>'+
-                     
-                      // '<input type="checkbox" name="data_sec[active]['+row_counter+']" class="checkbox">'+ 
-                 //  '</td>'+
-                   '<td>'+
-                     ' <input type="hidden" name="data_sec[row_id]['+row_counter+']" value=""> '+
-                      '<select class="form-control" name="data_sec[category]['+row_counter+']" id="data_sec[category]['+row_counter+']" style="display: inline !important;">'+
-                         '<option value="">Select Category</option>'+
-                         <?php
-                            $product_category_based_on_series = $instance->select_category_based_on_series($regval['id']);
-                             foreach($product_category_based_on_series as $key=>$val){?>
-                         '<option value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>'+
-                         <?php } ?>
-                      '</select>'+
-                   '</td>'+
-                   '<td>'+
-                      '<select class="form-control" name="data_sec[state]['+row_counter+']" id="data_sec[state]['+row_counter+']" style="display: inline !important;">'+
-                      '<option value="">Select State</option>'+
-                         <?php  foreach($get_state_new   as $statekey=>$stateval): ?>
-                         '<option value="<?php echo $stateval['id'];?>"><?php echo $stateval['name'];?></option>'+
-                         <?php endforeach; ?>
-                      '</select>'+
-                   '</td>'+
-                   '<td>'+
-                      ' <div id="demo-dp-range"><div class="input-daterange input-group" id="datepicker"><input type="text" name="data_sec[from]['+row_counter+']" id="data_sec[from]['+row_counter+']" value="" class="form-control" /><label class="input-group-addon btn" for="data_sec[received]['+row_counter+']"><span class="fa fa-calendar"></span></label></div>'+
-                   '</td>'+
-                   '<td>'+
-                      '  <div id="demo-dp-range"><div class="input-daterange input-group" id="datepicker"><input type="text" name="data_sec[to]['+row_counter+']" id="data_sec[to]['+row_counter+']" value="" class="form-control" /><label class="input-group-addon btn" for="data_sec[to]['+row_counter+']"><span class="fa fa-calendar"></span></label></div>'+
-                   '</td>'+
-                   '<td>'+ 
-                      '<input type="text" name="data_sec[reason]['+row_counter+']" id="data_sec[reason]['+row_counter+']" value="" class="form-control" />'+
-                   '</td>'+
-                   '<td>'+
-                        '<button type="button" tabindex="-1" class="btn btn-purple remove-licrow btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
-                   '</td>'+
-                '</tr>';
+var row_counter = 0;
 
-                $(html).appendTo($("#data_sec_row"));
-}
- $(document).on('click','.remove-licrow',function(){
-       $(this).closest('.tr').remove();
+function add_sec_row(row=0){
+   $('#demo-dp-range .input-daterange').datepicker({
+      format: "mm/dd/yyyy",
+      todayBtn: "linked",
+      autoclose: true,
+      todayHighlight: true
    });
+
+   // if(row_counter == 0){
+   //    row_counter = row + 1;
+   // }else{
+   //    row_counter++;
+   // }
+   const row_counter = $("input[name^='data_sec[row_id][]'").length;
+
+   const secRow =
+      '<tr class="tr">'+
+      //'<td>'+
+      // '<input type="checkbox" name="data_sec[active]['+row_counter+']" class="checkbox">'+
+      //  '</td>'+
+      '<td>'+
+         '<input type="hidden" name="data_sec[row_id][]" id="data_sec_row_id'+row_counter+'" value=""> '+
+         '<select class="form-control" name="data_sec[category][]" id="data_sec_category'+row_counter+'" style="display: inline !important;">'+
+            '<option value="">Select Category</option>'+
+            <?php
+               if (isset($regval['id'])) {
+                  $product_category_based_on_series = $instance->select_category_based_on_series($regval['id']);
+                  foreach($product_category_based_on_series as $key=>$val) { ?>
+                     '<option value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>'+
+                  <?php }
+               }
+            ?>
+         '</select>'+
+      '</td>'+
+      '<td>'+
+         '<select class="form-control" name="data_sec[state][]" id="data_sec_state'+row_counter+'" style="display: inline !important;">'+
+         '<option value="">Select State</option>'+
+            <?php  foreach($get_state_new   as $statekey=>$stateval): ?>
+            '<option value="<?php echo $stateval['id'];?>"><?php echo $stateval['name'];?></option>'+
+            <?php endforeach; ?>
+         '</select>'+
+      '</td>'+
+         '<td>'+
+            ' <div class="input-daterange"><div class="input-daterange input-group" id="datepicker_from'+row_counter+'"><input type="text" name="data_sec[from][]" id="data_sec_from_'+row_counter+'" value="" class="form-control" /><label class="input-group-addon btn" for="data_sec_received[]"><span class="fa fa-calendar"></span></label></div>'+
+         '</td>'+
+         '<td>'+
+            '  <div class="input-daterange"><div class="input-daterange input-group" id="datepicker_to'+row_counter+'"><input type="text" name="data_sec[to][]" id="data_sec_to'+row_counter+'" value="" class="form-control" /><label class="input-group-addon btn" for="data_sec_to[]"><span class="fa fa-calendar"></span></label></div>'+
+         '</td>'+
+         '<td>'+
+            '<input type="text" name="data_sec[reason][]" id="data_sec_reason'+row_counter+'" value="" class="form-control" />'+
+         '</td>'+
+         '<td>'+
+            '<button type="button" tabindex="-1" class="btn btn-purple remove-licrow btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
+         '</td>'+
+      '</tr>'
+   ;
+
+   // 07/17/22 TEST DELETE ME
+   console.log('Line 4803: ' + secRow);
+
+   $(secRow).appendTo($("#data_sec_row"));
+}
+
+$(document).on('click','.remove-licrow',function(){
+   $(this).closest('.tr').remove();
+});
 
 </script>

@@ -894,6 +894,21 @@
 
 			return $return;
 		}
-
-	}
+        // Simple function to return True/False if a date is valid given an Start and End table column values (Start Date <= Check Date <= End Date)
+        // - Problem is with what to do with empty and varying "Empty" values ('1969-12-31', '1970-01-01', '0000-00-000'), which is common in a lot of data rows
+        function check_date($checkDate="0000-00-00", $startDate="0000-00-00", $endDate="0000-00-00",$default=1) {
+            $return = $default;
+            $emptyDefault = "0000-00-00";
+            // Since tables values can be so different ('', '01/01/1000', '1969-12-31', '1970-01-01')
+            $checkDate = date('Y-m-d', strtotime($this->re_db_input($checkDate)) );
+            $startDate = date('Y-m-d', strtotime($this->re_db_input($startDate)) );
+            $endDate = date('Y-m-d', strtotime($this->re_db_input($endDate)) );
+            // Return the default if empty dates
+            if ($this->isEmptyDate($checkDate) OR ($this->isEmptyDate($startDate) AND $this->isEmptyDate($endDate)))
+                return $return;
+            
+            return ($this->isEmptyDate($startDate) OR $startDate<=$checkDate) AND ($this->isEmptyDate($endDate) OR $endDate>=$checkDate);
+                
+        }
+    }
 ?>
