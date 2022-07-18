@@ -1,5 +1,4 @@
 <?php
-
 	require_once("include/config.php");
 	require_once(DIR_FS."islogin.php");
     $higher_risk =  0 ;
@@ -92,7 +91,11 @@
 
     $get_payout_schedule = $instance->get_payout_schedule();
     $get_branch_office = $instance->select_branch_office();
-
+    
+    
+    //-------------------------------------------
+    // TAKE ACTION
+    //-------------------------------------------
     if((isset($_POST['submit'])&& $_POST['submit']=='Save')
         || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
         || (isset($_POST['submit'])&& $_POST['submit']=='Next') )
@@ -130,7 +133,6 @@
         $business_city = isset($_POST['business_city'])?$instance->re_db_input($_POST['business_city']):'';
         $business_state = isset($_POST['business_state'])?$instance->re_db_input($_POST['business_state']):'';
         $business_zipcode = isset($_POST['business_zipcode'])?$instance->re_db_input($_POST['business_zipcode']):'';
-
 
         $telephone_general = isset($_POST['telephone_general'])?$instance->re_db_input($_POST['telephone_general']):'';
         $cell_general = isset($_POST['cell_general'])?$instance->re_db_input($_POST['cell_general']):'';
@@ -486,13 +488,15 @@
         $transaction_type_general = isset($edit_general['transaction_type'])?$instance->re_db_output($edit_general['transaction_type']):'';
         $routing = isset($edit_general['routing'])?$instance->re_db_output($edit_general['routing']):'';
         $account_no = isset($edit_general['account_no'])?$instance->re_db_output($edit_general['account_no']):'';
-        $cfp = isset($edit_general['cfp'])?$instance->re_db_output($edit_general['cfp']):'';
-        $chfp = isset($edit_general['chfp'])?$instance->re_db_output($edit_general['chfp']):'';
-        $cpa = isset($edit_general['cpa'])?$instance->re_db_output($edit_general['cpa']):'';
-        $clu = isset($edit_general['clu'])?$instance->re_db_output($edit_general['clu']):'';
-        $cfa = isset($edit_general['cfa'])?$instance->re_db_output($edit_general['cfa']):'';
-        $ria = isset($edit_general['ria'])?$instance->re_db_output($edit_general['ria']):'';
-        $insurance = isset($edit_general['insurance'])?$instance->re_db_output($edit_general['insurance']):'';
+        // 07/17/22 General fields have "_general" added for the different table BROKER GENERAL
+        $cfp_general = isset($edit_general['cfp'])?$instance->re_db_input($edit_general['cfp']):0;
+        $chfp_general = isset($edit_general['chfp'])?$instance->re_db_input($edit_general['chfp']):0;
+		$cpa_general = isset($edit_general['cpa'])?$instance->re_db_input($edit_general['cpa']):0;
+		$clu_general = isset($edit_general['clu'])?$instance->re_db_input($edit_general['clu']):0;
+        $cfa_general = isset($edit_general['cfa'])?$instance->re_db_input($edit_general['cfa']):0;
+        $ria_general = isset($edit_general['ria'])?$instance->re_db_input($edit_general['ria']):0;
+		$insurance_general = isset($edit_general['insurance'])?$instance->re_db_input($edit_general['insurance']):0;//echo '<pre>';print_r($_POST);exit;
+
         //echo '<pre>';print_r($edit_licences_securities);exit;
         $branch_broker = isset($edit_branches['broker_name'])?$instance->re_db_output($edit_branches['broker_name']):'';
 		$branch_1 = isset($edit_branches['branch1'])?$instance->re_db_output($edit_branches['branch1']):'';

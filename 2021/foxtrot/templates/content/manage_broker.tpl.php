@@ -4,20 +4,19 @@
 
 
 <script type="text/javascript">
-   $(document).ready(function(){
-       console.log("works");
-     $('#telephone_general').mask("(999) 999-9999");
-        $('#fax_general').mask("(999) 999-9999");
+$(document).ready(function(){
+   console.log("works");
+   
+   $('#telephone_general').mask("(999) 999-9999");
+   $('#fax_general').mask("(999) 999-9999");
    $('#cell_general').mask("(999) 999-9999");
-    $('#ssn').mask("999-99-9999");
-     $('#tax_id').mask("99-9999999");
-      $('#business_zipcode').mask("99999?-9999");
-       $('#zip_code_general').mask("99999?-9999");
-        $('#routing_general').mask("999999999");
-         $("#day_after_u5").mask("999");
-       
-     
-   });
+   $('#ssn').mask("999-99-9999");
+   $('#tax_id').mask("99-9999999");
+   $('#business_zipcode').mask("99999?-9999");
+   $('#zip_code_general').mask("99999?-9999");
+   $('#routing_general').mask("999999999");
+   $("#day_after_u5").mask("999");
+});
 </script>
 <script type="text/javascript">
    $(function() {
@@ -460,10 +459,10 @@
        
        var html = '<tr class="tr">'+
                        '<td>'+
-                           '<input type="checkbox" name="data[docs_receive]['+test+']" class="checkbox" value="1" id="docs_receive"/>'+
+                           '<input type="checkbox" name="data[docs_receive]['+test+']" class="checkbox" value="1" id="docs_receive'+test+'"/>'+
                        '</td>'+
                        '<td>'+
-                           '<select name="data[docs_description]['+test+']" id="docs_description" class="form-control">'+
+                           '<select name="data[docs_description]['+test+']" id="docs_description'+test+'" class="form-control">'+
                                '<option value="">Select Documents</option>'+
                                <?php foreach($select_broker_docs as $key_broker_doc=>$val_broker_doc){?>
                                '<option value="<?php echo $val_broker_doc['id'];?>" ><?php echo $val_broker_doc['desc'];?></option>'+
@@ -472,13 +471,13 @@
                        '</td>'+
                        '<td>'+
                            '<div id="demo-dp-range">'+
-                               '<div class="input-daterange input-group" id="datepicker">'+
-                                   '<input type="text" name="data[docs_date]['+test+']" id="docs_date" value="" class="form-control" />'+
+                               '<div class="input-daterange input-group" id="datepicker'+test+'">'+
+                                   '<input type="text" name="data[docs_date]['+test+']" id="docs_date'+test+'" value="" class="form-control" />'+
                                '</div>'+
                            '</div>'+
                        '</td>'+
                        '<td>'+
-                           '<input type="checkbox" name="data[docs_required]['+test+']" class="checkbox" value="1" id="docs_required"/>'+
+                           '<input type="checkbox" name="data[docs_required]['+test+']" class="checkbox" value="1" id="docs_required'+test+'"/>'+
                        '</td>'+
                        '<td>'+
                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
@@ -786,7 +785,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox"  name="cfp_general" <?php if(isset($cfp) && $cfp==1){ echo'checked="true"'; }?> id="cfp_general" style="display: inline;" value="1" />
+                                                <input type="checkbox"  name="cfp_general" <?php if(isset($cfp_general) && $cfp_general==1){ echo'checked'; }?> id="cfp_general" style="display: inline;" value="1" />
                                                 </span>
                                                 <label class="form-control">CFP</label>
                                              </div>
@@ -794,7 +793,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox" name="chfp_general" <?php if(isset($chfp) && $chfp==1){ echo'checked="true"'; }?> id="chfp_general" value="1" style="display: inline;" />
+                                                <input type="checkbox" name="chfp_general" <?php if(isset($chfp_general) && $chfp_general==1){ echo'checked'; }?> id="chfp_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">ChFP</label>
                                              </div>
@@ -806,7 +805,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox"  name="cpa_general" <?php if(isset($cpa) &&$cpa==1){ echo'checked="true"'; }?> id="cpa_general" value="1" style="display: inline;" />
+                                                <input type="checkbox"  name="cpa_general" <?php if(isset($cpa_general) && $cpa_general==1){ echo'checked'; }?> id="cpa_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">CPA</label>
                                              </div>
@@ -814,7 +813,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox" name="clu_general" <?php if(isset($clu) &&$clu==1){ echo'checked="true"'; }?> id="clu_general" value="1" style="display: inline;" />
+                                                <input type="checkbox" name="clu_general" <?php if(isset($clu_general) && $clu_general==1){ echo 'checked'; }?> id="clu_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">CLU</label>
                                              </div>
@@ -826,7 +825,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox" name="cfa_general" <?php if(isset($cfa) &&$cfa==1){ echo'checked="true"'; }?> id="cfa_general" value="1" style="display: inline;" />
+                                                <input type="checkbox" name="cfa_general" <?php if(isset($cfa_general) && $cfa_general==1){ echo 'checked'; }?> id="cfa_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">CFA</label>
                                              </div>
@@ -834,7 +833,7 @@
                                           <div class="col-md-6">
                                              <div class="input-group">
                                                 <span class="input-group-addon">
-                                                <input type="checkbox" name="ria_general" <?php if(isset($ria) &&$ria==1){ echo'checked="true"'; }?> id="ria_general" value="1" style="display: inline;" />
+                                                <input type="checkbox" name="ria_general" <?php if(isset($ria_general) && $ria_general==1){ echo 'checked'; }?> id="ria_general" value="1" style="display: inline;" />
                                                 </span>
                                                 <label class="form-control">RIA</label>
                                              </div>
@@ -847,7 +846,7 @@
                                  <label>&nbsp;</label><br />
                                  <div class="input-group">
                                     <span class="input-group-addon">
-                                    <input type="checkbox" name="insurance_general" <?php if(isset($insurance) &&$insurance==1){ echo'checked="true"'; }?> id="insurance_general" value="1" style="display: inline;" />
+                                    <input type="checkbox" name="insurance_general" <?php if(isset($insurance_general) && $insurance_general==1){ echo 'checked'; }?> id="insurance_general" value="1" style="display: inline;" />
                                     </span>
                                     <label class="form-control">Insurance</label>
                                  </div>
@@ -861,8 +860,8 @@
                                        <label>Home</label>
                                        <!-- <select name="home_general" class="form-control" onchange="open_address(this.value);">
                                           <option value="">Select Option</option>
-                                          <option value="1" <?php if(isset($home) && $home == 1){echo "selected='selected'";}?> >Home</option>
-                                          <option value="2" <?php if(isset($home) && $home == 2){echo "selected='selected'";}?> >Business</option>
+                                          <option value="1" <?php if(isset($home) && $home == 1){echo "selected";}?> >Home</option>
+                                          <option value="2" <?php if(isset($home) && $home == 2){echo "selected";}?> >Business</option>
                                           </select> -->
                                     </div>
                                  </div>
@@ -2851,29 +2850,28 @@
                                              <input type="hidden" name="data4[<?php echo $regval['id'];?>][type]" value="<?php echo $regval['type'];?>"/>
                                           </tr>
                                           <?php } } } } else{ ?>
-                                          <?php foreach($get_register as $regkey=>$regval){?>
-                                          <tr>
-                                             <td><?php echo $regval['id'];?></a></td>
-                                             <td><?php echo $regval['type'];?></td>
-                                             <td>
-                                                <div id="demo-dp-range">
-                                                   <div class="input-daterange input-group" id="datepicker">
-                                                      <input type="text" name="data4[<?php echo $regval['id'];?>][approval_date]"  value="" class="form-control" />
+                                          <?php foreach($get_register as $regkey=>$regval) { ?>
+                                             <tr>
+                                                <td><?php echo $regval['id'];?></a></td>
+                                                <td><?php echo $regval['type'];?></td>
+                                                <td>
+                                                   <div id="demo-dp-range">
+                                                      <div class="input-daterange input-group" id="datepicker">
+                                                         <input type="text" name="data4[<?php echo $regval['id'];?>][approval_date]"  value="" class="form-control" />
+                                                      </div>
                                                    </div>
-                                                </div>
-                                             </td>
-                                             <td>
-                                                <div id="demo-dp-range">
-                                                   <div class="input-daterange input-group" id="datepicker">
-                                                      <input type="text" name="data4[<?php echo $regval['id'];?>][expiration_date]" value="" class="form-control" />
+                                                </td>
+                                                <td>
+                                                   <div id="demo-dp-range">
+                                                      <div class="input-daterange input-group" id="datepicker">
+                                                         <input type="text" name="data4[<?php echo $regval['id'];?>][expiration_date]" value="" class="form-control" />
+                                                      </div>
                                                    </div>
-                                                </div>
-                                             </td>
-                                             <td><input class="form-control" value="" name="data4[<?php echo $regval['id'];?>][register_reason]"  type="text" /></td>
-                                             <input type="hidden" name="data4[<?php echo $regval['id'];?>][type]" value="<?php echo $regval['type']; ?>"/>
-                                          </tr>
-                                          <?php }
-                                             } ?>
+                                                </td>
+                                                <td><input class="form-control" value="" name="data4[<?php echo $regval['id'];?>][register_reason]"  type="text" /></td>
+                                                <input type="hidden" name="data4[<?php echo $regval['id'];?>][type]" value="<?php echo $regval['type']; ?>"/>
+                                             </tr>
+                                          <?php } } ?>
                                        </tbody>
                                     </table>
                                  </div>
@@ -2921,10 +2919,10 @@
                                              foreach($edit_required_docs as $key=>$val){ $doc_id++;?>
                                           <tr>
                                              <td>
-                                                <input type="checkbox" name="data[docs_receive][<?php echo $doc_id;?>]" <?php if($val['received']==1){ ?>checked="true"<?php } ?> value="1" class="checkbox" id="docs_receive"/>
+                                                <input type="checkbox" name="data[docs_receive][<?php echo $doc_id;?>]" <?php if($val['received']==1){ ?>checked<?php } ?> value="1" class="checkbox" id="docs_receive<?php echo $doc_id;?>"/>
                                              </td>
                                              <td>
-                                                <select name="data[docs_description][<?php echo $doc_id;?>]" id="docs_description" class="form-control">
+                                                <select name="data[docs_description][<?php echo $doc_id;?>]" id="docs_description<?php echo $doc_id;?>" class="form-control">
                                                    <option value="">Select Documents</option>
                                                    <?php foreach($select_broker_docs as $key_broker_doc=>$val_broker_doc){?>
                                                    <option value="<?php echo $val_broker_doc['id'];?>" <?php if($val['description'] != '' && $val['description']==$val_broker_doc['id']){echo "selected='selected'";} ?>><?php echo $val_broker_doc['desc'];?></option>
@@ -2934,12 +2932,12 @@
                                              <td>
                                                 <div id="demo-dp-range">
                                                    <div class="input-daterange input-group" id="datepicker">
-                                                      <input type="text" name="data[docs_date][<?php echo $doc_id;?>]" id="docs_date" value="<?php if(isset($val['date']) && $val['date'] != ''){ echo date('m/d/Y',strtotime($val['date'])); }?>" class="form-control" />
+                                                      <input type="text" name="data[docs_date][<?php echo $doc_id;?>]" id="docs_date<?php echo $doc_id;?>" value="<?php if(isset($val['date']) && $val['date'] != ''){ echo date('m/d/Y',strtotime($val['date'])); }?>" class="form-control" />
                                                    </div>
                                                 </div>
                                              </td>
                                              <td>
-                                                <input type="checkbox" name="data[docs_required][<?php echo $doc_id;?>]" <?php if($val['required']==1){ ?>checked="true"<?php } ?> class="checkbox" value="1" id="docs_required"/>
+                                                <input type="checkbox" name="data[docs_required][<?php echo $doc_id;?>]" <?php if($val['required']==1){ ?>checked<?php } ?> class="checkbox" value="1" id="docs_required<?php echo $doc_id;?>"/>
                                              </td>
                                              <td>
                                                 <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
@@ -4638,21 +4636,24 @@
    width: 100% !important;
    }
 </style>
-<script type="text/javascript">     
-   function filter_state_records(selector){
-      $("#license_cat_wrap_"+selector.value).siblings().hide().end().show();
-   }
-   filter_state_records($("#security_product_cat")[0]);
-  function ask_confirmation(url){
 
-        var answer = confirm(" are you sure want to delete transcation?");
-            if(answer){
-                       window.location.href=url;
-                       return;
-            } 
-            return false;
-  }    
-   $(document).ready(function(e){
+<script type="text/javascript">     
+function filter_state_records(selector){
+   if (selector != null)
+     $("#license_cat_wrap_"+selector.value).siblings().hide().end().show();
+}
+filter_state_records($("#security_product_cat")[0]);
+
+function ask_confirmation(url){
+   var answer = confirm(" are you sure want to delete transcation?");
+   if(answer){
+      window.location.href=url;
+      return;
+   } 
+   return false;
+}    
+
+$(document).ready(function(e){
     $(document).on('change','.higher_risk',function(){
           var isChecked = $(this).is(':checked');
           if(isChecked) {
@@ -4741,62 +4742,73 @@
 </style>
 
 <script type="text/javascript">
-    var row_counter = 0;
-    function add_sec_row(row){
-       $('#demo-dp-range .input-daterange').datepicker({
-           format: "mm/dd/yyyy",
-           todayBtn: "linked",
-           autoclose: true,
-           todayHighlight: true
-       });
-       if(row_counter == 0){
-          row_counter = row + 1;
-       }else{
-          row_counter++;
-       }
-       var html='';
-            html='<tr class="tr">'+
-                   //'<td>'+
-                     
-                      // '<input type="checkbox" name="data_sec[active]['+row_counter+']" class="checkbox">'+ 
-                 //  '</td>'+
-                   '<td>'+
-                     ' <input type="hidden" name="data_sec[row_id]['+row_counter+']" value=""> '+
-                      '<select class="form-control" name="data_sec[category]['+row_counter+']" id="data_sec[category]['+row_counter+']" style="display: inline !important;">'+
-                         '<option value="">Select Category</option>'+
-                         <?php
-                            $product_category_based_on_series = $instance->select_category_based_on_series($regval['id']);
-                             foreach($product_category_based_on_series as $key=>$val){?>
-                         '<option value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>'+
-                         <?php } ?>
-                      '</select>'+
-                   '</td>'+
-                   '<td>'+
-                      '<select class="form-control" name="data_sec[state]['+row_counter+']" id="data_sec[state]['+row_counter+']" style="display: inline !important;">'+
-                      '<option value="">Select State</option>'+
-                         <?php  foreach($get_state_new   as $statekey=>$stateval): ?>
-                         '<option value="<?php echo $stateval['id'];?>"><?php echo $stateval['name'];?></option>'+
-                         <?php endforeach; ?>
-                      '</select>'+
-                   '</td>'+
-                   '<td>'+
-                      ' <div id="demo-dp-range"><div class="input-daterange input-group" id="datepicker"><input type="text" name="data_sec[from]['+row_counter+']" id="data_sec[from]['+row_counter+']" value="" class="form-control" /><label class="input-group-addon btn" for="data_sec[received]['+row_counter+']"><span class="fa fa-calendar"></span></label></div>'+
-                   '</td>'+
-                   '<td>'+
-                      '  <div id="demo-dp-range"><div class="input-daterange input-group" id="datepicker"><input type="text" name="data_sec[to]['+row_counter+']" id="data_sec[to]['+row_counter+']" value="" class="form-control" /><label class="input-group-addon btn" for="data_sec[to]['+row_counter+']"><span class="fa fa-calendar"></span></label></div>'+
-                   '</td>'+
-                   '<td>'+ 
-                      '<input type="text" name="data_sec[reason]['+row_counter+']" id="data_sec[reason]['+row_counter+']" value="" class="form-control" />'+
-                   '</td>'+
-                   '<td>'+
-                        '<button type="button" tabindex="-1" class="btn btn-purple remove-licrow btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
-                   '</td>'+
-                '</tr>';
-
-                $(html).appendTo($("#data_sec_row"));
-}
- $(document).on('click','.remove-licrow',function(){
-       $(this).closest('.tr').remove();
+var row_counter = 0;
+    
+function add_sec_row(row=0){
+   $('#demo-dp-range .input-daterange').datepicker({
+      format: "mm/dd/yyyy",
+      todayBtn: "linked",
+      autoclose: true,
+      todayHighlight: true
    });
+
+   // if(row_counter == 0){
+   //    row_counter = row + 1;
+   // }else{
+   //    row_counter++;
+   // }
+   const row_counter = $("input[name^='data_sec[row_id][]'").length;
+   
+   const secRow = 
+      '<tr class="tr">'+
+      //'<td>'+
+      // '<input type="checkbox" name="data_sec[active]['+row_counter+']" class="checkbox">'+ 
+      //  '</td>'+
+      '<td>'+
+         '<input type="hidden" name="data_sec[row_id][]" id="data_sec_row_id'+row_counter+'" value=""> '+
+         '<select class="form-control" name="data_sec[category][]" id="data_sec_category'+row_counter+'" style="display: inline !important;">'+
+            '<option value="">Select Category</option>'+
+            <?php
+               if (isset($regval['id'])) {
+                  $product_category_based_on_series = $instance->select_category_based_on_series($regval['id']);
+                  foreach($product_category_based_on_series as $key=>$val) { ?>
+                     '<option value="<?php echo $val['id'];?>"><?php echo $val['type'];?></option>'+
+                  <?php }  
+               }
+            ?>   
+         '</select>'+
+      '</td>'+
+      '<td>'+
+         '<select class="form-control" name="data_sec[state][]" id="data_sec_state'+row_counter+'" style="display: inline !important;">'+
+         '<option value="">Select State</option>'+
+            <?php  foreach($get_state_new   as $statekey=>$stateval): ?>
+            '<option value="<?php echo $stateval['id'];?>"><?php echo $stateval['name'];?></option>'+
+            <?php endforeach; ?>
+         '</select>'+
+      '</td>'+
+         '<td>'+
+            ' <div class="input-daterange"><div class="input-daterange input-group" id="datepicker_from'+row_counter+'"><input type="text" name="data_sec[from][]" id="data_sec_from_'+row_counter+'" value="" class="form-control" /><label class="input-group-addon btn" for="data_sec_received[]"><span class="fa fa-calendar"></span></label></div>'+
+         '</td>'+
+         '<td>'+
+            '  <div class="input-daterange"><div class="input-daterange input-group" id="datepicker_to'+row_counter+'"><input type="text" name="data_sec[to][]" id="data_sec_to'+row_counter+'" value="" class="form-control" /><label class="input-group-addon btn" for="data_sec_to[]"><span class="fa fa-calendar"></span></label></div>'+
+         '</td>'+
+         '<td>'+ 
+            '<input type="text" name="data_sec[reason][]" id="data_sec_reason'+row_counter+'" value="" class="form-control" />'+
+         '</td>'+
+         '<td>'+
+            '<button type="button" tabindex="-1" class="btn btn-purple remove-licrow btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
+         '</td>'+
+      '</tr>'
+   ;
+   
+   // 07/17/22 TEST DELETE ME
+   console.log('Line 4803: ' + secRow);
+   
+   $(secRow).appendTo($("#data_sec_row"));
+}
+
+$(document).on('click','.remove-licrow',function(){
+   $(this).closest('.tr').remove();
+});
 
 </script>

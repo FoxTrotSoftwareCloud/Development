@@ -1407,9 +1407,8 @@ function get_client_account_no(client_id,selected,skipBroker=0){
     if (!skipBroker){
         var broker_name = $('select[name="client_name"]').find("option[value='"+client_id+"']").data("brokername");
         $('select[name="broker_name"]').val(broker_name).trigger("chosen:updated").trigger("change");;;
-
-        // 07/14/22 Update client splits - skip initial "Maintain Transaction" load
-        get_client_split_rates(client_id);
+        
+        // 07/17/22 Client Split rates updated in get-broker-hold-commission(), because the Broker Split Ajax file wipes all splits, then populates the <tr> elements
     }
     
     if (client_id && client_id != "0"){
@@ -1526,7 +1525,7 @@ function get_client_split_rates(client_id){
                 $("#add_split_type").val('client='+client_id);
                 add_split_row(0);
             }            
-            update_split_yes('get_client_split_rates');
+            update_split_yes('get-client-split-rates()');
         }
     };
     xmlhttp.open("GET", "ajax_get_split_rates.php?client_id="+client_id+"&trade_date="+trade_date+"&product_category="+product_category, true);
@@ -1574,7 +1573,7 @@ function redirect_url(url,selector){
         else{
             url = url+"&category="+$("#product_cate").val();
             // 07/07/22 Store user inputs so the form can be repopulated when redirected back here from product_cate.php
-            var formdata = $('form[name="frm2"] :input').serializeArray();
+            const formdata = $('form[name="frm2"] :input').serializeArray();
             $.ajax({
                 type: "POST",
                 url: "ajax_transaction_tpl.php",
@@ -1602,8 +1601,7 @@ function get_broker_hold_commission(broker_id){
         {
             if (this.responseText){
                 var jsonResponse = JSON.parse(this.responseText);
-
-                hold_commissions = jsonResponse.hold_commission;
+                const hold_commissions = jsonResponse.hold_commission;
 
                 if(hold_commissions==1)
                 {
@@ -1633,6 +1631,8 @@ function get_broker_hold_commission(broker_id){
                 $("#div_hold_reason").css('display','none');
                 $("#hold_reason").val("");
             }
+            // 07/14/22 Update client splits - skip initial "Maintain Transaction" load
+            get_client_split_rates($("#client_name").val());
         }
     };
     xmlhttp.open("GET", "ajax_transaction_tpl.php?broker_id="+broker_id, true);
@@ -1654,9 +1654,6 @@ function get_branch_company(branch_id){
             if (jsonResponse.id > 0){
                 $("#company").val("");
                 $("#company option[value='"+jsonResponse.company+"']").prop("selected", true).trigger("chosen:updated").trigger("change");
-
-                var datetime2 = Date.now().toString().substr(7);
-
             }
         }
     };
@@ -2014,15 +2011,11 @@ function add_split_row(doc, split_type='user_added', split_broker='', split_rate
                     '<td>'+
                         '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                     '</td>'+
-                '</tr>';
-    $(html).insertBefore('#add_split_row');
-    $('#demo-dp-range .input-daterange').datepicker({
-        format: "mm/dd/yyyy",
-        todayBtn: "linked",
-        autoclose: true,
-        todayHighlight: true
-    });
+                '</tr>'
+    ;
+    
     // 07/12/22 Populate the new row with the "Add Split" row values, so the blank row(#add_split_row) will be at the bottom
+    $(html).insertBefore('#add_split_row');
     const addRowRep = $('#add_split_broker').val();
     const addRowRate = $('#add_split_rate').val();
     const addRowType = $('#add_split_type').val();

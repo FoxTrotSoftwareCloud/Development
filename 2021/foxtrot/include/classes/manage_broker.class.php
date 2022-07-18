@@ -332,11 +332,15 @@
       $ria_general = isset($data['ria_general'])?$this->re_db_input($data['ria_general']):0;
 			$insurance_general = isset($data['insurance_general'])?$this->re_db_input($data['insurance_general']):0;
 
-
-			$higher_risk = isset($data['higher_risk']) ?  $data['higher_risk'] : 0 ;
+      $higher_risk = isset($data['higher_risk']) ?  $data['higher_risk'] : 0 ;
 			$exam_notes = isset($data['exam_notes']) ?  $data['exam_notes'] : '' ;
 			$finra_exam_date = isset($data['finra_exam_date']) ?  date('Y-m-d',strtotime($data['finra_exam_date'])) : '' ;
-
+      // 07/17/22 Business City, State, zip added
+      $business_city = isset($data['business_city'])?$this->re_db_input($data['business_city']):'';
+      $business_state = isset($data['business_state'])?(int)$this->re_db_input($data['business_state']):0;
+      $business_zipcode = isset($data['business_zipcode'])?$this->re_db_input($data['business_zipcode']):'';
+      
+      
 			/*if($home_general==''){
 				$this->errors = 'Please select one option.';
 			}
@@ -453,9 +457,18 @@
         {
 					if($id==0)
           {
-						$q = "INSERT INTO `".BROKER_GENERAL."` SET `broker_id`='".$_SESSION['last_insert_id']."',`home`='".$home_general."',`home_address1_general`='".$home_address1_general."',`home_address2_general`='".$home_address2_general."',`business_address1_general`='".$business_address1_general."',`business_address2_general`='".$business_address2_general."',`city`='".$city_general."',`state_id`='".$state_general."',`zip_code`='".$zip_code_general."',`telephone`='".$telephone_general."',`cell`='".$cell_general."',`fax`='".$fax_general."',`gender`='".$gender_general."',`marital_status`='".$status_general."',`spouse`='".$spouse_general."',`children`='".$children_general."',`email1`='".$email1_general."',`email2`='".$email2_general."',`web_id`='".$web_id_general."',`web_password`='".$web_password_general."',`dob`='".$dob_general."',`prospect_date`='".$prospect_date_general."',`reassign_broker`='".$reassign_broker_general."',`u4`='".$u4_general."',`u5`='".$u5_general."',`day_after_u5`='".$day_after_u5."',`dba_name`='".$dba_name_general."',`eft_information`='".$eft_info_general."',`start_date`='".$start_date_general."',`transaction_type`='".$transaction_type_general."',`routing`='".$routing_general."',`account_no`='".$account_no_general."',`cfp`='".$cfp_general."',`chfp`='".$chfp_general."',`cpa`='".$cpa_general."',`clu`='".$clu_general."',`cfa`='".$cfa_general."',`ria`='".$ria_general."',`insurance`='".$insurance_general."',
-							higher_risk = '".$higher_risk."' ,  exam_notes = '".$exam_notes."' ,finra_exam_date = '".$finra_exam_date."'
-							 ".$this->insert_common_sql();
+						$q = "INSERT INTO `".BROKER_GENERAL."`"
+                  ." SET `broker_id`='".$_SESSION['last_insert_id']."',`home`='".$home_general."',`home_address1_general`='".$home_address1_general."',`home_address2_general`='".$home_address2_general."',`city`='".$city_general."',`state_id`='".$state_general."',`zip_code`='".$zip_code_general."'"
+                      .",`business_address1_general`='".$business_address1_general."',`business_address2_general`='".$business_address2_general."',`business_city`='$business_city',`business_state`='$business_state',`business_zipcode`='$business_zipcode'"
+                      .",`telephone`='".$telephone_general."',`cell`='".$cell_general."',`fax`='".$fax_general."',`gender`='".$gender_general."',`marital_status`='".$status_general."',`spouse`='".$spouse_general."'"
+                      .",`children`='".$children_general."',`email1`='".$email1_general."',`email2`='".$email2_general."',`web_id`='".$web_id_general."',`web_password`='".$web_password_general."',`dob`='".$dob_general."'"
+                      .",`prospect_date`='".$prospect_date_general."',`reassign_broker`='".$reassign_broker_general."',`u4`='".$u4_general."',`u5`='".$u5_general."',`day_after_u5`='".$day_after_u5."',`dba_name`='".$dba_name_general."'"
+                      .",`eft_information`='".$eft_info_general."',`start_date`='".$start_date_general."',`transaction_type`='".$transaction_type_general."',`routing`='".$routing_general."',`account_no`='".$account_no_general."'"
+                      .",`cfp`='".$cfp_general."',`chfp`='".$chfp_general."',`cpa`='".$cpa_general."',`clu`='".$clu_general."',`cfa`='".$cfa_general."',`ria`='".$ria_general."',`insurance`='".$insurance_general."'"
+                      .",higher_risk = '".$higher_risk."' ,  exam_notes = '".$exam_notes."' ,finra_exam_date = '".$finra_exam_date."'"
+                      .$this->insert_common_sql()
+            ;
+               
 						$res = $this->re_db_query($q);
             if($res){
               $_SESSION['success'] = INSERT_MESSAGE;
@@ -468,8 +481,19 @@
           }
           else
           {
-            $q = "UPDATE `".BROKER_GENERAL."`  SET `home`='".$home_general."',`home_address1_general`='".$home_address1_general."',`home_address2_general`='".$home_address2_general."',`business_address1_general`='".$business_address1_general."',`business_address2_general`='".$business_address2_general."',`city`='".$city_general."',`state_id`='".$state_general."',`zip_code`='".$zip_code_general."',`telephone`='".$telephone_general."',`cell`='".$cell_general."',`fax`='".$fax_general."',`gender`='".$gender_general."',`marital_status`='".$status_general."',`spouse`='".$spouse_general."',`children`='".$children_general."',`email1`='".$email1_general."',`email2`='".$email2_general."',`web_id`='".$web_id_general."',`web_password`='".$web_password_general."',`dob`='".$dob_general."',`prospect_date`='".$prospect_date_general."',`reassign_broker`='".$reassign_broker_general."',`u4`='".$u4_general."',`u5`='".$u5_general."',`day_after_u5`='".$day_after_u5."',`dba_name`='".$dba_name_general."',`eft_information`='".$eft_info_general."',`start_date`='".$start_date_general."',`transaction_type`='".$transaction_type_general."',`routing`='".$routing_general."',`account_no`='".$account_no_general."',`cfp`='".$cfp_general."',`chfp`='".$chfp_general."',`cpa`='".$cpa_general."',`clu`='".$clu_general."',`cfa`='".$cfa_general."',`ria`='".$ria_general."',`insurance`='".$insurance_general."',	higher_risk = '".$higher_risk."' ,  exam_notes = '".$exam_notes."' ,finra_exam_date = '".$finra_exam_date."' ".$this->update_common_sql()." WHERE `broker_id`='".$id."'";
-						$res = $this->re_db_query($q);
+            $q = "UPDATE `".BROKER_GENERAL."`"
+                  ."SET `home`='".$home_general."',`home_address1_general`='".$home_address1_general."',`home_address2_general`='".$home_address2_general."',`city`='".$city_general."',`state_id`='".$state_general."',`zip_code`='".$zip_code_general."'"
+                      .",`business_address1_general`='".$business_address1_general."',`business_address2_general`='".$business_address2_general."',`business_city`='$business_city',`business_state`='$business_state',`business_zipcode`='$business_zipcode'"
+                      .",`telephone`='".$telephone_general."',`cell`='".$cell_general."',`fax`='".$fax_general."',`gender`='".$gender_general."',`marital_status`='".$status_general."',`spouse`='".$spouse_general."',`children`='".$children_general."'"
+                      .",`email1`='".$email1_general."',`email2`='".$email2_general."',`web_id`='".$web_id_general."',`web_password`='".$web_password_general."',`dob`='".$dob_general."',`prospect_date`='".$prospect_date_general."'"
+                      .",`reassign_broker`='".$reassign_broker_general."',`u4`='".$u4_general."',`u5`='".$u5_general."',`day_after_u5`='".$day_after_u5."',`dba_name`='".$dba_name_general."',`eft_information`='".$eft_info_general."'"
+                      .",`start_date`='".$start_date_general."',`transaction_type`='".$transaction_type_general."',`routing`='".$routing_general."',`account_no`='".$account_no_general."'"
+                      .",`cfp`='".$cfp_general."',`chfp`='".$chfp_general."',`cpa`='".$cpa_general."',`clu`='".$clu_general."',`cfa`='".$cfa_general."',`ria`='".$ria_general."',`insurance`='".$insurance_general."'"
+                      .",	higher_risk = '".$higher_risk."' ,  exam_notes = '".$exam_notes."' ,finra_exam_date = '".$finra_exam_date."'"
+                      .$this->update_common_sql()
+                  ." WHERE `broker_id`='".$id."'";
+						
+            $res = $this->re_db_query($q);
 						if($res)
             {
               $newInstance = $this->select_broker_general_by_id($id);
@@ -1363,7 +1387,9 @@
                 $terminated = isset($val['terminated']) ? $this->re_db_input(date('Y-m-d',strtotime($val['terminated']))) : $this->defaultEmptyDate;
                 $reason = isset($val['reason']) ? $this->re_db_input($val['reason']) : '';
                 $active_check = isset($val['active_check']) ? (int)$this->re_db_input($val['active_check']) : 0;
-
+                // [FIX LATER] 07/17/22 Fee wasn't found - just default to zero to get the program up and running
+                $fee = 0;
+                
                 $q = "INSERT INTO `".BROKER_LICENCES_INSURANCE."`"
                       ." SET "
                         ." `broker_id`='".$_SESSION['last_insert_id']."'"
@@ -2742,18 +2768,30 @@
       }
 			return $return;
 		}
-
-    public function edit_allgeneral(){
+    
+    // 07/17/22 Called from manage_broker.php - no $id parameter found (awesome!) - added now!
+    public function edit_allgeneral($id=0){
+      $con = '';
       $return = array();
-      $q = "SELECT `at`.*
-          FROM `".BROKER_GENERAL."` AS `at`
-                    WHERE `at`.`is_delete`='0'";
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-            while($row=$this->re_db_fetch_array($res)){
-                  array_push($return,$row);
-                }
-            }
+      $id = (int)$this->re_db_input($id);
+
+      if ($id) {$con = " AND `at`.`broker_id`=$id";}
+
+      $q = "SELECT `at`.*"
+            ." FROM `".BROKER_GENERAL."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'"
+            .$con
+      ;
+            
+      $res = $this->re_db_query($q);
+      
+      if ($this->re_db_num_rows($res)>0) {
+        if ($id){
+          $return = $this->re_db_fetch_array($res);
+        } else {
+          $return = $this->re_db_fetch_all($res);
+        }
+      }
       return $return;
     }
 
