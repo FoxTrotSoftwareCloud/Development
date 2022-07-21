@@ -131,7 +131,7 @@ class ofac_fincen extends db{
 		}
 		return $return;
 	}
-	public function delete($id){
+	public function delete($id, $status=0){
 		$id = trim($this->re_db_input($id));
 		if($id>0 && ($status==0 || $status==1) ){
 			$q = "DELETE FROM `".OFAC_CHECK_DATA_MASTER."` WHERE `id`='".$id."'";
@@ -200,8 +200,6 @@ class ofac_fincen extends db{
 		return $return;
 	}
 	public function insert_update_fincen($data,$scan_data=''){
-
-
 		$total_scan = isset($scan_data)?$this->re_db_input($scan_data):0;
 		$total_match = isset($data)?$this->re_db_input(count($data)):0;
 
@@ -241,8 +239,9 @@ class ofac_fincen extends db{
 		}
 
 	}
-	public function delete_fincen($id){
+	public function delete_fincen($id, $status=0){
 		$id = trim($this->re_db_input($id));
+		
 		if($id>0 && ($status==0 || $status==1) ){
 			$q = "DELETE FROM `".FINCEN_CHECK_DATA_MASTER."` WHERE `id`='".$id."'";
 			$res = $this->re_db_query($q);
@@ -370,6 +369,53 @@ class ofac_fincen extends db{
 			}
 			fclose($fileStream);
 		}
+	}
+	
+	function load_ofac_file(){
+		$fileName = $this->local_folder."sdn.csv";
+		$fileStream = fopen($fileName, 'r');
+		$sdnFields = ['ent_num', 'sdn_name', 'sdn_type', 'program', 'title', 'x-call_sign', 'x-vess_type', 'x-tonnage', 'x-grt', 'x-vess_flag', 'x-vess_owner', 'remarks'];
+		$OFAC_DATA = "ft_ofac_data";
+		$setFields = "";
+		$recsLoaded = 0;
+
+		// Clear out the data
+		$q = "DELETE FROM `$OFAC_DATA` WHERE `id`>0";
+		$res = $this->re_db_query($q);
+		$q = "ALTER TABLE `".$OFAC_DATA."` AUTO_INCREMENT = 1";
+		$res = $this->re_db_query($q);
+
+		// Populate the Data Table
+		if ($fileStream){
+			while (($getData = fgetcsv($fileStream, 10000, ",")) !== FALSE) {
+				// "ent_num" has to be populated for valid OFAC/SDN record
+				if ((int)$getData[0]>0){
+					$setFields = "";
+					
+					foreach ($sdnFields AS $key=>$value){
+						
+						if (substr($value,0,2)!="x-"){
+							$sdnValue = $this->re_db_input($getData[$key]);
+							$setFields .= (empty($setFields)?"":", ")."`$value` = '$sdnValue'";
+						}
+					}
+
+					$q = "INSERT INTO `".$OFAC_DATA."`"
+							." SET "
+								.$setFields 
+								.",file_date = '".date("Y-m-d H:i:s", filectime($fileName))."'"
+								.",import_date = '".date("Y-m-d H:i:s")."'"
+								.$this->insert_common_sql()
+					;
+					$res = $this->re_db_query($q);
+					
+					if ($res) { $recsLoaded++; }
+				}
+			}
+		}
+
+		$fileClosed = fclose($fileStream);
+		return $recsLoaded;
 	}
 }
 ?>
