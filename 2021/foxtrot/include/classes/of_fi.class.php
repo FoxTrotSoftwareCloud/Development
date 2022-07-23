@@ -6,29 +6,40 @@ class ofac_fincen extends db{
     public $local_folder = DIR_FS.'import_files/OFAC_FinCEN/';
 
 	//
-    public function insert_update($data,$scan_data=''){
+    public function insert_update($data,$scan_data='',$matches=0){
+		$instance_broker = new broker_master();
 		$total_scan = isset($scan_data)?$this->re_db_input($scan_data):0;
-		$total_match = isset($data)?$this->re_db_input(count($data)):0;
-		/*$q = "UPDATE `".OFAC_CHECK_DATA."` SET `is_delete`='1'";
-		$res = $this->re_db_query($q);*/
+		$total_match = isset($matches) ? $matches : count($data);
+		$dataKeys = array_keys($data);
+		$file_date = isset($data[$dataKeys[0]]['sdn_data']['file_date']) ? $data[$dataKeys[0]]['sdn_data']['file_date'] : date('Y-m-d H:i:s');
+		$import_date = isset($data[$dataKeys[0]]['sdn_data']['import_date']) ? $data[$dataKeys[0]]['sdn_data']['import_date'] : date('Y-m-d H:i:s');
 
-		$q = "INSERT INTO `".OFAC_CHECK_DATA_MASTER."` SET `total_scan`='".$total_scan."',`total_match`='".$total_match."'".$this->insert_common_sql();
+		$q = "INSERT INTO `".OFAC_CHECK_DATA_MASTER."`"
+			." SET `total_scan`='".$total_scan."'"
+					.",`total_match`='".$total_match."'"
+					.",`file_date`='$file_date'"
+					.",`import_date`='$import_date'"
+					.$this->insert_common_sql()
+		;
 		$res = $this->re_db_query($q);
 		$last_inserted_id = $this->re_db_insert_id();
 
 		foreach($data as $key=>$val)
 		{
-			$keyCount = count($data[$key]);
-			
-			for ($i=0; $i < $keyCount-1; $i++){
+			foreach($val['client_matches'] as $clientRow){
+				$broker_name = $instance_broker->get_broker_name((int)$clientRow['broker_name'], 1);
+				
 				$q = "INSERT INTO `".OFAC_CHECK_DATA."`"
 					." SET "
 						." `ofac_check_data_id`='".$last_inserted_id."'"
-						.",`id_no`='".$val[$keyCount-1]['ent_num']."'"
-						.",`sdn_name`='".$val[$keyCount-1]['sdn_name']."'"
-						.",`program`='".$val[$keyCount-1]['program']."'"
-						.",`client_id`='".$val[$i]['id']."'"
-						.",`client_name`='".$val[$i]['first_name']." ".$val[$i]['last_name']."'"
+						.",`ofac_sdn_data_id`='".$val['sdn_data']['id']."'"
+						.",`ent_num`='".$val['sdn_data']['ent_num']."'"
+						.",`sdn_name`='".$val['sdn_data']['sdn_name']."'"
+						.",`program`='".$val['sdn_data']['program']."'"
+						.",`client_id`='".$clientRow['id']."'"
+						.",`client_name`='".$clientRow['last_name'].(($clientRow['last_name']=='' OR $clientRow['first_name']=='') ? "" : ", ").$clientRow['first_name']."'"
+						.",`broker_id`=".(int)$clientRow['broker_name']
+						.",`broker_name`='$broker_name'"
 						.$this->insert_common_sql()
 				;
 				$res = $this->re_db_query($q);
@@ -69,37 +80,45 @@ class ofac_fincen extends db{
 		$return = array();
 		$con = '';
 
-		if($id != '')
-		{
-			$con.= "and `ocm`.`id` =".$id."";
-		}
+		if($id != '') { $con.= "and `ocm`.`id` =".$id.""; }
 
-		$q = "SELECT `ocm`.*
-				FROM `".OFAC_CHECK_DATA_MASTER."` AS `ocm`
-				WHERE `ocm`.`is_delete`='0' ".$con."
-				ORDER BY `ocm`.`id` DESC LIMIT 1";
+		$q = "SELECT `ocm`.*"
+				." FROM `".OFAC_CHECK_DATA_MASTER."` AS `ocm`"
+				." WHERE `ocm`.`is_delete`='0' "
+					.$con
+				." ORDER BY `ocm`.`id` DESC LIMIT 1";
+				
 		$res = $this->re_db_query($q);
 		if($this->re_db_num_rows($res)>0){
 			$a = 0;
 			while($row = $this->re_db_fetch_array($res)){
-					$return = $row;
+				$return = $row;
 			}
 		}
 		return $return;
 	}
-	public function select_data_report($id=''){
+	public function select_data_report($id='', $orderBy=0){
+		$id = (int)$this->re_db_input($id);
+		$orderBy = (int)$this->re_db_input($orderBy);
 		$return = array();
+		
+		if ($orderBy == 0){
+			$orderByQuery = "`ocd`.`id` DESC";
+		} else {
+			$orderByQuery = "`ocd`.`sdn_name`, `ocd`.`ent_num`";
+		}
+		
+		$q = "SELECT `ocd`.*"
+				." FROM `".OFAC_CHECK_DATA."` AS `ocd`"
+				." WHERE `ocd`.`is_delete`=0"
+					." AND `ocd`.`ofac_check_data_id`=$id"
+				." ORDER BY $orderByQuery"
+		;
 
-		$q = "SELECT `ocd`.*
-				FROM `".OFAC_CHECK_DATA."` AS `ocd`
-				WHERE `ocd`.`is_delete`='0' and `ocd`.`ofac_check_data_id`=".$id."
-				ORDER BY `ocd`.`id` DESC ";
 		$res = $this->re_db_query($q);
+		
 		if($this->re_db_num_rows($res)>0){
-			$a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-					array_push($return,$row);
-			}
+			$return = $this->re_db_fetch_all($res);
 		}
 		return $return;
 	}
@@ -290,13 +309,21 @@ class ofac_fincen extends db{
 		}
 		return $return;
 	}
-	// 07/21/22 Added for the OFAC scan routine
-	public function select_ofac_sdn_data(){
+	// 07/21/22 Added for the OFAC scan routine - load sdn.csv into OFAC SDN DATA table
+	public function select_ofac_sdn_data($id=0, $ent_num=0){
+		$id = (int)$this->re_db_input($id);
+		$id = (int)$this->re_db_input($ent_num);
 		$return = [];
-
+		$con = "";
+		
+		if ($id > 0) { $con .= " AND `at`.`id` = $id"; }
+		if ($ent_num > 0) { $con .= " AND `at`.`ent_num` = $ent_num"; }
+		
 		$q = "SELECT `at`.*"
 				." FROM `".OFAC_SDN_DATA."` `at`"
-				." ORDER BY `at`.`id` ASC"
+				." WHERE `at`.`id` > 0"
+					.$con
+				." ORDER BY `at`.`id`"
 		;
 		
 		$res = $this->re_db_query($q);
@@ -307,7 +334,9 @@ class ofac_fincen extends db{
 		
 		return $return;
 	}
-	/** 07/03/22 Moved from of_fi.php */
+	//-------------------------------------------------------------------------------- 
+	// 07/03/22 Cycle through SDN Table records (OFAC SDN DATA) and find matches in CLIENT MASTER
+	//-------------------------------------------------------------------------------- 
 	public function OFAC_scan(){
 		//-- 07/03/22 "name" key is populated, not "tmp_name"
 		// $filename = $_FILES["file"]["tmp_name"];
@@ -316,32 +345,35 @@ class ofac_fincen extends db{
 		$get_array_data = array();
 
 		if (file_exists($filePathAndName)){
-
-			// 07/21/22 TEST DELETE ME - console.log
-			// $this->load_ofac_sdn_file($filePathAndName);
-
+			$total_matches = 0;
+			$this->load_ofac_sdn_file($filePathAndName);
+			
+			//-- Cycle through SDN Data table records
 			$sdnData = $this->select_ofac_sdn_data();
 			
 			foreach($sdnData as $key=>$val)
 			{
-				$checkName = $this->check_name($val['sdn_name'], $val['remarks'], $val['sdn_type']);
-
-				if(is_array($checkName) && count($checkName)>0){
-					$get_array_data[$key] = $checkName;
-					array_push($get_array_data[$key],$val);
+				// Skip "vessels" - don't think they can open too many accounts
+				if (!in_array(strtolower($val['sdn_type']), ['vessel', 'aircraft'])) {
+					$checkName = $this->check_name($val['sdn_name'], $val['remarks'], $val['sdn_type']);
+					
+					if(is_array($checkName) && count($checkName)>0){
+						$total_matches += count($checkName);
+						$get_array_data[$val['id']] = ['sdn_data'=>$val, 'client_matches'=>$checkName];
+					}
+					
+					$q = "UPDATE `".OFAC_SDN_DATA."` SET `last_scan`=NOW() WHERE `id`={$val['id']}";
+					$res = $this->re_db_query($q);
 				}
-				
-				$q = "UPDATE `".OFAC_SDN_DATA."` SET `last_scan`=NOW() WHERE `id`={$val['id']}";
-				$res = $this->re_db_query($q);
 			}
 			$total_scan = isset($sdnData)?$this->re_db_input(count($sdnData)):0;
 
 			if($get_array_data != array())
 			{
-				$return = $this->insert_update($get_array_data,$total_scan);
+				$return = $this->insert_update($get_array_data, $total_scan, $total_matches);
 
 				if($return===true){
-					header('location:'.CURRENT_PAGE.'?tab=tab_b&open=report');exit;
+					return $return;
 				}
 				else{
 					$error = !isset($_SESSION['warning'])?$return:'';
@@ -349,8 +381,8 @@ class ofac_fincen extends db{
 			}
 			else
 			{
-				$_SESSION['warning'] = "Please Select valid file.";
-				header('location:'.CURRENT_PAGE.'?tab=tab_b');exit;
+				$_SESSION['warning'] = "No OFAC matches found.";
+				return false;
 			}
 		}
 	}
@@ -399,11 +431,12 @@ class ofac_fincen extends db{
 		$fileClosed = fclose($fileStream);
 		return $recsLoaded;
 	}
+	// 07/22/22 Pull client records by the SDN name
 	function check_name($sdn_name = '', $sdn_desc = '', $sdn_type = ''){
         $sdn_name = isset($sdn_name)?$this->re_db_input($sdn_name):'';
         $sdn_type = isset($sdn_type)?$this->re_db_input($sdn_type):'';
 		$return = array();
-        $con = $res = $first_name = $last_name = $middle_name = $explode1 = $explode2 = '';
+        $con = $res = $first_name = $last_name = $middle_name = $explode1 = $explode2 = $firstNameSearch = '';
 
 		if($sdn_name != '')
         {
@@ -412,9 +445,14 @@ class ofac_fincen extends db{
 				$explode1 = explode(",", $sdn_name);
 				$last_name = strtolower(trim($explode1[0]));
 				$explode2 = explode(" ", trim($explode1[1]));
-				$first_name = strtolower(trim($explode2[0]));
+				// $first_name = strtolower(trim($explode2[0]));
 				// $middle_name = isset($explode2[1]) ? substr($explode1[1],strlen($first_name)+1) : "";
-				$con .= " AND (LOWER(`at`.`first_name`) LIKE '%$first_name%' AND LOWER(`at`.`last_name`) LIKE '%$last_name%' )";
+				foreach($explode2 AS $first_name){
+					$first_name = strtolower($first_name);
+					$firstNameSearch .= (empty($firstNameSearch)?"":" OR ")."(LOWER(`at`.`first_name`) LIKE '$first_name%')";	
+				}
+				
+				$con .= " AND (LOWER(`at`.`last_name`) LIKE '$last_name%' AND ($firstNameSearch) )";
 			} else {
 				$last_name = strtolower(trim($sdn_name));
 				$con .= " AND ( CONCAT(LOWER(`at`.`first_name`), ' ', LOWER(`at`.`last_name`)) LIKE '%$last_name%' )";

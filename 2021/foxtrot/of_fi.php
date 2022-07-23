@@ -4,11 +4,20 @@
     
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
-    
+    $return = 0;
     $instance = new ofac_fincen();
+
     //$report = $instance->select_fincen_scan_report();
     if(isset($_POST['import'])&& $_POST['import']=='OFAC Scan'){
-        $instance->OFAC_scan();
+        $return = $instance->OFAC_scan();
+        
+        if ($return===true){
+            header('location:'.CURRENT_PAGE.'?tab=tab_b&open=report');
+            exit;
+        } else {
+            header('location:'.CURRENT_PAGE.'?tab=tab_b');
+            exit;
+        }
     }
     else if(isset($_POST['import_fincen'])&& $_POST['import_fincen']=='FINCEN Scan'){
         

@@ -12,16 +12,16 @@ $ofac_main_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
 if($ofac_main_id >0)
 {
     $get_ofac_main_data = $instance->select_data_master_report($ofac_main_id);
-    $get_ofac_data = $instance->select_data_report($ofac_main_id);
+    $get_ofac_data = $instance->select_data_report($ofac_main_id, 1);
 }
 else
 {
     $get_ofac_main_data = $instance->select_data_master_report();
     $ofac_main_id = isset($get_ofac_main_data['id'])?$instance->re_db_input($get_ofac_main_data['id']):0;
-    $get_ofac_data = $instance->select_data_report($ofac_main_id);
+    $get_ofac_data = $instance->select_data_report($ofac_main_id, 1);
 }
 //print_r($get_ofac_data);exit;
-$file_date = isset($get_ofac_main_data['created_time'])?$instance->re_db_input(date('m/d/Y',strtotime($get_ofac_main_data['created_time']))):'00/00/0000';
+$file_date = isset($get_ofac_main_data['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_ofac_main_data['file_date']))):'00/00/0000';
 $total_matches = isset($get_ofac_main_data['total_match'])?$instance->re_db_input($get_ofac_main_data['total_match']):0;
 $total_scan = isset($get_ofac_main_data['total_scan'])?$instance->re_db_input($get_ofac_main_data['total_scan']):0;
 $total_records=0;
@@ -43,7 +43,7 @@ $total_records=0;
                 {
                     $html .='<td width="20%" align="left">'.$img.'</td>';
                 }
-                $html .='<td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">Concorde Investment Services</td>';
+                $html .='<td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">'.$get_company_name['company_name'].'</td>';
                 if(isset($system_company_name) && $system_company_name != '')
                 {
                     $html.='<td width="20%" style="font-size:10px;font-weight:bold;text-align:right;">'.$system_company_name.'</td>';
@@ -78,13 +78,13 @@ $total_records=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0" cellpadding="1" width="100%">
                 <tr style="background-color: #f1f1f1;">
-                    <td style="text-align:center;width:20%"><h5>SDN NAME</h5></td>
-                    <td style="text-align:center;width:10%"><h5>ID NO.</h5></td>
+                    <td style="text-align:left;width:20%"><h5>SDN NAME</h5></td>
+                    <td style="text-align:center;width:10%"><h5>SDN NO.</h5></td>
                     <td style="text-align:center;width:10%"><h5>PROGRAM</h5></td>
                     <td style="text-align:center;width:10%"><h5>CLIENT NO.</h5></td>
-                    <td style="text-align:center;width:20%"><h5>FOXTROT CLIENT NAME</h5></td>
+                    <td style="text-align:left;width:20%"><h5>FOXTROT CLIENT NAME</h5></td>
                     <td style="text-align:center;width:10%"><h5>REP NO.</h5></td>
-                    <td style="text-align:center;width:20%"><h5>REP NAME</h5></td>
+                    <td style="text-align:left;width:20%"><h5>REP NAME</h5></td>
                 </tr>';
                 if($get_ofac_data != array())
                 {
@@ -92,13 +92,13 @@ $total_records=0;
                     {
                         $total_records=$total_records+1;
                         $html.='<tr>
-                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['sdn_name'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['id_no'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['sdn_name'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['ent_num'].'</td>
                            <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['program'].'</td>
                            <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['client_id'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['client_name'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:center;">-</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:center;">-</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['client_name'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['broker_id'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['broker_name'].'</td>
                         </tr>';
                     }
                     $html.='<tr style="background-color: #f1f1f1;">
