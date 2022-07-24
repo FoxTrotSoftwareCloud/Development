@@ -27,7 +27,6 @@ $total_scan = isset($get_ofac_main_data['total_scan'])?$instance->re_db_input($g
 $total_records=0;
 ?>
 <?php
-
     // create new PDF document
     $pdf = new RRPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     // add a page
@@ -38,17 +37,17 @@ $total_records=0;
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
     $html='<table border="0" width="100%">
-                <tr>';
-                if(isset($system_logo) && $system_logo != '')
-                {
-                    $html .='<td width="20%" align="left">'.$img.'</td>';
-                }
-                $html .='<td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">'.$get_company_name['company_name'].'</td>';
-                if(isset($system_company_name) && $system_company_name != '')
-                {
-                    $html.='<td width="20%" style="font-size:10px;font-weight:bold;text-align:right;">'.$system_company_name.'</td>';
-                }
-                $html.='</tr>
+            <tr>';
+            if(isset($system_logo) && $system_logo != '')
+            {
+                $html .='<td width="20%" align="left">'.$img.'</td>';
+            }
+            $html .='<td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">'.$get_company_name['company_name'].'</td>';
+            if(isset($system_company_name) && $system_company_name != '')
+            {
+                $html.='<td width="20%" style="font-size:10px;font-weight:bold;text-align:right;">'.$system_company_name.'</td>';
+            }
+            $html.='</tr>
         </table>';
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(2);
@@ -57,7 +56,7 @@ $total_records=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0">
                 <tr>
-                    <td width="100%" style="font-size:14px;font-weight:bold;text-align:center;">SPECIALLY DESIGNATED NATIONALS CLIENT CHECK </td>
+                    <td width="100%" style="font-size:14px;font-weight:bold;text-align:center;">OFAC SPECIALLY DESIGNATED NATIONALS CLIENT CHECK </td>
                 </tr>
            </table>';
     $pdf->writeHTML($html, false, 0, false, 0);

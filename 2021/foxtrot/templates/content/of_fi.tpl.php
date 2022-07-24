@@ -44,6 +44,8 @@
                 	            <tbody>
                 	                <?php
                                         $count = 0;
+                                        if (!isset($return)) { $return = $instance->select_scan_file(); }
+
                                         foreach($return as $key=>$val){
                                             ?>
                                             <tr>
@@ -102,6 +104,8 @@
                     	            <tbody>
                     	                <?php
                                             $count = 0;
+                                            if (!isset($return_fincen)) { $return_fincen = $instance->select_fincen_scan_file(); }
+                                            
                                             foreach($return_fincen as $key=>$val){
                                         ?>
                                                 <tr>
@@ -136,8 +140,8 @@
                     <div class="modal-body" id="output_screen_content">Loading...</div>
         			
                     <div class="modal-footer" style="margin-bottom: 0px !important;">
-            			<a href="<?php echo SITE_URL;?>report_ofac_client_check.php?open=ofac_print&id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to Printer</a>
-                        <a href="<?php echo SITE_URL;?>report_ofac_client_check.php?id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to PDF</a>
+            			<a href="<?php echo SITE_URL;?>report_ofac_client_check.php?open=ofac_print&id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Print Preview</a>
+                        <!-- <a href="<?php echo SITE_URL;?>report_ofac_client_check.php?id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to PDF</a> -->
             		</div>
         		</div>
         	</div>
@@ -154,8 +158,8 @@
                     <div class="modal-body" id="fincen_output_screen_content">Loading...</div>
         			
                     <div class="modal-footer" style="margin-bottom: 0px !important;">
-            			<a href="<?php echo SITE_URL;?>report_fincen_client_check.php?open=fincen_print&id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to Printer</a>
-                        <a href="<?php echo SITE_URL;?>report_fincen_client_check.php?id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to PDF</a>
+            			<a href="<?php echo SITE_URL;?>report_fincen_client_check.php?open=fincen_print&id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Print Preview</a>
+                        <!-- <a href="<?php echo SITE_URL;?>report_fincen_client_check.php?id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to PDF</a> -->
             		</div>
         		</div>
         	</div>
@@ -213,7 +217,6 @@ $(document).ready(function(){
     };
     xmlhttp.open("GET", "ajax_ofacscan_view.php?id="+<?php echo $_GET['id']; ?>, true);
     xmlhttp.send();
-
 
     $('#ofac_Modal').modal({
     		show: true
