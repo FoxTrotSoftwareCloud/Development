@@ -3,7 +3,7 @@ class ofac_fincen extends db{
 
     public $errors = '';
     public $table = CLIENT_MASTER;
-    public $local_folder = DIR_FS.'import_files/OFAC_FinCEN/';
+    public $local_folder = DIR_FS.'import_files/ofac_fincen/';
 
 	//
     public function insert_update($data,$scan_data='',$matches=0){
@@ -271,11 +271,11 @@ class ofac_fincen extends db{
 	//-------------------------------------------------------------------------------- 
 	public function OFAC_scan(){
 		//-- 07/03/22 "name" key is populated, not "tmp_name"
-		// $filename = $_FILES["file"]["tmp_name"];
-		$filePathAndName = $this->local_folder."sdn.csv";
+		// $filePathAndName = $this->local_folder."sdn.csv";
+		$filePathAndName = $_FILES["file"]["tmp_name"];
 		$sdnData = array();
 		$get_array_data = array();
-
+		
 		if (file_exists($filePathAndName)){
 			$total_matches = 0;
 			$this->load_ofac_sdn_file($filePathAndName);
@@ -427,6 +427,8 @@ class ofac_fincen extends db{
 		if (!file_exists($filePathAndName)){
 			$fincenData = $this->select_fincen_data();
 			$loadData = (count($fincenData) ? 0 : 1);
+		} else {
+			$loadData = 1;
 		}
 		
 		if (file_exists($filePathAndName) OR !$loadData){
