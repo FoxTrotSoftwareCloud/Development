@@ -23,6 +23,7 @@ else
 }
 //print_r($get_ofac_data);exit;
 $file_date = isset($get_fincen_main_data['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_fincen_main_data['file_date']))):'00/00/0000';
+$scan_date = isset($get_fincen_main_data['created_time'])?$instance->re_db_input(date('m/d/Y h:i:s A',strtotime($get_fincen_main_data['created_time']))):'00/00/0000';
 $total_matches = isset($get_fincen_main_data['total_match'])?$instance->re_db_input($get_fincen_main_data['total_match']):0;
 $total_scan = isset($get_fincen_main_data['total_scan'])?$instance->re_db_input($get_fincen_main_data['total_scan']):0;
 $cl_first_name = '';
@@ -56,7 +57,7 @@ $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
             <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;">FinCEN SEARCH </td>
         </tr>
         <tr>
-            <td width="100%" colspan="3" style="font-size:12px;font-weight:bold;text-align:center;">File Date - <?php echo $file_date;?></td>
+            <td width="100%" colspan="3" style="font-size:12px;font-weight:bold;text-align:center;">File Date: <?php echo $file_date;?>, Scanned: <?php echo $scan_date;?></td>
         </tr>
 </table>
 <br />
@@ -325,7 +326,7 @@ if($get_fincen_data != array())
                                         <?php echo $citizenship; ?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:35%">
-                                        <?php echo date('m/d/Y',strtotime($val['open_date']));?>
+                                        <?php echo $dbins->isEmptyDate($val['open_date']) ? 'No Open Date' : date('m/d/Y',strtotime($val['open_date'])); ?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:30%">
                                         <?php echo $brokerName ?>
@@ -333,10 +334,10 @@ if($get_fincen_data != array())
                                 </tr>
                                 <tr>
                                     <td style="font-weight:normal;font-size:10px;text-align:left;width:35%">
-                                       <?php echo $telephone;?>
+                                        <?php echo $telephone;?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:35%">
-                                        <?php echo date('m/d/Y',strtotime($val['birth_date']));?>
+                                        <?php echo $dbins->isEmptyDate($val['birth_date']) ? 'No Birth Date' : date('m/d/Y',strtotime($val['birth_date'])); ?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:30%">
                                         

@@ -26,6 +26,7 @@ else
 }
 //print_r($get_ofac_data);exit;
 $file_date = isset($get_fincen_main_data['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_fincen_main_data['file_date']))):'00/00/0000';
+$scan_date = isset($get_fincen_main_data['created_time'])?$instance->re_db_input(date('m/d/Y h:i:s A',strtotime($get_fincen_main_data['created_time']))):'00/00/0000';
 $total_matches = isset($get_fincen_main_data['total_match'])?$instance->re_db_input($get_fincen_main_data['total_match']):0;
 $total_scan = isset($get_fincen_main_data['total_scan'])?$instance->re_db_input($get_fincen_main_data['total_scan']):0;
 $cl_first_name = '';
@@ -74,7 +75,7 @@ $total_records=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0">
                 <tr>
-                    <td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">File Date - '.$file_date.'</td>
+                    <td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">File Date: '.$file_date.', Scanned: '.$scan_date.'</td>
                 </tr>
             </table>';
     $pdf->writeHTML($html, false, 0, false, 0);
@@ -355,7 +356,7 @@ $total_records=0;
                                                '.$citizenship.'
                                             </td>
                                             <td style="font-size:8px;font-weight:normal;text-align:center;width:35%">
-                                                '.date('m/d/Y',strtotime($val['open_date'])).'
+                                                '.($dbins->isEmptyDate($val['open_date']) ? 'No Open Date' : date('m/d/Y',strtotime($val['open_date']))).'
                                             </td>
                                             <td style="font-size:8px;font-weight:normal;text-align:center;width:30%">
                                                 '.$brokerName.'
@@ -366,7 +367,7 @@ $total_records=0;
                                                '.$telephone.'
                                             </td>
                                             <td style="font-size:8px;font-weight:normal;text-align:center;width:35%">
-                                                '.date('m/d/Y',strtotime($val['birth_date'])).'
+                                                '.($dbins->isEmptyDate($val['birth_date']) ? "No Birth Date" : date('m/d/Y',strtotime($val['birth_date']))).'
                                             </td>
                                             <td style="font-size:8px;font-weight:normal;text-align:center;width:30%">
                                                 

@@ -135,7 +135,8 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                                 <label style="display: inline;">OFAC Check </label>
                                                                 <div id="demo-dp-range">
                                                                     <div class="input-daterange input-group" id="datepicker">
-                                                                        <input type="text" name="ofak_check" disabled="true" id="ofak_check" class="form-control" value="<?php echo $ofak_check; ?>"/>
+                                                                        <input type="text" name="ofac_check_display" disabled="true" id="ofac_check_display" class="form-control" value="<?php echo $ofac_check; ?>"/>
+                                                                        <input type="hidden" name="ofac_check" id="ofac_check" value="<?php echo $ofac_check; ?>"/>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -145,7 +146,8 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                                 <label style="display: inline;">FinCEN Check </label>
                                                                 <div id="demo-dp-range">
                                                                     <div class="input-daterange input-group" id="datepicker">
-                                                                        <input type="text" name="fincen_check" disabled="true" id="fincen_check" class="form-control" value="<?php echo $fincen_check; ?>"/>
+                                                                        <input type="text" name="fincen_check_display" disabled="true" id="fincen_check_display" class="form-control" value="<?php echo $fincen_check; ?>"/>
+                                                                        <input type="hidden" name="fincen_check" id="fincen_check" value="<?php echo $fincen_check; ?>"/>
                                                                     </div>
                                                                 </div>
                                                             </div>

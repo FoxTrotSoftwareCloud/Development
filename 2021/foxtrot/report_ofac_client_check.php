@@ -22,6 +22,7 @@ else
 }
 //print_r($get_ofac_data);exit;
 $file_date = isset($get_ofac_main_data['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_ofac_main_data['file_date']))):'00/00/0000';
+$created_date = isset($get_ofac_main_data['created_time'])?$instance->re_db_input(date('m/d/Y h:i:s A',strtotime($get_ofac_main_data['created_time']))):'00/00/0000';
 $total_matches = isset($get_ofac_main_data['total_match'])?$instance->re_db_input($get_ofac_main_data['total_match']):0;
 $total_scan = isset($get_ofac_main_data['total_scan'])?$instance->re_db_input($get_ofac_main_data['total_scan']):0;
 $total_records=0;
@@ -66,7 +67,7 @@ $total_records=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0">
                 <tr>
-                    <td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">File Date - '.$file_date.'</td>
+                    <td width="100%" style="font-size:12px;font-weight:bold;text-align:center;">File Date: '.$file_date.', Scanned: '.$created_date.'</td>
                 </tr>
             </table>';
     $pdf->writeHTML($html, false, 0, false, 0);
@@ -129,10 +130,12 @@ $total_records=0;
                    <td style="font-size:8px;font-weight:bold;text-align:right;width:14%">Total Matches:</td>
                    <td style="font-size:8px;font-weight:normal;text-align:left;width:14%">'.$total_matches.'</td>
                 </tr>
+                <!-- 07/25/22 No JOINT field in the Client database
                 <tr>
-                   <td style="font-size:8px;font-weight:bold;text-align:right;width:14%">*Foxtrot Client Name: </td>
-                   <td style="font-size:8px;font-weight:normal;text-align:Left;width:20%">Match found in joint name</td>
-                </tr>
+                  <td style="font-size:8px;font-weight:bold;text-align:right;width:14%">*Foxtrot Client Name: </td>
+                  <td style="font-size:8px;font-weight:normal;text-align:Left;width:20%">Match found in joint name</td>
+                </tr> 
+                -->
             </table>';
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(5);
