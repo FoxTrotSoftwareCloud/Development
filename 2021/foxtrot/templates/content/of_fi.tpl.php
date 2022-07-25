@@ -248,8 +248,6 @@ $(document).ready(function(){
        //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, ""); 
 });
 
-$("#tab_d").focus();
-
 </script>
 <?php } ?>
 
