@@ -2,6 +2,9 @@
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
 $instance = new ofac_fincen();
+$instance_client = new client_maintenance();
+$instance_broker = new broker_master();
+
 $get_fincen_data = array();
 $get_fincen_main_data = array();
 $total_records=0;
@@ -19,7 +22,7 @@ else
     $get_fincen_data = $instance->select_fincen_scan_report($fincen_main_id);
 }
 //print_r($get_ofac_data);exit;
-$file_date = isset($get_fincen_main_data['created_time'])?$instance->re_db_input(date('m/d/Y',strtotime($get_fincen_main_data['created_time']))):'00/00/0000';
+$file_date = isset($get_fincen_main_data['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_fincen_main_data['file_date']))):'00/00/0000';
 $total_matches = isset($get_fincen_main_data['total_match'])?$instance->re_db_input($get_fincen_main_data['total_match']):0;
 $total_scan = isset($get_fincen_main_data['total_scan'])?$instance->re_db_input($get_fincen_main_data['total_scan']):0;
 $cl_first_name = '';
@@ -41,7 +44,7 @@ $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
             {?>
                 <td width="20%" align="left"><?php echo $img;?></td>
             <?php } ?>
-            <td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">Successful Brokerage, Inc</td>
+            <td width="60%" style="font-size:12px;font-weight:bold;text-align:center;"><?php echo $get_company_name['company_name']; ?></td>
             <?php
             if(isset($system_company_name) && $system_company_name != '')
             {?>
@@ -131,12 +134,12 @@ $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
             </tr>
             <tr style="background-color: #f1f1f1;">
                 <td style="text-align:center;">
-                    <h5>CLIENT COUNTRY, PHONE</h5>
+                    <h5>CLIENT COUNTRY</h5>
                 </td>
             </tr>
             <tr style="background-color: #f1f1f1;">
                 <td style="text-align:center;">
-                    
+                    <h5>PHONE</h5>
                 </td>
             </tr>
             <tr style="background-color: #f1f1f1;">
@@ -211,60 +214,27 @@ $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
 if($get_fincen_data != array())
 {
     foreach($get_fincen_data as $key=>$val){
-       
-        $total_records=$total_records+1; 
-        if($val['first_name'] != '')
-        { 
-            $cl_first_name = $val['first_name'];
-        }
-        else{ 
-            $cl_first_name = '';
-        }
-        if($val['mi'] != '')
-        { 
-            $cl_middle_name = '-'.$val['mi'];
-        }
-        else{ 
-            $cl_middle_name = '';
-        }
-        if($val['last_name'] != '')
-        { 
-            $cl_last_name = ','.$val['last_name'];
-        }
-        else{ 
-            $cl_last_name = '';
-        }
+        $clientSelected = $instance_client->select_client_master($val['client_id']);
+        $cl_first_name = $cl_middle_name = $cl_last_name = $fincen_firstname = $fincen_miname = $fincen_lastname = $fincen_dob = '';
+        $brokerId = $brokerName = $citizenship = $telephone = "";
         
-        if($val['fincen_firstname'] != '')
-        { 
-            $fincen_firstname = $val['fincen_firstname'];
-        }
-        else{ 
-            $fincen_firstname = '';
-        }
-        if($val['fincen_miname'] != '')
-        { 
-            $fincen_miname = '-'.$val['fincen_miname'];
-        }
-        else{ 
-            $fincen_miname = '';
-        }
-        if($val['fincen_lastname'] != '')
-        { 
-            $fincen_lastname = ','.$val['fincen_lastname'];
-        }
-        else{ 
-            $fincen_lastname = '';
-        }
-        if($val['fincen_dob'] != '0000-00-00')
-        {
-            $fincen_dob = date('m/d/Y',strtotime($val['fincen_dob']));
-        }
-        else
-        {
-            $fincen_dob = '';
-        }?>
-            
+        $total_records=$total_records+1; 
+
+        if($val['first_name'] != ''){ $cl_first_name = $val['first_name']; }
+        if($val['mi'] != '') { $cl_middle_name = '-'.$val['mi']; }
+        if($val['last_name'] != '') { $cl_last_name = ','.$val['last_name'];}
+        if($val['fincen_firstname'] != '') { $fincen_firstname = $val['fincen_firstname']; }
+        if($val['fincen_miname'] != '') { $fincen_miname = '-'.$val['fincen_miname']; }
+        if($val['fincen_lastname'] != '') { $fincen_lastname = ','.$val['fincen_lastname']; }
+        if(!$dbins->isEmptyDate($val['fincen_dob'])){ $fincen_dob = date('m/d/Y',strtotime($val['fincen_dob'])); } 
+        // 07/24/22 Populate Misc Client & Broker Info
+        if ($clientSelected){
+            $brokerId = $clientSelected['broker_name'];
+            $brokerName = $instance_broker->get_broker_name($brokerId, 1);
+            $citizenship = $clientSelected['citizenship'];
+            $telephone = $dbins->format_phone_number($clientSelected['telephone']);
+        }   
+?>
         <tr>
             <td style="width:40%">
                 <table border="0" cellpadding="1" width="100%">
@@ -296,7 +266,7 @@ if($get_fincen_data != array())
                                 </tr>
                                 <tr>
                                     <td style="font-weight:normal;font-size:10px;text-align:left;width:60%">
-                                        
+                                        <?php echo $val['fincen_country']; ?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:40%">
                                         <?php echo $val['fincen_number_type']; ?>
@@ -304,7 +274,7 @@ if($get_fincen_data != array())
                                 </tr>
                                 <tr>
                                     <td style="font-weight:normal;font-size:10px;text-align:left;width:60%">
-                                        <?php echo $val['fincen_country'].' '.$val['fincen_phone']; ?>
+                                        <?php echo $val['fincen_phone']; ?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:40%">
                                         <?php echo $fincen_dob; ?>
@@ -341,29 +311,29 @@ if($get_fincen_data != array())
                                 </tr>
                                 <tr>
                                     <td style="font-weight:normal;font-size:10px;text-align:left;width:35%">
-                                       
+                                       <?php echo $val['address1'];?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:35%">
                                         <?php echo $val['client_ssn'];?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:30%">
-                                        -
+                                        <?php echo $brokerId ?>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="font-weight:normal;font-size:10px;text-align:left;width:35%">
-                                       <?php echo $val['address1'];?>
+                                        <?php echo $citizenship; ?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:35%">
                                         <?php echo date('m/d/Y',strtotime($val['open_date']));?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:30%">
-                                        
+                                        <?php echo $brokerName ?>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="font-weight:normal;font-size:10px;text-align:left;width:35%">
-                                       <?php echo $val['telephone'];?>
+                                       <?php echo $telephone;?>
                                     </td>
                                     <td style="font-weight:normal;font-size:10px;text-align:center;width:35%">
                                         <?php echo date('m/d/Y',strtotime($val['birth_date']));?>

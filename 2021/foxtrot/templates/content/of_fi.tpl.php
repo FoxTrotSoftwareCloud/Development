@@ -4,9 +4,9 @@
     <div class="col-lg-12 well">
         <ul class="nav nav-pills nav-stacked col-md-2">
           <!--<li class="<?php if(!isset($_GET['tab'])){echo "active";}else{ echo '';} ?>"><a href="#tab_a" data-toggle="pill">Connect &amp; Download OFAC</a></li>-->
-          <li class="<?php if(isset($_GET['tab']) && $_GET['tab']=="tab_b" || !isset($_GET['tab'])){ echo "active"; } ?>"><a href="#tab_b" data-toggle="pill">OFAC Download and Scan</a></li>
+          <li class="<?php if((isset($_GET['tab']) && $_GET['tab']=="tab_b" || !isset($_GET['tab'])) AND (!isset($_GET['open'])||$_GET['open']!='fincen_view')){ echo "active"; } ?>"><a href="#tab_b" data-toggle="pill">OFAC Download and Scan</a></li>
           <!--<li><a href="#tab_c" data-toggle="pill">Connect &amp; Download FINCEN</a></li>-->
-          <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="tab_d"){ echo "active"; } ?>"><a href="#tab_d" data-toggle="pill">FINCEN Download and Scan</a></li>
+          <li class="<?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_d") OR (isset($_GET['open'])&&$_GET['open']=='fincen_view')){ echo "active"; } ?>"><a href="#tab_d" data-toggle="pill">FINCEN Download and Scan</a></li>
         </ul>
         <div class="tab-content col-md-10">
                 <!--<div class="tab-pane <?php if(!isset($_GET['tab'])){echo "active";}else{ echo '';}?>" id="tab_a">
@@ -14,7 +14,7 @@
                 					<input type="button" name="connect" class="btn btn-warning btn-lg btn3d" onclick="openNewTab1();" value="Connect And Download" />
                         </div>
                 </div>-->
-                <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="tab_b" || !isset($_GET['tab'])){ echo "active"; } ?>" id="tab_b">
+                <div class="tab-pane <?php if( (isset($_GET['tab'])&&$_GET['tab']=="tab_b" || !isset($_GET['tab'])) && (!isset($_GET['open']) || $_GET['open']!='fincen_view')){ echo "active"; } ?>" id="tab_b">
                     <div class="selectwrap">
                         <div class="row">
                             <form method="post" enctype="multipart/form-data">
@@ -44,6 +44,8 @@
                 	            <tbody>
                 	                <?php
                                         $count = 0;
+                                        if (!isset($return)) { $return = $instance->select_scan_file(); }
+
                                         foreach($return as $key=>$val){
                                             ?>
                                             <tr>
@@ -71,7 +73,7 @@
                         </div>
                     </div>
                 </div>-->
-                <div class="tab-pane  <?php if(isset($_GET['tab'])&&$_GET['tab']=="tab_d"){ echo "active"; } ?>" id="tab_d">
+                <div class="tab-pane  <?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_d") OR (isset($_GET['open']) AND $_GET['open']=='fincen_view')){ echo "active"; } ?>" id="tab_d">
                     <div class="selectwrap">
                         <div class="selectwrap">
                             <div class="row">
@@ -102,6 +104,8 @@
                     	            <tbody>
                     	                <?php
                                             $count = 0;
+                                            if (!isset($return_fincen)) { $return_fincen = $instance->select_fincen_scan_file(); }
+                                            
                                             foreach($return_fincen as $key=>$val){
                                         ?>
                                                 <tr>
@@ -136,8 +140,8 @@
                     <div class="modal-body" id="output_screen_content">Loading...</div>
         			
                     <div class="modal-footer" style="margin-bottom: 0px !important;">
-            			<a href="<?php echo SITE_URL;?>report_ofac_client_check.php?open=ofac_print&id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to Printer</a>
-                        <a href="<?php echo SITE_URL;?>report_ofac_client_check.php?id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to PDF</a>
+            			<a href="<?php echo SITE_URL;?>report_ofac_client_check.php?open=ofac_print&id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Print Preview</a>
+                        <!-- <a href="<?php echo SITE_URL;?>report_ofac_client_check.php?id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to PDF</a> -->
             		</div>
         		</div>
         	</div>
@@ -154,8 +158,8 @@
                     <div class="modal-body" id="fincen_output_screen_content">Loading...</div>
         			
                     <div class="modal-footer" style="margin-bottom: 0px !important;">
-            			<a href="<?php echo SITE_URL;?>report_fincen_client_check.php?open=fincen_print&id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to Printer</a>
-                        <a href="<?php echo SITE_URL;?>report_fincen_client_check.php?id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to PDF</a>
+            			<a href="<?php echo SITE_URL;?>report_fincen_client_check.php?open=fincen_print&id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Print Preview</a>
+                        <!-- <a href="<?php echo SITE_URL;?>report_fincen_client_check.php?id=<?php if(isset($_GET['id']) && $_GET['id'] != ''){ echo $_GET['id']; }else{ echo '0';}?> " class="btn btn-warning">Output to PDF</a> -->
             		</div>
         		</div>
         	</div>
@@ -214,7 +218,6 @@ $(document).ready(function(){
     xmlhttp.open("GET", "ajax_ofacscan_view.php?id="+<?php echo $_GET['id']; ?>, true);
     xmlhttp.send();
 
-
     $('#ofac_Modal').modal({
     		show: true
     	});
@@ -247,6 +250,7 @@ $(document).ready(function(){
 
 </script>
 <?php } ?>
+
 <script type="text/javascript">
 var waitingDialog = waitingDialog || (function ($) {
     'use strict';
@@ -321,4 +325,5 @@ var win=window.open('https://www.fincen.gov/314a/Login');
    win.location.reload();
    win.focus();
 };
+
 </script>

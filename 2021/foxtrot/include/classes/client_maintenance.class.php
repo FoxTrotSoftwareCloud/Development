@@ -8,7 +8,9 @@
 		 * @param int $clientId, default all
 		 * @return
 		 * */
-		public function select_client_master($clientId) {
+		public function select_client_master($clientId=0) {
+			$clientId = (int)$this->re_db_input($clientId);
+			
 			$q = "SELECT `cm`.*
 					FROM `" . $this->table . "` AS `cm`
                     WHERE `cm`.`is_delete`='0' AND `cm`.`id`=$clientId

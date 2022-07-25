@@ -78,10 +78,12 @@
     define('RULE_ACTION_MASTER','ft_rules_action');
     define('RULE_DETAILS','ft_rules_details');
     define('BROKER_DOCUMENT_MASTER','ft_broker_document_master');
+    define('OFAC_SDN_DATA','ft_ofac_sdn_data');
     define('OFAC_CHECK_DATA','ft_ofac_check_data_detail');
     define('OFAC_CHECK_DATA_MASTER','ft_ofac_check_data_master');
     define('FINCEN_CHECK_DATA_MASTER','ft_fincen_check_data_master');
     define('FINCEN_CHECK_DATA','ft_fincen_check_data_detail');
+    define('FINCEN_DATA','ft_fincen_data');
     define('IMPORT_FTP_MASTER','ft_import_ftp_master');
     define('IMPORT_CURRENT_FILES','ft_import_current_files');
     define('TRANSACTION_TRADE_SPLITS','ft_transaction_trade_splits');

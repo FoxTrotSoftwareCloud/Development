@@ -617,6 +617,20 @@ class db
     		return 1;
     	}
     }
+    // 07/24/22 Format the #'s from the tables into US Format - (###)###-####
+    public function format_phone_number($phoneNumber='')
+    {
+        $phoneNumber = $this->re_db_input($phoneNumber);
+        $return = $phoneNumber;
+        
+        if ($this->is_phone_number($phoneNumber)){
+            return $return;
+        } else if (strlen($phoneNumber)===10){
+            $return = "(".substr($phoneNumber,0,3).") ".substr($phoneNumber,3,3)."-".substr($phoneNumber,6);            
+        }
+        
+        return $return;
+    }
 
     public function get_single_value($field,$tabel,$where)
     {

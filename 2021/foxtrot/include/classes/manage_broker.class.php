@@ -33,10 +33,11 @@
 		 * */
 		public function select_broker_by_id($brokerId)
     {
-			$q = "SELECT `fbg`.*
-					FROM `" . $this->table . "` AS `fbg`
-                    WHERE `fbg`.`is_delete`='0' AND `fbg`.`id`=$brokerId
-                    ORDER BY `fbg`.`id` ASC";
+			$q = "SELECT `fbg`.*"
+					  ." FROM `" . $this->table . "` AS `fbg`"
+            ." WHERE `fbg`.`is_delete`=0"
+            ." AND `fbg`.`id`=$brokerId"
+            ." ORDER BY `fbg`.`id` ASC";
 			$res = $this->re_db_query($q);
       if($this->re_db_num_rows($res)>0)
       {
@@ -65,8 +66,7 @@
 
       return array();
 		}
-
-        /** 12/21/21 Select by the Alias/Appt # added for import.class.php broker validation
+    /** 12/21/21 Select by the Alias/Appt # added for import.class.php broker validation
 		 * @param string $alias, default blank
      * @param int $sponsorCompany ID
 		 * @return array()
@@ -2389,28 +2389,30 @@
       $con = '';
       
       if ($nameOnly){
-        $q = "SELECT `at`.`first_name`, `at`.`last_name`"
-              ." FROM `".BROKER_MASTER."` AS `at`"
-              ." WHERE `at`.`is_delete`='0'"
-              ." AND `at`.`id`=$id"
-        ;
-        $res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-          $con = $this->re_db_fetch_array($res);
-          $return = strtoupper($con['last_name'].((empty($con['last_name']) OR empty($con['first_name'])) ? '' : ', ').$con['first_name']);
-        } else {
-          $return = "Broker #$id";
-        }
+          $q = "SELECT `at`.`first_name`, `at`.`last_name`"
+                ." FROM `".BROKER_MASTER."` AS `at`"
+                ." WHERE `at`.`is_delete`='0'"
+                ." AND `at`.`id`=$id"
+          ;
+          $res = $this->re_db_query($q);
+          
+          if($this->re_db_num_rows($res)>0){
+              $con = $this->re_db_fetch_array($res);
+              $return = strtoupper($con['last_name'].((empty($con['last_name']) OR empty($con['first_name'])) ? '' : ', ').$con['first_name']);
+          } else {
+              $return = "Broker #$id";
+          }
       } else {
-        $q = "SELECT `at`.first_name as broker_name"
-              ." FROM `".BROKER_MASTER."` AS `at`"
-              ." WHERE `at`.`is_delete`='0'"
-              ." AND `at`.`id`=$id"
-        ;
-        $res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-          $return = $this->re_db_fetch_array($res);
-        }
+          $q = "SELECT `at`.first_name as broker_name"
+                ." FROM `".BROKER_MASTER."` AS `at`"
+                ." WHERE `at`.`is_delete`='0'"
+                ." AND `at`.`id`=$id"
+          ;
+          $res = $this->re_db_query($q);
+          
+          if($this->re_db_num_rows($res)>0){
+            $return = $this->re_db_fetch_array($res);
+          }
       }
 			return $return;
 		}
