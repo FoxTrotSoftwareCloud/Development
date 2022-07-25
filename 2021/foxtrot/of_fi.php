@@ -12,9 +12,11 @@
         $return = $instance->OFAC_scan();
         
         if ($return===true){
+			$_SESSION['success'] = INSERT_MESSAGE;
             header('location:'.CURRENT_PAGE.'?tab=tab_b&open=report');
             exit;
         } else {
+            $_SESSION['warning'] = UNKWON_ERROR;
             header('location:'.CURRENT_PAGE.'?tab=tab_b');
             exit;
         }
@@ -24,9 +26,11 @@
         $return = $instance->fincen_scan();
                         
         if($return===true){
+            $_SESSION['success'] = INSERT_MESSAGE;
             header('location:'.CURRENT_PAGE.'?tab=tab_d&open=report_fincen');
             exit;
         } else {
+            $_SESSION['warning'] = UNKWON_ERROR;
             $error = !isset($_SESSION['warning']) ? $return : '';
             header('location:'.CURRENT_PAGE.'?tab=tab_d');
             exit;

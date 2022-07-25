@@ -4,9 +4,9 @@
     <div class="col-lg-12 well">
         <ul class="nav nav-pills nav-stacked col-md-2">
           <!--<li class="<?php if(!isset($_GET['tab'])){echo "active";}else{ echo '';} ?>"><a href="#tab_a" data-toggle="pill">Connect &amp; Download OFAC</a></li>-->
-          <li class="<?php if(isset($_GET['tab']) && $_GET['tab']=="tab_b" || !isset($_GET['tab'])){ echo "active"; } ?>"><a href="#tab_b" data-toggle="pill">OFAC Download and Scan</a></li>
+          <li class="<?php if((isset($_GET['tab']) && $_GET['tab']=="tab_b" || !isset($_GET['tab'])) AND (!isset($_GET['open'])||$_GET['open']!='fincen_view')){ echo "active"; } ?>"><a href="#tab_b" data-toggle="pill">OFAC Download and Scan</a></li>
           <!--<li><a href="#tab_c" data-toggle="pill">Connect &amp; Download FINCEN</a></li>-->
-          <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="tab_d"){ echo "active"; } ?>"><a href="#tab_d" data-toggle="pill">FINCEN Download and Scan</a></li>
+          <li class="<?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_d") OR (isset($_GET['open'])&&$_GET['open']=='fincen_view')){ echo "active"; } ?>"><a href="#tab_d" data-toggle="pill">FINCEN Download and Scan</a></li>
         </ul>
         <div class="tab-content col-md-10">
                 <!--<div class="tab-pane <?php if(!isset($_GET['tab'])){echo "active";}else{ echo '';}?>" id="tab_a">
@@ -14,7 +14,7 @@
                 					<input type="button" name="connect" class="btn btn-warning btn-lg btn3d" onclick="openNewTab1();" value="Connect And Download" />
                         </div>
                 </div>-->
-                <div class="tab-pane <?php if(isset($_GET['tab'])&&$_GET['tab']=="tab_b" || !isset($_GET['tab'])){ echo "active"; } ?>" id="tab_b">
+                <div class="tab-pane <?php if( (isset($_GET['tab'])&&$_GET['tab']=="tab_b" || !isset($_GET['tab'])) && (!isset($_GET['open']) || $_GET['open']!='fincen_view')){ echo "active"; } ?>" id="tab_b">
                     <div class="selectwrap">
                         <div class="row">
                             <form method="post" enctype="multipart/form-data">
@@ -73,7 +73,7 @@
                         </div>
                     </div>
                 </div>-->
-                <div class="tab-pane  <?php if(isset($_GET['tab'])&&$_GET['tab']=="tab_d"){ echo "active"; } ?>" id="tab_d">
+                <div class="tab-pane  <?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_d") OR (isset($_GET['open']) AND $_GET['open']=='fincen_view')){ echo "active"; } ?>" id="tab_d">
                     <div class="selectwrap">
                         <div class="selectwrap">
                             <div class="row">
@@ -248,8 +248,11 @@ $(document).ready(function(){
        //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, ""); 
 });
 
+$("#tab_d").focus();
+
 </script>
 <?php } ?>
+
 <script type="text/javascript">
 var waitingDialog = waitingDialog || (function ($) {
     'use strict';

@@ -161,65 +161,6 @@ class ofac_fincen extends db{
 		}
 		return $return;
 	}
-	public function get_fincen_data($fincen_lname = '',$fincen_fname = ''){
-		$return = array();
-
-		$con = '';
-
-		if($fincen_lname != '')
-		{
-			$con .= " and `at`.`last_name` LIKE '%$fincen_lname%'";
-		}
-		if($fincen_fname != '')
-		{
-			$con .= " and `at`.`first_name` LIKE '%$fincen_fname%' ";
-		}
-
-		$q = "SELECT `at`.*"
-				." FROM `".$this->table."` AS `at`"
-				." WHERE `at`.`is_delete`=0"
-					.$con
-		;
-		$res = $this->re_db_query($q);
-
-		if($this->re_db_num_rows($res)>0){
-			$return = $this->re_db_fetch_all($res);
-		}
-
-		return $return;
-	}
-	public function insert_update_fincen($data, $last_inserted_id=0){
-		foreach($data as $key=>$val)
-		{
-			$fincen_tracking_no = isset($val[0]['fincen_tracking_no'])?$this->re_db_input($val[0]['fincen_tracking_no']):0;
-			$fincen_firstname = isset($val[0]['fincen_firstname'])?$this->re_db_input($val[0]['fincen_firstname']):'';
-			$fincen_miname = isset($val[0]['fincen_miname'])?$this->re_db_input($val[0]['fincen_miname']):'';
-			$fincen_lastname = isset($val[0]['fincen_lastname'])?$this->re_db_input($val[0]['fincen_lastname']):'';
-			$fincen_address = isset($val[0]['fincen_address'])?$this->re_db_input($val[0]['fincen_address']):'';
-			$fincen_country = isset($val[0]['fincen_country'])?$this->re_db_input($val[0]['fincen_country']):'';
-			$fincen_phone = isset($val[0]['fincen_phone'])?$this->re_db_input($val[0]['fincen_phone']):'';
-			$fincen_keyno = isset($val[0]['fincen_keyno'])?$this->re_db_input($val[0]['fincen_keyno']):'';
-			$fincen_no_type = isset($val[0]['fincen_no_type'])?$this->re_db_input($val[0]['fincen_no_type']):'';
-			$fincen_dob = isset($val[0]['fincen_dob']) && $val[0]['fincen_dob'] != ''?$this->re_db_input(date('Y-m-d',strtotime($val[0]['fincen_dob']))):'0000-00-00';
-			$client_id = isset($val['id'])?$this->re_db_input($val['id']):0;
-
-			if($fincen_tracking_no>0)
-			{
-				$q = "INSERT INTO `".FINCEN_CHECK_DATA."` SET `fincen_scan_id`='".$last_inserted_id."',`fincen_tracking_no`='".$fincen_tracking_no."',`fincen_firstname`='".$fincen_firstname."',`fincen_miname`='".$fincen_miname."',`fincen_lastname`='".$fincen_lastname."',`fincen_address`='".$fincen_address."',`fincen_country`='".$fincen_country."',`fincen_phone`='".$fincen_phone."',`fincen_number`='".$fincen_keyno."',`fincen_number_type`='".$fincen_no_type."',`fincen_dob`='".$fincen_dob."',`client_id`='".$client_id."'".$this->insert_common_sql();
-				$res = $this->re_db_query($q);
-			}
-		}
-
-		if($res){
-			$_SESSION['success'] = INSERT_MESSAGE;
-			return true;
-		}
-		else{
-			$_SESSION['warning'] = UNKWON_ERROR;
-			return false;
-		}
-
-	}
 	public function delete_fincen($id, $status=0){
 		$id = trim($this->re_db_input($id));
 		
@@ -470,15 +411,16 @@ class ofac_fincen extends db{
 	// 07/23/22 Cycle through SDN Table records (OFAC SDN DATA) and find matches in CLIENT MASTER
 	//-------------------------------------------------------------------------------- 
 	public function fincen_scan(){
-		//----- TEST TO SKIP THE UPLOAD SECTION ----- 07/23/22 10:00 PM --------//
-			// $filePathAndName = $_FILES["file_fincen"]["tmp_name"];
-		$fincenFileName = "090921 - FinCen Persons List.csv";
-		$filePathAndName = $this->local_folder."/fincen/".$fincenFileName;
-		$loadData = 0;
-		//----- TEST TO SKIP THE UPLOAD SECTION ----- 07/23/22 10:00 PM --------//
-		
 		$fincenData = $checkName = $get_array_data = [];
-		$total_matches = $total_scan = $q = $res = $last_inserted_id = $return = 0;
+		$total_matches = $total_scan = $q = $res = $last_inserted_id = $return = $loadData = 0;
+		$file_date = $import_date = "";
+		
+		$filePathAndName = $_FILES["file_fincen"]["tmp_name"];
+
+		if (!file_exists($filePathAndName)){
+			$fincenData = $this->select_fincen_data();
+			$loadData = (count($fincenData) ? 0 : 1);
+		}
 		
 		if (file_exists($filePathAndName) OR !$loadData){
 			// Load the FinCEN Data table
@@ -489,22 +431,33 @@ class ofac_fincen extends db{
 			//-- Cycle through SDN Data table records
 			$fincenData = $this->select_fincen_data();
 			$total_scan = count($fincenData);
-				
+			$file_date = $total_scan ? $fincenData[0]['file_date'] : "";
+			$import_date = $total_scan ? $fincenData[0]['import_date'] : "";
+			
 			// Master table update
-            $q = "INSERT INTO `".FINCEN_CHECK_DATA_MASTER."` SET `total_scan`=$total_scan, `total_match`=$total_matches".$this->insert_common_sql();
+            $q = "INSERT INTO `".FINCEN_CHECK_DATA_MASTER."`"
+					." SET `total_scan`=$total_scan"
+						.",`total_match`=$total_matches"
+						.",`import_date`='$import_date'"
+						.",`file_date`='$file_date'"
+						.$this->insert_common_sql()
+			;
 			$res = $this->re_db_query($q);
 			$last_inserted_id = $this->re_db_insert_id();
 			
 			foreach($fincenData as $key=>$val)
 			{
-                $checkName=$this->get_fincen_data($val['last_name'],$val['first_name']);
+                $checkName = $this->check_name_fincen($val['last_name'], $val['first_name'], $val['alias_last_name'], $val['alias_first_name']);
 					
                 if(is_array($checkName) && count($checkName)>0){
                     $total_matches += count($checkName);
                     $get_array_data[] = ['scan_data'=>$val, 'client_matches'=>$checkName];
                 }
                 
-                $q = "UPDATE `".FINCEN_DATA."` SET `master_id`=$last_inserted_id, `last_scan`=NOW() WHERE `id`={$val['id']}";
+                $q = "UPDATE `".FINCEN_DATA."`"
+						." SET `master_id`=$last_inserted_id, `last_scan`=NOW()"
+						." WHERE `id`={$val['id']}"
+				;
                 $res = $this->re_db_query($q);
 			}
 
@@ -596,6 +549,78 @@ class ofac_fincen extends db{
 			$return = $this->re_db_fetch_all($res);
 		}
 		
+		return $return;
+	}
+	public function insert_update_fincen($masterData=[], $last_inserted_id=0){
+		$res = 0;
+		
+		foreach($masterData as $masterRow){
+			$fincen_tracking_no = isset($masterRow['scan_data']['tracking_number'])?$this->re_db_input($masterRow['scan_data']['tracking_number']):0;
+			$fincen_firstname = isset($masterRow['scan_data']['first_name'])?$this->re_db_input($masterRow['scan_data']['first_name']):'';
+			$fincen_miname = isset($masterRow['scan_data']['middle_name'])?$this->re_db_input($masterRow['scan_data']['middle_name']):'';
+			$fincen_lastname = isset($masterRow['scan_data']['last_name'])?$this->re_db_input($masterRow['scan_data']['last_name']):'';
+			$fincen_address = isset($masterRow['scan_data']['street'])?$this->re_db_input($masterRow['scan_data']['street']):'';
+			$fincen_country = isset($masterRow['scan_data']['country'])?$this->re_db_input($masterRow['scan_data']['country']):'';
+			$fincen_phone = isset($masterRow['scan_data']['phone'])?$this->re_db_input($masterRow['scan_data']['phone']):'';
+			$fincen_number = isset($masterRow['scan_data']['number'])?$this->re_db_input($masterRow['scan_data']['number']):'';
+			$fincen_number_type = isset($masterRow['scan_data']['number_type'])?$this->re_db_input($masterRow['scan_data']['number_type']):'';
+			$fincen_dob = isset($masterRow['scan_data']['dob']) && $masterRow['scan_data']['dob'] != ''?$this->re_db_input(date('Y-m-d',strtotime($masterRow['scan_data']['dob']))):'0000-00-00';
+			
+			foreach($masterRow['client_matches'] AS $clientRow){
+				$client_id = isset($clientRow['id']) ? $this->re_db_input($clientRow['id']) : 0;
+
+				if($fincen_tracking_no>0){
+					$q = "INSERT INTO `".FINCEN_CHECK_DATA."`"
+							." SET `fincen_scan_id`=$last_inserted_id"
+								.",`fincen_tracking_no`=$fincen_tracking_no"
+								.",`fincen_firstname`='".$fincen_firstname."'"
+								.",`fincen_miname`='".$fincen_miname."'"
+								.",`fincen_lastname`='".$fincen_lastname."'"
+								.",`fincen_address`='".$fincen_address."'"
+								.",`fincen_country`='".$fincen_country."'"
+								.",`fincen_phone`='".$fincen_phone."'"
+								.",`fincen_number`='".$fincen_number."'"
+								.",`fincen_number_type`='".$fincen_number_type."'"
+								.",`fincen_dob`='".$fincen_dob."'"
+								.",`client_id`='".$client_id."'"
+								.$this->insert_common_sql()
+					;
+					$res = $this->re_db_query($q);
+				}
+			}
+		}
+
+		if($res){
+			return true;
+		}
+		else{
+			return false;
+		}
+
+	}
+	function check_name_fincen($fincen_lname = '',$fincen_fname = '', $alias_lname='', $alias_fname=''){
+		$return = array();
+		// 07/24/22 Check the "alias_?" fields as well
+		$con = $conAlias = '';
+		
+		$con = " AND (`at`.`last_name` LIKE '%$fincen_lname%' AND `at`.`first_name` LIKE '%$fincen_fname%')";
+		// 07/24/22 Add "alias" search
+		if ($alias_lname!='' AND $alias_fname!=''){
+			$aliasQuery = "(`at`.`last_name` LIKE '%$alias_lname%' AND `at`.`first_name` LIKE '%$alias_fname%')";
+			$con = empty($con) ? " AND ".$aliasQuery : " AND (".substr($con,5)." OR ".$aliasQuery.")";
+		}
+
+		$q = "SELECT `at`.*"
+				." FROM `".$this->table."` AS `at`"
+				." WHERE `at`.`is_delete`=0"
+					.$con
+		;
+		$res = $this->re_db_query($q);
+
+		if($this->re_db_num_rows($res)>0){
+			$return = $this->re_db_fetch_all($res);
+		}
+
 		return $return;
 	}
 
