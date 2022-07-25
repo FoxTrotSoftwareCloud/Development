@@ -21,7 +21,7 @@
                                 <center>
                                 <input type="button" name="connect" class="btn btn-warning btn-lg btn3d" onclick="openNewTab1();" value="Connect And Download" />
                                 <input type="file" name="file" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
-            					<input type="submit" name="import" class="btn btn-warning btn-lg btn3d" value="OFAC Scan"/></center>
+            					<input type="submit" name="import" class="btn btn-warning btn-lg btn3d" value="OFAC Scan" onclick="waitingDialog.show('Scanning OFAC file. Please wait. . .')" /></center>
                             </form>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                                     <center>
                                     <input type="button" name="connect" class="btn btn-warning btn-lg btn3d" onclick="openNewTab2();" value="Connect And Download"/>
                                     <input type="file" name="file_fincen" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
-                					<input type="submit" name="import_fincen" class="btn btn-warning btn-lg btn3d" value="FINCEN Scan"/></center>
+                					<input type="submit" name="import_fincen" class="btn btn-warning btn-lg btn3d" value="FINCEN Scan" onclick="waitingDialog.show('Scanning FinCEN file. Please wait. . .')"/></center>
                                 </form>
                             </div>
                         </div>

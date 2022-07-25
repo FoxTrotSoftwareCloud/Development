@@ -299,6 +299,13 @@ class ofac_fincen extends db{
 				}
 			}
 			$total_scan = isset($sdnData)?$this->re_db_input(count($sdnData)):0;
+			// Update Master table
+			$q = "UPDATE `".$this->table."`"
+				." SET `ofac_check`='".date('m/d/Y h:i:s A')."'"
+					.$this->update_common_sql()
+				." WHERE `is_delete` = 0"
+			;
+			$res = $this->re_db_query($q);
 
 			if($get_array_data != array())
 			{
@@ -466,6 +473,13 @@ class ofac_fincen extends db{
 				." SET `total_match`=$total_matches"
 					.$this->update_common_sql()
 				." WHERE `id` = $last_inserted_id"
+			;
+			$res = $this->re_db_query($q);
+
+            $q = "UPDATE `".$this->table."`"
+				." SET `fincen_check`='".date('m/d/Y h:i:s A')."'"
+					.$this->update_common_sql()
+				." WHERE `is_delete` = 0"
 			;
 			$res = $this->re_db_query($q);
 

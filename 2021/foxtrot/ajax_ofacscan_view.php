@@ -19,6 +19,7 @@ else
 }
 //print_r($get_ofac_data);exit;
 $file_date = isset($get_ofac_main_data['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_ofac_main_data['file_date']))):'00/00/0000';
+$created_date = isset($get_ofac_main_data['created_time'])?$instance->re_db_input(date('m/d/Y h:i:s A',strtotime($get_ofac_main_data['created_time']))):'00/00/0000';
 $total_matches = isset($get_ofac_main_data['total_match'])?$instance->re_db_input($get_ofac_main_data['total_match']):0;
 $total_scan = isset($get_ofac_main_data['total_scan'])?$instance->re_db_input($get_ofac_main_data['total_scan']):0;
 $count=0;
@@ -50,7 +51,7 @@ $total_records=0;
             <td width="100%" colspan="3" style="font-size:14px;font-weight:bold;text-align:center;">OFAC SPECIALLY DESIGNATED NATIONALS CLIENT CHECK </td>
         </tr>
         <tr>
-            <td width="100%" colspan="3" style="font-size:12px;font-weight:bold;text-align:center;">File Date - <?php echo $file_date;?></td>
+            <td width="100%" colspan="3" style="font-size:12px;font-weight:bold;text-align:center;">File Date: <?php echo $file_date;?>, Scanned: <?php echo $created_date;?><?php ?></td>
         </tr>
 </table>
 <br />

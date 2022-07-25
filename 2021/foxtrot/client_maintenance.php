@@ -30,7 +30,7 @@
     $state = '';
     $zip_code = '';
     $age = '';
-    $ofak_check = '';
+    $ofac_check = '';
     $fincen_check = '';
     $telephone = '';
     $citizenship = '';
@@ -157,7 +157,7 @@
         $state = isset($_POST['state'])?$instance->re_db_input($_POST['state']):'';
         $zip_code = isset($_POST['zip_code'])?$instance->re_db_input($_POST['zip_code']):'';
         $age = isset($_POST['age'])?$instance->re_db_input($_POST['age']):'';
-        $ofak_check = isset($_POST['ofak_check'])?$instance->re_db_input($_POST['ofak_check']):'';
+        $ofac_check = isset($_POST['ofac_check'])?$instance->re_db_input($_POST['ofac_check']):'';
         $fincen_check = isset($_POST['fincen_check'])?$instance->re_db_input($_POST['fincen_check']):'';
         $telephone = isset($_POST['telephone'])?$instance->re_db_input($_POST['telephone']):'';
         $citizenship = isset($_POST['citizenship'])?$instance->re_db_input($_POST['citizenship']):'';
