@@ -309,27 +309,24 @@ class webcrd extends db{
 		$setFields = "";
 		$recsLoaded = 0;
 
-		// Clear out the data
-		$q = "DELETE FROM `".OFAC_SDN_DATA."` WHERE `id` > 0";
-		$res = $this->re_db_query($q);
-		$q = "ALTER TABLE `".OFAC_SDN_DATA."` AUTO_INCREMENT = 1";
-		$res = $this->re_db_query($q);
-
 		// Populate the Data Table
 		if ($fileStream){
+            // Clear out the data
+            $q = "DELETE FROM `".WEBCRD_CE_DOWNLOAD_DATA."` WHERE `id` > 0";
+            $res = $this->re_db_query($q);
+            $q = "ALTER TABLE `".WEBCRD_CE_DOWNLOAD_DATA."` AUTO_INCREMENT = 1";
+            $res = $this->re_db_query($q);
+
 			while (($getData = fgetcsv($fileStream, 10000, ",")) !== FALSE) {
-				// "ent_num" has to be populated for valid OFAC/SDN record
 				if ((int)$getData[0] > 0){
 					$setFields = "";
 					
 					foreach ($fileFields AS $key=>$value){
-						if (substr($value,0,2)!="x-"){
-							$sdnValue = $this->re_db_input($getData[$key]);
-							$setFields .= (empty($setFields)?"":", ")."`$value` = '$sdnValue'";
-						}
+                        $fileValue = $this->re_db_input($getData[$key]);
+                        $setFields .= (empty($setFields)?"":", ")."`$value` = '$fileValue'";
 					}
 
-					$q = "INSERT INTO `".OFAC_SDN_DATA."`"
+					$q = "INSERT INTO `".WEBCRD_CE_DOWNLOAD_DATA."`"
 							." SET "
 								.$setFields 
 								.",file_date = '".date("Y-m-d H:i:s", filectime($fileName))."'"
