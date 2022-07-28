@@ -31,4 +31,5 @@
     include_once(DIR_FS_CLASSES."client_review.class.php");
     include_once(DIR_FS_CLASSES."payroll_calculation.class.php");
     include_once(DIR_FS_CLASSES."import_generic.class.php");
+    include_once(DIR_FS_CLASSES."webcrd.class.php");
 ?>

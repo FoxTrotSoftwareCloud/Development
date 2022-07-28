@@ -123,5 +123,7 @@
     define('PAYROLL_OVERRIDE_RATES','ft_payroll_override_rates');
     define('PAYROLL_ADJUSTMENTS_CURRENT','ft_payroll_adjustments_current');
     define('PAYROLL_CURRENT_PAYROLL','ft_payroll_current_payroll');
+    define('WEBCRD_MASTER','ft_webcrd_master');
+    define('WEBCRD_CE_DOWNLOAD_DATA','ft_webcrd_ce_download_data');
 
 ?>
