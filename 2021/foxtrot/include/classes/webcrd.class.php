@@ -241,22 +241,21 @@ class webcrd extends db{
 		return $return;
 	}
 	// 07/21/22 Added for the OFAC scan routine - load sdn.csv into OFAC SDN DATA table
-	public function select_ofac_sdn_data($id=0, $ent_num=0){
+	public function select_ce_download_data($id=0, $individual_crd_no=''){
 		$id = (int)$this->re_db_input($id);
-		$id = (int)$this->re_db_input($ent_num);
+		$individual_crd_no = $this->re_db_input($individual_crd_no);
 		$return = [];
 		$con = "";
 		
 		if ($id > 0) { $con .= " AND `at`.`id` = $id"; }
-		if ($ent_num > 0) { $con .= " AND `at`.`ent_num` = $ent_num"; }
+		if ($individual_crd_no != '') { $con .= " AND `at`.`individual_crd_no` = '$individual_crd_no'"; }
 		
 		$q = "SELECT `at`.*"
-				." FROM `".OFAC_SDN_DATA."` `at`"
+				." FROM `".WEBCRD_CE_DOWNLOAD_DATA."` `at`"
 				." WHERE `at`.`id` > 0"
 					.$con
 				." ORDER BY `at`.`id`"
 		;
-		
 		$res = $this->re_db_query($q);
 		
 		if($this->re_db_num_rows($res)>0){
@@ -266,7 +265,7 @@ class webcrd extends db{
 		return $return;
 	}
 	//-------------------------------------------------------------------------------- 
-	// OFAC Scan
+	// CE Download - Basic Rep Info + CE Status
 	// 07/03/22 Cycle through SDN Table records (OFAC SDN DATA) and find matches in CLIENT MASTER
 	//-------------------------------------------------------------------------------- 
 	public function ce_download_scan(){
@@ -280,7 +279,8 @@ class webcrd extends db{
 			// Cycle through SDN Data table records
 			$fileData = $this->select_ce_download_data();
 			
-			foreach($fileData as $key=>$val) {
+			foreach($fileData as $key=>$row) {
+				$broker_id = $this->check_ce_download($row);
 			}
 			$total_scan = isset($fileData)?$this->re_db_input(count($fileData)):0;
 
@@ -302,10 +302,10 @@ class webcrd extends db{
 	}
 	
 	function load_ce_download_file($filePathAndName=''){
-		$fileName = $filePathAndName!='' ? $this->re_db_input($filePathAndName) : $this->local_folder."sdn.csv";
+		$fileName = $filePathAndName!='' ? $this->re_db_input($filePathAndName) : $this->local_folder."6.30.22_CE_download.csv";
 		$fileStream = fopen($fileName, 'r');
-		$fileFields = ['organization_crd_no','session_type_code','session_type','session_type','individual_crd_no','first_name','middle_name','last_name','suffix',
-                       'ce_status_date','window_begin_date','window_end_date','ce_status','appointment_progress','last_accessed_date','military_deferral'];
+		$fileFields = ['organization_crd_no','session_type_code','session_type','session_state','individual_crd_no','first_name','middle_name','last_name','suffix',
+                       'ce_status_date','window_begin_date','window_end_date','ce_status','appointment_progress','appointment_date','last_accessed_date','military_deferral'];
 		$setFields = "";
 		$recsLoaded = 0;
 
@@ -321,9 +321,9 @@ class webcrd extends db{
 				if ((int)$getData[0] > 0){
 					$setFields = "";
 					
-					foreach ($fileFields AS $key=>$value){
-                        $fileValue = $this->re_db_input($getData[$key]);
-                        $setFields .= (empty($setFields)?"":", ")."`$value` = '$fileValue'";
+					foreach ($fileFields AS $fileFieldKey=>$fileFieldName){
+                        $fileValue = $this->re_db_input($getData[$fileFieldKey]);
+                        $setFields .= (empty($setFields)?"":", ")."`$fileFieldName` = '$fileValue'";
 					}
 
 					$q = "INSERT INTO `".WEBCRD_CE_DOWNLOAD_DATA."`"
@@ -343,46 +343,22 @@ class webcrd extends db{
 		$fileClosed = fclose($fileStream);
 		return $recsLoaded;
 	}
-	// 07/22/22 Pull client records by the SDN name
-	function check_name($sdn_name = '', $sdn_desc = '', $sdn_type = ''){
-        $sdn_name = isset($sdn_name)?$this->re_db_input($sdn_name):'';
-        $sdn_type = isset($sdn_type)?$this->re_db_input($sdn_type):'';
-		$return = array();
-        $con = $res = $first_name = $last_name = $middle_name = $explode1 = $explode2 = $firstNameSearch = '';
+	// Insert or Update BROKER MASTER per the CE Download file
+	function check_ce_download($fileRecord=[]){
+		$return = 0;
 
-		if($sdn_name != '')
-        {
-			if ($sdn_type=='individual'){
-				// SDN Name format for individuals = LASTNAME(all caps), FirstName MiddleName
-				$explode1 = explode(",", $sdn_name);
-				$last_name = strtolower(trim($explode1[0]));
-				$explode2 = explode(" ", trim($explode1[1]));
-				// $first_name = strtolower(trim($explode2[0]));
-				// $middle_name = isset($explode2[1]) ? substr($explode1[1],strlen($first_name)+1) : "";
-				foreach($explode2 AS $first_name){
-					$first_name = strtolower($first_name);
-					$firstNameSearch .= (empty($firstNameSearch)?"":" OR ")."(LOWER(`at`.`first_name`) LIKE '$first_name%')";	
-				}
-				
-				$con .= " AND (LOWER(`at`.`last_name`) LIKE '$last_name%' AND ($firstNameSearch) )";
-			} else {
-				$last_name = strtolower(trim($sdn_name));
-				$con .= " AND ( (CONCAT(LOWER(`at`.`first_name`), ' ', LOWER(`at`.`last_name`)) LIKE '%$last_name%') OR (CONCAT(LOWER(`at`.`long_name`), ' ', LOWER(`at`.`long_name`)) LIKE '%$last_name%'))";
-			}
-			
-			$q = "SELECT `at`.*"
-					." FROM `".$this->table."` AS `at`"
-					." WHERE `at`.`is_delete`='0'"
-						.$con
-			;
-
-			$res = $this->re_db_query($q); 
-
-			if($this->re_db_num_rows($res)>0){
-				$return = $this->re_db_fetch_all($res);
-			}
-
-        }
+		if (empty($fileRecord) OR !isset($fileRecord['crd']))
+			return $return;
+		
+		$instance_broker = new broker_master();
+		$crd = 
+		// Check if broker exists
+		if ($instance_broker->select_broker_by_id())
+		// if exists, do nuzing
+		
+		// Else, add the broker
+		
+		
 		return $return;
 	}
 	

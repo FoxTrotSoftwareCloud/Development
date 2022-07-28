@@ -29,14 +29,22 @@
 
     /**
 		 * @param int $brokerId, default all
-		 * @return
+		 * @return one-dimensional array from BROKER MASTER
+     * 07/28/22 Allow user to choose database field\value combo - only returns first match
 		 * */
-		public function select_broker_by_id($brokerId)
-    {
+		public function select_broker_by_id($brokerId=0, $tableField='', $tableValue=''){
+      $brokerId = (int)$this->re_db_input($brokerId);
+      $tableField = $this->re_db_input($tableField);
+      $tableValue = $this->re_db_input($tableValue);
+      $con = '';
+      
+      if ($brokerId > 0) { $con = " AND `fbg`.`id` = $brokerId"; }
+      if (!empty($tableField) AND !empty($tableValue)) { $con = " AND `fbg`.`$tableField` = '$tableValue'"; }
+      
 			$q = "SELECT `fbg`.*"
 					  ." FROM `" . $this->table . "` AS `fbg`"
             ." WHERE `fbg`.`is_delete`=0"
-            ." AND `fbg`.`id`=$brokerId"
+              .$con
             ." ORDER BY `fbg`.`id` ASC";
 			$res = $this->re_db_query($q);
       if($this->re_db_num_rows($res)>0)
@@ -123,9 +131,9 @@
 		public function select_broker_branch_by_id($brokerId)
     {
 			$q = "SELECT `bb`.*
-					FROM `" . BROKER_BRANCHES . "` AS `bb`
-                    WHERE `bb`.`is_delete`='0' AND `bb`.`id`=$brokerId
-                    ORDER BY `bb`.`id` ASC";
+					  FROM `" . BROKER_BRANCHES . "` AS `bb`
+            WHERE `bb`.`is_delete`='0' AND `bb`.`id`=$brokerId
+            ORDER BY `bb`.`id` ASC";
 
 			$res = $this->re_db_query($q);
       if($this->re_db_num_rows($res)>0)
