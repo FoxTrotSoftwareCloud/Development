@@ -7,17 +7,16 @@
     $return = 0;
     $instance = new webcrd();
 
-    //$report = $instance->select_fincen_scan_report();
-    if(isset($_POST['import'])&& $_POST['import']=='OFAC Scan'){
-        $return = $instance->OFAC_scan();
+    if(isset($_POST['import_ce_download'])&& $_POST['import_ce_download']=='CE Download'){
+        $return = $instance->ce_download_scan();
         
         if ($return===true){
 			$_SESSION['success'] = INSERT_MESSAGE;
-            header('location:'.CURRENT_PAGE.'?tab=tab_b&open=report');
+            header('location:'.CURRENT_PAGE.'?tab=tab_a&open=report');
             exit;
         } else {
             $_SESSION['warning'] = UNKWON_ERROR;
-            header('location:'.CURRENT_PAGE.'?tab=tab_b');
+            header('location:'.CURRENT_PAGE.'?tab=tab_a');
             exit;
         }
     }
@@ -75,6 +74,6 @@
         header("location:report_fincen_client_check.php?id=".$id);exit;
     }*/
 
-    $content = "of_fi";
+    $content = "webcrd";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");
 ?>

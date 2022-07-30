@@ -242,19 +242,20 @@
               $_SESSION['last_insert_id'] = $this->re_db_insert_id();
 
               if($res){
+                  $_SESSION['success'] = INSERT_MESSAGE;
+                  return true;
+
                   //--- IMPORT File call ---//
                   if($for_import == 'true'){
                       //--- 3/17/22 Flag the exception as "add_new", process the record again to resolve the exception
                       $instance_import = new import();
                       $instance_import->resolve_exception_5AddNew('broker_id', $_SESSION['last_insert_id'], $_GET['exception_record_id']);
-
-                      $_SESSION['success'] = INSERT_MESSAGE;
-                      return true;
-                  } else {
-                      $_SESSION['warning'] = UNKWON_ERROR;
-                      return false;
                   }
+              } else {
+                  $_SESSION['warning'] = UNKWON_ERROR;
+                  return false;
               }
+              
           } else if($id>0) {
               $q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`middle_name`='".$mname."',`suffix`='".$suffix."',`fund`='".$fund."',`internal`='".$internal."',`display_on_statement`='".$display_on_statement."',`tax_id`='".$tax_id."',`crd`='".$crd."',`ssn`='".$ssn."',`active_status`='".$active_status_cdd."',`pay_method`='".$pay_method."'".$this->update_common_sql()." WHERE `id`='".$id."'";
               $res = $this->re_db_query($q);

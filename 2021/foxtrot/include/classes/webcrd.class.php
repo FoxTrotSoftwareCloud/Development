@@ -5,118 +5,68 @@ class webcrd extends db{
     public $table = WEBCRD_MASTER;
     public $local_folder = DIR_FS.'import_files/webcrd/';
 
-	// NOTE: Try to make this generic, so you only need 1 "insert_update()" for all 4 file types - 7/27/22
-    public function insert_update($data, $scan_data='',$matches=0){
-		$instance_broker = new broker_master();
-		$total_scan = isset($scan_data)?$this->re_db_input($scan_data):0;
-		$total_match = isset($matches) ? $matches : count($data);
-		$dataKeys = array_keys($data);
-		$file_date = isset($data[$dataKeys[0]]['sdn_data']['file_date']) ? $data[$dataKeys[0]]['sdn_data']['file_date'] : date('Y-m-d H:i:s');
-		$import_date = isset($data[$dataKeys[0]]['sdn_data']['import_date']) ? $data[$dataKeys[0]]['sdn_data']['import_date'] : date('Y-m-d H:i:s');
+	function insert_update_master($tableData=[]){
+		if (empty($tableData))
+			return 0;
 
-		$q = "INSERT INTO `".OFAC_CHECK_DATA_MASTER."`"
-			." SET `total_scan`='".$total_scan."'"
-					.",`total_match`='".$total_match."'"
-					.",`file_date`='$file_date'"
-					.",`import_date`='$import_date'"
-					.$this->insert_common_sql()
+		$return = 0;
+		$setFields = "";
+
+		foreach ($tableData AS $dataKey=>$dataValue){
+			$setFields .= (empty($setFields)?"":", ")."`$dataKey` = '$dataValue'";
+		}
+
+		$q = "INSERT INTO `".WEBCRD_MASTER."`"
+			." SET $setFields"
+				.$this->insert_common_sql()
 		;
 		$res = $this->re_db_query($q);
-		$last_inserted_id = $this->re_db_insert_id();
 
-		foreach($data as $key=>$val)
-		{
-			foreach($val['client_matches'] as $clientRow){
-				$broker_name = $instance_broker->get_broker_name((int)$clientRow['broker_name'], 1);
-				
-				$q = "INSERT INTO `".OFAC_CHECK_DATA."`"
-					." SET "
-						." `ofac_check_data_id`='".$last_inserted_id."'"
-						.",`ofac_sdn_data_id`='".$val['sdn_data']['id']."'"
-						.",`ent_num`='".$val['sdn_data']['ent_num']."'"
-						.",`sdn_name`='".$val['sdn_data']['sdn_name']."'"
-						.",`program`='".$val['sdn_data']['program']."'"
-						.",`client_id`='".$clientRow['id']."'"
-						.",`client_name`='".$clientRow['last_name'].(($clientRow['last_name']=='' OR $clientRow['first_name']=='') ? "" : ", ").$clientRow['first_name']."'"
-						.",`broker_id`=".(int)$clientRow['broker_name']
-						.",`broker_name`='$broker_name'"
-						.$this->insert_common_sql()
-				;
-				$res = $this->re_db_query($q);
-			}
-		}
+		if ($res) { $return = $this->re_db_insert_id(); }
 
-		if($res){
-			$_SESSION['success'] = INSERT_MESSAGE;
-			return true;
-		}
-		else{
-			$_SESSION['warning'] = UNKWON_ERROR;
-			return false;
-		}
-	}
-	public function get_pdf_data(){
-		$return = array();
-	}
-	public function get_client_data(){
-		$return = array();
-		$con = '';
-
-		$q = "SELECT `at`.`first_name`,`at`.`last_name`
-				FROM `".$this->table."` AS `at`
-				WHERE `at`.`is_delete`='0'
-				";
-		$res = $this->re_db_query($q);
-
-		if($this->re_db_num_rows($res)>0){
-			$a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-					array_push($return,$row);
-			}
-		}
 		return $return;
 	}
-	public function select_data_master_report($id=''){
-		$return = array();
+
+	public function select_master($id=''){
+		$id = (int)$this->re_db_input($id);
+		$return = [];
 		$con = '';
 
-		if($id != '') { $con.= "and `ocm`.`id` =".$id.""; }
+		if($id > 0) { $con.= " AND `ocm`.`id` =$id"; }
 
 		$q = "SELECT `ocm`.*"
-				." FROM `".OFAC_CHECK_DATA_MASTER."` AS `ocm`"
-				." WHERE `ocm`.`is_delete`='0' "
+				." FROM `".WEBCRD_MASTER."` AS `ocm`"
+				." WHERE `ocm`.`is_delete`=0 "
 					.$con
-				." ORDER BY `ocm`.`id` DESC LIMIT 1";
-				
+				." ORDER BY `ocm`.`id` DESC LIMIT 1"
+		;
+
 		$res = $this->re_db_query($q);
 		if($this->re_db_num_rows($res)>0){
-			$a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-				$return = $row;
-			}
+			$return = $this->re_db_fetch_array($res);
 		}
 		return $return;
 	}
-	public function select_data_report($id='', $orderBy=0){
-		$id = (int)$this->re_db_input($id);
+	public function select_ce_download_report($masterId='', $orderBy=0){
+		$masterId = (int)$this->re_db_input($masterId);
 		$orderBy = (int)$this->re_db_input($orderBy);
 		$return = array();
-		
+
 		if ($orderBy == 0){
-			$orderByQuery = "`ocd`.`id` DESC";
+			$orderByQuery = "`wce`.`master_id` DESC, `wce`.`individual_crd_no`";
 		} else {
-			$orderByQuery = "`ocd`.`sdn_name`, `ocd`.`ent_num`";
+			$orderByQuery = "`wce`.`last_name`,`wce`.`first_name`,`wce`.`middle_name`,`wce`.`individual_crd_no`";
 		}
-		
-		$q = "SELECT `ocd`.*"
-				." FROM `".OFAC_CHECK_DATA."` AS `ocd`"
-				." WHERE `ocd`.`is_delete`=0"
-					." AND `ocd`.`ofac_check_data_id`=$id"
+
+		$q = "SELECT `wce`.*"
+				." FROM `".WEBCRD_CE_DOWNLOAD_DATA."` AS `wce`"
+				." WHERE `wce`.`is_delete`=0"
+					." AND `wce`.`master_id`=$masterId"
 				." ORDER BY $orderByQuery"
 		;
 
 		$res = $this->re_db_query($q);
-		
+
 		if($this->re_db_num_rows($res)>0){
 			$return = $this->re_db_fetch_all($res);
 		}
@@ -145,25 +95,25 @@ class webcrd extends db{
 		}
 	}
 	public function select_scan_file(){
-		$return = array();
+		$return = [];
 
-		$q = "SELECT `at`.*
-				FROM `".OFAC_CHECK_DATA_MASTER."` AS `at`
-				WHERE `at`.`is_delete`='0'
-				ORDER BY `at`.`id` ASC";
+		$q = "SELECT `at`.*"
+			." FROM `".WEBCRD_MASTER."` AS `at`"
+			." WHERE `at`.`is_delete`=0"
+			." ORDER BY `at`.`id` ASC"
+		;
+		
 		$res = $this->re_db_query($q);
+		
 		if($this->re_db_num_rows($res)>0){
-			$a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-					array_push($return,$row);
-
-			}
+			$return = $row = $this->re_db_fetch_all($res);
 		}
+		
 		return $return;
 	}
 	public function delete_fincen($id, $status=0){
 		$id = trim($this->re_db_input($id));
-		
+
 		if($id>0 && ($status==0 || $status==1) ){
 			$q = "DELETE FROM `".FINCEN_CHECK_DATA_MASTER."` WHERE `id`='".$id."'";
 			$res = $this->re_db_query($q);
@@ -246,61 +196,64 @@ class webcrd extends db{
 		$individual_crd_no = $this->re_db_input($individual_crd_no);
 		$return = [];
 		$con = "";
-		
+
 		if ($id > 0) { $con .= " AND `at`.`id` = $id"; }
 		if ($individual_crd_no != '') { $con .= " AND `at`.`individual_crd_no` = '$individual_crd_no'"; }
-		
+
 		$q = "SELECT `at`.*"
 				." FROM `".WEBCRD_CE_DOWNLOAD_DATA."` `at`"
-				." WHERE `at`.`id` > 0"
+				." WHERE `at`.`is_delete` = 0"
 					.$con
 				." ORDER BY `at`.`id`"
 		;
 		$res = $this->re_db_query($q);
-		
+
 		if($this->re_db_num_rows($res)>0){
 			$return = $this->re_db_fetch_all($res);
+		}
+
+		return $return;
+	}
+	//--------------------------------------------------------------------------------
+	// CE Download - Basic Rep Info + CE Status
+	// 07/03/22 Cycle through SDN Table records (OFAC SDN DATA) and find matches in CLIENT MASTER
+	//--------------------------------------------------------------------------------
+	public function ce_download_scan(){
+		$filePathAndName = $_FILES["ce_download_file"]["tmp_name"];
+		$fileData = $get_array_data = [];
+		$return = $broker_id = $added = 0;
+		$file_date = $import_date = "";
+		
+		if (file_exists($filePathAndName)){
+			$total_scan = $this->load_ce_download_file($filePathAndName);
+
+			// Cycle through SDN Data table records
+			$fileData = $this->select_ce_download_data();
+
+			foreach($fileData as $key=>$row) {
+				$broker_id = $this->check_ce_download($row);
+				
+				if ($broker_id) { $added++; }
+			}
+			$file_name = $_FILES["ce_download_file"]["name"];
+			$file_type = "CE Download";
+			$file_date = (empty($fileData[0]['file_date']) ? date("Y-m-d H:i:s") : $fileData[0]['file_date']); 
+			$import_date = (empty($fileData[0]['import_date']) ? date("Y-m-d H:i:s") : $fileData[0]['import_date']); 
+			
+			$return = $this->insert_update_master(['total_scan'=>$total_scan, 'added'=>$added, 'file_name'=>$file_name, 'file_type'=>"CE Download", 'file_date'=>$file_date, 'import_date'=>$import_date]);
+			
+			if ($return){
+				$q = "UPDATE `".WEBCRD_CE_DOWNLOAD_DATA."`"
+					." SET `master_id`=$return"
+					." WHERE `is_delete`=0 AND `master_id`=0"
+				;
+				$res = $this->re_db_query($q);
+			}
 		}
 		
 		return $return;
 	}
-	//-------------------------------------------------------------------------------- 
-	// CE Download - Basic Rep Info + CE Status
-	// 07/03/22 Cycle through SDN Table records (OFAC SDN DATA) and find matches in CLIENT MASTER
-	//-------------------------------------------------------------------------------- 
-	public function ce_download_scan(){
-		$filePathAndName = $_FILES["file"]["tmp_name"];
-		$fileData = $get_array_data = [];
-		
-		if (file_exists($filePathAndName)){
-			$total_matches = 0;
-			$this->load_ce_download_file($filePathAndName);
-			
-			// Cycle through SDN Data table records
-			$fileData = $this->select_ce_download_data();
-			
-			foreach($fileData as $key=>$row) {
-				$broker_id = $this->check_ce_download($row);
-			}
-			$total_scan = isset($fileData)?$this->re_db_input(count($fileData)):0;
 
-            // Update Master table
-			if($get_array_data != array()){
-				$return = $this->insert_update($get_array_data, $total_scan, $total_matches);
-
-				if($return===true){
-					return $return;
-				}
-				else{
-					$error = !isset($_SESSION['warning'])?$return:'';
-				}
-			} else {
-                $_SESSION['warning'] = "No OFAC matches found.";
-				return false;
-			}
-		}
-	}
-	
 	function load_ce_download_file($filePathAndName=''){
 		$fileName = $filePathAndName!='' ? $this->re_db_input($filePathAndName) : $this->local_folder."6.30.22_CE_download.csv";
 		$fileStream = fopen($fileName, 'r');
@@ -312,15 +265,16 @@ class webcrd extends db{
 		// Populate the Data Table
 		if ($fileStream){
             // Clear out the data
-            $q = "DELETE FROM `".WEBCRD_CE_DOWNLOAD_DATA."` WHERE `id` > 0";
-            $res = $this->re_db_query($q);
-            $q = "ALTER TABLE `".WEBCRD_CE_DOWNLOAD_DATA."` AUTO_INCREMENT = 1";
+            $q = "UPDATE `".WEBCRD_CE_DOWNLOAD_DATA."`"
+				." SET `is_delete`=1".$this->update_common_sql()
+				." WHERE `is_delete`=0"
+			;
             $res = $this->re_db_query($q);
 
 			while (($getData = fgetcsv($fileStream, 10000, ",")) !== FALSE) {
 				if ((int)$getData[0] > 0){
 					$setFields = "";
-					
+
 					foreach ($fileFields AS $fileFieldKey=>$fileFieldName){
                         $fileValue = $this->re_db_input($getData[$fileFieldKey]);
                         $setFields .= (empty($setFields)?"":", ")."`$fileFieldName` = '$fileValue'";
@@ -328,13 +282,13 @@ class webcrd extends db{
 
 					$q = "INSERT INTO `".WEBCRD_CE_DOWNLOAD_DATA."`"
 							." SET "
-								.$setFields 
+								.$setFields
 								.",file_date = '".date("Y-m-d H:i:s", filectime($fileName))."'"
 								.",import_date = '".date("Y-m-d H:i:s")."'"
 								.$this->insert_common_sql()
 					;
 					$res = $this->re_db_query($q);
-					
+
 					if ($res) { $recsLoaded++; }
 				}
 			}
@@ -345,32 +299,53 @@ class webcrd extends db{
 	}
 	// Insert or Update BROKER MASTER per the CE Download file
 	function check_ce_download($fileRecord=[]){
-		$return = 0;
-
-		if (empty($fileRecord) OR !isset($fileRecord['crd']))
+		$return = $brokerId = 0;
+		$result = "";
+		
+		if (empty($fileRecord) OR empty($fileRecord['individual_crd_no']))
 			return $return;
-		
+
 		$instance_broker = new broker_master();
-		$crd = 
-		// Check if broker exists
-		if ($instance_broker->select_broker_by_id())
-		// if exists, do nuzing
-		
-		// Else, add the broker
-		
-		
+		$crd = $this->re_db_input($fileRecord['individual_crd_no']);
+		$brokerMaster = $instance_broker->select_broker_by_id(0, 'crd', $crd);
+
+		// Load broker into BROKER MASTER
+		if (empty($brokerMaster)) {
+			$fname = $this->re_db_input($fileRecord['first_name']);
+			$lname = $this->re_db_input($fileRecord['last_name']);
+			$mname = $this->re_db_input($fileRecord['middle_name']);
+			$suffix = $this->re_db_input($fileRecord['suffix']);
+			$return = $instance_broker->insert_update(['fname'=>$fname, 'lname'=>$lname, 'mname'=>$mname, 'suffix'=>$suffix, 'crd'=>$crd]);
+
+			if ($return){
+				$brokerId = $_SESSION['last_insert_id'];
+				$result = "CRD #\Broker Added";
+			}
+		} else {
+			$brokerId = $brokerMaster['id'];
+			$result = "CRD # already exists";
+		}
+
+		$q = "UPDATE `".WEBCRD_CE_DOWNLOAD_DATA."`"
+			." SET"
+				." `broker_id`= $brokerId"
+				.",`result`='$result'"
+			." WHERE `id`={$fileRecord['id']}"
+		;
+		$res = $this->re_db_query($q);
+
 		return $return;
 	}
-	
-	//-------------------------------------------------------------------------------- 
+
+	//--------------------------------------------------------------------------------
 	// FinCEN Scan
 	// 07/23/22 Cycle through SDN Table records (OFAC SDN DATA) and find matches in CLIENT MASTER
-	//-------------------------------------------------------------------------------- 
+	//--------------------------------------------------------------------------------
 	public function fincen_scan(){
 		$fincenData = $checkName = $get_array_data = [];
 		$total_matches = $total_scan = $q = $res = $last_inserted_id = $return = $loadData = 0;
 		$file_date = $import_date = "";
-		
+
 		$filePathAndName = $_FILES["file_fincen"]["tmp_name"];
 
 		if (!file_exists($filePathAndName)){
@@ -379,19 +354,19 @@ class webcrd extends db{
 		} else {
 			$loadData = 1;
 		}
-		
+
 		if (file_exists($filePathAndName) OR !$loadData){
 			// Load the FinCEN Data table
 			if ($loadData){
 				$total_scan = $this->load_fincen_data($filePathAndName);
 			}
-			
+
 			//-- Cycle through SDN Data table records
 			$fincenData = $this->select_fincen_data();
 			$total_scan = count($fincenData);
 			$file_date = $total_scan ? $fincenData[0]['file_date'] : "";
 			$import_date = $total_scan ? $fincenData[0]['import_date'] : "";
-			
+
 			// Master table update
             $q = "INSERT INTO `".FINCEN_CHECK_DATA_MASTER."`"
 					." SET `total_scan`=$total_scan"
@@ -402,16 +377,16 @@ class webcrd extends db{
 			;
 			$res = $this->re_db_query($q);
 			$last_inserted_id = $this->re_db_insert_id();
-			
+
 			foreach($fincenData as $key=>$val)
 			{
                 $checkName = $this->check_name_fincen($val['last_name'], $val['first_name'], $val['alias_last_name'], $val['alias_first_name']);
-					
+
                 if(is_array($checkName) && count($checkName)>0){
                     $total_matches += count($checkName);
                     $get_array_data[] = ['scan_data'=>$val, 'client_matches'=>$checkName];
                 }
-                
+
                 $q = "UPDATE `".FINCEN_DATA."`"
 						." SET `master_id`=$last_inserted_id, `last_scan`=NOW()"
 						." WHERE `id`={$val['id']}"
@@ -443,14 +418,14 @@ class webcrd extends db{
 		} else {
 			$return = "No FinCEN file found.";
 		}
-		
+
 		return $return;
 	}
-    
+
     function load_fincen_data($filePathAndName=''){
 		$fileName = $filePathAndName!='' ? $this->re_db_input($filePathAndName) : $this->local_folder."/fincen/FinCen Persons List.csv";
-		$fincenFields = ['tracking_number', 'last_name', 'first_name', 'middle_name', 'suffix', 
-                         'alias_last_name', 'alias_first_name', 'alias_middle_name', 'alias_suffix', 
+		$fincenFields = ['tracking_number', 'last_name', 'first_name', 'middle_name', 'suffix',
+                         'alias_last_name', 'alias_first_name', 'alias_middle_name', 'alias_suffix',
                          'number', 'number_type', 'dob', 'street', 'city', 'state', 'zip', 'country', 'phone'];
 		$setFields = "";
 		$recsLoaded = 0;
@@ -468,7 +443,7 @@ class webcrd extends db{
 				// "ent_num" has to be populated for valid OFAC/SDN record
 				if ((int)$getData[0] > 0){
 					$setFields = "";
-					
+
 					foreach ($fincenFields AS $key=>$value){
                         $fincenValue = $this->re_db_input($getData[$key]);
                         $setFields .= (empty($setFields)?"":", ")."`$value` = '$fincenValue'";
@@ -476,13 +451,13 @@ class webcrd extends db{
 
 					$q = "INSERT INTO `".FINCEN_DATA."`"
 							." SET "
-								.$setFields 
+								.$setFields
 								.",file_date = '".date("Y-m-d H:i:s", filectime($fileName))."'"
 								.",import_date = '".date("Y-m-d H:i:s")."'"
 								.$this->insert_common_sql()
 					;
 					$res = $this->re_db_query($q);
-					
+
 					if ($res) { $recsLoaded++; }
 				}
 			}
@@ -491,34 +466,34 @@ class webcrd extends db{
 		$fileClosed = fclose($fileStream);
 		return $recsLoaded;
 	}
-    // 07/21/22 Added for the Fincen scan routine 
+    // 07/21/22 Added for the Fincen scan routine
 	public function select_fincen_data($id=0, $number=''){
 		$id = (int)$this->re_db_input($id);
 		$number = $this->re_db_input($number);
 		$return = [];
 		$con = "";
-		
+
 		if ($id > 0) { $con .= " AND `at`.`id` = $id"; }
 		if (!empty($number)) { $con .= " AND `at`.`number` = '$number'"; }
-		
+
 		$q = "SELECT `at`.*"
 				." FROM `".FINCEN_DATA."` `at`"
 				." WHERE `at`.`id` > 0"
 					.$con
 				." ORDER BY `at`.`id`"
 		;
-		
+
 		$res = $this->re_db_query($q);
-		
+
 		if($this->re_db_num_rows($res)>0){
 			$return = $this->re_db_fetch_all($res);
 		}
-		
+
 		return $return;
 	}
 	public function insert_update_fincen($masterData=[], $last_inserted_id=0){
 		$res = 0;
-		
+
 		foreach($masterData as $masterRow){
 			$fincen_tracking_no = isset($masterRow['scan_data']['tracking_number'])?$this->re_db_input($masterRow['scan_data']['tracking_number']):0;
 			$fincen_firstname = isset($masterRow['scan_data']['first_name'])?$this->re_db_input($masterRow['scan_data']['first_name']):'';
@@ -530,7 +505,7 @@ class webcrd extends db{
 			$fincen_number = isset($masterRow['scan_data']['number'])?$this->re_db_input($masterRow['scan_data']['number']):'';
 			$fincen_number_type = isset($masterRow['scan_data']['number_type'])?$this->re_db_input($masterRow['scan_data']['number_type']):'';
 			$fincen_dob = isset($masterRow['scan_data']['dob']) && $masterRow['scan_data']['dob'] != ''?$this->re_db_input(date('Y-m-d',strtotime($masterRow['scan_data']['dob']))):'0000-00-00';
-			
+
 			foreach($masterRow['client_matches'] AS $clientRow){
 				$client_id = isset($clientRow['id']) ? $this->re_db_input($clientRow['id']) : 0;
 
@@ -567,7 +542,7 @@ class webcrd extends db{
 		$return = array();
 		// 07/24/22 Check the "alias_?" fields as well
 		$con = $conAlias = '';
-		
+
 		$con = " AND (`at`.`last_name` LIKE '%$fincen_lname%' AND `at`.`first_name` LIKE '%$fincen_fname%')";
 		// 07/24/22 Add "alias" search
 		if ($alias_lname!='' AND $alias_fname!=''){
