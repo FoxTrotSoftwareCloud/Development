@@ -9,23 +9,23 @@ $get_company_name = $instance->get_company_name();
 $system_company_name = isset($get_company_name['company_name'])?$instance->re_db_input($get_company_name['company_name']):'';
 $system_logo = isset($get_logo['logo'])?$instance->re_db_input($get_logo['logo']):'';
 $webcrd_main_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
+$get_webcrd_data = $instance->select_ce_download_data($webcrd_main_id, 1);
+
 if($webcrd_main_id >0)
 {
     $get_webcrd_main_data = $instance->select_master($webcrd_main_id);
-    $get_webcrd_data = $instance->select_ce_download_report($webcrd_main_id, 1);
 }
 else
 {
     $get_webcrd_main_data = $instance->select_master();
-    $webcrd_main_id = isset($get_webcrd_main_data['id'])?$instance->re_db_input($get_webcrd_main_data['id']):0;
-    $get_webcrd_data = $instance->select_ce_download_report($webcrd_main_id, 1);
+    $webcrd_main_id = isset($get_webcrd_main_data[0]['id'])?$instance->re_db_input($get_webcrd_main_data[0]['id']):0;
 }
 //print_r($get_webcrd_data);exit;
-$file_date = isset($get_webcrd_main_data['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_webcrd_main_data['file_date']))):'00/00/0000';
-$import_date = isset($get_webcrd_main_data['import_date'])?$instance->re_db_input(date('m/d/Y h:i:s A',strtotime($get_webcrd_main_data['import_date']))):'00/00/0000';
-$total_added = isset($get_webcrd_main_data['added'])?$instance->re_db_input($get_webcrd_main_data['added']):0;
-$total_scan = isset($get_webcrd_main_data['total_scan'])?$instance->re_db_input($get_webcrd_main_data['total_scan']):0;
-$file_name = isset($get_webcrd_main_data['file_name'])?$instance->re_db_input($get_webcrd_main_data['file_name']):'*File Name Not Specified*';
+$file_date = isset($get_webcrd_main_data[0]['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_webcrd_main_data[0]['file_date']))):'00/00/0000';
+$import_date = isset($get_webcrd_main_data[0]['import_date'])?$instance->re_db_input(date('m/d/Y h:i:s A',strtotime($get_webcrd_main_data[0]['import_date']))):'00/00/0000';
+$total_added = isset($get_webcrd_main_data[0]['added'])?$instance->re_db_input($get_webcrd_main_data[0]['added']):0;
+$total_scan = isset($get_webcrd_main_data[0]['total_scan'])?$instance->re_db_input($get_webcrd_main_data[0]['total_scan']):0;
+$file_name = isset($get_webcrd_main_data[0]['file_name'])?$instance->re_db_input($get_webcrd_main_data[0]['file_name']):'*File Name Not Specified*';
 $total_records=0;
 ?>
 <?php

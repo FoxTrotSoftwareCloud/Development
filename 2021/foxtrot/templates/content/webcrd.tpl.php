@@ -4,7 +4,7 @@
     <div class="col-lg-12 well">
         <ul class="nav nav-pills nav-stacked col-md-2">
           <li class="<?php if((isset($_GET['tab']) && $_GET['tab']=="tab_a" || !isset($_GET['tab'])) AND (!isset($_GET['open'])||$_GET['open']!='ce_download_view')){ echo "active"; } ?>"><a href="#tab_a" data-toggle="pill">CE Download</a></li>
-          <li class="<?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_b") OR (isset($_GET['open'])&&$_GET['open']=='fincen_view')){ echo "active"; } ?>"><a href="#tab_d" data-toggle="pill">FINCEN Download and Scan</a></li>
+          <li class="<?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_b") OR (isset($_GET['open'])&&$_GET['open']=='finra_exam_status_view')){ echo "active"; } ?>"><a href="#tab_b" data-toggle="pill">FINRA Exam Status</a></li>
         </ul>
         <div class="tab-content col-md-10">
             <div class="tab-pane <?php if( (isset($_GET['tab'])&&$_GET['tab']=="tab_a" || !isset($_GET['tab'])) && (!isset($_GET['open']) || $_GET['open']!='fincen_view')){ echo "active"; } ?>" id="tab_a">
@@ -12,8 +12,8 @@
                     <div class="row">
                         <form method="post" enctype="multipart/form-data">
                             <center>
-                            <input type="file" name="ce_download_file" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
-                            <input type="submit" name="import_ce_download" class="btn btn-warning btn-lg btn3d" value="CE Download" onclick="waitingDialog.show('Scanning WebCRD CE Download file. Please wait. . .')" /></center>
+                            <input type="file" name="ce_download_file" id="ce_download_file" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
+                            <input type="submit" name="import_ce_download" class="btn btn-warning btn-lg btn3d" value="Process File" onclick="waitingDialog.show('Importing WebCRD CE Download file. Please wait. . .')" /></center>
                         </form>
                     </div>
                 </div>
@@ -37,7 +37,7 @@
                             <tbody>
                                 <?php
                                     $count = 0;
-                                    if (!isset($return)) { $return = $instance->select_scan_file(); }
+                                    $return = $instance->select_master(0,'ce download');
 
                                     foreach($return as $key=>$val){
                                         ?>
@@ -60,55 +60,51 @@
                     </div>
                 </div>
             </div>
-                <!--<div class="tab-pane " id="tab_c">
-                    <div class="selectwrap">
-                        <div class="row"><center>
-            					<input type="button" name="connect" class="btn btn-warning btn-lg btn3d" onclick="openNewTab2();" value="Connect And Download"/>
-                        </div>
-                    </div>
-                </div>-->
-                <div class="tab-pane  <?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_d") OR (isset($_GET['open']) AND $_GET['open']=='fincen_view')){ echo "active"; } ?>" id="tab_d">
+            
+            <!-- 2. FINRA Exam Status -->
+            <div class="tab-pane  <?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_b") OR (isset($_GET['open']) AND $_GET['open']=='finra_exam_status_view')){ echo "active"; } ?>" id="tab_b">
                     <div class="selectwrap">
                         <div class="selectwrap">
                             <div class="row">
                                 <form method="post" enctype="multipart/form-data">
                                     <center>
-                                    <input type="button" name="connect" class="btn btn-warning btn-lg btn3d" onclick="openNewTab2();" value="Connect And Download"/>
-                                    <input type="file" name="file_fincen" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
-                					<input type="submit" name="import_fincen" class="btn btn-warning btn-lg btn3d" value="FINCEN Scan" onclick="waitingDialog.show('Scanning FinCEN file. Please wait. . .')"/></center>
+                                    <input type="file" name="file_finra_exam_status" id="file_finra_exam_status" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
+                					<input type="submit" name="import_finra_exam_status" class="btn btn-warning btn-lg btn3d" value="Process File" onclick="waitingDialog.show('Importing FINRA Exam file. Please wait. . .')"/></center>
                                 </form>
                             </div>
                         </div>
                         <br />
                         <div class="panel">
                     		<div class="panel-heading">
-                                <h3 class="panel-title">FINCEN Scan Files</h3>
+                                <h3 class="panel-title">FINRA Exam Status</h3>
                     		</div>
                     		<div class="panel-body">
                             <div class="table-responsive" id="register_data">
                     			<table id="data-table2" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                    	            <thead>
-                    	                <tr>
-                                            <th>DATE</th>
-                                            <th>TOTAL SCAN</th>
-                                            <th>TOTAL MATCH</th>
-                                            <th class="text-center">ACTION</th>
-                                        </tr>
-                    	            </thead>
-                    	            <tbody>
-                    	                <?php
+                                    <thead>
+                                    <tr>
+                                        <th>FILE NAME</th>
+                                        <th>IMPORT DATE</th>
+                                        <th>TOTAL RECORDS</th>
+                                        <th>BROKERS UPDATED</th>
+                                        <th class="text-center">ACTION</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
                                             $count = 0;
-                                            if (!isset($return_fincen)) { $return_fincen = $instance->select_fincen_scan_file(); }
+                                            $return = $instance->select_master(0,'finra exam status');
 
-                                            foreach($return_fincen as $key=>$val){
-                                        ?>
+                                            foreach($return as $key=>$val){
+                                                ?>
                                                 <tr>
-                                                    <td><?php echo date('m/d/Y',strtotime($val['created_time'])); ?></td>
+                                                    <td><?php echo $val['file_name']; ?></td>
+                                                    <td><?php echo date('m/d/Y h:i:s A',strtotime($val['import_date'])); ?></td>
                                                     <td><?php echo $val['total_scan']; ?></td>
-                                                    <td><?php echo $val['total_match']; ?></td>
+                                                    <td><?php echo $val['added']; ?></td>
                                                     <td class="text-center">
-                                                        <a href="<?php echo CURRENT_PAGE; ?>?open=fincen_view&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View</a>
-                                                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_fincen&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
+                                                        <a href="<?php echo CURRENT_PAGE; ?>?open=ce_download_view&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View</a>
+                                                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                                     </td>
                                                 </tr>
                                                 <?php
@@ -195,7 +191,7 @@
         // 07/29/22 TEST DELETE ME
         console.log('location.href = ' + location.href);
         
-        window.open('report_webcrd_ce_download.php','_blank');
+        window.open('report_webcrd_ce_download.php?id=' + <?php echo $_GET['id']; ?>,'_blank');
     //     var xmlhttp = new XMLHttpRequest();
     //     xmlhttp.onreadystatechange = function() {
     //         if (this.readyState == 4 && this.status == 200)
