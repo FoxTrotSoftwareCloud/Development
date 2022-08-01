@@ -1263,7 +1263,7 @@ $(document).ready(function(){
                                      ?>
                               <tr>
                                  <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
-                                 <td><?php echo $val['id']; ?></td>
+                                 <td><?php echo $val['crd']; ?></td>
                                  <td><?php echo $val['fund']; ?></td>
                                  <!--td><?php echo $val['internal']; ?></td-->
                                  <td class="internal"><?php echo $val['internal']; ?></td>

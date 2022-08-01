@@ -10,10 +10,10 @@ class webcrd extends db{
 			return 0;
 
 		$return = 0;
-		$setFields = "";
+		$setFields = '';
 
 		foreach ($tableData AS $dataKey=>$dataValue){
-			$setFields .= (empty($setFields)?"":", ")."`$dataKey` = '$dataValue'";
+			$setFields .= (empty($setFields)?'':', ')."`$dataKey` = '$dataValue'";
 		}
 
 		$q = "INSERT INTO `".$this->table."`"
@@ -26,6 +26,17 @@ class webcrd extends db{
 
 		return $return;
 	}
+	// 07/31/22 Pull the file date from the front of the file - assumes the format is "mm.dd.yyy_FILE_TYPE.csv", e.g. "6.30.22_CE_DOWNLOAD.csv"
+	function getFileDate($fileName=''){
+		if ($fileName=='')
+			return 0;
+    
+		$fileName = basename($this->re_db_input($fileName));
+		$return = strtr(substr($fileName, 0, strpos($fileName,'_')), '.', '/');
+    	
+		return  (bool)strtotime($return) ? $return : '';
+	}
+
 
 	public function select_master($id=0, $file_type=''){
 		$id = (int)$this->re_db_input($id);
@@ -143,6 +154,12 @@ class webcrd extends db{
 		$fileStream = fopen($filePathAndName, 'r');
 		$fileFields = ['organization_crd_no','session_type_code','session_type','session_state','individual_crd_no','first_name','middle_name','last_name','suffix',
                        'ce_status_date','window_begin_date','window_end_date','ce_status','appointment_progress','appointment_date','last_accessed_date','military_deferral'];
+		$fileDate = $this->getFileDate($filePathAndName);
+		if ($fileDate!='') { 
+			$fileDate = date("Y-m-d H:i:s", strtotime($fileDate));
+		} else {
+			$fileDate = date("Y-m-d H:i:s", filemtime($filePathAndName)); 
+		}
 		$setFields = "";
 		$recsLoaded = 0;
 
@@ -167,7 +184,7 @@ class webcrd extends db{
 					$q = "INSERT INTO `".WEBCRD_CE_DOWNLOAD_DATA."`"
 							." SET "
 								.$setFields
-								.",file_date = '".date("Y-m-d H:i:s", filectime($filePathAndName))."'"
+								.",file_date = '".$fileDate."'"
 								.",import_date = '".date("Y-m-d H:i:s")."'"
 								.$this->insert_common_sql()
 					;
@@ -293,13 +310,25 @@ class webcrd extends db{
 	function load_finra_exam_status_file($filePathAndName=''){
 		if ($filePathAndName == '')
 			return 0;
-			
+		
+		if (substr(basename($filePathAndName),0,3)=="php" AND isset($_FILES['file_finra_exam_status'])){
+			$realFileName = $_FILES['file_finra_exam_status']['name'];
+		} else {
+			$realFileName = basename($filePathAndName);
+		}
+		
 		$fileStream = fopen($filePathAndName, 'r');
 		$fileFields = ['first_name', 'last_name', 'individual_crd_no', 'registrations', 'disclosures', 'exams', 'deficiencies', 'branch_locations', 'other_business', 
 	                   'exam_series', 'exam_status', 'grade', 'validity', 'valid_until'];
+		$fileDate = $this->getFileDate($realFileName);
+		if ($fileDate!='') { 
+			$fileDate = date("Y-m-d H:i:s", strtotime($fileDate));
+		} else {
+			$fileDate = date("Y-m-d H:i:s", filemtime($filePathAndName)); 
+		}
 		$setFields = "";
 		$recsLoaded = 0;
-
+		
 		// Populate the Data Table
 		if ($fileStream){
             // Clear out the data
@@ -310,7 +339,7 @@ class webcrd extends db{
             $res = $this->re_db_query($q);
 
 			while (($getData = fgetcsv($fileStream, 10000, ",")) !== FALSE) {
-				// Skip the header record - strcasecmp() returns "0" if there is a case-INsensitive MATCH (kinda bass-ackwards)
+				// Skip the header record - strcasecmp() returns "0" if there is a case-INsensitive(binary) MATCH (kinda bass-ackwards)
 				if (strcasecmp($getData[0],'first name') AND strcasecmp($getData[0],'last name')){
 					$setFields = "";
 
@@ -320,11 +349,11 @@ class webcrd extends db{
 					}
 
 					$q = "INSERT INTO `".WEBCRD_EXAM_STATUS_DATA."`"
-							." SET "
-								.$setFields
-								.",file_date = '".date("Y-m-d H:i:s", filectime($filePathAndName))."'"
-								.",import_date = '".date("Y-m-d H:i:s")."'"
-								.$this->insert_common_sql()
+						." SET "
+							.$setFields
+							.",file_date = '$fileDate'"
+							.",import_date = '".date("Y-m-d H:i:s")."'"
+							.$this->insert_common_sql()
 					;
 					$res = $this->re_db_query($q);
 
@@ -340,38 +369,85 @@ class webcrd extends db{
 	function check_finra_exam_status($fileRecord=[]){
 		$return = $brokerId = 0;
 		$result = "";
-		
-		if (empty($fileRecord) OR empty($fileRecord['individual_crd_no']))
+		// Skip the processing for invalid data record, Rep CRD #, Series Exam, Failed Test		
+		if (empty($fileRecord) OR empty($fileRecord['individual_crd_no']) OR $fileRecord['grade']!='PASSED'
+		 	OR $fileRecord['validity']=='EXPIRED' OR substr($fileRecord['exam_series'],0,1)!=='S'
+		 ){
+			$q = "UPDATE `".WEBCRD_EXAM_STATUS_DATA."`"
+				." SET"
+					." `broker_id`= $brokerId"
+					.",`result`='No Change'"
+				." WHERE `id`={$fileRecord['id']}"
+			;
+			$res = $this->re_db_query($q);
+			
 			return $return;
+		 }
 
 		$instance_broker = new broker_master();
 		$crd = $this->re_db_input($fileRecord['individual_crd_no']);
 		$brokerMaster = $instance_broker->select_broker_by_id(0, 'crd', $crd);
-
-		// Load broker into BROKER MASTER
-		if (empty($brokerMaster)) {
-			$fname = $this->re_db_input($fileRecord['first_name']);
-			$lname = $this->re_db_input($fileRecord['last_name']);
-			$return = $instance_broker->insert_update(['fname'=>$fname, 'lname'=>$lname, 'crd'=>$crd]);
-
-			if ($return){
-				$brokerId = $_SESSION['last_insert_id'];
-				$result = "CRD #/Broker Added";
+		$master_register = $instance_broker->select_register();
+		$result = $res = '';
+		
+		// Load broker into BROKER REGISTER
+		if ($brokerMaster) {
+			// Find the correct Series
+			if (strtoupper($fileRecord['exam_series'])==='SIE'){
+				$license_name = 'Securities Industry Essentials';
+			} else {
+				$license_name = 'Series '.strtr(substr($fileRecord['exam_series'],1),['TO'=>' Top-Off']);
 			}
-		} else {
-			$brokerId = $brokerMaster['id'];
-			$result = "CRD # already exists";
+			
+			$registerRow = array_search($license_name, array_column($master_register, 'type'));
+			$license_id = ($registerRow ? $master_register[$registerRow]['id'] : 0);
+			
+			// INSERT or UPDATE the reps' Series License
+			if ($license_id AND $brokerMaster['id']){
+				$brokerRegister = $instance_broker->edit_registers($brokerMaster['id'], $license_id);
+				$fileDate = date("Y-m-d", strtotime($fileRecord['file_date']));
+				$expireDate = date("Y-m-d", strtotime($fileRecord['valid_until']));
+				
+				// Just UPDATE the license record
+				if ($brokerRegister){
+					$expirationQuery = ($expireDate>$brokerRegister[0]['expiration_date']) ? ",`expiration_date`='$expireDate'" : "";
+					
+					if ($fileDate > $brokerRegister[0]['approval_date']){
+						$q = "UPDATE `".BROKER_REGISTER_MASTER."`"
+							." SET `approval_date`='$fileDate'"
+							.$expirationQuery
+							.$this->update_common_sql()
+							." WHERE `id`={$brokerRegister[0]['id']}"
+						;
+						$res = $this->re_db_query($q);
+						$result = "$license_name Updated";
+					}
+				} else {
+					$q = "INSERT `".BROKER_REGISTER_MASTER."`"
+						." SET `broker_id`={$brokerMaster['id']}"
+							.",`license_id`=$license_id"
+							.",`license_name`='$license_name'"
+							.",`approval_date`='$fileDate'"
+							.",`expiration_date`='$expireDate'"
+							.$this->insert_common_sql()
+					;
+					$res = $this->re_db_query($q);
+					$result = "$license_name Added";
+				}
+			}
+		}
+		
+		if ($res){
+			$q = "UPDATE `".WEBCRD_EXAM_STATUS_DATA."`"
+				." SET"
+					." `broker_id`= $brokerId"
+					.",`result`='$result'"
+				." WHERE `id`={$fileRecord['id']}"
+			;
+			$res = $this->re_db_query($q);
 		}
 
-		$q = "UPDATE `".WEBCRD_EXAM_STATUS_DATA."`"
-			." SET"
-				." `broker_id`= $brokerId"
-				.",`result`='$result'"
-			." WHERE `id`={$fileRecord['id']}"
-		;
-		$res = $this->re_db_query($q);
-
-		return $return;
+		return $res;
 	}
 
 	public function select_finra_exam_status_data($masterId=null, $orderBy=0){

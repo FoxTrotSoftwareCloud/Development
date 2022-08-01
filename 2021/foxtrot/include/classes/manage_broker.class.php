@@ -2873,18 +2873,26 @@
             }
 			return $return;
 		}
-        public function edit_registers($id){
-			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".BROKER_REGISTER_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."' ";
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
-            }
+    public function edit_registers($id=0, $license_id=''){
+      $return = array();
+      $con = '';
+      $id = (int)$this->re_db_input($id);
+      $license_id = $this->re_db_input($license_id);
+      
+      if ($license_id!=''){ $con = " AND `at`.`license_id`='$license_id'"; }
+      
+			$q = "SELECT `at`.*"
+					  ." FROM `".BROKER_REGISTER_MASTER."` AS `at`"
+            ." WHERE `at`.`is_delete`=0"
+            ." AND `at`.`broker_id`=$id"
+            .$con
+      ;
+            
+      $res = $this->re_db_query($q);
+      
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_all($res);
+      }
 			return $return;
 		}
         public function edit_required_docs($id){
