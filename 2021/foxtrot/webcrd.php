@@ -7,6 +7,7 @@
     $action = (isset($_POST) AND substr(array_key_first($_POST),0,7)=="import_") ? array_key_first($_POST) : $action;
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     $return = 0;
+    $activeTab = '';
     $instance = new webcrd();
 
     if(substr($action,0,7)=='import_' AND $_POST[$action]=='Process File'){

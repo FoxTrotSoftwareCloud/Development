@@ -9,7 +9,7 @@ $get_company_name = $instance->get_company_name();
 $system_company_name = isset($get_company_name['company_name'])?$instance->re_db_input($get_company_name['company_name']):'';
 $system_logo = isset($get_logo['logo'])?$instance->re_db_input($get_logo['logo']):'';
 $webcrd_main_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
-$get_webcrd_data = $instance->select_ce_download_data($webcrd_main_id, 1);
+$get_webcrd_data = $instance->select_finra_exam_status_data($webcrd_main_id, 1, 1);
 
 if($webcrd_main_id > 0)
 {
@@ -58,7 +58,7 @@ $total_records=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0">
                 <tr>
-                    <td width="100%" style="font-size:14px;font-weight:bold;text-align:center;">WebCRD CE Download Report</td>
+                    <td width="100%" style="font-size:14px;font-weight:bold;text-align:center;">WebCRD Exam Status Report</td>
                 </tr>
            </table>';
     $pdf->writeHTML($html, false, 0, false, 0);
@@ -81,12 +81,11 @@ $total_records=0;
                 <tr style="background-color: #f1f1f1;">
                     <td style="text-align:left;width:20%"><h5>BROKER NAME</h5></td>
                     <td style="text-align:center;width:10%"><h5>CRD NO.</h5></td>
-                    <td style="text-align:left;width:10%"><h5>SESSION TYPE</h5></td>
-                    <td style="text-align:left;width:10%"><h5>CE STATUS</h5></td>
-                    <td style="text-align:left;width:10%"><h5>STATUS DATE</h5></td>
-                    <td style="text-align:center;width:10%"><h5>WINDOW BEGIN</h5></td>
-                    <td style="text-align:center;width:10%"><h5>WINDOW END</h5></td>
-                    <td style="text-align:left;width:10%"><h5>MILITARY DEF</h5></td>
+                    <td style="text-align:left;width:10%"><h5>EXAM SERIES</h5></td>
+                    <td style="text-align:left;width:10%"><h5>STATUS</h5></td>
+                    <td style="text-align:left;width:10%"><h5>GRADE</h5></td>
+                    <td style="text-align:center;width:10%"><h5>VALIDITY</h5></td>
+                    <td style="text-align:center;width:10%"><h5>UNTIL DATE</h5></td>
                     <td style="text-align:left;width:10%"><h5>RESULT</h5></td>
                 </tr>';
                 if($get_webcrd_data != [])
@@ -96,15 +95,14 @@ $total_records=0;
                         $total_records=$total_records+1;
                         $html.='<tr>
                            <td style="font-size:8px;font-weight:normal;text-align:left;">
-                                '.$val['last_name'].((empty($val['last_name']) || empty($val['first_name'])) ? "": ", ").$val['first_name'].((empty($val['middle_name'])) ? "" : " ".$val['middle_name'])." ".$val['suffix'].'
+                                '.$val['last_name'].((empty($val['last_name']) || empty($val['first_name'])) ? "": ", ").$val['first_name'].'
                             </td>
                            <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['individual_crd_no'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['session_type'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['ce_status'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['ce_status_date'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['window_begin_date'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['window_end_date'].'</td>
-                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['military_deferral'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['exam_series'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['exam_status'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['grade'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['validity'].'</td>
+                           <td style="font-size:8px;font-weight:normal;text-align:center;">'.$val['valid_until'].'</td>
                            <td style="font-size:8px;font-weight:normal;text-align:left;">'.$val['result'].'</td>
                         </tr>';
                     }
@@ -143,11 +141,11 @@ $total_records=0;
     }
     $pdf->lastPage();
     
-    if(isset($_GET['open']) && $_GET['open'] == 'webcrd_ce_download_print')
+    if(isset($_GET['open']) && $_GET['open'] == 'webcrd_finra_exam_status_print')
     {
         $pdf->IncludeJS("print();");
     }
-    $pdf->Output('report_webcrd_ce_download.pdf', 'I');
+    $pdf->Output('report_webcrd_finra_exam_status.pdf', 'I');
     
     exit;
 ?>

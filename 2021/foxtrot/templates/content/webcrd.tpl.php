@@ -3,11 +3,11 @@
 <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
     <div class="col-lg-12 well">
         <ul class="nav nav-pills nav-stacked col-md-2">
-          <li class="<?php if((isset($_GET['tab']) && $_GET['tab']=="tab_a" || !isset($_GET['tab'])) AND (!isset($_GET['open'])||$_GET['open']!='ce_download_view')){ echo "active"; } ?>"><a href="#tab_a" data-toggle="pill">CE Download</a></li>
-          <li class="<?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_b") OR (isset($_GET['open'])&&$_GET['open']=='finra_exam_status_view')){ echo "active"; } ?>"><a href="#tab_b" data-toggle="pill">FINRA Exam Status</a></li>
+          <li id="pill_tab_a" name="pill_tabs" class=""><a href="#tab_a" data-toggle="pill">CE Download</a></li>
+          <li id="pill_tab_b" name="pill_tabs" class=""><a href="#tab_b" data-toggle="pill">FINRA Exam Status</a></li>
         </ul>
         <div class="tab-content col-md-10">
-            <div class="tab-pane <?php if( (isset($_GET['tab'])&&$_GET['tab']=="tab_a" || !isset($_GET['tab'])) && (!isset($_GET['open']) || $_GET['open']!='fincen_view')){ echo "active"; } ?>" id="tab_a">
+            <div class="tab-pane" id="tab_a" name="file_type_tabs">
                 <div class="selectwrap">
                     <div class="row">
                         <form method="post" enctype="multipart/form-data">
@@ -62,7 +62,7 @@
             </div>
             
             <!-- 2. FINRA Exam Status -->
-            <div class="tab-pane  <?php if((isset($_GET['tab'])&&$_GET['tab']=="tab_b") OR (isset($_GET['open']) AND $_GET['open']=='finra_exam_status_view')){ echo "active"; } ?>" id="tab_b">
+            <div class="tab-pane" id="tab_b" name="file_type_tabs">
                     <div class="selectwrap">
                         <div class="selectwrap">
                             <div class="row">
@@ -103,7 +103,7 @@
                                                     <td><?php echo $val['total_scan']; ?></td>
                                                     <td><?php echo $val['added']; ?></td>
                                                     <td class="text-center">
-                                                        <a href="<?php echo CURRENT_PAGE; ?>?open=ce_download_view&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View</a>
+                                                        <a href="<?php echo CURRENT_PAGE; ?>?open=finra_exam_status_view&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View</a>
                                                         <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                                     </td>
                                                 </tr>
@@ -161,75 +161,60 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function() {
-
         $('#data-table1').DataTable({
-        "pageLength": 25,
-        "bLengthChange": false,
-        "bFilter": true,
-        "bInfo": false,
-        "bAutoWidth": false,
-        "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 3 ] },
-                        { "bSearchable": false, "aTargets": [ 3 ] }]
+            "pageLength": 25,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "dom": '<"toolbar">frtip',
+            "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 3 ] },
+                            { "bSearchable": false, "aTargets": [ 3 ] }],
+            "order": [1, "desc"]
         });
         $('#data-table2').DataTable({
-        "pageLength": 25,
-        "bLengthChange": false,
-        "bFilter": true,
-        "bInfo": false,
-        "bAutoWidth": false,
-        "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 3 ] },
-                        { "bSearchable": false, "aTargets": [ 3 ] }]
+            "pageLength": 25,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "dom": '<"toolbar">frtip',
+            "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 3 ] },
+                            { "bSearchable": false, "aTargets": [ 3 ] }],
+            "order": [1, "desc"]
         });
     } );
 
-    // 07/29/22 TEST DELETE ME - Skip the modal and just display the report in a separate window
+    // 07/29/22 Skip the modal and just display the report in a separate window
     <?php if(isset($_GET['open']) && $_GET['open'] == "ce_download_view" && isset($_GET['id']) && $_GET['id'] != ''){?>
-        location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
-        
-        // 07/29/22 TEST DELETE ME
-        console.log('location.href = ' + location.href);
-        
+        location.href=location.href.replace(/\?(.*)/i, "?tab=tab_a");
         window.open('report_webcrd_ce_download.php?id=' + <?php echo $_GET['id']; ?>,'_blank');
-    //     var xmlhttp = new XMLHttpRequest();
-    //     xmlhttp.onreadystatechange = function() {
-    //         if (this.readyState == 4 && this.status == 200)
-    //         {
-    //             document.getElementById("output_screen_content").innerHTML = this.responseText;
-    //         }
-    //     };
-    //     xmlhttp.open("GET", "ajax_ofacscan_view.php?id="+<?php echo $_GET['id']; ?>, true);
-    //     xmlhttp.send();
-
-    //     $('#ofac_Modal').modal({
-    // 		show: true
-    // 	});
+    <?php } else if(isset($_GET['open']) && $_GET['open'] == "finra_exam_status_view"){?>
+        window.open('report_webcrd_finra_exam_status.php?id=' + <?php echo $_GET['id'] ?>,'_blank');
+        location.href=location.href.replace(/\?(.*)/i, "?tab=tab_b");
     <?php } ?>
-
-
-
+    
+    // Default File Type tabs
+    document.getElementsByName("file_type_tabs").forEach(function(el){
+        el.classList.remove('active')
+    })
+    document.getElementsByName("pill_tabs").forEach(function(el){
+        el.classList.remove('active')
+    })
+    <?php if((isset($_GET['open']) && $_GET['open'] == "finra_exam_status_view") || (isset($_GET['tab']) && $_GET['tab'] == 'tab_b')) { ?>
+        document.getElementById('pill_tab_b').classList.add('active')
+        document.getElementById('tab_b').classList.add('active')
+    <?php } else { ?>
+        document.getElementById('pill_tab_a').classList.add('active')
+        document.getElementById('tab_a').classList.add('active')
+    <?php } ?>
+    
 </script>
 
-<!-- 07/29/22 TEST DELETE ME - just display the actual report in separate window -->
-<!-- <?php //if(isset($_GET['open']) && $_GET['open'] == "report"){?>
-    <script>
-    location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
-    window.open('report_ofac_client_check.php','_blank');
-    </script>
-<?php //} ?> -->
-
-<?php if(isset($_GET['open']) && $_GET['open'] == "report_fincen"){?>
-    <script>
-    location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
-    window.open('report_fincen_client_check.php','_blank');
-    </script>
-<?php } ?>
-
-
-<?php if(isset($_GET['open']) && $_GET['open'] == "fincen_view" && isset($_GET['id']) && $_GET['id'] != ''){?>
+<!-- 08/01/22 Keep this code. May need this as a template for a pop up modal later
+<?php //if(isset($_GET['open']) && $_GET['open'] == "fincen_view" && isset($_GET['id']) && $_GET['id'] != ''){?>
 <script>
-//location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
+location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
 $(document).ready(function(){
 
     var xmlhttp = new XMLHttpRequest();
@@ -247,10 +232,10 @@ $(document).ready(function(){
     		show: true
     	});
        //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
-});
-
+}); 
 </script>
-<?php } ?>
+<?php //} ?>
+-->
 
 <script type="text/javascript">
 var waitingDialog = waitingDialog || (function ($) {
@@ -315,16 +300,5 @@ var waitingDialog = waitingDialog || (function ($) {
 	};
 
 })(jQuery);
-
-function openNewTab1(){
-var win=window.open('https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/sdn_data.aspx');
-   win.location.reload();
-   win.focus();
-};
-function openNewTab2(){
-var win=window.open('https://www.fincen.gov/314a/Login');
-   win.location.reload();
-   win.focus();
-};
 
 </script>

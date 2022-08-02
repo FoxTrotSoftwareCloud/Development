@@ -126,5 +126,5 @@
     define('WEBCRD_MASTER','ft_webcrd_master');
     define('WEBCRD_CE_DOWNLOAD_DATA','ft_webcrd_ce_download_data');
     define('WEBCRD_EXAM_STATUS_DATA','ft_webcrd_finra_exam_status_data');
-
+    define('WEBCRD_REGISTRATION_STATUS_DATA','ft_webcrd_registration_status_data');
 ?>
