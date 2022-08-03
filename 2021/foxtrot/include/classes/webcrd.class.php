@@ -36,6 +36,25 @@ class webcrd extends db{
     	
 		return  (bool)strtotime($return) ? $return : '';
 	}
+	function select_registration_category_codes($code=''){
+		$code = $this->re_db_input($code);
+		$return = []; 
+		$con = '';
+		
+		if ($code != '' ) { $con = " AND `at`.`registration_category_code`='$code'"; }
+		
+		$q = "SELECT `at`.*"
+			." FROM `".WEBCRD_REGISTRATION_CATEGORY_CODES."` `at`"
+			." WHERE `id`>0"
+			.$con 
+		;
+		$res = $this->re_db_query($q);
+		
+		if ($this->re_db_num_rows($res)){
+			$return = $this->re_db_fetch_all($res);
+		}
+		return $return;
+	}
 
 	public function select_master($id=0, $file_type=''){
 		$id = (int)$this->re_db_input($id);
@@ -582,76 +601,71 @@ class webcrd extends db{
 		$return = $brokerId = 0;
 		$result = "";
 		// Skip the processing for invalid data record, Rep CRD #, Series Exam, Failed Test		
-		if (empty($fileRecord) OR empty($fileRecord['individual_crd_no'])
-		 ){
+		if (empty($fileRecord) OR empty($fileRecord['individual_crd_no']) OR empty($fileRecord['regulator_code'])){
 			$q = "UPDATE `".WEBCRD_REGISTRATION_STATUS_DATA."`"
 				." SET"
 					." `broker_id`= $brokerId"
-					.",`result`='No Change'"
+					.",`result`='Invalid Record'"
 				." WHERE `id`={$fileRecord['id']}"
 			;
 			$res = $this->re_db_query($q);
 			
 			return $return;
-		 }
+		}
 
 		$instance_broker = new broker_master();
 		$crd = $this->re_db_input($fileRecord['individual_crd_no']);
 		$brokerMaster = $instance_broker->select_broker_by_id(0, 'crd', $crd);
-		$master_register = $instance_broker->select_register();
+		$stateFound = $instance_broker->select_state($fileRecord['regulator_code']);
+		$regCatCode = $this->select_registration_category_codes($fileRecord['registration_category_code']);
 		$result = $res = '';
+		$licensesAdded = 0;
 		
-		// Load broker into BROKER REGISTER
-		if ($brokerMaster) {
-			// Find the correct Series
-			if (strtoupper($fileRecord['exam_series'])==='SIE'){
-				$license_name = 'Securities Industry Essentials';
-			} else {
-				$license_name = 'Series '.strtr(substr($fileRecord['exam_series'],1),['TO'=>' Top-Off']);
-			}
+		// Load broker into BROKER LICENSES
+		if ($brokerMaster AND $stateFound!=[] AND !empty($regCatCode[0]['table'])) {
+			$prodCatArray = explode(",", $regCatCode[0]['product_categories']);
 			
-			$registerRow = array_search($license_name, array_column($master_register, 'type'));
-			$license_id = ($registerRow ? $master_register[$registerRow]['id'] : 0);
-			
-			// INSERT or UPDATE the reps' Series License
-			if ($license_id AND $brokerMaster['id']){
-				$brokerRegister = $instance_broker->edit_registers($brokerMaster['id'], $license_id);
-				$fileDate = date("Y-m-d", strtotime($fileRecord['file_date']));
-				$expireDate = date("Y-m-d", strtotime($fileRecord['valid_until']));
-				
-				// Just UPDATE the license record
-				if ($brokerRegister){
-					$expirationQuery = ($expireDate>$brokerRegister[0]['expiration_date']) ? ",`expiration_date`='$expireDate'" : "";
-					
-					if ($fileDate > $brokerRegister[0]['approval_date']){
-						$q = "UPDATE `".BROKER_REGISTER_MASTER."`"
-							." SET `approval_date`='$fileDate'"
-							.$expirationQuery
-							.$this->update_common_sql()
-							." WHERE `id`={$brokerRegister[0]['id']}"
+			foreach ($prodCatArray AS $prodCatValue){
+				$brokerLicense = $instance_broker->edit_licences_securities($brokerMaster['id'], $stateFound[0]['id'], $prodCatValue);
+				// Check the current License Date
+				if ($brokerLicense==[] OR $brokerLicense[0]['active_check']==0 OR $brokerLicense[0]['received']<$fileRecord['file_date']){
+					if ($brokerLicense==[]){
+						$q = "INSERT INTO `".BROKER_LICENCES_SECURITIES."`"
+							." SET `broker_id`=".$brokerMaster['id']
+								.",`type_of_licences`=".($regCatCode[0]['table']=="ria" ? "3" : "1")
+								.",`state_id`=".$stateFound[0]['id']
+								.",`product_category`=".$prodCatValue
+								.",`active_check`=1"
+								.",`received`=".date('Y-m-d', strtotime($fileRecord['file_date']))
+								.$this->insert_common_sql()
 						;
-						$res = $this->re_db_query($q);
-						$result = "$license_name Updated";
+					} else {
+						$q = "UPDATE `".BROKER_LICENCES_SECURITIES."`"
+							." SET `active_check`=1"
+								.",`received`=".date('Y-m-d', strtotime($fileRecord['file_date']))
+								.$this->update_common_sql()
+							." WHERE `id`=".$brokerLicense[0]['id']
+						;
 					}
-				} else {
-					$q = "INSERT `".BROKER_REGISTER_MASTER."`"
-						." SET `broker_id`={$brokerMaster['id']}"
-							.",`license_id`=$license_id"
-							.",`license_name`='$license_name'"
-							.",`approval_date`='$fileDate'"
-							.",`expiration_date`='$expireDate'"
-							.$this->insert_common_sql()
-					;
 					$res = $this->re_db_query($q);
-					$result = "$license_name Added";
+					if ($res) { 
+						$licensesAdded++; 
+						$result = "Licenses added: $licensesAdded";
+					}	
+				
+				}
+				// Update "ria" or "insurance" table if appropriate
+				if ($regCatCode[0]['table']!='securities') {
+					
 				}
 			}
+			
 		}
 		
 		if ($res){
 			$q = "UPDATE `".WEBCRD_REGISTRATION_STATUS_DATA."`"
 				." SET"
-					." `broker_id`= $brokerId"
+					." `broker_id`= {$brokerMaster['id']}"
 					.",`result`='$result'"
 				." WHERE `id`={$fileRecord['id']}"
 			;

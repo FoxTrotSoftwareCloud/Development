@@ -2674,22 +2674,28 @@
             }
 			return $return;
 		}
-        public function select_state(){
+    public function select_state($shortName=''){
+      $shortName = $this->re_db_input($shortName);
 			$return = array();
+      $con = "";
+            
+      if ($shortName != '') { $con = " AND `short_name`='$shortName'"; }
 
-			$q = "SELECT `s`.*
-					FROM `".STATE_MASTER."` AS `s`
-                    WHERE `s`.`status`='1' and `s`.`is_delete`='0'
-                    ORDER BY `s`.`id` ASC";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
+			$q = "SELECT `s`.*"
+					  ." FROM `".STATE_MASTER."` AS `s`"
+            ." WHERE `s`.`status`='1'"
+            ." AND `s`.`is_delete`=0"
+            .$con
+            ." ORDER BY `s`.`id`"
+      ;
 
-    			}
-            }
-			return $return;
+      $res = $this->re_db_query($q);
+
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_all($res);
+      }
+
+      return $return;
 		}
         public function select_branch_office(){
 			$return = array();
@@ -2830,19 +2836,27 @@
             }
 			return $return;
 		}
-        public function edit_licences_securities($id){
+    public function edit_licences_securities($id=0, $stateId=0, $productCategory=0){
+      $id = (int)$this->re_db_input($id);
+      $stateId = (int)$this->re_db_input($stateId);
+      $productCategory = (int)$this->re_db_input($productCategory);
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".BROKER_LICENCES_SECURITIES."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."' ";
+      $con = '';
+      
+      if ($id != 0){ $con .= " AND `at`.`broker_id`=$id"; }
+      if ($stateId != 0){ $con .= " AND `at`.`state_id`=$stateId"; }
+      if ($productCategory != 0){ $con .= " AND `at`.`product_category`=$productCategory"; }
+      
+      $q = "SELECT `at`.*"
+			    ." FROM `".BROKER_LICENCES_SECURITIES."` AS `at`"
+          ." WHERE `at`.`is_delete`=0"
+          .$con
+      ;
 
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-    			}
-            }
+      $res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0){
+          $return = $this->re_db_fetch_all($res);
+      }
 			return $return;
 		}
         public function edit_licences_insurance($id){
