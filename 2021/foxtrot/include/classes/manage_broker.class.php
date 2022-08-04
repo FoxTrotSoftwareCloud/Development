@@ -29,14 +29,22 @@
 
     /**
 		 * @param int $brokerId, default all
-		 * @return
+		 * @return one-dimensional array from BROKER MASTER
+     * 07/28/22 Allow user to choose database field\value combo - only returns first match
 		 * */
-		public function select_broker_by_id($brokerId)
-    {
+		public function select_broker_by_id($brokerId=0, $tableField='', $tableValue=''){
+      $brokerId = (int)$this->re_db_input($brokerId);
+      $tableField = $this->re_db_input($tableField);
+      $tableValue = $this->re_db_input($tableValue);
+      $con = '';
+      
+      if ($brokerId > 0) { $con = " AND `fbg`.`id` = $brokerId"; }
+      if (!empty($tableField) AND !empty($tableValue)) { $con = " AND `fbg`.`$tableField` = '$tableValue'"; }
+      
 			$q = "SELECT `fbg`.*"
 					  ." FROM `" . $this->table . "` AS `fbg`"
             ." WHERE `fbg`.`is_delete`=0"
-            ." AND `fbg`.`id`=$brokerId"
+              .$con
             ." ORDER BY `fbg`.`id` ASC";
 			$res = $this->re_db_query($q);
       if($this->re_db_num_rows($res)>0)
@@ -123,9 +131,9 @@
 		public function select_broker_branch_by_id($brokerId)
     {
 			$q = "SELECT `bb`.*
-					FROM `" . BROKER_BRANCHES . "` AS `bb`
-                    WHERE `bb`.`is_delete`='0' AND `bb`.`id`=$brokerId
-                    ORDER BY `bb`.`id` ASC";
+					  FROM `" . BROKER_BRANCHES . "` AS `bb`
+            WHERE `bb`.`is_delete`='0' AND `bb`.`id`=$brokerId
+            ORDER BY `bb`.`id` ASC";
 
 			$res = $this->re_db_query($q);
       if($this->re_db_num_rows($res)>0)
@@ -234,19 +242,20 @@
               $_SESSION['last_insert_id'] = $this->re_db_insert_id();
 
               if($res){
+                  $_SESSION['success'] = INSERT_MESSAGE;
+                  return true;
+
                   //--- IMPORT File call ---//
                   if($for_import == 'true'){
                       //--- 3/17/22 Flag the exception as "add_new", process the record again to resolve the exception
                       $instance_import = new import();
                       $instance_import->resolve_exception_5AddNew('broker_id', $_SESSION['last_insert_id'], $_GET['exception_record_id']);
-
-                      $_SESSION['success'] = INSERT_MESSAGE;
-                      return true;
-                  } else {
-                      $_SESSION['warning'] = UNKWON_ERROR;
-                      return false;
                   }
+              } else {
+                  $_SESSION['warning'] = UNKWON_ERROR;
+                  return false;
               }
+              
           } else if($id>0) {
               $q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`middle_name`='".$mname."',`suffix`='".$suffix."',`fund`='".$fund."',`internal`='".$internal."',`display_on_statement`='".$display_on_statement."',`tax_id`='".$tax_id."',`crd`='".$crd."',`ssn`='".$ssn."',`active_status`='".$active_status_cdd."',`pay_method`='".$pay_method."'".$this->update_common_sql()." WHERE `id`='".$id."'";
               $res = $this->re_db_query($q);
@@ -2171,26 +2180,21 @@
 		}
 
     public function select_category_based_on_series() {
-
-         	$return = array();
-         /*(21,16,1,4,5,12,6,3,22)*/
-			 $q = "SELECT `at`.*
-					FROM `".PRODUCT_TYPE."` AS `at`
-                    WHERE `at`.`is_delete`='0' and id in (21,16,1,4,5,12,6,3,22)
-                    ORDER BY `at`.`id` ASC";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
-            }
-			return $return;
-
-
+        $return = array();
+        // 08/03/22 Include ALL product categories, and remove the "RIA" & "Insurance" tabs
+        // Prior filter id in (21,16,1,4,5,12,6,3,22)
+        $q = "SELECT `at`.*"
+            ." FROM `".PRODUCT_TYPE."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'"
+            ." ORDER BY `at`.`type` ASC"
+        ;
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+            $return = $this->re_db_fetch_all($res);
+        }
+        return $return;
     }
-        public function select_category(){
+          public function select_category(){
 			$return = array();
 
 			$q = "SELECT `at`.*
@@ -2578,31 +2582,29 @@
             }
 			return $return;
 		}
-        public function get_previous_broker($id){
+    public function get_previous_broker($id){
+        $q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name"
+					  ." FROM `".$this->table."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'   group by id"
+            ." ORDER BY GROUP_CONCAT(last_name,' ',first_name) DESC "
+        ;
+        $res = $this->re_db_query($q);
+        $isFind =false;
+        
+        if($this->re_db_num_rows($res)>0){
+          while($row = $this->re_db_fetch_array($res)){
+            if($isFind)
+              return $row;
 
-         	$q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name
-					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0'   group by id
-                    ORDER BY GROUP_CONCAT(last_name,' ',first_name) DESC ";
-				   	$res = $this->re_db_query($q);
-				   	$isFind =false;
-		            if($this->re_db_num_rows($res)>0){
-
-		                while($row = $this->re_db_fetch_array($res)){
-		                	       if($isFind)
-		                	       	  return $row;
-
-		                	       if($row['id']== $id)
-                                 $isFind=true;
-
-
-		                }
-		            }
-		            else
-		            {
-		                return false;
-		            }
-			return $return;
+            if($row['id']== $id)
+              $isFind=true;
+          }
+        }
+        else
+        {
+          return false;
+        }
+			  return false;
 		}
         public function get_next_broker($id){
 			$return = array();
@@ -2665,22 +2667,28 @@
             }
 			return $return;
 		}
-        public function select_state(){
+    public function select_state($shortName=''){
+      $shortName = $this->re_db_input($shortName);
 			$return = array();
+      $con = "";
+            
+      if ($shortName != '') { $con = " AND `short_name`='$shortName'"; }
 
-			$q = "SELECT `s`.*
-					FROM `".STATE_MASTER."` AS `s`
-                    WHERE `s`.`status`='1' and `s`.`is_delete`='0'
-                    ORDER BY `s`.`id` ASC";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
+			$q = "SELECT `s`.*"
+					  ." FROM `".STATE_MASTER."` AS `s`"
+            ." WHERE `s`.`status`='1'"
+            ." AND `s`.`is_delete`=0"
+            .$con
+            ." ORDER BY `s`.`id`"
+      ;
 
-    			}
-            }
-			return $return;
+      $res = $this->re_db_query($q);
+
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_all($res);
+      }
+
+      return $return;
 		}
         public function select_branch_office(){
 			$return = array();
@@ -2821,19 +2829,28 @@
             }
 			return $return;
 		}
-        public function edit_licences_securities($id){
+    public function edit_licences_securities($id=0, $stateId=0, $productCategory=0){
+      $id = (int)$this->re_db_input($id);
+      $stateId = (int)$this->re_db_input($stateId);
+      $productCategory = (int)$this->re_db_input($productCategory);
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".BROKER_LICENCES_SECURITIES."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."' ";
+      $con = '';
+      
+      if ($id != 0){ $con .= " AND `at`.`broker_id`=$id"; }
+      if ($stateId != 0){ $con .= " AND `at`.`state_id`=$stateId"; }
+      if ($productCategory != 0){ $con .= " AND `at`.`product_category`=$productCategory"; }
+      
+      $q = "SELECT `at`.*"
+			    ." FROM `".BROKER_LICENCES_SECURITIES."` AS `at`"
+          ." WHERE `at`.`is_delete`=0"
+          .$con
+          ." ORDER BY `at`.`broker_id`,`at`.`product_category`,`at`.`state_id`,`at`.`received`,`at`.`terminated`"
+      ;
 
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-    			}
-            }
+      $res = $this->re_db_query($q);
+      if($this->re_db_num_rows($res)>0){
+          $return = $this->re_db_fetch_all($res);
+      }
 			return $return;
 		}
         public function edit_licences_insurance($id){
@@ -2864,18 +2881,26 @@
             }
 			return $return;
 		}
-        public function edit_registers($id){
-			$return = array();
-			$q = "SELECT `at`.*
-					FROM `".BROKER_REGISTER_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."' ";
-            $res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
-            }
+    public function edit_registers($id=0, $license_id=''){
+      $return = array();
+      $con = '';
+      $id = (int)$this->re_db_input($id);
+      $license_id = $this->re_db_input($license_id);
+      
+      if ($license_id!=''){ $con = " AND `at`.`license_id`='$license_id'"; }
+      
+			$q = "SELECT `at`.*"
+					  ." FROM `".BROKER_REGISTER_MASTER."` AS `at`"
+            ." WHERE `at`.`is_delete`=0"
+            ." AND `at`.`broker_id`=$id"
+            .$con
+      ;
+            
+      $res = $this->re_db_query($q);
+      
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_all($res);
+      }
 			return $return;
 		}
         public function edit_required_docs($id){
@@ -2975,7 +3000,8 @@
 		 * */
 		public function delete($id){
 			$id = trim($this->re_db_input($id));
-			if($id>0 && ($status==0 || $status==1) ){
+			// 08/03/22 Removed - $status not initialized --> if($id>0 && ($status==0 || $status==1) ){
+			if($id>0){
 				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
                 $q = "UPDATE `".BROKER_LICENCES_SECURITIES."` SET `is_delete`='1' WHERE `broker_id`='".$id."'";
