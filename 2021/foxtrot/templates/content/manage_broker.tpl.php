@@ -2222,7 +2222,7 @@ $(document).ready(function(){
                                                                    </td>-->
                                                                      <td>
                                                                        <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="<?php echo $secval['id'] ?>">
-                                                                      <select class="form-control" name="data_sec[category][<?php echo $row_counter; ?>]" id="data_sec[category][<?php echo $row_counter; ?>]" style="display: inline !important;">
+                                                                      <select class="form-control" name="data_sec[category][<?php echo $row_counter; ?>]" id="data_sec[category][<?php echo $row_counter; ?>]" style="display: inline !important; padding-right: 30px;">
                                                                      <option value="">Select Category</option>
                                                                      <?php
                                                                      //select_category
@@ -2279,7 +2279,7 @@ $(document).ready(function(){
                                                                   </td>-->
                                                                      <td>
                                                                       <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="">
-                                                                      <select class="form-control" name="data_sec[category][<?php echo $row_counter; ?>]" id="data_sec['category'][<?php echo $row_counter; ?>]" style="display: inline !important;">
+                                                                      <select class="form-control" name="data_sec[category][<?php echo $row_counter; ?>]" id="data_sec['category'][<?php echo $row_counter; ?>]" style="display: inline !important; padding-right: 30px;">
                                                                      <option value="">Select Category</option>
                                                                      <?php
                                                                         $product_category_based_on_series = $instance->select_category_based_on_series();
@@ -4766,7 +4766,7 @@ function add_sec_row(row=0){
       //  '</td>'+
       '<td>'+
          '<input type="hidden" name="data_sec[row_id][]" id="data_sec_row_id'+row_counter+'" value=""> '+
-         '<select class="form-control" name="data_sec[category][]" id="data_sec_category'+row_counter+'" style="display: inline !important;">'+
+         '<select class="form-control" name="data_sec[category][]" id="data_sec_category'+row_counter+'" style="display: inline !important; padding-right: 30px;">'+
             '<option value="">Select Category</option>'+
             <?php
                if (isset($regval['id'])) {

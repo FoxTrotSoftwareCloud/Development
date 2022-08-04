@@ -5,7 +5,9 @@
         <ul class="nav nav-pills nav-stacked col-md-2">
           <li id="pill_tab_a" name="pill_tabs" class=""><a href="#tab_a" data-toggle="pill">CE Download</a></li>
           <li id="pill_tab_b" name="pill_tabs" class=""><a href="#tab_b" data-toggle="pill">FINRA Exam Status</a></li>
+          <li id="pill_tab_c" name="pill_tabs" class=""><a href="#tab_c" data-toggle="pill">Registration Status</a></li>
         </ul>
+        
         <div class="tab-content col-md-10">
             <div class="tab-pane" id="tab_a" name="file_type_tabs">
                 <div class="selectwrap">
@@ -63,22 +65,22 @@
             
             <!-- 2. FINRA Exam Status -->
             <div class="tab-pane" id="tab_b" name="file_type_tabs">
+                <div class="selectwrap">
                     <div class="selectwrap">
-                        <div class="selectwrap">
-                            <div class="row">
-                                <form method="post" enctype="multipart/form-data">
-                                    <center>
-                                    <input type="file" name="file_finra_exam_status" id="file_finra_exam_status" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
-                					<input type="submit" name="import_finra_exam_status" class="btn btn-warning btn-lg btn3d" value="Process File" onclick="waitingDialog.show('Importing FINRA Exam file. Please wait. . .')"/></center>
-                                </form>
-                            </div>
+                        <div class="row">
+                            <form method="post" enctype="multipart/form-data">
+                                <center>
+                                <input type="file" name="file_finra_exam_status" id="file_finra_exam_status" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
+                                <input type="submit" name="import_finra_exam_status" class="btn btn-warning btn-lg btn3d" value="Process File" onclick="waitingDialog.show('Importing FINRA Exam file. Please wait. . .')"/></center>
+                            </form>
                         </div>
-                        <br />
-                        <div class="panel">
-                    		<div class="panel-heading">
-                                <h3 class="panel-title">FINRA Exam Status</h3>
-                    		</div>
-                    		<div class="panel-body">
+                    </div>
+                    <br />
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">FINRA Exam Status</h3>
+                        </div>
+                        <div class="panel-body">
                             <div class="table-responsive" id="register_data">
                     			<table id="data-table2" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                     <thead>
@@ -112,13 +114,70 @@
                                         ?>
                                     </tbody>
                                 </table>
-                                </div>
-                    		</div>
-                    	</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- 3. Registration Status -->
+            <div class="tab-pane" id="tab_c" name="file_type_tabs">
+                <div class="selectwrap">
+                    <div class="selectwrap">
+                        <div class="row">
+                            <form method="post" enctype="multipart/form-data">
+                                <center>
+                                <input type="file" name="file_registration_status" id="file_registration_status" accept=".csv" class="btn btn-warning btn-lg btn3d" style="display: inline;"/>
+                                <input type="submit" name="import_registration_status" class="btn btn-warning btn-lg btn3d" value="Process File" onclick="waitingDialog.show('Importing Registration Status file. Please wait. . .')"/></center>
+                            </form>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Registration Status</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive" id="register_data">
+                                <table id="data-table2" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr>
+                                        <th>FILE NAME</th>
+                                        <th>IMPORT DATE</th>
+                                        <th>TOTAL RECORDS</th>
+                                        <th>BROKERS UPDATED</th>
+                                        <th class="text-center">ACTION</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                            $count = 0;
+                                            $return = $instance->select_master(0,'registration status');
+
+                                            foreach($return as $key=>$val){
+                                        ?>
+                                            <tr>
+                                                <td><?php echo $val['file_name']; ?></td>
+                                                <td><?php echo date('m/d/Y h:i:s A',strtotime($val['import_date'])); ?></td>
+                                                <td><?php echo $val['total_scan']; ?></td>
+                                                <td><?php echo $val['added']; ?></td>
+                                                <td class="text-center">
+                                                    <a href="<?php echo CURRENT_PAGE; ?>?open=registration_status_view&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View</a>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
+                                                </td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
         </div>
-        
+
         <!-- 07/29/22 DELETE ME TEST - CE Download/OFAC Modal window removed - just go straight to the PDF Print Preview window -->
         <div id="ofac_Modal" class="modal fade" role="dialog" aria-hidden="true" tabindex="-1"> 
         	<div class="modal-dialog modal-lg">
@@ -159,6 +218,7 @@
         </div>
    </div>
 </div>
+
 <script type="text/javascript">
     $(document).ready(function() {
         $('#data-table1').DataTable({
@@ -192,6 +252,9 @@
     <?php } else if(isset($_GET['open']) && $_GET['open'] == "finra_exam_status_view"){?>
         window.open('report_webcrd_finra_exam_status.php?id=' + <?php echo $_GET['id'] ?>,'_blank');
         location.href=location.href.replace(/\?(.*)/i, "?tab=tab_b");
+    <?php } else if(isset($_GET['open']) && $_GET['open'] == "registration_status_view"){?>
+        window.open('report_webcrd_registration_status.php?id=' + <?php echo $_GET['id'] ?>,'_blank');
+        location.href=location.href.replace(/\?(.*)/i, "?tab=tab_c");
     <?php } ?>
     
     // Default File Type tabs
@@ -201,9 +264,13 @@
     document.getElementsByName("pill_tabs").forEach(function(el){
         el.classList.remove('active')
     })
+
     <?php if((isset($_GET['open']) && $_GET['open'] == "finra_exam_status_view") || (isset($_GET['tab']) && $_GET['tab'] == 'tab_b')) { ?>
         document.getElementById('pill_tab_b').classList.add('active')
         document.getElementById('tab_b').classList.add('active')
+    <?php } else if((isset($_GET['open']) && $_GET['open'] == "registration_status_view") || (isset($_GET['tab']) && $_GET['tab'] == 'tab_c')) { ?>
+        document.getElementById('pill_tab_c').classList.add('active')
+        document.getElementById('tab_c').classList.add('active')
     <?php } else { ?>
         document.getElementById('pill_tab_a').classList.add('active')
         document.getElementById('tab_a').classList.add('active')

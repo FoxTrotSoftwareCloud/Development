@@ -527,7 +527,7 @@ class webcrd extends db{
 			$return = $this->insert_update_master(['total_scan'=>$total_scan, 'added'=>$added, 'file_name'=>$file_name, 'file_type'=>"Registration Status", 'file_date'=>$file_date, 'import_date'=>$import_date]);
 			
 			if ($return){
-				$q = "UPDATE `".WEBCRD_EXAM_STATUS_DATA."`"
+				$q = "UPDATE `".WEBCRD_REGISTRATION_STATUS_DATA."`"
 					." SET `master_id`=$return"
 					." WHERE `is_delete`=0 AND `master_id`=0"
 				;
@@ -620,37 +620,44 @@ class webcrd extends db{
 		$regCatCode = $this->select_registration_category_codes($fileRecord['registration_category_code']);
 		$result = $res = '';
 		$licensesAdded = 0;
+		$approved = strcasecmp($fileRecord['registration_status_name'],'Approved')==0 AND strcasecmp($fileRecord['registration_status_type_code'],'ACTIVE')==0;
+		$inActive = strcasecmp($fileRecord['registration_status_type_code'],'INACTIVE')==0;
 		
 		// Load broker into BROKER LICENSES
 		if ($brokerMaster AND $stateFound!=[] AND !empty($regCatCode[0]['table'])) {
 			$prodCatArray = explode(",", $regCatCode[0]['product_categories']);
 			
 			foreach ($prodCatArray AS $prodCatValue){
+				$res = '';				
 				$brokerLicense = $instance_broker->edit_licences_securities($brokerMaster['id'], $stateFound[0]['id'], $prodCatValue);
-				// Check the current License Date
-				if ($brokerLicense==[] OR $brokerLicense[0]['active_check']==0 OR $brokerLicense[0]['received']<$fileRecord['file_date']){
-					if ($brokerLicense==[]){
+				// Add/Update the current License Date
+				if ($brokerLicense==[] OR $brokerLicense[0]['active_check']==0 OR $brokerLicense[0]['received']<$fileRecord['current_status_date']){
+					if ($brokerLicense==[] AND $approved){
 						$q = "INSERT INTO `".BROKER_LICENCES_SECURITIES."`"
 							." SET `broker_id`=".$brokerMaster['id']
 								.",`type_of_licences`=".($regCatCode[0]['table']=="ria" ? "3" : "1")
 								.",`state_id`=".$stateFound[0]['id']
 								.",`product_category`=".$prodCatValue
 								.",`active_check`=1"
-								.",`received`=".date('Y-m-d', strtotime($fileRecord['file_date']))
+								.",`received`='".date('Y-m-d', strtotime($fileRecord['current_status_date']))."'"
 								.$this->insert_common_sql()
 						;
-					} else {
+						$res = $this->re_db_query($q);
+					} else if ($brokerLicense!=[]){
 						$q = "UPDATE `".BROKER_LICENCES_SECURITIES."`"
 							." SET `active_check`=1"
-								.",`received`=".date('Y-m-d', strtotime($fileRecord['file_date']))
+								.",`received`='".date('Y-m-d', strtotime($fileRecord['current_status_date']))."'"
+								.",`terminated`=".($inActive ? "'".date('Y-m-d', strtotime($fileRecord['current_status_date']))."'" : "0001-01-01")
+								.",`reson`=".($inActive ? "'".$fileRecord['registration_status_name']."'" : "`reson`")
 								.$this->update_common_sql()
 							." WHERE `id`=".$brokerLicense[0]['id']
 						;
+						$res = $this->re_db_query($q);
 					}
-					$res = $this->re_db_query($q);
+	
 					if ($res) { 
 						$licensesAdded++; 
-						$result = "Licenses added: $licensesAdded";
+						$result = ($approved ? "License added/updated:" : "Inactive/Terminated ")." $prodCatValue/{$stateFound[0]['short_name']}";
 					}	
 				
 				}
@@ -672,7 +679,7 @@ class webcrd extends db{
 			$res = $this->re_db_query($q);
 		}
 
-		return $res;
+		return $licensesAdded;
 	}
 
 	public function select_registration_status_data($masterId=null, $orderBy=0, $resultsOnly=0){
@@ -683,12 +690,12 @@ class webcrd extends db{
 
 		// 07/30/22 Need to check for "null", because there are master id = 0 calls in the table/program
 		if (!is_null($masterId)) { $con .= " AND `at`.`master_id`=$masterId"; }
-		if ($resultsOnly>0) { $con .= " AND (`at`.`result`!='' AND `at`.`result`!='No Change')"; }
+		if ($resultsOnly>0) { $con .= " AND (`at`.`result`!='Invalid Record' AND `at`.`result` IS NOT NULL)"; }
 
 		if ($orderBy == 0){
 			$orderByQuery = "`at`.`id`"; //"`at`.`master_id` DESC, `at`.`individual_crd_no`";
 		} else {
-			$orderByQuery = "`at`.`last_name`,`at`.`first_name`,`at`.`individual_crd_no`,`at`.`exam_series`,`at`.`id`";
+			$orderByQuery = "`at`.`last_name`,`at`.`first_name`,`at`.`individual_crd_no`,`at`.`id`";
 		}
 		// Query data
 		$q = "SELECT `at`.*"

@@ -2180,26 +2180,21 @@
 		}
 
     public function select_category_based_on_series() {
-
-         	$return = array();
-         /*(21,16,1,4,5,12,6,3,22)*/
-			 $q = "SELECT `at`.*
-					FROM `".PRODUCT_TYPE."` AS `at`
-                    WHERE `at`.`is_delete`='0' and id in (21,16,1,4,5,12,6,3,22)
-                    ORDER BY `at`.`id` ASC";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
-            }
-			return $return;
-
-
+        $return = array();
+        // 08/03/22 Include ALL product categories, and remove the "RIA" & "Insurance" tabs
+        // Prior filter id in (21,16,1,4,5,12,6,3,22)
+        $q = "SELECT `at`.*"
+            ." FROM `".PRODUCT_TYPE."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'"
+            ." ORDER BY `at`.`type` ASC"
+        ;
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+            $return = $this->re_db_fetch_all($res);
+        }
+        return $return;
     }
-        public function select_category(){
+          public function select_category(){
 			$return = array();
 
 			$q = "SELECT `at`.*
@@ -2587,31 +2582,29 @@
             }
 			return $return;
 		}
-        public function get_previous_broker($id){
+    public function get_previous_broker($id){
+        $q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name"
+					  ." FROM `".$this->table."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'   group by id"
+            ." ORDER BY GROUP_CONCAT(last_name,' ',first_name) DESC "
+        ;
+        $res = $this->re_db_query($q);
+        $isFind =false;
+        
+        if($this->re_db_num_rows($res)>0){
+          while($row = $this->re_db_fetch_array($res)){
+            if($isFind)
+              return $row;
 
-         	$q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name
-					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0'   group by id
-                    ORDER BY GROUP_CONCAT(last_name,' ',first_name) DESC ";
-				   	$res = $this->re_db_query($q);
-				   	$isFind =false;
-		            if($this->re_db_num_rows($res)>0){
-
-		                while($row = $this->re_db_fetch_array($res)){
-		                	       if($isFind)
-		                	       	  return $row;
-
-		                	       if($row['id']== $id)
-                                 $isFind=true;
-
-
-		                }
-		            }
-		            else
-		            {
-		                return false;
-		            }
-			return $return;
+            if($row['id']== $id)
+              $isFind=true;
+          }
+        }
+        else
+        {
+          return false;
+        }
+			  return false;
 		}
         public function get_next_broker($id){
 			$return = array();
@@ -2851,6 +2844,7 @@
 			    ." FROM `".BROKER_LICENCES_SECURITIES."` AS `at`"
           ." WHERE `at`.`is_delete`=0"
           .$con
+          ." ORDER BY `at`.`broker_id`,`at`.`product_category`,`at`.`state_id`,`at`.`received`,`at`.`terminated`"
       ;
 
       $res = $this->re_db_query($q);
@@ -3006,7 +3000,8 @@
 		 * */
 		public function delete($id){
 			$id = trim($this->re_db_input($id));
-			if($id>0 && ($status==0 || $status==1) ){
+			// 08/03/22 Removed - $status not initialized --> if($id>0 && ($status==0 || $status==1) ){
+			if($id>0){
 				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
                 $q = "UPDATE `".BROKER_LICENCES_SECURITIES."` SET `is_delete`='1' WHERE `broker_id`='".$id."'";
