@@ -5,7 +5,7 @@ if(isset($_GET['broker_id']) && $_GET['broker_id'] != '')
 {
     $broker_id = $_GET['broker_id'];
     $instance_broker = new broker_master();
-    $get_single_broker = $instance_broker->edit($broker_id);
+    $get_single_broker = $instance_broker->select_broker_by_id($broker_id);
     $fund_clearing_number = isset($get_single_broker['fund'])?$get_single_broker['fund']:'';
     echo $fund_clearing_number;exit;
 }
