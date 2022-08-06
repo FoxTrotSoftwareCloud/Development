@@ -433,8 +433,9 @@ class payroll extends db{
                 foreach($get_current_payroll as $key_current_payroll=>$val_current_payroll)
                 {
                     $broker_id = $val_current_payroll['broker_id'];
+                    //--- 08/06
                     $instance_broker = new broker_master();
-                    $get_broker_data = $instance_broker->edit($broker_id);
+                    $get_broker_data = $instance_broker->select_broker_by_id($broker_id);
                                     
                     $q = "INSERT INTO ".PRIOR_PAYROLL_MASTER." 
                             SET 
