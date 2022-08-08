@@ -80,7 +80,7 @@ class webcrd extends db{
 		
 		return $return;
 	}
-	public function delete($id, $status=0){
+	public function delete($id=0, $type=''){
 		$id = trim($this->re_db_input($id));
 		if($id>0 && ($status==0 || $status==1) ){
 			$q = "DELETE FROM `".OFAC_CHECK_DATA_MASTER."` WHERE `id`='".$id."'";
