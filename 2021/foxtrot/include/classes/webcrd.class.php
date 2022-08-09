@@ -82,46 +82,39 @@ class webcrd extends db{
 	}
 	public function delete($id=0, $type=''){
 		$id = trim($this->re_db_input($id));
-		if($id>0 && ($status==0 || $status==1) ){
-			$q = "DELETE FROM `".OFAC_CHECK_DATA_MASTER."` WHERE `id`='".$id."'";
+		$type = trim($this->re_db_input($type));
+		$dataTable = '';
+		if ($type == "ce_download"){
+			$dataTable = WEBCRD_CE_DOWNLOAD_DATA;
+		} else if ($type == 'finra_exam_status'){
+			$dataTable = WEBCRD_EXAM_STATUS_DATA;
+		} else if ($type == 'registration_status'){
+			$dataTable = WEBCRD_REGISTRATION_STATUS_DATA;
+		}
+		
+		if($id>0 && $type!='' && $dataTable!=''){
+			$q = "UPDATE `".WEBCRD_MASTER."`" 
+				." SET `is_delete`=1"
+					.$this->update_common_sql()
+				." WHERE `id`=$id"
+			;
 			$res = $this->re_db_query($q);
+			// DELETE data records - permanently remove - because thousands of orphaned records were bloating the data(file rows) table - 08/08/22
+			if($res){
+				$q = "DELETE FROM `$dataTable` WHERE `master_id`=$id";
+				$res = $this->re_db_query($q);
+			}
 
-			$q = "DELETE FROM `".OFAC_CHECK_DATA."` WHERE `ofac_check_data_id`='".$id."'";
-			$res = $this->re_db_query($q);
 			if($res){
 				$_SESSION['success'] = DELETE_MESSAGE;
 				return true;
-			}
-			else{
+			} else {
 				$_SESSION['warning'] = UNKWON_ERROR;
 				return false;
 			}
 		}
 		else{
-				$_SESSION['warning'] = UNKWON_ERROR;
-			return false;
-		}
-	}
-	public function delete_fincen($id, $status=0){
-		$id = trim($this->re_db_input($id));
-
-		if($id>0 && ($status==0 || $status==1) ){
-			$q = "DELETE FROM `".FINCEN_CHECK_DATA_MASTER."` WHERE `id`='".$id."'";
-			$res = $this->re_db_query($q);
-
-			$q = "DELETE FROM `".FINCEN_CHECK_DATA."` WHERE `fincen_scan_id`='".$id."'";
-			$res = $this->re_db_query($q);
-			if($res){
-				$_SESSION['success'] = DELETE_MESSAGE;
-				return true;
-			}
-			else{
-				$_SESSION['warning'] = UNKWON_ERROR;
-				return false;
-			}
-		}
-		else{
-				$_SESSION['warning'] = UNKWON_ERROR;
+			$_SESSION['warning'] = 'Procedure cancelled: file ID or Type invalid';
 			return false;
 		}
 	}

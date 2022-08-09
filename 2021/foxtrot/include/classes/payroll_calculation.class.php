@@ -514,7 +514,6 @@ class payroll_calculation extends payroll {
         return $return;
     }
 
-
    /**  Populate PAYROLL_SPLIT_RATES table from PAYROLL_REVIEW_MASTER that exist in TRANSACTION_TRADE_SPLITS - 10/13/21
      *  @param int payroll_id 
      * @return void 

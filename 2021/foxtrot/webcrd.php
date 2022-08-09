@@ -34,6 +34,7 @@
             exit;
         }
     }
+    
     if($action=='delete' && !empty($_GET['type']) && !empty($_GET['id'])){
         $return = $instance->delete($_GET['id'], $_GET['type']);
 
@@ -46,14 +47,13 @@
         }
         
         if ($return===true){
-			$_SESSION['success'] = INSERT_MESSAGE;
+			$_SESSION['success'] = "File #$id deleted successfully.";
         } else {
             $_SESSION['warning'] = UNKWON_ERROR;
         }
         header('location:'.CURRENT_PAGE."?tab=$pageTab");
         exit;
-    }
-    else if($action=='view'){
+    } else if($action=='view'){
         unset($_SESSION['warning']);
     }	 
 
