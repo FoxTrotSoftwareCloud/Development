@@ -1632,6 +1632,8 @@
                     if ($res['source']=='GENERIC'){
                         $instance_importGeneric = new import_generic();
                         $return = $instance_importGeneric->process_file($res['file_name']);
+                    } else if ($res['source']=='DAZL'){
+                        $return = $this->process_file_DAZL($res['file_name']);
                     }
                     return $return;
                 }
@@ -3723,18 +3725,17 @@
         public function select_current_file_id(){
 			$return = array();
 
-			$q = "SELECT `at`.`id`
-					FROM `".IMPORT_CURRENT_FILES."` AS `at`
-                    WHERE `at`.`is_delete`=0 and `at`.`user_id`='".$_SESSION['user_id']."'
-                    ORDER BY `at`.`imported_date` DESC";
-			$res = $this->re_db_query($q);
+			$q = "SELECT `at`.`id`"
+                ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
+                ." WHERE `at`.`is_delete`=0"
+                ." ORDER BY `at`.`imported_date` DESC"
+            ;
+			
+            $res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
+                $return = $this->re_db_fetch_all($res);
             }
+            
 			return $return;
 		}
         public function check_exception_data($file_id){
@@ -4207,7 +4208,7 @@
 			$q = "SELECT `at`.*
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_CURRENT_FILES."` AS `cf` on `at`.`file_id` = `cf`.`id`
-                    WHERE `at`.`is_delete`=0 and `at`.`solved`='1' and `at`.`process_completed`='1' and `at`.`file_id`='".$file_id."' and `cf`.`user_id`='".$_SESSION['user_id']."'
+                    WHERE `at`.`is_delete`=0 and `at`.`solved`='1' and `at`.`process_completed`='1' and `at`.`file_id`='".$file_id."'
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){

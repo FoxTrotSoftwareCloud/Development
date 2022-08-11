@@ -76,7 +76,7 @@ function GetFileList()
             dlist += "</div>";
             dlist += "</form>";
     }
-	console.log(dlist);
+	//--- 08/10/22 TEST DELETE ME---> console.log(dlist);
 	//document.getElementByID("FileList").innerHTML=dlist;
 	document.getElementById("FileList").innerHTML=dlist;
     Download();
