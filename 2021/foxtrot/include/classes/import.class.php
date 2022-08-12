@@ -96,6 +96,42 @@
             }
 		}
 
+        /** 08/11/22 Load the IMPORT CURRENT FILE from a specified directory. Developed for files that aren't fetched via Foxtrot  */
+        function insert_update_current_file($directory='', $extension='csv', $defaultValues=[]){
+            $return = $files = [];
+            $setFields = $q = $res = '';
+            
+            if (is_dir($directory)){
+                $files = array_filter(scandir($directory), function ($dirContents) use($extension){
+                   return pathinfo($dirContents, PATHINFO_EXTENSION) == $extension; 
+                });
+            }
+            
+            if ($files){
+                foreach ($defaultValues AS $field=>$value){
+                    $setFields .= ",`$field`='$value'";
+                }    
+                
+                foreach ($files AS $file){
+                    $checkCurrent = $this->check_current_files(0, $file);
+                    
+                    if (count($checkCurrent)==0){
+                        $q = "INSERT INTO `".IMPORT_CURRENT_FILES."`"
+                            ." SET `file_name`='{$file}'"
+                                .$setFields
+                                .$this->insert_common_sql()
+                        ;
+
+                        $res = $this->re_db_query($q);
+                        if ($res){
+                            $return[] = $file;
+                        }
+                    }
+                }
+            }
+            return $return;
+        } 
+        
         /** Resolve Exceptions and Update the Exception table:
          *  Resolve_Action:
          *      1) Place Hold,
@@ -4443,22 +4479,22 @@
             ;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     $return = $row;
-
-    			}
+    			$return = $this->re_db_fetch_array($res);
             }
 			return $return;
 		}
-        public function check_current_files($user_id=0){
-			$return = array();
-            $userQuery = ($user_id==0 ? '' : "`at`.`user_id`='$user_id'");
+        public function check_current_files($user_id=0, $file_name=''){
+            $return = array();
+            $con = '';
+			$user_id = (int)$this->re_db_input($user_id);
+			$file_name = $this->re_db_input($file_name);
+            $con .= ($user_id==0 ? '' : " AND `at`.`user_id`=$user_id");
+            $con .= ($file_name=='' ? '' : " AND `at`.`file_name`='$file_name'");
 
 			$q = "SELECT `at`.`file_name`"
 				    ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
                     ." WHERE `at`.`is_delete`=0"
-                        .$userQuery
+                        .$con
                     ." ORDER BY `at`.`id` ASC"
             ;
 
