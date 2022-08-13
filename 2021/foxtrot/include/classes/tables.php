@@ -90,4 +90,6 @@
     define('WEBCRD_REGISTRATION_STATUS_DATA','ft_webcrd_registration_status_data');
     define('WEBCRD_REGISTRATION_CATEGORY_CODES','ft_webcrd_registration_category_codes');
     define('DAZL_SECURITY_DATA','ft_dazl_security_data');
+    define('DAZL_ACCOUNT_DATA','ft_dazl_account_data');
+    define('DAZL_COMM_DATA','ft_dazl_comm_data');
 ?>
