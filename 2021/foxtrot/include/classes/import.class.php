@@ -1975,6 +1975,7 @@
          *      - don't delete Client_Master & Transactions_Master that match the file $file_id
          * 02/15/22 Parameters to pull individual records. Called from this>resolve exception($data) function
          * 05/02/22 Store Broker Branch->Company for Reporting & Payroll Processing purposes later
+         * 08/15/22 DAZL download added
          * @param int $file_id
          * @return string|bool
          ***************************************************************/
@@ -2006,12 +2007,10 @@
 					return $this->errors;
 				} else {
                     // File information
-                    $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `id`=$file_id";
-                    $res = $this->re_db_query($q);
-                    $file_array = $this->re_db_fetch_array($res);
+                    $file_array = $this->select_user_files($file_id);
                     $file_sponsor_array = $instance_manage_sponsor->edit_sponsor($file_array['sponsor_id']);
 
-                    if (empty($file_array['sponsor_id'])) {
+                    if (empty($file_array['sponsor_id']) AND !in_array(strtolower($file_array['source']),['dazl'])) {
                         $file_sponsor_array = $this->get_sponsor_on_system_management_code(substr($file_array['file_name'],0,3), substr($file_array['file_name'],3,2));
 
                         if (!empty($file_sponsor_array['id'])){
@@ -2022,7 +2021,7 @@
                         }
                     }
 
-                    if (empty($file_array['sponsor_id'])){
+                    if (empty($file_array['sponsor_id']) AND !in_array(strtolower($file_array['source']),['dazl'])){
                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
                                     ." `file_id`='".$file_id."'"
@@ -2059,23 +2058,60 @@
                     $detailIdQuery = '';
                     /*************************************************
                      * DST CLIENT DATA (NFA(07) / NAA(08) / AMP(09))
+                     * 08/12/22 DAZL DL Added
                      *************************************************/
-                    $check_fanmail_array = [];
+                    $fileSource = '';
+                    $client_data_array = [];
+                    
                     if ($detail_record_id==0 OR $file_type==1) {
-                        $check_fanmail_array = $this->get_fanmail_detail_data($file_id, 0, ($file_type==1 AND $detail_record_id>0) ? $detail_record_id : 0);
-                    }
-
+                        $client_data_array = $this->get_client_detail_data($file_id, 0, ($file_type==1 AND $detail_record_id>0) ? $detail_record_id : 0, $file_array['source']);
+                        
+                        if ($file_array['source']=='DAZL') {
+                            $detailTable = DAZL_ACCOUNT_DATA;
+                            $fileSource = 'DZ';
+                        } else {
+                            $detailTable = IMPORT_DETAIL_DATA;
+                            $fileSource = 'DS';
+                        }
+                    }                        
                     $dataSettings = $instance_data_interface->edit(2, $_SESSION['user_id']);
 
-                    foreach($check_fanmail_array as $check_data_key=>$check_data_val) {
+                    foreach($client_data_array as $check_data_key=>$check_data_val) {
+
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
-                        $this->re_db_perform(IMPORT_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
+                        $this->re_db_perform($detailTable, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
 
                         $result = $broker_id = 0;
                         $first_name = $middle_name = $last_name = '';
                         $rep_number = isset($check_data_val['representative_number']) ? trim($this->re_db_input($check_data_val['representative_number'])) : '';
-                        // Account Number Check
-                        $existingAccountArray = $instance_client_maintenance->select_client_by_account_no($this->re_db_input($check_data_val['mutual_fund_customer_account_number']),$file_sponsor_array['id']);
+                        // DAZL Account Number & Sponsor Check
+                        if ($fileSource == 'DZ'){
+                            $client_account_number =  $check_data_val['customer_account_number'];
+                            $file_sponsor_array = $this->get_sponsor_on_system_management_code($check_data_val['management_code'],'','DAZL');
+
+                            if (empty($file_sponsor_array)){
+                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
+                                        ." SET"
+                                            ." `file_id`='".$file_id."'"
+                                            .",`error_code_id`='14'"
+                                            .",`field`='sponsor_id'"
+                                            .",`field_value`='{$check_data_val['management_code']}'"
+                                            .",`file_type`=$file_type"
+                                            .",`temp_data_id`='0'"
+                                            .",`date`='".date('Y-m-d')."'"
+                                            .$this->insert_common_sql();
+                                $res = $this->re_db_query($q);
+
+                                $file_sponsor_array['id'] = 0;
+                                $file_sponsor_array['name'] = '';
+                            }
+                        } else {
+                            $client_account_number = $check_data_val['mutual_fund_customer_account_number'];
+                        }
+                        // Some files/sponsor pad zeroes to the left, remove for easier search queries
+                        $client_account_number = ltrim($client_account_number, '0');
+                        
+                        $existingAccountArray = $instance_client_maintenance->select_client_by_account_no($client_account_number,$file_sponsor_array['id']);
                         $existingAccountExceptionId = 0;
                         $existingSocialArray = array();
                         $existingSocialExceptionId = 0;
@@ -2129,7 +2165,7 @@
                                             .",`date`='".date('Y-m-d')."'"
                                             .",`rep`='".trim($check_data_val['representative_number'])."'"
                                             .",`rep_name`='".$check_data_val['representative_name']."'"
-                                            .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                            .",`account_no`='".$client_account_number."'"
                                             .",`client`='".$check_data_val['registration_line1']."'"
                                             .",`cusip`='".$check_data_val['cusip_number']."'"
                                             .$this->insert_common_sql()
@@ -2137,7 +2173,7 @@
                                 $res = $this->re_db_query($q);
                                 $result++;
                             } else {
-                                $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                $q = "UPDATE `$detailTable`"
                                         ." SET"
                                             ." `broker_id`=$broker_id"
                                             .$this->update_common_sql()
@@ -2162,7 +2198,7 @@
                                                     .",`date`='".date('Y-m-d')."'"
                                                     .",`rep`='".trim($check_data_val['representative_number'])."'"
                                                     .",`rep_name`='".$check_data_val['representative_name']."'"
-                                                    .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                                    .",`account_no`='".$client_account_number."'"
                                                     .",`client`='".$check_data_val['registration_line1']."'"
                                                     .",`cusip`='".$check_data_val['cusip_number']."'"
                                                     .$this->insert_common_sql()
@@ -2184,7 +2220,7 @@
                                         .",`date`='".date('Y-m-d')."'"
                                         .",`rep`='".$rep_number."'"
                                         .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
-                                        .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                        .",`account_no`='".$client_account_number."'"
                                         .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
                                         .",`cusip`='".$check_data_val['cusip_number']."'"
                                         .$this->insert_common_sql();
@@ -2199,19 +2235,19 @@
                                         ." `file_id`='".$check_data_val['file_id']."'"
                                         .",`error_code_id`='12'"
                                         .",`field`='mutual_fund_customer_account_number'"
-                                        .",`field_value`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                        .",`field_value`='".$client_account_number."'"
                                         .",`file_type`='1'"
                                         .",`temp_data_id`='".$check_data_val['id']."'"
                                         .",`date`='".date('Y-m-d')."'"
                                         .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                                         .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
-                                        .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                        .",`account_no`='".$client_account_number."'"
                                         .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
                                         .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                         .$this->insert_common_sql();
                             $res = $this->re_db_query($q);
                             $existingAccountExceptionId = $this->re_db_insert_id();
-                            $this->re_db_perform(IMPORT_DETAIL_DATA,["client_id"=>$existingAccountArray[0]["client_id"], "account_no_id"=>$existingAccountArray[0]["account_no_id"]],"update","`id`='".$check_data_val['id']."'");
+                            $this->re_db_perform($detailTable,["client_id"=>$existingAccountArray[0]["client_id"], "account_no_id"=>$existingAccountArray[0]["account_no_id"]],"update","`id`='".$check_data_val['id']."'");
                             // Don't increment the exception "result" variable, so this record will be checked for updates in the ADD/UPDATE section below
                             // $result++;
                         } else if(!$reassignClient){
@@ -2230,7 +2266,7 @@
                                             .",`date`='".date('Y-m-d')."'"
                                             .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                                             .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
-                                            .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                            .",`account_no`='".$client_account_number."'"
                                             .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
                                             .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                             .$this->insert_common_sql();
@@ -2266,14 +2302,14 @@
                                         .",`date`='".date('Y-m-d')."'"
                                         .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                                         .",`rep_name`='".$this->re_db_input($check_data_val['representative_name'])."'"
-                                        .",`account_no`='".$this->re_db_input($check_data_val['mutual_fund_customer_account_number'])."'"
+                                        .",`account_no`='".$client_account_number."'"
                                         .",`client`='".$this->re_db_input($check_data_val['registration_line1'])."'"
                                         .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                         .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
                                 $existingSocialExceptionId = $this->re_db_insert_id();
                                 // client_id assigned in Resolve Exceptions 3/12/22
-                                // $this->re_db_perform(IMPORT_DETAIL_DATA,["client_id"=>$existingSocialArray[0]['id']],"update","`id`='".$check_data_val['id']."'");
+                                // $this->re_db_perform($detailTable,["client_id"=>$existingSocialArray[0]['id']],"update","`id`='".$check_data_val['id']."'");
                                 $result++;
                             }
                         }
@@ -2291,7 +2327,7 @@
                                 .",`date`='".date('Y-m-d')."'"
                                 .",`rep`='".trim($check_data_val['representative_number'])."'"
                                 .",`rep_name`='".$check_data_val['representative_name']."'"
-                                .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                .",`account_no`='".$client_account_number."'"
                                 .",`client`='".$check_data_val['registration_line1']."'"
                                 .",`cusip`='".$check_data_val['cusip_number']."'"
                                 .$this->insert_common_sql()
@@ -2359,7 +2395,7 @@
                                         $process_result++;
                                     }
                                     // Update DETAIL TABLE for added/updated clients
-                                    $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                    $q = "UPDATE `".$detailTable."`"
                                             ." SET `process_result`='$process_result'"
                                                     .$this->update_common_sql()
                                             ." WHERE `id`='".$check_data_val['id']."' AND `is_delete`=0"
@@ -2370,7 +2406,7 @@
                                         $q = "INSERT INTO `".CLIENT_ACCOUNT."`"
                                                 ." SET "
                                                     ."`client_id`='".$client_id."'"
-                                                    .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                                    .",`account_no`='".$client_account_number."'"
                                                     .",`sponsor_company`='".$file_sponsor_array['id']."'"
                                                     .$this->insert_common_sql()
                                         ;
@@ -2378,7 +2414,7 @@
                                         $last_inserted_account_no_id = $this->re_db_insert_id();
 
                                         // Update DETAIL TABLE for added/updated clients
-                                        $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                        $q = "UPDATE `".$detailTable."`"
                                                 ." SET `process_result`='$process_result'"
                                                     .",`client_id`='$client_id'"
                                                     .",`account_no_id`='$last_inserted_account_no_id'"
@@ -2437,7 +2473,7 @@
                                 $q = "INSERT INTO `".CLIENT_ACCOUNT."`"
                                     ." SET "
                                         ."`client_id`='".$client_id."'"
-                                        .",`account_no`='".$check_data_val['mutual_fund_customer_account_number']."'"
+                                        .",`account_no`='".$client_account_number."'"
                                         .",`sponsor_company`='".$file_sponsor_array['id']."'"
                                         .$this->insert_common_sql()
                                 ;
@@ -2464,7 +2500,7 @@
                                 }
 
                                 // Update DETAIL TABLE for added/updated clients
-                                $q = "UPDATE `".IMPORT_DETAIL_DATA."`"
+                                $q = "UPDATE `".$detailTable."`"
                                         ." SET `process_result`='$process_result'"
                                             .",`client_id`='$client_id'"
                                             .",`account_no_id`='$last_inserted_account_no_id'"
@@ -3879,28 +3915,40 @@
             }
 			return $return;
 		}
-        public function get_fanmail_detail_data($file_id, $process_result=null, $record_id=0){
+        // 08/15/22 Name Change -> get_dstfanmail_detail_data()
+        //     - "source" parameter for the DAZL Import
+        public function get_client_detail_data($file_id, $process_result=null, $record_id=0, $source=''){
 			$return = array();
 			$con = '';
-
-            if (!is_null($process_result)) {
-                if ($process_result==0){
-                    $con = " AND (`at`.`process_result`='0'"
-                                  ." OR `at`.`process_result` IS NULL)";
-                } else if ($process_result==1){
-                    $con = " AND `at`.`process_result` IN ('1','2')";
-                } else {
-                    $con = " AND `at`.`process_result` = '$process_result'";
-                }
+            $detailTable = '';
+            $source = strtoupper($this->re_db_input($source));
+            
+            if (is_null($process_result)) {
+                // Do nothing
+            } else if ($process_result==0){
+                $con = " AND (`at`.`process_result`='0'"
+                                ." OR `at`.`process_result` IS NULL)";
+            } else if ($process_result==1){
+                $con = " AND `at`.`process_result` IN ('1','2')";
+            } else {
+                $con = " AND `at`.`process_result` = '$process_result'";
             }
 
             if ($record_id){
                 $record_id = (int)$this->re_db_input($record_id);
                 $con .= " AND `at`.`id`=$record_id";
             }
-
+            
+            switch ($source){
+                case 'DAZL':
+                    $detailTable = DAZL_ACCOUNT_DATA;
+                    break;
+                default:
+                    $detailTable = IMPORT_DETAIL_DATA;
+            }
+                    
 			$q = "SELECT `at`.*"
-					." FROM `".IMPORT_DETAIL_DATA."` AS `at`"
+					." FROM `$detailTable` AS `at`"
                     ." WHERE `at`.`is_delete`=0"
                     ." AND `at`.`file_id`='".$file_id."'"
                     .$con
@@ -4382,23 +4430,27 @@
             }
 			return $return;
 		}
-        public function get_sponsor_on_system_management_code($system_id='',$management_code=''){
+        // 8/15/22 "source" parameter added for DAZL Import data
+        public function get_sponsor_on_system_management_code($system_id='',$management_code='', $source=''){
 			$return = array();
 
             $con = '';
-            if($system_id!='')
-            {
-                $con = " AND `sp`.`dst_system_id`='".strtoupper(trim($system_id))."'";
+            $source = strtoupper($this->re_db_input($source));
+            $searchColumn = ($source=='DAZL' ? 'dazl_code' : 'dst_system_id');
+            
+            if($system_id!='') {
+                $con = " AND `sp`.`$searchColumn`='".strtoupper(trim($system_id))."'";
             }
-            if($management_code!='')
-            {
+            if($management_code!='') {
                 $con .= " AND `sp`.`dst_mgmt_code`='".strtoupper(trim($management_code))."'";
             }
 			//
 			$q = "SELECT `sp`.*
 					FROM `".SPONSOR_MASTER."` AS `sp`
-                    WHERE `sp`.`is_delete`=0 ".$con."
-                    ORDER BY `sp`.`id` ASC";
+                    WHERE `sp`.`is_delete`=0 "
+                         .$con."
+                    ORDER BY `sp`.`id` ASC"
+            ;
 			$res = $this->re_db_query($q);
             // Just return the first find, instead of an array of arrays, because the
             // calling programs are expecting just one sponsor per SysId/MgtCode 12/5/21
