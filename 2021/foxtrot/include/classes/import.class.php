@@ -2069,12 +2069,14 @@
                         if ($file_array['source']=='DAZL') {
                             $detailTable = DAZL_ACCOUNT_DATA;
                             $fileSource = 'DZ';
+                            $dimId = 3;
                         } else {
                             $detailTable = IMPORT_DETAIL_DATA;
                             $fileSource = 'DS';
+                            $dimId = 2;
                         }
                     }                        
-                    $dataSettings = $instance_data_interface->edit(2, $_SESSION['user_id']);
+                    $dataSettings = $instance_data_interface->edit($dimId, $_SESSION['user_id']);
 
                     foreach($client_data_array as $check_data_key=>$check_data_val) {
 
@@ -2104,6 +2106,7 @@
 
                                 $file_sponsor_array['id'] = 0;
                                 $file_sponsor_array['name'] = '';
+                                $result++;
                             }
                         } else {
                             $client_account_number = $check_data_val['mutual_fund_customer_account_number'];
@@ -2147,7 +2150,7 @@
 
                                 if($broker_data){
                                     $broker_id = $broker_data['id'];
-                                } else {
+                                } else if (!empty($file_sponsor_array['id'])) {
                                     $broker_data = $instance_broker_master->select_broker_by_alias($rep_number, $file_sponsor_array['id']);
                                     $broker_id = ($broker_data ? $broker_data['broker_id'] : 0);
                                 }
@@ -2319,9 +2322,15 @@
                         ********************/
                         if ($result == 0) {
                             $res = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
-
+                            $long_name = $client_address1 = $client_address2 = $city = $state = '';
+                            
+                            if ($fileSource == 'DZ'){
+                                $city = $check_data_val['city'];
+                                $state = $check_data_val['state'];
+                            }
+                            
                             $exceptionFields =
-                                    ",`file_id`='".$check_data_val['file_id']."'"
+                                ",`file_id`='".$check_data_val['file_id']."'"
                                 .",`file_type`='1'"
                                 .",`temp_data_id`='".$check_data_val['id']."'"
                                 .",`date`='".date('Y-m-d')."'"
@@ -2332,12 +2341,12 @@
                                 .",`cusip`='".$check_data_val['cusip_number']."'"
                                 .$this->insert_common_sql()
                             ;
-
-                            if(isset($check_data_val['registration_line1'])) {
+                            // Populate Name vars
+                            if (isset($check_data_val['registration_line1'])) {
                                 $registration_line1 = isset($check_data_val['registration_line1'])?$this->re_db_input($check_data_val['registration_line1']):'';
                                 $client_name_array = explode(' ',$registration_line1);
 
-                                if(isset($client_name_array[2]) AND $client_name_array[2] != '') {
+                                if (isset($client_name_array[2]) AND $client_name_array[2] != '') {
                                     $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
                                     $middle_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
                                     $last_name = isset($client_name_array[2])?$this->re_db_input($client_name_array[2]):'';
@@ -2346,9 +2355,26 @@
                                     $middle_name = '';
                                     $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
                                 }
+                                // 08/16/22 Long Name, Client Address added to CLIENT MASTER
+                                    for ($i=1; $i < 7; $i++){
+                                        // Long Name
+                                        if (isset($check_data_val['registration_line'.$i]) AND trim($check_data_val['registration_line'.$i])!=''){
+                                            $long_name .= ($long_name=='' ? '' : ' \\n ').trim($check_data_val['registration_line'.$i]);
+                                        }
+                                        // Client Address 1 & 2
+                                        if (isset($check_data_val['registration_line'.$i]) AND trim($check_data_val['registration_line'.$i])!=''){
+                                            if (isset($check_data_val['line_code']) AND $i >= (int)$check_data_val['line_code']){
+                                                if ($i == (int)$check_data_val['line_code']){
+                                                    $client_address1 = $check_data_val['registration_line'.$i];
+                                                } else if ($fileSource=='DS') {
+                                                    $client_address1 .= ' '.trim($check_data_val['registration_line'.$i]);
+                                                } else if ($fileSource=='DZ' AND strpos($check_data_val['registration_line'.$i], $check_data_val['city'])===false) {
+                                                    $client_address2 .= ' '.$check_data_val['registration_line'.$i];
+                                                }
+                                            }
+                                        }
+                                    }
                             }
-
-                            $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
 
                             // UPDATE CLIENT - for existing SSN or Account #
                             if ($existingSocialArray OR $existingAccountArray OR $reassignClient){
@@ -2379,13 +2405,17 @@
                                         'first_name'=>$first_name,
                                         'mi'=>$middle_name,
                                         'last_name'=>$last_name,
-                                        'address1'=>$get_client_data[0]['client_address'],
+                                        'address1'=>$client_address1,
+                                        'address2'=>$client_address2,
                                         'birth_date'=>$check_data_val['customer_date_of_birth'],
                                         'zip_code'=>$check_data_val['zip_code'],
                                         'broker_name'=>$broker_id,
                                         'client_ssn'=>$check_data_val['social_security_number'],
                                         'client_file_number'=>$check_data_val['social_security_number'],
-                                        'last_contacted'=>$check_data_val['last_maintenance_date']
+                                        'last_contacted'=>$check_data_val['last_maintenance_date'],
+                                        'long_name'=>$long_name,
+                                        'city'=>$city,
+                                        'state'=>$state
                                     ];
 
                                     $process_result++;
@@ -2435,22 +2465,23 @@
                                 $res = $this->re_db_query($q);
 
                                 if ($dataSettings['add_client']){
-
-                                    $get_client_data = $this->get_client_data($check_data_val['file_id'],$check_data_val['id']);
-
                                     $q = "INSERT INTO `".CLIENT_MASTER."`"
                                             ." SET "
                                                 ."`file_id`='".$check_data_val['file_id']."'"
                                                 .",`first_name`='".$first_name."'"
                                                 .",`mi`='".$middle_name."'"
                                                 .",`last_name`='".$last_name."'"
-                                                .",`address1`='".$get_client_data[0]['client_address']."'"
+                                                .",`address1`='$client_address1'"
+                                                .",`address2`='$client_address2'"
                                                 .",`birth_date`='".$check_data_val['customer_date_of_birth']."'"
-                                                .",`zip_code`='".$check_data_val['zip_code']."'"
                                                 .",`broker_name`='".$broker_id."'"
                                                 .",`client_ssn`='".$check_data_val['social_security_number']."'"
                                                 .",`client_file_number`='".$check_data_val['social_security_number']."'"
                                                 .",`last_contacted`='".$check_data_val['last_maintenance_date']."'"
+                                                .",`long_name`='$long_name'"
+                                                .",`city`='$city'"
+                                                .",`state`='$state'"
+                                                .",`zip_code`='".$check_data_val['zip_code']."'"
                                                 .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
                                     $last_inserted_id = $this->re_db_insert_id();
@@ -3943,6 +3974,9 @@
                 case 'DAZL':
                     $detailTable = DAZL_ACCOUNT_DATA;
                     break;
+                case 'DZ':
+                    $detailTable = DAZL_ACCOUNT_DATA;
+                    break;
                 default:
                     $detailTable = IMPORT_DETAIL_DATA;
             }
@@ -4661,26 +4695,37 @@
 
             return $return;
 		}
-        public function get_client_data($file_id,$temp_data_id=''){
+        // 08/16/22 DAZL add "source" to choose from correct table
+        public function get_client_data($file_id,$temp_data_id='',$source=''){
+            $file_id = (int)$this->re_db_input($file_id);
+            $temp_data_id = (int)$this->re_db_input($temp_data_id);
+            $source = strtoupper($this->re_db_input($source));
+            
 			$return = array();
 			$con = '';
-            if($temp_data_id != '')
-            {
-                $con .=" and id='".$temp_data_id."'";
-            }
+            $detailTable = IMPORT_DETAIL_DATA;
+            
+            if($temp_data_id > 0) { $con .=" AND id=$temp_data_id"; }
+            if(in_array($source, ['DZ','DAZL'])) { $detailTable = DAZL_ACCOUNT_DATA; }
 
-			$q = "SELECT *,
-                  (CASE
-                    WHEN line_code = '1' THEN CONCAT(registration_line1, ' ', registration_line2, ' ',registration_line3 , ' ',registration_line4)
-                    WHEN line_code = '2' THEN CONCAT(registration_line2, ' ',registration_line3 , ' ',registration_line4)
-                    WHEN line_code = '3' THEN CONCAT(registration_line3 , ' ',registration_line4)
-                    WHEN line_code = '4' THEN registration_line4
-                    ELSE ''
-                  END) AS client_address
-                  FROM `".IMPORT_DETAIL_DATA."`
-                  WHERE file_id='".$file_id."' AND status=1 AND is_delete=0 ".$con."
-                  ORDER BY id ASC";
-			$res = $this->re_db_query($q);
+			$q = "SELECT *,"
+                ." (CASE"
+                    ." WHEN line_code = '1' THEN CONCAT(registration_line1, ' ', registration_line2, ' ',registration_line3 , ' ',registration_line4)"
+                    ." WHEN line_code = '2' THEN CONCAT(registration_line2, ' ',registration_line3 , ' ',registration_line4)"
+                    ." WHEN line_code = '3' THEN CONCAT(registration_line3 , ' ',registration_line4)"
+                    ." WHEN line_code = '4' THEN registration_line4"
+                    ." ELSE ''"
+                    ." END) AS client_address"
+                ." FROM `$detailTable`"
+                ." WHERE file_id=$file_id" 
+                        ." AND status=1"
+                        ." AND is_delete=0"
+                        .$con
+                ." ORDER BY id ASC"
+            ;
+			
+            $res = $this->re_db_query($q);
+            
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
