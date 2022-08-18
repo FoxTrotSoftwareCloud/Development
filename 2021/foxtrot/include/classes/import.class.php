@@ -2062,7 +2062,7 @@
                      *************************************************/
                     $fileSource = '';
                     $client_data_array = [];
-                    
+                    //-- Choose your sources!
                     if ($detail_record_id==0 OR $file_type==1) {
                         $client_data_array = $this->get_client_detail_data($file_id, 0, ($file_type==1 AND $detail_record_id>0) ? $detail_record_id : 0, $file_array['source']);
                         
@@ -2076,6 +2076,7 @@
                             $dimId = 2;
                         }
                     }                        
+                    
                     $dataSettings = $instance_data_interface->edit($dimId, $_SESSION['user_id']);
 
                     foreach($client_data_array as $check_data_key=>$check_data_val) {
@@ -2099,9 +2100,16 @@
                                             .",`field`='sponsor_id'"
                                             .",`field_value`='{$check_data_val['management_code']}'"
                                             .",`file_type`=$file_type"
-                                            .",`temp_data_id`='0'"
+                                            .",`temp_data_id`='{$check_data_val['id']}'"
                                             .",`date`='".date('Y-m-d')."'"
-                                            .$this->insert_common_sql();
+                                            .",`rep`='".trim($check_data_val['representative_number'])."'"
+                                            .",`rep_name`='".$check_data_val['representative_name']."'"
+                                            .",`account_no`='".$client_account_number."'"
+                                            .",`client`='".$check_data_val['registration_line1']."'"
+                                            .",`cusip`='".$check_data_val['cusip_number']."'"
+                                            .$this->insert_common_sql()
+                                ;
+
                                 $res = $this->re_db_query($q);
 
                                 $file_sponsor_array['id'] = 0;
@@ -2322,11 +2330,28 @@
                         ********************/
                         if ($result == 0) {
                             $res = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
-                            $long_name = $client_address1 = $client_address2 = $city = $state = '';
+                            $long_name = $client_address1 = $client_address2 = $city = $state = $zip_code = $open_date = $email = $last_contacted = $telephone = $telephone_employment = '';
                             
                             if ($fileSource == 'DZ'){
-                                $city = $check_data_val['city'];
-                                $state = $check_data_val['state'];
+                                $city = $this->re_db_input($check_data_val['city']);
+                                $state = $this->re_db_input($check_data_val['state']);
+                                $open_date = $this->re_db_input($check_data_val['open_date']);
+                                $email = $this->re_db_input($check_data_val['email']);
+                                $last_contacted = $this->re_db_input($check_data_val['last_maintenance_date']);
+                                $telephone = $this->re_db_input($check_data_val['home_phone']);
+                                $telephone_employment = $this->re_db_input($check_data_val['office_phone']);
+                            }
+                            // Get state code('id') by the abbreviation or full name
+                            if ($state != ''){
+                                $state = (int)$instance_broker_master->get_state_code($state);
+                            }
+                            // Insert dash into Zip Code for the extension
+                            if ($check_data_val['zip_code'] != ''){
+                                $zip_code = $this->re_db_input($check_data_val['zip_code']);
+                                
+                                if (strlen($zip_code)==9 AND strpos($zip_code, '-')===false){
+                                    $zip_code = substr_replace($check_data_val['zip_code'], '-', 5, 0);
+                                }
                             }
                             
                             $exceptionFields =
@@ -2356,24 +2381,28 @@
                                     $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
                                 }
                                 // 08/16/22 Long Name, Client Address added to CLIENT MASTER
-                                    for ($i=1; $i < 7; $i++){
-                                        // Long Name
-                                        if (isset($check_data_val['registration_line'.$i]) AND trim($check_data_val['registration_line'.$i])!=''){
-                                            $long_name .= ($long_name=='' ? '' : ' \\n ').trim($check_data_val['registration_line'.$i]);
-                                        }
+                                $res = '';
+                                for ($i=1; $i < 7; $i++){
+                                    // Long Name, Address
+                                    if (isset($check_data_val['registration_line'.$i]) AND trim($check_data_val['registration_line'.$i])!=''){
+                                        //-- Escape an apostrophes in the reg line
+                                        $res = trim($this->re_db_input($check_data_val['registration_line'.$i]));
+                                        $long_name .= ($long_name=='' ? '' : " /(Line $i)").$res;
+
                                         // Client Address 1 & 2
-                                        if (isset($check_data_val['registration_line'.$i]) AND trim($check_data_val['registration_line'.$i])!=''){
-                                            if (isset($check_data_val['line_code']) AND $i >= (int)$check_data_val['line_code']){
-                                                if ($i == (int)$check_data_val['line_code']){
-                                                    $client_address1 = $check_data_val['registration_line'.$i];
-                                                } else if ($fileSource=='DS') {
-                                                    $client_address1 .= ' '.trim($check_data_val['registration_line'.$i]);
-                                                } else if ($fileSource=='DZ' AND strpos($check_data_val['registration_line'.$i], $check_data_val['city'])===false) {
-                                                    $client_address2 .= ' '.$check_data_val['registration_line'.$i];
-                                                }
+                                        if (isset($check_data_val['line_code']) AND $i >= (int)$check_data_val['line_code']){
+                                            if ($i == (int)$check_data_val['line_code']){
+                                                $client_address1 = $res;
+                                            } else if ($fileSource=='DS') {
+                                                $client_address1 .= ' '.$res;
+                                            } else if ($fileSource=='DZ' AND strpos($check_data_val['registration_line'.$i], $check_data_val['city'])===false) {
+                                                $client_address2 .= ' '.$res;
                                             }
                                         }
                                     }
+                                        
+                                    $res = '';
+                                }
                             }
 
                             // UPDATE CLIENT - for existing SSN or Account #
@@ -2408,16 +2437,23 @@
                                         'address1'=>$client_address1,
                                         'address2'=>$client_address2,
                                         'birth_date'=>$check_data_val['customer_date_of_birth'],
-                                        'zip_code'=>$check_data_val['zip_code'],
                                         'broker_name'=>$broker_id,
                                         'client_ssn'=>$check_data_val['social_security_number'],
                                         'client_file_number'=>$check_data_val['social_security_number'],
-                                        'last_contacted'=>$check_data_val['last_maintenance_date'],
                                         'long_name'=>$long_name,
+                                        'zip_code'=>$zip_code,
                                         'city'=>$city,
-                                        'state'=>$state
+                                        'state'=>$state,
+                                        'open_date'=>$open_date,
+                                        'email'=>$email,
+                                        'last_contacted'=>$last_contacted,
+                                        'telephone'=>$telephone
                                     ];
-
+                                    //  08/17/22 Update Client Employment Table
+                                    $updateEmploymentFields = [
+                                        'telephone'=>$telephone_employment
+                                    ];
+                                    
                                     $process_result++;
 
                                     if ($this->update_client_master($client_id, $updateFields)){
@@ -2477,16 +2513,28 @@
                                                 .",`broker_name`='".$broker_id."'"
                                                 .",`client_ssn`='".$check_data_val['social_security_number']."'"
                                                 .",`client_file_number`='".$check_data_val['social_security_number']."'"
-                                                .",`last_contacted`='".$check_data_val['last_maintenance_date']."'"
                                                 .",`long_name`='$long_name'"
                                                 .",`city`='$city'"
                                                 .",`state`='$state'"
-                                                .",`zip_code`='".$check_data_val['zip_code']."'"
+                                                .",`zip_code`='$zip_code'"
+                                                .",`open_date`='$open_date'"
+                                                .",`email`='$email'"
+                                                .",`last_contacted`='$last_contacted'"
+                                                .",`telephone`='$telephone'"
                                                 .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
                                     $last_inserted_id = $this->re_db_insert_id();
                                     $reprocess_status = true;
                                     $process_result = 1;
+
+                                    if ($res AND $telephone_employment != ''){
+                                        $q = "INSERT INTO `".CLIENT_EMPLOYMENT."`"
+                                                ." SET "
+                                                    ." `client_id` = $last_inserted_id"
+                                                    .",`telephone`='$telephone_employment'"
+                                                    .$this->insert_common_sql();
+                                        $res = $this->re_db_query($q);
+                                    }
                                 }
                             }
 
@@ -3602,7 +3650,7 @@
             /*********************
              * FILE Update
              *********************/
-            $check_file_exception_process = $this->check_file_exception_process($file_id,1);
+            $check_file_exception_process = $this->check_file_exception_process($file_id, 1, $file_array['source']);
             $_SESSION['reprocess_status'] = $reprocess_status;
 
             $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
@@ -3919,9 +3967,19 @@
                 }
             } else {
                 $return = ["file_id"=>$file_id, "file_name"=>'*Not Found*', "exceptions"=>0, "processed"=>0];
-
+                // Make sure to re-value the parameter to uppercase for the "in_array()" call below
+                $detailTableConstant = strtoupper($this->re_db_input($detailTableConstant));
+                
                 if (empty($detailTableConstant)){
                     $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA, IMPORT_GEN_DETAIL_DATA];
+                } else if (in_array($detailTableConstant,['DSTIDC'])){
+                    $tableArray = [IMPORT_IDC_DETAIL_DATA];
+                } else if (in_array($detailTableConstant,['GENERIC'])){
+                    $tableArray = [IMPORT_GEN_DETAIL_DATA];
+                } else if (in_array($detailTableConstant,['DS','DST','DSTFANMAIL'])){
+                    $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA];
+                } else if (in_array($detailTableConstant,['DZ','DAZL','DAZL DAILY'])){
+                    $tableArray = [DAZL_ACCOUNT_DATA, DAZL_SECURITY_DATA, DAZL_COMM_DATA];
                 } else {
                     $tableArray = [$detailTableConstant];
                 }
