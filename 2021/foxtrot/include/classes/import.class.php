@@ -97,7 +97,7 @@
 		}
 
         /** 08/11/22 Load the IMPORT CURRENT FILE from a specified directory. Developed for files that aren't fetched via Foxtrot  */
-        function insert_update_current_file($directory='', $extension='csv', $defaultValues=[]){
+        function insert_update_current_files($directory='', $extension='csv', $defaultValues=[]){
             $return = $files = [];
             $setFields = $q = $res = '';
             
@@ -131,7 +131,7 @@
             }
             return $return;
         } 
-        
+
         /** Resolve Exceptions and Update the Exception table:
          *  Resolve_Action:
          *      1) Place Hold,
@@ -4080,10 +4080,7 @@
 			$res = $this->re_db_query($q);
 
             if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-    			}
+    			$return = $this->re_db_fetch_array($res);
             }
 			return $return;
 		}
@@ -4825,11 +4822,21 @@
             }
 			return $return;
 		}
-        public function delete_current_files($id){
-            $id = (int)$id;
-
-			if($id>0){
-				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`=$id";
+        public function delete_current_files($id=0, $master_id=0){
+            $id = (int)$this->re_db_input($id);
+            $master_id = (int)$this->re_db_input($master_id);
+            $con = '';
+            
+            if ($id > 0) { $con .= " AND `id`=$id"; }
+            if ($master_id > 0) { $con .= " AND `master_id`=$master_id"; }
+            
+			if($id>0 OR $master_id>0){
+				$q = "UPDATE `".$this->table."`"
+                    ." SET `is_delete`=1"
+                        .$this->update_common_sql()
+                    ." WHERE `is_delete`=0"
+                        .$con
+                ;
 				$res = $this->re_db_query($q);
 				if($res){
 				    $_SESSION['success'] = DELETE_MESSAGE;

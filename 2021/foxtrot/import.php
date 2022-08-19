@@ -43,7 +43,7 @@
         // "File Type" is populated in select_current_files($file_id, sfrBreakout) function
         if (!isset($_POST['process_file_type'])) {
             $file_type = 1;
-        } else if ($_POST['process_file_type'] == 'DST Commission'){
+        } else if ($_POST['process_file_type']=='DST Commission' || $_POST['process_file_type']=='Commissions'){
             $file_type = 2;
         } else if ($_POST['process_file_type'] == 'Security File'){
             $file_type = 3;
