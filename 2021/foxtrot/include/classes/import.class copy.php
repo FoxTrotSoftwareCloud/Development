@@ -3725,16 +3725,9 @@
                         ." FROM `".IMPORT_CURRENT_FILES."`"
                         ." WHERE `is_delete`=0"
                         ." AND `is_archived`=0"
-                        ." AND `source`!='DAZL'"
                     ." UNION"
                         ." SELECT `b`.`id` AS `id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
                             ." FROM `".IMPORT_SFR_HEADER_DATA."` `a`"
-                            ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
-                            ." WHERE `b`.`is_delete`=0"
-                            ." AND `b`.`is_archived`=0"
-                    ." UNION"
-                        ." SELECT `b`.`id` AS `id`, CONCAT(TRIM(`b`.`file_name`),'(sub)') AS `file_name`, `a`.`file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
-                            ." FROM `".DAZL_HEADER_DATA."` `a`"
                             ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
                             ." WHERE `b`.`is_delete`=0"
                             ." AND `b`.`is_archived`=0"
@@ -3880,21 +3873,12 @@
             }
 			return $return;
 		}
-        public function select_current_file_id($id=0){
-            $id = (int)$this->re_db_input($id);
+        public function select_current_file_id(){
 			$return = array();
-            $con = '';
-            $columnNames = "`at`.`id`";
-            
-            if ($id > 0) { 
-                $con = " AND `id`=$id";
-                $columnNames = " `at`.`id`,`at`.`imported_date`,`at`.`file_name`,`at`.`file_type`,`at`.`file_type_code`,`at`.`source`,`at`.`processed`,`at`.`process_completed`";
-            }
 
-			$q = "SELECT $columnNames"
+			$q = "SELECT `at`.`id`"
                 ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
                 ." WHERE `at`.`is_delete`=0"
-                        .$con
                 ." ORDER BY `at`.`imported_date` DESC"
             ;
 			
@@ -4415,9 +4399,8 @@
          * @param mixed $file_id
          * @return array
          */
-        public function select_exception_data($file_id=0, $record_id=0, $customWhere='', $source=''){
-			$source = $this->re_db_input($source);
-            $return = array();
+        public function select_exception_data($file_id=0, $record_id=0, $customWhere=''){
+			$return = array();
             $con = '';
 
             if (empty($file_id) AND $record_id > 0){
@@ -4478,24 +4461,12 @@
             }
 			return $return;
 		}
-        public function select_existing_sfr_data($temp_data_id,$source=''){
-            $source = $this->re_db_input($source);
+        public function select_existing_sfr_data($temp_data_id){
 			$return = array();
 
-            switch ($source){
-                case 'DAZL':
-                    $detailTable = DAZL_SECURITY_DATA;
-                    break;
-                case 'DZ':
-                    $detailTable = DAZL_SECURITY_DATA;
-                    break;
-                default:
-                    $detailTable = IMPORT_SFR_DETAIL_DATA;
-            }
-
 			$q = "SELECT `sfr`.*"
-					." FROM `$detailTable` AS `sfr`"
-                    ." WHERE `sfr`.`is_delete`=0 AND `sfr`.`id`='".$temp_data_id."'"
+					." FROM `".IMPORT_SFR_DETAIL_DATA."` AS `sfr`"
+                    ." WHERE `sfr`.`is_delete`=0 and `sfr`.`id`='".$temp_data_id."'"
                     ." ORDER BY `sfr`.`id` ASC"
             ;
 			$res = $this->re_db_query($q);
@@ -4509,23 +4480,11 @@
             }
 			return $return;
 		}
-        public function select_existing_idc_data($temp_data_id, $source=''){
-			$source = $this->re_db_input($source);
-            $return = array();
-
-            switch ($source){
-                case 'DAZL':
-                    $detailTable = DAZL_COMM_DATA;
-                    break;
-                case 'DZ':
-                    $detailTable = DAZL_COMM_DATA;
-                    break;
-                default:
-                    $detailTable = IMPORT_IDC_DETAIL_DATA;
-            }
+        public function select_existing_idc_data($temp_data_id){
+			$return = array();
 
 			$q = "SELECT `idc`.*"
-					." FROM `$detailTable` AS `idc`"
+					." FROM `".IMPORT_IDC_DETAIL_DATA."` AS `idc`"
                     ." WHERE `idc`.`is_delete`=0"
                     ."  AND `idc`.`id`='".$temp_data_id."'"
                     ." ORDER BY `idc`.`id` ASC"
@@ -5078,26 +5037,48 @@
                             ;
                         $res = $this->re_db_query($q);
 
-                        //-- Detail Data - Add records for this file
+                        //-- Import Current File table - INSERT INTO `".IMPORT_CURRENT_FILES."`... -> Create an individual entry for each file type
+                        $res = 0;
+                        // Array to pass to the load table()                
+                        $currentFile = $get_file;
+                        $currentFile['id'] = 0;
+                        $currentFile['master_id'] = $file_id;
+                        $currentFile['imported_date'] = date('Y-m-d');
+                        $currentFile['processed'] = 0;
+                        $currentFile['process_completed'] = 0;
+                        // Remove "created" keys, because load table() inserts the fields into the SET string
+                        unset($currentFile['created_by'],$currentFile['created_time'],$currentFile['created_ip']);
+
+                        if ($securityCount > 0){
+                            $currentFile['file_type'] = 'Securities';
+                            $currentFile['file_type_code'] = 3;
+                            
+                            $res = $this->load_table_from_array(IMPORT_CURRENT_FILES, [$currentFile]);
+                        }
+                        if ($accountCount > 0){
+                            $currentFile['file_type'] = 'Clients';
+                            $currentFile['file_type_code'] = 1;
+                            
+                            $res += $this->load_table_from_array(IMPORT_CURRENT_FILES, [$currentFile]);
+                        }
+                        if ($commissionCount > 0){
+                            $currentFile['file_type'] = 'Commissions';
+                            $currentFile['file_type_code'] = 2;
+                            
+                            $res += $this->load_table_from_array(IMPORT_CURRENT_FILES, [$currentFile]);
+                        }
+                        
+                        if ($res>0){
+                            $res = $this->delete_current_files($file_id);
+                        }
+
+                        //--- Detail Data - Add records for this file
                         $securityCount = $this->load_table_from_array(DAZL_SECURITY_DATA, $fileArray['security']);
                         $accountCount = $this->load_table_from_array(DAZL_ACCOUNT_DATA, $fileArray['account']);
                         $commissionCount = $this->load_table_from_array(DAZL_COMM_DATA, $fileArray['commission']);
                         
                         $return = ["security"=>$securityCount, "account"=>$accountCount, "commission"=>$commissionCount];
-
-                        //-- 08/19/22 - SOLUTION v2.0 - use DAZL HEADER DATA table
-                        if ($securityCount > 0){
-                            $currentFile = ['file_id'=>$file_id,'record_type'=>'DZSEC','file_type'=>'Securities','file_type_code'=>3,'rec_count'=>$securityCount];
-                            $res = $this->load_table_from_array(DAZL_HEADER_DATA, [$currentFile]);
-                        }
-                        if ($accountCount > 0){
-                            $currentFile = ['file_id'=>$file_id,'record_type'=>'DZACC','file_type'=>'Clients','file_type_code'=>1,'rec_count'=>$accountCount];
-                            $res += $this->load_table_from_array(DAZL_HEADER_DATA, [$currentFile]);
-                        }
-                        if ($commissionCount > 0){
-                            $currentFile = ['file_id'=>$file_id,'record_type'=>'DZCOM','file_type'=>'Commissions','file_type_code'=>2,'rec_count'=>$commissionCount];
-                            $res += $this->load_table_from_array(DAZL_HEADER_DATA, [$currentFile]);
-                        }
+                        
                     }
                 }
             }

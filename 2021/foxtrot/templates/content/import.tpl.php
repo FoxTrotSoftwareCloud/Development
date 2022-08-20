@@ -515,6 +515,8 @@ PostResult( msg );
                                                         $existing_field_value = '';
                                                         $existingDetailValues = [];
                                                         $file_id = (isset($_GET['id'])) ? (int)$instance->re_db_input($_GET['id']) : 0;
+                                                        $file_info = $instance->select_current_file_id($file_id);
+                                                        $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
                                                         $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
                                                         $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
 
@@ -522,22 +524,23 @@ PostResult( msg );
                                                         {
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '1')
                                                             {
-                                                                $return_fanmail_existing_data = $instance->select_existing_fanmail_data($error_val['temp_data_id']);
+                                                                $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
+                                                                
                                                                 if($error_val['field'] == 'social_security_number')
                                                                 {
-                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? 'blank' : $return_fanmail_existing_data['social_security_number']);
+                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? 'blank' : $return_client_existing_data['social_security_number']);
                                                                 }
                                                                 if($error_val['field'] == 'mutual_fund_customer_account_number')
                                                                 {
-                                                                    $existing_field_value = $return_fanmail_existing_data['mutual_fund_customer_account_number'];
+                                                                    $existing_field_value = $return_client_existing_data[ $file_source=='DAZL' ? 'customer_account_number' : 'mutual_fund_customer_account_number'];
                                                                 }
                                                                 if($error_val['field'] == 'registration_line1')
                                                                 {
-                                                                    $existing_field_value = $return_fanmail_existing_data['registration_line1'];
+                                                                    $existing_field_value = $return_client_existing_data['registration_line1'];
                                                                 }
                                                                 if($error_val['field'] == 'u5')
                                                                 {
-                                                                    $rep_number = $return_fanmail_existing_data['representative_number'];
+                                                                    $rep_number = $return_client_existing_data['representative_number'];
                                                                     $u5_date = $instance->broker_termination_date($rep_number);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
@@ -549,7 +552,7 @@ PostResult( msg );
                                                                         $return_commission_existing_data = $instance->select_existing_gen_data($error_val['temp_data_id']);
                                                                         break;
                                                                     default:
-                                                                        $return_commission_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);
+                                                                        $return_commission_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id'], $file_source);
                                                                         break;
                                                                 }
                                                                 // Display the names found during the processing of the data. Sometimes they don't match what was sent in the data fields (alpha_code & rep_name), or the
@@ -634,7 +637,7 @@ PostResult( msg );
                                                             }
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '3')
                                                             {
-                                                                $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
+                                                                $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id'], $file_source);
 
                                                                 if($error_val['field'] == 'cusip_number') {
                                                                     $existing_field_value = $return_sfr_existing_data['cusip_number'];
@@ -658,7 +661,7 @@ PostResult( msg );
                                                             <?php } ?>
 
                                                             <?php if(isset($error_val['file_type']) && $error_val['file_type'] == '1'){
-                                                                $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']); ?>
+                                                                $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id'],$file_source); ?>
                                                                 <td><?php echo $get_client_data[0]['client_address'];?></td>
                                                             <?php } else if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2','9'])) { ?>
                                                                 <td><?php echo $error_val['cusip'];?></td>
@@ -666,7 +669,7 @@ PostResult( msg );
                                                                 <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
                                                             <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '3') { ?>
                                                                 <?php
-                                                                    $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
+                                                                    $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id'],$file_source);
                                                                     $existingDetailValues = ['fund_name'=> $return_sfr_existing_data['fund_name'], 'cusip_number'=>$return_sfr_existing_data['cusip_number'], 'ticker_symbol'=>$return_sfr_existing_data['ticker_symbol'], 'product_category_id'=>$return_sfr_existing_data['product_category_id']];
                                                                 ?>
                                                                 <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
@@ -706,7 +709,10 @@ PostResult( msg );
                                                 $get_file_type = $instance->re_db_input($_GET['file_type']);
                                             } else {
                                                 $get_file_type = $instance->get_file_type($_GET['id']);
-                                            } ?>
+                                            } 
+                                            $file_info = $instance->select_current_file_id($file_id);
+                                            $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
+                                            ?>
 
                                                 <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                     <table id="data-table4" class="table table-bordered table-stripped table-hover">
@@ -753,7 +759,7 @@ PostResult( msg );
                                                                     <td><?php echo date('m/d/Y',strtotime($process_val['date']));?></td>
 
                                                                     <?php if(isset($get_file_type) && $get_file_type == '3') {
-                                                                        $get_sfr_detail_data = $instance->select_existing_sfr_data($process_val['temp_data_id']);
+                                                                        $get_sfr_detail_data = $instance->select_existing_sfr_data($process_val['temp_data_id'], $file_source);
                                                                         $security_type = $instance_batches->get_product_type($get_sfr_detail_data['product_category_id']);
                                                                         ?>
 
@@ -770,7 +776,7 @@ PostResult( msg );
 
 
                                                                     <?php if(isset($get_file_type) && $get_file_type == '1') {
-                                                                        $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']); ?>
+                                                                        $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id'],$file_source); ?>
                                                                         <td><?php echo $get_client_data[0]['client_address'];?></td>
                                                                     <?php } else if(isset($get_file_type) && in_array($get_file_type,['2','9'])) { ?>
                                                                         <td><?php echo $process_val['cusip'];?></td>
@@ -878,11 +884,14 @@ PostResult( msg );
                                             <?php
                                             $get_file_type =  '';
                                             $get_file_type_source = $instance->get_current_file_type($_GET['id']);
+                                            
                                             if($get_file_type_source == 'DSTFANMail'){
                                                 $get_file_type = 1;
                                             } else if($get_file_type_source == 'DSTIDC'){
                                                 $get_file_type = 2;
                                             } else if($get_file_type_source == 'GENERIC'){
+                                                $get_file_type = 9;
+                                            } else if($get_file_type_source == 'DAZL'){
                                                 $get_file_type = 9;
                                             }
                                             ?>
