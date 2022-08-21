@@ -150,6 +150,7 @@
             $exception_data_id = isset($data['exception_data_id']) ? (int)$this->re_db_input($data['exception_data_id']) : 0;
             $exception_field = isset($data['exception_field']) ? $this->re_db_input($data['exception_field']) : '';
             $exception_record_id = isset($data['exception_record_id']) ? $this->re_db_input($data['exception_record_id']) : '';
+            $exception_value_2 = isset($data['exception_value_2']) ? $this->re_db_input($data['exception_value_2']) : '';
 
             // Populate "Exception Value" per Exception Field
             if($exception_field == 'u5'){
@@ -190,6 +191,8 @@
                 $exception_value = isset($data['assign_cusip_product_category'])?$this->re_db_input($data['assign_cusip_product_category']):'';
             } else if(!empty($data['exception_value_2'])){
                 $exception_value = $this->re_db_input($data['exception_value_2']);
+            // } else if($exception_field == 'sponsor_id'){
+            //     $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
             } else {
                 $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
             }
@@ -198,6 +201,7 @@
             $rep_for_broker = (isset($data['rep_for_broker']) ? (int)$this->re_db_input($data['rep_for_broker']) : 0);
             $acc_for_client = (isset($data['acc_for_client']) ? (int)$this->re_db_input($data['acc_for_client']) : 0);
             $skipException = (isset($data['skip_exception']) ? (int)$this->re_db_input($data['skip_exception']) : 0);
+            $code_for_sponsor = (isset($data['sponsor']) ? (int)$this->re_db_input($data['sponsor']) : 0);
 
             //--> RESOLVE ACTION - Element is used for more than just "Broker Terminated" exceptions (radio button input element)
             if(isset($data['resolve_broker_terminated'])){
@@ -293,46 +297,17 @@
                     } else {
                         $this->errors = 'Please select a resolution.';
                     }
-
-                }
-                //*** Exceptions not populated in Process/Reprocess. Remove later if not found to be useful 3/17/22 ***//
-                // else if($exception_field == 'registration_line1'){
-                //     $client_name_array = explode(' ',$exception_value);
-                //     if(isset($client_name_array[2]) && $client_name_array[2] != '')
-                //     {
-                //         $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
-                //         $middle_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
-                //         $last_name = isset($client_name_array[2])?$this->re_db_input($client_name_array[2]):'';
-                //     }
-                //     else
-                //     {
-                //         $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
-                //         $middle_name = '';
-                //         $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
-                //     }
-
-                //     $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `first_name`='".$first_name."' AND `mi`='".$middle_name."' AND `last_name`='".$last_name."'";
-                //     $res = $this->re_db_query($q);
-                //     $return = $this->re_db_num_rows($res);
-                //     if($return>0)
-                //     {
-                //         $this->errors = 'Client already exist.';
-                //     }
+                } 
+                else if($exception_field == 'sponsor_id'){
+                    if(!empty($code_for_sponsor)){
+                        $result = $this->resolve_exception_2AddSponsorAlias($exception_value, $code_for_sponsor, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+                    }
+                } 
+                //else {
+                //     $this->errors = 'Please select a resolution.';
                 // }
-                // else if($exception_field == 'mutual_fund_customer_account_number'){
-                //     $q = "SELECT * FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`=0 AND `account_no`='".$exception_value."' ";
-                //     $res = $this->re_db_query($q);
-                //     $return = $this->re_db_num_rows($res);
-                //     if($return>0)
-                //     {
-                //         $this->errors = 'Account number already exist.';
-                //     }
-                // }
-
-                if($this->errors!='')
-                {
-                    return $this->errors;
-                }
+  
+                if($this->errors!='') { return $this->errors; }
             }
 
             //--- IDC EXCEPTIONS ---//
@@ -1070,6 +1045,118 @@
                             }
                         }
 			        }
+                }
+            }
+            return $result;
+        }
+        function resolve_exception_2AddSponsorAlias($sponsorAlias='', $sponsorId=0, $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
+            //-- 08/20/22 ADD SPONSOR ALIAS(user-defined -> code_for_sponsor)  - "Sponsor not found" exception
+            //-- Harcoded fields in "Sponsor Master" table for download files/companies/sources:
+                // (1) DST - `dst_system_id` + `dst_mgmt_code`
+                // (2) DAZL - `dazl_code`
+                // (3) NSCC - `dtcc_nscc_id`
+                // (4) Generic Clearing Firm (BD's have different Clearing Firms) - `clearing_firm_id`
+            $result = $res = 0;
+            $sponsorId = (int)$this->re_db_input($sponsorId);
+            $file_type = (int)$this->re_db_input($file_type);
+            $detail_data_id = (int)$this->re_db_input($detail_data_id);
+            $exception_record_id = (int)$this->re_db_input($exception_record_id);
+            // Update Sponsor Master
+            if ($sponsorAlias!='' AND $sponsorId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+                $fileSource = strtolower(trim($this->get_current_file_type($file_id, 'source')));
+                $sourceId = substr($fileSource,0,3);
+                $importFileTable = '';
+
+                if(!empty($fileSource)){
+                    $res = 0;
+                    $importFileTable = $setAliasField = '';
+                    // Determine Detail Table and Field(s) to update
+                    switch ($file_type){
+                        case 1:
+                            if ($sourceId == 'daz'){
+                                $importFileTable = DAZL_ACCOUNT_DATA;
+                            } else {
+                                $importFileTable = IMPORT_DETAIL_DATA;
+                            }
+                            break;
+                        case 2:
+                            if ($sourceId == 'daz'){
+                                $importFileTable = DAZL_COMM_DATA;
+                            } else {
+                                $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                            }
+                            break;
+                        case 3:
+                            if ($sourceId == 'daz'){
+                                $importFileTable = DAZL_SECURITY_DATA;
+                            } else {
+                                $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                            }
+                            break;
+                        case $this->GENERIC_file_type:
+                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                            break;
+                    }
+
+                    if ($sourceId == 'daz'){
+                        $setAliasField = "`dazl_code` = '$sponsorAlias'";
+                    } else if ($sourceId == 'dst'){
+                        $setAliasField = "`dst_system_id` = '".substr($sponsorAlias,0,3)."', `dst_mgmt_code` = '".substr($sponsorAlias,3,2)."'";
+                    }
+                    
+                    $res = 0;
+                    if ($importFileTable != '' AND $setAliasField != ''){
+                        $q = "UPDATE `".SPONSOR_MASTER."`"
+                            ." SET ".$setAliasField
+                                .$this->update_common_sql()
+                            ." WHERE `id`=$sponsorId"
+                        ;
+                        $res = $this->re_db_query($q);
+                    }
+                    // Update "resolve_exceptions" field to flag detail as "special handling" record
+                    $result = 0;
+                    if ($res){
+                        $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
+    
+                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                ." SET `resolve_action`=2"
+                                    .",`resolve_assign_to`='$sponsorId'"
+                                    .$this->update_common_sql()
+                                ." WHERE `id`=".$exception_record_id
+                        ;
+                        $res = $this->re_db_query($q);
+    
+                        $result = $this->reprocess_current_files($file_id, $file_type, $detail_data_id);
+                    }
+                    // Check if this update can clear other exceptions in the file
+                    // Clear all the Exceptions for the same Exception and Sponsor #
+                    $q = $res = '';
+                    $exceptionData = [];
+                     
+                    if ($result){
+                        $exceptionData = $this->select_exception_data(0, $exception_record_id);
+                    }
+
+                    if ($exceptionData){
+                        $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`"
+                            ." FROM `".IMPORT_EXCEPTION."` `ex`"
+                            ." WHERE `ex`.`file_id`=$file_id"
+                            ." AND `ex`.`file_type`=$file_type"
+                            ." AND `ex`.`error_code_id`={$exceptionData[0]['error_code_id']}"
+                            ." AND `ex`.`field`='{$exceptionData[0]['field']}'"
+                            ." AND `ex`.`field_value`='{$exceptionData[0]['field_value']}'"
+                            ." AND `is_delete`=0"
+                        ;
+
+                        $res = $this->re_db_query($q);
+                        $exceptionData = $this->re_db_fetch_all($res);
+                    }
+                    
+                    if ($exceptionData){
+                        foreach ($exceptionData AS $excRow){
+                            $result = $this->reprocess_current_files($file_id, $file_type, $excRow['temp_data_id']);
+                        }
+                    }
                 }
             }
             return $result;
@@ -2104,7 +2191,7 @@
                                             .",`date`='".date('Y-m-d')."'"
                                             .",`rep`='".trim($check_data_val['representative_number'])."'"
                                             .",`rep_name`='".$check_data_val['representative_name']."'"
-                                            .",`account_no`='".$client_account_number."'"
+                                            .",`account_no`='".ltrim($client_account_number, '0')."'"
                                             .",`client`='".$check_data_val['registration_line1']."'"
                                             .",`cusip`='".$check_data_val['cusip_number']."'"
                                             .$this->insert_common_sql()
@@ -4573,21 +4660,18 @@
             if($management_code!='') {
                 $con .= " AND `sp`.`dst_mgmt_code`='".strtoupper(trim($management_code))."'";
             }
-			//
-			$q = "SELECT `sp`.*
-					FROM `".SPONSOR_MASTER."` AS `sp`
-                    WHERE `sp`.`is_delete`=0 "
-                         .$con."
-                    ORDER BY `sp`.`id` ASC"
+			//-- Update the Sponsor Master
+			$q = "SELECT `sp`.*"
+				." FROM `".SPONSOR_MASTER."` AS `sp`"
+                ." WHERE `sp`.`is_delete`=0 "
+                         .$con
+                ." ORDER BY `sp`.`id` ASC"
             ;
 			$res = $this->re_db_query($q);
             // Just return the first find, instead of an array of arrays, because the
             // calling programs are expecting just one sponsor per SysId/MgtCode 12/5/21
             if($this->re_db_num_rows($res)>0){
                 $return = $this->re_db_fetch_array($res);
-                // while($row = $this->re_db_fetch_array($res)){
-    			//      $return = $row;
-    			// }
             }
 			return $return;
 		}
@@ -4772,6 +4856,7 @@
 		}
         public function get_current_file_type($file_id=0, $fieldName='source'){
 			$return = '';
+            $fieldName == $this->re_db_input($fieldName);
             $file_id = (is_null($file_id) ? 0 : $file_id);
 
 			$q = "SELECT `at`.`$fieldName`"
@@ -4783,7 +4868,6 @@
 			$res = $this->re_db_query($q);
 
             if($this->re_db_num_rows($res)){
-                // $a = 0;
     			$row = $this->re_db_fetch_array($res);
                 $return = $row[$fieldName];
             }
@@ -5075,7 +5159,14 @@
                             ." SET `is_delete`=1"
                                 .$this->update_common_sql()
                             ." WHERE `master_id`=".$fileArray[$key][0]['file_id']
-                            ;
+                        ;
+                        $res = $this->re_db_query($q);
+                        
+                        $q = "UPDATE `".DAZL_HEADER_DATA."`"
+                            ." SET `is_delete`=1"
+                                .$this->update_common_sql()
+                            ." WHERE `file_id`=".$fileArray[$key][0]['file_id']
+                        ;
                         $res = $this->re_db_query($q);
 
                         //-- Detail Data - Add records for this file

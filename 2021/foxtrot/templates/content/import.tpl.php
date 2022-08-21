@@ -525,6 +525,7 @@ PostResult( msg );
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '1')
                                                             {
                                                                 $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
+                                                                $existing_field_value = $error_val['field_value'];
                                                                 
                                                                 if($error_val['field'] == 'social_security_number')
                                                                 {
@@ -1313,12 +1314,14 @@ PostResult( msg );
                             <option value="1">Active</option>
                             <option value="0" disabled="true">Terminated</option>
                         </select>
+                        <?php /* 08/20/22 Moved the dropdown to "assign_code_to_sponsor"
                         <select name="sponsor" id="sponsor" class="form-control" style="display: none;">
                             <option value="">Select Sponsor</option>
                             <?php foreach($get_sponsor as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
                             <?php } ?>
-                        </select>
+                        </select> 
+                        */?>
                         <select name="objectives" id="objectives" class="form-control" style="display: none;">
                             <option value="">Select Objective</option>
                             <?php foreach($get_objective as $key=>$val){?>
@@ -1479,6 +1482,22 @@ PostResult( msg );
                                 <option value="">Select Objective</option>
                                 <?php foreach($get_objective as $key=>$val){?>
                                     <option value="<?php echo $val['id'];?>" <?php echo $productObjectiveId==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="assign_code_for_sponsor" style="display: none;">
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_assign_code_for_sponsor">Add to Sponsor </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="sponsor" id="sponsor" class="form-control">
+                                <?php foreach($get_sponsor as $key=>$val){?>
+                                    <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -1775,7 +1794,8 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     $("#row_skip_exception").css('display','none');
     $("#status").css('display','none');
     $("#social_security_number").css('display','none');
-    $("#sponsor").css('display','none');
+    //-- 08/20/22 Moved into "assign_code_to_sponsor"
+    // $("#sponsor").css('display','none');
     $("#objectives").css('display','none');
     $("#cusip_number").css('display','none');
     $("#alpha_code").css('display','none');
@@ -1981,8 +2001,19 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         result += 1;
     } else if (exception_field == 'sponsor'){
         document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
-        $("#sponsor").css('display','block');
+        $("#assign_code_for_sponsor").css('display','block');
         $("#exception_value").css('display','none');
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
+
+        result += 1;
+    } else if (exception_field == 'sponsor_id'){
+        document.getElementById("field_label").innerHTML = 'Management/Sponsor Code';
+        $("#exception_value").css('display','none');
+        $("#exception_value_dis").css('display','block');
+        $("#exception_value_dis").attr('disabled',true);
+        $("#exception_value_dis").val(existing_field_value);
+        $("#exception_value_2").val(existing_field_value);
+        $("#assign_code_for_sponsor").css('display','block');
         document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
 
         result += 1;
