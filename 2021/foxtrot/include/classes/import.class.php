@@ -2608,6 +2608,7 @@
                                                 .",`email`='$email'"
                                                 .",`last_contacted`='$last_contacted'"
                                                 .",`telephone`='$telephone'"
+                                                .",`date_established`='".date("Y-m-d H:i:s")."'"
                                                 .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
                                     $last_inserted_id = $this->re_db_insert_id();
