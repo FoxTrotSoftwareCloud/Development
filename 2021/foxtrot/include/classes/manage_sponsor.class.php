@@ -68,8 +68,12 @@
 
                     if($for_import == 'true')
                     {
-                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$file_id."' and `error_code_id`='14'";
-                        $res1 = $this->re_db_query($q1);
+						//--- IMPORT File call ---//
+						if($for_import == 'true'){
+							//--- 08/22/22 Flag the exception as "add_new", process the record again to resolve the exception
+							$instance_import = new import();
+							$instance_import->resolve_exception_5AddNew('sponsor_id', $id, $_GET['exception_record_id']);
+						}
                     }
 
 					if($res){

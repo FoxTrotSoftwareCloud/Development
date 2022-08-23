@@ -1362,10 +1362,11 @@
             return $result;
         }
         /*** Action 5: ADD  new BROKER or CLIENT ***/
+        // 08/22/22 Sponsor ID added
         function resolve_exception_5AddNew($reassign_field='', $newId=0, $exception_record_id=0, $accountFields=[]){
             $result = 0;
 
-            if (in_array($reassign_field,['broker_id','client_id']) AND $newId AND $exception_record_id){
+            if (in_array($reassign_field,['broker_id','client_id', 'sponsor_id']) AND $newId AND $exception_record_id){
                 $exceptionData = $this->select_exception_data(0, $exception_record_id);
 
                 if ($exceptionData){
@@ -1374,6 +1375,10 @@
                     $file_id = $exceptionData[0]['file_id'];
                     $detail_data_id = $exceptionData[0]['temp_data_id'];
                     $error_code_id = $exceptionData[0]['error_code_id'];
+                    // 08/22/22 DAZL/Sponsor id update
+                    $fileSource = strtolower(trim($this->get_current_file_type($file_id, 'source')));
+                    $fileSourceId = substr($fileSource,0,3);
+                    $importFileTable = $resolveAction = '';
 
                     switch ($reassign_field) {
                         case 'broker_id':
@@ -1381,6 +1386,9 @@
                             break;
                         case 'client_id':
                             $q = "SELECT `id` FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `id`=".$newId;
+                            break;
+                        case 'sponsor_id':
+                            $q = "SELECT `id` FROM `".SPONSOR_MASTER."` WHERE `is_delete`=0 AND `id`=".$newId;
                             break;
                     }
                     $res = $this->re_db_query($q);
@@ -1390,13 +1398,25 @@
 
                         switch ($file_type){
                             case 1:
-                                $importFileTable = IMPORT_DETAIL_DATA;
+                                if ($fileSourceId == 'daz'){
+                                    $importFileTable = DAZL_ACCOUNT_DATA;
+                                } else {
+                                    $importFileTable = IMPORT_DETAIL_DATA;
+                                }
                                 break;
                             case 2:
-                                $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                                if ($fileSourceId == 'daz'){
+                                    $importFileTable = DAZL_COMM_DATA;
+                                } else {
+                                    $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                                }
                                 break;
                             case 3:
-                                $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                                if ($fileSourceId == 'daz'){
+                                    $importFileTable = DAZL_SECURITY_DATA;
+                                } else {
+                                    $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                                }
                                 break;
                             case $this->GENERIC_file_type:
                                 $importFileTable = IMPORT_GEN_DETAIL_DATA;
@@ -1427,8 +1447,16 @@
                             // Update "resolve_exceptions" field to flag detail as "special handling" record
                             $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
                             // Flag missing Representative or Client Fund #'s as error code 3, so the Reprocess() will use the "broker_id" or "client_id" field, instead of looking for alternate fund #'s
+                            if ($error_code_id==14){
+                                $resolveAction = '14';
+                            } else if ($error_code_id==13){
+                                $resolveAction = '3';
+                            } else  {
+                                $resolveAction = '5';
+                            }
+
                             $q = "UPDATE `".IMPORT_EXCEPTION."`"
-                                    ." SET `resolve_action`=".($error_code_id==13 ? '3' : '5')
+                                    ." SET `resolve_action`='$resolveAction'"
                                         .",`resolve_assign_to` = '".$newId."'"
                                         .$this->update_common_sql()
                                     ." WHERE `id`=".$exception_record_id
@@ -1445,6 +1473,8 @@
 
                                 if ($reassign_field == 'broker_id'){
                                     $accountQuery = " AND `ex`.`rep` = '{$exceptionData[0]['rep']}'";
+                                } else if ($reassign_field == 'sponsor_id'){
+                                    $accountQuery = " AND `ex`.`field_value` = '{$exceptionData[0]['field_value']}'";
                                 } else {
                                     $accountQuery = " AND `ex`.`account_no` = '{$exceptionData[0]['account_no']}'";
                                 }

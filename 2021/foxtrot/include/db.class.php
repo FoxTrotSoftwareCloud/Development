@@ -1175,7 +1175,6 @@ class db
     {
       return date('Y-m-d H:i:s', $timestamp);
     }
-    
 
     /** Read/Update MySQL field that contains a PHP array that has been serialize($array)'d
      * @param string $pTable
@@ -1232,6 +1231,33 @@ class db
             }
         }
 
+        return $return;
+    }
+    // 08/22/22 Return an array of columns in a table structure OR
+    // if "field exists" (name) is specified - returns a single-dimensional array of the column specs, OR blank "Type"
+    function table_columns($table='', $fieldExists=''){
+        $table = $this->re_db_input($table);
+        $fieldExists = $this->re_db_input($fieldExists);
+        $return = [];
+
+        if ($table != ''){
+            $q = "SHOW COLUMNS FROM `".$table."`";
+            $res = $this->re_db_query($q);
+            $tablefields = $this->re_db_fetch_all($res);
+
+            if ($fieldExists == ''){
+                $return = $tablefields;
+            } else {
+                $rowNum = array_search($fieldExists, array_column($tablefields, 'Field'));
+
+                if ($rowNum!==false){
+                    $return = $tablefields[$rowNum];
+                } else {
+                    $return = ["Field"=>$fieldExists, "Type"=>""]; 
+                }
+            }
+        }
+        
         return $return;
     }
 }

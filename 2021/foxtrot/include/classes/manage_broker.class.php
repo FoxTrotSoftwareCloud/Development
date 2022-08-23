@@ -243,14 +243,14 @@
 
               if($res){
                   $_SESSION['success'] = INSERT_MESSAGE;
-                  return true;
-
+                  
                   //--- IMPORT File call ---//
                   if($for_import == 'true'){
-                      //--- 3/17/22 Flag the exception as "add_new", process the record again to resolve the exception
-                      $instance_import = new import();
-                      $instance_import->resolve_exception_5AddNew('broker_id', $_SESSION['last_insert_id'], $_GET['exception_record_id']);
+                    //--- 3/17/22 Flag the exception as "add_new", process the record again to resolve the exception
+                    $instance_import = new import();
+                    $instance_import->resolve_exception_5AddNew('broker_id', $_SESSION['last_insert_id'], $_GET['exception_record_id']);
                   }
+                  return true;
               } else {
                   $_SESSION['warning'] = UNKWON_ERROR;
                   return false;
