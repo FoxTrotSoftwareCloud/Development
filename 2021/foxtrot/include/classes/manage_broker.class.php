@@ -2633,24 +2633,33 @@
 		            }
 			return $return;
 		}
-        public function select_sponsor(){
+    public function select_sponsor($sortBy=0){
+      $sortBy = (int)$this->re_db_input($sortBy);
 			$return = array();
-
-			$q = "SELECT `at`.*
-					FROM `".SPONSOR_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+      $orderBy = '';
+      
+      switch($sortBy){
+        case 1:
+          $orderBy = "`at`.`name`";
+      }
+      $orderBy .= ($orderBy!='' ? ", " : "")."`at`.`id` ASC";
+      
+			$q = "SELECT `at`.*"
+				    ." FROM `".SPONSOR_MASTER."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'"
+            ." ORDER BY $orderBy"
+      ;
+      
 			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
-            }
-			return $return;
+      
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_all($res);
+      }
+      
+      return $return;
 		}
-        public function select_register(){
+    
+    public function select_register(){
 			$return = array();
 
 			$q = "SELECT `at`.*

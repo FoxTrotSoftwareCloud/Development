@@ -308,9 +308,10 @@ $(document).on('click','.remove-row',function(){
            <div class="panel-footer fixedbtmenu">
             <div class="selectwrap">
                 <?php if(isset($_GET['file_id']) && $_GET['file_id'] != ''){?>
-                <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
-                <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
-                <input type="hidden" name="temp_data_id" id="temp_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
+                    <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
+                    <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
+                    <input type="hidden" name="exception_data_id" id="exception_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
+                    <input type="hidden" name="exception_record_id" id="exception_record_id" class="form-control" value="<?php echo $_GET['exception_record_id']; ?>" />
                 <?php }?>
                 <input type="hidden" name="sponsor_id" id="sponsor_id" value="<?php echo $sponsor_id; ?>" />
                 <?php if($_GET['action']=='edit_sponsor' && $_GET['sponsor_id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $sponsor_id;?>&send=previous" class="previous next_previous_a" style="float: left;"><input type="button" name="previous" value="&laquo; Previous" /></a><?php } ?>

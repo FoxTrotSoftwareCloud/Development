@@ -76,7 +76,7 @@
     $get_state  = $instance->select_state();
     $get_state_new = $instance->select_state_new();
     $get_register=$instance->select_register();
-    $get_sponsor = $instance->select_sponsor();
+    $get_sponsor = $instance->select_sponsor(1);
     $select_broker= $instance->select();
     $broker_trans=$instance->select_broker_transaction($id);
     $select_branch= $instance_branch->select();

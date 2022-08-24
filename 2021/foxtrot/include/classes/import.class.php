@@ -1448,7 +1448,7 @@
                             $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
                             // Flag missing Representative or Client Fund #'s as error code 3, so the Reprocess() will use the "broker_id" or "client_id" field, instead of looking for alternate fund #'s
                             if ($error_code_id==14){
-                                $resolveAction = '14';
+                                $resolveAction = '5';
                             } else if ($error_code_id==13){
                                 $resolveAction = '3';
                             } else  {
@@ -2204,10 +2204,17 @@
                         $result = $broker_id = 0;
                         $first_name = $middle_name = $last_name = '';
                         $rep_number = isset($check_data_val['representative_number']) ? trim($this->re_db_input($check_data_val['representative_number'])) : '';
-                        // DAZL Account Number & Sponsor Check
+                        // DAZL Account Number & Sponsor Check - each record might be a different Sponsor, so check every one
                         if ($fileSource == 'DZ'){
-                            $client_account_number =  $check_data_val['customer_account_number'];
-                            $file_sponsor_array = $this->get_sponsor_on_system_management_code($check_data_val['management_code'],'','DAZL');
+                            $client_account_number = $check_data_val['customer_account_number'];
+                            $file_sponsor_array=[];
+                            // Check if sponsor id is already populated, else check the 
+                            if ((int)$check_data_val['sponsor_id'] > 0){
+                                $file_sponsor_array = $instance_manage_sponsor->select_sponsor_by_id($check_data_val['sponsor_id']);
+                            } 
+                            if (!isset($file_sponsor_array['id']) OR (int)$file_sponsor_array['id']==0){
+                                $file_sponsor_array = $this->get_sponsor_on_system_management_code($check_data_val['management_code'],'','DAZL');
+                            }
 
                             if (empty($file_sponsor_array)){
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
@@ -2232,6 +2239,13 @@
                                 $file_sponsor_array['id'] = 0;
                                 $file_sponsor_array['name'] = '';
                                 $result++;
+                            } else {
+                                $q = "UPDATE `$detailTable`"
+                                    ." SET `sponsor_id`=".(int)$file_sponsor_array['id']
+                                           .$this->update_common_sql()
+                                    ." WHERE `id`=".$check_data_val['id']
+                                ;
+                                $res = $this->re_db_query($q);
                             }
                         } else {
                             $client_account_number = $check_data_val['mutual_fund_customer_account_number'];
