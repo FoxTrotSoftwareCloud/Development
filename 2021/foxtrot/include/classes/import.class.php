@@ -882,11 +882,12 @@
         function resolve_exception_2AddAlias($brokerAlias='', $brokerId=0, $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
             // ADD BROKER ALIAS(user-defined -> rep_for_broker)  - "Broker #(ALIAS) not found" exception
             $result = $res = 0;
+            $fileSource = $this->import_table_select($file_id, $file_type);
+            $importFileTable = $fileSource['table'];
 
-            if ($brokerAlias!='' AND $brokerId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+            if ($brokerAlias!='' AND $importFileTable!='' AND $brokerId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
                 $sponsorId = (int)$this->get_current_file_type($file_id, 'sponsor_id');
                 $broker_id = (int)$this->re_db_input($brokerId);
-                $importFileTable = '';
 
                 $q = "INSERT INTO `".BROKER_ALIAS."`"
                     ." SET"
@@ -900,22 +901,7 @@
 
                 if($res){
                     $res = 0;
-
-                    switch ($file_type){
-                        case 1:
-                            $importFileTable = IMPORT_DETAIL_DATA;
-                            break;
-                        case 2:
-                            $importFileTable = IMPORT_IDC_DETAIL_DATA;
-                            break;
-                        case 3:
-                            $importFileTable = IMPORT_SFR_DETAIL_DATA;
-                            break;
-                        case $this->GENERIC_file_type:
-                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
-                            break;
-                    }
-
+                    
                     // Update "resolve_exceptions" field to flag detail as "special handling" record
                     $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
 
@@ -954,7 +940,7 @@
                                 }
                             }
                         }
-			        }
+                    }
                 }
             }
             return $result;
@@ -1049,9 +1035,12 @@
             }
             return $result;
         }
+        /**
+         * 08/20/22 ADD SPONSOR ALIAS(user-defined -> code_for_sponsor)  - "Sponsor not found" exception
+         * Harcoded fields in "Sponsor Master" table for download files/companies/sources:
+         * @return string|bool|int 
+         */
         function resolve_exception_2AddSponsorAlias($sponsorAlias='', $sponsorId=0, $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
-            //-- 08/20/22 ADD SPONSOR ALIAS(user-defined -> code_for_sponsor)  - "Sponsor not found" exception
-            //-- Harcoded fields in "Sponsor Master" table for download files/companies/sources:
                 // (1) DST - `dst_system_id` + `dst_mgmt_code`
                 // (2) DAZL - `dazl_code`
                 // (3) NSCC - `dtcc_nscc_id`
@@ -1063,40 +1052,13 @@
             $exception_record_id = (int)$this->re_db_input($exception_record_id);
             // Update Sponsor Master
             if ($sponsorAlias!='' AND $sponsorId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
-                $fileSource = strtolower(trim($this->get_current_file_type($file_id, 'source')));
-                $sourceId = substr($fileSource,0,3);
-                $importFileTable = '';
-
-                if(!empty($fileSource)){
+                $fileSource = $this->import_table_select($file_id, $file_type);
+                $importFileTable = $setAliasField = '';
+                
+                if ($fileSource['table']!=''){
+                    $importFileTable = $fileSource['table'];
+                    $sourceId = substr($fileSource['source'],0,3);
                     $res = 0;
-                    $importFileTable = $setAliasField = '';
-                    // Determine Detail Table and Field(s) to update
-                    switch ($file_type){
-                        case 1:
-                            if ($sourceId == 'daz'){
-                                $importFileTable = DAZL_ACCOUNT_DATA;
-                            } else {
-                                $importFileTable = IMPORT_DETAIL_DATA;
-                            }
-                            break;
-                        case 2:
-                            if ($sourceId == 'daz'){
-                                $importFileTable = DAZL_COMM_DATA;
-                            } else {
-                                $importFileTable = IMPORT_IDC_DETAIL_DATA;
-                            }
-                            break;
-                        case 3:
-                            if ($sourceId == 'daz'){
-                                $importFileTable = DAZL_SECURITY_DATA;
-                            } else {
-                                $importFileTable = IMPORT_SFR_DETAIL_DATA;
-                            }
-                            break;
-                        case $this->GENERIC_file_type:
-                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
-                            break;
-                    }
 
                     if ($sourceId == 'daz'){
                         $setAliasField = "`dazl_code` = '$sponsorAlias'";
@@ -1541,6 +1503,56 @@
             }
 
             return $result;
+        }
+        
+        /** 08/24/22 Function to return the correct Import Table - 1)SPONSOR/Company-> DST, DAZL, Generic, AND (2)TYPE- Client, Product, or Commission/Trailer
+         * @param int $file_id 
+         * @param int $file_type 
+         * @return string['table'=><importTableName>, 'source'=>"source" field in IMPORT CURRENT FILES(trimmed & lowercase for easier conditional operator comparisons) ] 
+         * Used in functions: resolve_exception_????(...)
+         */
+        function import_table_select($file_id=0, $file_type=0){
+            $file_id = (int)$this->re_db_input($file_id);
+            $file_type = (int)$this->re_db_input($file_type);
+            $return = ['table'=>'', 'source'=>''];
+            
+            if ($file_id AND $file_type){
+                // Convert to lowercase - for easier conditional operations
+                $return['source'] = strtolower(trim($this->get_current_file_type($file_id, 'source')));
+                $sourceId = substr($return['source'],0,3);
+
+                // Determine Detail Table and Field(s) to update
+                if ($return['source']!=''){
+                    switch ($file_type){
+                        case 1:
+                            if ($sourceId == 'daz'){
+                                $return['table'] = DAZL_ACCOUNT_DATA;
+                            } else {
+                                $return['table'] = IMPORT_DETAIL_DATA;
+                            }
+                            break;
+                        case 2:
+                            if ($sourceId == 'daz'){
+                                $return['table'] = DAZL_COMM_DATA;
+                            } else {
+                                $return['table'] = IMPORT_IDC_DETAIL_DATA;
+                            }
+                            break;
+                        case 3:
+                            if ($sourceId == 'daz'){
+                                $return['table'] = DAZL_SECURITY_DATA;
+                            } else {
+                                $return['table'] = IMPORT_SFR_DETAIL_DATA;
+                            }
+                            break;
+                        case $this->GENERIC_file_type:
+                            $return['table'] = IMPORT_GEN_DETAIL_DATA;
+                            break;
+                    }
+                }
+            }
+            
+            return $return;
         }
 
         public function select_ftp(){
@@ -2208,7 +2220,7 @@
                         if ($fileSource == 'DZ'){
                             $client_account_number = $check_data_val['customer_account_number'];
                             $file_sponsor_array=[];
-                            // Check if sponsor id is already populated, else check the 
+                            // Check if sponsor id is already populated, else check the management code
                             if ((int)$check_data_val['sponsor_id'] > 0){
                                 $file_sponsor_array = $instance_manage_sponsor->select_sponsor_by_id($check_data_val['sponsor_id']);
                             } 
@@ -4991,15 +5003,13 @@
             }
 			return $return;
 		}
-        public function delete_current_files($id=0, $master_id=0){
+        public function delete_current_files($id=0){
             $id = (int)$this->re_db_input($id);
-            $master_id = (int)$this->re_db_input($master_id);
             $con = '';
             
             if ($id > 0) { $con .= " AND `id`=$id"; }
-            if ($master_id > 0) { $con .= " AND `master_id`=$master_id"; }
             
-			if($id>0 OR $master_id>0){
+			if($id>0){
 				$q = "UPDATE `".$this->table."`"
                     ." SET `is_delete`=1"
                         .$this->update_common_sql()
@@ -5200,13 +5210,6 @@
                                 $res = $this->re_db_query($q);
                             }
                         }
-                        $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
-                            ." SET `is_delete`=1"
-                                .$this->update_common_sql()
-                            ." WHERE `master_id`=".$fileArray[$key][0]['file_id']
-                        ;
-                        $res = $this->re_db_query($q);
-                        
                         $q = "UPDATE `".DAZL_HEADER_DATA."`"
                             ." SET `is_delete`=1"
                                 .$this->update_common_sql()
