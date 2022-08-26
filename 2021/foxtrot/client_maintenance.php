@@ -670,7 +670,7 @@
         
         // Import Detail for populating the client detail vars
         if ($file_type==1){
-            $detailData = $instance_import->select_existing_fanmail_data($exceptionId);
+            $detailData = $instance_import->select_existing_acct_data($exceptionId);
         } else if ($file_type==2) {
             $detailData = $instance_import->select_existing_idc_data($exceptionId);
         } else if ($file_type==9) {

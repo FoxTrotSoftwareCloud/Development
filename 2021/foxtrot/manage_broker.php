@@ -640,28 +640,41 @@
         $rep = $_GET['rep_no'];
         $instance_import= new import();
         $return_exception_detail = $instance_import->select_single_exception_data($file_id,$temp_data_id);
-
+        // 08/25/22 Add the import # and sponsor  
+        $alias_sponsor = $alias_number = '';
+        $detailRow = [];
+        $fileSource = $instance_import->import_table_select($file_id, $_GET['file_type']);
+        $sourceId = substr($fileSource['source'],0,3);
+        
         foreach($return_exception_detail as $key=>$val)
         {
             $rep_name = explode(' ',$val['rep_name']);
             $file_type = $val['file_type'];
-            $header_detail = $instance_import->get_files_header_detail($file_id,$temp_data_id,$file_type);
-            if($header_detail != array()){
-                $system_id = $header_detail['system_id'];
-                $management_code = $header_detail['management_code'];
-                $sponsor_detail = $instance_import->get_sponsor_on_system_management_code($system_id,$management_code);
-                $alias_sponsor = isset($sponsor_detail['id'])?$sponsor_detail['id']:'';
-                $alias_number = $rep;
+            $alias_number = $rep;
+            
+            if ($sourceId=='daz'){
+                switch ((int)$_GET['file_type']){
+                    case 1:
+                        $detailRow = $instance_import->select_existing_acct_data($temp_data_id, 'DAZL');
+                        break;
+                    case 2:
+                        $detailRow = $instance_import->select_existing_idc_data($temp_data_id, 'DAZL');
+                        break;
+                    case 3:
+                        $detailRow = $instance_import->select_existing_sfr_data($temp_data_id, 'DAZL');
+                        break;
+                }
+                
+                $alias_sponsor = (isset($detailRow['sponsor_id']) ? $detailRow['sponsor_id'] : '');
+            } else {
+                $alias_sponsor = $fileSource['sponsor_id'];
             }
-
-            if(isset($rep_name[2]) && $rep_name[2] != '')
-            {
+            
+            if (isset($rep_name[2]) && $rep_name[2] != ''){
                 $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
                 $mname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
                 $lname = isset($rep_name[2])?$instance->re_db_input($rep_name[2]):'';
-            }
-            else
-            {
+            } else {
                 $fname = isset($rep_name[0])?$instance->re_db_input($rep_name[0]):'';
                 $lname = isset($rep_name[1])?$instance->re_db_input($rep_name[1]):'';
             }

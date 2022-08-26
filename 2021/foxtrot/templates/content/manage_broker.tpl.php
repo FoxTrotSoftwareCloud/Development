@@ -3110,7 +3110,7 @@ $(document).ready(function(){
                                              <td>
                                                 <div id="demo-dp-range">
                                                    <div class="input-daterange input-group" id="datepicker">
-                                                      <input type="text" name="alias[termdate][<?php echo $doc_id;?>]" value="<?php echo date('m/d/Y');?>" class="form-control" />
+                                                      <input type="text" name="alias[termdate][<?php echo $doc_id;?>]" value="" class="form-control" />
                                                    </div>
                                                 </div>
                                              </td>

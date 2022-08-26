@@ -529,19 +529,19 @@ PostResult( msg );
                                                                 
                                                                 if($error_val['field'] == 'social_security_number')
                                                                 {
-                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? 'blank' : $return_client_existing_data['social_security_number']);
+                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? 'blank' : $return_client_existing_data[0]['social_security_number']);
                                                                 }
                                                                 if($error_val['field'] == 'mutual_fund_customer_account_number')
                                                                 {
-                                                                    $existing_field_value = $return_client_existing_data[ $file_source=='DAZL' ? 'customer_account_number' : 'mutual_fund_customer_account_number'];
+                                                                    $existing_field_value = $return_client_existing_data[0][ $file_source=='DAZL' ? 'customer_account_number' : 'mutual_fund_customer_account_number'];
                                                                 }
                                                                 if($error_val['field'] == 'registration_line1')
                                                                 {
-                                                                    $existing_field_value = $return_client_existing_data['registration_line1'];
+                                                                    $existing_field_value = $return_client_existing_data[0]['registration_line1'];
                                                                 }
                                                                 if($error_val['field'] == 'u5')
                                                                 {
-                                                                    $rep_number = $return_client_existing_data['representative_number'];
+                                                                    $rep_number = $return_client_existing_data[0]['representative_number'];
                                                                     $u5_date = $instance->broker_termination_date($rep_number);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
@@ -1752,6 +1752,8 @@ function reassign_broker_(value)
 }
 function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id,client_account_no)
 {
+    $('#msg_exception').html('');
+
     //--- For testing
     console.log(
         'exception_file_id:'+ typeof exception_file_id + ': ' + exception_file_id + 
@@ -1805,6 +1807,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     $("#assign_rep_to_broker").css('display','none');
     $("#assign_objective_to_client").css('display','none');
     $("#assign_cusip_to_product").css('display','none');
+    $("#assign_code_for_sponsor").css('display','none');
     $("#broker_termination_options_clients").css('display','none');
     $("#broker_termination_options_trades").css('display','none');
 
@@ -1999,14 +2002,17 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#hold_commission").prop('checked', true);
 
         result += 1;
-    } else if (exception_field == 'sponsor'){
-        document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
-        $("#assign_code_for_sponsor").css('display','block');
-        $("#exception_value").css('display','none');
-        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'&field_value='+existing_field_value+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
+    
+    // 08/25/22 Deprecated - use code below instead
+    // } else if (exception_field == 'sponsor'){
+    //     document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
+    //     document.getElementById("field_label").css('display','none');
+    //     $("#assign_code_for_sponsor").css('display','block');
+    //     $("#exception_value").css('display','none');
+    //     document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'&field_value='+existing_field_value+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
 
-        result += 1;
-    } else if (exception_field == 'sponsor_id'){
+    //     result += 1;
+    } else if (['sponsor', 'sponsor_id'].includes(exception_field)){
         document.getElementById("field_label").innerHTML = 'Management/Sponsor Code';
         $("#exception_value").css('display','none');
         $("#exception_value_dis").css('display','block');
@@ -2107,7 +2113,7 @@ function populate_assign_to_client(error_code_id, existing_field_value, exceptio
 
 function exception_submit()
 {
-   $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+    $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
 
    var url = "import.php"; // the script where you handle the form input.
    //alert($("#resolve_exception_form").serialize());
