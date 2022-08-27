@@ -428,7 +428,7 @@
         $edit_override = $instance->edit_override($id);
         $edit_split = $instance->edit_split($id);
         $edit_charge_check =$instance->edit_charge_check($id);
-        $edit_alias = $instance->edit_alias($id);
+        $edit_alias = $instance->edit_alias($id,0,1);
         $edit_branches = $instance->edit_branches($id);
         //echo '<pre>';print_r($edit_charge_check);exit;//echo '<pre>';print_r($edit_override);exit;
 

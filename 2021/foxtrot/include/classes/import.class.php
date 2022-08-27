@@ -902,7 +902,7 @@
                     }
                     
                     if (isset($detailRow[0]['sponsor_id']) AND (int)$detailRow[0]['sponsor_id']>0){
-                        $sponsorId = (int)$detailRow[0]['sponor_id'];
+                        $sponsorId = (int)$detailRow[0]['sponsor_id'];
                     } else {
                         $errorMsg = "'SPONSOR NOT FOUND' issue must be resolved before assigning a Broker Alias to a specific Sponsor/Fund Company"; 
                     }
@@ -978,9 +978,11 @@
         function resolve_exception_2AddClientValues($clientId=0, $fieldArray=[], $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
             $result = $res = 0;
             $clientId = (int)$this->re_db_input($clientId);
+            // 08/26/22 Find Import Table per file type and source
+            $fileSource = $this->import_table_select($file_id, $file_type);
+            $importFileTable = $fileSource['table'];
 
-            if ($clientId!='' AND count($fieldArray) AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
-                $importFileTable = '';
+            if ($clientId!='' AND $importFileTable!='' AND count($fieldArray) AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
                 $instance_client = new client_maintenance();
                 $clientDetail = $instance_client->select_client_master($clientId);
 
@@ -1006,21 +1008,6 @@
 
                 if($res){
                     $res = 0;
-
-                    switch ($file_type){
-                        case 1:
-                            $importFileTable = IMPORT_DETAIL_DATA;
-                            break;
-                        case 2:
-                            $importFileTable = IMPORT_IDC_DETAIL_DATA;
-                            break;
-                        case 3:
-                            $importFileTable = IMPORT_SFR_DETAIL_DATA;
-                            break;
-                        case $this->GENERIC_file_type:
-                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
-                            break;
-                    }
 
                     // Update "resolve_exceptions" field to flag detail as "special handling" record
                     $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
@@ -1232,9 +1219,13 @@
         /*** Action 3: Reassign Broker or Client to Trade/Client/Objective ***/
         function resolve_exception_3Reassign($reassign_field='', $newId=0, $file_type=0, $file_id=0, $detail_data_id=0,  $exception_record_id=0){
             $result = 0;
+            $fileSource = $this->import_table_select($file_id, $file_type);
+            $importFileTable = $fileSource['table'];
 
             if (in_array($reassign_field,['broker_id','client_id']) AND $newId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id){
                 $res = $q = '';
+                $fileSource = $this->import_table_select($file_id, $file_type);
+                $importFileTable = $fileSource['table'];
 
                 switch ($reassign_field) {
                     case 'broker_id':
@@ -1247,23 +1238,7 @@
                 $res = $this->re_db_query($q);
 
                 if($this->re_db_num_rows($res)) {
-                    $importFileTable = '';
                     $res = 0;
-
-                    switch ($file_type){
-                        case 1:
-                            $importFileTable = IMPORT_DETAIL_DATA;
-                            break;
-                        case 2:
-                            $importFileTable = IMPORT_IDC_DETAIL_DATA;
-                            break;
-                        case 3:
-                            $importFileTable = IMPORT_SFR_DETAIL_DATA;
-                            break;
-                        case $this->GENERIC_file_type:
-                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
-                            break;
-                    }
 
                     if ($importFileTable){
                         $q = "UPDATE `".$importFileTable."`"
@@ -1298,30 +1273,19 @@
         function resolve_exception_4Delete($file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0){
             $importFileTable = $q = $res = '';
             $result = 0;
-
-            switch ($file_type){
-                case 1:
-                    $importFileTable = IMPORT_DETAIL_DATA;
-                    break;
-                case 2:
-                    $importFileTable = IMPORT_IDC_DETAIL_DATA;
-                    break;
-                case 3:
-                    $importFileTable = IMPORT_SFR_DETAIL_DATA;
-                    break;
-                case $this->GENERIC_file_type:
-                    $importFileTable = IMPORT_GEN_DETAIL_DATA;
-                    break;
+            $fileSource = $this->import_table_select($file_id, $file_type);
+            $importFileTable = $fileSource['table'];
+            
+            if ($importFileTable != ''){
+                $q = "UPDATE `".$importFileTable."`"
+                        ." SET `is_delete` = 1"
+                            .",`process_result` = 2"
+                                .$this->update_common_sql()
+                        ." WHERE `id` = $detail_data_id"
+                        ." AND `file_id` = $file_id"
+                ;
+                $res = $this->re_db_query($q);
             }
-
-            $q = "UPDATE `".$importFileTable."`"
-                    ." SET `is_delete` = 1"
-                        .",`process_result` = 2"
-                            .$this->update_common_sql()
-                    ." WHERE `id` = $detail_data_id"
-                    ." AND `file_id` = $file_id"
-            ;
-            $res = $this->re_db_query($q);
 
             if($res){
                 $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
@@ -1351,14 +1315,14 @@
 
                 if ($exceptionData){
                     $res = $q = $file_type = $importFileTable = $file_id = $detail_data_id = '';
+                    $importFileTable = $resolveAction = '';
                     $file_type = $exceptionData[0]['file_type'];
                     $file_id = $exceptionData[0]['file_id'];
                     $detail_data_id = $exceptionData[0]['temp_data_id'];
                     $error_code_id = $exceptionData[0]['error_code_id'];
-                    // 08/22/22 DAZL/Sponsor id update
-                    $fileSource = strtolower(trim($this->get_current_file_type($file_id, 'source')));
-                    $fileSourceId = substr($fileSource,0,3);
-                    $importFileTable = $resolveAction = '';
+                    // 08/26/22 DAZL/Sponsor id update
+                    $fileSource = $this->import_table_select($file_id, $file_type);
+                    $importFileTable = $fileSource['table'];
 
                     switch ($reassign_field) {
                         case 'broker_id':
@@ -1375,33 +1339,6 @@
 
                     if($this->re_db_num_rows($res)) {
                         $res = 0;
-
-                        switch ($file_type){
-                            case 1:
-                                if ($fileSourceId == 'daz'){
-                                    $importFileTable = DAZL_ACCOUNT_DATA;
-                                } else {
-                                    $importFileTable = IMPORT_DETAIL_DATA;
-                                }
-                                break;
-                            case 2:
-                                if ($fileSourceId == 'daz'){
-                                    $importFileTable = DAZL_COMM_DATA;
-                                } else {
-                                    $importFileTable = IMPORT_IDC_DETAIL_DATA;
-                                }
-                                break;
-                            case 3:
-                                if ($fileSourceId == 'daz'){
-                                    $importFileTable = DAZL_SECURITY_DATA;
-                                } else {
-                                    $importFileTable = IMPORT_SFR_DETAIL_DATA;
-                                }
-                                break;
-                            case $this->GENERIC_file_type:
-                                $importFileTable = IMPORT_GEN_DETAIL_DATA;
-                                break;
-                        }
 
                         if ($importFileTable){
                             // If other fields were populated, add that to the SET command as well
@@ -1484,27 +1421,14 @@
             }
             return $result;
         }
-        /*** Action 6: IGNORE Exception */
+        /*** Action 6: IGNORE Exception and Import the record */
         function resolve_exception_6Ignore($file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0){
             $result = 0;
+            $fileSource = $this->import_table_select($file_id, $file_type);
+            $importFileTable = $fileSource['table'];
 
-            if ($file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
-                $importFileTable = $q = $res = $row = '';
-
-                switch ($file_type){
-                    case 1:
-                        $importFileTable = IMPORT_DETAIL_DATA;
-                        break;
-                    case 2:
-                        $importFileTable = IMPORT_IDC_DETAIL_DATA;
-                        break;
-                    case 3:
-                        $importFileTable = IMPORT_SFR_DETAIL_DATA;
-                        break;
-                    case $this->GENERIC_file_type:
-                        $importFileTable = IMPORT_GEN_DETAIL_DATA;
-                        break;
-                }
+            if ($importFileTable!='' AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+                $q = $res = $row = '';
 
                 // Update "resolve_exceptions" field to flag detail as "special handling" record
                 $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=$detail_data_id", 'resolve_exceptions', $exception_record_id);
