@@ -778,11 +778,13 @@
 
             //--- SFR Exceptions ---//
             if(isset($exception_file_type) && $exception_file_type == '3') {
+                $importSelect = $this->import_table_select($exception_file_id, $exception_file_type);
+                $detailTable = $importSelect['table'];
                 // Security Type not found - user-defined product type entry
                 if($error_code_id == '17') {
                     // Validate product category #
                     if (!empty($data['assign_cusip_product_category'])) {
-                        $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                        $q = "UPDATE `".$detailTable."`"
                                 ." SET `product_category_id`={$data['assign_cusip_product_category']}"
                                         .$this->update_common_sql()
                                 ." WHERE `id`='".$exception_data_id."'"
@@ -791,7 +793,7 @@
 
                         if ($res){
                             // Update "resolve_exceptions" field to flag detail as "special handling" record
-                            $res = $this->read_update_serial_field(IMPORT_SFR_DETAIL_DATA, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
+                            $res = $this->read_update_serial_field($detailTable, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
 
                             $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                     ." SET `resolve_action`=3"
@@ -811,7 +813,7 @@
 
                             $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`cusip_number`"
                                     ." FROM `".IMPORT_EXCEPTION."` `ex`"
-                                    ." LEFT JOIN `".IMPORT_SFR_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
+                                    ." LEFT JOIN `".$detailTable."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
                                     ." WHERE `ex`.`file_id`=$exception_file_id"
                                     ." AND `ex`.`file_type`=$exception_file_type"
                                     ." AND `ex`.`error_code_id`=$error_code_id"
@@ -833,7 +835,7 @@
 
                 if($error_code_id == '13') {
                     // Missing data - Name/Cusip/Product Category
-                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                    $q = "UPDATE `".$detailTable."`"
                         ." SET `fund_name` = '".$this->re_db_input(strtoupper($exception_value))."'"
                             .", `product_category_id`={$data['assign_cusip_product_category']}"
                             .", `cusip_number`='".$this->re_db_input($data['cusip_number'])."'"
@@ -844,7 +846,7 @@
 
                     if ($res){
                         // Update "resolve_exceptions" field to flag detail as "special handling" record
-                        $res = $this->read_update_serial_field(IMPORT_SFR_DETAIL_DATA, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
+                        $res = $this->read_update_serial_field($detailTable, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
 
                         $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                 ." SET `resolve_action`=3"
@@ -2126,30 +2128,23 @@
                     ;
                     $res = $this->re_db_query($q);
 
-                    $detailIdQuery = '';
+                    $detailIdQuery = $fileSource = '';
+                    $dataSettings = $instance_data_interface->edit(0, $file_array['source']);
+
                     /*************************************************
                      * DST CLIENT DATA (NFA(07) / NAA(08) / AMP(09))
                      * 08/12/22 DAZL DL Added
                      *************************************************/
-                    $fileSource = '';
                     $client_data_array = [];
                     //-- Choose your sources!
                     if ($detail_record_id==0 OR $file_type==1) {
                         $client_data_array = $this->get_client_detail_data($file_id, 0, ($file_type==1 AND $detail_record_id>0) ? $detail_record_id : 0, $file_array['source']);
-                        
-                        if ($file_array['source']=='DAZL') {
-                            $detailTable = DAZL_ACCOUNT_DATA;
-                            $fileSource = 'DZ';
-                            $dimId = 3;
-                        } else {
-                            $detailTable = IMPORT_DETAIL_DATA;
-                            $fileSource = 'DS';
-                            $dimId = 2;
-                        }
+
+                        $importSelect = $this->import_table_select($file_id, 1);
+                        $detailTable = $importSelect['table'];
+                        $fileSource = substr($importSelect['source'],0,3);
                     }                        
                     
-                    $dataSettings = $instance_data_interface->edit($dimId, $_SESSION['user_id']);
-
                     foreach($client_data_array as $check_data_key=>$check_data_val) {
 
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
@@ -2159,7 +2154,7 @@
                         $first_name = $middle_name = $last_name = '';
                         $rep_number = isset($check_data_val['representative_number']) ? trim($this->re_db_input($check_data_val['representative_number'])) : '';
                         // DAZL Account Number & Sponsor Check - each record might be a different Sponsor, so check every one
-                        if ($fileSource == 'DZ'){
+                        if ($fileSource == 'daz'){
                             $client_account_number = $check_data_val['customer_account_number'];
                             $file_sponsor_array=[];
                             // Check if sponsor id is already populated, else check the management code
@@ -2417,7 +2412,7 @@
                             $res = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
                             $long_name = $client_address1 = $client_address2 = $city = $state = $zip_code = $open_date = $email = $last_contacted = $telephone = $telephone_employment = '';
                             
-                            if ($fileSource == 'DZ'){
+                            if ($fileSource == 'daz'){
                                 $city = $this->re_db_input($check_data_val['city']);
                                 $state = $this->re_db_input($check_data_val['state']);
                                 $open_date = $this->re_db_input($check_data_val['open_date']);
@@ -2478,9 +2473,9 @@
                                         if (isset($check_data_val['line_code']) AND $i >= (int)$check_data_val['line_code']){
                                             if ($i == (int)$check_data_val['line_code']){
                                                 $client_address1 = $res;
-                                            } else if ($fileSource=='DS') {
+                                            } else if ($fileSource=='dst') {
                                                 $client_address1 .= ' '.$res;
-                                            } else if ($fileSource=='DZ' AND strpos($check_data_val['registration_line'.$i], $check_data_val['city'])===false) {
+                                            } else if ($fileSource=='daz' AND strpos($check_data_val['registration_line'.$i], $check_data_val['city'])===false) {
                                                 $client_address2 .= ' '.$res;
                                             }
                                         }
@@ -2681,19 +2676,24 @@
                     * SFR PROCESS security-file data
                     ************************************/
                     $check_sfr_array = [];
+                    $detailTable = '';
+
+                    //-- Choose your sources!
                     if ($detail_record_id==0 OR $file_type==3) {
                         $check_sfr_array = $this->get_sfr_detail_data($file_id, 0, ($file_type==3 AND $detail_record_id>0) ? $detail_record_id : 0);
-                    }
 
+                        $importSelect = $this->import_table_select($file_id, 3);
+                        $detailTable = $importSelect['table'];
+                        $fileSource = substr($importSelect['source'],0,3);
+                    }                        
+                    
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
-                        $this->re_db_perform(IMPORT_SFR_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
-
-                        $result = $last_inserted_id = 0;
-                        $productCategoryQuery = '';
+                        $this->re_db_perform($detailTable, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
 
                         // Resolve exception() by user (edited Category/CUSIP and/or Name)
-                        $reassignProductCategory =  0;
+                        $result = $last_inserted_id = $reassignProductCategory =  0;
+                        $productCategoryQuery = '';
 
                         if ($check_data_val['resolve_exceptions'] != ''){
                             $exceptionArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
@@ -2705,12 +2705,20 @@
                                 }
                             }
                         }
+
+                        // DAZL/Non-DST data needs some updates to field names to match DST
+                        if ($fileSource == 'daz'){
+                            $check_data_val['product_name'] = $this->re_db_input($check_data_val['fund_name2']);
+                            $check_data_val['major_security_type'] = $this->re_db_input($check_data_val['fund_type']);
+                            $check_data_val['fund_code'] = $this->re_db_input($check_data_val['fund_number']);
+                        }
+                        
                         // Missing data
                         if((empty(trim($check_data_val['major_security_type'])) AND $reassignProductCategory==0) OR (empty(trim($check_data_val['fund_name'])) AND empty(trim($check_data_val['product_name']))) ){
                             $field = 'major_security_type';
                             if (empty(trim($check_data_val['fund_name']))) {
                                 $field = 'fund_name';
-                            } else if (empty(trim($check_data_val['product_name']))) {
+                            } else if ($fileSource!='daz' AND empty(trim($check_data_val['product_name']))) {
                                 $field = 'product_name';
                             }
 
@@ -2799,11 +2807,10 @@
                                     ;
                                     $res = $this->re_db_query($q);
 
-                                    // Update DETAIL data TABLE for added/updated clients
-                                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                                    // Update DETAIL data TABLE for added/updated products
+                                    $q = "UPDATE `".$detailTable."`"
                                         ." SET"
                                             ." `product_category_id`=".$array_ProductCategory['id']
-                                            .",`product_category_table`='".PRODUCT_LIST."'"
                                             .",`product_id`=".$array_SymbolCusipCheck['id']
                                             .",`process_result`=2"
                                             .$this->update_common_sql()
@@ -2843,10 +2850,9 @@
                                     $res = $this->re_db_query($q);
 
                                     // Update DETAIL data TABLE for added/updated clients
-                                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                                    $q = "UPDATE `".$detailTable."`"
                                         ." SET `process_result`=1"
                                             .",`product_category_id`=".$array_ProductCategory['id']
-                                            .",`product_category_table`='".PRODUCT_LIST."'"
                                             .",`product_id`=$last_inserted_id"
                                             .$this->update_common_sql()
                                         ." WHERE `id`=".$check_data_val['id']." AND `is_delete`=0"
@@ -4112,7 +4118,8 @@
 			$return = array();
 			$con = '';
             $detailTable = '';
-            $source = strtoupper($this->re_db_input($source));
+            $fileSource = $this->import_table_select($file_id, 1);
+            $detailTable = $fileSource['table'];
             
             if (is_null($process_result)) {
                 // Do nothing
@@ -4128,17 +4135,6 @@
             if ($record_id){
                 $record_id = (int)$this->re_db_input($record_id);
                 $con .= " AND `at`.`id`=$record_id";
-            }
-            
-            switch ($source){
-                case 'DAZL':
-                    $detailTable = DAZL_ACCOUNT_DATA;
-                    break;
-                case 'DZ':
-                    $detailTable = DAZL_ACCOUNT_DATA;
-                    break;
-                default:
-                    $detailTable = IMPORT_DETAIL_DATA;
             }
                     
 			$q = "SELECT `at`.*"
@@ -4157,9 +4153,13 @@
             }
 			return $return;
 		}
-        public function get_sfr_detail_data($id, $process_result=null, $record_id=0){
+        public function get_sfr_detail_data($file_id, $process_result=null, $record_id=0){
 			$return = array();
             $con = '';
+            $file_id = (int)$this->re_db_input($file_id);
+            $record_id = (int)$this->re_db_input($record_id);
+            $fileSource = $this->import_table_select($file_id, 3);
+            $detailTable = $fileSource['table'];
 
             if (!is_null($process_result)){
                 $con = " AND (`at`.`process_result` = '".$process_result."'"
@@ -4173,16 +4173,16 @@
                 $con .= " AND `at`.`id`=$record_id";
             }
 
-			$q = "SELECT `at`.*
-					FROM `".IMPORT_SFR_DETAIL_DATA."` AS `at`
-                    WHERE `at`.`is_delete`=0
-                      AND `at`.`file_id`='".$id."'"
-                      .$con."
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*"
+                ." FROM `$detailTable` AS `at`"
+                ." WHERE `at`.`is_delete`=0"
+                ." AND `at`.`file_id`=$file_id"
+                   .$con
+                ." ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
 
             if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_array($res);
+    			$return = $this->re_db_fetch_all($res);
             }
 			return $return;
 		}
@@ -4566,25 +4566,23 @@
 		}
         public function select_existing_sfr_data($id,$source=''){
 			$return = array();
+            $fieldList = "";
             $id = (int)$this->re_db_input($id);
-            $source = $this->re_db_input($source);
+            $source = strtolower(substr($this->re_db_input($source),0,3));
 
-            switch ($source){
-                case 'DAZL':
-                    $detailTable = DAZL_SECURITY_DATA;
-                    break;
-                case 'DZ':
-                    $detailTable = DAZL_SECURITY_DATA;
-                    break;
-                default:
-                    $detailTable = IMPORT_SFR_DETAIL_DATA;
+            if (in_array($source, ['dz','daz'])){
+                $detailTable = DAZL_SECURITY_DATA;
+                $fieldList = ",`at`.`fund_type` AS `major_security_type`";
+            } else {
+                $detailTable = IMPORT_SFR_DETAIL_DATA;
             }
 
-			$q = "SELECT `sfr`.*"
-					." FROM `$detailTable` AS `sfr`"
-                    ." WHERE `sfr`.`is_delete`=0"
-                    ." AND `sfr`.`id`='".$id."'"
-                    ." ORDER BY `sfr`.`id` DESC"
+			$q = "SELECT `at`.*"
+                        .$fieldList
+                ." FROM `$detailTable` AS `at`"
+                ." WHERE `at`.`is_delete`=0"
+                ." AND `at`.`id`='".$id."'"
+                ." ORDER BY `at`.`id` DESC"
             ;
 			$res = $this->re_db_query($q);
 
@@ -4595,25 +4593,22 @@
 		}
         public function select_existing_idc_data($id=0, $source=''){
             $return = array();
-			$id = (int)$this->re_db_input($id);
-			$source = $this->re_db_input($source);
+            $fieldList = '';
+            $id = (int)$this->re_db_input($id);
+			$source = strtolower(substr($this->re_db_input($source), 0, 3));
 
-            switch ($source){
-                case 'DAZL':
-                    $detailTable = DAZL_COMM_DATA;
-                    break;
-                case 'DZ':
-                    $detailTable = DAZL_COMM_DATA;
-                    break;
-                default:
-                    $detailTable = IMPORT_IDC_DETAIL_DATA;
+            if (in_array($source, ['dz','daz'])){
+                $detailTable = DAZL_COMM_DATA;
+            } else {
+                $detailTable = IMPORT_IDC_DETAIL_DATA;
             }
 
 			$q = "SELECT `idc`.*"
-					." FROM `$detailTable` AS `idc`"
-                    ." WHERE `idc`.`is_delete`=0"
-                    ."  AND `idc`.`id`='".$id."'"
-                    ." ORDER BY `idc`.`id` DESC"
+                        .$fieldList
+                ." FROM `$detailTable` AS `idc`"
+                ." WHERE `idc`.`is_delete`=0"
+                ."  AND `idc`.`id`='".$id."'"
+                ." ORDER BY `idc`.`id` DESC"
             ;
 			$res = $this->re_db_query($q);
 
@@ -4643,7 +4638,7 @@
 			$return = array();
 
             $con = '';
-            $source = strtoupper($this->re_db_input($source));
+            $source = strtoupper(substr($this->re_db_input($source),0,4));
             $searchColumn = ($source=='DAZL' ? 'dazl_code' : 'dst_system_id');
             
             if($system_id!='') {
@@ -4671,13 +4666,13 @@
 			$return = array();
             $detailTable = '';
             $id = (int)$this->re_db_input($id);
-            $source = $this->re_db_input($source);
+            $source = strtolower(substr($this->re_db_input($source),0,3));
 
             switch ($source){
-                case 'DAZL':
+                case 'daz':
                     $detailTable = DAZL_ACCOUNT_DATA;
                     break;
-                case 'DZ':
+                case 'dz':
                     $detailTable = DAZL_ACCOUNT_DATA;
                     break;
                 default:
@@ -4883,14 +4878,14 @@
         public function get_client_data($file_id,$temp_data_id='',$source=''){
             $file_id = (int)$this->re_db_input($file_id);
             $temp_data_id = (int)$this->re_db_input($temp_data_id);
-            $source = strtoupper($this->re_db_input($source));
+            $source = strtolower(substr($this->re_db_input($source),0,3));
             
 			$return = array();
 			$con = '';
             $detailTable = IMPORT_DETAIL_DATA;
             
             if($temp_data_id > 0) { $con .=" AND id=$temp_data_id"; }
-            if(in_array($source, ['DZ','DAZL'])) { $detailTable = DAZL_ACCOUNT_DATA; }
+            if(in_array($source, ['dz','daz'])) { $detailTable = DAZL_ACCOUNT_DATA; }
 
 			$q = "SELECT *,"
                 ." (CASE"
@@ -5216,7 +5211,7 @@
                 } else if ($sequenceNumber == '02'){
                     $return = [
                         "sequence_number" => $sequenceNumber 
-                        ,"fund_name1" => substr($data,7,50) 
+                        ,"fund_name" => substr($data,7,50) 
                         ,"fund_name2" => substr($data,57,40) 
                     ];
                 }
@@ -5236,7 +5231,7 @@
                         ,"cusip_number" => substr($data,10,9) 
                         ,"fund_number" => substr($data,19,5)
                         ,"ticker_symbol" => substr($data,24,7) 							           
-                        ,"fund_name1" => substr($data,31,50) 
+                        ,"fund_name" => substr($data,31,50) 
                         ,"fund_name2" => substr($data,81,394) 
                     ];
                 } else if ($sequenceNumber == '02'){

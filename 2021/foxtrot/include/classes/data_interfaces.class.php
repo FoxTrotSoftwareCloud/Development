@@ -74,16 +74,20 @@
         /*-------------------------------------------------------------------
 		* @param int id
 		* @return array of record if success, error message if any errors
-		* $user_id deprecated 3/21/22 - all users should enjoy!
+		* 8/28/22 `name` field search added
 		*-------------------------------------------------------------------*/
-		public function edit($dim_id=0, $user_id=0){
-			$dim_id = (int)$this->re_db_input($dim_id);
+		public function edit($dim_id=0, $name=''){
 			$return = array();
+			$dim_id = (int)$this->re_db_input($dim_id);
+			$name = $this->re_db_input($name);
+			$con = "`at`.`dim_id`=$dim_id";
+			
+			if ($name != '') { $con="`at`.`name`='$name'"; }
 			
 			$q = "SELECT `at`.*"
 				." FROM `".$this->table."` AS `at`"
 				." WHERE `at`.`is_delete`=0"
-				." AND `at`.`dim_id`=$dim_id"
+				." AND $con"
 			;
 			$res = $this->re_db_query($q);
 			
