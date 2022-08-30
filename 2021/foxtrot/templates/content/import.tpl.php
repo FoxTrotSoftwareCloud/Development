@@ -671,12 +671,19 @@ PostResult( msg );
                                                             <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '3') { ?>
                                                                 <?php
                                                                     $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id'],$file_source);
-                                                                    $existingDetailValues = ['fund_name'=> $return_sfr_existing_data['fund_name'], 'cusip_number'=>$return_sfr_existing_data['cusip_number'], 'ticker_symbol'=>$return_sfr_existing_data['ticker_symbol'], 'product_category_id'=>$return_sfr_existing_data['product_category_id']];
+                                                                    
+                                                                    if (count($return_sfr_existing_data)){
+                                                                        $existingDetailValues = ['fund_name'=>$return_sfr_existing_data['fund_name'], 'cusip_number'=>$return_sfr_existing_data['cusip_number'], 'ticker_symbol'=>$return_sfr_existing_data['ticker_symbol'], 'product_category_id'=>$return_sfr_existing_data['product_category_id']];
+                                                                    } else {
+                                                                        $existingDetailValues = ['fund_name'=>'', 'cusip_number'=>'', 'ticker_symbol'=>'', 'product_category_id'=>''];
+                                                                    }
                                                                 ?>
-                                                                <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
-                                                                <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
-                                                                <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
-                                                                <td><?php echo $return_sfr_existing_data['major_security_type'] ?></td>
+                                                                <?php if (count($return_sfr_existing_data)){ ?>
+                                                                    <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
+                                                                    <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
+                                                                    <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
+                                                                    <td><?php echo $return_sfr_existing_data['major_security_type'] ?></td>
+                                                                <?php } ?>
                                                             <?php } ?>
                                                             <td><?php echo $error_val['error'];?></td>
                                                             <td style="width: 20%;">
@@ -1815,6 +1822,10 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         // SFR File - Missing/Invalid Data
         // 03/05/22 Not needed with file_type and error_code_id criteria --- && ['major_security_type', 'cusip_number', 'fund_name'].includes(exception_field)
         const existingDetailValues = <?php echo isset($existingDetailValues) ? json_encode($existingDetailValues) : json_encode(['fund_name'=>'', 'cusip_number'=>'', 'product_category_id'=>'0']); ?>;
+
+        // 08/29/22 TEST DELETE ME
+        console.log("error_code_id==13: existingDetailValues['cusip_number']=" + existingDetailValues['cusip_number'] + ", existingDetailValues['product_category_id']="+existingDetailValues['product_category_id']);
+
         const parentRow = '#assign_cusip_to_product';
 
         $(parentRow).css("display","block");
@@ -1825,9 +1836,11 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#field_label").css("display","block");
         $("#exception_value").css("display","block");
         $("#exception_value").val(existingDetailValues['fund_name']);
-        $(parentRow + " #cusip_number").val(existingDetailValues['cusip_number']);
-        $(parentRow + " #cusip_number").prop("disabled", false);
-
+        $(parentRow + "_text").val(existingDetailValues['cusip_number']);
+        $(parentRow + "_text").prop("disabled", false);
+        $(parentRow + "_category").val("1");
+        $("#row_skip_exception").css("display","block");
+        
         result += 1;
     } else if (error_code_id == 17){
         // Product Type Not Found

@@ -247,17 +247,17 @@
                 // Adding product, make sure all the fields are populated
                 $resultMessage = '';
 
-                if (empty($exception_value)){
+                if (!$skipException AND empty($exception_value)){
                     $resultMessage .= 'Please enter Fund Name.';
                 }
-                if (empty($data['cusip_number'])){
+                if (!$skipException AND empty($data['cusip_number']) AND $_POST['assign_cusip_to_product_text']==''){
                     $resultMessage .= ' Please enter CUSIP number.';
                 }
-                if (empty($data['assign_cusip_product_category'])){
+                if (!$skipException AND empty($data['assign_cusip_product_category'])){
                     $resultMessage .= ' Please select a Product Category.';
                 }
 
-                if ($resultMessage != ''){
+                if (!$skipException AND $resultMessage != ''){
                     $this->errors = $resultMessage;
                 }
             }
@@ -834,34 +834,49 @@
                 }
 
                 if($error_code_id == '13') {
-                    // Missing data - Name/Cusip/Product Category
-                    $q = "UPDATE `".$detailTable."`"
-                        ." SET `fund_name` = '".$this->re_db_input(strtoupper($exception_value))."'"
-                            .", `product_category_id`={$data['assign_cusip_product_category']}"
-                            .", `cusip_number`='".$this->re_db_input($data['cusip_number'])."'"
-                                .$this->update_common_sql()
-                        ." WHERE `id`='".$exception_data_id."'"
-                        ;
-                    $res = $this->re_db_query($q);
-
-                    if ($res){
-                        // Update "resolve_exceptions" field to flag detail as "special handling" record
-                        $res = $this->read_update_serial_field($detailTable, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
-
-                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
-                                ." SET `resolve_action`=3"
-                                        .$this->update_common_sql()
-                                ." WHERE `id`=".$exception_record_id
-                        ;
+                    if($resolveAction == 4){
+                        $result = $this->resolve_exception_4Delete($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+                    } else {
+                        // Missing data - Name/Cusip/Product Category
+                        if ($data['assign_cusip_to_product_text']!=''){
+                            $cusipNumber = $this->re_db_input($data['assign_cusip_to_product_text']);
+                        } else {
+                            $cusipNumber = $this->re_db_input($data['cusip_number']);
+                        }
+                        
+                        if ($data['assign_cusip_product_category']!=''){
+                            $productCategory = $this->re_db_input($data['assign_cusip_product_category']);
+                        } else {
+                            $productCategory = $this->re_db_input($data['product_category_id']);
+                        }
+                        
+                        $q = "UPDATE `".$detailTable."`"
+                            ." SET `fund_name` = '".$this->re_db_input(strtoupper($exception_value))."'"
+                                .", `product_category_id`=$productCategory"
+                                .", `cusip_number`='$cusipNumber'"
+                                    .$this->update_common_sql()
+                            ." WHERE `id`='".$exception_data_id."'"
+                            ;
                         $res = $this->re_db_query($q);
-                    }
 
-                    if($res){
-                        $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
+                        if ($res){
+                            // Update "resolve_exceptions" field to flag detail as "special handling" record
+                            $res = $this->read_update_serial_field($detailTable, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
+
+                            $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                    ." SET `resolve_action`=3"
+                                            .$this->update_common_sql()
+                                    ." WHERE `id`=".$exception_record_id
+                            ;
+                            $res = $this->re_db_query($q);
+                        }
+
+                        if($res){
+                            $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
+                        }
                     }
                 }
             }
-
             if($result == 1){
                 if($exception_field == 'customer_account_number')
                 {
@@ -2094,7 +2109,7 @@
                         }
                     }
 
-                    if (empty($file_array['sponsor_id']) AND !in_array(strtolower($file_array['source']),['dazl'])){
+                    if (empty($file_array['sponsor_id']) AND !in_array(strtolower(substr($file_array['source'],0,3)),['daz'])){
                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
                                     ." `file_id`='".$file_id."'"
