@@ -3828,22 +3828,22 @@
 
             if ($sfrBreakOut){
                 // UNION in an SFR row, if one exists
-                $q = "SELECT `id`,`file_name`, `file_type`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`, `sponsor_id`"
+                $q = "SELECT `id`,0 AS `header_id`, `file_name`, `file_type`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`, `sponsor_id`"
                         ." FROM `".IMPORT_CURRENT_FILES."`"
                         ." WHERE `is_delete`=0"
                         ." AND `is_archived`=0"
-                        ." AND `source`!='DAZL'"
+                        ." AND `source` NOT LIKE 'DAZL%'"
                     ." UNION"
-                        ." SELECT `b`.`id` AS `id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
+                        ." SELECT `b`.`id`, `a`.`id` AS `header_id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
                             ." FROM `".IMPORT_SFR_HEADER_DATA."` `a`"
                             ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
                             ." WHERE `b`.`is_delete`=0"
                             ." AND `b`.`is_archived`=0"
                     ." UNION"
-                        ." SELECT `b`.`id` AS `id`, CONCAT(TRIM(`b`.`file_name`),'(sub)') AS `file_name`, `a`.`file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
+                        ." SELECT `b`.`id` AS `id`,`a`.`id` AS `header_id`, CONCAT(TRIM(`b`.`file_name`),'(subfile)') AS `file_name`, `a`.`file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `a`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
                             ." FROM `".DAZL_HEADER_DATA."` `a`"
                             ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
-                            ." WHERE `b`.`is_delete`=0"
+                            ." WHERE `a`.`is_delete`=0 AND `b`.`is_delete`=0"
                             ." AND `b`.`is_archived`=0"
                     ." ORDER BY `last_processed_date` DESC, `file_name`, `file_type`"
                 ;
