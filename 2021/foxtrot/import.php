@@ -40,14 +40,15 @@
 
         $id = isset($_POST['id']) ? $instance->re_db_input($_POST['id']) : 0;
         $process_file = isset($_POST['process_file_'.$id]) ? $instance->re_db_input($_POST['process_file_'.$id]) : '';
+        $process_file = isset($_POST['process_file_'.$id]) ? $instance->re_db_input($_POST['process_file_'.$id]) : '';
         // "File Type" is populated in select_current_files($file_id, sfrBreakout) function
         if (!isset($_POST['process_file_type'])) {
             $file_type = 1;
-        } else if ($_POST['process_file_type']=='DST Commission' || $_POST['process_file_type']=='Commissions'){
+        } else if ($_POST['process_file_type']=='DST Commission' || $_POST['process_file_type']=='Commissions' || $_POST['process_file_type_code']=='2'){
             $file_type = 2;
-        } else if ($_POST['process_file_type'] == 'Security File' || $_POST['process_file_type'] == 'Securities'){
+        } else if ($_POST['process_file_type'] == 'Security File' || $_POST['process_file_type'] == 'Securities' || $_POST['process_file_type_code']=='3'){
             $file_type = 3;
-        } else if (stripos($_POST['process_file_type'],'generic commission')!==false){
+        } else if (stripos($_POST['process_file_type'],'generic commission')!==false || $_POST['process_file_type_code']=='9'){
             $file_type = 9;
         } else {
             $file_type = 1;
@@ -71,7 +72,7 @@
         }
         else if(isset($process_file) && $process_file == 3)
         {
-            header("location:".CURRENT_PAGE."?tab=processed_files&id=".$id);exit;
+            header("location:".CURRENT_PAGE."?tab=processed_files&id=".$id."&file_type=$file_type");exit;
         }
         else if(isset($process_file) && $process_file == 4)
         {
@@ -88,7 +89,7 @@
         }
         else if(isset($process_file) && $process_file == 7)
         {
-            header("location:".CURRENT_PAGE."?tab=preview_files&id=".$id);exit;
+            header("location:".CURRENT_PAGE."?tab=preview_files&id=".$id."&file_type=$file_type");exit;
         }
         else{
             header("location:".CURRENT_PAGE);exit;

@@ -157,7 +157,16 @@ PostResult( msg );
                 if(isset($_GET['tab']) && ($_GET['tab']=="review_files" || $_GET['tab']=="processed_files") && $_GET['id']>0){
                     $get_file_data = $instance->select_user_files($_GET['id']);
                     $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
-                    $fileTypeDescription = ($get_file_type==3) ? 'Security File' : $get_file_data['file_type'] ;
+                    
+                    if (empty($get_file_type)){
+                        $fileTypeDescription = $get_file_data['file_type'];
+                    } else if ($get_file_type == '2'){
+                        $fileTypeDescription = "Commissions";
+                    } else if ($get_file_type == '3'){
+                        $fileTypeDescription = "Securities";
+                    } else {
+                        $fileTypeDescription = "Clients";
+                    }
 
                     if ($_GET['tab']=="review_files") { ?>
                         <h3>Review & Resolve Exceptions</h3><br />
@@ -177,16 +186,7 @@ PostResult( msg );
                         <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
                         <?php
                         $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
-                        $get_file_type =  '';
                         $get_file_type_source = $instance->get_current_file_type($file_id);
-
-                        if($get_file_type_source == 'DSTFANMail') {
-                            $get_file_type = 1;
-                        } else if($get_file_type_source == 'DSTIDC') {
-                            $get_file_type = 2;
-                        } else if($get_file_type_source == 'GENERIC') {
-                            $get_file_type = 9;
-                        }
 
                         if(isset($get_file_type) && in_array($get_file_type, [2, 9])){
                             $total_amount = 0;
@@ -194,7 +194,7 @@ PostResult( msg );
                             if ($get_file_type == 9){
                                 $return_file_data_array = $instance->get_gen_detail_data($file_id);
                             } else {
-                                $return_file_data_array = $instance->get_file_array($file_id);
+                                $return_file_data_array = $instance->get_idc_detail_data($file_id);
                             }
 
                             foreach($return_file_data_array as $preview_key=>$preview_val)
@@ -208,7 +208,7 @@ PostResult( msg );
                     }
                 } ?>
 
-                <!-- Import Grid -->
+                <!-- Import File Table -->
                 <div class="tab-pane active" id="tab_a"><?php if(isset($_GET['tab']) && ($_GET['tab']=="current_files" || $_GET['tab']=="archived_files") || !isset($_GET['tab'])){?>
                     <ul class="nav nav-tabs ">
                       <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="current_files"){ echo "active"; }else if(!isset($_GET['tab'])){echo "active";}else{ echo '';} ?>" ><a href="#current_files" data-toggle="tab">Current Files</a></li>
@@ -264,11 +264,11 @@ PostResult( msg );
                                                         $file_batch_id = $instance->get_file_batch($val['id']);
                                                         if (!isset($val['file_type'])) {
                                                             $file_type_id = 1;
-                                                        } else if ($val['file_type'] == 'DST Commission'){
+                                                        } else if ($val['file_type'] == 'DST Commission' OR $val['file_type_code']==2){
                                                             $file_type_id = 2;
-                                                        } else if ($val['file_type'] == 'Security File'){
+                                                        } else if (stripos($val['file_type'], 'securit')!==false OR $val['file_type_code']==3){
                                                             $file_type_id = 3;
-                                                        } else if (stripos($val['file_type'], 'generic commission')!==false){
+                                                        } else if (stripos($val['file_type'], 'generic commission')!==false OR $val['file_type_code']==9){
                                                             $file_type_id = 9;
                                                         } else {
                                                             $file_type_id = 1;
@@ -286,12 +286,9 @@ PostResult( msg );
 
                                                                 <?php
                                                                     // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
-                                                                    $detailTable = '';
-
-                                                                    if (!in_array($val['file_type'], ['C1', 'DST Commission'])) {
-                                                                        $detailTable = ($val['file_type']=='Security File') ? IMPORT_SFR_DETAIL_DATA : IMPORT_DETAIL_DATA;
-                                                                    }
-
+                                                                    $detailTable = $instance->import_table_select($val['id'], $file_type_id);
+                                                                    $detailTable = $detailTable['table'];
+                                                                    
                                                                     $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
                                                                     $count_processed_data = $total_processed_data['processed'];
                                                                     $count_exception_data = $total_processed_data['exceptions'];
@@ -349,6 +346,7 @@ PostResult( msg );
                                                                         </select>
                                                                         <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
                                                                         <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type'];?>" />
+                                                                        <input type="hidden" name="process_file_type_code" id="process_file_type_code" value="<?php echo $val['file_type_code'];?>" />
                                                                         <input type="hidden" name="go" value="go" />
                                                                     </form>
                                                                 </td>

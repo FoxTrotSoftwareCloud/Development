@@ -2883,19 +2883,26 @@
                     $commission_detail_array = [];
                     $commissionFileType = $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 0;
                     $fileSource = '';
+                    // 08/31/22 DAZL Import added
+                    $importSelect = $this->import_table_select($file_id, 2);
+                    $commDetailTable = $importSelect['table'];
+                    $fileSource = substr($importSelect['source'],0,3);
 
+                    //-- Choose your sources!
                     if (in_array($file_type, [$this->GENERIC_file_type])) {
                         $commission_detail_array = $this->get_gen_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $commissionFileType = $this->GENERIC_file_type;
                         // Generic file does not contain a Cusip(or any unique product id or description) and Clients are often added with the transaction, i.e. many will not be in Cloudfox DB. So, add them and let God sort it out
                         $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 1;
-                        $commDetailTable = IMPORT_GEN_DETAIL_DATA;
-                        $fileSource = 'GN';
-                    } else if ($file_type==2 OR $detail_record_id==0) {
+                        $fileSource = 'GEN';
+                    } else if ($fileSource=='dst' AND ($file_type==2 OR $detail_record_id==0)) {
                         $commission_detail_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $commissionFileType = 2;
-                        $commDetailTable = IMPORT_IDC_DETAIL_DATA;
-                        $fileSource = 'DS';
+                        $fileSource = 'DST';
+                    } else if ($fileSource=='daz' AND in_array($file_type,[0,2])) {
+                        $commission_detail_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
+                        $commissionFileType = 2;
+                        $fileSource = 'DAZ';
                     }
 
                     foreach($commission_detail_array as $check_data_key=>$check_data_val){
@@ -3767,7 +3774,23 @@
                     .$this->update_common_sql()
                 ." WHERE `id`=$file_id";
             $res = $this->re_db_query($q);
-
+            
+            if (stripos($file_array['source'], 'dazl')!==false){
+                $con = '';
+                if ($file_type>0){
+                    $con .= " AND `file_type_code`=$file_type";
+                } 
+                $q = "UPDATE `".DAZL_HEADER_DATA."`"
+                    ." SET `last_processed_date`='".date('Y-m-d H:i:s')."'"
+                        .",`process_completed`=".($check_file_exception_process['exceptions'] ? '0' : '1')
+                        .$this->update_common_sql()
+                    ." WHERE `is_delete`=0"
+                    ." AND `file_id`=$file_id"
+                            .$con
+                ;
+                $res = $this->re_db_query($q);
+            }
+            
             if($res){
                 $_SESSION['success'] = 'Data successfully processed.';
                 return true;
@@ -3828,19 +3851,20 @@
 
             if ($sfrBreakOut){
                 // UNION in an SFR row, if one exists
-                $q = "SELECT `id`,0 AS `header_id`, `file_name`, `file_type`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`, `sponsor_id`"
+                // DAZL - August 2022
+                $q = "SELECT `id`,0 AS `header_id`, `file_name`, `file_type`, `file_type_code`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`, `sponsor_id`"
                         ." FROM `".IMPORT_CURRENT_FILES."`"
                         ." WHERE `is_delete`=0"
                         ." AND `is_archived`=0"
                         ." AND `source` NOT LIKE 'DAZL%'"
                     ." UNION"
-                        ." SELECT `b`.`id`, `a`.`id` AS `header_id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
+                        ." SELECT `b`.`id`, `a`.`id` AS `header_id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, 3 AS `file_type_code`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
                             ." FROM `".IMPORT_SFR_HEADER_DATA."` `a`"
                             ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
                             ." WHERE `b`.`is_delete`=0"
                             ." AND `b`.`is_archived`=0"
                     ." UNION"
-                        ." SELECT `b`.`id` AS `id`,`a`.`id` AS `header_id`, CONCAT(TRIM(`b`.`file_name`),'(subfile)') AS `file_name`, `a`.`file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `a`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
+                        ." SELECT `b`.`id` AS `id`,`a`.`id` AS `header_id`, CONCAT(TRIM(`b`.`file_name`),'(subfile)') AS `file_name`, `a`.`file_type`, `b`.`processed`, `a`.`file_type_code`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `a`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
                             ." FROM `".DAZL_HEADER_DATA."` `a`"
                             ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
                             ." WHERE `a`.`is_delete`=0 AND `b`.`is_delete`=0"
@@ -4070,7 +4094,7 @@
             }
 			return $return;
 		}
-        public function check_file_exception_process($file_id, $exceptionSummary=0, $detailTableConstant=''){
+        public function check_file_exception_process($file_id, $exceptionSummary=0, $source=''){
 			$return = 0;
 
             if ($exceptionSummary==0){
@@ -4091,20 +4115,20 @@
             } else {
                 $return = ["file_id"=>$file_id, "file_name"=>'*Not Found*', "exceptions"=>0, "processed"=>0];
                 // Make sure to re-value the parameter to uppercase for the "in_array()" call below
-                $detailTableConstant = strtoupper($this->re_db_input($detailTableConstant));
+                $source = strtoupper($this->re_db_input($source));
                 
-                if (empty($detailTableConstant)){
+                if (empty($source)){
                     $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA, IMPORT_GEN_DETAIL_DATA];
-                } else if (in_array($detailTableConstant,['DSTIDC'])){
+                } else if (in_array($source,['DSTIDC'])){
                     $tableArray = [IMPORT_IDC_DETAIL_DATA];
-                } else if (in_array($detailTableConstant,['GENERIC'])){
+                } else if (in_array($source,['GENERIC'])){
                     $tableArray = [IMPORT_GEN_DETAIL_DATA];
-                } else if (in_array($detailTableConstant,['DS','DST','DSTFANMAIL'])){
+                } else if (in_array($source,['DS','DST','DSTFANMAIL'])){
                     $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA];
-                } else if (in_array($detailTableConstant,['DZ','DAZL','DAZL DAILY'])){
+                } else if (in_array($source,['DZ','DAZL','DAZL DAILY'])){
                     $tableArray = [DAZL_ACCOUNT_DATA, DAZL_SECURITY_DATA, DAZL_COMM_DATA];
                 } else {
-                    $tableArray = [$detailTableConstant];
+                    $tableArray = [$source];
                 }
 
                 foreach ($tableArray AS $table){
@@ -4203,8 +4227,9 @@
 		}
         public function get_idc_detail_data($file_id, $process_result=null, $record_id=0){
 			$return = array();
-            $con = '';
-
+            $con = $fields = '';
+            $file_id = (int)$this->re_db_input($file_id);
+            
             if (!is_null($process_result)) {
                 $con = " AND (`at`.`process_result` = '".$process_result."'"
                        .($process_result==0 ? " OR `at`.`process_result` IS NULL" : "")
@@ -4217,27 +4242,42 @@
                 $con .= " AND `at`.`id`=$record_id";
             }
 
-			$q = "SELECT `at`.*,`idch`.`system_id`,`idch`.`management_code`
-					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `at`
-                    LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` as `idch` on `idch`.`id`=`at`.`idc_header_id`
-                    WHERE `at`.`is_delete`=0
-                      AND `at`.`file_id`='".$file_id."'
-                      ".$con."
-                    ORDER BY `at`.`id` ASC";
-			$res = $this->re_db_query($q);
+            // 08/31/22 Add DAZL search - function returns array (1)Detail Table, (2)Source, (3)Sponsor ID
+            $importSelect = $this->import_table_select($file_id, 2);
+            $sourceId = substr($importSelect['source'],0,3);
+            $detailTable = $importSelect['table'];
+
+            if ($sourceId == 'daz'){
+                $headerTable = DAZL_HEADER_DATA;
+                $fields = "";
+                $leftJoin = "`at`.`file_id`=`hdr`.`file_id` AND `hdr`.`is_delete`=0 AND `hdr`.`file_type_code`=2";
+            } else {
+                $headerTable = IMPORT_IDC_HEADER_DATA;
+                $fields = " ,`hdr`.`system_id`,`hdr`.`management_code`";
+                $leftJoin = "`hdr`.`id`=`at`.`idc_header_id` AND `hdr`.`is_delete`=0";
+            }
+
+            // Run the query
+			$q = "SELECT `at`.*".$fields 
+				." FROM `$detailTable` AS `at`"
+                ." LEFT JOIN `$headerTable` AS `hdr` ON $leftJoin"
+                ." WHERE `at`.`is_delete`=0"
+                    ." AND `at`.`file_id`=$file_id"
+                    .$con
+                ." ORDER BY `at`.`id` ASC"
+            ;
+
+            $res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
+    			$return = $this->re_db_fetch_all($res);
             }
 			return $return;
 		}
         public function get_gen_detail_data($file_id, $process_result=null, $record_id=0){
 			$return = array();
             $con = '';
-            $file_id = (int)$file_id;
+            $file_id = (int)$this->re_db_input($file_id);
 
             if (!is_null($process_result)) {
                 $con = " AND (`at`.`process_result` = '".$process_result."'"
@@ -4247,7 +4287,7 @@
             }
 
             if ($record_id){
-                $record_id = (int)$record_id;
+                $record_id = (int)$this->re_db_input($record_id);
                 $con .= " AND `at`.`id`=$record_id";
             }
 
