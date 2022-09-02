@@ -160,7 +160,7 @@ PostResult( msg );
                     
                     if (empty($get_file_type)){
                         $fileTypeDescription = $get_file_data['file_type'];
-                    } else if ($get_file_type == '2'){
+                    } else if (in_array($get_file_type, ['2','9'])){
                         $fileTypeDescription = "Commissions";
                     } else if ($get_file_type == '3'){
                         $fileTypeDescription = "Securities";
@@ -434,6 +434,7 @@ PostResult( msg );
                                                                                 <option value="1" selected="true" >View/Print</option>
                                                                             </select>
                                                                             <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                                            <input type="hidden" name="file_type_code" id="go_archive_file_type_code" value="<?php echo $val['file_type_code'];?>" />
                                                                             <button type="submit" class="btn btn-sm btn-warning" name="go_archive" value="go_archive" style="display: inline;"> Go</button>
                                                                         </form>
                                                                     </td>
@@ -816,7 +817,11 @@ PostResult( msg );
                                         <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                             <div class="row">
                                             <?php
-                                            $get_file_type = $instance->get_file_type($_GET['id']);
+                                                if (isset($_GET['file_type']) AND (int)$_GET['file_type']>0){
+                                                    $get_file_type = $_GET['file_type'];
+                                                } else {
+                                                    $get_file_type = $instance->get_file_type($_GET['id']);
+                                                }
                                             ?>
                                                 <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                     <table id="data-table5" class="table table-bordered table-stripped table-hover">
@@ -891,7 +896,9 @@ PostResult( msg );
                                             $get_file_type =  '';
                                             $get_file_type_source = $instance->get_current_file_type($_GET['id']);
                                             
-                                            if($get_file_type_source == 'DSTFANMail'){
+                                            if (isset($_GET['file_type']) AND (int)$_GET['file_type']) {
+                                                $get_file_type = (int)$_GET['file_type'];
+                                            } else if ($get_file_type_source == 'DSTFANMail'){
                                                 $get_file_type = 1;
                                             } else if($get_file_type_source == 'DSTIDC'){
                                                 $get_file_type = 2;
@@ -921,6 +928,7 @@ PostResult( msg );
                                                             <?php
                                                             $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
                                                             $return_file_data_array = $instance->get_file_array($file_id);
+                                                            
                                                             foreach($return_file_data_array as $preview_key=>$preview_val)
                                                             {?>
                                                              <tr>
