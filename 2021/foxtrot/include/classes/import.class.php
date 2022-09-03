@@ -5,7 +5,7 @@
 		public $errors = '';
         public $table = IMPORT_CURRENT_FILES;
         public $GENERIC_file_type = 9;
-        public $IMPORT_File_Types = [1=>'DST CLIENTS', 2=>'DST IDC COMMISSIONS', 3=>'DST PRODUCTS', 9=>'GENERIC CSV COMMISSIONS'];
+        public $IMPORT_File_Types = [1=>'CLIENTS', 2=>'COMMISSIONS', 3=>'PRODUCTS', 9=>'GENERIC CSV COMMISSIONS'];
 
         /**
 		 * @param post array
@@ -149,7 +149,7 @@
             $exception_file_type = isset($data['exception_file_type']) ? (int)$this->re_db_input($data['exception_file_type']) : 0;
             $error_code_id = isset($data['error_code_id'])? (int)$this->re_db_input($data['error_code_id']) : 0;
             $exception_data_id = isset($data['exception_data_id']) ? (int)$this->re_db_input($data['exception_data_id']) : 0;
-            $exception_field = isset($data['exception_field']) ? $this->re_db_input($data['exception_field']) : '';
+            $exception_field = isset($data['exception_field']) ? strtolower($this->re_db_input($data['exception_field'])) : '';
             $exception_record_id = isset($data['exception_record_id']) ? $this->re_db_input($data['exception_record_id']) : '';
             $exception_value_2 = isset($data['exception_value_2']) ? $this->re_db_input($data['exception_value_2']) : '';
 
@@ -315,6 +315,7 @@
             if(isset($exception_file_type) && in_array($exception_file_type, ['2', $this->GENERIC_file_type])) {
                 $importSelect = $this->import_table_select($exception_file_id, $exception_file_type);
                 $commDetailTable = $importSelect['table'];
+                $sourceId = strtolower(substr($importSelect['source'],0,3));
                 
                 //--- 02/03/22 Active Broker Licence check added to this section($exception_field=='active_check').
                 //--- Populates the "resolve_broker_terminated" elements in "import.tpl.php". Re-activate Rep (resolve_broker_terminated==2) is compleletely different --//
@@ -602,10 +603,15 @@
                             $accountNo = $exception_value;
 
                             if($sponsorId == 0 AND $exception_file_type == 2){
+                                if ($importSelect['source']=='dst'){
                                     $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
                                     $sponsor_detail = $this->get_sponsor_on_system_management_code($header_detail['system_id'],$header_detail['management_code']);
                                     $sponsorId = isset($sponsor_detail['id']) ? (int)$sponsor_detail['id'] : 0;
-                            }
+                                } else if ($sourceId=='daz'){
+                                    $detailData = $this->select_existing_idc_data($exception_data_id, $sourceId);
+                                    $sponsorId = (int)$detailData['sponsor_id'];
+                                }
+                            } 
 
                             if ($exception_file_type == $this->GENERIC_file_type){
                                 $commDetailData = $this->select_existing_gen_data($exception_data_id);
@@ -613,14 +619,17 @@
                                 $sponsorId = ($sponsorId==0 ? $commDetailData['sponsor_id'] : $sponsorId);
                                 $accountNo = $commDetailData['customer_account_number'];
                             }
-
-                            $q = "INSERT `".CLIENT_ACCOUNT."`"
-                                ." SET"
-                                    ." `account_no` = '".$accountNo."'"
-                                    .",`sponsor_company` = $sponsorId"
-                                    .",`client_id` = $new_client"
-                                    .$this->insert_common_sql();
-                            $res = $this->re_db_query($q);
+                            
+                            $res = 0;
+                            if ($accountNo!='' AND (int)$sponsorId>0 AND (int)$new_client>0){
+                                $q = "INSERT `".CLIENT_ACCOUNT."`"
+                                    ." SET"
+                                        ." `account_no` = '".$accountNo."'"
+                                        .",`sponsor_company` = $sponsorId"
+                                        .",`client_id` = $new_client"
+                                        .$this->insert_common_sql();
+                                $res = $this->re_db_query($q);
+                            }
 
                             if ($res)
                             {
@@ -658,6 +667,10 @@
                                             $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $excRow['temp_data_id']);
                                         }
                                     }
+                                }
+                            } else {
+                                if ((int)$sponsorId == 0){
+                                    $this->errors = "Sponsor not found. Account # not added.";
                                 }
                             }
                             break;
@@ -2895,7 +2908,7 @@
                         $for_import = '';
 
                         // 09/01/22 DAZL Account Number & Sponsor Check - each record might be a different Sponsor, so check every one
-                        if ($fileSource == 'DAZ'){
+                        if (strtoupper($fileSource) == 'DAZ'){
                             $file_sponsor_array=[];
                             $check_data_val['registration_line1'] = $check_data_val['customer_name'];
                             $check_data_val['gross_amount_sign_code'] = '';
@@ -2960,7 +2973,7 @@
                             .",`client`='".$this->re_db_input($check_data_val['alpha_code'])."'"
                             .",`cusip`='".$check_data_val['cusip_number']."'"
                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
-                            .",`commission`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
+                            .",`commission`='".(in_array($check_data_val['dealer_commission_sign_code'],['1','-']) ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
                             .$this->insert_common_sql()
                         ;
 
@@ -3585,8 +3598,14 @@
                             $split_trade = 0;
                             $batch_id = $this->get_file_batch($check_data_val['file_id']);
                             // 09/01/22 Add additional than just DST
-                            $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
-                            $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
+                            if ($fileSource == 'DS'){
+                                $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
+                                $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
+                            } else if (isset($check_data_val['control_date']) && $check_data_val['control_date']!='') {
+                                $batch_date = date('Y-m-d', strtotime($check_data_val['control_date']));                                
+                            } else {
+                                $batch_date = date('Y-m-d');                                
+                            }                                
                             $batch_description = $this->re_db_input($file_sponsor_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
 
                             // Create new BATCH
@@ -4870,30 +4889,29 @@
         public function get_files_header_detail($file_id='',$record_id='',$file_type=''){
 			$return = array();
 
-			if($file_type==1)
+			if ($file_type==1)
             {
                 $q = "SELECT `fd`.`header_id`,`fh`.*
 					FROM `".IMPORT_DETAIL_DATA."` AS `fd`
                     LEFT JOIN `".IMPORT_HEADER1_DATA."` AS `fh` on `fh`.`id`=`fd`.`header_id`
                     WHERE `fd`.`is_delete`=0 and `fd`.`id`='".$record_id."' and `fd`.`file_id`='".$file_id."'
-                    ORDER BY `fd`.`id` ASC";
-			    $res = $this->re_db_query($q);
+                    ORDER BY `fd`.`id` DESC"
+                ;
             }
             else
             {
                 $q = "SELECT `idcd`.`idc_header_id`,`ih`.*
 					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `idcd`
-                    LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` AS `ih` on `ih`.`id`=`idcd`.`idc_header_id`
-                    WHERE `idcd`.`is_delete`=0 and `idcd`.`id`='".$record_id."' and `idcd`.`file_id`='".$file_id."'
-                    ORDER BY `idcd`.`id` ASC";
-			    $res = $this->re_db_query($q);
+                    LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` AS `ih` ON `ih`.`id`=`idcd`.`idc_header_id`
+                    WHERE `idcd`.`is_delete`=0 AND `idcd`.`id`='".$record_id."' AND `idcd`.`file_id`='".$file_id."'
+                    ORDER BY `idcd`.`id` DESC"
+                ;
             }
-
-            if(isset($res) && $this->re_db_num_rows($res)>0){
+            $res = $this->re_db_query($q);
+                
+            if (isset($res) && $this->re_db_num_rows($res)>0){
                 $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     $return = $row;
-                }
+    			$return = $this->re_db_fetch_array($res);
             }
 			return $return;
 		}

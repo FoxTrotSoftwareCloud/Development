@@ -665,14 +665,17 @@
         $broker_name = $client_file_number = $fname = $lname = $mi = '';
         $detailData = [];
         $file_type = (int)$dbins->re_db_input($_GET['file_type']) ;
+        $file_id = (int)$dbins->re_db_input($_GET['file_id']) ;
         $exceptionId = (int)$dbins->re_db_input($_GET['exception_data_id']);
         $client_file_number = (isset($_GET['account_no']) ? $dbins->re_db_input($_GET['account_no']) : '');
-        
+        // 09/02/22 Updated for DAZL
+        $importSelect = $instance_import->import_table_select($file_id, $file_type);
+
         // Import Detail for populating the client detail vars
         if ($file_type==1){
-            $detailData = $instance_import->select_existing_acct_data($exceptionId);
+            $detailData = $instance_import->select_existing_acct_data($exceptionId, $importSelect['source']);
         } else if ($file_type==2) {
-            $detailData = $instance_import->select_existing_idc_data($exceptionId);
+            $detailData = $instance_import->select_existing_idc_data($exceptionId, $importSelect['source']);
         } else if ($file_type==9) {
             $detailData = $instance_import->select_existing_gen_data($exceptionId);
         }
@@ -699,7 +702,22 @@
                     $lname = TRIM($row['client']);
                 }
             } else if (in_array($file_type, [2, 9])){
-                $lname = $detailData['alpha_code'];                
+                if (isset($detailData['customer_name']) AND $detailData['customer_name']!=''){
+                    $clientNameArray = explode(' ', trim($detailData['customer_name']));
+
+                    if (count($clientNameArray) == 2) {
+                        $fname = $clientNameArray[0];
+                        $lname = $clientNameArray[1];
+                    } else if (count($clientNameArray)==3 AND strlen($clientNameArray[1])==1) {
+                        $fname = $clientNameArray[0];
+                        $mi = $clientNameArray[1];
+                        $lname = $clientNameArray[2];
+                    } else {
+                        $lname = $clientNameArray[0];
+                    }
+                } else {
+                    $lname = $detailData['alpha_code'];
+                }
                 // Passing the parameter strips off the zeroes    
                 $client_file_number = $detailData['customer_account_number'];
             }

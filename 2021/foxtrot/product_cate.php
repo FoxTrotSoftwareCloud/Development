@@ -56,7 +56,7 @@
         $_SESSION['product_cate_add_product_from_trans']['redirect_id'] = (empty($_GET['transaction_id'])) ? 0 : ((int)$dbins->re_db_input($_GET['transaction_id']));
     }
 
-    $import_instance = new import();
+    $instance_import = new import();
     $instance = new product_maintenance();
     $product_category = $instance->select_category();
     $get_sponsor = $instance->select_sponsor();
@@ -130,14 +130,18 @@
                 $error = (!isset($_SESSION['warning'])) ? $return : '';
 
             if($for_import == 'true') {
+                $file_type = 0;
+                
                 if($file_id > 0) {
                     if($return) {
-                        $exceptionDetail = $import_instance->select_exception_data(0, $_POST['exception_record_id']);
-                        $dataDetail = $import_instance->select_existing_idc_data($_POST['detail_data_id']);
+                        $exceptionDetail = $instance_import->select_exception_data(0, $_POST['exception_record_id']);
+                        $importSelect = $instance_import->import_table_select($exceptionDetail[0]['file_id'], $exceptionDetail[0]['file_type']);
+                        $dataDetail = $instance_import->select_existing_idc_data($_POST['detail_data_id'], $importSelect['source']);
+
                         $data = [
                             'resolveAction'=>5,
-                            'exception_field'=>'CUSIP_number',
-                            'assign_cusip_number'=>$dataDetail['CUSIP_number'],
+                            'exception_field'=>'cusip_number',
+                            'assign_cusip_number'=>$dataDetail['cusip_number'],
                             'exception_record_id'=>$_POST['exception_record_id'],
                             'exception_file_id'=>$file_id,
                             'exception_data_id'=>$_POST['detail_data_id'],
@@ -146,11 +150,12 @@
                             'exception_value'=>$exceptionDetail[0]['cusip']
                         ];
 
-                        $import_instance->resolve_exceptions($data);
+                        $instance_import->resolve_exceptions($data);
+                        $file_type = $exceptionDetail[0]['file_type'];
                     }
                 }
 
-                forImport($file_id);
+                forImport($file_id, $file_type);
             } else {
                 if($redirect=='add_product_from_trans') {
                     $args = '';
@@ -375,22 +380,25 @@
     else if($action=='add_new' && !empty($_GET['exception_data_id']) && !empty($_GET['exception_record_id']))
     {
         //--- 02/23/22 Called from import template page -> "Resolve Exceptions" tab ---//
+        $instance_import = new import();
         $dataDetail = $exceptionDetail = $sponsor = $category = 0;
         $cusip = $name = $action = '';
-        $exceptionDetail = $import_instance->select_exception_data(0, $_GET['exception_record_id']);
+        $exceptionDetail = $instance_import->select_exception_data(0, $_GET['exception_record_id']);
 
         if ($exceptionDetail){
+            $importSelect = $instance_import->import_table_select($exceptionDetail[0]['file_id'], $exceptionDetail[0]['file_type']);
+
             switch ($exceptionDetail[0]['file_type']){
                 case 2:
-                    $dataDetail = $import_instance->select_existing_idc_data($_GET['exception_data_id']);
+                    $dataDetail = $instance_import->select_existing_idc_data($_GET['exception_data_id'],$importSelect['source']);
                     break;
             }
         }
 
         if ($dataDetail AND $exceptionDetail){
-            $fileDetail = $import_instance->select_user_files($dataDetail['file_id']);
-            $sponsor = $fileDetail['sponsor_id'];
-            $category = ($dataDetail['commission_record_type_code']=='V') ? 4 : 1;
+            $fileDetail = $instance_import->select_user_files($dataDetail['file_id']);
+            $sponsor = (isset($dataDetail['sponsor_id']) ? $dataDetail['sponsor_id'] : $fileDetail['sponsor_id']);
+            $category = (isset($dataDetail['commission_record_type_code']) AND $dataDetail['commission_record_type_code']=='V') ? 4 : 1;
             $cusip = (empty($_GET['cusip_number'])) ? '' : $instance->re_db_input($_GET['cusip_number']);
             $name = (empty($_GET['name'])) ? (trim($cusip).': Cusip Number') : $instance->re_db_input($_GET['name']);
             $action = 'add_product';
@@ -424,10 +432,16 @@
 
 
     //-- USER DEFINED FUNCTIONS --//
-    function forImport($file_id) {
+    function forImport($file_id,$file_type=0) {
+        GLOBAL $dbins;
         $args = '';
+        $file_type = (int)$dbins->re_db_input($file_type);
+        
         if (!empty($file_id)){
             $args = "?tab=review_files&id=".$file_id;
+        }
+        if ($file_type != 0){
+            $args .= "&file_type=$file_type";
         }
 
         unset($_SESSION['product_cate_for_import']);
