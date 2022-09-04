@@ -103,7 +103,7 @@
     $instance_import = new import();
     $instance_sponsor = new manage_sponsor();
     $instance_product = new product_maintenance();
-    $get_sponsor = $instance_product->select_sponsor();
+    $get_sponsor = $instance_product->select_sponsor(1);
     $instance_client_suitability = new client_suitability_master();
     $get_objectives = $instance_client_suitability->select_objective();
     $get_income = $instance_client_suitability->select_income();
@@ -667,10 +667,11 @@
         $file_type = (int)$dbins->re_db_input($_GET['file_type']) ;
         $file_id = (int)$dbins->re_db_input($_GET['file_id']) ;
         $exceptionId = (int)$dbins->re_db_input($_GET['exception_data_id']);
-        $client_file_number = (isset($_GET['account_no']) ? $dbins->re_db_input($_GET['account_no']) : '');
+        $client_file_number = (isset($_GET['account_no']) ? ltrim($dbins->re_db_input($_GET['account_no']),'0') : '');
         // 09/02/22 Updated for DAZL
         $importSelect = $instance_import->import_table_select($file_id, $file_type);
-
+        $sponsor_company = $importSelect['sponsor_id'];
+        
         // Import Detail for populating the client detail vars
         if ($file_type==1){
             $detailData = $instance_import->select_existing_acct_data($exceptionId, $importSelect['source']);
@@ -689,7 +690,7 @@
                 // Client Name - parse it out
                 $clientNameArray = explode(' ', trim($detailData['registration_line1']));
                 // Passing the parameter strips off the zeroes    
-                $client_file_number = $detailData['mutual_fund_customer_account_number'];
+                $client_file_number = ltrim($detailData['mutual_fund_customer_account_number'],'0');
 
                 if (count($clientNameArray) == 2) {
                     $fname = $clientNameArray[0];
@@ -719,7 +720,10 @@
                     $lname = $detailData['alpha_code'];
                 }
                 // Passing the parameter strips off the zeroes    
-                $client_file_number = $detailData['customer_account_number'];
+                $client_file_number = ltrim($detailData['customer_account_number'],'0');
+            }
+            if (empty($sponsor_company) AND isset($detailData['sponsor_id']) AND !empty($detailData['sponsor_id'])){
+                $sponsor_company = $detailData['sponsor_id'];
             }
             $_SESSION['client_maintenance_for_import'] = ['account_no'=>$client_file_number, 'file_id'=>$_GET['file_id'], 'file_type'=>$file_type, 'detail_id'=>$exceptionId, 'exception_id'=>$_GET['exception_record_id']];
         }

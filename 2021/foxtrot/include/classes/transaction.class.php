@@ -386,26 +386,38 @@ class transaction extends db{
             }
 			return $return;
 		}
-        public function get_product($id=0,$sponsor=''){
+		
+        /** 9/03/22 Sort by name
+         * @param int $id 
+         * @param string $sponsor 
+         * @return array 2-D [[record0], [record1],...]
+         */
+        public function get_product($id=0,$sponsor='', $sortOrder=1){
 			$return = array();
+            $con = $orderBy = '';
 			$id = (int)$this->re_db_input($id);
 			$sponsor = $this->re_db_input($sponsor);
-            $con ='';
-            if($id != 0) { $con .= " AND category=$id"; }
+			$sortOrder = $this->re_db_input($sortOrder);
+            
+			if($id != 0) { $con .= " AND category=$id"; }
             if($sponsor != '') { $con .= " AND sponsor='$sponsor'"; }
+			
+			if ($sortOrder == 1){
+				$orderBy = " `at`.`name`, `at`.`sponsor`";
+			} else {
+				$orderBy = " `at`.`id`";
+			}
 
 			$q = "SELECT `at`.*"
 					." FROM `ft_products` AS `at`"
                     ." WHERE `at`.`is_delete`='0' "
 					.$con
-                    ." ORDER BY `at`.`id` ASC"
+                    ." ORDER BY $orderBy"
 			;
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-    			}
+    			$return = $this->re_db_fetch_all($res);
             }
 			return $return;
 		}

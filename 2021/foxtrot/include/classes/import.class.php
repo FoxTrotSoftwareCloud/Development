@@ -2969,7 +2969,7 @@
                             .",`date`='".date('Y-m-d')."'"
                             .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                             .",`rep_name`='".$check_data_val['representative_name']."'"
-                            .",`account_no`='".$check_data_val['customer_account_number']."'"
+                            .",`account_no`='".ltrim($check_data_val['customer_account_number'],'0')."'"
                             .",`client`='".$this->re_db_input($check_data_val['alpha_code'])."'"
                             .",`cusip`='".$check_data_val['cusip_number']."'"
                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
@@ -3220,7 +3220,7 @@
                                             ."`cm`.`state`,`cm`.`naf_date`,`cm`.`birth_date`,`cm`.`broker_name`"
                                         ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                         ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
-                                        ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
+                                        ." WHERE TRIM(LEADING '0' FROM `ca`.`account_no`)='".ltrim($this->re_db_input($check_data_val['customer_account_number']), '0')."'"
                                             ." AND `ca`.`sponsor_company`='".$sponsor_id."'"
                                             ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
                                 ;
@@ -3263,7 +3263,7 @@
                                 }
                                 // Add->Check Client Name
                                 if (empty($check_data_val['alpha_code'])){
-                                    $clientAccount = ['last_name'=>'GenericCustomer '.$this->re_db_input($check_data_val['customer_account_number'])];
+                                    $clientAccount = ['last_name'=>'GenericCustomer '.ltrim($this->re_db_input($check_data_val['customer_account_number']),'0')];
                                 } else {
                                     $clientAccount = nameParse($check_data_val['alpha_code']);
                                 }
@@ -3276,7 +3276,7 @@
                                         'lname'=>$clientAccount['last_name'],
                                         'fname'=>$clientAccount['first_name'],
                                         'mi'=>$clientAccount['mi'],
-                                        'client_file_number'=>$check_data_val['customer_account_number'],
+                                        'client_file_number'=>ltrim($check_data_val['customer_account_number'],'0'),
                                         'broker_name'=>(string)$broker_id,
                                         'file_id'=>$check_data_val['file_id']
                                     ]);
@@ -3305,7 +3305,7 @@
                                         // Add Account #
                                         $updateResult['insert_client_account'] = $instance_client_maintenance->insert_update_account([
                                             'for_import'=>$for_import,
-                                            'account_no'=>[$check_data_val['customer_account_number']],
+                                            'account_no'=>[ltrim($check_data_val['customer_account_number'],'0')],
                                             'sponsor'=>[$sponsor_id]
                                         ]);
                                     }
@@ -3316,7 +3316,7 @@
                                                      ."`cm`.`naf_date`,`cm`.`birth_date`,`cm`.`broker_name`"
                                                 ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                                 ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
-                                                ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
+                                                ." WHERE TRIM(LEADING '0' FROM `ca`.`account_no`)='".ltrim($this->re_db_input($check_data_val['customer_account_number']), '0')."'"
                                                     ." AND `ca`.`sponsor_company`='".$sponsor_id."'"
                                                     ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
                                         ;
@@ -3343,7 +3343,7 @@
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='18'"
                                         .",`field`='customer_account_number'"
-                                        .",`field_value`='{$check_data_val['customer_account_number']}'"
+                                        .",`field_value`='".ltrim($check_data_val['customer_account_number'],'0')."'"
                                         .",`file_type`=$commissionFileType"
                                         .$insert_exception_string;
                                 $res = $this->re_db_query($q);
@@ -3602,10 +3602,10 @@
                                 $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
                                 $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
                             } else if (isset($check_data_val['control_date']) && $check_data_val['control_date']!='') {
-                                $batch_date = date('Y-m-d', strtotime($check_data_val['control_date']));                                
+                                $batch_date = date('Y-m-d', strtotime($check_data_val['control_date']));
                             } else {
                                 $batch_date = date('Y-m-d');                                
-                            }                                
+                            }
                             $batch_description = $this->re_db_input($file_sponsor_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
 
                             // Create new BATCH
@@ -3614,7 +3614,7 @@
                                 $q = "SELECT `file_id`"
                                             ." ,SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) AS total_check_amount"
                                             ." ,MIN(`trade_date`) AS `trade_start_date`"
-                                            ." , MAX(`trade_date`) AS `trade_end_date`"
+                                            ." ,MAX(`trade_date`) AS `trade_end_date`"
                                         ." FROM `".$commDetailTable."`"
                                         ." WHERE `is_delete`=0"
                                           ." AND `file_id`='".$check_data_val['file_id']."'"
@@ -3656,7 +3656,7 @@
                                             .",`date`='".date('Y-m-d')."'"
                                             .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                                             .",`rep_name`='".$check_data_val['representative_name']."'"
-                                            .",`account_no`='".$check_data_val['customer_account_number']."'"
+                                            .",`account_no`='".ltrim($check_data_val['customer_account_number'],'0')."'"
                                             .",`client`='".$this->re_db_input($check_data_val['alpha_code'])."'"
                                             .",`cusip`='".$check_data_val['cusip_number']."'"
                                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
@@ -3735,7 +3735,7 @@
                                             .",`sponsor`='".$sponsor_id."'"
                                             .",`broker_name`='".$broker_id."'"
                                             .",`client_name`='".$client_id."'"
-                                            .",`client_number`='".$check_data_val['customer_account_number']."'"
+                                            .",`client_number`='".ltrim($check_data_val['customer_account_number'],'0')."'"
                                             .",`branch`='".$branch."'"
                                             .",`company`='".$company."'"
                                             .",`split`='2'"
@@ -4281,6 +4281,7 @@
 			$return = array();
             $con = $fields = '';
             $file_id = (int)$this->re_db_input($file_id);
+            $record_id = (int)$this->re_db_input($record_id);
             
             if (!is_null($process_result)) {
                 $con = " AND (`at`.`process_result` = '".$process_result."'"
@@ -4290,7 +4291,6 @@
             }
 
             if ($record_id){
-                $record_id = (int)$record_id;
                 $con .= " AND `at`.`id`=$record_id";
             }
 
@@ -4671,7 +4671,7 @@
             }
 			return $return;
 		}
-        public function select_existing_sfr_data($id,$source=''){
+        public function select_existing_sfr_data($id,$source='dst'){
 			$return = array();
             $fieldList = "";
             $id = (int)$this->re_db_input($id);
@@ -4698,7 +4698,7 @@
             }
 			return $return;
 		}
-        public function select_existing_idc_data($id=0, $source=''){
+        public function select_existing_idc_data($id=0, $source='dst'){
             $return = array();
             $fieldList = '';
             $id = (int)$this->re_db_input($id);
@@ -4766,7 +4766,7 @@
             }
 			return $return;
 		}
-        public function select_existing_acct_data($id=0, $source=''){
+        public function select_existing_acct_data($id=0, $source='dst'){
 			$return = array();
             $detailTable = '';
             $id = (int)$this->re_db_input($id);
@@ -4969,21 +4969,21 @@
             return $return;
 		}
         // 08/16/22 DAZL add "source" to choose from correct table
-        public function get_client_data($file_id,$temp_data_id='',$source=''){
+        public function get_client_data($file_id, $temp_data_id='', $source='dst'){
             $file_id = (int)$this->re_db_input($file_id);
             $temp_data_id = (int)$this->re_db_input($temp_data_id);
             $source = strtolower(substr($this->re_db_input($source),0,3));
             
 			$return = array();
 			$con = '';
-            $detailTable = IMPORT_DETAIL_DATA;
             
             if($temp_data_id > 0) { $con .= " AND id=$temp_data_id"; }
+
             // 09/01/22 Use the Import Table Select function to use the correct Detail Table
             $importSelect = $this->import_table_select($file_id, 1);
             $detailTable = $importSelect['table'];
 
-			$q = "SELECT *,"
+            $q = "SELECT *,"
                 ." (CASE"
                     ." WHEN line_code = '1' THEN CONCAT(registration_line1, ' ', registration_line2, ' ',registration_line3 , ' ',registration_line4)"
                     ." WHEN line_code = '2' THEN CONCAT(registration_line2, ' ',registration_line3 , ' ',registration_line4)"
