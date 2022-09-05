@@ -97,12 +97,14 @@
 			return $return;
 		}
 
-		public function select($queryString){
+		public function select($queryString=''){
 			$return = array();
+			$queryString = trim($queryString);
 			
-			$q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE ".trim($queryString);
+			$q = "SELECT `at`.*"
+				." FROM `".$this->table."` AS `at`"
+				." WHERE ".$queryString
+			;
 			$res = $this->re_db_query($q);
 
 			if($this->re_db_num_rows($res)>0){

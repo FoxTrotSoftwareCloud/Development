@@ -402,10 +402,9 @@ class transaction extends db{
 			if($id != 0) { $con .= " AND category=$id"; }
             if($sponsor != '') { $con .= " AND sponsor='$sponsor'"; }
 			
+			$orderBy = " `at`.`id`";
 			if ($sortOrder == 1){
-				$orderBy = " `at`.`name`, `at`.`sponsor`";
-			} else {
-				$orderBy = " `at`.`id`";
+				$orderBy = " `at`.`name`, `at`.`sponsor`, ".$orderBy;
 			}
 
 			$q = "SELECT `at`.*"

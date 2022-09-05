@@ -30,6 +30,7 @@
     $get_sponsor = $instance_sponsor->select_sponsor(1);
     $instance_batches = new batches();
     $instance_importGeneric = new import_generic();
+    $instance_dim = new data_interfaces_master();
 
     if(isset($_GET['id']) && $_GET['id'] !='') {
         $get_total_commission = $instance->get_total_commission_amount($_GET['id']);
@@ -199,35 +200,102 @@
         echo $error;
         exit;
     }
-    else if(isset($_POST['upload_generic_csv_file']) && $_POST['upload_generic_csv_file']=='upload_generic_csv_file')
+    else if(
+        (isset($_POST['upload_generic_csv_file']) && $_POST['upload_generic_csv_file']=='upload_generic_csv_file')
+        OR (isset($_POST['upload_dazl_file']) && $_POST['upload_dazl_file']=='upload_dazl_file')
+    )
     {
-        $error = '';
+        $error = $upload_sponsor_file = $localFolder = $result = '';
+        $uploadFiles = $dim = [];
         $uploaded =  0;
+        $upload_sponsor_file = isset($_POST['upload_generic_csv_file']) ? 'upload_generic_csv_file' : 'dazl_files' ;
+        
+        // Load & Process Files by Sponsor Type (Generic, DAZL, ...)
+        if ($upload_sponsor_file == 'dazl_files'){
+            if (empty($_FILES[$upload_sponsor_file]['name'])){
+                $error = 'No file specified. Procedure cancelled.';
+            }
+            
+            if ($error == ''){
+                // 1. Load array
+                foreach ($_FILES[$upload_sponsor_file]['name'] AS $key=>$row){
+                    $uploadFiles[$key] = ['file_name'=>$_FILES[$upload_sponsor_file]['name'][$key], 'tmp_name'=>$_FILES[$upload_sponsor_file]['tmp_name'][$key], 'result'=>'', 'error'=>'', 'file_id'=>0];
+                }
+                
+                if (count($uploadFiles)){
+                    // Move files to local folder
+                    $instance->upload_files_dazl($uploadFiles);
+                    // 2--> a. Update current file, b. Load Detail table, 3. Process the detail
+                    foreach ($uploadFiles AS $key=>$row){
+                        $result = [];
+                        if ($row['error']==''){
+                           $result = $instance->check_current_files('', $row['file_name']);
+                        }
+                        // a. Update the CURRENT FILES table
+                        if (count($result)){
+                            $uploadFiles[$key]['error'] = 'Current file already exists';
+                            $result = 0;
+                        } else {
+                            $result = $instance_importGeneric->load_current_file_table($row['file_name'], 0, 0, 'DAZL Daily');
+                        }
+                        
+                        $uploadFiles[$key]['file_id'] = $result;
+                        // b. Load Detail
+                        if ($result){
+                            $result = $instance->process_file_dazl($uploadFiles[$key]['file_id']);
+                        } else {
+                            $uploadFiles[$key]['error'] = 'Curent file table not updated';
+                            $result = 0;
+                        }
+                        // c. Process the data
+                        if (is_array($result)){
+                            $result = $instance->reprocess_current_files($uploadFiles[$key]['file_id']);
+                        } else {
+                            $uploadFiles[$key]['error'] = 'File records not decoded';
+                            $result = 0;
+                        }
+                        // Final update
+                        if ($result){
+                            $uploadFiles[$key]['result'] = 'Upload successful';
+                            $uploaded = 1;
+                            $error = '';
+                        } else {
+                            $uploadFiles[$key]['error'] = 'Reprocess failed';
+                            $error = 'Upload failed';
+                        }
+                    }
+                } else {
+                    $error = 'No files specified. Procedure cancelled.';
+                }
+            }
+        } else if ($upload_sponsor_file == 'upload_generic_csv_file') {
+            $localFolder = rtrim($instance_importGeneric->dataInterface['local_folder'],"/")."/";
 
-        // Validate file parameters
-        if (empty($_FILES['upload_generic_csv_file']['name'])){
-            $error = 'No file specified. Procedure cancelled.';
-        } else if (file_exists(rtrim($instance_importGeneric->dataInterface['local_folder'],"/")."/".$_FILES['upload_generic_csv_file']['name'])){
-            $error = "File '".$_FILES['upload_generic_csv_file']['name']."' already uploaded. Please select another file or rename current file.";
-        } else if (empty($_POST['generic_sponsor'])){
-            $error = "No SPONSOR specified. Please select a SPONSOR from the dropdown list.";
-        } else if (empty($_POST['generic_product_category'])){
-            $error = "No PRODUCT CATEGORY specified. Please select a PRODUCT CATEGORY from the dropdown list.";
-        }
+            // Validate file parameters
+            if (empty($_FILES[$upload_sponsor_file]['name'])){
+                $error = 'No file specified. Procedure cancelled.';
+            } else if (file_exists($localFolder.$_FILES[$upload_sponsor_file]['name'])){
+                $error = "File '".$_FILES[$upload_sponsor_file]['name']."' already uploaded. Please select another file or rename current file.";
+            } else if (empty($_POST['generic_sponsor'])){
+                $error = "No SPONSOR specified. Please select a SPONSOR from the dropdown list.";
+            } else if (empty($_POST['generic_product_category'])){
+                $error = "No PRODUCT CATEGORY specified. Please select a PRODUCT CATEGORY from the dropdown list.";
+            }
 
-        // Upload file
-        if (empty($error)){
-            $uploaded = $instance->upload_file($_FILES['upload_generic_csv_file'], $instance_importGeneric->dataInterface['local_folder']);
-        }
-        if ($uploaded){
-            // $uploaded = $instance_importGeneric->process_file($_FILES['upload_generic_csv_file']['name']);
-            $uploaded = $instance_importGeneric->process_file($_FILES['upload_generic_csv_file']['name'], $_POST['generic_sponsor'], $_POST['generic_product_category']);
-        } else if (empty($error)){
-            $error = 'File not uploaded. Please check privileges on the directory & file: '.$$_FILES['upload_generic_csv_file']['name'];
+            // Upload file
+            if (empty($error)){
+                $uploaded = $instance->upload_file($_FILES[$upload_sponsor_file], $instance_importGeneric->dataInterface['local_folder']);
+            }
+            if ($uploaded){
+                $uploaded = $instance_importGeneric->process_file($_FILES[$upload_sponsor_file]['name'], $_POST['generic_sponsor'], $_POST['generic_product_category']);
+                $successMessage = "File '".$_FILES[$upload_sponsor_file]['name']."' uploaded and processed.";
+            } else if (empty($error)){
+                $error = 'File not uploaded. Please check privileges on the directory & file: '.$$_FILES[$upload_sponsor_file]['name'];
+            }
         }
         
         if(empty($error) AND $uploaded){
-            $_SESSION['success'] = "File '".$_FILES['upload_generic_csv_file']['name']."' uploaded and processed.";
+            $_SESSION['success'] = $successMessage;
             header("location:".CURRENT_PAGE."?action=view&reprocessed=1");
         } else{
             $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';

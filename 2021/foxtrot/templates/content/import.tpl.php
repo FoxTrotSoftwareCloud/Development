@@ -157,11 +157,13 @@ PostResult( msg );
                 if(isset($_GET['tab']) && ($_GET['tab']=="review_files" || $_GET['tab']=="processed_files") && $_GET['id']>0){
                     $get_file_data = $instance->select_user_files($_GET['id']);
                     $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
+                    $total_commission_amount = 0.00;
                     
                     if (empty($get_file_type)){
                         $fileTypeDescription = $get_file_data['file_type'];
                     } else if (in_array($get_file_type, ['2','9'])){
                         $fileTypeDescription = "Commissions";
+                        $total_commission_amount = (float)$instance->get_file_batch($_GET['id'], 'commission_amount');
                     } else if ($get_file_type == '3'){
                         $fileTypeDescription = "Securities";
                     } else {
@@ -1145,7 +1147,7 @@ PostResult( msg );
                                             <tr>
                                                 <td><?php echo $instance_importGeneric->dataInterface['name'];?></td>
                                                 <td>
-                                                    <select name="generic_sponsor" id="generic_sponsor" class="form-control" style="display: block;">
+                                                    <select name="generic_sponsor" id="generic_sponsor" class="form-control" style="display: block; width: 200px;">
                                                         <option value="">Select Sponsor</option>
                                                         <?php foreach($get_sponsor as $key=>$val){?>
                                                             <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
@@ -1168,6 +1170,22 @@ PostResult( msg );
                                                 </td>
                                             </tr>
                                         <?php }
+                                        // Add DAZL 09/04/22 -->
+                                        $temp_data_interface = new data_interfaces_master();
+                                        $dazl = $temp_data_interface->select("`name` LIKE 'dazl%'");
+                                        if(count($dazl)){ ?>
+                                            <tr>
+                                                <td><?php echo $dazl[0]['name'];?></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>
+                                                    <input type="file" name="dazl_files[]" class="form-control" multiple/>
+                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Upload</button>
+                                                </td>
+                                            </tr>
+                                        <?php
+                                            unset($temp_data_interface); 
+                                        }
                                     } ?>
                                     </tbody>
                                 </table>

@@ -2890,11 +2890,10 @@
                         $commissionFileType = $this->GENERIC_file_type;
                         // Generic file does not contain a Cusip(or any unique product id or description) and Clients are often added with the transaction, i.e. many will not be in Cloudfox DB. So, add them and let God sort it out
                         $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 1;
-                        $fileSource = 'GEN';
+                        $fileSource = 'gen';
                     } else if (($detail_record_id==0 AND $file_type==0) OR $file_type) {
                         $commission_detail_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $commissionFileType = 2;
-                        $fileSource = strtoupper($fileSource);
                     }
 
                     foreach($commission_detail_array as $check_data_key=>$check_data_val){
@@ -2908,7 +2907,7 @@
                         $for_import = '';
 
                         // 09/01/22 DAZL Account Number & Sponsor Check - each record might be a different Sponsor, so check every one
-                        if (strtoupper($fileSource) == 'DAZ'){
+                        if ($fileSource == 'daz'){
                             $file_sponsor_array=[];
                             $check_data_val['registration_line1'] = $check_data_val['customer_name'];
                             $check_data_val['gross_amount_sign_code'] = '';
@@ -3598,7 +3597,7 @@
                             $split_trade = 0;
                             $batch_id = $this->get_file_batch($check_data_val['file_id']);
                             // 09/01/22 Add additional than just DST
-                            if ($fileSource == 'DS'){
+                            if ($fileSource == 'dst'){
                                 $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
                                 $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
                             } else if (isset($check_data_val['control_date']) && $check_data_val['control_date']!='') {
@@ -3606,7 +3605,11 @@
                             } else {
                                 $batch_date = date('Y-m-d');                                
                             }
-                            $batch_description = $this->re_db_input($file_sponsor_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
+                            if ($fileSource == "daz"){
+                                $batch_description = $this->re_db_input($file_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
+                            } else {
+                                $batch_description = $this->re_db_input($file_sponsor_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
+                            }
 
                             // Create new BATCH
                             if (empty($batch_id)){
@@ -3722,7 +3725,7 @@
 
                                 $q1 = "INSERT INTO `".TRANSACTION_MASTER."`"
                                         ." SET `file_id`='".$check_data_val['file_id']."'"
-                                            .",`source`='".$fileSource."'"
+                                            .",`source`='".strtoupper($fileSource)."'"
                                             .",`trade_date`='".$check_data_val['trade_date']."'"
                                             .",`posting_date`='".date('Y-m-d')."'"
                                             .",`invest_amount`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
@@ -4916,20 +4919,20 @@
 			return $return;
 		}
         public function get_file_batch($file_id, $return_field='batch_id'){
-			$return = 0;
-            $q = $res = '';
+            $q = $res = $return = '';
+            $return_field = $this->re_db_input($return_field);
 
 			$q = "SELECT `at`.`id` as batch_id, `at`.*"
 					." FROM `".BATCH_MASTER."` AS `at`"
                     ." WHERE `at`.`is_delete`=0"
                       ." AND `at`.`file_id`='".$file_id."'"
-                    ."ORDER BY `at`.`id` ASC";
+                    ." ORDER BY `at`.`id` DESC";
 			$res = $this->re_db_query($q);
+            
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     $return = $row[$return_field];
-                }
+    			$return = $this->re_db_fetch_array($res);
+                $return = $return[$return_field];
             }
 			return $return;
 		}
@@ -5133,9 +5136,10 @@
   		function upload_file($fileArray, $toFolder){
 			$return = 0;
 			$moveToFolder = empty($toFolder) ? 'import_files' : rtrim($toFolder, "/")."/";
-
-            if (!empty($fileArray['name'])){
-                $return = move_uploaded_file($fileArray['tmp_name'], DIR_FS.$moveToFolder.$fileArray['name']);
+            $nameColumn = isset($fileArray['name']) ? 'name' : 'file_name';
+            
+            if (!empty($fileArray[$nameColumn])){
+                $return = move_uploaded_file($fileArray['tmp_name'], DIR_FS.$moveToFolder.$fileArray[$nameColumn]);
 			}
 
 			return $return;
@@ -5154,6 +5158,31 @@
         // DAZL DOWNLOAD - Import/Process Data
         // 08/10/22 - Convert DST Decode to DAZL 
         //-------------------------------------
+        // Upload files to "local folder"
+        public function upload_files_dazl(&$uploadFiles=[]){
+            $return = 0;
+            $instance_dim = new data_interfaces_master();
+            $dim = $instance_dim->select("`name` LIKE 'dazl%daily%'");
+            $localFolder = rtrim($dim[0]['local_folder'],"/")."/";
+
+
+            if (count($uploadFiles)){
+                foreach ($uploadFiles AS $key=>$row){
+                    if (file_exists($localFolder.$row['file_name'])) {
+                        $uploadFiles[$key]['error'] = 'File already exists.';
+                    } else {
+                        $return = $this->upload_file($row, $localFolder);
+                        if ($return){
+                            $uploadFiles[$key]['result'] = '1. File uploaded';
+                        } else {
+                            $uploadFiles[$key]['error'] = '1.Upload Failed';
+                        }
+                    }
+                }
+            }
+            
+            return $return;
+        }
         public function process_file_dazl($file_id){
             $instance_data_interface = new data_interfaces_master();
             $dazl_dim_id = 3;
@@ -5171,7 +5200,7 @@
 
                 // Make sure it's a DAZL file
                 if ($return){
-                    if ($get_file['source']!='DAZL'){
+                    if (substr($get_file['source'],0,4) != 'DAZL'){
                         $return = 0;
                     }                    
                 }
@@ -5257,9 +5286,17 @@
                         $res = $this->re_db_query($q);
 
                         //-- Detail Data - Add records for this file
-                        $securityCount = $this->load_table_from_array(DAZL_SECURITY_DATA, $fileArray['security']);
-                        $accountCount = $this->load_table_from_array(DAZL_ACCOUNT_DATA, $fileArray['account']);
-                        $commissionCount = $this->load_table_from_array(DAZL_COMM_DATA, $fileArray['commission']);
+                        $securityCount = $accountCount = $commissionCount = 0;
+                        
+                        if (isset($fileArray['security'])){
+                            $securityCount = $this->load_table_from_array(DAZL_SECURITY_DATA, $fileArray['security']);
+                        }
+                        if (isset($fileArray['account'])){
+                            $accountCount = $this->load_table_from_array(DAZL_ACCOUNT_DATA, $fileArray['account']);
+                        }
+                        if (isset($fileArray['commission'])){
+                            $commissionCount = $this->load_table_from_array(DAZL_COMM_DATA, $fileArray['commission']);
+                        }
                         
                         $return = ["security"=>$securityCount, "account"=>$accountCount, "commission"=>$commissionCount];
 
