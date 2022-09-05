@@ -42,10 +42,8 @@
     	$trade_activity = isset($return['exclude_non_comm_trade_activity'])?$instance->re_db_output($return['exclude_non_comm_trade_activity']):0;
     	$add_client = isset($return['add_client'])?$instance->re_db_output($return['add_client']):0;
     	$update_client = isset($return['update_client'])?$instance->re_db_output($return['update_client']):0;
-    	$local_folder = isset($return['local_folder'])?$instance->re_db_output($return['local_folder']):'';//echo '<pre>';print_r($_POST);exit;
-        
+    	$local_folder = isset($return['local_folder'])?$instance->re_db_output($return['local_folder']):'';
     }
-    
     
 	$content = "data_interface";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");

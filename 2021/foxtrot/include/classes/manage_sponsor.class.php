@@ -36,7 +36,8 @@
           //for import module
           $for_import = isset($data['for_import'])?$this->re_db_input($data['for_import']):'false';
           $file_id = isset($data['file_id'])?$this->re_db_input($data['file_id']):'';
-          $temp_data_id = isset($data['temp_data_id'])?$this->re_db_input($data['temp_data_id']):'';
+          $temp_data_id = isset($data['exception_data_id'])?$this->re_db_input($data['exception_data_id']):'';
+          $exception_record_id = isset($data['exception_record_id'])?$this->re_db_input($data['exception_record_id']):'';
 
           if($sponsor_name==''){
             $this->errors = 'Please enter sponsor name.';
@@ -66,10 +67,10 @@
 					$res = $this->re_db_query($q);
                     $id = $this->re_db_insert_id();
 
-                    if($for_import == 'true')
-                    {
-                        $q1 = "UPDATE `".IMPORT_EXCEPTION."` SET `solved`='1' WHERE `file_id`='".$file_id."' and `error_code_id`='14'";
-                        $res1 = $this->re_db_query($q1);
+                    if ($for_import == 'true'){
+						//--- 08/22/22 Flag the exception as "add_new", process the record again to resolve the exception
+						$instance_import = new import();
+						$instance_import->resolve_exception_5AddNew('sponsor_id', $id, $exception_record_id);
                     }
 
 					if($res){
@@ -371,13 +372,17 @@
             }
 			return $return;
 		}
-        public function select_sponsor(){
+        public function select_sponsor($sortByName=0){
+			$sortByName = (int)$this->re_db_input($sortByName);
 			$return = array();
-
-			$q = "SELECT `at`.*
-					FROM `".SPONSOR_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+			$orderBy = " `at`.`id`";
+			
+			if ($sortByName > 0) { $orderBy = " `at`.`name`, `at`.`id`"; }
+			
+			$q = "SELECT `at`.*"
+				." FROM `".SPONSOR_MASTER."` AS `at`"
+				." WHERE `at`.`is_delete`='0'"
+				." ORDER BY $orderBy";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -390,6 +395,7 @@
 		}
 
 		public function select_sponsor_by_id($id){
+			$id = (int)$this->re_db_input($id);
 			$return = array();
 
 			$q = "SELECT `sm`.*"

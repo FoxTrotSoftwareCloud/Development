@@ -243,14 +243,14 @@
 
               if($res){
                   $_SESSION['success'] = INSERT_MESSAGE;
-                  return true;
-
+                  
                   //--- IMPORT File call ---//
                   if($for_import == 'true'){
-                      //--- 3/17/22 Flag the exception as "add_new", process the record again to resolve the exception
-                      $instance_import = new import();
-                      $instance_import->resolve_exception_5AddNew('broker_id', $_SESSION['last_insert_id'], $_GET['exception_record_id']);
+                    //--- 3/17/22 Flag the exception as "add_new", process the record again to resolve the exception
+                    $instance_import = new import();
+                    $instance_import->resolve_exception_5AddNew('broker_id', $_SESSION['last_insert_id'], $_GET['exception_record_id']);
                   }
+                  return true;
               } else {
                   $_SESSION['warning'] = UNKWON_ERROR;
                   return false;
@@ -1762,53 +1762,90 @@
                return $file_ary;
         }
         public function insert_update_alias($data ,$id){//echo '<pre>';print_r($data);exit;
-           $id = isset($id)?$this->re_db_input($id):0;
-           $flag8=0;
-           if($id==0)
-           {
-                foreach($data as $key=>$val)
-                {
+            $id = isset($id)?$this->re_db_input($id):0;
+            $flag8=0;
+            if ($id==0){
+                foreach($data as $key=>$val){
                     $alias_name=isset($val['alias_name'])?$this->re_db_input($val['alias_name']):'';
                     $sponsor_company=isset($val['sponsor_company'])?$this->re_db_input($val['sponsor_company']):0;
                     $date=isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):$this->defaultEmptyDate;
-                    if($alias_name!='' && $sponsor_company!='' && $date!=''){
-
-                        $q = "INSERT INTO `".BROKER_ALIAS."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`alias_name`='".$alias_name."' ,`sponsor_company`='".$sponsor_company."' ,
-                        `date`='".$date."' ".$this->insert_common_sql();
-        				$res = $this->re_db_query($q);
-                    }
-                    else
-                    {
+                    
+                    if ($alias_name!='' && (int)$sponsor_company>0){
+                        $q = "INSERT INTO `".BROKER_ALIAS."`"
+                            ." SET `broker_id`='".$_SESSION['last_insert_id']."'"
+                                .",`alias_name`='".$alias_name."'"
+                                .",`sponsor_company`='".$sponsor_company."'"
+                                .",`date`='".$date."'"
+                                .$this->insert_common_sql()
+                        ;
+                        $res = $this->re_db_query($q);
+                    } else {
                         $res='';
                     }
                 }
-           }
-           else
-           {
-                foreach($data as $key=>$val)
-                {
-                    $alias_name=isset($val['alias_name'])?$this->re_db_input($val['alias_name']):'';
-                    $sponsor_company=isset($val['sponsor_company'])?$this->re_db_input($val['sponsor_company']):0;
-                    $date=isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):$this->defaultEmptyDate;
-                    if($alias_name!='' && $sponsor_company!='' && $date!=''){
-                        if($flag8==0){
-                            $qq="update `".BROKER_ALIAS."` SET is_delete=1 where `broker_id`=".$id."";
-                            $res = $this->re_db_query($qq);
-                            $flag8=1;
+            } else {
+                $existingAliases = $this->edit_alias($id,0,1);
+                $res = $key = $val = 0;
+                                
+                // 08/26/22 Rewritten to keep existing Aliases and delete any removed by the user
+                foreach($data as $key=>$val){
+                    $res = 0;
+                    $alias_name = isset($val['alias_name'])?$this->re_db_input($val['alias_name']):'';
+                    $sponsor_company = isset($val['sponsor_company'])? (int)$this->re_db_input($val['sponsor_company']) : 0;
+                    $date = isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):$this->defaultEmptyDate;
+                    // Term Date & State can be null, so default to that value
+                    $termdate = isset($val['termdate'])?$this->re_db_input(date('Y-m-d',strtotime($val['termdate']))):null;
+                    $state = isset($val['state'])?$this->re_db_input($val['state']):null;
+  
+                    if($alias_name!='' AND $sponsor_company>0){
+                        // Only update "existing" aliases if there are any changes
+                        if(isset($existingAliases[0])){
+                            if ($existingAliases[0]['alias_name'] != $alias_name 
+                                OR (int)$existingAliases[0]['sponsor_company'] != $sponsor_company
+                                OR date('Y-m-d', strtotime($existingAliases[0]['date'])) != $date
+                                OR date('Y-m-d', strtotime($existingAliases[0]['termdate'])) != $termdate
+                                OR $existingAliases[0]['state'] != $state
+                            ){
+                                $q = "UPDATE `".BROKER_ALIAS."`"
+                                    ." SET `alias_name`='".$alias_name."'"
+                                        .",`sponsor_company`=$sponsor_company"
+                                        .",`date`='".$date."'"
+                                        .",`termdate`='".$termdate."'"
+                                        .",`state`='".$state."'"
+                                        .$this->update_common_sql()
+                                    ." WHERE `id`=".$existingAliases[0]['id']
+                                ;
+                                $res = $this->re_db_query($q);
+                            }
+                            // Remove existing alias move from bottom of the stack, so this alias won't be deleted below
+                            array_shift($existingAliases);
+                        } else {
+                            $q = "INSERT INTO `".BROKER_ALIAS."`"
+                                ." SET `broker_id`='".$id."'"
+                                    .",`alias_name`='".$alias_name."'"
+                                    .",`sponsor_company`='".$sponsor_company."'"
+                                    .",`date`='".$date."'"
+                                    .",`termdate`='".$termdate."'"
+                                    .$this->insert_common_sql()
+                            ;
+                            $res = $this->re_db_query($q);
                         }
-                        $q = "INSERT INTO `".BROKER_ALIAS."` SET `broker_id`='".$id."' ,`alias_name`='".$alias_name."' ,`sponsor_company`='".$sponsor_company."' ,
-                        `date`='".$date."' ".$this->insert_common_sql();
-        				$res = $this->re_db_query($q);
+                        
                     }
-                    else
-                    {
-                        $res='';
-                    }
+                }
+                
+                // Remove leftover Aliases from before the edit
+                foreach ($existingAliases AS $row){
+                    $q = "UPDATE `".BROKER_ALIAS."`"
+                        ." SET `is_delete`=1"
+                            .$this->update_common_sql()
+                        ." WHERE `id`=".$row['id']
+                    ;
+                    $res = $this->re_db_query($q);
                 }
            }
 
             if($res){
-
                 $_SESSION['success'] = INSERT_MESSAGE;
 				return true;
 			}
@@ -2523,65 +2560,81 @@
 			return $return;
 		}
     public function edit_split($id){
-			$id = (int)$this->re_db_input($id);
-      $return = array();
+        $id = (int)$this->re_db_input($id);
+        $return = array();
 
-			$q = "SELECT `at`.*"
-					    ." FROM `".BROKER_PAYOUT_SPLIT."` AS `at`"
-              ." WHERE `at`.`is_delete`='0'"
-              ." AND `at`.`broker_id`=$id"
-      ;
-      
-      $res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0){
-        $return = $this->re_db_fetch_all($res);
-      }
-			return $return;
-		}
-    //-- 06/09/22 Sponsor Search added
-    public function edit_alias($id, $sponsorId=0){
-			$return = array();
-      $con = "";
-      $id = (int)$this->re_db_input($id);
-      $sponsorId = (int)$this->re_db_input($sponsorId);
-
-      if ($sponsorId){
-        $con .= " AND `at`.`sponsor_company`=$sponsorId";
-      }
-
-			$q = "SELECT `at`.*"
-					  ." FROM `".BROKER_ALIAS."` AS `at`"
+        $q = "SELECT `at`.*"
+            ." FROM `".BROKER_PAYOUT_SPLIT."` AS `at`"
             ." WHERE `at`.`is_delete`='0'"
             ." AND `at`.`broker_id`=$id"
-            .$con
-      ;
-
-      $res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0){
-        $a = 0;
-        while($row = $this->re_db_fetch_array($res)){
-          array_push($return,$row);
+        ;
+      
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+            $return = $this->re_db_fetch_all($res);
         }
-      }
-			return $return;
-		}
+        return $return;
+    }
+    //-- 06/09/22 Sponsor Search added
+    public function edit_alias($broker_id=0, $sponsorId=0, $sortOrder=0){
+        $return = array();
+        $con = $orderBy = "";
+        $broker_id = (int)$this->re_db_input($broker_id);
+        $sponsorId = (int)$this->re_db_input($sponsorId);
+        $sortOrder = (int)$this->re_db_input($sortOrder);
+        
+        switch($sortOrder){
+            case 1:
+                $orderBy = " `at`.`id` ASC";
+                break;    
+            case 2:
+                $orderBy = " `at`.`id` DESC";
+                break;    
+            case 3:
+                $orderBy = " `at`.`alias_name`, `at`.`id`";
+                break;    
+            case 4:
+                $orderBy = " `at`.`sponsor_company`, `at`.`id`";
+                break;    
+            default:
+                $orderBy = " `at`.`id` ASC";
+        }
+        
+        if ($sponsorId){
+            $con .= " AND `at`.`sponsor_company`=$sponsorId";
+        }
 
-    public function edit_override($id){
-			$return = array();
+        $q = "SELECT `at`.*"
+            ." FROM `".BROKER_ALIAS."` AS `at`"
+            ." WHERE `at`.`is_delete`=0"
+            ." AND `at`.`broker_id`=$broker_id"
+            .$con
+            ." ORDER BY $orderBy"
+        ;
 
-			$q = "SELECT `at`.*
-					FROM `".BROKER_PAYOUT_OVERRIDE."` AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$id."'";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
+        $res = $this->re_db_query($q);
+        
+        if($this->re_db_num_rows($res)>0){
+            $return = $this->re_db_fetch_all($res);
+        }
+        return $return;
+    }
+    public function edit_override($broker_id){
+        $return = array();
 
-    			}
+        $q = "SELECT `at`.*
+                FROM `".BROKER_PAYOUT_OVERRIDE."` AS `at`
+                WHERE `at`.`is_delete`='0' AND `at`.`broker_id`='".$broker_id."'";
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+            $a = 0;
+            while($row = $this->re_db_fetch_array($res)){
+                    array_push($return,$row);
+
             }
-			return $return;
-		}
+        }
+        return $return;
+    }
     public function get_previous_broker($id){
         $q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name"
 					  ." FROM `".$this->table."` AS `at`"
@@ -2606,51 +2659,57 @@
         }
 			  return false;
 		}
-        public function get_next_broker($id){
-			$return = array();
+    public function get_next_broker($id){
+        $return = array();
 
-            $q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name
-					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0'   group by id
-                    ORDER BY GROUP_CONCAT(last_name,' ',first_name) ASC ";
-				   	$res = $this->re_db_query($q);
-				   	$isFind =false;
-		            if($this->re_db_num_rows($res)>0){
+        $q = "SELECT `at`.*,GROUP_CONCAT(last_name,' ',first_name) as full_name
+                FROM `".$this->table."` AS `at`
+                WHERE `at`.`is_delete`='0'   group by id
+                ORDER BY GROUP_CONCAT(last_name,' ',first_name) ASC ";
+        $res = $this->re_db_query($q);
+        $isFind = false;
+        if($this->re_db_num_rows($res)>0){
+            while($row = $this->re_db_fetch_array($res)){
+                if($isFind)
+                    return $row;
 
-		                while($row = $this->re_db_fetch_array($res)){
-		                	       if($isFind)
-		                	       	  return $row;
-
-		                	       if($row['id']== $id)
-                                 $isFind=true;
-
-
-		                }
-		            }
-		            else
-		            {
-		                return false;
-		            }
-			return $return;
-		}
-        public function select_sponsor(){
-			$return = array();
-
-			$q = "SELECT `at`.*
-					FROM `".SPONSOR_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
-			$res = $this->re_db_query($q);
-            if($this->re_db_num_rows($res)>0){
-                $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
+                if($row['id']== $id)
+                    $isFind=true;
             }
-			return $return;
+        }
+        else
+        {
+            return false;
+        }
+        return $return;
+    }
+    public function select_sponsor($sortBy=0){
+      $sortBy = (int)$this->re_db_input($sortBy);
+			$return = array();
+      $orderBy = '';
+      
+      switch($sortBy){
+        case 1:
+          $orderBy = "`at`.`name`";
+      }
+      $orderBy .= ($orderBy!='' ? ", " : "")."`at`.`id` ASC";
+      
+			$q = "SELECT `at`.*"
+				    ." FROM `".SPONSOR_MASTER."` AS `at`"
+            ." WHERE `at`.`is_delete`='0'"
+            ." ORDER BY $orderBy"
+      ;
+      
+			$res = $this->re_db_query($q);
+      
+      if($this->re_db_num_rows($res)>0){
+        $return = $this->re_db_fetch_all($res);
+      }
+      
+      return $return;
 		}
-        public function select_register(){
+    
+    public function select_register(){
 			$return = array();
 
 			$q = "SELECT `at`.*

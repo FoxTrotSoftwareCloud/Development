@@ -44,31 +44,34 @@ class import_generic extends import {
         return $return;
     }
     
-    function load_current_file_table ($genericCsvFileName, $sponsor_id=0, $product_category_id=0){
+    function load_current_file_table ($file_name='', $sponsor_id=0, $product_category_id=0, $source='GENERIC'){
         $instance_product_maintenance = new product_maintenance();
         $file_id = $currentImportFiles = 0;
-        $fileType = $source = '';
+        $fileType = '';
         $currentImportFiles = $this->check_current_files();        
-        $fileName = strtoupper(trim($genericCsvFileName));
+        $fileName = strtoupper($this->re_db_input($file_name));
         $sponsor_id = (empty((int)$sponsor_id) ? 0 : (int)$this->re_db_input($sponsor_id));
         $product_category_id = (empty((int)$product_category_id) ? 0 : (int)$this->re_db_input($product_category_id));
         $productCategoryArray = $instance_product_maintenance->select_category($product_category_id);
+        $source = $this->re_db_input($source);
         
-        if (pathInfo($fileName, PATHINFO_EXTENSION)=='CSV' AND !in_array($fileName, $currentImportFiles)){
+        if (($source!='GENERIC' OR pathInfo($fileName, PATHINFO_EXTENSION)=='CSV') AND !in_array($fileName, $currentImportFiles)){
             // File Type
             // Have to use the stripos()!==false, stripos() returns unpredictable "false" values(booleanfalse OR 0 OR <blank>) and if the position is found at the beginning the string, it returns 0
-            if ($productCategoryArray) {
+            if (strtoupper(substr($source,0,2))=="DAZ") {
+                $fileType = 0;
+            } else if ($productCategoryArray) {
                 $fileType = trim($productCategoryArray[0]['type']);
             } else if (stripos($fileName, 'VA')!==false OR stripos($fileName, 'VARIABLE')!==false) {
                 $fileType = 'Variable Annuities';
             } else if (stripos($fileName, 'RIA')!==false OR stripos($fileName, 'ADVISORY')!==false) {
                 $fileType = 'RIA';
+            } else if ($source!='GENERIC' AND $product_category_id==0) {
+                $fileType = '';
             } else {
                 $fileType = 'Mutual Funds';
             }
-            $fileType = $this->fileNamePrefix.$fileType;
-            
-            $source = 'GENERIC';
+            $fileType = ($source=='GENERIC' ? $this->fileNamePrefix.$fileType : $source);
             
             $q = "INSERT INTO `".IMPORT_CURRENT_FILES."`"
                     ." SET "

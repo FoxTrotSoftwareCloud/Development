@@ -76,7 +76,7 @@ function GetFileList()
             dlist += "</div>";
             dlist += "</form>";
     }
-	console.log(dlist);
+	//--- 08/10/22 TEST DELETE ME---> console.log(dlist);
 	//document.getElementByID("FileList").innerHTML=dlist;
 	document.getElementById("FileList").innerHTML=dlist;
     Download();
@@ -157,7 +157,18 @@ PostResult( msg );
                 if(isset($_GET['tab']) && ($_GET['tab']=="review_files" || $_GET['tab']=="processed_files") && $_GET['id']>0){
                     $get_file_data = $instance->select_user_files($_GET['id']);
                     $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
-                    $fileTypeDescription = ($get_file_type==3) ? 'Security File' : $get_file_data['file_type'] ;
+                    $total_commission_amount = 0.00;
+                    
+                    if (empty($get_file_type)){
+                        $fileTypeDescription = $get_file_data['file_type'];
+                    } else if (in_array($get_file_type, ['2','9'])){
+                        $fileTypeDescription = "Commissions";
+                        $total_commission_amount = (float)$instance->get_file_batch($_GET['id'], 'commission_amount');
+                    } else if ($get_file_type == '3'){
+                        $fileTypeDescription = "Securities";
+                    } else {
+                        $fileTypeDescription = "Clients";
+                    }
 
                     if ($_GET['tab']=="review_files") { ?>
                         <h3>Review & Resolve Exceptions</h3><br />
@@ -177,16 +188,7 @@ PostResult( msg );
                         <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if(isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($get_file_data['last_processed_date']));}else echo '00-00-0000' ?></h4>
                         <?php
                         $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
-                        $get_file_type =  '';
                         $get_file_type_source = $instance->get_current_file_type($file_id);
-
-                        if($get_file_type_source == 'DSTFANMail') {
-                            $get_file_type = 1;
-                        } else if($get_file_type_source == 'DSTIDC') {
-                            $get_file_type = 2;
-                        } else if($get_file_type_source == 'GENERIC') {
-                            $get_file_type = 9;
-                        }
 
                         if(isset($get_file_type) && in_array($get_file_type, [2, 9])){
                             $total_amount = 0;
@@ -194,7 +196,7 @@ PostResult( msg );
                             if ($get_file_type == 9){
                                 $return_file_data_array = $instance->get_gen_detail_data($file_id);
                             } else {
-                                $return_file_data_array = $instance->get_file_array($file_id);
+                                $return_file_data_array = $instance->get_idc_detail_data($file_id);
                             }
 
                             foreach($return_file_data_array as $preview_key=>$preview_val)
@@ -208,7 +210,7 @@ PostResult( msg );
                     }
                 } ?>
 
-                <!-- Import Grid -->
+                <!-- Import File Table -->
                 <div class="tab-pane active" id="tab_a"><?php if(isset($_GET['tab']) && ($_GET['tab']=="current_files" || $_GET['tab']=="archived_files") || !isset($_GET['tab'])){?>
                     <ul class="nav nav-tabs ">
                       <li class="<?php if(isset($_GET['tab'])&&$_GET['tab']=="current_files"){ echo "active"; }else if(!isset($_GET['tab'])){echo "active";}else{ echo '';} ?>" ><a href="#current_files" data-toggle="tab">Current Files</a></li>
@@ -264,11 +266,11 @@ PostResult( msg );
                                                         $file_batch_id = $instance->get_file_batch($val['id']);
                                                         if (!isset($val['file_type'])) {
                                                             $file_type_id = 1;
-                                                        } else if ($val['file_type'] == 'DST Commission'){
+                                                        } else if ($val['file_type'] == 'DST Commission' OR $val['file_type_code']==2){
                                                             $file_type_id = 2;
-                                                        } else if ($val['file_type'] == 'Security File'){
+                                                        } else if (stripos($val['file_type'], 'securit')!==false OR $val['file_type_code']==3){
                                                             $file_type_id = 3;
-                                                        } else if (stripos($val['file_type'], 'generic commission')!==false){
+                                                        } else if (stripos($val['file_type'], 'generic commission')!==false OR $val['file_type_code']==9){
                                                             $file_type_id = 9;
                                                         } else {
                                                             $file_type_id = 1;
@@ -286,12 +288,9 @@ PostResult( msg );
 
                                                                 <?php
                                                                     // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
-                                                                    $detailTable = '';
-
-                                                                    if (!in_array($val['file_type'], ['C1', 'DST Commission'])) {
-                                                                        $detailTable = ($val['file_type']=='Security File') ? IMPORT_SFR_DETAIL_DATA : IMPORT_DETAIL_DATA;
-                                                                    }
-
+                                                                    $detailTable = $instance->import_table_select($val['id'], $file_type_id);
+                                                                    $detailTable = $detailTable['table'];
+                                                                    
                                                                     $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
                                                                     $count_processed_data = $total_processed_data['processed'];
                                                                     $count_exception_data = $total_processed_data['exceptions'];
@@ -349,6 +348,7 @@ PostResult( msg );
                                                                         </select>
                                                                         <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
                                                                         <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type'];?>" />
+                                                                        <input type="hidden" name="process_file_type_code" id="process_file_type_code" value="<?php echo $val['file_type_code'];?>" />
                                                                         <input type="hidden" name="go" value="go" />
                                                                     </form>
                                                                 </td>
@@ -436,6 +436,7 @@ PostResult( msg );
                                                                                 <option value="1" selected="true" >View/Print</option>
                                                                             </select>
                                                                             <input type="hidden" name="id" id="id" value="<?php echo $val['id'];?>" />
+                                                                            <input type="hidden" name="file_type_code" id="go_archive_file_type_code" value="<?php echo $val['file_type_code'];?>" />
                                                                             <button type="submit" class="btn btn-sm btn-warning" name="go_archive" value="go_archive" style="display: inline;"> Go</button>
                                                                         </form>
                                                                     </td>
@@ -515,6 +516,8 @@ PostResult( msg );
                                                         $existing_field_value = '';
                                                         $existingDetailValues = [];
                                                         $file_id = (isset($_GET['id'])) ? (int)$instance->re_db_input($_GET['id']) : 0;
+                                                        $file_info = $instance->select_current_file_id($file_id);
+                                                        $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
                                                         $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
                                                         $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
 
@@ -522,22 +525,24 @@ PostResult( msg );
                                                         {
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '1')
                                                             {
-                                                                $return_fanmail_existing_data = $instance->select_existing_fanmail_data($error_val['temp_data_id']);
+                                                                $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
+                                                                $existing_field_value = $error_val['field_value'];
+                                                                
                                                                 if($error_val['field'] == 'social_security_number')
                                                                 {
-                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? 'blank' : $return_fanmail_existing_data['social_security_number']);
+                                                                    $existing_field_value = ($error_val['error_code_id']==13 ? 'blank' : $return_client_existing_data[0]['social_security_number']);
                                                                 }
                                                                 if($error_val['field'] == 'mutual_fund_customer_account_number')
                                                                 {
-                                                                    $existing_field_value = $return_fanmail_existing_data['mutual_fund_customer_account_number'];
+                                                                    $existing_field_value = $return_client_existing_data[0][ $file_source=='DAZL' ? 'customer_account_number' : 'mutual_fund_customer_account_number'];
                                                                 }
                                                                 if($error_val['field'] == 'registration_line1')
                                                                 {
-                                                                    $existing_field_value = $return_fanmail_existing_data['registration_line1'];
+                                                                    $existing_field_value = $return_client_existing_data[0]['registration_line1'];
                                                                 }
                                                                 if($error_val['field'] == 'u5')
                                                                 {
-                                                                    $rep_number = $return_fanmail_existing_data['representative_number'];
+                                                                    $rep_number = $return_client_existing_data[0]['representative_number'];
                                                                     $u5_date = $instance->broker_termination_date($rep_number);
                                                                     $existing_field_value = date('m/d/Y',strtotime($u5_date));
                                                                 }
@@ -549,7 +554,7 @@ PostResult( msg );
                                                                         $return_commission_existing_data = $instance->select_existing_gen_data($error_val['temp_data_id']);
                                                                         break;
                                                                     default:
-                                                                        $return_commission_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id']);
+                                                                        $return_commission_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id'], $file_source);
                                                                         break;
                                                                 }
                                                                 // Display the names found during the processing of the data. Sometimes they don't match what was sent in the data fields (alpha_code & rep_name), or the
@@ -634,7 +639,7 @@ PostResult( msg );
                                                             }
                                                             if(isset($error_val['file_type']) && $error_val['file_type'] == '3')
                                                             {
-                                                                $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
+                                                                $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id'], $file_source);
 
                                                                 if($error_val['field'] == 'cusip_number') {
                                                                     $existing_field_value = $return_sfr_existing_data['cusip_number'];
@@ -658,7 +663,7 @@ PostResult( msg );
                                                             <?php } ?>
 
                                                             <?php if(isset($error_val['file_type']) && $error_val['file_type'] == '1'){
-                                                                $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']); ?>
+                                                                $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id'],$file_source); ?>
                                                                 <td><?php echo $get_client_data[0]['client_address'];?></td>
                                                             <?php } else if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2','9'])) { ?>
                                                                 <td><?php echo $error_val['cusip'];?></td>
@@ -666,13 +671,20 @@ PostResult( msg );
                                                                 <td style="text-align: right;"><?php if($error_val['commission'] > 0){ echo '$'.number_format($error_val['commission'],2);}else{ echo '$0';}?></td>
                                                             <?php } else if(isset($error_val['file_type']) && $error_val['file_type'] == '3') { ?>
                                                                 <?php
-                                                                    $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id']);
-                                                                    $existingDetailValues = ['fund_name'=> $return_sfr_existing_data['fund_name'], 'cusip_number'=>$return_sfr_existing_data['cusip_number'], 'ticker_symbol'=>$return_sfr_existing_data['ticker_symbol'], 'product_category_id'=>$return_sfr_existing_data['product_category_id']];
+                                                                    $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id'],$file_source);
+                                                                    
+                                                                    if (count($return_sfr_existing_data)){
+                                                                        $existingDetailValues = ['fund_name'=>$return_sfr_existing_data['fund_name'], 'cusip_number'=>$return_sfr_existing_data['cusip_number'], 'ticker_symbol'=>$return_sfr_existing_data['ticker_symbol'], 'product_category_id'=>$return_sfr_existing_data['product_category_id']];
+                                                                    } else {
+                                                                        $existingDetailValues = ['fund_name'=>'', 'cusip_number'=>'', 'ticker_symbol'=>'', 'product_category_id'=>''];
+                                                                    }
                                                                 ?>
-                                                                <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
-                                                                <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
-                                                                <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
-                                                                <td><?php echo $return_sfr_existing_data['major_security_type'] ?></td>
+                                                                <?php if (count($return_sfr_existing_data)){ ?>
+                                                                    <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
+                                                                    <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
+                                                                    <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
+                                                                    <td><?php echo $return_sfr_existing_data['major_security_type'] ?></td>
+                                                                <?php } ?>
                                                             <?php } ?>
                                                             <td><?php echo $error_val['error'];?></td>
                                                             <td style="width: 20%;">
@@ -706,7 +718,10 @@ PostResult( msg );
                                                 $get_file_type = $instance->re_db_input($_GET['file_type']);
                                             } else {
                                                 $get_file_type = $instance->get_file_type($_GET['id']);
-                                            } ?>
+                                            } 
+                                            $file_info = $instance->select_current_file_id($file_id);
+                                            $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
+                                            ?>
 
                                                 <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                     <table id="data-table4" class="table table-bordered table-stripped table-hover">
@@ -753,7 +768,7 @@ PostResult( msg );
                                                                     <td><?php echo date('m/d/Y',strtotime($process_val['date']));?></td>
 
                                                                     <?php if(isset($get_file_type) && $get_file_type == '3') {
-                                                                        $get_sfr_detail_data = $instance->select_existing_sfr_data($process_val['temp_data_id']);
+                                                                        $get_sfr_detail_data = $instance->select_existing_sfr_data($process_val['temp_data_id'], $file_source);
                                                                         $security_type = $instance_batches->get_product_type($get_sfr_detail_data['product_category_id']);
                                                                         ?>
 
@@ -770,7 +785,7 @@ PostResult( msg );
 
 
                                                                     <?php if(isset($get_file_type) && $get_file_type == '1') {
-                                                                        $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']); ?>
+                                                                        $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id'],$file_source); ?>
                                                                         <td><?php echo $get_client_data[0]['client_address'];?></td>
                                                                     <?php } else if(isset($get_file_type) && in_array($get_file_type,['2','9'])) { ?>
                                                                         <td><?php echo $process_val['cusip'];?></td>
@@ -804,7 +819,11 @@ PostResult( msg );
                                         <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
                                             <div class="row">
                                             <?php
-                                            $get_file_type = $instance->get_file_type($_GET['id']);
+                                                if (isset($_GET['file_type']) AND (int)$_GET['file_type']>0){
+                                                    $get_file_type = $_GET['file_type'];
+                                                } else {
+                                                    $get_file_type = $instance->get_file_type($_GET['id']);
+                                                }
                                             ?>
                                                 <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                     <table id="data-table5" class="table table-bordered table-stripped table-hover">
@@ -878,11 +897,16 @@ PostResult( msg );
                                             <?php
                                             $get_file_type =  '';
                                             $get_file_type_source = $instance->get_current_file_type($_GET['id']);
-                                            if($get_file_type_source == 'DSTFANMail'){
+                                            
+                                            if (isset($_GET['file_type']) AND (int)$_GET['file_type']) {
+                                                $get_file_type = (int)$_GET['file_type'];
+                                            } else if ($get_file_type_source == 'DSTFANMail'){
                                                 $get_file_type = 1;
                                             } else if($get_file_type_source == 'DSTIDC'){
                                                 $get_file_type = 2;
                                             } else if($get_file_type_source == 'GENERIC'){
+                                                $get_file_type = 9;
+                                            } else if($get_file_type_source == 'DAZL'){
                                                 $get_file_type = 9;
                                             }
                                             ?>
@@ -906,6 +930,7 @@ PostResult( msg );
                                                             <?php
                                                             $file_id = isset($_GET['id'])?$instance->re_db_input($_GET['id']):0;
                                                             $return_file_data_array = $instance->get_file_array($file_id);
+                                                            
                                                             foreach($return_file_data_array as $preview_key=>$preview_val)
                                                             {?>
                                                              <tr>
@@ -1122,7 +1147,7 @@ PostResult( msg );
                                             <tr>
                                                 <td><?php echo $instance_importGeneric->dataInterface['name'];?></td>
                                                 <td>
-                                                    <select name="generic_sponsor" id="generic_sponsor" class="form-control" style="display: block;">
+                                                    <select name="generic_sponsor" id="generic_sponsor" class="form-control" style="display: block; width: 200px;">
                                                         <option value="">Select Sponsor</option>
                                                         <?php foreach($get_sponsor as $key=>$val){?>
                                                             <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
@@ -1145,6 +1170,22 @@ PostResult( msg );
                                                 </td>
                                             </tr>
                                         <?php }
+                                        // Add DAZL 09/04/22 -->
+                                        $temp_data_interface = new data_interfaces_master();
+                                        $dazl = $temp_data_interface->select("`name` LIKE 'dazl%'");
+                                        if(count($dazl)){ ?>
+                                            <tr>
+                                                <td><?php echo $dazl[0]['name'];?></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>
+                                                    <input type="file" name="dazl_files[]" class="form-control" multiple/>
+                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Upload</button>
+                                                </td>
+                                            </tr>
+                                        <?php
+                                            unset($temp_data_interface); 
+                                        }
                                     } ?>
                                     </tbody>
                                 </table>
@@ -1304,12 +1345,14 @@ PostResult( msg );
                             <option value="1">Active</option>
                             <option value="0" disabled="true">Terminated</option>
                         </select>
+                        <?php /* 08/20/22 Moved the dropdown to "assign_code_to_sponsor"
                         <select name="sponsor" id="sponsor" class="form-control" style="display: none;">
                             <option value="">Select Sponsor</option>
                             <?php foreach($get_sponsor as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
                             <?php } ?>
-                        </select>
+                        </select> 
+                        */?>
                         <select name="objectives" id="objectives" class="form-control" style="display: none;">
                             <option value="">Select Objective</option>
                             <?php foreach($get_objective as $key=>$val){?>
@@ -1470,6 +1513,22 @@ PostResult( msg );
                                 <option value="">Select Objective</option>
                                 <?php foreach($get_objective as $key=>$val){?>
                                     <option value="<?php echo $val['id'];?>" <?php echo $productObjectiveId==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="assign_code_for_sponsor" style="display: none;">
+                    <div class="col-md-5">
+                        <div class="inputpopup">
+                            <label class="pull-right" id="label_assign_code_for_sponsor">Add to Sponsor </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inputpopup">
+                            <select name="sponsor" id="sponsor" class="form-control">
+                                <?php foreach($get_sponsor as $key=>$val){?>
+                                    <option value="<?php echo $val['id'];?>"><?php echo $val['name'];?></option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -1724,6 +1783,8 @@ function reassign_broker_(value)
 }
 function add_exception_value(exception_file_id,exception_file_type,temp_data_id,exception_field,rep_number,existing_field_value,error_code_id,exception_record_id,client_account_no)
 {
+    $('#msg_exception').html('');
+
     //--- For testing
     console.log(
         'exception_file_id:'+ typeof exception_file_id + ': ' + exception_file_id + 
@@ -1766,7 +1827,8 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     $("#row_skip_exception").css('display','none');
     $("#status").css('display','none');
     $("#social_security_number").css('display','none');
-    $("#sponsor").css('display','none');
+    //-- 08/20/22 Moved into "assign_code_to_sponsor"
+    // $("#sponsor").css('display','none');
     $("#objectives").css('display','none');
     $("#cusip_number").css('display','none');
     $("#alpha_code").css('display','none');
@@ -1776,6 +1838,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
     $("#assign_rep_to_broker").css('display','none');
     $("#assign_objective_to_client").css('display','none');
     $("#assign_cusip_to_product").css('display','none');
+    $("#assign_code_for_sponsor").css('display','none');
     $("#broker_termination_options_clients").css('display','none');
     $("#broker_termination_options_trades").css('display','none');
 
@@ -1783,6 +1846,10 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         // SFR File - Missing/Invalid Data
         // 03/05/22 Not needed with file_type and error_code_id criteria --- && ['major_security_type', 'cusip_number', 'fund_name'].includes(exception_field)
         const existingDetailValues = <?php echo isset($existingDetailValues) ? json_encode($existingDetailValues) : json_encode(['fund_name'=>'', 'cusip_number'=>'', 'product_category_id'=>'0']); ?>;
+
+        // 08/29/22 TEST DELETE ME
+        console.log("error_code_id==13: existingDetailValues['cusip_number']=" + existingDetailValues['cusip_number'] + ", existingDetailValues['product_category_id']="+existingDetailValues['product_category_id']);
+
         const parentRow = '#assign_cusip_to_product';
 
         $(parentRow).css("display","block");
@@ -1793,9 +1860,11 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#field_label").css("display","block");
         $("#exception_value").css("display","block");
         $("#exception_value").val(existingDetailValues['fund_name']);
-        $(parentRow + " #cusip_number").val(existingDetailValues['cusip_number']);
-        $(parentRow + " #cusip_number").prop("disabled", false);
-
+        $(parentRow + "_text").val(existingDetailValues['cusip_number']);
+        $(parentRow + "_text").prop("disabled", false);
+        $(parentRow + "_category").val("1");
+        $("#row_skip_exception").css("display","block");
+        
         result += 1;
     } else if (error_code_id == 17){
         // Product Type Not Found
@@ -1970,11 +2039,25 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
         $("#hold_commission").prop('checked', true);
 
         result += 1;
-    } else if (exception_field == 'sponsor'){
-        document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
-        $("#sponsor").css('display','block');
+    
+    // 08/25/22 Deprecated - use code below instead
+    // } else if (exception_field == 'sponsor'){
+    //     document.getElementById("field_label").innerHTML = 'Assign Existing Sponsor';
+    //     document.getElementById("field_label").css('display','none');
+    //     $("#assign_code_for_sponsor").css('display','block');
+    //     $("#exception_value").css('display','none');
+    //     document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'&field_value='+existing_field_value+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
+
+    //     result += 1;
+    } else if (['sponsor', 'sponsor_id'].includes(exception_field)){
+        document.getElementById("field_label").innerHTML = 'Management/Sponsor Code';
         $("#exception_value").css('display','none');
-        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
+        $("#exception_value_dis").css('display','block');
+        $("#exception_value_dis").attr('disabled',true);
+        $("#exception_value_dis").val(existing_field_value);
+        $("#exception_value_2").val(existing_field_value);
+        $("#assign_code_for_sponsor").css('display','block');
+        document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'manage_sponsor.php?action=add_sponsor';?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'&field_value='+existing_field_value+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
 
         result += 1;
     } else if(exception_field == 'cusip_number' && error_code_id == 13){
@@ -1998,7 +2081,7 @@ function add_exception_value(exception_file_id,exception_file_type,temp_data_id,
             $("#field_label").css('display','block');
             document.getElementById("assign_cusip_number").value = existing_field_value;
             document.getElementById("assign_cusip_to_product_text").value = existing_field_value;
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_new&file_id=';?>'+exception_file_id+'<?php echo '&cusip_number='; ?>'+existing_field_value+'<?php echo '&exception_data_id='; ?>'+temp_data_id+'<?php echo '&exception_record_id='; ?>'+exception_record_id+'" style="display: block; float: right;" id="add_product_for_cusip">Add New Product</a>';
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL.'product_cate.php?action=add_new&file_id=';?>'+exception_file_id+'&cusip_number='+existing_field_value+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'" style="display: block; float: right;" id="add_product_for_cusip">Add New Product</a>';
         }
 
         result += 1;
@@ -2067,7 +2150,7 @@ function populate_assign_to_client(error_code_id, existing_field_value, exceptio
 
 function exception_submit()
 {
-   $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+    $('#msg_exception').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
 
    var url = "import.php"; // the script where you handle the form input.
    //alert($("#resolve_exception_form").serialize());

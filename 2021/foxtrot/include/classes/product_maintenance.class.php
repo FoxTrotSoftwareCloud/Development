@@ -647,20 +647,21 @@
             }
 			return $return;
 		}
-        public function select_sponsor(){
+        public function select_sponsor($sortOrder=1){
 			$return = array();
+			$sortOrder = (int)$this->re_db_input($sortOrder);
 
+			$orderBy = " `at`.`id`";
+			if ($sortOrder==1) { $orderBy = " `at`.`name`, ".$orderBy; }
+			
 			$q = "SELECT `at`.*
 					FROM `".SPONSOR_MASTER."` AS `at`
                     WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                    ORDER BY $orderBy";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
-    			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-
-    			}
+    			$return = $this->re_db_fetch_all($res);
             }
 			return $return;
 		}

@@ -28,7 +28,7 @@ function addMoreDocs(){
                             '<select class="form-control" name="sponsor[]">'+
                             '<option value="">Select Sponsor</option>'+
                             <?php foreach($get_sponsor as $key=>$val){?>
-                            '<option value="<?php echo $val['id'];?>" <?php if($sponsor_company != '' && $sponsor_company==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>'+
+                            '<option value="<?php echo $val['id'];?>" <?php if($sponsor_company != '' && $sponsor_company==$val['id']){echo "selected";}?>><?php echo $val['name'];?></option>'+
                             <?php } ?>
                             '</select>'+
                         '</div>'+
@@ -45,7 +45,6 @@ function addMoreDocs(){
                     '</div>'+
                 '</div>';
                 
-            
     $(html).insertAfter('#account_no_row');
 }
 $(document).on('click','.remove-row',function(){
@@ -725,8 +724,8 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <?php if(isset($_GET['account_no']) && $_GET['account_no'] != '')
                                                         {
                                                         ?>
-                                                            <input type="text" disabled="true" name="account_no_dis[]" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no_dis" class="form-control" value="<?php echo $_GET['account_no'];?>" />
-                                                            <input type="hidden" name="account_no[]" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control" value="<?php echo $_GET['account_no'];?>" />
+                                                            <input type="text" disabled="true" name="account_no_dis[]" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no_dis" class="form-control" value="<?php echo ltrim($_GET['account_no'],'0');?>" />
+                                                            <input type="hidden" name="account_no[]" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control" value="<?php echo ltrim($_GET['account_no'],'0');?>" />
                                                         <?php 
                                                         }else{
                                                         ?>
@@ -739,14 +738,16 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <label>Sponsor Company </label><br />
                                                         <?php if(isset($_GET['account_no']) && $_GET['account_no'] != ''){
                                                             $file_id = isset($_GET['file_id'])?$_GET['file_id']:0;
-                                                            $sponsor_company = $instance_import->get_current_file_type($file_id, 'sponsor_id');
+                                                            $sponsor_company = (int)$sponsor_company>0 ? $sponsor_company : $instance_import->get_current_file_type($file_id, 'sponsor_id');
                                                         } ?>
-                                                        <select class="form-control" name="sponsor[]">
+                                                        <select class="form-control" name="sponsor[]" id="sponsor">
                                                             <option value="">Select Sponsor</option>
                                                              <?php foreach($get_sponsor as $key=>$val){?>
-                                                            <option value="<?php echo $val['id'];?>" <?php if($sponsor_company != '' && $sponsor_company==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>
+                                                            <option value="<?php echo $val['id'];?>" <?php if($sponsor_company != '' && $sponsor_company==$val['id']){echo "selected";} ?>><?php echo $val['name'];?></option>
                                                             <?php } ?>
                                                         </select>
+                                                        <!-- 09/03/22 Try defaulting the sponsor called from Import TPL page -->
+                                                        <input type="hidden" id="sponsor_company" value="<?php echo $sponsor_company; ?>">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2">
@@ -774,7 +775,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <select class="form-control" name="sponsor[]">
                                                             <option value="0">Select Sponsor</option>
                                                              <?php foreach($get_sponsor as $key=>$val){?>
-                                                            <option value="<?php echo $val['id'];?>" <?php if($sponsor_company != '' && $sponsor_company==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>
+                                                            <option value="<?php echo $val['id'];?>" <?php if($sponsor_company != '' && $sponsor_company==$val['id']){echo "selected";} ?>><?php echo $val['name'];?></option>
                                                             <?php } ?>
                                                         </select>
                                                     </div>
@@ -1528,7 +1529,7 @@ $(document).on('change', '#is_reviewed', function(event) {
     </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function() {
+$(document).ready(function() {
         $('#data-table-list').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -1547,7 +1548,12 @@ $(document).on('change', '#is_reviewed', function(event) {
                         '</ul>'+
     				'</div>'+
     			'</div>');
-} );
+    
+    // 09/03/22 Default sponsor for Account No from import TPL call
+    if ("add_new" == "<?php echo isset($_GET['action']) ? $_GET['action'] : ""; ?>"){
+        $("#sponsor").val($("#sponsor_company").val());
+    }        
+});
 </script>
 <style type="text/css">
 .toolbar {
@@ -1648,7 +1654,7 @@ var waitingDialog = waitingDialog || (function ($) {
                 }
 
                 if("select-multiple" == $(this).prop("type")){
-                    console.log($(this).val());
+                    // console.log($(this).val());
                     if($.trim($(this).val()) == ''  || $.trim($(this).val()) == '0' || $(this).val() == null){
                          if(!isErrorFound){
                              $("a[data-tab='tab_cc']").trigger("click");
@@ -1670,7 +1676,7 @@ var waitingDialog = waitingDialog || (function ($) {
                 }
                     
          });
-            console.log("waiting",isErrorFound)
+            // console.log("waiting",isErrorFound)
 
           
             if(isErrorFound)
@@ -1859,7 +1865,7 @@ function openedit(note_id){
     //var ele = frm_element.getElementById("client_note");
     name = frm_element.elements["client_note"].removeAttribute("style"); 
     //$(name).css('pointer-events','');
-    console.log(name);
+    // console.log(name);
 }
 </script>
 <script>

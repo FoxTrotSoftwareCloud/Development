@@ -50,7 +50,7 @@
                                             <td><?php echo $val['added']; ?></td>
                                             <td class="text-center">
                                                 <a href="<?php echo CURRENT_PAGE; ?>?open=ce_download_view&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View</a>
-                                                <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
+                                                <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>&type=ce_download');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                             </td>
                                         </tr>
                                         <?php
@@ -106,7 +106,7 @@
                                                     <td><?php echo $val['added']; ?></td>
                                                     <td class="text-center">
                                                         <a href="<?php echo CURRENT_PAGE; ?>?open=finra_exam_status_view&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View</a>
-                                                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
+                                                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>&type=finra_exam_status');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                                     </td>
                                                 </tr>
                                                 <?php
@@ -163,7 +163,7 @@
                                                 <td><?php echo $val['added']; ?></td>
                                                 <td class="text-center">
                                                     <a href="<?php echo CURRENT_PAGE; ?>?open=registration_status_view&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View</a>
-                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>&type=registration_status');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                                 </td>
                                             </tr>
                                         <?php } ?>

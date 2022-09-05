@@ -5,12 +5,12 @@
         <ul class="nav nav-pills nav-stacked col-md-2">
           <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='1'){ ?> class="active"<?php }else if(!isset($_GET['dim'])){?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=1">DST IDC</a></li>
           <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='2'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=2">DST FANMail</a></li>
-          <!-- <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='3'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=3">DAZL Daily</a></li>
-          <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='4'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=4">DAZL Commissions</a></li>
-          <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='5'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=5">NFS/Fidelity</a></li>
-          <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='6'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=6">Pershing</a></li>
-          <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='7'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=7">Raymond James</a></li>
-          <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='8'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=8">RBC Dain</a></li> -->
+          <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='3'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=3">DAZL</a></li>
+          <!-- <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='4'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=4">DAZL Commissions</a></li> -->
+          <!-- <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='5'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=5">NFS/Fidelity</a></li> -->
+          <!-- <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='6'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=6">Pershing</a></li> -->
+          <!-- <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='7'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=7">Raymond James</a></li> -->
+          <!-- <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='8'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=8">RBC Dain</a></li> -->
           <li <?php if(isset($_GET['dim'])&& $_GET['dim']=='9'){ ?> class="active"<?php }?>><a href="<?php echo CURRENT_PAGE; ?>?dim=9">Generic CSV Files</a></li>
         </ul>
         <div class="tab-content col-md-10">
@@ -124,8 +124,8 @@
                                 <label>Local Folder </label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <!-- Just display where the files are stored. The users will load the folder from a local or FTP fetch(another server) -- 
-                                <input type="file" name="local_folder" class="form-control" /> -->
+                                <!-- Just display where the files are stored. The users will load the folder from a local or FTP fetch(another server) -->
+                                <!-- <input type="file" name="local_folder" class="form-control" /> -->
                                 <input type="text" name="local_folder" class="form-control" value="<?php echo $local_folder ?>" disabled/>
                             </div>
                         </div>	
@@ -140,11 +140,10 @@
                 </form> 
             </div>
             
-            <?php /* 3/25/22 Only display Interfaces that are in place - [FIX] Iterate/foreach() through "data_interfaces" table and dynamically add elements
             <div class="tab-pane <?php if(isset($_GET['dim'])&& $_GET['dim']=='3'){?>active<?php }?>" id="tab_c">
                 <form name="frm" method="POST" enctype="multipart/form-data">
                     <div class="panel-heading">
-                        <h2 class="panel-title" style="color:#ef7623;"><i class="fa fa-pencil-square-o"></i> DAZL Daily</h2>
+                        <h2 class="panel-title" style="color:#ef7623;"><i class="fa fa-pencil-square-o"></i> DAZL</h2>
                     </div>
                     <br />
                     <div class="col-md-12" style="background-color: #E9EEF2 !important;">				
@@ -182,15 +181,16 @@
                                 <input type="checkbox" name="update_client" value="1" onclick="chk_all_class(this.checked)" <?php if($update_client>0){ echo "checked='checked'";}?> class="checkbox" />
                             </div>
                         </div>
-                        <div class="row"> 
-                            <div class="col-md-6 form-group">
-                                <label>Local Folder </label>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <input type="file" name="local_folder" class="form-control" />
-                                <!- < input type="file" name="file1"   />  -->
-                            </div>
-                        </div>	
+                        <!--- 08/09/22 Remove file upload. Files should be "Fetched" in the import area -->
+                        <!-- <div class="row">  -->
+                            <!-- <div class="col-md-6 form-group"> -->
+                                <!-- <label>Local Folder </label> -->
+                            <!-- </div> -->
+                            <!-- <div class="col-md-6 form-group"> -->
+                                <!-- <input type="file" name="local_folder" class="form-control" /> -->
+                                <!-- < input type="file" name="file1"   /> -->
+                            <!-- </div> -->
+                        <!-- </div>	  -->
                         <div class="selectwrap">
                             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                             <input type="hidden" name="dim_id" id="dim_id" value="3" />
@@ -202,6 +202,7 @@
                 </form> 
             </div>
 
+            <?php /* 3/25/22 Only display Interfaces that are in place - [FIX] Iterate/foreach() through "data_interfaces" table and dynamically add elements
             <div class="tab-pane <?php if(isset($_GET['dim'])&& $_GET['dim']=='4'){?>active<?php }?>" id="tab_d">
                     <form name="frm" method="POST" enctype="multipart/form-data">
                     <div class="panel-heading">
@@ -243,15 +244,16 @@
                                 <input type="checkbox" name="update_client" value="1" onclick="chk_all_class(this.checked)" <?php if($update_client>0){ echo "checked='checked'";}?> class="checkbox" />
                             </div>
                         </div>
-                        <div class="row"> 
+                        <!--- 08/09/22 Remove file upload. Files should be "Fetched" in the import area -->
+                        <!-- <div class="row"> 
                             <div class="col-md-6 form-group">
                                 <label>Local Folder </label>
                             </div>
                             <div class="col-md-6 form-group">
                                 <input type="file" name="local_folder" class="form-control" />
-                                <!--input type="file" name="file1"   /-->
+                                <input type="file" name="file1" />
                             </div>
-                        </div>	
+                        </div>	 -->
                         <div class="selectwrap">
                             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                             <input type="hidden" name="dim_id" id="dim_id" value="4" />
@@ -262,7 +264,7 @@
                     </div>
                 </form> 
             </div>
-            <div class="tab-pane <?php if(isset($_GET['dim'])&& $_GET['dim']=='5'){?>active<?php }?>" id="tab_e">
+                <div class="tab-pane <?php if(isset($_GET['dim'])&& $_GET['dim']=='5'){?>active<?php }?>" id="tab_e">
                 <form name="frm" method="POST" enctype="multipart/form-data">
                     <div class="panel-heading">
                         <h2 class="panel-title" style="color:#ef7623;"><i class="fa fa-pencil-square-o"></i> NFS/Fidelity</h2>
@@ -299,7 +301,7 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <input type="file" name="local_folder" class="form-control" />
-                                <!--input type="file" name="file1"   /-->
+                                <!-- <input type="file" name="file1"   /> -->
                             </div>
                         </div>	
                         <div class="selectwrap">
@@ -349,7 +351,7 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <input type="file" name="local_folder" class="form-control"  />
-                                <!--input type="file" name="file1"   /-->
+                                <!-- <input type="file" name="file1"   /> -->
                             </div>
                         </div>	
                         <div class="selectwrap">
@@ -399,7 +401,7 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <input type="file" name="local_folder" class="form-control" />
-                                <!--input type="file" name="file1"   /-->
+                                <!-- <input type="file" name="file1"   /> -->
                             </div>
                         </div>	
                         <div class="selectwrap">
@@ -449,7 +451,7 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <input type="file" name="local_folder" class="form-control"/>
-                                <!--input type="file" name="file1"   /-->
+                                <!-- <input type="file" name="file1" /> -->
                             </div>
                         </div>	
                         <div class="selectwrap">

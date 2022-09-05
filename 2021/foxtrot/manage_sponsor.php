@@ -244,10 +244,34 @@
        $search_text_sponsor = isset($_POST['search_text_sponsor'])?$instance->re_db_input($_POST['search_text_sponsor']):'';
        $return = $instance->search_sponsor($search_text_sponsor);
     }
+    else if($action=='add_sponsor' AND isset($_GET['file_id']) AND $_GET['file_id']>0 AND !empty($_GET['field_value'])){
+        // Default Sponsor Code for appropriate Import Source (DST, DAZL, NSCC, etc.)
+        $instance_import = new import();
+        $fileInfo = $instance_import->select_current_file_id($_GET['file_id']);
+        
+        if (isset($fileInfo[0]['source'])) {
+            $source = strtolower(substr($fileInfo[0]['source'],0,3));
+            
+            switch($source){
+                case 'dst':
+                    $sdst_system_id = strtoupper($_GET['field_value']);
+                    $sdst_mgmt_code = strtoupper($_GET['field_value']);
+                    break;
+                case 'daz':
+                    $sdazl_code = strtoupper($_GET['field_value']);
+                    break;
+                case 'nsc':
+                    $sdtcc_nscc = strtoupper($_GET['field_value']);
+                    break;
+                case 'dtc':
+                    $sdtcc_nscc = strtoupper($_GET['field_value']);
+                    break;
+            }
+        }
+        
+    }
     else if($action=='view_sponsor'){
-
         $return = $instance->select_sponsor();
-
     }
     $content = "manage_sponsor";
     include(DIR_WS_TEMPLATES."main_page.tpl.php");

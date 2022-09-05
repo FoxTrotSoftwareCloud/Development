@@ -71,18 +71,24 @@
 			}
           }  
 		}
-        /**
-		 * @param int id
-		 * @return array of record if success, error message if any errors
-		 * $user_id deprecated 3/21/22 - all users should enjoy!
-		 **/
-		public function edit($dim_id,$user_id=0){
+        /*-------------------------------------------------------------------
+		* @param int id
+		* @return array of record if success, error message if any errors
+		* 8/28/22 `name` field search added
+		*-------------------------------------------------------------------*/
+		public function edit($dim_id=0, $name=''){
 			$return = array();
+			$dim_id = (int)$this->re_db_input($dim_id);
+			$name = $this->re_db_input($name);
+			$con = "`at`.`dim_id`=$dim_id";
+			
+			if ($name != '') { $con="`at`.`name`='$name'"; }
 			
 			$q = "SELECT `at`.*"
-					." FROM `".$this->table."` AS `at`"
-                    ." WHERE `at`.`is_delete`='0'"
-					." AND `at`.`dim_id`='$dim_id'";
+				." FROM `".$this->table."` AS `at`"
+				." WHERE `at`.`is_delete`=0"
+				." AND $con"
+			;
 			$res = $this->re_db_query($q);
 			
             if($this->re_db_num_rows($res)>0){
@@ -91,12 +97,14 @@
 			return $return;
 		}
 
-		public function select($queryString){
+		public function select($queryString=''){
 			$return = array();
+			$queryString = trim($queryString);
 			
-			$q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE ".trim($queryString);
+			$q = "SELECT `at`.*"
+				." FROM `".$this->table."` AS `at`"
+				." WHERE ".$queryString
+			;
 			$res = $this->re_db_query($q);
 
 			if($this->re_db_num_rows($res)>0){

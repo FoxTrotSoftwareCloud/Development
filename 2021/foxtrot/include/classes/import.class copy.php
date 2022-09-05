@@ -5,7 +5,7 @@
 		public $errors = '';
         public $table = IMPORT_CURRENT_FILES;
         public $GENERIC_file_type = 9;
-        public $IMPORT_File_Types = [1=>'CLIENTS', 2=>'COMMISSIONS', 3=>'PRODUCTS', 9=>'GENERIC CSV COMMISSIONS'];
+        public $IMPORT_File_Types = [1=>'DST CLIENTS', 2=>'DST IDC COMMISSIONS', 3=>'DST PRODUCTS', 9=>'GENERIC CSV COMMISSIONS'];
 
         /**
 		 * @param post array
@@ -142,16 +142,14 @@
          * @return mixed
          */
         public function resolve_exceptions($data){
-            $this->errors = '';
             $result = $resolveAction = 0;
             $resultMessage = '';
 			$exception_file_id = isset($data['exception_file_id']) ? (int)$this->re_db_input($data['exception_file_id']) : 0;
             $exception_file_type = isset($data['exception_file_type']) ? (int)$this->re_db_input($data['exception_file_type']) : 0;
             $error_code_id = isset($data['error_code_id'])? (int)$this->re_db_input($data['error_code_id']) : 0;
             $exception_data_id = isset($data['exception_data_id']) ? (int)$this->re_db_input($data['exception_data_id']) : 0;
-            $exception_field = isset($data['exception_field']) ? strtolower($this->re_db_input($data['exception_field'])) : '';
+            $exception_field = isset($data['exception_field']) ? $this->re_db_input($data['exception_field']) : '';
             $exception_record_id = isset($data['exception_record_id']) ? $this->re_db_input($data['exception_record_id']) : '';
-            $exception_value_2 = isset($data['exception_value_2']) ? $this->re_db_input($data['exception_value_2']) : '';
 
             // Populate "Exception Value" per Exception Field
             if($exception_field == 'u5'){
@@ -192,8 +190,6 @@
                 $exception_value = isset($data['assign_cusip_product_category'])?$this->re_db_input($data['assign_cusip_product_category']):'';
             } else if(!empty($data['exception_value_2'])){
                 $exception_value = $this->re_db_input($data['exception_value_2']);
-            // } else if($exception_field == 'sponsor_id'){
-            //     $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
             } else {
                 $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
             }
@@ -202,7 +198,6 @@
             $rep_for_broker = (isset($data['rep_for_broker']) ? (int)$this->re_db_input($data['rep_for_broker']) : 0);
             $acc_for_client = (isset($data['acc_for_client']) ? (int)$this->re_db_input($data['acc_for_client']) : 0);
             $skipException = (isset($data['skip_exception']) ? (int)$this->re_db_input($data['skip_exception']) : 0);
-            $code_for_sponsor = (isset($data['sponsor']) ? (int)$this->re_db_input($data['sponsor']) : 0);
 
             //--> RESOLVE ACTION - Element is used for more than just "Broker Terminated" exceptions (radio button input element)
             if(isset($data['resolve_broker_terminated'])){
@@ -247,17 +242,17 @@
                 // Adding product, make sure all the fields are populated
                 $resultMessage = '';
 
-                if (!$skipException AND empty($exception_value)){
+                if (empty($exception_value)){
                     $resultMessage .= 'Please enter Fund Name.';
                 }
-                if (!$skipException AND empty($data['cusip_number']) AND $_POST['assign_cusip_to_product_text']==''){
+                if (empty($data['cusip_number'])){
                     $resultMessage .= ' Please enter CUSIP number.';
                 }
-                if (!$skipException AND empty($data['assign_cusip_product_category'])){
+                if (empty($data['assign_cusip_product_category'])){
                     $resultMessage .= ' Please select a Product Category.';
                 }
 
-                if (!$skipException AND $resultMessage != ''){
+                if ($resultMessage != ''){
                     $this->errors = $resultMessage;
                 }
             }
@@ -298,25 +293,55 @@
                     } else {
                         $this->errors = 'Please select a resolution.';
                     }
-                } 
-                else if($exception_field == 'sponsor_id'){
-                    if(!empty($code_for_sponsor)){
-                        $result = $this->resolve_exception_2AddSponsorAlias($exception_value, $code_for_sponsor, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
-                    }
-                } 
-                //else {
-                //     $this->errors = 'Please select a resolution.';
+
+                }
+                //*** Exceptions not populated in Process/Reprocess. Remove later if not found to be useful 3/17/22 ***//
+                // else if($exception_field == 'registration_line1'){
+                //     $client_name_array = explode(' ',$exception_value);
+                //     if(isset($client_name_array[2]) && $client_name_array[2] != '')
+                //     {
+                //         $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
+                //         $middle_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
+                //         $last_name = isset($client_name_array[2])?$this->re_db_input($client_name_array[2]):'';
+                //     }
+                //     else
+                //     {
+                //         $first_name = isset($client_name_array[0])?$this->re_db_input($client_name_array[0]):'';
+                //         $middle_name = '';
+                //         $last_name = isset($client_name_array[1])?$this->re_db_input($client_name_array[1]):'';
+                //     }
+
+                //     $q = "SELECT * FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `first_name`='".$first_name."' AND `mi`='".$middle_name."' AND `last_name`='".$last_name."'";
+                //     $res = $this->re_db_query($q);
+                //     $return = $this->re_db_num_rows($res);
+                //     if($return>0)
+                //     {
+                //         $this->errors = 'Client already exist.';
+                //     }
                 // }
-  
-                if($this->errors!='') { return $this->errors; }
+                // else if($exception_field == 'mutual_fund_customer_account_number'){
+                //     $q = "SELECT * FROM `".CLIENT_ACCOUNT."` WHERE `is_delete`=0 AND `account_no`='".$exception_value."' ";
+                //     $res = $this->re_db_query($q);
+                //     $return = $this->re_db_num_rows($res);
+                //     if($return>0)
+                //     {
+                //         $this->errors = 'Account number already exist.';
+                //     }
+                // }
+
+                if($this->errors!='')
+                {
+                    return $this->errors;
+                }
             }
 
             //--- IDC EXCEPTIONS ---//
             if(isset($exception_file_type) && in_array($exception_file_type, ['2', $this->GENERIC_file_type])) {
-                $importSelect = $this->import_table_select($exception_file_id, $exception_file_type);
-                $commDetailTable = $importSelect['table'];
-                $sourceId = strtolower(substr($importSelect['source'],0,3));
-                
+                if ($exception_file_type == $this->GENERIC_file_type){
+                    $commDetailTable = IMPORT_GEN_DETAIL_DATA;
+                } else {
+                    $commDetailTable = IMPORT_IDC_DETAIL_DATA;
+                }
                 //--- 02/03/22 Active Broker Licence check added to this section($exception_field=='active_check').
                 //--- Populates the "resolve_broker_terminated" elements in "import.tpl.php". Re-activate Rep (resolve_broker_terminated==2) is compleletely different --//
                 if(in_array($exception_field, ['u5', 'active_check', 'objectives', 'rule_engine']))
@@ -359,7 +384,15 @@
                                 //--- Broker Licence Error - Activate Licence ---//
                                 $instance_client = new client_maintenance();
                                 $instance_product = new product_maintenance();
-                                $idcDetailRow = $this->select_existing_idc_data($exception_data_id, $importSelect['source']);
+
+                                switch ($commDetailTable){
+                                    case IMPORT_IDC_DETAIL_DATA:
+                                        $idcDetailRow = $this->select_existing_idc_data($exception_data_id);
+                                        break;
+                                    case IMPORT_GEN_DETAIL_DATA:
+                                        $idcDetailRow = $this->select_existing_gen_data($exception_data_id);
+                                        break;
+                                }
 
                                 if (empty($idcDetailRow['product_id'])){
                                     $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '".$instance_client->re_db_input($idcDetailRow['cusip_number'])."'");
@@ -465,7 +498,15 @@
                             } else if($exception_field == 'objectives') {
                                 // Commission Client Objectives <> Product Objectives - add Objective to Client
                                 $instance_client = new client_maintenance();
-                                $detailData = $this->select_existing_idc_data($exception_data_id, $importSelect['source']);
+
+                                switch ($commDetailTable){
+                                    case IMPORT_IDC_DETAIL_DATA:
+                                        $detailData = $this->select_existing_idc_data($exception_data_id);
+                                        break;
+                                    case IMPORT_GEN_DETAIL_DATA:
+                                        $detailData = $this->select_existing_gen_data($exception_data_id);
+                                        break;
+                                }
 
                                 $res = $instance_client->insert_update_objectives(['client_id'=>$detailData['client_id'], 'objectives'=>$data['objectives']], 1);
 
@@ -509,8 +550,15 @@
                             } else if($exception_field == 'rule_engine') {
                                 // Documentation (NAF Date as of 06/04/22)
                                 $instance_client = new client_maintenance();
-                                $detailData = $this->select_existing_idc_data($exception_data_id, $importSelect['source']);
 
+                                switch ($commDetailTable){
+                                    case IMPORT_IDC_DETAIL_DATA:
+                                        $detailData = $this->select_existing_idc_data($exception_data_id);
+                                        break;
+                                    case IMPORT_GEN_DETAIL_DATA:
+                                        $detailData = $this->select_existing_gen_data($exception_data_id);
+                                        break;
+                                }
                                 // 06/04/22 Write: New function to update exception field
                                 $res = $this->resolve_exception_2AddClientValues($detailData['client_id'], ['naf_date'=>date('Y-m-d')], $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
 
@@ -603,15 +651,10 @@
                             $accountNo = $exception_value;
 
                             if($sponsorId == 0 AND $exception_file_type == 2){
-                                if ($importSelect['source']=='dst'){
                                     $header_detail = $this->get_files_header_detail($exception_file_id,$exception_data_id,$exception_file_type);
                                     $sponsor_detail = $this->get_sponsor_on_system_management_code($header_detail['system_id'],$header_detail['management_code']);
                                     $sponsorId = isset($sponsor_detail['id']) ? (int)$sponsor_detail['id'] : 0;
-                                } else if ($sourceId=='daz'){
-                                    $detailData = $this->select_existing_idc_data($exception_data_id, $sourceId);
-                                    $sponsorId = (int)$detailData['sponsor_id'];
-                                }
-                            } 
+                            }
 
                             if ($exception_file_type == $this->GENERIC_file_type){
                                 $commDetailData = $this->select_existing_gen_data($exception_data_id);
@@ -619,17 +662,14 @@
                                 $sponsorId = ($sponsorId==0 ? $commDetailData['sponsor_id'] : $sponsorId);
                                 $accountNo = $commDetailData['customer_account_number'];
                             }
-                            
-                            $res = 0;
-                            if ($accountNo!='' AND (int)$sponsorId>0 AND (int)$new_client>0){
-                                $q = "INSERT `".CLIENT_ACCOUNT."`"
-                                    ." SET"
-                                        ." `account_no` = '".$accountNo."'"
-                                        .",`sponsor_company` = $sponsorId"
-                                        .",`client_id` = $new_client"
-                                        .$this->insert_common_sql();
-                                $res = $this->re_db_query($q);
-                            }
+
+                            $q = "INSERT `".CLIENT_ACCOUNT."`"
+                                ." SET"
+                                    ." `account_no` = '".$accountNo."'"
+                                    .",`sponsor_company` = $sponsorId"
+                                    .",`client_id` = $new_client"
+                                    .$this->insert_common_sql();
+                            $res = $this->re_db_query($q);
 
                             if ($res)
                             {
@@ -667,10 +707,6 @@
                                             $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $excRow['temp_data_id']);
                                         }
                                     }
-                                }
-                            } else {
-                                if ((int)$sponsorId == 0){
-                                    $this->errors = "Sponsor not found. Account # not added.";
                                 }
                             }
                             break;
@@ -766,13 +802,11 @@
 
             //--- SFR Exceptions ---//
             if(isset($exception_file_type) && $exception_file_type == '3') {
-                $importSelect = $this->import_table_select($exception_file_id, $exception_file_type);
-                $detailTable = $importSelect['table'];
                 // Security Type not found - user-defined product type entry
                 if($error_code_id == '17') {
                     // Validate product category #
                     if (!empty($data['assign_cusip_product_category'])) {
-                        $q = "UPDATE `".$detailTable."`"
+                        $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
                                 ." SET `product_category_id`={$data['assign_cusip_product_category']}"
                                         .$this->update_common_sql()
                                 ." WHERE `id`='".$exception_data_id."'"
@@ -781,7 +815,7 @@
 
                         if ($res){
                             // Update "resolve_exceptions" field to flag detail as "special handling" record
-                            $res = $this->read_update_serial_field($detailTable, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
+                            $res = $this->read_update_serial_field(IMPORT_SFR_DETAIL_DATA, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
 
                             $q = "UPDATE `".IMPORT_EXCEPTION."`"
                                     ." SET `resolve_action`=3"
@@ -801,7 +835,7 @@
 
                             $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`, `det`.`cusip_number`"
                                     ." FROM `".IMPORT_EXCEPTION."` `ex`"
-                                    ." LEFT JOIN `".$detailTable."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
+                                    ." LEFT JOIN `".IMPORT_SFR_DETAIL_DATA."` `det` ON `det`.`id`=`ex`.`temp_data_id`"
                                     ." WHERE `ex`.`file_id`=$exception_file_id"
                                     ." AND `ex`.`file_type`=$exception_file_type"
                                     ." AND `ex`.`error_code_id`=$error_code_id"
@@ -822,49 +856,34 @@
                 }
 
                 if($error_code_id == '13') {
-                    if($resolveAction == 4){
-                        $result = $this->resolve_exception_4Delete($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
-                    } else {
-                        // Missing data - Name/Cusip/Product Category
-                        if ($data['assign_cusip_to_product_text']!=''){
-                            $cusipNumber = $this->re_db_input($data['assign_cusip_to_product_text']);
-                        } else {
-                            $cusipNumber = $this->re_db_input($data['cusip_number']);
-                        }
-                        
-                        if ($data['assign_cusip_product_category']!=''){
-                            $productCategory = $this->re_db_input($data['assign_cusip_product_category']);
-                        } else {
-                            $productCategory = $this->re_db_input($data['product_category_id']);
-                        }
-                        
-                        $q = "UPDATE `".$detailTable."`"
-                            ." SET `fund_name` = '".$this->re_db_input(strtoupper($exception_value))."'"
-                                .", `product_category_id`=$productCategory"
-                                .", `cusip_number`='$cusipNumber'"
-                                    .$this->update_common_sql()
-                            ." WHERE `id`='".$exception_data_id."'"
-                            ;
+                    // Missing data - Name/Cusip/Product Category
+                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
+                        ." SET `fund_name` = '".$this->re_db_input(strtoupper($exception_value))."'"
+                            .", `product_category_id`={$data['assign_cusip_product_category']}"
+                            .", `cusip_number`='".$this->re_db_input($data['cusip_number'])."'"
+                                .$this->update_common_sql()
+                        ." WHERE `id`='".$exception_data_id."'"
+                        ;
+                    $res = $this->re_db_query($q);
+
+                    if ($res){
+                        // Update "resolve_exceptions" field to flag detail as "special handling" record
+                        $res = $this->read_update_serial_field(IMPORT_SFR_DETAIL_DATA, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
+
+                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
+                                ." SET `resolve_action`=3"
+                                        .$this->update_common_sql()
+                                ." WHERE `id`=".$exception_record_id
+                        ;
                         $res = $this->re_db_query($q);
+                    }
 
-                        if ($res){
-                            // Update "resolve_exceptions" field to flag detail as "special handling" record
-                            $res = $this->read_update_serial_field($detailTable, "WHERE `file_id`=$exception_file_id AND `id`=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
-
-                            $q = "UPDATE `".IMPORT_EXCEPTION."`"
-                                    ." SET `resolve_action`=3"
-                                            .$this->update_common_sql()
-                                    ." WHERE `id`=".$exception_record_id
-                            ;
-                            $res = $this->re_db_query($q);
-                        }
-
-                        if($res){
-                            $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
-                        }
+                    if($res){
+                        $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
                     }
                 }
             }
+
             if($result == 1){
                 if($exception_field == 'customer_account_number')
                 {
@@ -887,50 +906,41 @@
         /*** Action 2: Add BROKER ALIAS ***/
         function resolve_exception_2AddAlias($brokerAlias='', $brokerId=0, $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
             // ADD BROKER ALIAS(user-defined -> rep_for_broker)  - "Broker #(ALIAS) not found" exception
-            $result = $res = $sponsorId = 0;
-            $errorMsg = '';
-            $fileSource = $this->import_table_select($file_id, $file_type);
-            $importFileTable = $fileSource['table'];
+            $result = $res = 0;
 
-            if ($brokerAlias!='' AND $importFileTable!='' AND $brokerId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+            if ($brokerAlias!='' AND $brokerId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+                $sponsorId = (int)$this->get_current_file_type($file_id, 'sponsor_id');
                 $broker_id = (int)$this->re_db_input($brokerId);
-                $sourceId = substr($fileSource['source'],0,3);
-                
-                if ($sourceId == 'daz'){
-                    $detailRow = [];
-                    if ($file_type == 1){
-                        $detailRow = $this->get_client_detail_data($file_id, null, $detail_data_id, 'DAZL');
-                    } else if ($file_type == 2){
-                        $detailRow = $this->select_existing_idc_data($detail_data_id,'DAZL');
-                    } else if ($file_type == 3){
-                        $detailRow = $this->select_existing_sfr_data($detail_data_id,'DAZL');
-                    }
-                    
-                    if (isset($detailRow[0]['sponsor_id']) AND (int)$detailRow[0]['sponsor_id']>0){
-                        $sponsorId = (int)$detailRow[0]['sponsor_id'];
-                    } else {
-                        $errorMsg = "'SPONSOR NOT FOUND' issue must be resolved before assigning a Broker Alias to a specific Sponsor/Fund Company"; 
-                    }
-                } else {
-                    $sponsorId = (int)$this->get_current_file_type($file_id, 'sponsor_id');
-                }
-                
-                $res = 0;
-                if ($sponsorId > 0){
-                    $q = "INSERT INTO `".BROKER_ALIAS."`"
-                        ." SET"
-                            ." `broker_id`=$broker_id"
-                            .",`alias_name`='$brokerAlias'"
-                            .",`sponsor_company`=$sponsorId"
-                            .",`date`='".date('Y-m-d')."'"
-                            .$this->insert_common_sql()
-                    ;
-                    $res = $this->re_db_query($q);
-                }
+                $importFileTable = '';
+
+                $q = "INSERT INTO `".BROKER_ALIAS."`"
+                    ." SET"
+                        ." `broker_id`=$broker_id"
+                        .",`alias_name`='$brokerAlias'"
+                        .",`sponsor_company`=$sponsorId"
+                        .",`date`='".date('Y-m-d')."'"
+                        .$this->insert_common_sql()
+                ;
+                $res = $this->re_db_query($q);
 
                 if($res){
                     $res = 0;
-                    
+
+                    switch ($file_type){
+                        case 1:
+                            $importFileTable = IMPORT_DETAIL_DATA;
+                            break;
+                        case 2:
+                            $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                            break;
+                        case 3:
+                            $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                            break;
+                        case $this->GENERIC_file_type:
+                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                            break;
+                    }
+
                     // Update "resolve_exceptions" field to flag detail as "special handling" record
                     $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
 
@@ -969,25 +979,17 @@
                                 }
                             }
                         }
-                    }
+			        }
                 }
             }
-            
-            if ($errorMsg == ''){
-                return $result;
-            } else {
-                $this->errors = $errorMsg;
-                return $this->errors;
-            }
+            return $result;
         }
         function resolve_exception_2AddClientValues($clientId=0, $fieldArray=[], $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
             $result = $res = 0;
             $clientId = (int)$this->re_db_input($clientId);
-            // 08/26/22 Find Import Table per file type and source
-            $fileSource = $this->import_table_select($file_id, $file_type);
-            $importFileTable = $fileSource['table'];
 
-            if ($clientId!='' AND $importFileTable!='' AND count($fieldArray) AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+            if ($clientId!='' AND count($fieldArray) AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+                $importFileTable = '';
                 $instance_client = new client_maintenance();
                 $clientDetail = $instance_client->select_client_master($clientId);
 
@@ -1013,6 +1015,21 @@
 
                 if($res){
                     $res = 0;
+
+                    switch ($file_type){
+                        case 1:
+                            $importFileTable = IMPORT_DETAIL_DATA;
+                            break;
+                        case 2:
+                            $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                            break;
+                        case 3:
+                            $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                            break;
+                        case $this->GENERIC_file_type:
+                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                            break;
+                    }
 
                     // Update "resolve_exceptions" field to flag detail as "special handling" record
                     $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
@@ -1057,112 +1074,36 @@
             }
             return $result;
         }
-        /*** 08/20/22 ADD SPONSOR ALIAS(user-defined -> code_for_sponsor)  - "Sponsor not found" exception
-        * Harcoded fields("system_id","mgmt_codde","dazl_code") in "Sponsor Master" table for download files/companies/sources:
-        ***/
-        function resolve_exception_2AddSponsorAlias($sponsorAlias='', $sponsorId=0, $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
-                // (1) DST - `dst_system_id` + `dst_mgmt_code`
-                // (2) DAZL - `dazl_code`
-                // (3) NSCC - `dtcc_nscc_id`
-                // (4) Generic Clearing Firm (BD's have different Clearing Firms) - `clearing_firm_id`
-            $result = $res = 0;
-            $sponsorId = (int)$this->re_db_input($sponsorId);
-            $file_type = (int)$this->re_db_input($file_type);
-            $detail_data_id = (int)$this->re_db_input($detail_data_id);
-            $exception_record_id = (int)$this->re_db_input($exception_record_id);
-            
-            // Update Sponsor Master
-            if ($sponsorAlias!='' AND $sponsorId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
-                $importFileTable = $setAliasField = '';
-                $fileSource = $this->import_table_select($file_id, $file_type);
-                
-                if ($fileSource['table']!=''){
-                    $res = 0;
-                    $importFileTable = $fileSource['table'];
-                    $sourceId = substr($fileSource['source'],0,3);
-
-                    if ($sourceId == 'daz'){
-                        $setAliasField = "`dazl_code` = '$sponsorAlias'";
-                    } else if ($sourceId == 'dst'){
-                        $setAliasField = "`dst_system_id` = '".substr($sponsorAlias,0,3)."', `dst_mgmt_code` = '".substr($sponsorAlias,3,2)."'";
-                    }
-                    
-                    $res = 0;
-                    if ($importFileTable != '' AND $setAliasField != ''){
-                        $q = "UPDATE `".SPONSOR_MASTER."`"
-                            ." SET ".$setAliasField
-                                .$this->update_common_sql()
-                            ." WHERE `id`=$sponsorId"
-                        ;
-                        $res = $this->re_db_query($q);
-                    }
-                    // Update "resolve_exceptions" field to flag detail as "special handling" record
-                    $result = 0;
-                    if ($res){
-                        $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
-    
-                        $q = "UPDATE `".IMPORT_EXCEPTION."`"
-                                ." SET `resolve_action`=2"
-                                    .",`resolve_assign_to`='$sponsorId'"
-                                    .$this->update_common_sql()
-                                ." WHERE `id`=".$exception_record_id
-                        ;
-                        $res = $this->re_db_query($q);
-    
-                        $result = $this->reprocess_current_files($file_id, $file_type, $detail_data_id);
-                    }
-                    // Check if this update can clear other exceptions in the file
-                    // Clear all the Exceptions for the same Exception and Sponsor #
-                    $q = $res = '';
-                    $exceptionData = [];
-                     
-                    if ($result){
-                        $exceptionData = $this->select_exception_data(0, $exception_record_id);
-                    }
-
-                    if ($exceptionData){
-                        $q = "SELECT `ex`.`id` AS `exception_id`, `ex`.`temp_data_id`, `ex`.`error_code_id`, `ex`.`field`"
-                            ." FROM `".IMPORT_EXCEPTION."` `ex`"
-                            ." WHERE `ex`.`file_id`=$file_id"
-                            ." AND `ex`.`file_type`=$file_type"
-                            ." AND `ex`.`error_code_id`={$exceptionData[0]['error_code_id']}"
-                            ." AND `ex`.`field`='{$exceptionData[0]['field']}'"
-                            ." AND `ex`.`field_value`='{$exceptionData[0]['field_value']}'"
-                            ." AND `is_delete`=0"
-                        ;
-
-                        $res = $this->re_db_query($q);
-                        $exceptionData = $this->re_db_fetch_all($res);
-                    }
-                    
-                    if ($exceptionData){
-                        foreach ($exceptionData AS $excRow){
-                            $result = $this->reprocess_current_files($file_id, $file_type, $excRow['temp_data_id']);
-                        }
-                    }
-                }
-            }
-            return $result;
-        }
         /*** Action 3: Reactive TERMINATED(u5) Broker ***/
         function resolve_exception_2Reactivate($file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0, $error_code_id=0){
             // REMOVE TERMINATED DATE(u5) FOR REP
             $result = $excArray = $excRow = 0;
-            $fileSource = $this->import_table_select($file_id, $file_type);
-            $importFileTable = $fileSource['table']; 
-            
+
             if($file_type AND $file_id AND $detail_data_id AND $exception_record_id AND $error_code_id){
-                $q = $res = $row = '';
-                
-                if ($importFileTable != ''){
-                    $q = "SELECT `broker_id`"
-                        ." FROM `".$importFileTable."`"
-                        ." WHERE `is_delete`=0"
-                        ." AND `id`=".$detail_data_id
-                    ;
-                    $res = $this->re_db_query($q);
-                    $row = $this->re_db_fetch_array($res);
+                $importFileTable = $q = $res = $row = '';
+
+                switch ($file_type){
+                    case 1:
+                        $importFileTable = IMPORT_DETAIL_DATA;
+                        break;
+                    case 2:
+                        $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                        break;
+                    case 3:
+                        $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                        break;
+                    case $this->GENERIC_file_type:
+                        $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                        break;
                 }
+
+                $q = "SELECT `broker_id`"
+                    ." FROM `".$importFileTable."`"
+                    ." WHERE `is_delete`=0"
+                    ." AND `id`=".$detail_data_id
+                ;
+                $res = $this->re_db_query($q);
+                $row = $this->re_db_fetch_array($res);
 
                 if (!empty($row['broker_id'])){
                     $q = "UPDATE `".BROKER_GENERAL."`"
@@ -1224,13 +1165,9 @@
         /*** Action 3: Reassign Broker or Client to Trade/Client/Objective ***/
         function resolve_exception_3Reassign($reassign_field='', $newId=0, $file_type=0, $file_id=0, $detail_data_id=0,  $exception_record_id=0){
             $result = 0;
-            $fileSource = $this->import_table_select($file_id, $file_type);
-            $importFileTable = $fileSource['table'];
 
             if (in_array($reassign_field,['broker_id','client_id']) AND $newId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id){
                 $res = $q = '';
-                $fileSource = $this->import_table_select($file_id, $file_type);
-                $importFileTable = $fileSource['table'];
 
                 switch ($reassign_field) {
                     case 'broker_id':
@@ -1243,7 +1180,23 @@
                 $res = $this->re_db_query($q);
 
                 if($this->re_db_num_rows($res)) {
+                    $importFileTable = '';
                     $res = 0;
+
+                    switch ($file_type){
+                        case 1:
+                            $importFileTable = IMPORT_DETAIL_DATA;
+                            break;
+                        case 2:
+                            $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                            break;
+                        case 3:
+                            $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                            break;
+                        case $this->GENERIC_file_type:
+                            $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                            break;
+                    }
 
                     if ($importFileTable){
                         $q = "UPDATE `".$importFileTable."`"
@@ -1278,19 +1231,30 @@
         function resolve_exception_4Delete($file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0){
             $importFileTable = $q = $res = '';
             $result = 0;
-            $fileSource = $this->import_table_select($file_id, $file_type);
-            $importFileTable = $fileSource['table'];
-            
-            if ($importFileTable != ''){
-                $q = "UPDATE `".$importFileTable."`"
-                        ." SET `is_delete` = 1"
-                            .",`process_result` = 2"
-                                .$this->update_common_sql()
-                        ." WHERE `id` = $detail_data_id"
-                        ." AND `file_id` = $file_id"
-                ;
-                $res = $this->re_db_query($q);
+
+            switch ($file_type){
+                case 1:
+                    $importFileTable = IMPORT_DETAIL_DATA;
+                    break;
+                case 2:
+                    $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                    break;
+                case 3:
+                    $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                    break;
+                case $this->GENERIC_file_type:
+                    $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                    break;
             }
+
+            $q = "UPDATE `".$importFileTable."`"
+                    ." SET `is_delete` = 1"
+                        .",`process_result` = 2"
+                            .$this->update_common_sql()
+                    ." WHERE `id` = $detail_data_id"
+                    ." AND `file_id` = $file_id"
+            ;
+            $res = $this->re_db_query($q);
 
             if($res){
                 $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
@@ -1311,23 +1275,18 @@
             return $result;
         }
         /*** Action 5: ADD  new BROKER or CLIENT ***/
-        // 08/22/22 Sponsor ID added
         function resolve_exception_5AddNew($reassign_field='', $newId=0, $exception_record_id=0, $accountFields=[]){
             $result = 0;
 
-            if (in_array($reassign_field,['broker_id','client_id', 'sponsor_id']) AND $newId AND $exception_record_id){
+            if (in_array($reassign_field,['broker_id','client_id']) AND $newId AND $exception_record_id){
                 $exceptionData = $this->select_exception_data(0, $exception_record_id);
 
                 if ($exceptionData){
                     $res = $q = $file_type = $importFileTable = $file_id = $detail_data_id = '';
-                    $importFileTable = $resolveAction = '';
                     $file_type = $exceptionData[0]['file_type'];
                     $file_id = $exceptionData[0]['file_id'];
                     $detail_data_id = $exceptionData[0]['temp_data_id'];
                     $error_code_id = $exceptionData[0]['error_code_id'];
-                    // 08/26/22 DAZL/Sponsor id update
-                    $fileSource = $this->import_table_select($file_id, $file_type);
-                    $importFileTable = $fileSource['table'];
 
                     switch ($reassign_field) {
                         case 'broker_id':
@@ -1336,14 +1295,26 @@
                         case 'client_id':
                             $q = "SELECT `id` FROM `".CLIENT_MASTER."` WHERE `is_delete`=0 AND `id`=".$newId;
                             break;
-                        case 'sponsor_id':
-                            $q = "SELECT `id` FROM `".SPONSOR_MASTER."` WHERE `is_delete`=0 AND `id`=".$newId;
-                            break;
                     }
                     $res = $this->re_db_query($q);
 
                     if($this->re_db_num_rows($res)) {
                         $res = 0;
+
+                        switch ($file_type){
+                            case 1:
+                                $importFileTable = IMPORT_DETAIL_DATA;
+                                break;
+                            case 2:
+                                $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                                break;
+                            case 3:
+                                $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                                break;
+                            case $this->GENERIC_file_type:
+                                $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                                break;
+                        }
 
                         if ($importFileTable){
                             // If other fields were populated, add that to the SET command as well
@@ -1369,16 +1340,8 @@
                             // Update "resolve_exceptions" field to flag detail as "special handling" record
                             $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=".$detail_data_id, 'resolve_exceptions', $exception_record_id);
                             // Flag missing Representative or Client Fund #'s as error code 3, so the Reprocess() will use the "broker_id" or "client_id" field, instead of looking for alternate fund #'s
-                            if ($error_code_id==14){
-                                $resolveAction = '5';
-                            } else if ($error_code_id==13){
-                                $resolveAction = '3';
-                            } else  {
-                                $resolveAction = '5';
-                            }
-
                             $q = "UPDATE `".IMPORT_EXCEPTION."`"
-                                    ." SET `resolve_action`='$resolveAction'"
+                                    ." SET `resolve_action`=".($error_code_id==13 ? '3' : '5')
                                         .",`resolve_assign_to` = '".$newId."'"
                                         .$this->update_common_sql()
                                     ." WHERE `id`=".$exception_record_id
@@ -1395,8 +1358,6 @@
 
                                 if ($reassign_field == 'broker_id'){
                                     $accountQuery = " AND `ex`.`rep` = '{$exceptionData[0]['rep']}'";
-                                } else if ($reassign_field == 'sponsor_id'){
-                                    $accountQuery = " AND `ex`.`field_value` = '{$exceptionData[0]['field_value']}'";
                                 } else {
                                     $accountQuery = " AND `ex`.`account_no` = '{$exceptionData[0]['account_no']}'";
                                 }
@@ -1426,14 +1387,27 @@
             }
             return $result;
         }
-        /*** Action 6: IGNORE Exception and Import the record */
+        /*** Action 6: IGNORE Exception */
         function resolve_exception_6Ignore($file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0){
             $result = 0;
-            $fileSource = $this->import_table_select($file_id, $file_type);
-            $importFileTable = $fileSource['table'];
 
-            if ($importFileTable!='' AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
-                $q = $res = $row = '';
+            if ($file_type AND $file_id AND $detail_data_id AND $exception_record_id) {
+                $importFileTable = $q = $res = $row = '';
+
+                switch ($file_type){
+                    case 1:
+                        $importFileTable = IMPORT_DETAIL_DATA;
+                        break;
+                    case 2:
+                        $importFileTable = IMPORT_IDC_DETAIL_DATA;
+                        break;
+                    case 3:
+                        $importFileTable = IMPORT_SFR_DETAIL_DATA;
+                        break;
+                    case $this->GENERIC_file_type:
+                        $importFileTable = IMPORT_GEN_DETAIL_DATA;
+                        break;
+                }
 
                 // Update "resolve_exceptions" field to flag detail as "special handling" record
                 $res = $this->read_update_serial_field($importFileTable, "WHERE `file_id`=$file_id AND `id`=$detail_data_id", 'resolve_exceptions', $exception_record_id);
@@ -1450,64 +1424,6 @@
             }
 
             return $result;
-        }
-        /** 08/24/22 Function to return the correct Import Table - 1)SPONSOR/Company-> DST, DAZL, Generic, AND (2)TYPE- Client, Product, or Commission/Trailer
-         * @param int $file_id 
-         * @param int $file_type 
-         * @return array['table'=><importTableName>, 'source'=>"source" field in IMPORT CURRENT FILES(trimmed & lowercase for easier conditional operator comparisons), 'sponsor_id'=>'##' ] 
-         * Used in functions: resolve_exception_????(...)
-         */
-        function import_table_select($file_id=0, $file_type=0, $source=''){
-            $file_id = (int)$this->re_db_input($file_id);
-            $file_type = (int)$this->re_db_input($file_type);
-            $source = strtolower($this->re_db_input($source));
-            $return = ['table'=>'', 'source'=>'', 'sponsor_id'=>''];
-            
-            if (($file_id or $source!='') AND $file_type){
-                // Convert to lowercase - for easier conditional operations
-                if ($file_id > 0){
-                    $return['source'] = strtolower(trim($this->get_current_file_type($file_id, 'source')));
-                    $return['sponsor_id'] = strtolower(trim($this->get_current_file_type($file_id, 'sponsor_id')));
-                    $sourceId = substr($return['source'],0,3);
-                } else {
-                    $return['source'] = $source;
-                    $sourceId = substr($source,0,3);
-                }
-
-                // Determine Detail Table and Field(s) to update
-                if ($return['source']!=''){
-                    switch ($file_type){
-                        case 1:
-                            if (in_array($sourceId,['dz','daz'])){
-                                $return['table'] = DAZL_ACCOUNT_DATA;
-                            } else {
-                                $return['table'] = IMPORT_DETAIL_DATA;
-                            }
-                            break;
-                        case 2:
-                            if (in_array($sourceId,['dz','daz'])){
-                                $return['table'] = DAZL_COMM_DATA;
-                            } else if (in_array($sourceId,['gn','gen'])){
-                                $return['table'] = IMPORT_GEN_DETAIL_DATA;
-                            } else {
-                                $return['table'] = IMPORT_IDC_DETAIL_DATA;
-                            }
-                            break;
-                        case 3:
-                            if (in_array($sourceId,['dz','daz'])){
-                                $return['table'] = DAZL_SECURITY_DATA;
-                            } else {
-                                $return['table'] = IMPORT_SFR_DETAIL_DATA;
-                            }
-                            break;
-                        case $this->GENERIC_file_type:
-                            $return['table'] = IMPORT_GEN_DETAIL_DATA;
-                            break;
-                    }
-                }
-            }
-            
-            return $return;
         }
 
         public function select_ftp(){
@@ -2105,7 +2021,7 @@
                         }
                     }
 
-                    if (empty($file_array['sponsor_id']) AND !in_array(strtolower(substr($file_array['source'],0,3)),['daz'])){
+                    if (empty($file_array['sponsor_id']) AND !in_array(strtolower($file_array['source']),['dazl'])){
                         $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                 ." SET"
                                     ." `file_id`='".$file_id."'"
@@ -2139,23 +2055,30 @@
                     ;
                     $res = $this->re_db_query($q);
 
-                    $detailIdQuery = $fileSource = '';
-                    $dataSettings = $instance_data_interface->edit(0, $file_array['source']);
-
+                    $detailIdQuery = '';
                     /*************************************************
                      * DST CLIENT DATA (NFA(07) / NAA(08) / AMP(09))
                      * 08/12/22 DAZL DL Added
                      *************************************************/
+                    $fileSource = '';
                     $client_data_array = [];
                     //-- Choose your sources!
-                    if (($detail_record_id==0 AND $file_type==0) OR $file_type==1) {
+                    if ($detail_record_id==0 OR $file_type==1) {
                         $client_data_array = $this->get_client_detail_data($file_id, 0, ($file_type==1 AND $detail_record_id>0) ? $detail_record_id : 0, $file_array['source']);
-
-                        $importSelect = $this->import_table_select($file_id, 1);
-                        $detailTable = $importSelect['table'];
-                        $fileSource = substr($importSelect['source'],0,3);
+                        
+                        if ($file_array['source']=='DAZL') {
+                            $detailTable = DAZL_ACCOUNT_DATA;
+                            $fileSource = 'DZ';
+                            $dimId = 3;
+                        } else {
+                            $detailTable = IMPORT_DETAIL_DATA;
+                            $fileSource = 'DS';
+                            $dimId = 2;
+                        }
                     }                        
                     
+                    $dataSettings = $instance_data_interface->edit($dimId, $_SESSION['user_id']);
+
                     foreach($client_data_array as $check_data_key=>$check_data_val) {
 
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
@@ -2164,17 +2087,10 @@
                         $result = $broker_id = 0;
                         $first_name = $middle_name = $last_name = '';
                         $rep_number = isset($check_data_val['representative_number']) ? trim($this->re_db_input($check_data_val['representative_number'])) : '';
-                        // DAZL Account Number & Sponsor Check - each record might be a different Sponsor, so check every one
-                        if ($fileSource == 'daz'){
-                            $client_account_number = $check_data_val['customer_account_number'];
-                            $file_sponsor_array=[];
-                            // Check if sponsor id is already populated, else check the management code
-                            if ((int)$check_data_val['sponsor_id'] > 0){
-                                $file_sponsor_array = $instance_manage_sponsor->select_sponsor_by_id($check_data_val['sponsor_id']);
-                            } 
-                            if (!isset($file_sponsor_array['id']) OR (int)$file_sponsor_array['id']==0){
-                                $file_sponsor_array = $this->get_sponsor_on_system_management_code($check_data_val['management_code'],'','DAZL');
-                            }
+                        // DAZL Account Number & Sponsor Check
+                        if ($fileSource == 'DZ'){
+                            $client_account_number =  $check_data_val['customer_account_number'];
+                            $file_sponsor_array = $this->get_sponsor_on_system_management_code($check_data_val['management_code'],'','DAZL');
 
                             if (empty($file_sponsor_array)){
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
@@ -2188,7 +2104,7 @@
                                             .",`date`='".date('Y-m-d')."'"
                                             .",`rep`='".trim($check_data_val['representative_number'])."'"
                                             .",`rep_name`='".$check_data_val['representative_name']."'"
-                                            .",`account_no`='".ltrim($client_account_number, '0')."'"
+                                            .",`account_no`='".$client_account_number."'"
                                             .",`client`='".$check_data_val['registration_line1']."'"
                                             .",`cusip`='".$check_data_val['cusip_number']."'"
                                             .$this->insert_common_sql()
@@ -2199,13 +2115,6 @@
                                 $file_sponsor_array['id'] = 0;
                                 $file_sponsor_array['name'] = '';
                                 $result++;
-                            } else {
-                                $q = "UPDATE `$detailTable`"
-                                    ." SET `sponsor_id`=".(int)$file_sponsor_array['id']
-                                           .$this->update_common_sql()
-                                    ." WHERE `id`=".$check_data_val['id']
-                                ;
-                                $res = $this->re_db_query($q);
                             }
                         } else {
                             $client_account_number = $check_data_val['mutual_fund_customer_account_number'];
@@ -2423,7 +2332,7 @@
                             $res = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
                             $long_name = $client_address1 = $client_address2 = $city = $state = $zip_code = $open_date = $email = $last_contacted = $telephone = $telephone_employment = '';
                             
-                            if ($fileSource == 'daz'){
+                            if ($fileSource == 'DZ'){
                                 $city = $this->re_db_input($check_data_val['city']);
                                 $state = $this->re_db_input($check_data_val['state']);
                                 $open_date = $this->re_db_input($check_data_val['open_date']);
@@ -2484,9 +2393,9 @@
                                         if (isset($check_data_val['line_code']) AND $i >= (int)$check_data_val['line_code']){
                                             if ($i == (int)$check_data_val['line_code']){
                                                 $client_address1 = $res;
-                                            } else if ($fileSource=='dst') {
+                                            } else if ($fileSource=='DS') {
                                                 $client_address1 .= ' '.$res;
-                                            } else if ($fileSource=='daz' AND strpos($check_data_val['registration_line'.$i], $check_data_val['city'])===false) {
+                                            } else if ($fileSource=='DZ' AND strpos($check_data_val['registration_line'.$i], $check_data_val['city'])===false) {
                                                 $client_address2 .= ' '.$res;
                                             }
                                         }
@@ -2612,7 +2521,6 @@
                                                 .",`email`='$email'"
                                                 .",`last_contacted`='$last_contacted'"
                                                 .",`telephone`='$telephone'"
-                                                .",`date_established`='".date("Y-m-d H:i:s")."'"
                                                 .$this->insert_common_sql();
                                     $res = $this->re_db_query($q);
                                     $last_inserted_id = $this->re_db_insert_id();
@@ -2687,24 +2595,19 @@
                     * SFR PROCESS security-file data
                     ************************************/
                     $check_sfr_array = [];
-                    $detailTable = '';
-
-                    //-- Choose your sources!
-                    if (($detail_record_id==0 AND $file_type==0) OR $file_type==3) {
+                    if ($detail_record_id==0 OR $file_type==3) {
                         $check_sfr_array = $this->get_sfr_detail_data($file_id, 0, ($file_type==3 AND $detail_record_id>0) ? $detail_record_id : 0);
+                    }
 
-                        $importSelect = $this->import_table_select($file_id, 3);
-                        $detailTable = $importSelect['table'];
-                        $fileSource = substr($importSelect['source'],0,3);
-                    }                        
-                    
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
-                        $this->re_db_perform($detailTable, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
+                        $this->re_db_perform(IMPORT_SFR_DETAIL_DATA, ["process_result"=>0], 'update', "`id`=".$check_data_val['id']);
+
+                        $result = $last_inserted_id = 0;
+                        $productCategoryQuery = '';
 
                         // Resolve exception() by user (edited Category/CUSIP and/or Name)
-                        $result = $last_inserted_id = $reassignProductCategory =  0;
-                        $productCategoryQuery = '';
+                        $reassignProductCategory =  0;
 
                         if ($check_data_val['resolve_exceptions'] != ''){
                             $exceptionArray = $this->getDetailExceptions($check_data_val['resolve_exceptions']);
@@ -2716,20 +2619,12 @@
                                 }
                             }
                         }
-
-                        // DAZL/Non-DST data needs some updates to field names to match DST
-                        if ($fileSource == 'daz'){
-                            $check_data_val['product_name'] = $this->re_db_input($check_data_val['fund_name2']);
-                            $check_data_val['major_security_type'] = $this->re_db_input($check_data_val['fund_type']);
-                            $check_data_val['fund_code'] = $this->re_db_input($check_data_val['fund_number']);
-                        }
-                        
                         // Missing data
                         if((empty(trim($check_data_val['major_security_type'])) AND $reassignProductCategory==0) OR (empty(trim($check_data_val['fund_name'])) AND empty(trim($check_data_val['product_name']))) ){
                             $field = 'major_security_type';
                             if (empty(trim($check_data_val['fund_name']))) {
                                 $field = 'fund_name';
-                            } else if ($fileSource!='daz' AND empty(trim($check_data_val['product_name']))) {
+                            } else if (empty(trim($check_data_val['product_name']))) {
                                 $field = 'product_name';
                             }
 
@@ -2818,10 +2713,11 @@
                                     ;
                                     $res = $this->re_db_query($q);
 
-                                    // Update DETAIL data TABLE for added/updated products
-                                    $q = "UPDATE `".$detailTable."`"
+                                    // Update DETAIL data TABLE for added/updated clients
+                                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
                                         ." SET"
                                             ." `product_category_id`=".$array_ProductCategory['id']
+                                            .",`product_category_table`='".PRODUCT_LIST."'"
                                             .",`product_id`=".$array_SymbolCusipCheck['id']
                                             .",`process_result`=2"
                                             .$this->update_common_sql()
@@ -2861,9 +2757,10 @@
                                     $res = $this->re_db_query($q);
 
                                     // Update DETAIL data TABLE for added/updated clients
-                                    $q = "UPDATE `".$detailTable."`"
+                                    $q = "UPDATE `".IMPORT_SFR_DETAIL_DATA."`"
                                         ." SET `process_result`=1"
                                             .",`product_category_id`=".$array_ProductCategory['id']
+                                            .",`product_category_table`='".PRODUCT_LIST."'"
                                             .",`product_id`=$last_inserted_id"
                                             .$this->update_common_sql()
                                         ." WHERE `id`=".$check_data_val['id']." AND `is_delete`=0"
@@ -2879,21 +2776,19 @@
                     $commission_detail_array = [];
                     $commissionFileType = $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 0;
                     $fileSource = '';
-                    // 08/31/22 DAZL Import added
-                    $importSelect = $this->import_table_select($file_id, 2);
-                    $commDetailTable = $importSelect['table'];
-                    $fileSource = substr($importSelect['source'],0,3);
 
-                    //-- Choose your sources!
                     if (in_array($file_type, [$this->GENERIC_file_type])) {
                         $commission_detail_array = $this->get_gen_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $commissionFileType = $this->GENERIC_file_type;
                         // Generic file does not contain a Cusip(or any unique product id or description) and Clients are often added with the transaction, i.e. many will not be in Cloudfox DB. So, add them and let God sort it out
                         $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 1;
-                        $fileSource = 'gen';
-                    } else if (($detail_record_id==0 AND $file_type==0) OR $file_type) {
+                        $commDetailTable = IMPORT_GEN_DETAIL_DATA;
+                        $fileSource = 'GN';
+                    } else if ($file_type==2 OR $detail_record_id==0) {
                         $commission_detail_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $commissionFileType = 2;
+                        $commDetailTable = IMPORT_IDC_DETAIL_DATA;
+                        $fileSource = 'DS';
                     }
 
                     foreach($commission_detail_array as $check_data_key=>$check_data_val){
@@ -2905,55 +2800,6 @@
                         $product_category_id = $product_id = $sponsor_id = $error_code_id = $last_inserted_exception = 0;
                         $updateResult = [];
                         $for_import = '';
-
-                        // 09/01/22 DAZL Account Number & Sponsor Check - each record might be a different Sponsor, so check every one
-                        if ($fileSource == 'daz'){
-                            $file_sponsor_array=[];
-                            $check_data_val['registration_line1'] = $check_data_val['customer_name'];
-                            $check_data_val['gross_amount_sign_code'] = '';
-                            $check_data_val['gross_transaction_amount'] = (string)round((float)$check_data_val['share_quantity'] * (float)$check_data_val['share_price'], 2);
-
-                            // Check if sponsor id is already populated, else check the management code
-                            if ((int)$check_data_val['sponsor_id'] > 0){
-                                $file_sponsor_array = $instance_manage_sponsor->select_sponsor_by_id($check_data_val['sponsor_id']);
-                            } 
-                            if (!isset($file_sponsor_array['id']) OR (int)$file_sponsor_array['id']==0){
-                                $file_sponsor_array = $this->get_sponsor_on_system_management_code($check_data_val['management_code'],'','DAZL');
-                            }
-
-                            if (empty($file_sponsor_array)){
-                                $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
-                                        ." SET"
-                                            ." `file_id`='".$file_id."'"
-                                            .",`error_code_id`='14'"
-                                            .",`field`='sponsor_id'"
-                                            .",`field_value`='{$check_data_val['management_code']}'"
-                                            .",`file_type`=$file_type"
-                                            .",`temp_data_id`='{$check_data_val['id']}'"
-                                            .",`date`='".date('Y-m-d')."'"
-                                            .",`rep`='".trim($check_data_val['representative_number'])."'"
-                                            .",`rep_name`='".$check_data_val['representative_name']."'"
-                                            .",`account_no`='".ltrim($check_data_val['customer_account_number'], '0')."'"
-                                            .",`client`='".$check_data_val['registration_line1']."'"
-                                            .",`cusip`='".$check_data_val['cusip_number']."'"
-                                            .$this->insert_common_sql()
-                                ;
-
-                                $res = $this->re_db_query($q);
-
-                                $file_sponsor_array['id'] = 0;
-                                $file_sponsor_array['name'] = '';
-                                $result++;
-                            } else {
-                                $q = "UPDATE `$commDetailTable`"
-                                    ." SET `sponsor_id`=".(int)$file_sponsor_array['id']
-                                           .$this->update_common_sql()
-                                    ." WHERE `id`=".$check_data_val['id']
-                                ;
-                                $res = $this->re_db_query($q);
-                            }
-                        }
-                        
                         // 04/05/22 Generic Type - sponsor dropdown added on File Fetch, so the $sponsor_id should be in the IMPORT CURRENT FILE table record
                         // if ($file_type == $this->GENERIC_file_type){
                         //     $sponsor_id = $check_data_val['sponsor_id'];
@@ -2968,11 +2814,11 @@
                             .",`date`='".date('Y-m-d')."'"
                             .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                             .",`rep_name`='".$check_data_val['representative_name']."'"
-                            .",`account_no`='".ltrim($check_data_val['customer_account_number'],'0')."'"
+                            .",`account_no`='".$check_data_val['customer_account_number']."'"
                             .",`client`='".$this->re_db_input($check_data_val['alpha_code'])."'"
                             .",`cusip`='".$check_data_val['cusip_number']."'"
                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
-                            .",`commission`='".(in_array($check_data_val['dealer_commission_sign_code'],['1','-']) ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
+                            .",`commission`='".($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
                             .$this->insert_common_sql()
                         ;
 
@@ -3121,15 +2967,13 @@
                             }
 
                             if (!$productFound AND $commissionAddOnTheFly_Product){
-                                $product_category_id = (isset($check_data_val['product_category']) ? $check_data_val['product_category'] : '1');
-                                
                                 $foundProduct = [
-                                    'category'=> $product_category,
-                                    'name'=>"*GENERIC PRODUCT - ".strtoupper($file_sponsor_array['name']),
-                                    'security'=>"*GENERIC".strtoupper($file_sponsor_array['name']),
+                                    'category'=>$check_data_val['product_category'],
+                                    'name'=>"*GENERIC PRODUCT - ".strtoupper($this->re_db_input($check_data_val['fund_company'])),
+                                    'security'=>"*GENERIC".strtoupper($this->re_db_input($check_data_val['fund_company'])),
                                     'id'=>0,
                                     'product_category'=>$check_data_val['product_category'],
-                                    'sponsor'=>$this->re_db_input(strtoupper($file_sponsor_array['id']))
+                                    'sponsor'=>$this->re_db_input(strtoupper($check_data_val['fund_company']))
                                 ];
                                 // Check for the File Name & Code
                                 $q = "`security` = '{$foundProduct['security']}' OR `name` = '{$foundProduct['name']}'";
@@ -3219,7 +3063,7 @@
                                             ."`cm`.`state`,`cm`.`naf_date`,`cm`.`birth_date`,`cm`.`broker_name`"
                                         ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                         ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
-                                        ." WHERE TRIM(LEADING '0' FROM `ca`.`account_no`)='".ltrim($this->re_db_input($check_data_val['customer_account_number']), '0')."'"
+                                        ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
                                             ." AND `ca`.`sponsor_company`='".$sponsor_id."'"
                                             ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
                                 ;
@@ -3262,7 +3106,7 @@
                                 }
                                 // Add->Check Client Name
                                 if (empty($check_data_val['alpha_code'])){
-                                    $clientAccount = ['last_name'=>'GenericCustomer '.ltrim($this->re_db_input($check_data_val['customer_account_number']),'0')];
+                                    $clientAccount = ['last_name'=>'GenericCustomer '.$this->re_db_input($check_data_val['customer_account_number'])];
                                 } else {
                                     $clientAccount = nameParse($check_data_val['alpha_code']);
                                 }
@@ -3275,7 +3119,7 @@
                                         'lname'=>$clientAccount['last_name'],
                                         'fname'=>$clientAccount['first_name'],
                                         'mi'=>$clientAccount['mi'],
-                                        'client_file_number'=>ltrim($check_data_val['customer_account_number'],'0'),
+                                        'client_file_number'=>$check_data_val['customer_account_number'],
                                         'broker_name'=>(string)$broker_id,
                                         'file_id'=>$check_data_val['file_id']
                                     ]);
@@ -3304,7 +3148,7 @@
                                         // Add Account #
                                         $updateResult['insert_client_account'] = $instance_client_maintenance->insert_update_account([
                                             'for_import'=>$for_import,
-                                            'account_no'=>[ltrim($check_data_val['customer_account_number'],'0')],
+                                            'account_no'=>[$check_data_val['customer_account_number']],
                                             'sponsor'=>[$sponsor_id]
                                         ]);
                                     }
@@ -3315,7 +3159,7 @@
                                                      ."`cm`.`naf_date`,`cm`.`birth_date`,`cm`.`broker_name`"
                                                 ." FROM `".CLIENT_ACCOUNT."` AS `ca`"
                                                 ." LEFT JOIN `".CLIENT_MASTER."` AS `cm` ON `ca`.`client_id`=`cm`.`id` AND `cm`.`is_delete`=0"
-                                                ." WHERE TRIM(LEADING '0' FROM `ca`.`account_no`)='".ltrim($this->re_db_input($check_data_val['customer_account_number']), '0')."'"
+                                                ." WHERE `ca`.`account_no`='".$this->re_db_input($check_data_val['customer_account_number'])."'"
                                                     ." AND `ca`.`sponsor_company`='".$sponsor_id."'"
                                                     ." AND `ca`.`is_delete`=0 AND `ca`.`client_id`=`cm`.`id`"
                                         ;
@@ -3342,7 +3186,7 @@
                                 $q = "INSERT INTO `".IMPORT_EXCEPTION."`"
                                     ." SET `error_code_id`='18'"
                                         .",`field`='customer_account_number'"
-                                        .",`field_value`='".ltrim($check_data_val['customer_account_number'],'0')."'"
+                                        .",`field_value`='{$check_data_val['customer_account_number']}'"
                                         .",`file_type`=$commissionFileType"
                                         .$insert_exception_string;
                                 $res = $this->re_db_query($q);
@@ -3596,20 +3440,9 @@
                             $commission_received = ($check_data_val['dealer_commission_sign_code']=='1' ? '-' : '') . ($this->re_db_input($check_data_val['dealer_commission_amount']));
                             $split_trade = 0;
                             $batch_id = $this->get_file_batch($check_data_val['file_id']);
-                            // 09/01/22 Add additional than just DST
-                            if ($fileSource == 'dst'){
-                                $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
-                                $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
-                            } else if (isset($check_data_val['control_date']) && $check_data_val['control_date']!='') {
-                                $batch_date = date('Y-m-d', strtotime($check_data_val['control_date']));
-                            } else {
-                                $batch_date = date('Y-m-d');                                
-                            }
-                            if ($fileSource == "daz"){
-                                $batch_description = $this->re_db_input($file_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
-                            } else {
-                                $batch_description = $this->re_db_input($file_sponsor_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
-                            }
+                            $header_record = $this->get_files_header_detail($check_data_val['file_id'], $check_data_val['id'], 2);
+                            $batch_date = (empty($header_record['transmission_date']) ? date('Y-m-d') : date('Y-m-d', strtotime($header_record['transmission_date'])));
+                            $batch_description = $this->re_db_input($file_sponsor_array['name']).' - '.date('m/d/Y', strtotime($batch_date));
 
                             // Create new BATCH
                             if (empty($batch_id)){
@@ -3617,7 +3450,7 @@
                                 $q = "SELECT `file_id`"
                                             ." ,SUM(CONVERT(CONCAT(IF(dealer_commission_sign_code='1','-',''),dealer_commission_amount), DECIMAL(10,2))) AS total_check_amount"
                                             ." ,MIN(`trade_date`) AS `trade_start_date`"
-                                            ." ,MAX(`trade_date`) AS `trade_end_date`"
+                                            ." , MAX(`trade_date`) AS `trade_end_date`"
                                         ." FROM `".$commDetailTable."`"
                                         ." WHERE `is_delete`=0"
                                           ." AND `file_id`='".$check_data_val['file_id']."'"
@@ -3659,7 +3492,7 @@
                                             .",`date`='".date('Y-m-d')."'"
                                             .",`rep`='".$this->re_db_input($check_data_val['representative_number'])."'"
                                             .",`rep_name`='".$check_data_val['representative_name']."'"
-                                            .",`account_no`='".ltrim($check_data_val['customer_account_number'],'0')."'"
+                                            .",`account_no`='".$check_data_val['customer_account_number']."'"
                                             .",`client`='".$this->re_db_input($check_data_val['alpha_code'])."'"
                                             .",`cusip`='".$check_data_val['cusip_number']."'"
                                             .",`principal`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
@@ -3707,8 +3540,6 @@
                                     $isTrail = 1;
                                 } else if (!empty($check_data_val['commission_record_type_code']) AND $check_data_val['commission_record_type_code']=='3') {
                                     $isTrail = 1;
-                                } else if (isset($check_data_val['record_type']) AND stripos($check_data_val['record_type'], '12b')!==false) {
-                                    $isTrail = 1;
                                 }
                                 // 05/02/22 Store Broker branch & company
                                 $branch = $company = 0;
@@ -3725,7 +3556,7 @@
 
                                 $q1 = "INSERT INTO `".TRANSACTION_MASTER."`"
                                         ." SET `file_id`='".$check_data_val['file_id']."'"
-                                            .",`source`='".strtoupper($fileSource)."'"
+                                            .",`source`='".$fileSource."'"
                                             .",`trade_date`='".$check_data_val['trade_date']."'"
                                             .",`posting_date`='".date('Y-m-d')."'"
                                             .",`invest_amount`='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
@@ -3738,7 +3569,7 @@
                                             .",`sponsor`='".$sponsor_id."'"
                                             .",`broker_name`='".$broker_id."'"
                                             .",`client_name`='".$client_id."'"
-                                            .",`client_number`='".ltrim($check_data_val['customer_account_number'],'0')."'"
+                                            .",`client_number`='".$check_data_val['customer_account_number']."'"
                                             .",`branch`='".$branch."'"
                                             .",`company`='".$company."'"
                                             .",`split`='2'"
@@ -3802,10 +3633,10 @@
                                 }
 
                                 $q = "UPDATE `".BATCH_MASTER."`"
-                                    ." SET `commission_amount`=`commission_amount`+$commission_received"
-                                        .",`posted_amounts`=`posted_amounts`+$commission_received"
-                                        .$this->update_common_sql()
-                                    ." WHERE `id`='$batch_id'  AND `is_delete`=0";
+                                        ." SET `commission_amount`=`commission_amount`+$commission_received"
+                                            .",`posted_amounts`=`posted_amounts`+$commission_received"
+                                            .$this->update_common_sql()
+                                        ." WHERE `id`='$batch_id'  AND `is_delete`=0";
                                 $res = $this->re_db_query($q);
 
                                 if($res == true){
@@ -3829,23 +3660,7 @@
                     .$this->update_common_sql()
                 ." WHERE `id`=$file_id";
             $res = $this->re_db_query($q);
-            
-            if (stripos($file_array['source'], 'dazl')!==false){
-                $con = '';
-                if ($file_type>0){
-                    $con .= " AND `file_type_code`=$file_type";
-                } 
-                $q = "UPDATE `".DAZL_HEADER_DATA."`"
-                    ." SET `last_processed_date`='".date('Y-m-d H:i:s')."'"
-                        .",`process_completed`=".($check_file_exception_process['exceptions'] ? '0' : '1')
-                        .$this->update_common_sql()
-                    ." WHERE `is_delete`=0"
-                    ." AND `file_id`=$file_id"
-                            .$con
-                ;
-                $res = $this->re_db_query($q);
-            }
-            
+
             if($res){
                 $_SESSION['success'] = 'Data successfully processed.';
                 return true;
@@ -3906,23 +3721,15 @@
 
             if ($sfrBreakOut){
                 // UNION in an SFR row, if one exists
-                // DAZL - August 2022
-                $q = "SELECT `id`,0 AS `header_id`, `file_name`, `file_type`, `file_type_code` AS `file_type_code`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`, `sponsor_id`"
+                $q = "SELECT `id`,`file_name`, `file_type`, `processed`, `process_completed`, `is_archived`, `imported_date`, `last_processed_date`, `source`, `sponsor_id`"
                         ." FROM `".IMPORT_CURRENT_FILES."`"
                         ." WHERE `is_delete`=0"
                         ." AND `is_archived`=0"
-                        ." AND `source` NOT LIKE 'DAZL%'"
                     ." UNION"
-                        ." SELECT `b`.`id`, `a`.`id` AS `header_id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, 3 AS `file_type_code`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
+                        ." SELECT `b`.`id` AS `id`, CONCAT(TRIM(`b`.`file_name`),'(SFR)') AS `file_name`, 'Security File' AS `file_type`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `b`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
                             ." FROM `".IMPORT_SFR_HEADER_DATA."` `a`"
-                            ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id` AND `b`.`is_delete`=0"
-                            ." WHERE `a`.`is_delete`=0"
-                            ." AND `b`.`is_archived`=0"
-                    ." UNION"
-                        ." SELECT `b`.`id` AS `id`,`a`.`id` AS `header_id`, CONCAT(TRIM(`b`.`file_name`),'(subfile)') AS `file_name`, `a`.`file_type`, `a`.`file_type_code`, `b`.`processed`, `b`.`process_completed`, `b`.`is_archived`, `b`.`imported_date`, `a`.`last_processed_date`, `b`.`source`, `b`.`sponsor_id`"
-                            ." FROM `".DAZL_HEADER_DATA."` `a`"
-                            ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id` AND `b`.`is_delete`=0"
-                            ." WHERE `a`.`is_delete`=0"
+                            ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `b`.`id` = `a`.`file_id`"
+                            ." WHERE `b`.`is_delete`=0"
                             ." AND `b`.`is_archived`=0"
                     ." ORDER BY `last_processed_date` DESC, `file_name`, `file_type`"
                 ;
@@ -4066,21 +3873,12 @@
             }
 			return $return;
 		}
-        public function select_current_file_id($id=0){
-            $id = (int)$this->re_db_input($id);
+        public function select_current_file_id(){
 			$return = array();
-            $con = '';
-            $columnNames = "`at`.`id`";
-            
-            if ($id > 0) { 
-                $con = " AND `id`=$id";
-                $columnNames = " `at`.`id`,`at`.`imported_date`,`at`.`file_name`,`at`.`file_type`,`at`.`file_type_code`,`at`.`source`,`at`.`processed`,`at`.`process_completed`";
-            }
 
-			$q = "SELECT $columnNames"
+			$q = "SELECT `at`.`id`"
                 ." FROM `".IMPORT_CURRENT_FILES."` AS `at`"
                 ." WHERE `at`.`is_delete`=0"
-                        .$con
                 ." ORDER BY `at`.`imported_date` DESC"
             ;
 			
@@ -4149,7 +3947,7 @@
             }
 			return $return;
 		}
-        public function check_file_exception_process($file_id, $exceptionSummary=0, $source=''){
+        public function check_file_exception_process($file_id, $exceptionSummary=0, $detailTableConstant=''){
 			$return = 0;
 
             if ($exceptionSummary==0){
@@ -4170,20 +3968,20 @@
             } else {
                 $return = ["file_id"=>$file_id, "file_name"=>'*Not Found*', "exceptions"=>0, "processed"=>0];
                 // Make sure to re-value the parameter to uppercase for the "in_array()" call below
-                $source = strtoupper($this->re_db_input($source));
+                $detailTableConstant = strtoupper($this->re_db_input($detailTableConstant));
                 
-                if (empty($source)){
+                if (empty($detailTableConstant)){
                     $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA, IMPORT_GEN_DETAIL_DATA];
-                } else if (in_array($source,['DSTIDC'])){
+                } else if (in_array($detailTableConstant,['DSTIDC'])){
                     $tableArray = [IMPORT_IDC_DETAIL_DATA];
-                } else if (in_array($source,['GENERIC'])){
+                } else if (in_array($detailTableConstant,['GENERIC'])){
                     $tableArray = [IMPORT_GEN_DETAIL_DATA];
-                } else if (in_array($source,['DS','DST','DSTFANMAIL'])){
+                } else if (in_array($detailTableConstant,['DS','DST','DSTFANMAIL'])){
                     $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA];
-                } else if (in_array($source,['DZ','DAZL','DAZL DAILY'])){
+                } else if (in_array($detailTableConstant,['DZ','DAZL','DAZL DAILY'])){
                     $tableArray = [DAZL_ACCOUNT_DATA, DAZL_SECURITY_DATA, DAZL_COMM_DATA];
                 } else {
-                    $tableArray = [$source];
+                    $tableArray = [$detailTableConstant];
                 }
 
                 foreach ($tableArray AS $table){
@@ -4212,8 +4010,7 @@
 			$return = array();
 			$con = '';
             $detailTable = '';
-            $fileSource = $this->import_table_select($file_id, 1);
-            $detailTable = $fileSource['table'];
+            $source = strtoupper($this->re_db_input($source));
             
             if (is_null($process_result)) {
                 // Do nothing
@@ -4229,6 +4026,17 @@
             if ($record_id){
                 $record_id = (int)$this->re_db_input($record_id);
                 $con .= " AND `at`.`id`=$record_id";
+            }
+            
+            switch ($source){
+                case 'DAZL':
+                    $detailTable = DAZL_ACCOUNT_DATA;
+                    break;
+                case 'DZ':
+                    $detailTable = DAZL_ACCOUNT_DATA;
+                    break;
+                default:
+                    $detailTable = IMPORT_DETAIL_DATA;
             }
                     
 			$q = "SELECT `at`.*"
@@ -4247,13 +4055,9 @@
             }
 			return $return;
 		}
-        public function get_sfr_detail_data($file_id, $process_result=null, $record_id=0){
+        public function get_sfr_detail_data($id, $process_result=null, $record_id=0){
 			$return = array();
             $con = '';
-            $file_id = (int)$this->re_db_input($file_id);
-            $record_id = (int)$this->re_db_input($record_id);
-            $fileSource = $this->import_table_select($file_id, 3);
-            $detailTable = $fileSource['table'];
 
             if (!is_null($process_result)){
                 $con = " AND (`at`.`process_result` = '".$process_result."'"
@@ -4267,25 +4071,23 @@
                 $con .= " AND `at`.`id`=$record_id";
             }
 
-			$q = "SELECT `at`.*"
-                ." FROM `$detailTable` AS `at`"
-                ." WHERE `at`.`is_delete`=0"
-                ." AND `at`.`file_id`=$file_id"
-                   .$con
-                ." ORDER BY `at`.`id` ASC";
+			$q = "SELECT `at`.*
+					FROM `".IMPORT_SFR_DETAIL_DATA."` AS `at`
+                    WHERE `at`.`is_delete`=0
+                      AND `at`.`file_id`='".$id."'"
+                      .$con."
+                    ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
 
             if($this->re_db_num_rows($res)>0){
-    			$return = $this->re_db_fetch_all($res);
+    			$return = $this->re_db_fetch_array($res);
             }
 			return $return;
 		}
         public function get_idc_detail_data($file_id, $process_result=null, $record_id=0){
 			$return = array();
-            $con = $fields = '';
-            $file_id = (int)$this->re_db_input($file_id);
-            $record_id = (int)$this->re_db_input($record_id);
-            
+            $con = '';
+
             if (!is_null($process_result)) {
                 $con = " AND (`at`.`process_result` = '".$process_result."'"
                        .($process_result==0 ? " OR `at`.`process_result` IS NULL" : "")
@@ -4294,45 +4096,31 @@
             }
 
             if ($record_id){
+                $record_id = (int)$record_id;
                 $con .= " AND `at`.`id`=$record_id";
             }
 
-            // 08/31/22 Add DAZL search - function returns array (1)Detail Table, (2)Source, (3)Sponsor ID
-            $importSelect = $this->import_table_select($file_id, 2);
-            $sourceId = substr($importSelect['source'],0,3);
-            $detailTable = $importSelect['table'];
-
-            if ($sourceId == 'daz'){
-                $headerTable = DAZL_HEADER_DATA;
-                $fields = "";
-                $leftJoin = "`at`.`file_id`=`hdr`.`file_id` AND `hdr`.`is_delete`=0 AND `hdr`.`file_type_code`=2";
-            } else {
-                $headerTable = IMPORT_IDC_HEADER_DATA;
-                $fields = " ,`hdr`.`system_id`,`hdr`.`management_code`";
-                $leftJoin = "`hdr`.`id`=`at`.`idc_header_id` AND `hdr`.`is_delete`=0";
-            }
-
-            // Run the query
-			$q = "SELECT `at`.*".$fields 
-				." FROM `$detailTable` AS `at`"
-                ." LEFT JOIN `$headerTable` AS `hdr` ON $leftJoin"
-                ." WHERE `at`.`is_delete`=0"
-                    ." AND `at`.`file_id`=$file_id"
-                    .$con
-                ." ORDER BY `at`.`id` ASC"
-            ;
-
-            $res = $this->re_db_query($q);
+			$q = "SELECT `at`.*,`idch`.`system_id`,`idch`.`management_code`
+					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `at`
+                    LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` as `idch` on `idch`.`id`=`at`.`idc_header_id`
+                    WHERE `at`.`is_delete`=0
+                      AND `at`.`file_id`='".$file_id."'
+                      ".$con."
+                    ORDER BY `at`.`id` ASC";
+			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
-    			$return = $this->re_db_fetch_all($res);
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+
+    			}
             }
 			return $return;
 		}
         public function get_gen_detail_data($file_id, $process_result=null, $record_id=0){
 			$return = array();
             $con = '';
-            $file_id = (int)$this->re_db_input($file_id);
+            $file_id = (int)$file_id;
 
             if (!is_null($process_result)) {
                 $con = " AND (`at`.`process_result` = '".$process_result."'"
@@ -4342,7 +4130,7 @@
             }
 
             if ($record_id){
-                $record_id = (int)$this->re_db_input($record_id);
+                $record_id = (int)$record_id;
                 $con .= " AND `at`.`id`=$record_id";
             }
 
@@ -4611,9 +4399,8 @@
          * @param mixed $file_id
          * @return array
          */
-        public function select_exception_data($file_id=0, $record_id=0, $customWhere='', $source=''){
-			$source = $this->re_db_input($source);
-            $return = array();
+        public function select_exception_data($file_id=0, $record_id=0, $customWhere=''){
+			$return = array();
             $con = '';
 
             if (empty($file_id) AND $record_id > 0){
@@ -4674,69 +4461,60 @@
             }
 			return $return;
 		}
-        public function select_existing_sfr_data($id,$source='dst'){
+        public function select_existing_sfr_data($temp_data_id){
 			$return = array();
-            $fieldList = "";
-            $id = (int)$this->re_db_input($id);
-            $source = strtolower(substr($this->re_db_input($source),0,3));
-            // 09/01/22 Call IMPORT TABLE SELECT function to determine Detail Table - replace hardcoded "if else" statement 
-            $importSelect = $this->import_table_select(0, 3, $source);
-            $detailTable = $importSelect['table'];
 
-            if (in_array($source, ['dz','daz'])){
-                $fieldList = ",`at`.`fund_type` AS `major_security_type`";
-            }
-
-			$q = "SELECT `at`.*"
-                        .$fieldList
-                ." FROM `$detailTable` AS `at`"
-                ." WHERE `at`.`is_delete`=0"
-                ." AND `at`.`id`='".$id."'"
-                ." ORDER BY `at`.`id` DESC"
+			$q = "SELECT `sfr`.*"
+					." FROM `".IMPORT_SFR_DETAIL_DATA."` AS `sfr`"
+                    ." WHERE `sfr`.`is_delete`=0 and `sfr`.`id`='".$temp_data_id."'"
+                    ." ORDER BY `sfr`.`id` ASC"
             ;
 			$res = $this->re_db_query($q);
 
             if($this->re_db_num_rows($res)>0){
-                $return = $this->re_db_fetch_array($res);
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     $return = $row;
+
+    			}
             }
 			return $return;
 		}
-        public function select_existing_idc_data($id=0, $source='dst'){
-            $return = array();
-            $fieldList = '';
-            $id = (int)$this->re_db_input($id);
-			$source = strtolower(substr($this->re_db_input($source), 0, 3));
-            // 09/01/22 Call IMPORT TABLE SELECT function to determine Detail Table - replace hardcoded "if else" statement 
-            $importSelect = $this->import_table_select(0, 2, $source);
-            $detailTable = $importSelect['table'];
+        public function select_existing_idc_data($temp_data_id){
+			$return = array();
 
 			$q = "SELECT `idc`.*"
-                        .$fieldList
-                ." FROM `$detailTable` AS `idc`"
-                ." WHERE `idc`.`is_delete`=0"
-                ."  AND `idc`.`id`='".$id."'"
-                ." ORDER BY `idc`.`id` DESC"
+					." FROM `".IMPORT_IDC_DETAIL_DATA."` AS `idc`"
+                    ." WHERE `idc`.`is_delete`=0"
+                    ."  AND `idc`.`id`='".$temp_data_id."'"
+                    ." ORDER BY `idc`.`id` ASC"
             ;
 			$res = $this->re_db_query($q);
-
             if($this->re_db_num_rows($res)>0){
-                $return = $this->re_db_fetch_array($res);
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     $return = $row;
+
+    			}
             }
 			return $return;
 		}
-        public function select_existing_gen_data($id){
+        public function select_existing_gen_data($temp_data_id){
 			$return = array();
 
 			$q = "SELECT `idc`.*"
 					." FROM `".IMPORT_GEN_DETAIL_DATA."` AS `idc`"
                     ." WHERE `idc`.`is_delete`=0"
-                    ."  AND `idc`.`id`='".$id."'"
-                    ." ORDER BY `idc`.`id` DESC"
+                    ."  AND `idc`.`id`='".$temp_data_id."'"
+                    ." ORDER BY `idc`.`id` ASC"
             ;
 			$res = $this->re_db_query($q);
-
             if($this->re_db_num_rows($res)>0){
-                $return = $this->re_db_fetch_array($res);
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     $return = $row;
+
+    			}
             }
 			return $return;
 		}
@@ -4745,7 +4523,7 @@
 			$return = array();
 
             $con = '';
-            $source = strtoupper(substr($this->re_db_input($source),0,4));
+            $source = strtoupper($this->re_db_input($source));
             $searchColumn = ($source=='DAZL' ? 'dazl_code' : 'dst_system_id');
             
             if($system_id!='') {
@@ -4754,40 +4532,38 @@
             if($management_code!='') {
                 $con .= " AND `sp`.`dst_mgmt_code`='".strtoupper(trim($management_code))."'";
             }
-			//-- Update the Sponsor Master
-			$q = "SELECT `sp`.*"
-				." FROM `".SPONSOR_MASTER."` AS `sp`"
-                ." WHERE `sp`.`is_delete`=0 "
-                         .$con
-                ." ORDER BY `sp`.`id` ASC"
+			//
+			$q = "SELECT `sp`.*
+					FROM `".SPONSOR_MASTER."` AS `sp`
+                    WHERE `sp`.`is_delete`=0 "
+                         .$con."
+                    ORDER BY `sp`.`id` ASC"
             ;
 			$res = $this->re_db_query($q);
             // Just return the first find, instead of an array of arrays, because the
             // calling programs are expecting just one sponsor per SysId/MgtCode 12/5/21
             if($this->re_db_num_rows($res)>0){
                 $return = $this->re_db_fetch_array($res);
+                // while($row = $this->re_db_fetch_array($res)){
+    			//      $return = $row;
+    			// }
             }
 			return $return;
 		}
-        public function select_existing_acct_data($id=0, $source='dst'){
+        public function select_existing_fanmail_data($temp_data_id){
 			$return = array();
-            $detailTable = '';
-            $id = (int)$this->re_db_input($id);
-            $source = strtolower(substr($this->re_db_input($source),0,3));
-            // 09/01/22 Call IMPORT TABLE SELECT function to determine Detail Table - replace hardcoded "if else" statement 
-            $importSelect = $this->import_table_select(0, 1, $source);
-            $detailTable = $importSelect['table'];
 
-			$q = "SELECT `a`.*"
-                ." FROM `$detailTable` AS `a`"
-                ." WHERE `a`.`is_delete`=0"
-                ." AND `a`.`id`=$id"
-                ." ORDER BY `a`.`id` DESC"
-            ;
+			$q = "SELECT `fan`.*
+					FROM `".IMPORT_DETAIL_DATA."` AS `fan`
+                    WHERE `fan`.`is_delete`=0 and `fan`.`id`='".$temp_data_id."'
+                    ORDER BY `fan`.`id` ASC";
 			$res = $this->re_db_query($q);
-            
             if($this->re_db_num_rows($res)>0){
-                $return = $this->re_db_fetch_array($res);
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     $return = $row;
+
+    			}
             }
 			return $return;
 		}
@@ -4892,47 +4668,48 @@
         public function get_files_header_detail($file_id='',$record_id='',$file_type=''){
 			$return = array();
 
-			if ($file_type==1)
+			if($file_type==1)
             {
                 $q = "SELECT `fd`.`header_id`,`fh`.*
 					FROM `".IMPORT_DETAIL_DATA."` AS `fd`
                     LEFT JOIN `".IMPORT_HEADER1_DATA."` AS `fh` on `fh`.`id`=`fd`.`header_id`
                     WHERE `fd`.`is_delete`=0 and `fd`.`id`='".$record_id."' and `fd`.`file_id`='".$file_id."'
-                    ORDER BY `fd`.`id` DESC"
-                ;
+                    ORDER BY `fd`.`id` ASC";
+			    $res = $this->re_db_query($q);
             }
             else
             {
                 $q = "SELECT `idcd`.`idc_header_id`,`ih`.*
 					FROM `".IMPORT_IDC_DETAIL_DATA."` AS `idcd`
-                    LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` AS `ih` ON `ih`.`id`=`idcd`.`idc_header_id`
-                    WHERE `idcd`.`is_delete`=0 AND `idcd`.`id`='".$record_id."' AND `idcd`.`file_id`='".$file_id."'
-                    ORDER BY `idcd`.`id` DESC"
-                ;
+                    LEFT JOIN `".IMPORT_IDC_HEADER_DATA."` AS `ih` on `ih`.`id`=`idcd`.`idc_header_id`
+                    WHERE `idcd`.`is_delete`=0 and `idcd`.`id`='".$record_id."' and `idcd`.`file_id`='".$file_id."'
+                    ORDER BY `idcd`.`id` ASC";
+			    $res = $this->re_db_query($q);
             }
-            $res = $this->re_db_query($q);
-                
-            if (isset($res) && $this->re_db_num_rows($res)>0){
+
+            if(isset($res) && $this->re_db_num_rows($res)>0){
                 $a = 0;
-    			$return = $this->re_db_fetch_array($res);
+    			while($row = $this->re_db_fetch_array($res)){
+    			     $return = $row;
+                }
             }
 			return $return;
 		}
         public function get_file_batch($file_id, $return_field='batch_id'){
-            $q = $res = $return = '';
-            $return_field = $this->re_db_input($return_field);
+			$return = 0;
+            $q = $res = '';
 
 			$q = "SELECT `at`.`id` as batch_id, `at`.*"
 					." FROM `".BATCH_MASTER."` AS `at`"
                     ." WHERE `at`.`is_delete`=0"
                       ." AND `at`.`file_id`='".$file_id."'"
-                    ." ORDER BY `at`.`id` DESC";
+                    ."ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
-            
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
-    			$return = $this->re_db_fetch_array($res);
-                $return = $return[$return_field];
+    			while($row = $this->re_db_fetch_array($res)){
+    			     $return = $row[$return_field];
+                }
             }
 			return $return;
 		}
@@ -4942,18 +4719,18 @@
 			$q = "SELECT `at`.`file_type`
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     WHERE `at`.`is_delete`=0 and `at`.`file_id`='".$file_id."'
-                    ORDER BY `at`.`id` DESC";
+                    ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
-    			$row = $this->re_db_fetch_array($res);
-                $return = $row['file_type'];
+    			while($row = $this->re_db_fetch_array($res)){
+    			     $return = $row['file_type'];
+                }
             }
 			return $return;
 		}
         public function get_current_file_type($file_id=0, $fieldName='source'){
 			$return = '';
-            $fieldName == $this->re_db_input($fieldName);
             $file_id = (is_null($file_id) ? 0 : $file_id);
 
 			$q = "SELECT `at`.`$fieldName`"
@@ -4965,6 +4742,7 @@
 			$res = $this->re_db_query($q);
 
             if($this->re_db_num_rows($res)){
+                // $a = 0;
     			$row = $this->re_db_fetch_array($res);
                 $return = $row[$fieldName];
             }
@@ -4972,21 +4750,19 @@
             return $return;
 		}
         // 08/16/22 DAZL add "source" to choose from correct table
-        public function get_client_data($file_id, $temp_data_id='', $source='dst'){
+        public function get_client_data($file_id,$temp_data_id='',$source=''){
             $file_id = (int)$this->re_db_input($file_id);
             $temp_data_id = (int)$this->re_db_input($temp_data_id);
-            $source = strtolower(substr($this->re_db_input($source),0,3));
+            $source = strtoupper($this->re_db_input($source));
             
 			$return = array();
 			$con = '';
+            $detailTable = IMPORT_DETAIL_DATA;
             
-            if($temp_data_id > 0) { $con .= " AND id=$temp_data_id"; }
+            if($temp_data_id > 0) { $con .=" AND id=$temp_data_id"; }
+            if(in_array($source, ['DZ','DAZL'])) { $detailTable = DAZL_ACCOUNT_DATA; }
 
-            // 09/01/22 Use the Import Table Select function to use the correct Detail Table
-            $importSelect = $this->import_table_select($file_id, 1);
-            $detailTable = $importSelect['table'];
-
-            $q = "SELECT *,"
+			$q = "SELECT *,"
                 ." (CASE"
                     ." WHEN line_code = '1' THEN CONCAT(registration_line1, ' ', registration_line2, ' ',registration_line3 , ' ',registration_line4)"
                     ." WHEN line_code = '2' THEN CONCAT(registration_line2, ' ',registration_line3 , ' ',registration_line4)"
@@ -5045,13 +4821,15 @@
             }
 			return $return;
 		}
-        public function delete_current_files($id=0){
+        public function delete_current_files($id=0, $master_id=0){
             $id = (int)$this->re_db_input($id);
+            $master_id = (int)$this->re_db_input($master_id);
             $con = '';
             
             if ($id > 0) { $con .= " AND `id`=$id"; }
+            if ($master_id > 0) { $con .= " AND `master_id`=$master_id"; }
             
-			if($id>0){
+			if($id>0 OR $master_id>0){
 				$q = "UPDATE `".$this->table."`"
                     ." SET `is_delete`=1"
                         .$this->update_common_sql()
@@ -5136,10 +4914,9 @@
   		function upload_file($fileArray, $toFolder){
 			$return = 0;
 			$moveToFolder = empty($toFolder) ? 'import_files' : rtrim($toFolder, "/")."/";
-            $nameColumn = isset($fileArray['name']) ? 'name' : 'file_name';
-            
-            if (!empty($fileArray[$nameColumn])){
-                $return = move_uploaded_file($fileArray['tmp_name'], DIR_FS.$moveToFolder.$fileArray[$nameColumn]);
+
+            if (!empty($fileArray['name'])){
+                $return = move_uploaded_file($fileArray['tmp_name'], DIR_FS.$moveToFolder.$fileArray['name']);
 			}
 
 			return $return;
@@ -5158,31 +4935,6 @@
         // DAZL DOWNLOAD - Import/Process Data
         // 08/10/22 - Convert DST Decode to DAZL 
         //-------------------------------------
-        // Upload files to "local folder"
-        public function upload_files_dazl(&$uploadFiles=[]){
-            $return = 0;
-            $instance_dim = new data_interfaces_master();
-            $dim = $instance_dim->select("`name` LIKE 'dazl%daily%'");
-            $localFolder = rtrim($dim[0]['local_folder'],"/")."/";
-
-
-            if (count($uploadFiles)){
-                foreach ($uploadFiles AS $key=>$row){
-                    if (file_exists($localFolder.$row['file_name'])) {
-                        $uploadFiles[$key]['error'] = 'File already exists.';
-                    } else {
-                        $return = $this->upload_file($row, $localFolder);
-                        if ($return){
-                            $uploadFiles[$key]['result'] = '1. File uploaded';
-                        } else {
-                            $uploadFiles[$key]['error'] = '1.Upload Failed';
-                        }
-                    }
-                }
-            }
-            
-            return $return;
-        }
         public function process_file_dazl($file_id){
             $instance_data_interface = new data_interfaces_master();
             $dazl_dim_id = 3;
@@ -5200,7 +4952,7 @@
 
                 // Make sure it's a DAZL file
                 if ($return){
-                    if (substr($get_file['source'],0,4) != 'DAZL'){
+                    if ($get_file['source']!='DAZL'){
                         $return = 0;
                     }                    
                 }
@@ -5278,41 +5030,55 @@
                                 $res = $this->re_db_query($q);
                             }
                         }
-                        $q = "UPDATE `".DAZL_HEADER_DATA."`"
+                        $q = "UPDATE `".IMPORT_CURRENT_FILES."`"
                             ." SET `is_delete`=1"
                                 .$this->update_common_sql()
-                            ." WHERE `file_id`=".$fileArray[$key][0]['file_id']
-                        ;
+                            ." WHERE `master_id`=".$fileArray[$key][0]['file_id']
+                            ;
                         $res = $this->re_db_query($q);
 
-                        //-- Detail Data - Add records for this file
-                        $securityCount = $accountCount = $commissionCount = 0;
-                        
-                        if (isset($fileArray['security'])){
-                            $securityCount = $this->load_table_from_array(DAZL_SECURITY_DATA, $fileArray['security']);
-                        }
-                        if (isset($fileArray['account'])){
-                            $accountCount = $this->load_table_from_array(DAZL_ACCOUNT_DATA, $fileArray['account']);
-                        }
-                        if (isset($fileArray['commission'])){
-                            $commissionCount = $this->load_table_from_array(DAZL_COMM_DATA, $fileArray['commission']);
-                        }
-                        
-                        $return = ["security"=>$securityCount, "account"=>$accountCount, "commission"=>$commissionCount];
+                        //-- Import Current File table - INSERT INTO `".IMPORT_CURRENT_FILES."`... -> Create an individual entry for each file type
+                        $res = 0;
+                        // Array to pass to the load table()                
+                        $currentFile = $get_file;
+                        $currentFile['id'] = 0;
+                        $currentFile['master_id'] = $file_id;
+                        $currentFile['imported_date'] = date('Y-m-d');
+                        $currentFile['processed'] = 0;
+                        $currentFile['process_completed'] = 0;
+                        // Remove "created" keys, because load table() inserts the fields into the SET string
+                        unset($currentFile['created_by'],$currentFile['created_time'],$currentFile['created_ip']);
 
-                        //-- 08/19/22 - SOLUTION v2.0 - use DAZL HEADER DATA table
                         if ($securityCount > 0){
-                            $currentFile = ['file_id'=>$file_id,'record_type'=>'DZSEC','file_type'=>'Securities','file_type_code'=>3,'rec_count'=>$securityCount];
-                            $res = $this->load_table_from_array(DAZL_HEADER_DATA, [$currentFile]);
+                            $currentFile['file_type'] = 'Securities';
+                            $currentFile['file_type_code'] = 3;
+                            
+                            $res = $this->load_table_from_array(IMPORT_CURRENT_FILES, [$currentFile]);
                         }
                         if ($accountCount > 0){
-                            $currentFile = ['file_id'=>$file_id,'record_type'=>'DZACC','file_type'=>'Clients','file_type_code'=>1,'rec_count'=>$accountCount];
-                            $res += $this->load_table_from_array(DAZL_HEADER_DATA, [$currentFile]);
+                            $currentFile['file_type'] = 'Clients';
+                            $currentFile['file_type_code'] = 1;
+                            
+                            $res += $this->load_table_from_array(IMPORT_CURRENT_FILES, [$currentFile]);
                         }
                         if ($commissionCount > 0){
-                            $currentFile = ['file_id'=>$file_id,'record_type'=>'DZCOM','file_type'=>'Commissions','file_type_code'=>2,'rec_count'=>$commissionCount];
-                            $res += $this->load_table_from_array(DAZL_HEADER_DATA, [$currentFile]);
+                            $currentFile['file_type'] = 'Commissions';
+                            $currentFile['file_type_code'] = 2;
+                            
+                            $res += $this->load_table_from_array(IMPORT_CURRENT_FILES, [$currentFile]);
                         }
+                        
+                        if ($res>0){
+                            $res = $this->delete_current_files($file_id);
+                        }
+
+                        //--- Detail Data - Add records for this file
+                        $securityCount = $this->load_table_from_array(DAZL_SECURITY_DATA, $fileArray['security']);
+                        $accountCount = $this->load_table_from_array(DAZL_ACCOUNT_DATA, $fileArray['account']);
+                        $commissionCount = $this->load_table_from_array(DAZL_COMM_DATA, $fileArray['commission']);
+                        
+                        $return = ["security"=>$securityCount, "account"=>$accountCount, "commission"=>$commissionCount];
+                        
                     }
                 }
             }
@@ -5344,7 +5110,7 @@
                 } else if ($sequenceNumber == '02'){
                     $return = [
                         "sequence_number" => $sequenceNumber 
-                        ,"fund_name" => substr($data,7,50) 
+                        ,"fund_name1" => substr($data,7,50) 
                         ,"fund_name2" => substr($data,57,40) 
                     ];
                 }
@@ -5364,7 +5130,7 @@
                         ,"cusip_number" => substr($data,10,9) 
                         ,"fund_number" => substr($data,19,5)
                         ,"ticker_symbol" => substr($data,24,7) 							           
-                        ,"fund_name" => substr($data,31,50) 
+                        ,"fund_name1" => substr($data,31,50) 
                         ,"fund_name2" => substr($data,81,394) 
                     ];
                 } else if ($sequenceNumber == '02'){
