@@ -271,12 +271,14 @@
                         {
                             $posted_commission_amount = $get_commission_amount['posted_commission_amount'];
                         }else{ $posted_commission_amount = 0;}
+
+                        $editLink = CURRENT_PAGE . '?action=edit_batches&id=' . $val['id'];
                         ?>
     	                   <tr>
-                                <td class="td_space" style="text-align:center;"><?php echo $val['id'];;?></td>
-                                <td class="td_space"><?php echo date('m/d/Y',strtotime($val['batch_date']));?></td>
-                                <td class="td_space" style="width: 20%"><?php echo $val['batch_desc'];?></td>
-                                <td class="td_space" style="width: 20%"><?php 
+                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="text-align:center; cursor:pointer; vertical-align: middle;"><?php echo $val['id'];;?></td>
+                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="cursor:pointer; vertical-align: middle;"><?php echo date('m/d/Y',strtotime($val['batch_date']));?></td>
+                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="width: 20%; cursor:pointer; vertical-align: middle;"><?php echo $val['batch_desc'];?></td>
+                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="width: 20%; cursor:pointer; vertical-align: middle;"><?php 
                                 if($val['sponsor'] == -1){
                                        echo "Multiple Sponsors";
                                 }
@@ -286,8 +288,8 @@
                                 }
                                 
                                 ?></td>
-                                <td class="td_space" style="text-align: right;"><?php echo '$'.number_format($val['check_amount'],2);?></td>
-                                <td class="td_space" style="text-align: right;"><?php echo '$'.number_format($posted_commission_amount,2);?></td>
+                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="text-align: right; cursor:pointer; vertical-align: middle;"><?php echo '$'.number_format($val['check_amount'],2);?></td>
+                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="text-align: right; cursor:pointer; vertical-align: middle;"><?php echo '$'.number_format($posted_commission_amount,2);?></td>
                                 
                                 <!--td class="text-center">
                                     <?php
