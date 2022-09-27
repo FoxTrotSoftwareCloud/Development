@@ -2077,6 +2077,8 @@
             $instance_product_maintenance = new product_maintenance();
             $instance_rules = new rules();
 
+            $exception_raised = 0;
+
             if($file_id > 0){
                 $q = "SELECT * FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `process_completed`='1' AND `id`=$file_id";
 				$res = $this->re_db_query($q);
@@ -2120,6 +2122,8 @@
 
                         $file_sponsor_array['id'] = 0;
                         $file_sponsor_array['name'] = '';
+
+                        $exception_raised = 1;
                     }
 
                     // Remove prior exceptions
@@ -2195,6 +2199,7 @@
                                 ;
 
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
 
                                 $file_sponsor_array['id'] = 0;
                                 $file_sponsor_array['name'] = '';
@@ -2273,6 +2278,7 @@
                                             .$this->insert_common_sql()
                                 ;
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
                                 $result++;
                             } else {
                                 $q = "UPDATE `$detailTable`"
@@ -2306,6 +2312,7 @@
                                                     .$this->insert_common_sql()
                                         ;
                                         $res = $this->re_db_query($q);
+                                        $exception_raised = 1;
                                         $result++;
                                     }
                                 }
@@ -2327,6 +2334,7 @@
                                         .",`cusip`='".$check_data_val['cusip_number']."'"
                                         .$this->insert_common_sql();
                             $res = $this->re_db_query($q);
+                            $exception_raised = 1;
                             $result++;
                         }
 
@@ -2348,6 +2356,7 @@
                                         .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                         .$this->insert_common_sql();
                             $res = $this->re_db_query($q);
+                            $exception_raised = 1;
                             $existingAccountExceptionId = $this->re_db_insert_id();
                             $this->re_db_perform($detailTable,["client_id"=>$existingAccountArray[0]["client_id"], "account_no_id"=>$existingAccountArray[0]["account_no_id"]],"update","`id`='".$check_data_val['id']."'");
                             // Don't increment the exception "result" variable, so this record will be checked for updates in the ADD/UPDATE section below
@@ -2373,6 +2382,7 @@
                                             .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                             .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
                                 $result++;
                             } else {
                                 $q = "SELECT `id`,`last_name`,`first_name`,`client_ssn`,`client_file_number`,`clearing_account`"
@@ -2409,6 +2419,7 @@
                                         .",`cusip`='".$this->re_db_input($check_data_val['cusip_number'])."'"
                                         .$this->insert_common_sql();
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
                                 $existingSocialExceptionId = $this->re_db_insert_id();
                                 // client_id assigned in Resolve Exceptions 3/12/22
                                 // $this->re_db_perform($detailTable,["client_id"=>$existingSocialArray[0]['id']],"update","`id`='".$check_data_val['id']."'");
@@ -2590,6 +2601,7 @@
                                         .$exceptionFields
                                 ;
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
 
                                 if ($dataSettings['add_client']){
                                     $q = "INSERT INTO `".CLIENT_MASTER."`"
@@ -2746,6 +2758,7 @@
                                     .$this->insert_common_sql()
                             ;
                             $res = $this->re_db_query($q);
+                            $exception_raised = 1;
                             $result += 1;
                         }
                         else {
@@ -2778,7 +2791,9 @@
                                         .$this->insert_common_sql()
                                 ;
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
                             }
+
                             else {
                                 // 1/19/22 Product Category Refactor - consolidate all products into 'PRODUCT_LIST', and use `ft_product_categories` i/o `ft_product_types`
                                 // Check: CUSIP & SYMBOL
@@ -2817,6 +2832,7 @@
                                             .$this->insert_common_sql()
                                     ;
                                     $res = $this->re_db_query($q);
+                                    $exception_raised = 1;
 
                                     // Update DETAIL data TABLE for added/updated products
                                     $q = "UPDATE `".$detailTable."`"
@@ -2859,6 +2875,7 @@
                                                 .$this->insert_common_sql()
                                     ;
                                     $res = $this->re_db_query($q);
+                                    $exception_raised = 1;
 
                                     // Update DETAIL data TABLE for added/updated clients
                                     $q = "UPDATE `".$detailTable."`"
@@ -2940,6 +2957,7 @@
                                 ;
 
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
 
                                 $file_sponsor_array['id'] = 0;
                                 $file_sponsor_array['name'] = '';
@@ -3030,6 +3048,7 @@
                                                 .",`file_type` = $commissionFileType"
                                                 .$insert_exception_string;
                                     $res = $this->re_db_query($q);
+                                    $exception_raised = 1;
                                     $last_inserted_exception = $this->re_db_insert_id();
                                     $result++;
                                 } else {
@@ -3086,6 +3105,7 @@
                                             .",`file_type`=$commissionFileType"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
                                 $last_inserted_exception = $this->re_db_insert_id();
 
                                 $result++;
@@ -3102,6 +3122,7 @@
                                         .",`file_type`=$commissionFileType"
                                         .$insert_exception_string;
                             $res = $this->re_db_query($q);
+                            $exception_raised = 1;
                             $last_inserted_exception = $this->re_db_insert_id();
 
                             $result++;
@@ -3164,6 +3185,7 @@
                                                 .",`file_type`=$commissionFileType"
                                                 .$insert_exception_string;
                                         $res = $this->re_db_query($q);
+                                        $exception_raised = 1;
                                         $last_inserted_exception = $this->re_db_insert_id();
 
                                         $result++;
@@ -3190,6 +3212,7 @@
                                             .",`file_type`=$commissionFileType"
                                             .$insert_exception_string;
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
                                 $last_inserted_exception = $this->re_db_insert_id();
 
                                 $result++;
@@ -3205,6 +3228,7 @@
                                         .",`file_type`=$commissionFileType"
                                         .$insert_exception_string;
                             $res = $this->re_db_query($q);
+                            $exception_raised = 1;
                             $last_inserted_exception = $this->re_db_insert_id();
 
                             $result++;
@@ -3252,6 +3276,7 @@
                                                 .",`file_type`=$commissionFileType"
                                                 .$insert_exception_string;
                                         $res = $this->re_db_query($q);
+                                        $exception_raised = 1;
                                         $last_inserted_exception = $this->re_db_insert_id();
 
                                         $result++;
@@ -3291,6 +3316,7 @@
                                                     .",`file_type`=$commissionFileType"
                                                     .$insert_exception_string;
                                             $res = $this->re_db_query($q);
+                                            $exception_raised = 1;
                                             $last_inserted_exception = $this->re_db_insert_id();
 
                                             $result++;
@@ -3346,6 +3372,7 @@
                                         .",`file_type`=$commissionFileType"
                                         .$insert_exception_string;
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
                                 $last_inserted_exception = $this->re_db_insert_id();
 
                                 $client_id = 0;
@@ -3667,6 +3694,7 @@
                                             .$this->insert_common_sql()
                                 ;
                                 $res = $this->re_db_query($q);
+                                $exception_raised = 1;
                                 $last_inserted_exception = $this->re_db_insert_id();
 
                                 $result = 0;
@@ -3844,6 +3872,10 @@
                             .$con
                 ;
                 $res = $this->re_db_query($q);
+            }
+
+            if($exception_raised == 1){
+                return 'exception';
             }
             
             if($res){
