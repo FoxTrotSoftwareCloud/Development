@@ -31,13 +31,15 @@
         $net_production = isset($_POST['net_production'])?$instance->re_db_input($_POST['net_production']):'';
         $adjustments = isset($_POST['adjustments'])?$instance->re_db_input($_POST['adjustments']):'';
         $net_earnings = isset($_POST['net_earnings'])?$instance->re_db_input($_POST['net_earnings']):'';
+        $taxable_adjustments= isset($_POST['taxable_adjustments'])?$instance->re_db_output($_POST['taxable_adjustments']):''; 
+        $non_taxable_adjustments= isset($_POST['non_taxable_adjustments'])?$instance->re_db_output($_POST['non_taxable_adjustments']):'';
         
         $return = $instance->insert_update_prior_payrolls_master($_POST);
 
         
         if($return===true){
              if(isset($_GET['redirectto']) && !empty($_GET['redirectto'])){
-
+                 $_GET['redirectto'].="&open_ytp_modal=true";
                 header("location:".urldecode($_GET['redirectto']));exit;
              }
             else{
@@ -80,6 +82,15 @@
     else if($action=='view'){
         
         $return = $instance->select_prior_payrolls_master('');
+    }
+
+    if(isset($_GET['redirectto']) && !empty($_GET['redirectto'])){
+         
+          parse_str($_GET['redirectto'],$urlParts);
+         
+          if(isset($urlParts['id'])){
+            $rep_name = $urlParts['id'];
+          }
     }
     
     

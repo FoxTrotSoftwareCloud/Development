@@ -49,7 +49,7 @@ class import_generic extends import {
         $file_id = $currentImportFiles = 0;
         $fileType = '';
         $currentImportFiles = $this->check_current_files();        
-        $fileName = strtoupper($this->re_db_input($file_name));
+        $fileName = $this->re_db_input($file_name);
         $sponsor_id = (empty((int)$sponsor_id) ? 0 : (int)$this->re_db_input($sponsor_id));
         $product_category_id = (empty((int)$product_category_id) ? 0 : (int)$this->re_db_input($product_category_id));
         $productCategoryArray = $instance_product_maintenance->select_category($product_category_id);
@@ -86,7 +86,7 @@ class import_generic extends import {
             
             if ($res) {$file_id = $this->re_db_insert_id(); }
         } else if (in_array($fileName, $currentImportFiles)){
-                $q = "SELECT `id`,`file_name` FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `processed`='0' AND TRIM(UPPER(`file_name`))='{strtoupper(trim($fileName))}'; ";
+                $q = "SELECT `id`,`file_name` FROM `".IMPORT_CURRENT_FILES."` WHERE `is_delete`=0 AND `processed`='0' AND TRIM(`file_name`)='{trim($fileName)}'; ";
 				$res = $this->re_db_query($q);
 				$return = $this->re_db_num_rows($res);
 

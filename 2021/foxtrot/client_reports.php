@@ -31,11 +31,11 @@ $return_from_broker_client = array();
             }
             else if($output == 2)
             {
-                header("location:".SITE_URL."report_transaction_by_batch.php?open=output_print&filter=".$data_array);exit;
+                header("location:".SITE_URL."report_client_ac_pdf.php?open=output_print&filter=".$data_array);exit;
             }
             else if($output == 3){
                 
-                header("location:".SITE_URL."report_transaction_by_batch_excel.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_client_review_excel.php?filter=".$data_array);exit;
             }
             else if($output == 4){
                 
@@ -50,11 +50,11 @@ $return_from_broker_client = array();
             }
             else if($output == 2)
             {
-                header("location:".SITE_URL."report_batch.php?open=output_print&filter=".$data_array);exit;
+                header("location:".SITE_URL."report_client_pdf.php?open=output_print&filter=".$data_array);exit;
             }
             else if($output == 3){
                 
-                header("location:".SITE_URL."report_batch_excel.php?filter=".$data_array);exit;
+                header("location:".SITE_URL."report_client_review_excel.php?filter=".$data_array);exit;
             }
             else if($output == 4){
                 

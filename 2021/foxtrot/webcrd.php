@@ -34,26 +34,29 @@
             exit;
         }
     }
-    
-    if($action=='delete' && !empty($_GET['type']) && !empty($_GET['id'])){
-        $return = $instance->delete($_GET['id'], $_GET['type']);
-
-        if ($_GET['type'] == "ce_download"){
-            $pageTab = "tab_a";
-        } else if ($_GET['type'] == 'finra_exam_status'){
-            $pageTab = "tab_b";
-        } else if ($_GET['type'] == 'registration_status'){
-            $pageTab = "tab_c";
+    else if(isset($_GET['action'])&&$_GET['action']=='delete'&&isset($_GET['id'])&&$_GET['id']>0)
+    {
+        $id = $instance->re_db_input($_GET['id']);
+        $return = $instance->delete($id);
+        if($return==true){
+            header('location:'.CURRENT_PAGE.'?tab=tab_b');exit;
         }
-        
-        if ($return===true){
-			$_SESSION['success'] = "File #$id deleted successfully.";
-        } else {
-            $_SESSION['warning'] = UNKWON_ERROR;
+        else{
+            header('location:'.CURRENT_PAGE.'?tab=tab_b');exit;
         }
-        header('location:'.CURRENT_PAGE."?tab=$pageTab");
-        exit;
-    } else if($action=='view'){
+    }
+    else if(isset($_GET['action'])&&$_GET['action']=='delete_fincen'&&isset($_GET['id'])&&$_GET['id']>0)
+    {
+        $id = $instance->re_db_input($_GET['id']);
+        $return = $instance->delete_fincen($id);
+        if($return==true){
+            header('location:'.CURRENT_PAGE.'?tab=tab_d');exit;
+        }
+        else{
+            header('location:'.CURRENT_PAGE.'?tab=tab_d');exit;
+        }
+    }
+    else if($action=='view'){
         unset($_SESSION['warning']);
     }	 
 

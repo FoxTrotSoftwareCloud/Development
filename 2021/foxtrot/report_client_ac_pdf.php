@@ -34,12 +34,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         function get_broker_name_only($brokerA) {
             return $brokerA['first_name'].' '.$brokerA['last_name'];
         }
-        $queried_brokers=isset($broker_id) && $broker_id!=0 ? implode(",",array_map("get_broker_name_only",array_filter($get_brokers,function ($brokerA) use ($broker_id){return $brokerA['id']==$broker_id ? true :false;}))) : '(All Brokers)';
+        $queried_brokers=isset($broker_id) && $broker_id!=0 ? implode(",",array_map("get_broker_name_only",array_filter($get_brokers,function ($brokerA) use ($broker_id){return $brokerA['id']==$broker_id ? true :false;}))) : 'All Brokers';
 
         function get_sponsor_name_only($sponsorA) {
             return $sponsorA['name'];
         }
-        $queried_sponsors=isset($sponsor_id) && $sponsor_id!=0 ? implode(",",array_map("get_sponsor_name_only",array_filter($get_sponsors,function ($sponsorA) use ($sponsor_id){return $sponsorA['id']==$sponsor_id ? true :false;}))) : '(All Sponsors)';
+        $queried_sponsors=isset($sponsor_id) && $sponsor_id!=0 ? implode(",",array_map("get_sponsor_name_only",array_filter($get_sponsors,function ($sponsorA) use ($sponsor_id){return $sponsorA['id']==$sponsor_id ? true :false;}))) : 'All Sponsors';
 }
 
 $total_received_amount = 0;
@@ -59,7 +59,7 @@ $total_records_sub=0;
     
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
-    $html='<table border="0" width="100%">
+  /*  $html='<table border="0" width="100%">
                 <tr>';
                 if(isset($system_logo) && $system_logo != '')
                 {
@@ -75,7 +75,23 @@ $total_records_sub=0;
                 </td>'; 
                 $html.='<td style="width:20%;text-align:center;">'.date('m/d/Y H:i:s').'</td></tr><tr><td colspan="4"></td></tr>';
                 $html.='</tr><tr><td></td></tr>
-        </table>';
+        </table>';*/
+
+    $subheading = 'CLIENT ACCOUNT LISTING REPORT';
+    $subheading2= 'Broker: '. $queried_brokers.', Sponsor: '. $queried_sponsors;
+     $html='<table border="0" width="100%">
+                        <tr>';
+                         $html .='<td width="20%" align="left">'.date("m/d/Y").'</td>';
+                        
+                        $html .='<td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">'.$img.'<br/><strong><h9>'.$subheading.'<br/>'.$subheading2.' <br></h9></strong></td>';
+                                         
+                            $html.='<td width="20%" align="right">Page 1</td>';
+                        
+                        $html.='</tr>
+                </table> </br>';
+
+
+
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(2);
     
@@ -93,12 +109,12 @@ $total_records_sub=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0" cellpadding="1" width="100%" border-spacing:0px;>
                 <tr style="background-color: #f1f1f1;">
-                            <th style="font-size:12px;font-weight:500;color:#393939;text-transform:capitalize;text-align:left;width:24%;height:40px;line-height:25px;">Client Name</th>
-                            <th style="font-size:12px;font-weight:500;color:#393939;text-transform:capitalize;text-align:left;width:11%;height:40px;line-height:25px;">Account #</th>
-                            <th style="font-size:12px;font-weight:500;color:#393939;text-transform:capitalize;text-align:left;width:11%;height:40px;line-height:25px;">Company</th>
-                            <th></th>
-                        </tr>';
-    $html.='<tr><th colspan="8">
+                    <th style="font-size:12px;font-weight:500;color:#393939;text-align:left;line-height:25px; vertical-align:middle;">CLIENT NAME</th>
+                    <th style="font-size:12px;font-weight:500;color:#393939;text-align:left;line-height:25px;vertical-align:middle;">ACCOUNT NO.</th>
+                    <th style="font-size:12px;font-weight:500;color:#393939;text-align:left;line-height:25px;vertical-align:middle;">COMPANY</th>
+                    <th></th>
+                </tr>';
+    $html.='<tr><th colspan="4">
                         </th></tr>';
     
     
@@ -109,18 +125,16 @@ $total_records_sub=0;
         foreach($return_client_accounts as $broker)
         {
             $html.='<tr>
-                        <td style="font-size:10px;font-weight:bold;">Broker: '.$broker['lfname'].',&nbsp;&nbsp;'.$broker['bfname'].'&nbsp;&nbsp;('.$broker['broker_fund'].')
+                        <td colspan="4" style="font-size:10px;font-weight:bold;">Broker: '.$broker['lfname'].',&nbsp;'.$broker['bfname'].'&nbsp;&nbsp;('.$broker['broker_fund'].')
                         </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        
                     </tr>';
             foreach($broker['clients'] as $client):
                 $is_recrod_found=true;         
             $is_middle_name=(!empty($client['mi'])) ? ' '.substr($client['mi'], 0,1).'.' :'';
            $html.='<tr>
-                    <td colspan="2"> '. $client['last_name'].',&nbsp; '.$client['first_name'].' '.$is_middle_name.'</td>
-                    <td colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Client # &nbsp;'.$client['client_ssn']. '&nbsp;&nbsp;&nbsp;&nbsp;Clearing Account # '.$client['clearing_account'].'
+                    <td colspan="2"> '. $client['last_name'].',&nbsp; '.$client['first_name'].'</td>
+                    <td colspan="2">'.str_repeat('&nbsp;',25).'Client # &nbsp;'.$client['client_ssn']. '&nbsp;&nbsp;&nbsp;&nbsp;Clearing Account # '.$client['clearing_account'].'
                     </td>
                 </tr>';
             if(!empty($client['client_accounts']) || !empty($client['clearing_account'])):
@@ -139,7 +153,7 @@ $total_records_sub=0;
     if($is_recrod_found==false)
     {
         $html.='<tr>
-                    <td style="font-size:8px;font-weight:cold;text-align:center;" colspan="8">No record found.</td>
+                    <td style="font-size:8px;font-weight:cold;text-align:center;" colspan="4">No record found.</td>
                 </tr>';
     }           
     $html.='</table>';

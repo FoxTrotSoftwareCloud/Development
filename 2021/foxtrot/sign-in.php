@@ -1,5 +1,8 @@
 <?php
     
+/*    error_reporting(E_ALL);
+    ini_set('display_errors', 'on');*/
+    
     require_once("include/config.php");
     if(isset($_SESSION['user_id'])&&$_SESSION['user_id']>0){
         header("location:".SITE_URL);exit;

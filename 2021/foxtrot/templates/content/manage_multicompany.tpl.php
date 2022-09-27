@@ -2,8 +2,8 @@
 
     
 <div class="container">
-    <h1 class="<?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}?>">Multi-Company Maintenance</h1>
-    <div class="col-lg-12 well <?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}?>">
+    <h1 class="<?php if($action=='add_new'||($action=='edit' && $id>0)){  'topfixedtitle';}?>">Multi-Company Maintenance</h1>
+    <div class="col-lg-12 well <?php if($action=='add_new'||($action=='edit' && $id>0)){  'fixedwell';}?>">
         <div class="tab-content col-md-12">
             <div class="tab-pane active" id="tab_a">
     <!-- Add table data and some process -->
@@ -12,7 +12,7 @@
     if($action=='add_new'||($action=='edit' && $id>0)){
         ?>
         <form method="post">
-            <ul class="nav nav-tabs <?php if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtabs';}?>">
+            <ul class="nav nav-tabs <?php if($action=='add_new'||($action=='edit' && $id>0)){  'topfixedtabs';}?>">
                 <li class="active"><a href="#tab_aa" data-toggle="tab">General</a></li>
                 <li><a href="#tab_bb" data-toggle="tab">Commissions</a></li>
                 <li><a href="#tab_cc" data-toggle="tab">Registrations</a></li>
@@ -771,6 +771,7 @@
 } );
 </script>
 <style type="text/css">
+    .tab-content.panel {padding: 15px}
 .toolbar {
     float: right;
     padding-left: 5px;

@@ -157,8 +157,10 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 <?php }
       else if($report_for==1)
       {
-            $get_trans_data = $instance_trans->select_data_report($product_category,$company,$batch,$beginning_date,$ending_date,$sort_by,1);
-            $batch_desc = isset($get_trans_data[0]['batch_desc'])?$instance->re_db_input($get_trans_data[0]['batch_desc']):'';
+            $get_trans_data = $instance_trans->select_data_commission_posting_log($product_category,$company,$batch,$beginning_date,$ending_date,$sort_by,1);
+            
+            $index= array_key_first($get_trans_data);
+            $batch_desc = isset($get_trans_data[$index][0]['batch_desc'])? $instance->re_db_input($get_trans_data[$index][0]['batch_desc']):'';
             $total_amount_invested = 0;
             $total_commission_received = 0;
             $total_charges = 0;
@@ -173,9 +175,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                             <td width="20%" align="left"><?php echo $img;?></td>
                         <?php } ?>
                          <?php if($batch > 0){?>
-                            <td width="60%" style="font-size:14px;font-weight:bold;text-align:center;">TRANSACTION BY BATCH REPORT : <?php echo strtoupper($batch_desc);?></td>
+                            <td width="60%" style="font-size:14px;font-weight:bold;text-align:center;">COMMISSION POSTING LOG : <?php echo strtoupper($batch_desc);?></td>
                         <?php } else { ?>
-                            <td width="60%" style="font-size:14px;font-weight:bold;text-align:center;">TRANSACTION BY BATCH REPORT : ALL BATCHES</td>
+                            <td width="60%" style="font-size:14px;font-weight:bold;text-align:center;">COMMISSION POSTING LOG : ALL BATCHES</td>
                         <?php } ?>
                         <?php
                         if(isset($system_company_name) && $system_company_name != '')
@@ -209,46 +211,54 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 <?php 
                 if($get_trans_data != array())
                 {
-                    foreach($get_trans_data as $trans_main_key=>$trans_main_data)
+                    foreach($get_trans_data as $trans_main_key=>$trans_main)
                     {
+                      
+                      ?>
+                      <tr>
+                                   <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="9"><?php echo "BATCH : ".$trans_main["batch_desc"]; ?></td>
+                                </tr>
 
-                        $sub_total_records=0;
-                        $sub_total_amount_invested = 0;
-                        $sub_total_commission_received = 0;
-                        $sub_total_charges = 0;
-                        //BROKER: Adams, John (#3)
-                        $broker_name = $trans_main_data[0]['broker_last_name'].', '.$trans_main_data[0]['broker_name'].' (#'.$trans_main_key.')';
-                        ?>
-                        <tr>
-                           <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="9"><?php echo "BROKER: ".$broker_name ?></td>
-                        </tr>
-                        <?php
-
-                       
-                        foreach($trans_main_data as $trans_key=>$trans_data)
+                      <?php
+                       foreach($trans_main["child"] as $trans_main_key=>$trans_main_data)
                         {
-                            $total_records = $total_records+1;
-                            $sub_total_records = $sub_total_records+1;
-                            $total_amount_invested = ($total_amount_invested+$trans_data['invest_amount']);
-                            $total_commission_received = ($total_commission_received+$trans_data['commission_received']);
-                            $total_charges = ($total_charges+$trans_data['charge_amount']);
-                            
-                            $sub_total_amount_invested = ($sub_total_amount_invested+$trans_data['invest_amount']);
-                            $sub_total_commission_received = ($sub_total_commission_received+$trans_data['commission_received']);
-                            $sub_total_charges = ($sub_total_charges+$trans_data['charge_amount']);
-                            ?>
-                            <tr>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['id']; ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['batch']; ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['client_number']; ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['client_name']; ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php if($trans_data['trade_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($trans_data['trade_date'])); } ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php if($trans_data['commission_received_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($trans_data['commission_received_date'])); } ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['invest_amount'],2); ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['charge_amount'],2); ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['commission_received'],2); ?></td>
-                            </tr>
-                        <?php } 
+                                $sub_total_records=0;
+                                $sub_total_amount_invested = 0;
+                                $sub_total_commission_received = 0;
+                                $sub_total_charges = 0;
+                                //BROKER: Adams, John (#3)
+                                $broker_name = $trans_main_data[0]['broker_last_name'].', '.$trans_main_data[0]['broker_name'].' (#'.$trans_main_key.')';
+                                ?>
+                                <tr>
+                                   <td style="font-size:10px;padding-left: 20px;font-weight:bold;text-align:left;" colspan="9"><?php echo "BROKER: ".$broker_name ?></td>
+                                </tr>
+                                <?php
+                              
+                                
+                                foreach($trans_main_data as $trans_key=>$trans_data)
+                                {
+                                    $total_records = $total_records+1;
+                                    $sub_total_records = $sub_total_records+1;
+                                    $total_amount_invested = ($total_amount_invested+$trans_data['invest_amount']);
+                                    $total_commission_received = ($total_commission_received+$trans_data['commission_received']);
+                                    $total_charges = ($total_charges+$trans_data['charge_amount']);
+                                    
+                                    $sub_total_amount_invested = ($sub_total_amount_invested+$trans_data['invest_amount']);
+                                    $sub_total_commission_received = ($sub_total_commission_received+$trans_data['commission_received']);
+                                    $sub_total_charges = ($sub_total_charges+$trans_data['charge_amount']);
+                                    ?>
+                                    <tr>
+                                           <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['id']; ?></td>
+                                           <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['batch']; ?></td>
+                                           <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['client_number']; ?></td>
+                                           <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trans_data['client_name']; ?></td>
+                                           <td style="font-size:10px;font-weight:normal;text-align:center;"><?php if($trans_data['trade_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($trans_data['trade_date'])); } ?></td>
+                                           <td style="font-size:10px;font-weight:normal;text-align:center;"><?php if($trans_data['commission_received_date'] != '0000-00-00'){ echo date('m/d/Y',strtotime($trans_data['commission_received_date'])); } ?></td>
+                                           <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['invest_amount'],2); ?></td>
+                                           <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['charge_amount'],2); ?></td>
+                                           <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo '$'.number_format($trans_data['commission_received'],2); ?></td>
+                                    </tr>
+                                <?php } 
                         
                         ?>
                        <tr style="background-color: #f1f1f1;">
@@ -257,7 +267,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                        <td style="font-size:10px;font-weight:bold;text-align:right;"><?php echo '$'.number_format($sub_total_charges,2);?></td>
                        <td style="font-size:10px;font-weight:bold;text-align:right;"><?php echo '$'.number_format($sub_total_commission_received,2);?></td>
                 </tr>
-                <?php } ?>
+                <?php } } ?>
                 <tr style="background-color: #f1f1f1;">
                    <td style="font-size:10px;font-weight:bold;text-align:center;">Total Records: <?php echo $total_records;?></td>
                    <td style="font-size:10px;font-weight:bold;text-align:right;" colspan="5">*** REPORT TOTALS *** </td>

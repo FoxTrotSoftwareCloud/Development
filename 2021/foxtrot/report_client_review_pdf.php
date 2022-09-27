@@ -30,7 +30,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $sponsor_id = isset($filter_array['sponsor'])?$filter_array['sponsor']:'';
     $beginning_date = isset($filter_array['beginning_date']) && !empty($filter_array['beginning_date']) ?date('Y-m-d H:i:s',strtotime($instance->re_db_input($filter_array['beginning_date']))):'';
     $ending_date = isset($filter_array['ending_date']) && !empty($filter_array['ending_date']) ? date('Y-m-d',strtotime($instance->re_db_input($filter_array['ending_date']))):'';
-    $return_client_review_list = $instance->get_client_review_report($broker_id,$beginning_date,$ending_date);
+    $dont_contact_client =  isset($filter_array['dont_contact_client'])?$filter_array['dont_contact_client']:0;
+    $return_client_review_list = $instance->get_client_review_report($broker_id,$beginning_date,$ending_date,$dont_contact_client);
 
         function get_broker_name_only($brokerA) {
             return $brokerA['first_name'].' '.$brokerA['last_name'];
@@ -50,6 +51,13 @@ $total_received_amount = 0;
 $total_posted_amount = 0;
 $total_records=0;
 $total_records_sub=0;
+  $date_output='';
+                if (isset($filter_array['beginning_date']) && !empty($filter_array['beginning_date']) && isset($filter_array['ending_date']) && !empty($filter_array['ending_date'])) {
+                        $date_output= date('m/d/Y',strtotime($filter_array['beginning_date'])).'  through  '.date('m/d/Y',strtotime($filter_array['ending_date'])) ;                        
+                    }
+                    else {
+                        $date_output= date('1/01/1970').'  through  '.date('m/d/Y');
+                    }
 
 ?>
 <?php
@@ -63,7 +71,7 @@ $total_records_sub=0;
     
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
-    $html='<table border="0" width="100%">
+   /* $html='<table border="0" width="100%">
                 <tr>';
                 if(isset($system_logo) && $system_logo != '')
                 {
@@ -74,19 +82,28 @@ $total_records_sub=0;
                     //$html.='<td width="20%" style="font-size:10px;font-weight:bold;text-align:right;">'.$system_company_name.'</td>';
                     $html_company_name="<span>$system_company_name</span><br/><br/>";
                 }
-                $date_output='';
-                if (isset($filter_array['beginning_date']) && !empty($filter_array['beginning_date']) && isset($filter_array['ending_date']) && !empty($filter_array['ending_date'])) {
-                        $date_output= date('m/d/Y',strtotime($filter_array['beginning_date'])).'&nbsp; through &nbsp;'.date('m/d/Y',strtotime($filter_array['ending_date'])) ;                        
-                    }
-                    else {
-                        $date_output= date('1/01/1970').'&nbsp; through &nbsp;'.date('m/d/Y');
-                    }
+              
                 $html .='<td style="width:60%;font-size:18px;font-weight:bold;text-align:center;">CLIENT REVIEW REPORT<br/><span style="text-align:center;font-size:12px;">
                 '.$date_output.'</span>
                 </td>'; 
                 $html.='<td style="width:20%;text-align:center;">'.date('m/d/Y H:i:s').'</td></tr><tr><td colspan="4"></td></tr>';
                 $html.='<tr><td></td></tr>
-        </table>';
+        </table>';*/
+
+    $subheading = 'CLIENT REVIEW REPORT';
+
+
+     $html='<table border="0" width="100%">
+                        <tr>';
+                         $html .='<td width="20%" align="left">'.date("m/d/Y").'</td>';
+                        
+                        $html .='<td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">'.$img.'<br/><strong><h9>'.$subheading.'<br/>'.$date_output.'</h9></strong></td>';
+                                         
+                            $html.='<td width="20%" align="right">Page 1</td>';
+                        
+                        $html.='</tr>
+                </table>';
+
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(2);
     
@@ -104,13 +121,13 @@ $total_records_sub=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0" cellpadding="1" width="100%">
                 <tr style="background-color:#f1f1f1;">
-                            <th style="width:12%; height:30px;font-size:12px;line-height:20px;font-weight:bold;">Client Name</th>
-                            <th style="width:12%; height:30px;font-size:12px;line-height:20px;font-weight:bold;">Account No.</th>
-                            <th style="width:11%; height:30px;font-size:12px;line-height:20px;font-weight:bold;">Client No.</th>
-                            <th style="width:11%; height:30px;font-size:12px;line-height:20px;font-weight:bold;">Telephone</th>
-                            <th style="width:11%; height:30px;font-size:12px;line-height:20px;font-weight:bold;">Review Date</th>
-                            <th style="width:11%; height:30px;font-size:12px;line-height:20px;font-weight:bold;">Birth Date</th>
-                            <th style="width:32%; height:30px;font-size:13px;line-height:20px;font-weight:bold;">Address</th>
+                            <th style="font-size:11px;line-height:20px;font-weight:bold;">'.strtoupper('Client Name').'</th>
+                            <th style="font-size:11px;line-height:20px;font-weight:bold;">ACCOUNT NO.</th>
+                            <th style="font-size:11px;line-height:20px;font-weight:bold;">CLIENT NO.</th>
+                            <th style="font-size:11px;line-height:20px;font-weight:bold;">TELEPHONE</th>
+                            <th style="font-size:11px;line-height:20px;font-weight:bold;">REVIEW DATE</th>
+                            <th style="font-size:11px;line-height:20px;font-weight:bold;">BIRTH DATE</th>
+                            <th style="font-size:11px;line-height:20px;font-weight:bold;">ADDRESS</th>
                         </tr>';
     
     
@@ -125,11 +142,15 @@ $total_records_sub=0;
             if(!empty($client_review['client_accounts'])):
             $current_client_ac_list=array();
             $current_client_ac_list_count=0;
-            $supervisor_shortname=substr($client_review['lfname'], 0,1).substr($client_review['bfname'], 0,1);
+            $supervisor_shortname=substr($client_review['bfname'], 0,1).substr($client_review['lfname'], 0,1);
            $html.='<tr>
-                        <td colspan="7">
-                            <p class="supervisior" style="text-align:center;text-decoration:underline;font-style:italic;font-weight:bold;font-size:12px;">REVIEWING SUPERVISOR: '.$client_review['lfname'].''.$client_review['bfname'].' / '.$supervisor_shortname.'&nbsp;('.$client_review['broker_fund'].')</p>
-                            <table style="border-spacing:0 2px">';
+                        <td colspan="7" style="text-align:center;">
+                            
+                            <p class="supervisior" style="text-align:center;text-decoration:underline;font-style:italic;font-weight:bold;font-size:12px;margin:10px 0;display:block;">REVIEWING SUPERVISOR: '.strtoupper($client_review['bfname']).' '.strtoupper($client_review['lfname']).' / '.$supervisor_shortname.' ('.$client_review['broker_fund'].')</p>
+                            <br>
+                            </td>
+                        </tr>
+                            ';
             
                foreach($client_review['client_accounts'] as $client_account):
                $current_client=$client_account['client_data'][$client_review['broker_id']][0];
@@ -142,16 +163,16 @@ $total_records_sub=0;
                               substr($current_client['telephone'], 0, 3),
                               substr($current_client['telephone'], 3, 3),
                               substr($current_client['telephone'], 6)) : '';
-               $reviewed_at=(!empty($current_client['reviewed_at'])) ? date('m/d/Y',strtotime($current_client['reviewed_at'])) : '&nbsp;'.$supervisor_shortname.' /';
+               $reviewed_at=(!empty($current_client['reviewed_at'])) ? date('m/d/Y',strtotime($current_client['reviewed_at'])) : ' '.$supervisor_shortname.' /';
                $reviewed_by=(!empty($current_client['birth_date'])) ? date('m/d/Y',strtotime($current_client['birth_date'])) : '';
                // print_r($current_client);
              $html.='<tr>
-                        <td colspan="2">'.$current_client['last_name'].',&nbsp;'.$current_client['first_name'].' '.$is_middle_name.'</td>
-                        <td style="width:11%;">'.$current_client['client_file_number'].'</td>
-                        <td style="width:11%;">'.$telephone_no.'</td>
-                        <td style="width:11%;">'.$reviewed_at.'</td>
-                        <td style="width:11%;">'.$reviewed_by.'</td>
-                        <td style="width:34%;">'.$current_client['address1'].', '.$current_client['city'].', '.$state_name.' '.$current_client['zip_code'].'</td>
+                        <td colspan="2">'.$current_client['last_name'].', '.$current_client['first_name'].'</td>
+                        <td style="text-align:left;">'.trim($current_client['client_file_number']).'</td>
+                        <td style="text-align:left;">'.$telephone_no.'</td>
+                        <td style="text-align:left;">'.$reviewed_at.'</td>
+                        <td style="text-align:left;">'.$reviewed_by.'</td>
+                        <td style="text-align:left;">'.$current_client['address1'].', '.$current_client['city'].', '.$state_name.' '.$current_client['zip_code'].'</td>
                     </tr>';
 
 
@@ -161,23 +182,22 @@ $total_records_sub=0;
                $sponsor_name=implode(",",array_map("get_sponsor_name_only",array_filter($get_sponsors,function ($sponsorA) use ($current_client_sponsor_list,$sponsor_key){return $sponsorA['id']==$current_client_sponsor_list[$sponsor_key] ? true :false;})));
                $sponsor_key++;   
             $html.='<tr>
-                    <td style="width:11%;"></td>
-                    <td colspan="2" style="background-color: #f1f1f1;">'.$ac_no.'</td>
-                    <td style="background-color: #f1f1f1;">'.date('m/d/Y',strtotime($ac_list)).'</td>
-                    <td colspan="2" style="background-color: #f1f1f1;">'.$sponsor_name.'</td>
+                    <td ></td>
+                    <td colspan="2" style="background-color: #f1f1f1;font-size:8px;" >'.$ac_no.'</td>
+                    <td style="background-color: #f1f1f1;font-size:8px;">'.date('m/d/Y',strtotime($ac_list)).'</td>
+                    <td colspan="2" style="background-color: #f1f1f1;font-size:8px;">'.$sponsor_name.'</td>
+                     <td ></td>
                 </tr>';
              endforeach; 
              endif;
              endforeach;
              
-            $html.='</table>
-                        </td>
-                    </tr>';
+            
             if($current_client_ac_list_count > 0):         
                 $html.='<tr>
-                        <td colspan="5">
+                        <td colspan="7">
                             <hr style="height: 1px;background: #555;">
-                            <p style="text-transform: uppercase;font-weight: bold;font-size: 12px;">REVIEWING SUPERVISOR:'.$client_review['lfname'].''.$client_review['bfname'].''.$supervisor_shortname.' TOTAL: '.$current_client_ac_list_count.'</p>
+                            <p style="text-transform: uppercase;font-weight: bold;font-size: 12px;">REVIEWING SUPERVISOR:  '.strtoupper($client_review['bfname']).' '.strtoupper($client_review['lfname']).' / '.$supervisor_shortname.' TOTAL: '.$current_client_ac_list_count.'</p>
                         </td>
                     </tr>';
             endif;
@@ -192,7 +212,7 @@ $total_records_sub=0;
     }           
     $html.='</table>';
     
-    /*echo $html;
+/*    echo $html;
     die();*/
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(5);

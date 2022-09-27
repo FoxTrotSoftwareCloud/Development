@@ -22,10 +22,15 @@ $output = '';
 $report_for = '';
  $sort_by=1;
  $date_by=1;
+
 $return_from_broker_client = array();
-    
+   
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
+       //  $_POST['report_for'] == "year_to_date" ? $_POST['year_output'] :
+        $_POST['output']= $instance->re_db_input($_POST['output']);
         $data_array = json_encode($_POST);
+
+        $report_year = isset($filter_array['report_year'])?trim($filter_array['report_year']):date("Y");
         $output = isset($_POST['output'])?$instance->re_db_input($_POST['output']):0;
         $state = isset($_POST['state'])?$instance->re_db_input($_POST['state']):0;
         $broker = isset($_POST['broker'])?$instance->re_db_input($_POST['broker']):0;
@@ -35,7 +40,11 @@ $return_from_broker_client = array();
         $batch_cate= isset($_POST['batch_cate'])?$instance->re_db_input($_POST['batch_cate']):'';
         $sort_by= isset($_POST['sort_by'])?$instance->re_db_input($_POST['sort_by']):1;
         $date_by= isset($_POST['date_by'])?$instance->re_db_input($_POST['date_by']):1;
+        $earning_by= isset($_POST['earning_by'])?$instance->re_db_input($_POST['earning_by']):1;
         $prod_cat = isset($_POST['prod_cat'])?$_POST['prod_cat']:array();
+        $prod_cat =array_filter($prod_cat,function($value) {
+                    return $value > 0;
+                });
             if($output == 1)
             {
                 header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
@@ -76,6 +85,7 @@ $return_from_broker_client = array();
         $filter_array =  json_decode($_GET['filter'],true);
 
         $output = isset($filter_array['output'])?$instance->re_db_input($filter_array['output']):'';
+        $report_year = isset($filter_array['report_year'])?trim($filter_array['report_year']):date("Y");
         $state = isset($filter_array['state'])?$instance->re_db_input($filter_array['state']):'';
         $broker = isset($filter_array['broker'])?$instance->re_db_input($filter_array['broker']):'';
         $company = isset($filter_array['company'])?$instance->re_db_input($filter_array['company']):'';
@@ -90,6 +100,13 @@ $return_from_broker_client = array();
         $batch_cate= isset($filter_array['batch_cate'])?$instance->re_db_input($filter_array['batch_cate']):'';
         $sort_by= isset($filter_array['sort_by'])?$instance->re_db_input($filter_array['sort_by']):1;
         $date_by= isset($filter_array['date_by'])?$instance->re_db_input($filter_array['date_by']):1;
+        $without_earning= isset($filter_array['without_earning'])?$instance->re_db_input($filter_array['without_earning']):1;
+        $earning_by= isset($filter_array['earning_by'])?$instance->re_db_input($filter_array['earning_by']):1;
+
+        $prod_cat = isset($filter_array['prod_cat'])?$filter_array['prod_cat']:array();
+        $prod_cat =array_filter($prod_cat,function($value) {
+                    return $value > 0;
+                });
     }
 
    

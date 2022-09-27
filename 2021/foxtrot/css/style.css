@@ -877,7 +877,7 @@ select::-ms-expand {
 }
 .client_review_report_content table tbody tr td{
 	font-size: 12px;
-	text-transform: uppercase;
+	/*text-transform: uppercase;*/
 }
 .client_review_report_content table tbody tr td p.supervisior{
 	text-align: center;
@@ -887,7 +887,7 @@ select::-ms-expand {
 }
 .client_review_report_content table tbody tr td {
 	font-size: 12px;
-	text-transform: uppercase;
+	/*text-transform: uppercase;*/
 	text-align: left;
 }
 
@@ -1194,7 +1194,6 @@ select::-ms-expand {
 	text-align: center;
 	line-height: 30px;
 }
-
 
 /* Lightbox ennd */
 }

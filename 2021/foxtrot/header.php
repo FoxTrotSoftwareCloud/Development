@@ -28,7 +28,7 @@ require_once(DIR_FS."islogin.php");?>
 <!-- <script src="js/jquery.min.js"></script> -->
 <script src="<?php echo SITE_JS; ?>bootstrap-datepicker.min.js"></script>
 <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
-
+<script src="<?php echo SITE_JS; ?>/jquery.priceformat.min.js"></script>
 <!-- Datatables-->
 <link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>datatables/dataTables.bootstrap.min.css" />
 <link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>datatables/buttons.dataTables.min.css" />

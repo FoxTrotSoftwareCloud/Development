@@ -1,18 +1,18 @@
 <div class="container">
-<h1 class="<?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}*/?>">Prior Transactions</h1>
+<h1 class="<?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}*/?>">Modify YTD Earnings</h1>
   <div class="col-lg-12 well <?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'fixedwell';}*/?>">
     <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
     <?php 
     if($action=='add_new'||($action=='edit' && $id>0)){
     ?>
-    <form method="post">
+    <form method="post" onsubmit="return waitingDialog.show();">
         <div class="panel-overlay-wrap">
             <div class="panel">
                <div class="panel-heading">
                     <div class="panel-control" style="float: right;">
         				<div class="btn-group dropdown">
         					<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-        					<ul class="dropdown-menu dropdown-menu-right" >
+        					<ul class="dropdown-menu dropdown-menu-right" style="">
         						<li><a href="<?php echo CURRENT_PAGE; ?>?action=view"><i class="fa fa-eye"></i> View List</a></li>
         					</ul>
         				</div>
@@ -26,7 +26,7 @@
                                 <label>Pay Date </label>
                                 <div id="demo-dp-range">
                                     <div class="input-daterange input-group" id="datepicker">
-                                        <input type="text" name="payroll_date" id="payroll_date" class="form-control" value="<?php if($payroll_date != ''){ echo date('m/d/Y',strtotime($payroll_date)); }?>"/>
+                                        <input type="text" name="payroll_date" id="payroll_date" class="form-control required" value="<?php if($payroll_date != ''){ echo date('m/d/Y',strtotime($payroll_date)); }?>"/>
                                     </div>
                                 </div>
                             </div>
@@ -34,7 +34,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Broker Name </label>
-                                <select class="col-md-6 form-control" name="rep_name" id="rep_name">
+                                <select class="col-md-6 form-control required" name="rep_name" id="rep_name">
                                     <option value="">Select Broker</option>
                                     <?php foreach($get_broker as $key=>$val){?>
                                     <option value="<?php echo $val['id'];?>" <?php if($rep_name != '' && $rep_name==$val['id']){echo "selected='selected'";} ?>><?php echo $val['first_name'].' '.$val['last_name'];?></option>
@@ -63,13 +63,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Gross Commission </label>
-                                <input type="text" name="gross_production" id="gross_production" class="form-control" value="<?php echo $gross_production;?>" />
+                                <input type="text" name="gross_production" id="gross_production" class="form-control required" value="<?php echo $gross_production;?>" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Check Amount </label>
-                                <input type="text" name="check_amount" id="check_amount" class="form-control" value="<?php echo $check_amount;?>" />
+                                <input type="text" name="check_amount" id="check_amount" class="form-control required" value="<?php echo $check_amount;?>" />
                             </div>
                         </div>
                    </div> 
@@ -77,13 +77,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Taxable Adjustments </label>
-                                <input type="text" name="taxable_adjustments" id="taxable_adjustments" class="form-control" value="<?php echo $taxable_adjustments;?>" />
+                                <input type="text" name="taxable_adjustments" id="taxable_adjustments" class="form-control required" value="<?php echo $taxable_adjustments;?>" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Non Taxable Adjustments </label>
-                                <input type="text" name="non_taxable_adjustments" id="non_taxable_adjustments" class="form-control" value="<?php echo $non_taxable_adjustments;?>" />
+                                <input type="text" name="non_taxable_adjustments" id="non_taxable_adjustments" class="form-control required" value="<?php echo $non_taxable_adjustments;?>" />
                             </div>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Net Commission </label>
-                                <input type="text" name="net_production" id="net_production" class="form-control" value="<?php echo $net_production;?>" />
+                                <input type="text" name="net_production" id="net_production" class="form-control required" value="<?php echo $net_production;?>" />
                             </div>
                         </div>
                     </div>        
@@ -126,7 +126,7 @@
 				<div class="selectwrap">
                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                     <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-					<input type="submit" name="submit"  value="Save" style="float: right;"/>
+					<input type="submit" name="submit"   value="Save" style="float: right;"/>
                 </div>
             </div>
         </div>
@@ -189,6 +189,24 @@
 <script type="text/javascript">
 //datatable bootstrap
     $(document).ready(function() {
+        $('input.required').each(function(){
+            $(this).on("change blur", function(){
+                var selector = $(this);
+                var value = selector.val();
+                  console.log(value);
+                if(value == '') {
+                    selector.addClass('error');
+                    isErrorFound = true;
+                }
+                else selector.removeClass('error');
+            });
+        });
+       
+        $('#rep_name').trigger('change');
+
+         
+  
+     
         $('#data-table').DataTable({
         "pageLength": 25,
         "bLengthChange": false,
@@ -248,6 +266,62 @@ var waitingDialog = waitingDialog || (function ($) {
 			if (typeof message === 'undefined') {
 				message = 'Saving...';
 			}
+             var $isErrorFound =false;
+            if($("#payroll_date").val()==''){
+                 $isErrorFound=true;
+                $("#payroll_date").css({"border":"1px solid red"});
+            }
+            else{
+                  $("#payroll_date").css({"border":""});
+            }
+            if($("#rep_name").val()==''){
+                 $isErrorFound=true;
+                $("#rep_name").css({"border":"1px solid red"});
+            }
+            else{
+                  $("#rep_name").css({"border":""});
+            }
+            if($("#gross_production").val()==''){
+                 $isErrorFound=true;
+                $("#gross_production").css({"border":"1px solid red"});
+            }
+            else{
+                  $("#gross_production").css({"border":""});
+            }
+            if($("#check_amount").val()==''){
+                 $isErrorFound=true;
+                $("#check_amount").css({"border":"1px solid red"});
+            }
+            else{
+                  $("#check_amount").css({"border":""});
+            }
+            if($("#taxable_adjustments").val()==''){
+                 $isErrorFound=true;
+                $("#taxable_adjustments").css({"border":"1px solid red"});
+            }
+            else{
+                  $("#taxable_adjustments").css({"border":""});
+            }
+            if($("#non_taxable_adjustments").val()==''){
+                 $isErrorFound=true;
+                $("#non_taxable_adjustments").css({"border":"1px solid red"});
+            }
+            else{
+                  $("#non_taxable_adjustments").css({"border":""});
+            }
+
+            if($("#net_production").val()==''){
+                 $isErrorFound=true;
+                $("#net_production").css({"border":"1px solid red"});
+            }
+            else{
+                  $("#net_production").css({"border":""});
+            }
+
+            if($isErrorFound)
+                return false;
+            
+
 			var settings = $.extend({
 				dialogSize: 'm',
 				progressType: '',
@@ -267,6 +341,7 @@ var waitingDialog = waitingDialog || (function ($) {
 					settings.onHide.call($dialog);
 				});
 			}
+            return true;
 			// Opening dialog
 			$dialog.modal();
 		},

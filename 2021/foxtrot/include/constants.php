@@ -9,14 +9,7 @@
     define('DEFAULT_URSER_IMAGE','default.jpg');
     
     define('CURRENT_FILE',basename($_SERVER['SCRIPT_FILENAME']));
-    //10/30/21 - Localhost: Removed the "parse_url" section. Was cutting off the first section of the domain "localhost\<RootDirectory>"
-    if ($_SERVER['SERVER_NAME']=='localhost') {
-        $uriArray = parse_url($_SERVER['REQUEST_URI']);
-        $uriHost = isset($uriArray['host']) ? $uriArray['host'] : '';
-        define('CURRENT_PAGE', HTTP_HOST.$uriHost.$uriArray['path']);
-    } else {
-        define('CURRENT_PAGE',HTTP_HOST.ltrim(parse_url($_SERVER['REQUEST_URI'])['path'],'/'));
-    }
+    define('CURRENT_PAGE',HTTP_HOST.ltrim(parse_url($_SERVER['REQUEST_URI'])['path'],'/'));
     
     define('CURRENT_PAGE_QRY',trim(CURRENT_PAGE.'?'.$_SERVER['QUERY_STRING'],'?'));
     define('CURRENT_DATETIME',date('Y-m-d H:i:s'));
@@ -29,6 +22,7 @@
     define('UPDATE_MESSAGE','Data updated successfully.');
     define('UNKWON_ERROR','Something went wrong, please try again.');
     define('USER_CANCEL_MESSAGE', 'Procedure cancelled.');
+
 	
     define('PASSWORD_UPDATE_SUCCESS','Your password updated successfully.');
     define('DATE_FORMAT', 'm/d/Y');

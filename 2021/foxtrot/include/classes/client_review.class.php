@@ -104,7 +104,7 @@ class client_review extends db
 			return $all_brokers;
 	}
 
-	public function get_client_review_report($broker_id,$beginning_date,$ending_date) {
+	public function get_client_review_report($broker_id,$beginning_date,$ending_date,$dont_contact_client=0) {
 		$return = array();
 		$con='';
 		$con2='';
@@ -114,6 +114,9 @@ class client_review extends db
         }
         if ($broker_id!=0) {
         	$con2.=" AND broker.id='".$broker_id."'";        	
+        }
+        if($dont_contact_client > 0) {
+        	$con.= ' and client.do_not_contact = 0 ';
         }
 		$all_brokers=array();
 		$all_clients=array();

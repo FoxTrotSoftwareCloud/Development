@@ -1,3 +1,5 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.2.6/jquery.inputmask.bundle.min.js"></script>
+
 <div class="container">
     <h1 class="<?php /*if($action=='add_batches'||($action=='edit_batches' && $id>0)){?>topfixedtitle<?php }*/?>">Batches</h1>
     <div class="col-lg-12 well <?php /*if($action=='add_batches'||($action=='edit_batches' && $id>0)){ echo 'fixedwell';}*/?>">
@@ -75,7 +77,7 @@
                         <label>Check Amount </label><br />
                         <div class="input-group">
                         <span class="input-group-addon">$</span>
-                        <input type="text"  class="form-control" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 '  maxlength="8" name="check_amount" id="check_amount" value="<?php if(isset($check_amount) && $check_amount!='') {echo number_format($check_amount,2);}else{echo '0';}?>" />
+                        <input type="text"  class="form-control  two-decimals" maxlength="12" name="check_amount" id="check_amount" value="<?php if(isset($check_amount) && $check_amount!='') {echo number_format($check_amount,2);}else{echo '0';}?>" />
                         </div>
                     </div>
                 </div>
@@ -191,12 +193,22 @@
                     <div class="selectwrap">
                         <?php if($_GET['action']=='edit_batches' && $id>0){?>
                         <a href="report_transaction_by_batch.php?batch_id=<?php echo $id; ?>" target="_blank"><input type="button" name="view_report" value="View Report" /></a>
-                        <input type="submit" name="post_trade" value="Post" />
+                       <input type="submit" name="post_trade" value="Post" />
                         <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=unpost_trades&id=<?php echo $id; ?>');"><input type="button" class="confirm" name="unpost_trade" value="Unpost" /></a>
                         <a onclick="return conf_batch('<?php echo CURRENT_PAGE; ?>?action=batches_delete&id=<?php echo $id; ?>','<?php echo $batch_desc; ?>');"><input type="button" name="delete_trade" value="Delete" /></a>
-                        <?php } ?>
+                        <?php } 
+
+                        
+                        ?>
                         <a href="<?php echo CURRENT_PAGE.'?action=view_batches';?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                         <input type="submit" name="batches" onclick="waitingDialog.show();" value="Save" style="float: right;"/>	
+                        <?php 
+                            if($_GET['action']=='add_batches' || "add_batches_from_trans" == $_GET['action'] ){
+                            /*echo ' <input type="submit" name="post_trade" value="Post" style="float: right;" />';*/
+                            echo '<button ype="submit" class="btn-theme" name="post_trade" value="Post" style="float: right;" >Save & Post</button>';
+                        }
+
+                        ?>
                     </div>
                  <!--</div>
                  </div>-->
@@ -239,7 +251,7 @@
     			<table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
     	            <thead>
     	                <tr>
-                            <th>BATCH #</th>
+                            <th>BATCH NUMBER</th>
                             <th>BATCH DATE</th>
                             <th>DESCRIPTION</th>
                             <th>SPONSOR</th>
@@ -314,17 +326,86 @@
 </div>
 
 <script type="text/javascript">
+
+function setnumber_format(inputtext)
+{
+   // var a = inputtext.value;
+    var number  = inputtext.value;
+    var roundedNumber = Number((Math.floor(number * 100) / 100).toFixed(2))
+
+    var options = { style: 'currency', currency: 'USD'};
+    inputtext.value=(new Intl.NumberFormat(options).format(roundedNumber));
+    
+
+}
+
+    var action ='<?php  echo isset($_GET['action']) ? $_GET['action'] : ''; ?>';
     $(document).ready(function() {
-        $('#data-table').DataTable({
+
+/*$(".two-decimals").inputmask('currency', {
+    prefix: '',
+    rightAlign: false
+  });*/
+
+  $('.two-decimals').priceFormat({
+    prefix: '',
+      thousandsSeparator: '',
+       limit:10
+  
+});
+
+ $(".aaatwo-decimals").on("keypress", function (evnt) {
+            var el= this;
+          var charC = (evnt.which) ? evnt.which : evnt.keyCode;
+            if (charC == 46) {
+                if (el.value.indexOf('.') === -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                if (charC > 31 && (charC < 48 || charC > 57))
+                    return false;
+            }
+            return true;
+
+       /* var $txtBox = $(this);
+        var charCode = (evt.which) ? evt.which : evt.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46)
+            return false;
+        else {
+            var len = $txtBox.val().length;
+            var index = $txtBox.val().indexOf('.');
+            if (index > 0 && charCode == 46) {
+              return false;
+            }
+            if (index > 0) {
+                var charAfterdot = (len + 1) - index;
+                if (charAfterdot > 3) {
+                    return false;
+                }
+            }
+        }
+        return $txtBox; //for chaining*/
+    });
+
+
+        var params = {
         "pageLength": 25,
         "bLengthChange": false,
+      
         "bFilter": true,
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
         "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] }, 
                         { "bSearchable": false, "aTargets": [ 6,7 ] }]
-        });
+        };
+        if(action =='view_batches') {
+            params.order = [[ 0, "desc" ]];
+        }
+        $('#data-table').DataTable(params);
+          
         $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_batches" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
             '<div class="panel-control" style="padding-left:5px;display:inline;">'+
                     '<div class="btn-group dropdown" style="float: right;">'+
@@ -451,3 +532,19 @@ function conf_batch(url,batch_desc){
     });
 }
 </script>
+<style type="text/css">
+    .btn-theme {background: #EF7623;
+    border: none;
+    border-radius: 0;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    height: 34px;
+    padding: 0 15px;
+    text-transform: uppercase;
+    border: none;
+    margin: 0 7px 0 1px;
+    vertical-align: middle;}
+
+</style>

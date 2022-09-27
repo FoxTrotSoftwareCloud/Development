@@ -4187,6 +4187,8 @@
                 }
 
                 foreach ($tableArray AS $table){
+                    $table = strtolower($table);
+                    
                     $q = "SELECT `a`.`file_id`, `b`.`file_name`, SUM(if(`a`.`process_result`>0,0,1)) AS exceptions, SUM(if(`a`.`process_result`>0,1,0)) AS processed"
                         ." FROM `$table` `a`"
                         ." LEFT JOIN `".IMPORT_CURRENT_FILES."` `b` ON `a`.`file_id`=`b`.`id` AND `b`.`is_delete`=0"
@@ -5191,7 +5193,7 @@
             // $this->errors='';
             $get_file = [];
             $return = 0;
-            
+                    
             if($file_id > 0)
             {
                 //-- Validate the file
@@ -5214,7 +5216,8 @@
                         $_SESSION['warning'] = " Import File does not exist";
                         return false;
                     }
-                    
+                                            
+
                     //-- LOAD & SCAN Records
                     $fileArray = $rowArray = [];
                     $newDetailRecord = 0;
@@ -5222,11 +5225,12 @@
                     
                     //-- Load the array
                     $file = fopen($file_path, "r");
+
                     while (($rowString = fgets($file)) !== FALSE){
                         $recordName = substr($rowString,0,5);
                         //-- Load the record string by the header and record type fields
                         if ($recordName == 'FHDR'){
-                            // $mgmtCode = $controlDate = '';						
+                            // $mgmtCode = $controlDate = '';
                             $newDetailRecord = 1;
                         } else if ($recordName == 'DZHDR'){
                             $recordType = substr($rowString,5,15);

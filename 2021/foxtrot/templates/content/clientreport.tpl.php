@@ -1,7 +1,7 @@
 <div class="container">
 <h1>Report</h1>
     <div class="col-md-12 well">
-        <form method="POST">
+        <form method="POST" id="report_form" action="/CloudFox/client_reports.php">
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
@@ -9,7 +9,7 @@
                     <select class="form-control" name="report_for" id="report_for">
                         <option value="1" <?php if(isset($report_for) && ($report_for == 1 || $report_for == '')){echo "selected='true'";}?>>Account Numbers</option>
                         <option value="2" <?php if(isset($report_for) && $report_for == 2){echo "selected='true'";}?>>Client Lists</option>
-                        <option value="3" <?php if(isset($report_for) && $report_for == 3){echo "selected='true'";}?>>Client Review Report</option>
+                        <!-- <option value="3" <?php if(isset($report_for) && $report_for == 3){echo "selected='true'";}?>>Client Review Report</option> -->
                     </select>
                 </div>
              </div>
@@ -39,7 +39,7 @@
                             <select class="form-control" name="broker" id="broker_dropdown">
                                 <option value="0">All Brokers</option>
                                 <?php foreach($get_brokers as $brokerN): ?>
-                                    <option value="<?php echo $brokerN['id']; ?>" <?php echo isset($broker) && $broker==$brokerN['id'] ? 'selected' : '' ?>><?php echo $brokerN['first_name'].' '.$brokerN['last_name']; ?></option>
+                                    <option value="<?php echo $brokerN['id']; ?>" <?php echo isset($broker) && $broker==$brokerN['id'] ? 'selected' : '' ?>><?php echo $brokerN['last_name'].', '.$brokerN['first_name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -84,8 +84,8 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <input type="radio" class="radio" name="output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/> Output to Screen&nbsp;&nbsp;&nbsp;
-                            <!-- <input type="radio" class="radio" name="output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Output to Printer&nbsp;&nbsp;&nbsp; -->
-                            <!-- <input type="radio" class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Output to Excel&nbsp;&nbsp;&nbsp; -->
+                            <input type="radio" class="radio" name="output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Output to Printer&nbsp;&nbsp;&nbsp; 
+                            <input type="radio" class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Output to Excel&nbsp;&nbsp;&nbsp; 
                             <input type="radio" class="radio" name="output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/> Output to PDF
                         </div>
                     </div>
@@ -188,6 +188,21 @@ $('#demo-dp-range .input-daterange').datepicker({
                     $(".ending_date").show();
                 }
             }).trigger('change');
+
+
+            $("#report_form").submit(function(ev){
+                var _form = $(this);
+                var output_type = $(this).find("input[name='output']:checked").val();
+                if(output_type == 4 || output_type == 2) {
+                 
+                    _form.attr('target','_blank');
+                     //return false;
+                }
+                else {
+                    _form.removeAttr('target');
+                }
+             });
+
         });       
 </script>
 <style>

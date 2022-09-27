@@ -50,6 +50,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     
    
     if($report_for == "sponsor"){
+        $index_column="sponsor";
         if($sponsor > 0){
             $name  = $instance_trans->select_sponsor_by_id($sponsor); 
             $subheading.="<br/> FOR ".strtoupper($name);
@@ -57,10 +58,11 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         }
         else{
               $subheading.="<br/> FOR ALL SPONSORS";
-            //  $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+             // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
     }
     if($report_for == "branch"){
+         $index_column="branch";
         if($branch > 0){
             $branch_instance = new branch_maintenance();
             $name  = $branch_instance->select_branch_by_id($branch); 
@@ -69,11 +71,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         }
         else{
               $subheading.="<br/> FOR ALL BRANCHES";
-            //  $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
+             // $subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
 
     }
     if($report_for == "batch"){
+         $index_column="batch";
          $branch_instance = new batches();
          $subheading.="<br/>FOR ";
          if($batch_cate > 0){
@@ -98,11 +101,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
     }
     if($report_for == "client"){
+         $index_column="client_name";
         if($client > 0){
             $branch_instance = new client_maintenance();
             $name  = $branch_instance->select_client_master($client); 
 
-            $subheading.="<br/> FOR ".strtoupper($name['last_name'].', '.$name['first_name']);;
+            $subheading.="<br/> FOR ".strtoupper($name['last_name'].', '.$name['first_name']);
             //$subheading.="<br/>Broker: (ALL Brokers), Client: (ALL Clients)";
         }
         else{
@@ -111,7 +115,25 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         }
 
     }
+    if($report_for == "broker"){
+         $index_column="broker_name";
+        if($broker > 0){
+            $branch_instance = new broker_master();
+
+            $name  = $branch_instance->select_broker_by_id($broker);
+           
+            $subheading.="<br/> FOR ".strtoupper($name['last_name']).' '.strtoupper($name['first_name']);
+          
+        }
+        else{
+              $subheading.="<br/> FOR ALL BROKERS";
+             
+        }
+
+    }
+
     if($report_for == "product"){
+         $index_column="product";
         $branch_instance = new batches();
         $subheading.="<br/>FOR ";
         if($product_cate > 0){
@@ -135,7 +157,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $subheading.=", DATES: ".$beginning_date." - ".$ending_date;
     }
        
-            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail);
+            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail,$sponsor,$index_column);
            
 
     // create new PDF document
@@ -176,8 +198,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $html='<table border="0" cellpadding="1" width="100%">
                 <tr style="background-color: #f1f1f1;">
                    <td style="text-align:left;font-weight:bold;"><h5>DATE</h5></td>';
-     if($report_for == "client") : 
-        $html.=' <td style="text-align:left;font-weight:bold;"><h5>CLIENT </h5></td>
+     if($report_for == "client" || $report_for == 'product') :
+        $column= $report_for == "client" ? "PRODUCT": "CLIENT";
+        $html.=' <td style="text-align:left;font-weight:bold;"><h5>'.$column.' </h5></td>
                 <td style="text-align:left;font-weight:bold;"><h5>BROKER #</h5></td>';
        else : 
           $html.='<td style="text-align:left;font-weight:bold;"><h5>PRODUCT </h5></td>
@@ -194,29 +217,53 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
              $total_comm_received=0;
             $total_comm_paid=0;
             
-            foreach($get_trans_data as $trans_key=>$trans_data)
+            foreach($get_trans_data as $trans_main_key=>$trans_main_data)
             {
+                $html.='<tr> <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="6">'.$trans_main_data['broker'].'</td>
+                                </tr>';
+                $sub_total_records=0;
+                $sub_total_amount_invested = 0;
+                $sub_total_commission_received = 0;
+                $sub_total_charges = 0;
+                foreach($trans_main_data['products'] as $trans_key=>$trans_data){
                   
-                     
-                $total_comm_received+=$trans_data['commission_received'];
-                    $total_comm_paid+=$trans_data['charge_amount'];
-                $date = ($date_by == "1") ? $trans_data['trade_date'] : $trans_data['commission_received_date'];
-                $html.='<tr>
-                      <td style="font-size:10px;font-weight:normal;text-align:left;">'.date('m/d/Y',strtotime($date)).'</td>';
-                if($report_for == "client") : 
-                     $html.='<td style="font-size:10px;font-weight:normal;text-align:left;">'.$trans_data['client_name'].'</td>
-                                     <td style="font-size:10px;font-weight:normal;text-align:left;">'.$trans_data['broker_last_name'].', '.$trans_data['broker_name'].'</td>';
-                else:                     
+                            $sub_total_amount_invested = ($sub_total_amount_invested+$trans_data['charge_amount']);
+                                    $sub_total_commission_received = ($sub_total_commission_received+$trans_data['commission_received']);
+                                    $sub_total_charges = ($sub_total_charges+$trans_data['charge_amount']);
+                            $total_comm_received+=$trans_data['commission_received'];
+                                $total_comm_paid+=$trans_data['charge_amount'];
+                            $date = ($date_by == "1") ? $trans_data['trade_date'] : $trans_data['commission_received_date'];
+                            $html.='<tr>
+                                  <td style="font-size:10px;font-weight:normal;text-align:left;">'.date('m/d/Y',strtotime($date)).'</td>';
+                            if($report_for == "client" || $report_for == 'product') : 
+                                $col_value = $report_for == "client" ?  $trans_data['product_name']:$trans_data['client_name'];
+                                 $html.='<td style="font-size:10px;font-weight:normal;text-align:left;">'.$col_value.'</td>
+                                                 <td style="font-size:10px;font-weight:normal;text-align:left;">'.$trans_data['broker_last_name'].', '.$trans_data['broker_name'].'</td>';
+                            else:                     
 
-                     $html.='<td style="font-size:10px;font-weight:normal;text-align:left;">'.$trans_data['product_name'].'</td>
-                                     <td style="font-size:10px;font-weight:normal;text-align:left;">'.$trans_data['id'].'</td>';
-                endif;
-                $html.='
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['invest_amount'],2).'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['commission_received'],2).'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['charge_amount'],2).'</td>';
-                $html.='</tr>';
-            }
+                                 $html.='<td style="font-size:10px;font-weight:normal;text-align:left;">'.$trans_data['product_name'].'</td>
+                                                 <td style="font-size:10px;font-weight:normal;text-align:left;">'.$trans_data['id'].'</td>';
+                            endif;
+                            $html.='
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['invest_amount'],2).'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['commission_received'],2).'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:right;">$'.number_format($trans_data['charge_amount'],2).'</td>';
+                            $html.='</tr>';
+                }
+            
+
+                     $html.='<tr style="background-color: #f1f1f1;">
+                                    <td></td>
+                                    <td></td>
+                                    <td colspan="2" style="font-size:10px;font-weight:bold;text-align:right;"><b>**  SUBTOTAL **</b></td>
+                                    <td style="font-size:10px;font-weight:bold;text-align:right;"><b>$'.number_format($sub_total_commission_received,2).'</b></td>
+                                    <td style="font-size:10px;font-weight:bold;text-align:right;"><b>$'.number_format($sub_total_amount_invested,2).'</b></td>
+                                    <td></td>
+                                    <td></td>
+                                 
+                                </tr>';
+
+                }
 
             $html.='<tr style="background-color: #f1f1f1;">
                             <td></td>

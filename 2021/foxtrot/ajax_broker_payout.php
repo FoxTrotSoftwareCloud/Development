@@ -1,6 +1,17 @@
 <?php 
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
+
+if(isset($_GET['action']) && $_GET['action']== 'delete_payrol'){
+     $instance = new payroll();
+     $id=$_GET['id'];
+     $return = $instance->delete_prior_payrolls_master($id);
+     return true;
+    die();
+}
+
+
+
 if(isset($_GET['payout_schedule_id']) && $_GET['payout_schedule_id'] >0)
 {
 $id = isset($_GET['payout_schedule_id'])?$instance->re_db_input($_GET['payout_schedule_id']):0;    

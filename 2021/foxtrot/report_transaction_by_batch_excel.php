@@ -35,7 +35,9 @@
     }
     if($batch>0)
     {
-        $batch_desc = isset($return[0]['batch_desc'])?$instance->re_db_input($return[0]['batch_desc']):'';
+        
+            $index= array_key_first($return);
+            $batch_desc = isset($return[$index][0]['batch_desc'])? $instance->re_db_input($return[$index][0]['batch_desc']):'';
         $batch_name = 'Batch #'.$batch;
     }
     else
@@ -43,6 +45,9 @@
         $batch_desc = 'ALL BATCHES';
         $batch_name = '';
     }
+    $heading_title='TRANSACTION BY BATCH REPORT';
+    if($filter_array['report_for'] == 1)
+        $heading_title="COMMISSION POSTING LOG";
     
     $total_amount_invested = 0;
     $total_commission_received = 0;
@@ -72,7 +77,7 @@
         array(
             
             'A1'=>array('LOGO',array('bold','center','color'=>array('000000'),'size'=>array(16),'font_name'=>array('Calibri'),'merge'=>array('A1','A2'))),
-            'B1'=>array('TRANSACTION BY BATCH REPORT : '.$batch_desc,array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','F2'))),
+            'B1'=>array($heading_title.' : '.$batch_desc,array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','F2'))),
             'G1'=>array($system_company_name,array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('G1','H2'))),
             
             'A3'=>array($batch_name,array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A3','H3'))),
