@@ -181,7 +181,7 @@ PostResult( msg );
                             <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$'.number_format($total_commission_amount,2);?></h4>
                         <?php }
                     } else { ?>
-                        <h3>Preview Data</h3><br />
+                        <h3>Preview Data <a class="btn btn-primary pull-right" href="import.php">Back</a></h3><br />
                         <h4 style="margin-right: 5% !important; display: inline;">File: <?php if(isset($get_file_data['file_name'])){ echo $get_file_data['file_name']; } ?></h4>
                         <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if(isset($get_file_data['source'])){ echo $get_file_data['source']; } ?></h4>
                         <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
@@ -276,14 +276,17 @@ PostResult( msg );
                                                             $file_type_id = 1;
                                                         }
 
-                                                        if(isset($val['imported_date']) && $val['imported_date']!= '') {?>
+                                                        if(isset($val['imported_date']) && $val['imported_date']!= '') {
+                                                            
+                                                            $sponsorLink = CURRENT_PAGE."?tab=preview_files&id={$val['id']}&file_type=$file_type_id" ;   
+                                                        ?>
                                                             <tr id="<?php echo '$key'.$key ?>">
-                                                                <td><?php echo $val['source'];?></td>
-                                                                <td style="width: 10%;"><?php echo $val['file_name'];?></td>
-                                                                <td style="width: 15%;"><?php echo $val['file_type'];?></td>
-                                                                <td style="width: 10%;"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00'){echo date('m/d/Y H:i:s',strtotime($val['last_processed_date']));}?></td>
-                                                                <td style="width: 15%;"><a href="<?php echo CURRENT_PAGE."?tab=preview_files&id={$val['id']}&file_type=$file_type_id" ;?>"><?php echo $sponsor;?></a></td>
-                                                                <td><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A';?></td>
+                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer" ><?php echo $val['source'];?></td>
+                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 10%; cursor:pointer"><?php echo $val['file_name'];?></td>
+                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 15%; cursor:pointer"><?php echo $val['file_type'];?></td>
+                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 10%; cursor:pointer"><?php if(isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00'){echo date('m/d/Y H:i:s',strtotime($val['last_processed_date']));}?></td>
+                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 15%; cursor:pointer"><?php echo $sponsor;?></td>
+                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A';?></td>
                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y',strtotime($val['imported_date']));?></td>-->
 
                                                                 <?php
@@ -306,7 +309,7 @@ PostResult( msg );
                                                                     }
                                                                 ?>
 
-                                                                <td style="width: 15%;">
+                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 15%; cursor:pointer">
                                                                     <div class="progress">
                                                                         <?php //echo $count_processed_data."/".$count_exception_data;?>
 
@@ -1605,7 +1608,7 @@ $(document).ready(function() {
                 { "bSortable": true, "aTargets": [ 6,7 ] },
                 { "bSearchable": false, "aTargets": [ 6,7 ] }
             ],
-            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[0, "asc"], [1, "asc"]';?>]
+            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[3, "desc"]';?>]
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>'+
                     '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');

@@ -15,7 +15,6 @@ docs/
 images/
 .tmp/
 vendor/
-2021/foxtrot/include/config.php
 
 # OS or Editor folders
 .DS_Store
