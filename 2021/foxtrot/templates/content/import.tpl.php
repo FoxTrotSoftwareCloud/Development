@@ -257,15 +257,15 @@
                                                     <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                         <table id="data-table" class="table table-bordered table-stripped table-hover">
                                                             <thead>
-                                                                <th>Source</th>
+                                                                <th width="5%">Source</th>
                                                                 <th>File Name</th>
                                                                 <th>File Type</th>
                                                                 <!--<th>Imported</th>-->
                                                                 <th>Last Processed</th>
                                                                 <th>Sponsor</th>
                                                                 <th>Batch#</th>
-                                                                <th>Results</th>
-                                                                <th>Note</th>
+                                                                <th>Results and Notes</th>
+                                                                <th>CheckAmount & CommissionPosted</th>
                                                                 <th>Action</th>
                                                             </thead>
                                                             <tbody>
@@ -299,18 +299,26 @@
                                                                             $file_type_id = 1;
                                                                         }
 
+                                                                        $fid_to_send = $val['id'];
+                                                                        $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=0");
+
+                                                                        $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=1");
+
+                                                                        $total_Check_Amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
+
+
                                                                         if (isset($val['imported_date']) && $val['imported_date'] != '') {
 
                                                                             $sponsorLink = CURRENT_PAGE . "?tab=preview_files&id={$val['id']}&file_type=$file_type_id";
                                                                 ?>
                                                                             <tr id="<?php echo '$key' . $key ?>">
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source']; ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 10%; cursor:pointer"><?php echo $val['file_name']; ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 15%; cursor:pointer"><?php echo $val['file_type']; ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 10%; cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
+                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source'] ?></td>
+                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_name']; ?></td>
+                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
+                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
                                                                                                                                                                                         echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
                                                                                                                                                                                     } ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 15%; cursor:pointer"><?php echo $sponsor; ?></td>
+                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
                                                                                 <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A'; ?></td>
                                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y', strtotime($val['imported_date'])); ?></td>-->
 
@@ -332,7 +340,7 @@
                                                                                 }
                                                                                 ?>
 
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="width: 15%; cursor:pointer">
+                                                                                <td style="cursor:pointer">
                                                                                     <div class="progress">
                                                                                         <?php //echo $count_processed_data."/".$count_exception_data;
                                                                                         ?>
@@ -346,23 +354,40 @@
                                                                                             <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process; ?>%">
                                                                                                 <?php echo $total_complete_process . '%'; ?> Complete
                                                                                             </div>
+
                                                                                         <?php } ?>
                                                                                     </div>
-                                                                                </td>
-                                                                                <?php
-                                                                                $check_exception_data = $instance->check_exception_data($val['id']);
-                                                                                $check_processed_data = $instance->check_processed_data($val['id']);
-                                                                                $check_file_exception_process = $instance->check_file_exception_process($val['id']);
-                                                                                ?>
-                                                                                <td style="width: 10%;">
+
+                                                                                    <?php
+                                                                                    $check_exception_data = $instance->check_exception_data($val['id']);
+                                                                                    $check_processed_data = $instance->check_processed_data($val['id']);
+                                                                                    $check_file_exception_process = $instance->check_file_exception_process($val['id']);
+                                                                                    ?>
+
                                                                                     <form method="post">
                                                                                         <input type="hidden" name="id" id="id" value="<?php echo $val['id']; ?>" />
                                                                                         <input type="hidden" name="note" value="save_note" />
-                                                                                        <input type="text" maxlength="20" value="<?php echo isset($val['note']) ? $val['note'] : ''; ?>" name="note_<?php echo $val['id']; ?>">
+                                                                                        <input type="text" maxlength="20" class="notes" value="<?php echo isset($val['note']) ? $val['note'] : ''; ?>" name="note_<?php echo $val['id']; ?>">
                                                                                         <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type']; ?>" />
                                                                                     </form>
                                                                                 </td>
-                                                                                <td style="width: 25%;">
+
+                                                                                <td style="">
+                                                                                    CheckAmt: <?php 
+                                                                                        if($total_Check_Amount){ 
+                                                                                            echo ' $' . number_format($total_Check_Amount, 2);
+                                                                                            }else{
+                                                                                                echo 0;
+                                                                                            } ?>
+                                                                                    <br>
+                                                                                    Commission:<?php 
+                                                                                    if($total_processed_commission_for_import[0]['Total_commission']){ 
+                                                                                        echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'],2) ;
+                                                                                    }else{
+                                                                                        echo 0;
+                                                                                    } ?>
+                                                                                </td>
+                                                                                <td style="">
                                                                                     <form method="post">
                                                                                         <select name="process_file_<?php echo $val['id']; ?>" id="process_file_<?php echo $val['id']; ?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
                                                                                             <option value="0">Select Option</option>
@@ -505,11 +530,11 @@
                                                     } ?>" id="tab_review"><?php if (isset($_GET['tab']) && ($_GET['tab'] == "review_files" || $_GET['tab'] == "processed_files") && $_GET['id'] > 0) { ?>
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files") {
-                                                                                                                                                                                                    echo "active";
-                                                                                                                                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review</a></li>
+                                                                                    echo "active";
+                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review</a></li>
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "processed_files") {
-                                                                                                                                                                                                    echo "active";
-                                                                                                                                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed</a></li>
+                                                                                    echo "active";
+                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed</a></li>
                                     </ul> <?php } ?> <br />
 
                                 <!-- Tab 1 is started -->
@@ -571,6 +596,9 @@
                                                                 $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
                                                                 $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
                                                                 $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
+
+                                                                
+                                                        
 
                                                                 foreach ($return_exception as $error_key => $error_val) {
                                                                     if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
@@ -814,6 +842,7 @@
                                                                     $get_file_type = $instance->get_file_type($_GET['id']);
                                                                 }
                                                                 $return_solved_exception = $instance->select_solved_exception_data($file_id, $get_file_type);
+                                                             
 
                                                                 foreach ($return_solved_exception as $process_key => $process_val) {
                                                                     $total_commission_amount = $total_commission_amount + $process_val['commission'];
@@ -883,8 +912,8 @@
                                                     } ?>" id="tab_view"><?php if (isset($_GET['tab']) && $_GET['tab'] == "view_processed_files" && $_GET['id'] > 0) { ?>
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "view_processed_files") {
-                                                                                                                                                                    echo "active";
-                                                                                                                                                                } ?>"><a href="#view_processed_files" data-toggle="tab">View Processed Data</a></li>
+                                                                                echo "active";
+                                                                            } ?>"><a href="#view_processed_files" data-toggle="tab">View Processed Data</a></li>
                                     </ul> <?php } ?> <br />
                                 <!-- Tab 1 is started -->
                                 <div class="tab-content">
@@ -970,10 +999,13 @@
                             <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "preview_files") {
                                                         echo "active";
                                                     } ?>" id="tab_view"><?php if (isset($_GET['tab']) && $_GET['tab'] == "preview_files" && $_GET['id'] > 0) { ?>
+                                    <h3><a class="btn btn-primary pull-right" href="import.php">Back</a></h3><br />
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "preview_files") {
-                                                                                                                                                            echo "active";
-                                                                                                                                                        } ?>"><a href="#preview_files" data-toggle="tab">Preview Data</a></li>
+                                                                                echo "active";
+                                                                            } ?>">
+                                            <a href="#preview_files" data-toggle="tab">Preview Data </a>
+                                        </li>
                                     </ul> <?php } ?> <br />
                                 <!-- Tab 1 is started -->
                                 <div class="tab-content">
@@ -1689,6 +1721,10 @@
         background-color: #337ab7 !important;
         border-color: #2e6da4 !important;
     }
+
+    #data-table .progress, #data-table .notes  {
+        width: 100%;
+}
 </style>
 <script type="text/javascript">
     $(document).ready(function() {
@@ -1713,7 +1749,12 @@
                     "aTargets": [6, 7]
                 }
             ],
-            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[3, "desc"]'; ?>]
+            // "columnDefs": [{
+            //        "width": "40%",
+            //        "targets": 0,
+            //    },],
+            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[3, "desc"]'; ?>],
+            
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>' +
             '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');
