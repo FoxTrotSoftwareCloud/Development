@@ -30,12 +30,8 @@
            </div>
             <div class="panel-heading">
                 <div class="panel-control" style="float: right;">
-    				<div class="btn-group dropdown">
-    					<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-    					<ul class="dropdown-menu dropdown-menu-right" style="">
-    						<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_batches"><i class="fa fa-eye"></i> View List</a></li>
-    					</ul>
-    				</div>
+                <a class="btn btn-primary pull-right" href="<?php echo CURRENT_PAGE; ?>?action=view_batches">Back</a>
+    				
     			</div>
                 <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i><?php echo $action=='add_batches'?'Add':'Edit'; ?> Batches</h3>
     		</div>
@@ -77,7 +73,7 @@
                         <label>Check Amount </label><br />
                         <div class="input-group">
                         <span class="input-group-addon">$</span>
-                        <input type="text"  class="form-control  two-decimals" maxlength="12" name="check_amount" id="check_amount" value="<?php if(isset($check_amount) && $check_amount!='') {echo number_format($check_amount,2);}else{echo '0';}?>" />
+                        <input type="text"  class="form-control" maxlength="12" name="check_amount" id="check_amount" value="<?php if(isset($check_amount) && $check_amount!='') {echo number_format($check_amount,2);}else{echo '0';}?>" />
                         </div>
                     </div>
                 </div>
@@ -266,6 +262,7 @@
                     $count = 0;
                     $posted_commission_amount = 0;
                     foreach($return as $key=>$val){
+                       
                         $get_commission_amount = $instance->get_commission_total($val['id']);
                         if(isset($get_commission_amount['posted_commission_amount']) && $get_commission_amount['posted_commission_amount']!='')
                         {
@@ -275,7 +272,7 @@
                         $editLink = CURRENT_PAGE . '?action=edit_batches&id=' . $val['id'];
                         ?>
     	                   <tr>
-                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="text-align:center; cursor:pointer; vertical-align: middle;"><?php echo $val['id'];;?></td>
+                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="text-align:center; cursor:pointer; vertical-align: middle;"><?php echo $val['id'];?></td>
                                 <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="cursor:pointer; vertical-align: middle;"><?php echo date('m/d/Y',strtotime($val['batch_date']));?></td>
                                 <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="width: 20%; cursor:pointer; vertical-align: middle;"><?php echo $val['batch_desc'];?></td>
                                 <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="width: 20%; cursor:pointer; vertical-align: middle;"><?php 
@@ -404,9 +401,10 @@ function setnumber_format(inputtext)
                         { "bSearchable": false, "aTargets": [ 6,7 ] }]
         };
         if(action =='view_batches') {
-            params.order = [[ 0, "desc" ]];
+            params.order = [[ 1, "desc" ]];
         }
         $('#data-table').DataTable(params);
+    
           
         $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_batches" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
             '<div class="panel-control" style="padding-left:5px;display:inline;">'+

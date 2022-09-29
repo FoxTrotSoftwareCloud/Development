@@ -202,20 +202,31 @@
                                     $get_file_type_source = $instance->get_current_file_type($file_id);
 
                                     if (isset($get_file_type) && in_array($get_file_type, [2, 9])) {
-                                        $total_amount = 0;
+                                        // $total_amount = 0;
 
-                                        if ($get_file_type == 9) {
-                                            $return_file_data_array = $instance->get_gen_detail_data($file_id);
-                                        } else {
-                                            $return_file_data_array = $instance->get_idc_detail_data($file_id);
-                                        }
+                                        // if ($get_file_type == 9) {
+                                        //     $return_file_data_array = $instance->get_gen_detail_data($file_id);
+                                        // } else {
+                                        //     $return_file_data_array = $instance->get_idc_detail_data($file_id);
+                                        // }
 
-                                        foreach ($return_file_data_array as $preview_key => $preview_val) {
-                                            $total_amount += $preview_val['dealer_commission_amount'];
-                                        }
-                                        $total_commission_amount = $total_amount; ?>
+                                        // foreach ($return_file_data_array as $preview_key => $preview_val) {
+                                        //     $total_amount += $preview_val['dealer_commission_amount'];
+                                        // }
+                                        // $total_commission_amount = $total_amount;
 
-                                        <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$' . number_format($total_commission_amount / 100, 2); ?></h4>
+
+                                        //get total commission Amount
+
+                                        $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
+
+                                        $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
+
+                                        $total_Check_Amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
+
+                                    ?>
+
+                                        <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$' . number_format($total_Check_Amount, 2); ?></h4>
                             <?php }
                                 }
                             } ?>
@@ -264,8 +275,8 @@
                                                                 <th>Last Processed</th>
                                                                 <th>Sponsor</th>
                                                                 <th>Batch#</th>
-                                                                <th>Results and Notes</th>
-                                                                <th>CheckAmount & CommissionPosted</th>
+                                                                <th>Results & Notes</th>
+                                                                <th>Check Amount & Commission Posted</th>
                                                                 <th>Action</th>
                                                             </thead>
                                                             <tbody>
@@ -312,14 +323,14 @@
                                                                             $sponsorLink = CURRENT_PAGE . "?tab=preview_files&id={$val['id']}&file_type=$file_type_id";
                                                                 ?>
                                                                             <tr id="<?php echo '$key' . $key ?>">
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source'] ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_name']; ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
-                                                                                                                                                                                        echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
-                                                                                                                                                                                    } ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
-                                                                                <td onclick="window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A'; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source'] ?></td>
+                                                                                <td class="filenm" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_name']; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
+                                                                                                                                                                                                    echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
+                                                                                                                                                                                                } ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A'; ?></td>
                                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y', strtotime($val['imported_date'])); ?></td>-->
 
                                                                                 <?php
@@ -372,22 +383,22 @@
                                                                                     </form>
                                                                                 </td>
 
-                                                                                <td style="">
-                                                                                    CheckAmt: <?php 
-                                                                                        if($total_Check_Amount){ 
-                                                                                            echo ' $' . number_format($total_Check_Amount, 2);
-                                                                                            }else{
+                                                                                <td>
+                                                                                    Check Amt: <?php
+                                                                                                if ($total_Check_Amount) {
+                                                                                                    echo ' $' . number_format($total_Check_Amount, 2);
+                                                                                                } else {
+                                                                                                    echo 0;
+                                                                                                } ?>
+                                                                                    <br>
+                                                                                    Posted:<?php
+                                                                                            if ($total_processed_commission_for_import[0]['Total_commission']) {
+                                                                                                echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
+                                                                                            } else {
                                                                                                 echo 0;
                                                                                             } ?>
-                                                                                    <br>
-                                                                                    Commission:<?php 
-                                                                                    if($total_processed_commission_for_import[0]['Total_commission']){ 
-                                                                                        echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'],2) ;
-                                                                                    }else{
-                                                                                        echo 0;
-                                                                                    } ?>
                                                                                 </td>
-                                                                                <td style="">
+                                                                                <td  class="options">
                                                                                     <form method="post">
                                                                                         <select name="process_file_<?php echo $val['id']; ?>" id="process_file_<?php echo $val['id']; ?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
                                                                                             <option value="0">Select Option</option>
@@ -597,8 +608,6 @@
                                                                 $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
                                                                 $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
 
-                                                                
-                                                        
 
                                                                 foreach ($return_exception as $error_key => $error_val) {
                                                                     if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
@@ -842,7 +851,7 @@
                                                                     $get_file_type = $instance->get_file_type($_GET['id']);
                                                                 }
                                                                 $return_solved_exception = $instance->select_solved_exception_data($file_id, $get_file_type);
-                                                             
+
 
                                                                 foreach ($return_solved_exception as $process_key => $process_val) {
                                                                     $total_commission_amount = $total_commission_amount + $process_val['commission'];
@@ -1722,9 +1731,16 @@
         border-color: #2e6da4 !important;
     }
 
-    #data-table .progress, #data-table .notes  {
+    #data-table .progress,
+    #data-table .notes {
         width: 100%;
-}
+    }
+    #data-table .filenm {
+        width: 5%;
+    }
+    #data-table .options {
+        width: 12%;
+    }
 </style>
 <script type="text/javascript">
     $(document).ready(function() {
@@ -1754,7 +1770,7 @@
             //        "targets": 0,
             //    },],
             "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[3, "desc"]'; ?>],
-            
+
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>' +
             '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');
@@ -1933,6 +1949,7 @@
         float: right;
         padding-left: 5px;
     }
+
 </style>
 <script type="text/javascript">
     $('#demo-dp-range .input-daterange').datepicker({
@@ -2417,6 +2434,9 @@
                 }
                 if (typeof message === 'undefined') {
                     message = 'Saving...';
+                }
+                if (message === 'a') {
+                    message = 'Working on it...';
                 }
                 var settings = $.extend({
                     dialogSize: 'm',
