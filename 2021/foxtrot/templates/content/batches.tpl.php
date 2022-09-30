@@ -261,6 +261,9 @@
                     <?php 
                     $count = 0;
                     $posted_commission_amount = 0;
+
+
+
                     foreach($return as $key=>$val){
                        
                         $get_commission_amount = $instance->get_commission_total($val['id']);
@@ -270,10 +273,12 @@
                         }else{ $posted_commission_amount = 0;}
 
                         $editLink = CURRENT_PAGE . '?action=edit_batches&id=' . $val['id'];
+                        $batch_date = date('m/d/Y',strtotime($val['batch_date']));
+                        
                         ?>
     	                   <tr>
                                 <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="text-align:center; cursor:pointer; vertical-align: middle;"><?php echo $val['id'];?></td>
-                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="cursor:pointer; vertical-align: middle;"><?php echo date('m/d/Y',strtotime($val['batch_date']));?></td>
+                                <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="cursor:pointer; vertical-align: middle;"><?php echo $batch_date;?></td>
                                 <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="width: 20%; cursor:pointer; vertical-align: middle;"><?php echo $val['batch_desc'];?></td>
                                 <td onclick="window.location.href='<?php echo $editLink ?>'" title="Click to edit" class="td_space" style="width: 20%; cursor:pointer; vertical-align: middle;"><?php 
                                 if($val['sponsor'] == -1){
@@ -392,16 +397,19 @@ function setnumber_format(inputtext)
         var params = {
         "pageLength": 25,
         "bLengthChange": false,
-      
         "bFilter": true,
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6,7 ] }, 
-                        { "bSearchable": false, "aTargets": [ 6,7 ] }]
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": [ 6,7 ] }, 
+            { "bSearchable": false, "aTargets": [ 6,7 ] },
+            { "type": 'date', "targets": [1] },
+        ],
+        "order": [[1, 'desc']]
         };
         if(action =='view_batches') {
-            params.order = [[ 1, "desc" ]];
+            params.order = [[ 0, "desc" ]];
         }
         $('#data-table').DataTable(params);
     

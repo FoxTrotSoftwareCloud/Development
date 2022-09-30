@@ -36,9 +36,6 @@ if(isset($_GET['batch_id']))
     //$get_trans_data = $instance->select_data_report('','',$batch,'','','');
 }
 
-
-?>
-<?php
 if($filter_array['report_for'] == 1){
     $get_trans_data = $instance->select_data_commission_posting_log($product_category,$company,$batch,$beginning_date,$ending_date,$sort_by,1);
     $index= array_key_first($get_trans_data);
@@ -53,7 +50,7 @@ if($filter_array['report_for'] == 1){
         // add a page
         $pdf->AddPage('L');
         // Title
-        $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
+        $img = '<img src="upload/logo/'.$system_logo.'" height="25px" />';
         
         $pdf->SetFont('times','B',12);
         $pdf->SetFont('times','',10);
@@ -209,6 +206,7 @@ if($filter_array['report_for'] == 1){
 else{
 
 
+
     $get_trans_data = $instance->select_data_report($product_category,$company,$batch,$beginning_date,$ending_date,$sort_by,1);
     $index= array_key_first($get_trans_data);
     $batch_desc = isset($get_trans_data[$index][0]['batch_desc'])? $instance->re_db_input($get_trans_data[$index][0]['batch_desc']):'';
@@ -221,7 +219,7 @@ else{
     // add a page
     $pdf->AddPage('L');
     // Title
-    $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
+    $img = '<img src="upload/logo/'.$system_logo.'" height="25px" />';
     
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
@@ -248,6 +246,7 @@ else{
                 }
                 $html.='</tr>
         </table>';
+		
     $pdf->writeHTML($html, false, 0, false, 0);
     $pdf->Ln(2);
     

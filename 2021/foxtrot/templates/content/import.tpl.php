@@ -339,7 +339,7 @@
                                                                                 $detailTable = $detailTable['table'];
 
                                                                                 $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
-                                                                                $count_processed_data = $total_processed_data['processed'];
+                                                                                $count_processed_data = $total_processed_data['processed']; 
                                                                                 $count_exception_data = $total_processed_data['exceptions'];
 
                                                                                 if ($count_processed_data + $count_exception_data > 0) {
@@ -1756,14 +1756,10 @@
             "bInfo": false,
             "bAutoWidth": false,
             "dom": '<"toolbar">frtip',
-            "aoColumnDefs": [{
-                    "bSortable": true,
-                    "aTargets": [6, 7]
-                },
-                {
-                    "bSearchable": false,
-                    "aTargets": [6, 7]
-                }
+            "aoColumnDefs": [
+                { "bSortable": true, "aTargets": [6, 7] },
+                { "bSearchable": false, "aTargets": [6, 7] },
+                { "type": 'date', "targets": [3] },
             ],
             // "columnDefs": [{
             //        "width": "40%",
