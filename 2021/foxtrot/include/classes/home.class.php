@@ -72,37 +72,54 @@
             } else {
                 $return['total_processed_files_at_0'] = 0;
             }
+           
 			return $return;
 		}
+        
         public function select_daily_import_process_files($con=''){
             $ins = new import();
             $files_array = array();
             $total_complete_process = 0;
-			$q = "SELECT *
+			$q = "SELECT COUNT(*) as total_processing_files
 					FROM `".IMPORT_CURRENT_FILES."` WHERE `processed`='1' and `process_completed`='0' and `is_delete`='0' ".$con." ";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
-                while($row = $this->re_db_fetch_array($res)){
-                    if(isset($row['source']) && $row['source'] == 'DSTFANMail')
-                    {
-                        $total_complete_process = 0;//$ins->get_process_per($row['id'],1);
-                    }else{
-                        
-                        $total_complete_process = 0; //$ins->get_process_per($row['id'],2);
-                    }
-                    
-                    if($total_complete_process > 0)
-                    {
-                        $files_array[]=$row['id'];
-                    }
-                }
-                $result['total_processed_files'] = count($files_array);
-    			$return = $result;
-            } else {
-              $return['total_processed_files'] = 0;
+    			$return = $this->re_db_fetch_array($res);
             }
+
 			return $return;
 		}
+
+        // public function select_daily_import_process_files($con=''){
+        //     $ins = new import();
+        //     $files_array = array();
+        //     $total_complete_process = 0;
+		// 	$q = "SELECT *
+		// 			FROM `".IMPORT_CURRENT_FILES."` WHERE `processed`='1' and `process_completed`='0' and `is_delete`='0' ".$con." ";
+		// 	$res = $this->re_db_query($q);
+        //     if($this->re_db_num_rows($res)>0){
+        //         while($row = $this->re_db_fetch_array($res)){
+        //             if(isset($row['source']) && $row['source'] == 'DSTFANMail')
+        //             {
+        //                 $total_complete_process = 0;//$ins->get_process_per($row['id'],1);
+        //             }else{
+                        
+        //                 $total_complete_process = 0; //$ins->get_process_per($row['id'],2);
+        //             }
+                    
+        //             if($total_complete_process > 0)
+        //             {
+        //                 $files_array[]=$row['id'];
+        //             }
+        //         }
+        //         $result['total_processed_files'] = count($files_array);
+    	// 		$return = $result;
+        //     } else {
+        //       $return['total_processed_files'] = 0;
+        //     }
+		// 	return $return;
+		// }
+
         public function select_daily_import_new_files($con=''){
            
 			$q = "SELECT COUNT(*) as total_new_files
@@ -111,6 +128,7 @@
             if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
             }
+            // print_r($return); die;
 			return $return;
 		}
         public function select_ytd_amount_list($con=''){

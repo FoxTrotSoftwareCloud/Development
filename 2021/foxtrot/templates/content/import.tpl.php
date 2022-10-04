@@ -156,13 +156,25 @@
                             if (isset($_GET['tab']) && ($_GET['tab'] == "review_files" || $_GET['tab'] == "processed_files") && $_GET['id'] > 0) {
                                 $get_file_data = $instance->select_user_files($_GET['id']);
                                 $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
-                                $total_commission_amount = 0.00;
+                                 $total_commission_amount = 0.00;
+
 
                                 if (empty($get_file_type)) {
                                     $fileTypeDescription = $get_file_data['file_type'];
                                 } else if (in_array($get_file_type, ['2', '9'])) {
                                     $fileTypeDescription = "Commissions";
-                                    $total_commission_amount = (float)$instance->get_file_batch($_GET['id'], 'commission_amount');
+                                    // $total_commission_amount = (float)$instance->get_file_batch($_GET['id'], 'commission_amount');
+
+
+                                    $id=$_GET['id'];
+                                    $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
+
+                                    $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
+    
+                                    $total_commission_amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
+
+
+
                                 } else if ($get_file_type == '3') {
                                     $fileTypeDescription = "Securities";
                                 } else {
@@ -170,7 +182,7 @@
                                 }
 
                                 if ($_GET['tab'] == "review_files") { ?>
-                                    <h3>Review & Resolve Exceptions</h3><br />
+                                    <h3>Review & Resolve Exceptions  <a class="btn btn-primary pull-right" href="import.php">Back</a> </h3><br />
                                     <h4 style="margin-right: 5% !important; display: inline;">File: <?php if (isset($get_file_data['file_name'])) {
                                                                                                         echo $get_file_data['file_name'];
                                                                                                     } ?></h4>
@@ -268,6 +280,7 @@
                                                     <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                         <table id="data-table" class="table table-bordered table-stripped table-hover">
                                                             <thead>
+                                                                <th>Action</th>
                                                                 <th width="5%">Source</th>
                                                                 <th>File Name</th>
                                                                 <th>File Type</th>
@@ -275,9 +288,9 @@
                                                                 <th>Last Processed</th>
                                                                 <th>Sponsor</th>
                                                                 <th>Batch#</th>
-                                                                <th>Results & Notes</th>
                                                                 <th>Check Amount & Commission Posted</th>
-                                                                <th>Action</th>
+                                                                <th>Results</th>
+                                                                <th>Notes</th>
                                                             </thead>
                                                             <tbody>
                                                                 <?php
@@ -323,82 +336,8 @@
                                                                             $sponsorLink = CURRENT_PAGE . "?tab=preview_files&id={$val['id']}&file_type=$file_type_id";
                                                                 ?>
                                                                             <tr id="<?php echo '$key' . $key ?>">
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source'] ?></td>
-                                                                                <td class="filenm" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_name']; ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
-                                                                                                                                                                                                    echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
-                                                                                                                                                                                                } ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A'; ?></td>
-                                                                                <!--<td style="width: 15%;"><?php echo date('m/d/Y', strtotime($val['imported_date'])); ?></td>-->
 
-                                                                                <?php
-                                                                                // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
-                                                                                $detailTable = $instance->import_table_select($val['id'], $file_type_id);
-                                                                                $detailTable = $detailTable['table'];
-
-                                                                                $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
-                                                                                $count_processed_data = $total_processed_data['processed']; 
-                                                                                $count_exception_data = $total_processed_data['exceptions'];
-
-                                                                                if ($count_processed_data + $count_exception_data > 0) {
-                                                                                    $total_process = $count_processed_data + $count_exception_data;
-                                                                                    $total_processed_per = ($count_processed_data * 100) / $total_process;
-                                                                                    $total_complete_process = round($total_processed_per);
-                                                                                } else {
-                                                                                    $total_complete_process = 0;
-                                                                                }
-                                                                                ?>
-
-                                                                                <td style="cursor:pointer">
-                                                                                    <div class="progress">
-                                                                                        <?php //echo $count_processed_data."/".$count_exception_data;
-                                                                                        ?>
-
-                                                                                        <?php if (isset($total_complete_process) && $total_complete_process < 100) { ?>
-                                                                                            <?php $progress_bar_style = ($count_exception_data > 0) ? 'danger' : 'warning'; ?>
-                                                                                            <div class="progress-bar progress-bar-<?php echo $progress_bar_style; ?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process; ?>%">
-                                                                                                <?php echo $total_complete_process . '%'; ?> Complete
-                                                                                            </div>
-                                                                                        <?php } else { ?>
-                                                                                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process; ?>%">
-                                                                                                <?php echo $total_complete_process . '%'; ?> Complete
-                                                                                            </div>
-
-                                                                                        <?php } ?>
-                                                                                    </div>
-
-                                                                                    <?php
-                                                                                    $check_exception_data = $instance->check_exception_data($val['id']);
-                                                                                    $check_processed_data = $instance->check_processed_data($val['id']);
-                                                                                    $check_file_exception_process = $instance->check_file_exception_process($val['id']);
-                                                                                    ?>
-
-                                                                                    <form method="post">
-                                                                                        <input type="hidden" name="id" id="id" value="<?php echo $val['id']; ?>" />
-                                                                                        <input type="hidden" name="note" value="save_note" />
-                                                                                        <input type="text" maxlength="20" class="notes" value="<?php echo isset($val['note']) ? $val['note'] : ''; ?>" name="note_<?php echo $val['id']; ?>">
-                                                                                        <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type']; ?>" />
-                                                                                    </form>
-                                                                                </td>
-
-                                                                                <td>
-                                                                                    Check Amt: <?php
-                                                                                                if ($total_Check_Amount) {
-                                                                                                    echo ' $' . number_format($total_Check_Amount, 2);
-                                                                                                } else {
-                                                                                                    echo 0;
-                                                                                                } ?>
-                                                                                    <br>
-                                                                                    Posted:<?php
-                                                                                            if ($total_processed_commission_for_import[0]['Total_commission']) {
-                                                                                                echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
-                                                                                            } else {
-                                                                                                echo 0;
-                                                                                            } ?>
-                                                                                </td>
-                                                                                <td  class="options">
+                                                                                <td class="options">
                                                                                     <form method="post">
                                                                                         <select name="process_file_<?php echo $val['id']; ?>" id="process_file_<?php echo $val['id']; ?>" class="form-control form-go-action" style=" width: 100% !important;display: inline;">
                                                                                             <option value="0">Select Option</option>
@@ -420,6 +359,82 @@
                                                                                         <input type="hidden" name="go" value="go" />
                                                                                     </form>
                                                                                 </td>
+
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source'] ?></td>
+                                                                                <td class="filenm" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_name']; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
+                                                                                                                                                                                                    echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
+                                                                                                                                                                                                } ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A'; ?></td>
+                                                                                <!--<td style="width: 15%;"><?php echo date('m/d/Y', strtotime($val['imported_date'])); ?></td>-->
+
+                                                                                <?php
+                                                                                // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
+                                                                                $detailTable = $instance->import_table_select($val['id'], $file_type_id);
+                                                                                $detailTable = $detailTable['table'];
+
+                                                                                $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
+                                                                                $count_processed_data = $total_processed_data['processed'];
+                                                                                $count_exception_data = $total_processed_data['exceptions'];
+
+                                                                                if ($count_processed_data + $count_exception_data > 0) {
+                                                                                    $total_process = $count_processed_data + $count_exception_data;
+                                                                                    $total_processed_per = ($count_processed_data * 100) / $total_process;
+                                                                                    $total_complete_process = round($total_processed_per);
+                                                                                } else {
+                                                                                    $total_complete_process = 0;
+                                                                                }
+                                                                                ?>
+
+                                                                                <td>
+                                                                                    Check Amt: <?php
+                                                                                                if ($total_Check_Amount) {
+                                                                                                    echo ' $' . number_format($total_Check_Amount, 2);
+                                                                                                } else {
+                                                                                                    echo 0;
+                                                                                                } ?>
+                                                                                    <br>
+                                                                                    Posted:<?php
+                                                                                            if ($total_processed_commission_for_import[0]['Total_commission']) {
+                                                                                                echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
+                                                                                            } else {
+                                                                                                echo 0;
+                                                                                            } ?>
+                                                                                </td>
+                                                                                <td style="cursor:pointer">
+                                                                                    <div class="progress">
+                                                                                        <?php //echo $count_processed_data."/".$count_exception_data;
+                                                                                        ?>
+
+                                                                                        <?php if (isset($total_complete_process) && $total_complete_process < 100) { ?>
+                                                                                            <?php $progress_bar_style = ($count_exception_data > 0) ? 'danger' : 'warning'; ?>
+                                                                                            <div class="progress-bar progress-bar-<?php echo $progress_bar_style; ?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process; ?>%">
+                                                                                                <?php echo $total_complete_process . '%'; ?> Complete
+                                                                                            </div>
+                                                                                        <?php } else { ?>
+                                                                                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process; ?>%">
+                                                                                                <?php echo $total_complete_process . '%'; ?> Complete
+                                                                                            </div>
+
+                                                                                        <?php } ?>
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td> <?php
+                                                                                        $check_exception_data = $instance->check_exception_data($val['id']);
+                                                                                        $check_processed_data = $instance->check_processed_data($val['id']);
+                                                                                        $check_file_exception_process = $instance->check_file_exception_process($val['id']);
+                                                                                        ?>
+
+                                                                                    <form method="post">
+                                                                                        <input type="hidden" name="id" id="id" value="<?php echo $val['id']; ?>" />
+                                                                                        <input type="hidden" name="note" value="save_note" />
+                                                                                        <input type="text" maxlength="25" class="notes" value="<?php echo isset($val['note']) ? $val['note'] : ''; ?>" name="note_<?php echo $val['id']; ?>">
+                                                                                        <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type']; ?>" />
+                                                                                    </form>
+                                                                                </td>
+
                                                                             </tr>
                                                                 <?php }
                                                                     }
@@ -1735,9 +1750,11 @@
     #data-table .notes {
         width: 100%;
     }
+
     #data-table .filenm {
         width: 5%;
     }
+
     #data-table .options {
         width: 12%;
     }
@@ -1756,10 +1773,18 @@
             "bInfo": false,
             "bAutoWidth": false,
             "dom": '<"toolbar">frtip',
-            "aoColumnDefs": [
-                { "bSortable": true, "aTargets": [6, 7] },
-                { "bSearchable": false, "aTargets": [6, 7] },
-                { "type": 'date', "targets": [3] },
+            "aoColumnDefs": [{
+                    "bSortable": true,
+                    "aTargets": [6, 7]
+                },
+                {
+                    "bSearchable": false,
+                    "aTargets": [6, 7]
+                },
+                {
+                    "type": 'date',
+                    "targets": [3]
+                },
             ],
             // "columnDefs": [{
             //        "width": "40%",
@@ -1945,7 +1970,6 @@
         float: right;
         padding-left: 5px;
     }
-
 </style>
 <script type="text/javascript">
     $('#demo-dp-range .input-daterange').datepicker({

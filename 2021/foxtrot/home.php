@@ -173,8 +173,9 @@
         
     }
     $di_completed_files = isset($get_di_completed_files['total_completed_files'])?$get_di_completed_files['total_completed_files']:0;
-    $di_partially_completed_files = isset($get_di_process_files['total_processed_files'])?$get_di_process_files['total_processed_files']:0;
-    $di_new_files = isset($get_di_new_files['total_new_files'])?$get_di_new_files['total_new_files']+$get_di_process_files_at_0['total_processed_files_at_0']:0;
+    $di_partially_completed_files = isset($get_di_process_files['total_processing_files'])?$get_di_process_files['total_processing_files']:0;
+    $di_new_files = isset($get_di_new_files['total_new_files'])?$get_di_new_files['total_new_files']:0;
+    // $di_new_files = isset($get_di_new_files['total_new_files'])?$get_di_new_files['total_new_files']+$get_di_process_files_at_0['total_processed_files_at_0']:0;
     
     $invest_amount = isset($invest_amount_array['count'])?$invest_amount_array['count']:0;
     $charge_amount = isset($charge_amount_array['count'])?$charge_amount_array['count']:0;
