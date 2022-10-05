@@ -421,7 +421,7 @@
                                                                                         <?php } ?>
                                                                                     </div>
                                                                                 </td>
-                                                                                <td> <?php
+                                                                                <td class="addnote"> <?php
                                                                                         $check_exception_data = $instance->check_exception_data($val['id']);
                                                                                         $check_processed_data = $instance->check_processed_data($val['id']);
                                                                                         $check_file_exception_process = $instance->check_file_exception_process($val['id']);
@@ -1756,7 +1756,10 @@
     }
 
     #data-table .options {
-        width: 12%;
+        width: 11%;
+    }
+    #data-table .addnote {
+        width: 11%;
     }
 </style>
 <script type="text/javascript">

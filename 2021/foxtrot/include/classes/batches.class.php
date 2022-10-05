@@ -35,7 +35,7 @@
             $check_amount= isset($data['check_amount'])?$this->re_db_input($data['check_amount']):0;
             //$check_amount = str_replace(",", '', $check_amount_mask);
             $commission_amount= isset($data['commission_amount'])?$this->re_db_input($data['commission_amount']):0;
-            $split= isset($data['split'])?$this->re_db_input($data['split']):'';
+            $split= isset($data['split'])?$this->re_db_input($data['split']):0;
             $prompt_for_check_amount= isset($data['prompt_for_check_amount'])?$this->re_db_input($data['prompt_for_check_amount']):0;
             $posted_amounts= isset($data['posted_amounts'])?$this->re_db_input($data['posted_amounts']):0;
             			

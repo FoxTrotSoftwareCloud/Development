@@ -27,6 +27,9 @@
         $trade_start_date = isset($_POST['trade_start_date'])?$instance->re_db_input($_POST['trade_start_date']):'';
         $trade_end_date = isset($_POST['trade_end_date'])?$instance->re_db_input($_POST['trade_end_date']):'';
         $check_amount = isset($_POST['check_amount'])?$instance->re_db_input($_POST['check_amount']):0;
+
+        $_POST['check_amount'] = floatval(preg_replace('/[^\d.]/', '', $check_amount));
+
         $commission_amount = isset($_POST['commission_amount'])?$instance->re_db_input($_POST['commission_amount']):'';
         $split = isset($_POST['split'])?$instance->re_db_input($_POST['split']):'';
         $prompt_for_check_amount = isset($_POST['prompt_for_check_amount'])?$instance->re_db_input($_POST['prompt_for_check_amount']):'';
@@ -63,6 +66,9 @@
         $trade_start_date = isset($_POST['trade_start_date'])?$instance->re_db_input($_POST['trade_start_date']):'';
         $trade_end_date = isset($_POST['trade_end_date'])?$instance->re_db_input($_POST['trade_end_date']):'';
         $check_amount = isset($_POST['check_amount'])?$instance->re_db_input($_POST['check_amount']):0;
+
+        $_POST['check_amount'] = floatval(preg_replace('/[^\d.]/', '', $check_amount));
+        
         $commission_amount = isset($_POST['commission_amount'])?$instance->re_db_input($_POST['commission_amount']):'';
         $split = isset($_POST['split'])?$instance->re_db_input($_POST['split']):'';
         $prompt_for_check_amount = isset($_POST['prompt_for_check_amount'])?$instance->re_db_input($_POST['prompt_for_check_amount']):'';
@@ -83,8 +89,14 @@
     else if($action=='edit_batches' && $id>0){
         $return = $instance->edit_batches($id);
         $return_trade_date = $instance->get_trade_date($id);
-        $trade_start_date = isset($return_trade_date)?$instance->re_db_output($return_trade_date):'';
-        $trade_end_date = isset($return_trade_date)?$instance->re_db_output($return_trade_date):'';
+        // $trade_start_date = isset($return_trade_date)?$instance->re_db_output($return_trade_date):'';
+        // $trade_end_date = isset($return_trade_date)?$instance->re_db_output($return_trade_date):'';
+
+
+        $trade_start_date=isset($return['trade_start_date'])?$instance->re_db_output($return['trade_start_date']):'';
+
+        $trade_end_date=isset($return['trade_end_date'])?$instance->re_db_output($return['trade_end_date']):'';
+
         $id = isset($return['id'])?$instance->re_db_output($return['id']):0;
         $get_commission_amount = $instance->get_commission_total($id);
         $pro_category = isset($return['pro_category'])?$instance->re_db_output($return['pro_category']):'';

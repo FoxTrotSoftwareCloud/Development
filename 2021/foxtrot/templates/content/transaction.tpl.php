@@ -462,6 +462,7 @@ function autocomplete(inp, arr) {
                         <label>Product Category <span class="text-red">*</span></label><br />
                         <select class="form-control" data-required="true" name="product_cate" id="product_cate">
                             <option value="0">Select Product category</option>
+                            <option value="<?php echo '-1';?>" <?php if(isset($product_category) && $product_category=='-1'){ ?>selected="true"<?php } ?>><?php echo 'Multiple Categories';?></option>
                              <?php foreach($product_category as $key=>$val){?>
                             <option value="<?php echo $val['id'];?>" <?php if(isset($product_cate) && $product_cate==$val['id']){?> selected="true"<?php } ?>><?php echo $val['type'];?></option>
                             <?php } ?>
@@ -475,6 +476,7 @@ function autocomplete(inp, arr) {
                             <label>Sponsor </label><br />
                             <select class="form-control" name="sponsor" id="sponsor">
                                 <option value="">Select Sponsor</option>
+                                <option value="-1" <?php if(isset($sponsor) && $sponsor=='-1'){ ?>selected="true"<?php } ?>> Multiple Sponsors</option>
                                 <?php foreach($get_sponsor as $key=>$val){?>
                                 <option value="<?php echo $val['id'];?>" <?php if(isset($sponsor) && $sponsor==$val['id']){?> selected="true"<?php } ?>><?php echo $val['name'];?></option>
                                 <?php } ?>
