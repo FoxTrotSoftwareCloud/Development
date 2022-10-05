@@ -134,6 +134,21 @@
             }
 			return $return;
 		}
+
+		public function get_name_by_id($id){
+
+			if($id == -1){
+				return 'Multiple Sponsors';
+			}
+			else{
+				$q="SELECT `name` FROM `ft_sponsor_master` WHERE `id`=$id";
+
+				$res = $this->re_db_query($q);
+				$result = mysqli_fetch_assoc($res);
+				return $result['name'];
+			}
+		}
+
         public function get_commission_total($id=''){
 			$return = array();
 			

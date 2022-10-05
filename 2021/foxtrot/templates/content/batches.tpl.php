@@ -420,7 +420,7 @@ function setnumber_format(inputtext)
                         '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
     					'<ul class="dropdown-menu dropdown-menu-right" style="">'+
     						'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_batches"><i class="fa fa-plus"></i> Add New</a></li>'+
-                            '<li><a href="<?php echo SITE_URL; ?>report_transaction_by_batch.php" target="_blank"><i class="fa fa-minus"></i> Report</a></li>'+
+                            '<li><a href="<?php echo SITE_URL; ?>report_all_batches.php" target="_blank"><i class="fa fa-minus"></i> Report</a></li>'+
     					'</ul>'+
     				'</div>'+
     			'</div>');
