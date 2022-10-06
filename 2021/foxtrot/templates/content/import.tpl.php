@@ -281,7 +281,7 @@
                                                         <table id="data-table" class="table table-bordered table-stripped table-hover">
                                                             <thead>
                                                                 <th>Action</th>
-                                                                <th width="5%">Source</th>
+                                                                <th>Source</th>
                                                                 <th>File Name</th>
                                                                 <th>File Type</th>
                                                                 <!--<th>Imported</th>-->
@@ -360,9 +360,13 @@
                                                                                     </form>
                                                                                 </td>
 
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source'] ?></td>
-                                                                                <td class="filenm" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_name']; ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
+                                                                                <td class="source" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source'] ?></td>
+                                                                                <td class="filenm" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer" title="<?= $val['file_name'] ?>" >
+                                                                                <?php 
+                                                                                    $filename=$val['file_name'];
+                                                                                    echo $str = (strlen($filename) > 22)? substr($filename,0,20).'...' : $filename;
+                                                                                ?></td>
+                                                                                <td class="filetype" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
                                                                                                                                                                                                     echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
                                                                                                                                                                                                 } ?></td>
@@ -388,20 +392,21 @@
                                                                                 }
                                                                                 ?>
 
-                                                                                <td>
-                                                                                    Check Amt: <?php
-                                                                                                if ($total_Check_Amount) {
-                                                                                                    echo ' $' . number_format($total_Check_Amount, 2);
-                                                                                                } else {
-                                                                                                    echo 0;
-                                                                                                } ?>
-                                                                                    <br>
+                                                                                <td style="text-align:right ;">
                                                                                     Posted:<?php
                                                                                             if ($total_processed_commission_for_import[0]['Total_commission']) {
                                                                                                 echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
                                                                                             } else {
                                                                                                 echo 0;
                                                                                             } ?>
+                                                                                            <br>
+                                                                                    Check Amt: <?php
+                                                                                                if ($total_Check_Amount) {
+                                                                                                    echo ' $' . number_format($total_Check_Amount, 2);
+                                                                                                } else {
+                                                                                                    echo 0;
+                                                                                                } ?>
+                                                                                    
                                                                                 </td>
                                                                                 <td style="cursor:pointer">
                                                                                     <div class="progress">
@@ -1756,10 +1761,16 @@
     }
 
     #data-table .options {
-        width: 11%;
+        width: 10%;
     }
     #data-table .addnote {
-        width: 11%;
+        width: 13%;
+    }
+    #data-table .filetype {
+        width: 18%;
+    }
+    #data-table .source {
+        width: 8%;
     }
 </style>
 <script type="text/javascript">

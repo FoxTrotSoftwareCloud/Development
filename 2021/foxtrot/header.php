@@ -62,7 +62,7 @@ require_once(DIR_FS."islogin.php");?>
 	border: 1px solid red!important;
 }
 body .container{
-	 width: 1300px;
+	 width: 1500px;
 }
 .dropdown-submenu>.dropdown-menu {
     top: 0;

@@ -541,20 +541,7 @@ function autocomplete(inp, arr) {
 
 
             </div>
-            <div class="row">
-
-                <div class="col-md-6">
-                    <div class="form-group" id="posting_date" style="visibility: hidden;">
-                        <label>Posting Date </label><br />
-                        <div id="demo-dp-range">
-                            <div class="input-daterange input-group" id="datepicker">
-                                <input type="text" name="posting_date" id="posting_date" disabled="true" value="<?php if(isset($posting_date) && $posting_date!='0000-00-00'){ echo date('m/d/Y',strtotime($posting_date));}else if(isset($_GET['action']) && $_GET['action']=='add'){ echo date('m/d/Y'); } else { echo '';}?>" class="form-control" />
-                                <input type="hidden" name="posting_date" id="posting_date" value="<?php if(isset($posting_date) && $posting_date!='0000-00-00'){ echo date('m/d/Y',strtotime($posting_date));}else if(isset($_GET['action']) && $_GET['action']=='add'){ echo date('m/d/Y'); } else { echo '';}?>" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
             <div class="row multi-checkbox-row">
                 <div class="col-md-6">
                     <div class="row">
@@ -643,6 +630,20 @@ function autocomplete(inp, arr) {
 
                     </div>
                 </div>
+                <div class="row">
+
+                <div class="col-md-6">
+                    <div class="form-group" id="posting_date" style="visibility: hidden;">
+                        <label>Posting Date </label><br />
+                        <div id="demo-dp-range">
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" name="posting_date" id="posting_date" disabled="true" value="<?php if(isset($posting_date) && $posting_date!='0000-00-00'){ echo date('m/d/Y',strtotime($posting_date));}else if(isset($_GET['action']) && $_GET['action']=='add'){ echo date('m/d/Y'); } else { echo '';}?>" class="form-control" />
+                                <input type="hidden" name="posting_date" id="posting_date" value="<?php if(isset($posting_date) && $posting_date!='0000-00-00'){ echo date('m/d/Y',strtotime($posting_date));}else if(isset($_GET['action']) && $_GET['action']=='add'){ echo date('m/d/Y'); } else { echo '';}?>" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!--<h4>Overrides </h4>
             <div class="panel" style="border: 1px solid #cccccc !important; padding: 10px !important;">
                 <div class="row">
