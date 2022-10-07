@@ -6,6 +6,9 @@
          margin-left: -22px;
          margin-top: 1px;
     }
+    .radiomargin{
+        margin-bottom: 6px;
+    }
 </style>
 <div class="container">
 <h1>Report</h1>
@@ -15,7 +18,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Select Report </label>
-                    <select class="form-control" name="report_for" id="report_for">
+                    <select class="form-control" name="report_for" id="report_for" onchange="changeTitle()">
                         <option value="1" <?php if(isset($report_for) && ($report_for == 1 || $report_for == '')){echo "selected='true'";}?>>Commission Posting Log</option>
                         <option value="2" <?php if(isset($report_for) && $report_for == 2){echo "selected='true'";}?>>Batch Report</option>
                         <option value="3" <?php if(isset($report_for) && $report_for == 3){echo "selected='true'";}?>>Hold Report</option>
@@ -27,27 +30,31 @@
         </div>
         <br />
         <div class="panel" id="report_filters">
-        <div class="titlebox">Commission Reports</div><br />
+        <div class="titlebox" id="titlebox">Commission Reports</div><br />
         <div class="row">
 
             <div id="category_wrapper" class="col-md-4">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <input type="radio" class="radio" name="product_category" id="all_category" style="display: inline;" value="0" <?php if(isset($product_category) && ($product_category == 0 || $product_category == '')){echo "checked='checked'";}?>/> All Categories&nbsp;&nbsp;&nbsp;
-                        </div>
-                    </div>
-                </div>
-                <?php foreach($get_product_category as $category_key=>$category_val){//echo $product_category;exit; ?>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <input type="radio" class="radio" name="product_category" id="product_category_<?php echo $category_val['id'];?>" style="display: inline;" value="<?php echo $category_val['id'];?>" <?php if(isset($product_category) && $product_category == $category_val['id']){echo "checked='checked'";}?>/> <?php echo $category_val['type'];?>&nbsp;&nbsp;&nbsp;
-                        </div>
-                    </div>
-                </div>
-                <?php } ?>
 
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                             <label class="radio-inline radiomargin">
+                             <input type="radio" class="radio" name="product_category" id="all_category" style="display: inline;" value="0" <?php if(isset($product_category) && ($product_category == 0 || $product_category == '')){echo "checked='checked'";}?>/> All Categories
+                              </label>
+                              <br>
+
+                            <?php foreach($get_product_category as $category_key=>$category_val){//echo $product_category;exit; ?>
+
+                                <label class="radio-inline radiomargin">
+                                <input type="radio" class="radio" name="product_category" id="product_category_<?php echo $category_val['id'];?>" style="display: inline;" value="<?php echo $category_val['id'];?>" <?php if(isset($product_category) && $product_category == $category_val['id']){echo "checked='checked'";}?>/> <?php echo $category_val['type'];?>&nbsp;&nbsp;&nbsp;
+                                </label>
+                                <br>
+                                
+                            <?php } ?>
+
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="company_wrapper" class="col-md-8">
@@ -208,7 +215,7 @@
             </div>
         </div>
         </div>
-        <div class="panel-footer">
+        <div class="panel-footer fixedbtmenu">
             <div class="selectwrap">
 				<div class="selectwrap">
                     <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
@@ -237,10 +244,11 @@
     </div>
 </div>
 <?php if(isset($_GET['filter']) && $_GET['filter'] != '' && $output == 1){?>
+
     <script>
     //location.href=location.href.replace(/&?open=([^&]$|[^&]*)/i, "");
+   
     $(document).ready(function(){
-
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200)
@@ -288,7 +296,18 @@ jQuery(function($){
 
     $("select[name='report_for']").change(function(){
         // console.log(this.value,"this.value")
+
+        if(this.value == 1){
+            document.getElementById("titlebox").textContent = "Commission Posting Log";
+        }
+        if(this.value == 2){
+            document.getElementById("titlebox").textContent = "Batch Report";
+        }
+        if(this.value == 3){
+            document.getElementById("titlebox").textContent = "Hold Report";
+        }
         if(this.value ==4){
+            document.getElementById("titlebox").textContent = "Payables Report";
             $("#report_filters").addClass('payable-report');
         }
         else{

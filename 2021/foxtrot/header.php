@@ -61,9 +61,9 @@ require_once(DIR_FS."islogin.php");?>
 .error{
 	border: 1px solid red!important;
 }
-body .container{
+/* body .container{
 	 width: 1500px;
-}
+} */
 .dropdown-submenu>.dropdown-menu {
     top: 0;
     left: 100%;

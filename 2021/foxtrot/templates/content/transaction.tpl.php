@@ -74,6 +74,12 @@ div#add_cheque_info label {margin-right: 0px;padding-right: 20px;}
   background-color: DodgerBlue !important;
   color: #ffffff;
 }
+
+input[type=radio] {
+    border: 0px;
+    width: 50%;
+    height: 1.2em;
+}
 </style>
 
 <script type="text/javascript">
@@ -545,7 +551,7 @@ function autocomplete(inp, arr) {
             <div class="row multi-checkbox-row">
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-3 multi-checkbox-row">
                             <a href="#" data-target="#add_cheque_info" data-toggle="modal">Client Check Received</a>
                         </div>
                         <div class="col-md-3">

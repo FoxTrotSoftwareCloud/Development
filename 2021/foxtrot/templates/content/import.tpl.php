@@ -393,14 +393,14 @@
                                                                                 ?>
 
                                                                                 <td style="text-align:right ;">
-                                                                                    Posted:<?php
+                                                                                    <?php
                                                                                             if ($total_processed_commission_for_import[0]['Total_commission']) {
                                                                                                 echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
                                                                                             } else {
                                                                                                 echo 0;
                                                                                             } ?>
                                                                                             <br>
-                                                                                    Check Amt: <?php
+                                                                                    <?php
                                                                                                 if ($total_Check_Amount) {
                                                                                                     echo ' $' . number_format($total_Check_Amount, 2);
                                                                                                 } else {
