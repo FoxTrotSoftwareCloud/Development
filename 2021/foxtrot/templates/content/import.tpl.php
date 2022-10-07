@@ -378,8 +378,10 @@
                                                                                 // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
                                                                                 $detailTable = $instance->import_table_select($val['id'], $file_type_id);
                                                                                 $detailTable = $detailTable['table'];
+                                                                                                                                                                                                                                                                
 
                                                                                 $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
+                                                                               
                                                                                 $count_processed_data = $total_processed_data['processed'];
                                                                                 $count_exception_data = $total_processed_data['exceptions'];
 
@@ -409,10 +411,9 @@
                                                                                     
                                                                                 </td>
                                                                                 <td style="cursor:pointer">
+                                                                               
                                                                                     <div class="progress">
-                                                                                        <?php //echo $count_processed_data."/".$count_exception_data;
-                                                                                        ?>
-
+                                                                                                
                                                                                         <?php if (isset($total_complete_process) && $total_complete_process < 100) { ?>
                                                                                             <?php $progress_bar_style = ($count_exception_data > 0) ? 'danger' : 'warning'; ?>
                                                                                             <div class="progress-bar progress-bar-<?php echo $progress_bar_style; ?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process; ?>%">
@@ -797,10 +798,7 @@
                                                                         <td><?php echo $error_val['error']; ?></td>
                                                                         <td style="width: 20%;">
                                                                             <form method="post">
-                                                                                <!-- 02/01/22 Remove "ADD" dropdown, only has one option
-                                                            <select name="review_action_" id="review_action_" class="form-control" style=" width: 75% !important;display: inline;">
-                                                                <option value="0">ADD</option>
-                                                            </select> -->
+                                                                                
                                                                                 <input type="hidden" name="id" id="id" value="" />
                                                                                 <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id']; ?>','<?php echo $error_val['file_type']; ?>','<?php echo $error_val['temp_data_id']; ?>','<?php echo $error_val['field']; ?>','<?php echo $error_val['rep']; ?>','<?php echo $existing_field_value; ?>',<?php echo $error_val['error_code_id']; ?>,<?php echo $error_val['id']; ?>,'<?php echo $error_val['account_no']; ?>');" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
                                                                             </form>

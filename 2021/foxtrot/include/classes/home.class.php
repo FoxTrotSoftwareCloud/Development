@@ -127,8 +127,7 @@
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
-            }
-            // print_r($return); die;
+            }            
 			return $return;
 		}
         public function select_ytd_amount_list($con=''){

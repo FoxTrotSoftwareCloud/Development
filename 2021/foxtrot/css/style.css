@@ -49,8 +49,8 @@ div.dataTables_wrapper div.dataTables_filter label {
  opacity: 1;
 }
 body .container {
-	width:100%;
-	width:1500px;
+	width:80%;
+	/* width:1500px; */
 }
 select {
     -webkit-appearance: none;
@@ -894,9 +894,19 @@ select::-ms-expand {
 
 
 /* Medea Queries */
+@media only screen and (max-width: 1679px) {
+	body .container {
+		width:100%;
+	}
+	
+}
+
 
 @media only screen and (max-width: 1199px) {
 	
+	body .container {
+		width:100%;
+	}
 	.headermenu .navbar-inverse .navbar-nav > li {
 	padding: 0 7px;
 }
@@ -950,7 +960,7 @@ select::-ms-expand {
 .footerwrapper {
 	margin: 10px 0;
 }
-}
+
 
 @media only screen and (max-width: 767px) {
 .headerwrapper, .footerwrapp{
