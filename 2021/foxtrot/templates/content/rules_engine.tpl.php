@@ -151,7 +151,7 @@ a<div class="container">
             <div class="panel-footer fixedbtmenu">
                 <!--<div class="col-md-12">
                     <div class="form-group "><br />-->
-                    <div class="selectwrap">
+                    <div class="selectwrap container">
                         <a href="<?php echo SITE_URL.'home.php';?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                         <input type="submit" name="rule" onclick="waitingDialog.show();" value="Save" style="float: right;" />
                     </div>

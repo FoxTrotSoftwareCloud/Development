@@ -434,7 +434,6 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
   <?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
     <form method="post" id="filter_chart" >
         <input type="hidden" name="from_date" id="from_date" value="" class="form-control" />
-        <input type="hidden" name="to_date" id="to_date" value="<?php echo date('Y-m-d');?>" class="form-control" />
         <input type="hidden" name="chart_id" id="chart_id" value=""/>
         <input type="hidden" name="filter" id="filter" value="Filter"/>
     </form>

@@ -119,7 +119,7 @@
             </div>
             </div>
             <div class="panel-footer fixedbtmenu">
-                <div class="selectwrap">
+                <div class="selectwrap container">
 					<input type="button" name="cancel" class="btn btn-warning btn-lg btn3d " onclick="<?php echo CURRENT_PAGE;?>" value="Cancel" style="float: right;"/>
                     <input type="submit" name="submit" class="btn btn-warning btn-lg btn3d " value="Save" style="float: right;"/>
                     <!-- <input type="button" name="proceed" onclick="waitingDialog.show();" class="btn btn-warning btn-lg btn3d " value="Proceed"/> -->

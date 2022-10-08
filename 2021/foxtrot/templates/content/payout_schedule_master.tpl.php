@@ -351,7 +351,7 @@ $(document).on('click','.remove-row',function(){
                         <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span><h4 class="panel-overlay-title"></h4><p></p></div>
                     </div>
                     <div class="panel-footer fixedbtmenu">
-                        <div class="selectwrap">
+                        <div class="selectwrap container">
                             <label></label>
                             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
         					<a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>

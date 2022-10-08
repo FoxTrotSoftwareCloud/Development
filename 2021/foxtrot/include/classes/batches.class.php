@@ -58,10 +58,10 @@
 					if($id==0){
 
 						
-						$q = "INSERT INTO ".$this->table." SET `pro_category`='".$pro_category."',`batch_desc`='".$batch_desc."',
-                        `sponsor`='".$sponsor."',`batch_date`='".$batch_date."',`deposit_date`='".$deposit_date."',`trade_start_date`='".$trade_start_date."',
-                        `trade_end_date`='".$trade_end_date."',`check_amount`='".$check_amount."',`commission_amount`='".$commission_amount."',`split`='".$split."',
-                        `prompt_for_check_amount`='".$prompt_for_check_amount."', `is_multi_sponsors`='".$is_multi_sponsors."' ,  `posted_amounts`='".$posted_amounts."'".$this->insert_common_sql();
+						$q = "INSERT INTO ".$this->table." SET pro_category='".$pro_category."',batch_desc='".$batch_desc."',
+                        sponsor='".$sponsor."',batch_date='".$batch_date."',deposit_date='".$deposit_date."',trade_start_date='".$trade_start_date."',
+                        trade_end_date='".$trade_end_date."',check_amount='".$check_amount."',commission_amount='".$commission_amount."',split='".$split."',
+                        prompt_for_check_amount='".$prompt_for_check_amount."', is_multi_sponsors='".$is_multi_sponsors."' ,  posted_amounts='".$posted_amounts."'".$this->insert_common_sql();
 						$res = $this->re_db_query($q);
                         $_SESSION['last_inserted_batch_id'] = $this->re_db_insert_id();
                         
@@ -75,10 +75,10 @@
 						}
 					}
 					else if($id>0){
-						$q = "UPDATE ".$this->table." SET `pro_category`='".$pro_category."',`batch_desc`='".$batch_desc."',
-                        `sponsor`='".$sponsor."',`batch_date`='".$batch_date."',`deposit_date`='".$deposit_date."',`trade_start_date`='".$trade_start_date."',
-                        `trade_end_date`='".$trade_end_date."',`check_amount`='".$check_amount."',`commission_amount`='".$commission_amount."',`split`='".$split."',
-                        `prompt_for_check_amount`='".$prompt_for_check_amount."', `is_multi_sponsors`='".$is_multi_sponsors."' ,`posted_amounts`='".$posted_amounts."'".$this->update_common_sql()." WHERE `id`='".$id."'";
+						$q = "UPDATE ".$this->table." SET pro_category='".$pro_category."',batch_desc='".$batch_desc."',
+                        sponsor='".$sponsor."',batch_date='".$batch_date."',deposit_date='".$deposit_date."',trade_start_date='".$trade_start_date."',
+                        trade_end_date='".$trade_end_date."',check_amount='".$check_amount."',commission_amount='".$commission_amount."',split='".$split."',
+                        prompt_for_check_amount='".$prompt_for_check_amount."', is_multi_sponsors='".$is_multi_sponsors."' ,posted_amounts='".$posted_amounts."'".$this->update_common_sql()." WHERE id='".$id."'";
                         $res = $this->re_db_query($q);
 						if($res){
 						    $_SESSION['success'] = 'Batch Number '.$_SESSION['last_inserted_batch_id'].' successfully updated';
@@ -98,9 +98,9 @@
 		}
         public function edit_batches($id){
 			$return = array();
-			$q = "SELECT `at`.*
-					FROM ".$this->table." AS `at`
-                    WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+			$q = "SELECT at.*
+					FROM ".$this->table." AS at
+                    WHERE at.is_delete='0' AND at.id='".$id."'";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
@@ -111,7 +111,7 @@
 			$return = array();
 			$q = "SELECT type
 					FROM  ft_product_categories as cat 
-                    WHERE `cat`.`is_delete`='0' AND `cat`.`id`='".$id."'";
+                    WHERE cat.is_delete='0' AND cat.id='".$id."'";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			$return = $this->re_db_fetch_array($res);
@@ -121,10 +121,10 @@
         public function select(){
 			$return = array();
 			
-			$q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`batch_date` DESC";
+			$q = "SELECT at.*
+					FROM ".$this->table." AS at
+                    WHERE at.is_delete='0'
+                    ORDER BY at.batch_date DESC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -141,7 +141,7 @@
 				return 'Multiple Sponsors';
 			}
 			else{
-				$q="SELECT `name` FROM `ft_sponsor_master` WHERE `id`=$id";
+				$q="SELECT name FROM ft_sponsor_master WHERE id=$id";
 
 				$res = $this->re_db_query($q);
 				$result = mysqli_fetch_assoc($res);
@@ -153,7 +153,7 @@
 			$return = array();
 			
 			$q = "SELECT SUM(commission_received) as posted_commission_amount
-					FROM `".TRANSACTION_MASTER."`
+					FROM ".TRANSACTION_MASTER."
                     WHERE is_delete='0' and batch=".$id."
                     ";
 			$res = $this->re_db_query($q);
@@ -165,10 +165,10 @@
         public function get_trade_date($id=''){
 			$return = '';
 			
-			$q = "SELECT `trade_date`
-					FROM `".TRANSACTION_MASTER."`
+			$q = "SELECT trade_date
+					FROM ".TRANSACTION_MASTER."
                     WHERE is_delete='0' and batch=".$id." 
-                    ORDER BY `id` DESC LIMIT 1
+                    ORDER BY id DESC LIMIT 1
                     ";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -181,10 +181,10 @@
         public function get_product_type($id){
 			$return = '';
 			
-			$q = "SELECT `type`
-					FROM `".PRODUCT_TYPE."`
+			$q = "SELECT type
+					FROM ".PRODUCT_TYPE."
                     WHERE is_delete='0' and id=".$id." 
-                    ORDER BY `id` ASC"
+                    ORDER BY id ASC"
 			;
 			$res = $this->re_db_query($q);
 			
@@ -205,28 +205,28 @@
 				$this->errors = 'Please select search type.';
 			}
             if($search_type=='batch_number' || $search_type=='batch_date'){
-                $q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE `".$search_type."` like '".$search_text_batches."%' and `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                $q = "SELECT at.*
+					FROM ".$this->table." AS at
+                    WHERE ".$search_type." like '".$search_text_batches."%' and at.is_delete='0'
+                    ORDER BY at.id ASC";
             }
             else if($search_type=='pro_category'){
-                $q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE `".$search_type."` in (SELECT `id` FROM ".PRODUCT_TYPE." where `type` like '".$search_text_batches."%')and `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                $q = "SELECT at.*
+					FROM ".$this->table." AS at
+                    WHERE ".$search_type." in (SELECT id FROM ".PRODUCT_TYPE." where type like '".$search_text_batches."%')and at.is_delete='0'
+                    ORDER BY at.id ASC";
             }
             else if($search_type=='sponsor'){
-                $q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE `".$search_type."` in (SELECT `id` FROM ".SPONSOR_MASTER." where `name` like '".$search_text_batches."%') and `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                $q = "SELECT at.*
+					FROM ".$this->table." AS at
+                    WHERE ".$search_type." in (SELECT id FROM ".SPONSOR_MASTER." where name like '".$search_text_batches."%') and at.is_delete='0'
+                    ORDER BY at.id ASC";
             }
             else{
-                $q = "SELECT `at`.*
-					FROM `".$this->table."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";   
+                $q = "SELECT at.*
+					FROM ".$this->table." AS at
+                    WHERE at.is_delete='0'
+                    ORDER BY at.id ASC";   
             }
             
 			$res = $this->re_db_query($q);
@@ -241,9 +241,9 @@
         public function delete($id){
 			$id = trim($this->re_db_input($id));
 			if($id>0){
-				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
+				$q = "UPDATE ".$this->table." SET is_delete='1' WHERE id='".$id."'";
 				$res = $this->re_db_query($q);
-                $q = "UPDATE `".TRANSACTION_MASTER."` SET `is_delete`='1' WHERE `batch`='".$id."'";
+                $q = "UPDATE ".TRANSACTION_MASTER." SET is_delete='1' WHERE batch='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){
 				    $_SESSION['success'] = DELETE_MESSAGE;
@@ -262,9 +262,9 @@
         public function unpost_trades($id){
 			$id = trim($this->re_db_input($id));
 			if($id>0){
-				$q = "UPDATE `".TRANSACTION_MASTER."` SET `commission_received`='0',`commission_received_date`='',`posting_date`='' WHERE `batch`='".$id."'";
+				$q = "UPDATE ".TRANSACTION_MASTER." SET commission_received='0',commission_received_date='',posting_date='' WHERE batch='".$id."'";
 				$res = $this->re_db_query($q);
-                $q = "UPDATE `".$this->table."` SET `commission_amount`= '0' WHERE `id`='".$id."'";
+                $q = "UPDATE ".$this->table." SET commission_amount= '0' WHERE id='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){
 				    $_SESSION['success'] = 'Trades are successfully unposted';
@@ -285,50 +285,50 @@
             $con='';
             if($product_category>0)
             {
-                $con.=" AND `at`.`pro_category` = ".$product_category."";
+                $con.=" AND at.pro_category = ".$product_category."";
             }
             if($company>0)
             {
-                $con.=" AND `ts`.`company` = ".$company."";
+                $con.=" AND ts.company = ".$company."";
             }
             if($batch>0)
             {
-                $con.=" AND `at`.`id` = ".$batch."";
+                $con.=" AND at.id = ".$batch."";
             }
             if($beginning_date != '' && $ending_date != '')
             {
-                $con.=" AND `at`.`batch_date` BETWEEN '".date('Y-m-d',strtotime($beginning_date))."' AND '".date('Y-m-d',strtotime($ending_date))."'";
+                $con.=" AND at.batch_date BETWEEN '".date('Y-m-d',strtotime($beginning_date))."' AND '".date('Y-m-d',strtotime($ending_date))."'";
             }
 			// Default to EXCLUDING uploaded transactions - 4/6/22 - Per Marcus - Commission Posting Log should NOT have uploaded tx's
             if($includeUploaded)
             {
                 $con.="";
             } else {
-                $con.=" AND `ts`.`is_payroll` = 0";
+                $con.=" AND ts.is_payroll = 0";
 			}
         
 			if($sort_by == 1)
             {
-                $con .= " GROUP BY `ts`.`batch` ORDER BY `at`.`sponsor` ASC";
+                $con .= " GROUP BY ts.batch ORDER BY at.sponsor ASC";
             }
             else if($sort_by == 2)
             {
-                $con .= " GROUP BY `ts`.`batch` ORDER BY `at`.`id` ASC";
+                $con .= " GROUP BY ts.batch ORDER BY at.id ASC";
             }
             else if($sort_by == 3)
             {
-                $con .= " GROUP BY `ts`.`batch` ORDER BY `at`.`batch_date` ASC";
+                $con .= " GROUP BY ts.batch ORDER BY at.batch_date ASC";
             }
             else
             {
-                $con .= " GROUP BY `ts`.`batch` ORDER BY `at`.`pro_category` ASC";
+                $con .= " GROUP BY ts.batch ORDER BY at.pro_category ASC";
             }
             
-			$q = "SELECT `at`.*, `pc`.`type` AS pro_category, `ts`.`batch`"
-					." FROM `".$this->table."` AS `at`"
-                    ." LEFT JOIN `".PRODUCT_TYPE."` AS `pc` on `pc`.`id`=`at`.`pro_category`"
-                    ." LEFT JOIN `".TRANSACTION_MASTER."` AS `ts` on `ts`.`batch`=`at`.`id`"
-                    ." WHERE `at`.`is_delete`='0'"
+			$q = "SELECT at.*, pc.type AS pro_category, ts.batch"
+					." FROM ".$this->table." AS at"
+                    ." LEFT JOIN ".PRODUCT_TYPE." AS pc on pc.id=at.pro_category"
+                    ." LEFT JOIN ".TRANSACTION_MASTER." AS ts on ts.batch=at.id"
+                    ." WHERE at.is_delete='0'"
 						.$con
 			;
 			$res = $this->re_db_query($q);
@@ -343,10 +343,10 @@
         public function select_sponsor(){
 			$return = array();
 			
-			$q = "SELECT `at`.*
-					FROM `".SPONSOR_MASTER."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+			$q = "SELECT at.*
+					FROM ".SPONSOR_MASTER." AS at
+                    WHERE at.is_delete='0'
+                    ORDER BY at.id ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
@@ -360,10 +360,10 @@
         public function select_category(){
 			$return = array();
 			
-			$q = "SELECT `at`.*
-					FROM `".PRODUCT_TYPE."` AS `at`
-                    WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`sort_order` ASC";
+			$q = "SELECT at.*
+					FROM ".PRODUCT_TYPE." AS at
+                    WHERE at.is_delete='0'
+                    ORDER BY at.sort_order ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;

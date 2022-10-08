@@ -780,7 +780,7 @@ function default_min_threshold() {
 
                 </div>
                 <div class="panel-footer fixedbtmenu">
-                        <div class="selectwrap">
+                        <div class="selectwrap container">
                             <?php if(isset($_GET['cusip_number']) && ($_GET['cusip_number'] != '' || $_GET['cusip_number'] == '')){?>
                                 <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
                                 <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />

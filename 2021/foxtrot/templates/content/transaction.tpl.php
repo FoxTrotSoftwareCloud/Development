@@ -726,7 +726,7 @@ function autocomplete(inp, arr) {
             </div>
           </div>
           <div class="panel-footer fixedbtmenu">
-            <div class="selectwrap">
+            <div class="selectwrap container">
                 <a id="anchor_cancel" href="<?php echo CURRENT_PAGE.'?action=cancel';?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;"/></a>
                 <input type="submit" name="transaction" onclick="return waitingDialog.show();" id="save" value="Save" style="float: right;"/>
                 <?php if(isset($_GET['action']) &&  $_GET['action'] == 'add' ) {

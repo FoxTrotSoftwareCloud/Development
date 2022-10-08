@@ -1,3 +1,17 @@
+<style type="text/css">
+    .checkbox-inline, .radio-inline{
+        padding-left: 22px;
+    }
+    .checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio]{
+         margin-left: -22px;
+         margin-top: 1px;
+    }
+    .check-inline input[type=checkbox]{
+        margin-right: 5px;
+    }
+
+</style>
+
 <script src="http://code.jquery.com/color/jquery.color-2.1.2.min.js" integrity="sha256-H28SdxWrZ387Ldn0qogCzFiUDDxfPiNIyJX7BECQkDE=" crossorigin="anonymous"></script>
 
     
@@ -176,11 +190,16 @@
                    </div>
                 </div>
                 <div class="tab-pane" id="tab_bb">
-                <br />
+                <div class="row">
+                    <div class="colmd-12">
+                        <h3 style="margin: 0px 20px 20px 0px; text-align:right;"><?php echo $company_name ?></h3>
+                    </div>
+                </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Payout Level </label><br />
+                                
                                 <label class="radio-inline">
                                   <input type="radio" class="radio" name="payout_level" id="payout_level" value="1" <?php if($action=='edit'){if($payout_level==1){ ?>checked="true"<?php }} ?>/>Company/Practice Level
                                 </label>
@@ -200,7 +219,7 @@
                                 </label>
                             </div>
                         </div>
-                    </div><br />
+                    </div>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -216,7 +235,7 @@
                                 </label>
                             </div>
                         </div>
-                    </div><br />
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -229,91 +248,103 @@
                                 </select>
                             </div>
                         </div>
-                         <!--<div class="col-md-6">
-                            <div class="form-group">
-                                <label>Rate </label>
-                                <!--input type="text" name="p_rate" id="p_rate" value="<?php if($action=='edit'){echo $p_rate;} ?>" class="form-control" /-->
-                            <!--</div>
-                        </div>-->
-                    </div><h3>Level 1:</h3>
+                    </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-2">
+                        <h3 style="margin: 0;">Level 1:</h3>
+                        </div>
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label>Threshold(in $ Price) </label>
                                 <input type="text" name="threshold1" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold1" value="<?php if($action=='edit'){ echo $threshold1;} ?>" class="form-control" />
                             </div>
                         </div>
-                         <div class="col-md-6">
+                         <div class="col-md-5">
                             <div class="form-group">
                                 <label>Rate (in percentage) </label>
                                 <input type="text" name="l1_rate" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="l1_rate" value="<?php if($action=='edit'){echo $l1_rate;} ?>" class="form-control" />
                             </div>
                         </div>
-                    </div><h3>Level 2:</h3>
+                    </div>
                     <div class="row">
-                        <div class="col-md-6">
+                    <div class="col-md-2">
+                        <h3 style="margin: 0;">Level 2:</h3>
+                        </div>
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label>Threshold(in $ Price) </label>
                                 <input type="text" name="threshold2" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold2" value="<?php if($action=='edit'){echo $threshold2;} ?>" class="form-control" />
                             </div>
                         </div>
-                         <div class="col-md-6">
+                         <div class="col-md-5">
                             <div class="form-group">
                                 <label>Rate (in percentage) </label>
                                 <input type="text" name="l2_rate" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="l2_rate" value="<?php if($action=='edit'){echo $l2_rate;} ?>" class="form-control" />
                             </div>
                         </div>
-                    </div><h3>Level 3:</h3>
+                    </div>
                     <div class="row">
-                        <div class="col-md-6">
+                    <div class="col-md-2">
+                        <h3 style="margin: 0;">Level 3:</h3>
+                        </div>
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label>Threshold(in $ Price) </label>
                                 <input type="text" name="threshold3" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold3" value="<?php if($action=='edit'){echo $threshold3;} ?>" class="form-control" />
                             </div>
                         </div>
-                         <div class="col-md-6">
+                         <div class="col-md-5">
                             <div class="form-group">
                                 <label>Rate (in percentage) </label>
                                 <input type="text" name="l3_rate" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="l3_rate" value="<?php if($action=='edit'){echo $l3_rate;} ?>" class="form-control" />
                             </div>
                         </div>
-                    </div><h3>Level 4:</h3>
+                    </div>
                     <div class="row">
-                        <div class="col-md-6">
+                    <div class="col-md-2">
+                        <h3 style="margin: 0;">Level 4:</h3>
+                        </div>
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label>Threshold(in $ Price) </label>
                                 <input type="text" name="threshold4" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold4" value="<?php if($action=='edit'){echo $threshold4;} ?>" class="form-control" />
                             </div>
                         </div>
-                         <div class="col-md-6">
+                         <div class="col-md-5">
                             <div class="form-group">
                                 <label>Rate (in percentage) </label>
                                 <input type="text" name="l4_rate" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="l4_rate" value="<?php if($action=='edit'){echo $l4_rate;} ?>" class="form-control" />
                             </div>
                         </div>
-                    </div><h3>Level 5:</h3>
+                    </div>
                     <div class="row">
-                        <div class="col-md-6">
+                    <div class="col-md-2">
+                        <h3 style="margin: 0;">Level 5:</h3>
+                        </div>
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label>Threshold(in $ Price) </label>
                                 <input type="text" name="threshold5" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold5" value="<?php if($action=='edit'){echo $threshold5;} ?>" class="form-control" />
                             </div>
                         </div>
-                         <div class="col-md-6">
+                         <div class="col-md-5">
                             <div class="form-group">
                                 <label>Rate (in percentage) </label>
                                 <input type="text" name="l5_rate" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="l5_rate" value="<?php if($action=='edit'){echo $l5_rate;} ?>" class="form-control" />
                             </div>
                         </div>
-                    </div><h3>Level 6:</h3>
+                    </div>
                     <div class="row">
-                        <div class="col-md-6">
+                    <div class="col-md-2">
+                        <h3 style="margin: 0;">Level 6:</h3>
+                        </div>
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label>Threshold(in $ Price) </label>
                                 <input type="text" name="threshold6" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold6" value="<?php if($action=='edit'){echo $threshold6;} ?>" class="form-control" />
                             </div>
                         </div>
-                         <div class="col-md-6">
+                         <div class="col-md-5">
                             <div class="form-group">
                                 <label>Rate (in percentage) </label>
                                 <input type="text" name="l6_rate" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="l6_rate" value="<?php if($action=='edit'){echo $l6_rate;} ?>" class="form-control" />
@@ -323,6 +354,11 @@
                 </div>
                 
                 <div class="tab-pane" id="tab_cc">
+                <div class="row">
+                    <div class="colmd-12">
+                        <h3 style="margin: 0px 20px 20px 0px; text-align:right;"><?php echo $company_name ?></h3>
+                    </div>
+                </div>
                     <div class="row">
                         <div class="form-group">
                             <label class="col-md-12"><h3>State</h3> </label>
@@ -331,17 +367,14 @@
                                 
                                 foreach($get_state as $statekey=>$stateval){?>
                                 <label class="check-inline col-md-2">
-                                    <input type="checkbox" class="checkbox" <?php if(isset($mystate) && in_array($stateval['id'],$mystate)){ ?>checked="true" <?php } ?> name="state[<?php echo $stateval['id']; ?>]" id="<?php echo $stateval['name']; ?>" value="<?php echo $stateval['id']; ?>" /><?php echo $stateval['name']; ?>
+                                    <input type="checkbox" style="display: inline;" class="checkbox" <?php if(isset($mystate) && in_array($stateval['id'],$mystate)){ ?>checked="true" <?php } ?> name="state[<?php echo $stateval['id']; ?>]" id="<?php echo $stateval['name']; ?>" value="<?php echo $stateval['id']; ?>" /><?php echo $stateval['name']; ?>
                                 </label>
-                                <?php } ?>
-                                <!--<label class="check-inline col-md-12">
-                                    <br /><input type="checkbox" class="checkbox" name="foreign" <?php if($action=='edit'){if($foreign == 1){ ?> checked="true" <?php }} ?> id="foreign" value="Foreign" />Foreign
-                                </label>-->
+                                <?php } ?>                                
                         </div>
                     </div>
                 </div>
                 <div class="panel-footer fixedbtmenu">
-                    <div class="selectwrap" >
+                    <div class="selectwrap container" >
                         <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                         <?php if($_GET['action']=='edit' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous"style="float: left;" class="previous next_previous_a" style="float: left;"><input type="button" name="next" value="&laquo; Previous" /></a><?php } ?>
                         <?php if($_GET['action']=='edit' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next" class="next next_previous_a"><input type="button" name="previous" value="Next &raquo;" /></a><?php } ?>

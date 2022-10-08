@@ -304,7 +304,7 @@ if($action=='add_new'||($action=='edit' && $id>0)){
         </div>
        </div>
        <div class="panel-footer fixedbtmenu">
-            <div class="selectwrap">
+            <div class="selectwrap container">
                 <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                 <?php if($action=='edit' && $id>0){?>
                 <a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous" style="float: left;"><input type="button" value="&laquo; Previous" style="float: right;"/></a>

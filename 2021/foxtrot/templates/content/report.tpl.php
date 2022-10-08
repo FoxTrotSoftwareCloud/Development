@@ -217,7 +217,7 @@
         </div>
         <div class="panel-footer fixedbtmenu">
             <div class="selectwrap">
-				<div class="selectwrap">
+				<div class="container">
                     <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
 					<input type="submit" name="submit"  value="Proceed" style="float: right;"/>
                 </div>

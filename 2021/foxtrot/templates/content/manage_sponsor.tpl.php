@@ -306,7 +306,7 @@ $(document).on('click','.remove-row',function(){
             </div>
            </div>
            <div class="panel-footer fixedbtmenu">
-            <div class="selectwrap">
+            <div class="selectwrap container">
                 <?php if(isset($_GET['file_id']) && $_GET['file_id'] != ''){?>
                     <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
                     <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />

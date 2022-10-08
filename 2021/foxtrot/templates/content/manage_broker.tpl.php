@@ -3296,7 +3296,7 @@ $(document).ready(function(){
                   </div>
                 </div>
                 <div class="panel-footer fixedbtmenu">
-                    <div class="selectwrap">
+                    <div class="selectwrap container">
                          <?php if(isset($_GET['rep_no']) && ($_GET['rep_no'] != '' || $_GET['rep_no'] == '')){?>
                         <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
                         <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
@@ -3350,28 +3350,7 @@ $(document).ready(function(){
                 </div><!-- End of Modal dialog -->
             </div><!-- End of Modal -->
 
-
-           <!--  <div class="panel-footer fixedbtmenu">
-               <div class="selectwrap">
-                  <?php if(isset($_GET['rep_no']) && ($_GET['rep_no'] != '' || $_GET['rep_no'] == '')){?>
-                  <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
-                  <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
-                  <input type="hidden" name="temp_data_id" id="temp_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
-                  <?php }?>
-                  <?php if($action=='edit' && $id>0){?><a href="#" data-href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous" class="previous next_previous_a" style="float: left;"><input onclick="return waitingDialog.show();" type="submit" name="submit" value="Previous" /></a><?php } ?>
-                  <?php if($action=='edit' && $id>0){?><a href="#" data-href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next" class="next next_previous_a" ><input type="submit" onclick="return waitingDialog.show();" name="submit" value="Next" /></a><?php } ?>
-                  <?php if($action=='edit' && $id>0){?>
-                  <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 2% !important;"/></a>
-                  <?php } ?>
-                  <a href="#broker_notes" data-toggle="modal"><input type="button" onclick="get_broker_notes();" name="notes" value="Notes" /></a>
-                  <a href="#ytd_earnings_modal" data-toggle="modal">
-                  <input type="button" name="view_changes" value="Modify YTD Earnings" /></a>
-                  <a href="#client_transactions" data-toggle="modal"><input type="button" name="transactions" value="Transactions" /></a>
-                  <a href="#broker_attach" data-toggle="modal"><input type="button"  onclick="get_broker_attach();" name="attach" value="Attachments" style="margin-right: 2% !important;"/></a>
-                  <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                  <input type="submit" name="submit"  value="Save" style="float: right;"/>
-               </div>
-            </div> -->
+           
          </form>
          <?php //} ?>
          <!-- Lightbox strart -->

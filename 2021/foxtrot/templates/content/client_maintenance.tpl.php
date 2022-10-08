@@ -1031,7 +1031,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                  
                             </div>
                             <div class="panel-footer fixedbtmenu"><br />
-                                    <div class="selectwrap">
+                                    <div class="selectwrap container">
                                         <?php if(isset($_GET['account_no']) && ($_GET['account_no'] != '' || $_GET['account_no'] == '')){?>
                                         <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
                                         <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />

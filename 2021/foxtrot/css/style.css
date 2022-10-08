@@ -50,7 +50,6 @@ div.dataTables_wrapper div.dataTables_filter label {
 }
 body .container {
 	width:80%;
-	/* width:1500px; */
 }
 select {
     -webkit-appearance: none;
@@ -561,7 +560,6 @@ select::-ms-expand {
 	top: auto;
 	left: 0;
 	right: 0;
-	max-width: 1170px;
 	width:100%;
 	margin: 0 auto;
 	background-color: #e9eef2;
