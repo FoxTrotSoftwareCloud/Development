@@ -275,7 +275,7 @@ input[type=number]::-webkit-outer-spin-button {
                             <div class="form-group">
                                 <label>Payout Rate </label>
                                 <div class="input-group" style="width: 130px;">
-                                <input type="number" name="l1_rate" id="l1_rate" value="<?php if($action=='edit'  && $l1_rate != ''){echo number_format($l1_rate,2);} ?>" class="form-control" />
+                                <input type="text" name="l1_rate" id="l1_rate" value="<?php if($action=='edit'  && $l1_rate != ''){echo number_format($l1_rate,2);} ?>" class="form-control" />
                                 <span class="input-group-addon">%</span>
                                 </div>
                             </div>
@@ -295,7 +295,7 @@ input[type=number]::-webkit-outer-spin-button {
                             <div class="form-group">
                                 <label>Payout Rate </label>
                                 <div class="input-group" style="width: 130px;">
-                                <input type="number" name="l2_rate" id="l2_rate" value="<?php if($action=='edit' && $l2_rate != ''){echo number_format($l2_rate,2);} ?>" class="form-control" />
+                                <input type="text" name="l2_rate" id="l2_rate" value="<?php if($action=='edit' && $l2_rate != ''){echo number_format($l2_rate,2);} ?>" class="form-control" />
                                 <span class="input-group-addon">%</span>
                                 </div>
                             </div>
@@ -315,7 +315,7 @@ input[type=number]::-webkit-outer-spin-button {
                             <div class="form-group">
                                 <label>Payout Rate </label>
                                 <div class="input-group" style="width: 130px;">
-                                <input type="number" name="l3_rate" id="l3_rate" value="<?php if($action=='edit' && $l3_rate != ''){echo number_format($l3_rate,2);} ?>" class="form-control" />
+                                <input type="text" name="l3_rate" id="l3_rate" value="<?php if($action=='edit' && $l3_rate != ''){echo number_format($l3_rate,2);} ?>" class="form-control" />
                                 <span class="input-group-addon">%</span>
                                 </div>
                             </div>
@@ -335,7 +335,7 @@ input[type=number]::-webkit-outer-spin-button {
                             <div class="form-group">
                                 <label>Payout Rate </label>
                                 <div class="input-group" style="width: 130px;">
-                                <input type="number" name="l4_rate" id="l4_rate" value="<?php if($action=='edit' && $l4_rate != ''){echo number_format($l4_rate,2);} ?>" class="form-control" />
+                                <input type="text" name="l4_rate" id="l4_rate" value="<?php if($action=='edit' && $l4_rate != ''){echo number_format($l4_rate,2);} ?>" class="form-control" />
                                 <span class="input-group-addon">%</span>
                                 </div>
                             </div>
@@ -355,7 +355,7 @@ input[type=number]::-webkit-outer-spin-button {
                             <div class="form-group">
                                 <label>Payout Rate </label>
                                 <div class="input-group" style="width: 130px;">
-                                <input type="number" name="l5_rate" id="l5_rate" value="<?php if($action=='edit' && $l5_rate != ''){echo number_format($l5_rate,2);} ?>" class="form-control" />
+                                <input type="text" name="l5_rate" id="l5_rate" value="<?php if($action=='edit' && $l5_rate != ''){echo number_format($l5_rate,2);} ?>" class="form-control" />
                                 <span class="input-group-addon">%</span>
                                 </div>
                             </div>
@@ -375,7 +375,7 @@ input[type=number]::-webkit-outer-spin-button {
                             <div class="form-group">
                                 <label>Payout Rate </label>
                                 <div class="input-group" style="width: 130px;">
-                                <input type="number" name="l6_rate" id="l6_rate" value="<?php if($action=='edit'  && $l6_rate != ''){echo number_format($l6_rate,2);} ?>" class="form-control" />
+                                <input type="text" name="l6_rate" id="l6_rate" value="<?php if($action=='edit'  && $l6_rate != ''){echo number_format($l6_rate,2);} ?>" class="form-control" />
                                 <span class="input-group-addon">%</span>
                                 </div>
                             </div>
@@ -829,14 +829,7 @@ input[type=number]::-webkit-outer-spin-button {
         "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 0 ] }, 
                         { "bSearchable": false, "aTargets": [ 0 ] }]
         });
-        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+'<div class="panel-control" style="padding-left:5px;display:inline;">'+
-                    '<div class="btn-group dropdown" style="float: right;">'+
-                        '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
-    					'<ul class="dropdown-menu dropdown-menu-right" style="">'+
-    						'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_new"><i class="fa fa-plus"></i> Add New</a></li>'+
-                        '</ul>'+
-    				'</div>'+
-    			'</div>');
+        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>');
 } );
 </script>
 <style type="text/css">

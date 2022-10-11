@@ -1247,13 +1247,13 @@ $(document).ready(function(){
                         <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
                            <thead class="thead_fixed_title">
                               <tr>
+                                 <th class="text-center">ACTION</th>
                                  <th>BROKER NAME</th>
                                  <th>CRD#</th>
                                  <th>CLEAR#</th>
                                  <th>Internal Broker ID</th>
                                  <th>U4 DATE</th>
                                  <th class="text-center">STATUS</th>
-                                 <th class="text-center">ACTION</th>
                               </tr>
                            </thead>
                            <tbody>
@@ -1262,6 +1262,10 @@ $(document).ready(function(){
                                  foreach($return as $key=>$val){
                                      ?>
                               <tr>
+                                 <td class="text-center">
+                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                    <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
+                                 </td>
                                  <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                  <td><?php echo $val['crd']; ?></td>
                                  <td><?php echo $val['fund']; ?></td>
@@ -1299,10 +1303,6 @@ $(document).ready(function(){
                                            echo "";
                                        }
                                        ?>
-                                 </td>
-                                 <td class="text-center">
-                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                  </td>
                               </tr>
                               <?php } ?>
@@ -1567,16 +1567,15 @@ $(document).ready(function(){
                                     </div>
                                  </div>
                                  <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                        <div class="form-group">
                                           <label>Year </label><br />
                                           <input type="radio" name="year" <?php if(isset($edit_payout['year']) && $edit_payout['year']=='1'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="1"/>&nbsp;<label>Calendar</label>&nbsp;&nbsp;
                                           <input type="radio" name="year" <?php if(isset($edit_payout['year']) && $edit_payout['year']=='2'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="2"/>&nbsp;<label>Rolling</label>&nbsp;&nbsp;
                                        </div>
                                     </div>
-                                 </div>
-                                 <div class="row">
-                                    <div class="col-md-6">
+                                
+                                    <div class="col-md-8">
                                        <div class="form-group">
                                           <label>Calculation Detail When Threshold Crossed </label><br />
                                           <input type="radio" name="calculation_detail" <?php if(isset($edit_payout['calculation_detail']) && $edit_payout['calculation_detail']=='1'){?>checked="true"<?php } ?> class="radio" style="display: inline;" value="1"/>&nbsp;<label>Apply Incremental Payout Rate</label>&nbsp;&nbsp;
@@ -3310,11 +3309,17 @@ $(document).ready(function(){
                          <?php } ?>
                          <a href="#broker_notes" data-toggle="modal"><input type="button" onclick="get_broker_notes();" name="notes" value="Notes" /></a>
                           <a href="#ytd_earnings_modal" data-toggle="modal">
-                            <input type="button" name="view_changes" value="Modify YTD Earnings"/></a>
+                            <input type="button" name="view_changes" value="YTD Earnings"/></a>
                          <a href="#client_transactions" data-toggle="modal"><input type="button" name="transactions" value="Transactions" /></a>
                          <a href="#broker_attach" data-toggle="modal"><input type="button"  onclick="get_broker_attach();" name="attach" value="Attachments" style="margin-right: 2% !important;"/></a>
+
+                         <?php if($action=='edit' && $id>0){?>
+
+                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $_GET['id']; ?>');" ><input type="button"  value="Delete" /></a>
+                        <?php } ?>
+
                          <a href="<?php echo CURRENT_PAGE."?action=cancel";?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                         <input type="submit" name="submit" value="Save" style="float: right;"/ id="licences_security">
+                         <input type="submit" name="submit" value="Save" style="float: right;" id="licences_security">
                     </div>
                 </div>
             </form>
@@ -4036,8 +4041,8 @@ $(document).ready(function(){
        "bInfo": false,
        "bAutoWidth": false,
        "dom": '<"toolbar">frtip',
-       "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 6 ] },
-                       { "bSearchable": false, "aTargets": [ 6 ] }]
+       "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 0 ] },
+                       { "bSearchable": false, "aTargets": [ 0 ] }]
        });
 
        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+

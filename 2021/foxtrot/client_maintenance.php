@@ -161,7 +161,7 @@
         $fincen_check = isset($_POST['fincen_check'])?$instance->re_db_input($_POST['fincen_check']):'';
         $telephone = isset($_POST['telephone'])?$instance->re_db_input($_POST['telephone']):'';
         $citizenship = isset($_POST['citizenship'])?$instance->re_db_input($_POST['citizenship']):'';
-        $contact_status = isset($_POST['do_not_contact'])?$instance->re_db_input($_POST['do_not_contact']):'';
+        // $contact_status = isset($_POST['do_not_contact'])?$instance->re_db_input($_POST['do_not_contact']):'';
         $birth_date = isset($_POST['birth_date'])?$instance->re_db_input($_POST['birth_date']):'';
         $date_established = isset($_POST['date_established'])?$instance->re_db_input($_POST['date_established']):'';
         $open_date = isset($_POST['open_date'])?$instance->re_db_input($_POST['open_date']):'';
@@ -513,7 +513,7 @@
         $account_type = isset($return['account_type'])?$instance->re_db_output($return['account_type']):'';
         $broker_name = isset($return['broker_name'])?$instance->re_db_output($return['broker_name']):'';
         $telephone = isset($return['telephone'])?$instance->re_db_output($return['telephone']):'';
-        $contact_status = isset($return['do_not_contact'])?$instance->re_db_output($return['do_not_contact']):'';
+        // $contact_status = isset($return['do_not_contact'])?$instance->re_db_output($return['do_not_contact']):'';
         $_SESSION['client_full_name'] = $return['first_name'].' '.$return['mi'].' '.$return['last_name'];
         $_SESSION['client_id'] = $id;
         $return_account = $instance->edit_account($id);

@@ -4705,6 +4705,27 @@
             }
 			return $return;
 		}
+
+        public function select_total_records($customWhere=''){
+            $return = array();
+            
+            if($customWhere != '') {
+                $q = "SELECT count(*) as Total_records"
+                        ." FROM ".IMPORT_EXCEPTION." WHERE $customWhere"
+                ;
+            }
+			$res = $this->re_db_query($q);
+
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+    			}
+            }
+            // print_r($return[0]['Total_records']);
+            // die;
+			return $return[0]['Total_records'];
+		}
         
         public function select_single_exception_data($file_id,$exception_id){
 			$return = array();

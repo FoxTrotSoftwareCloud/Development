@@ -26,7 +26,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         
-                            <label>States </label><br/>
+                            <label>States</label><br/>
                            
                            <div id="state-dynamic-content">
                             <?php
@@ -38,9 +38,9 @@
                               ?>
                                 <div class="col-md-3">
                                    <div class="form-group">
+                                        <label style="float: left; width: 50%;"><?php  echo $state['name']; ?></label>
                                         <input type="hidden" name="state_id[]" value="<?php echo $state['id']; ?>">
-                                         <input maxlength="8"  style="WIDTH: 50%;FLOAT: LEFT;MARGIN-RIGHT: 10PX;" type="text" class="currency-input form-control" name="state_fee[]" value="<?php echo $state_fee; ?>"> 
-                                          <label><?php  echo $state['name']; ?></label>
+                                         <input maxlength="8"  style="WIDTH: 40%;MARGIN-RIGHT: 10%;" type="text" class="currency-input form-control" name="state_fee[]" value="<?php echo $state_fee; ?>"> 
                                     </div>
                                 </div>    
                              <?php endforeach; ?>

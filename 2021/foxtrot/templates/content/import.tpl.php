@@ -156,7 +156,7 @@
                             if (isset($_GET['tab']) && ($_GET['tab'] == "review_files" || $_GET['tab'] == "processed_files") && $_GET['id'] > 0) {
                                 $get_file_data = $instance->select_user_files($_GET['id']);
                                 $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
-                                 $total_commission_amount = 0.00;
+                                $total_commission_amount = 0.00;
 
 
                                 if (empty($get_file_type)) {
@@ -166,15 +166,12 @@
                                     // $total_commission_amount = (float)$instance->get_file_batch($_GET['id'], 'commission_amount');
 
 
-                                    $id=$_GET['id'];
+                                    $id = $_GET['id'];
                                     $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
 
                                     $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-    
+
                                     $total_commission_amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
-
-
-
                                 } else if ($get_file_type == '3') {
                                     $fileTypeDescription = "Securities";
                                 } else {
@@ -182,7 +179,7 @@
                                 }
 
                                 if ($_GET['tab'] == "review_files") { ?>
-                                    <h3>Review & Resolve Exceptions  <a class="btn btn-primary pull-right" href="import.php">Back</a> </h3><br />
+                                    <h3>Review & Resolve Exceptions <a class="btn btn-primary pull-right" href="import.php">Back</a> </h3><br />
                                     <h4 style="margin-right: 5% !important; display: inline;">File: <?php if (isset($get_file_data['file_name'])) {
                                                                                                         echo $get_file_data['file_name'];
                                                                                                     } ?></h4>
@@ -288,7 +285,7 @@
                                                                 <th>Last Processed</th>
                                                                 <th>Sponsor</th>
                                                                 <th>Batch#</th>
-                                                                <th>Check Amount & Commission Posted</th>
+                                                                <th>Check Amount / <br> Posted Amount</th>
                                                                 <th>Results</th>
                                                                 <th>Notes</th>
                                                             </thead>
@@ -324,11 +321,19 @@
                                                                         }
 
                                                                         $fid_to_send = $val['id'];
-                                                                        $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=0");
+                                                                        if ($file_type_id == 2 || $file_type_id == 9) {
+                                                                            $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=0");
 
-                                                                        $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=1");
+                                                                            $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=1");
 
-                                                                        $total_Check_Amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
+                                                                            $total_Check_Amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
+                                                                        }
+                                                                        else{
+                                                                            $total_unprocessed_import = $instance->select_total_records("`is_delete`=0 AND `file_id`=$fid_to_send AND `file_type`=$file_type_id AND `solved`=0");
+                                                                            $total_processed_import = $instance->select_total_records("`is_delete`=0 AND `file_id`=$fid_to_send AND `file_type`=$file_type_id AND `solved`=1");
+                                                                            $total_import=$total_unprocessed_import + $total_processed_import;
+
+                                                                        }
 
 
                                                                         if (isset($val['imported_date']) && $val['imported_date'] != '') {
@@ -361,11 +366,11 @@
                                                                                 </td>
 
                                                                                 <td class="source" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['source'] ?></td>
-                                                                                <td class="filenm" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer" title="<?= $val['file_name'] ?>" >
-                                                                                <?php 
-                                                                                    $filename=$val['file_name'];
-                                                                                    echo $str = (strlen($filename) > 22)? substr($filename,0,20).'...' : $filename;
-                                                                                ?></td>
+                                                                                <td class="filenm" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer" title="<?= $val['file_name'] ?>">
+                                                                                    <?php
+                                                                                    $filename = $val['file_name'];
+                                                                                    echo $str = (strlen($filename) > 22) ? substr($filename, 0, 20) . '...' : $filename;
+                                                                                    ?></td>
                                                                                 <td class="filetype" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
                                                                                                                                                                                                     echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
@@ -378,10 +383,10 @@
                                                                                 // Client & Security data are in the same file, but in different Detail tables so separate the processed/exceptions counts(i.e. different tables)
                                                                                 $detailTable = $instance->import_table_select($val['id'], $file_type_id);
                                                                                 $detailTable = $detailTable['table'];
-                                                                                                                                                                                                                                                                
+
 
                                                                                 $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
-                                                                               
+
                                                                                 $count_processed_data = $total_processed_data['processed'];
                                                                                 $count_exception_data = $total_processed_data['exceptions'];
 
@@ -396,24 +401,31 @@
 
                                                                                 <td style="text-align:right ;">
                                                                                     <?php
-                                                                                            if ($total_processed_commission_for_import[0]['Total_commission']) {
-                                                                                                echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
-                                                                                            } else {
-                                                                                                echo 0;
-                                                                                            } ?>
-                                                                                            <br>
-                                                                                    <?php
-                                                                                                if ($total_Check_Amount) {
-                                                                                                    echo ' $' . number_format($total_Check_Amount, 2);
-                                                                                                } else {
-                                                                                                    echo 0;
-                                                                                                } ?>
-                                                                                    
+
+                                                                                    if ($file_type_id == 2 || $file_type_id == 9) {
+
+                                                                                        if($total_processed_commission_for_import[0]['Total_commission'] == $total_Check_Amount &&  $total_Check_Amount != 0){ 
+                                                                                            echo '<i class="fa fa-check text-success"></i>';
+                                                                                        }
+                                                                                        echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
+
+                                                                                        echo "<br>";
+
+                                                                                        echo ' $' . number_format($total_Check_Amount, 2);
+                                                                                    } else {
+
+                                                                                        echo $total_import;
+                                                                                        echo "<br>";
+                                                                                        echo $total_processed_import;
+                                                                                    }
+
+                                                                                    ?>
+
                                                                                 </td>
                                                                                 <td style="cursor:pointer">
-                                                                               
+
                                                                                     <div class="progress">
-                                                                                                
+
                                                                                         <?php if (isset($total_complete_process) && $total_complete_process < 100) { ?>
                                                                                             <?php $progress_bar_style = ($count_exception_data > 0) ? 'danger' : 'warning'; ?>
                                                                                             <div class="progress-bar progress-bar-<?php echo $progress_bar_style; ?> progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $total_complete_process; ?>%">
@@ -428,10 +440,10 @@
                                                                                     </div>
                                                                                 </td>
                                                                                 <td class="addnote"> <?php
-                                                                                        $check_exception_data = $instance->check_exception_data($val['id']);
-                                                                                        $check_processed_data = $instance->check_processed_data($val['id']);
-                                                                                        $check_file_exception_process = $instance->check_file_exception_process($val['id']);
-                                                                                        ?>
+                                                                                                        $check_exception_data = $instance->check_exception_data($val['id']);
+                                                                                                        $check_processed_data = $instance->check_processed_data($val['id']);
+                                                                                                        $check_file_exception_process = $instance->check_file_exception_process($val['id']);
+                                                                                                        ?>
 
                                                                                     <form method="post">
                                                                                         <input type="hidden" name="id" id="id" value="<?php echo $val['id']; ?>" />
@@ -798,7 +810,7 @@
                                                                         <td><?php echo $error_val['error']; ?></td>
                                                                         <td style="width: 20%;">
                                                                             <form method="post">
-                                                                                
+
                                                                                 <input type="hidden" name="id" id="id" value="" />
                                                                                 <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id']; ?>','<?php echo $error_val['file_type']; ?>','<?php echo $error_val['temp_data_id']; ?>','<?php echo $error_val['field']; ?>','<?php echo $error_val['rep']; ?>','<?php echo $existing_field_value; ?>',<?php echo $error_val['error_code_id']; ?>,<?php echo $error_val['id']; ?>,'<?php echo $error_val['account_no']; ?>');" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
                                                                             </form>
@@ -1761,12 +1773,15 @@
     #data-table .options {
         width: 10%;
     }
+
     #data-table .addnote {
         width: 13%;
     }
+
     #data-table .filetype {
         width: 18%;
     }
+
     #data-table .source {
         width: 8%;
     }

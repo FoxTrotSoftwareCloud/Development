@@ -10,7 +10,19 @@
     }
     ul.ms-list {
     margin-top: 10px;
-}
+    }
+
+    @media only screen and (min-width: 1260px) {
+        #view_changesbtn{
+            margin-left: 4% !important;
+        }
+    }
+
+    @media only screen and (min-width: 1560px) {
+        #view_changesbtn{
+            margin-left: 8% !important;
+        }
+    }
 </style>
 <script>
 function addMoreDocs(){
@@ -325,7 +337,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <input type="text" name="city" id="city" class="form-control" value="<?php echo $city; ?>"/>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>State </label>
                                                         <select name="state" id="state" class="form-control">
@@ -336,28 +348,28 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         </select>
                                                     </div>
                                                 </div>
-                                            </div> 
-                                            <div class="row">
-                                            	<div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>Zip Code </label>
                                                         <input type="text" name="zip_code" id="zip_code" class="form-control" value="<?php echo $zip_code; ?>"/>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                            </div> 
+                                            <div class="row">
+                                            	<div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Telephone </label>
                                                         <input type="text" name="telephone" id="telephone" class="form-control" value="<?php echo $telephone; ?>"/>
                                                     </div>
                                                 </div>
-                                            </div> 
-                                            <div class="row">
-                                            	<div class="col-md-6">
-                                                    <div class="form-group">
+                                                <div class="col-md-6">
+                                                <div class="form-group">
                                                         <label>Citizenship </label>
                                                         <input type="text" name="citizenship" id="citizenship" class="form-control" value="<?php echo $citizenship; ?>"/>
                                                     </div>
                                                 </div>
+                                            </div> 
+                                            <!-- <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Contact Status </label>
@@ -368,7 +380,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         </select>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="row">
                                             	<div class="col-md-6">
                                                     <div class="form-group">
@@ -389,14 +401,14 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                 </div>
                                             </div> 
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>Date Established </label>
                                                         <input type="text" name="date_established1" id="date_established1" disabled="true" value="<?php if($date_established !=''){ echo date('m/d/Y',strtotime($date_established)); }else{ echo date("m/d/Y"); }?>" class="form-control" />
                                                         <input type="hidden" name="date_established" id="date_established" value="<?php if($date_established !=''){ echo $date_established; }else{ echo date("m/d/Y"); }?>" class="form-control" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>Open Date </label>
                                                         <div id="demo-dp-range">
@@ -406,9 +418,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div> 
-                                            <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>NAF Date <span class="text-red">*</span></label>
                                                         <div id="demo-dp-range">
@@ -418,7 +428,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>Last Contacted </label>
                                                         <div id="demo-dp-range">
@@ -1042,12 +1052,12 @@ $(document).on('change', '#is_reviewed', function(event) {
                                         <?php if($_GET['action']=='edit' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous" class="previous next_previous_a" style="float: left;"><input type="button" name="previos" value="&laquo; Previous" /></a><?php } ?>
                                         <?php if($_GET['action']=='edit' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next" class="next next_previous_a"><input type="button" name="next" value="Next &raquo;" /></a><?php } ?>
                                         <?php if($action=='edit' && $id>0){?>
-                                        <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" style="margin-left: 4% !important;" value="View Changes"/></a>
+                                        <a href="#view_changes" data-toggle="modal"><input id="view_changesbtn" type="button" name="view_changes"  value="View Changes"/></a>
                                         <?php } ?>
                                         <a href="#client_notes" data-toggle="modal"><input type="button" onclick="get_client_notes();" name="notes" value="Notes" /></a>
                                         <a href="#client_transactions" data-toggle="modal"><input type="button"  name="transactions" value="Transactions" /></a>
                                         <a href="#joint_account" data-toggle="modal"><input type="button" onclick="get_client_account();" name="joint_account" value="Joint Account" /></a>
-                                        <a href="#client_attach" data-toggle="modal"><input type="button"  onclick="get_client_attach();" name="attach" value="Attachments" style="margin-right: 4% !important;" /></a>
+                                        <a href="#client_attach" data-toggle="modal"><input type="button"  onclick="get_client_attach();" name="attach" value="Attachments" /></a>
 
                                         <?php if($action=='edit' && $id>0){?>
 
@@ -1545,17 +1555,10 @@ $(document).ready(function() {
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 5 ] }, 
-                        { "bSearchable": false, "aTargets": [ 5 ] }]
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 0 ] }, 
+                        { "bSearchable": false, "aTargets": [ 0 ] }]
         });
-        $("div.toolbar").html('<div class="panel-control">'+
-                    '<div class="btn-group dropdown" style="float: right;">'+
-                        '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
-    					'<ul class="dropdown-menu dropdown-menu-right" style="">'+
-    						'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_new"><i class="fa fa-plus"></i> Add New</a></li>'+
-                        '</ul>'+
-    				'</div>'+
-    			'</div>');
+        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>');
     
     // 09/03/22 Default sponsor for Account No from import TPL call
     if ("add_new" == "<?php echo isset($_GET['action']) ? $_GET['action'] : ""; ?>"){

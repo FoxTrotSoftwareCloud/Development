@@ -318,7 +318,13 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                 <?php } ?>
                 <a href="#branch_notes" data-toggle="modal"><input type="button" onclick="get_branch_notes();" name="notes" value="Notes" /></a>
                 <a href="#" data-toggle="modal"><input type="button" value="Transactions" /></a>
-                <a href="#branch_attach" data-toggle="modal"><input type="button"  onclick="get_branch_attach();" name="attach" value="Attachments" style="margin-right: 10% !important;"/></a>
+                <a href="#branch_attach" data-toggle="modal"><input type="button"  onclick="get_branch_attach();" name="attach" value="Attachments" /></a>
+
+                <?php if($action=='edit' && $id>0){?>
+
+                <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $_GET['id']; ?>');" ><input type="button"  value="Delete" /></a>
+                <?php } ?>
+
 				<a href="<?php echo CURRENT_PAGE.'?action=view';?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                 <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
             </div><br />
@@ -349,19 +355,32 @@ if($action=='add_new'||($action=='edit' && $id>0)){
 			<table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
 	            <thead>
 	                <tr>
-                        <th>BRANCH NAME</th>
-                        <th class="text-center">STATUS</th>
                         <th class="text-center">ACTION</th>
+                        <th>BRANCH NAME</th>
+                        <th>COMPANY</th>
+                        <th>MANAGER</th>
+                        <!-- <th class="text-center">STATUS</th> -->
                     </tr>
 	            </thead>
 	            <tbody>
                 <?php
                 $count = 0;
+                // echo "<pre>";
+                // print_r($return);
+                // die;
                 foreach($return as $key=>$val){
                     ?>
 	                   <tr>
+                        <td class="text-center">
+                                <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
+                            </td>
+
                             <td><?php echo $val['name'];?></td>
-                            <td class="text-center">
+                            <td><?php echo $instance->get_company_name_by_id($val['company']); ?></td>
+                            <td><?php echo $instance->get_manager_name_by_id($val['broker']); ?></td>
+
+                            <!-- <td class="text-center">
                                 <?php
                                     if($val['status']==1){
                                         ?>
@@ -374,11 +393,7 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                                         <?php
                                     }
                                 ?>
-                            </td>
-                            <td class="text-center">
-                                <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
-                            </td>
+                            </td> -->
                         </tr>
                 <?php } ?>
                 </tbody>
@@ -540,17 +555,10 @@ if($action=='add_new'||($action=='edit' && $id>0)){
         "bInfo": false,
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 2 ] }, 
-                        { "bSearchable": false, "aTargets": [ 2 ] }]
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 0 ] }, 
+                        { "bSearchable": false, "aTargets": [ 0 ] }]
         });
-        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+'<div class="panel-control" style="padding-left:5px;display:inline;">'+
-                    '<div class="btn-group dropdown" style="float: right;">'+
-                        '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
-    					'<ul class="dropdown-menu dropdown-menu-right" style="">'+
-    						'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_new"><i class="fa fa-plus"></i> Add New</a></li>'+
-                        '</ul>'+
-    				'</div>'+
-    			'</div>');
+        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>');
 } );
 </script>
 <style type="text/css">

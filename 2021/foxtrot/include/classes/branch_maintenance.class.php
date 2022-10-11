@@ -522,6 +522,25 @@
 				return false;
 			}
 		}
+
+		public function get_company_name_by_id($id){
+			
+			$q="SELECT company_name FROM ft_company_master WHERE id=$id";
+
+			$res = $this->re_db_query($q);
+			$result = mysqli_fetch_assoc($res);
+			return $result['company_name'];
+		}
+
+		public function get_manager_name_by_id($id){
+			
+			$q="SELECT first_name,last_name FROM ft_broker_master WHERE id=$id";
+
+			$res = $this->re_db_query($q);
+			$result = mysqli_fetch_assoc($res);
+			$result=$result['last_name']." ".$result['first_name'];
+			
+			return $result;
+		}
         
     }
-?>
