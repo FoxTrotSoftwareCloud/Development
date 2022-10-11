@@ -22,6 +22,30 @@ function conf(url){
     });
 }
 
+function confirmleave(url){
+    bootbox.confirm({
+        message: "Leave Without Saving Changes?", 
+        backdrop: true,
+        buttons: {
+            confirm: {
+                label: '<i class="fa fa-check"></i> Yes',
+                className: 'btn-success'
+            },
+            cancel: {
+                label: '<i class="fa fa-warning"></i> No',
+                className: 'btn-warning'
+            }
+        },
+        callback: function(result) {
+            if (result) {
+                window.location.href = url;
+            }else{
+                //return false;
+            };
+        }
+    });
+}
+
 $(document).ready(function(){
     $('.overlay').css('display','none');
     $('form').submit(function(){

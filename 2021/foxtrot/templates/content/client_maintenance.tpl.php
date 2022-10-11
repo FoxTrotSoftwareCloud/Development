@@ -182,7 +182,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label>MI </label><br />
+                                                        <label>Middle Name </label><br />
                                                         <input type="text" name="mi" id="mi" value="<?php echo $mi; ?>" class="form-control" />
                                                     </div>
                                                 </div>
@@ -210,7 +210,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label>Clearing Acct </label><br />
+                                                        <label>Clearing Account Number </label><br />
                                                         <input type="text" name="clearing_account" id="clearing_account" class="form-control" maxlength="20" value="<?php echo $clearing_account; ?>" />
                                                     </div>
                                                 </div>
@@ -218,7 +218,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label>Client SSN </label><br />
+                                                        <label>Social Security Number </label><br />
                                                         <input type="text" name="client_ssn" id="client_ssn" class="form-control" value="<?php echo $client_ssn; ?>" />
                                                     </div>
                                                 </div>
@@ -280,13 +280,13 @@ $(document).on('change', '#is_reviewed', function(event) {
                                              <div class="row">
                                                  <div class="col-md-3">
                                                     <div class="form-group">
-                                                        <label>Split  From<span class="text-red"></span></label>
+                                                        <label>Split Start Date<span class="text-red"></span></label>
                                                         <input type="text"  name="split_rate_from" id="split_rate_from"  class="form-control" value="<?php echo $split_rate_from; ?>" />
                                                     </div>
                                                    </div>  
                                                 <div class="col-md-3">
                                                     <div class="form-group ">
-                                                        <label>Split To<span class="text-red"></span></label>
+                                                        <label>Split End Date<span class="text-red"></span></label>
                                                         <input type="text"   name="split_rate_to" id="split_rate_to" class=" form-control" value="<?php echo $split_rate_to; ?>" />
                                                     </div>
                                                 </div>
@@ -1048,6 +1048,12 @@ $(document).on('change', '#is_reviewed', function(event) {
                                         <a href="#client_transactions" data-toggle="modal"><input type="button"  name="transactions" value="Transactions" /></a>
                                         <a href="#joint_account" data-toggle="modal"><input type="button" onclick="get_client_account();" name="joint_account" value="Joint Account" /></a>
                                         <a href="#client_attach" data-toggle="modal"><input type="button"  onclick="get_client_attach();" name="attach" value="Attachments" style="margin-right: 4% !important;" /></a>
+
+                                        <?php if($action=='edit' && $id>0){?>
+
+                                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $_GET['id']; ?>');" ><input type="button"  value="Delete" /></a>
+                                        <?php } ?>
+
                                         <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                                         <input type="submit" name="submit" onclick="return waitingDialog.show();" value="Save" style="float: right;"/>
                                     </div>
@@ -1064,6 +1070,7 @@ $(document).on('change', '#is_reviewed', function(event) {
             						<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_new"><i class="fa fa-plus"></i> Add New</a></li>
             					</ul>
             				</div>
+                            
             			</div>
                         <h3 class="panel-title">List</h3>
             		</div>-->
@@ -1078,12 +1085,12 @@ $(document).on('change', '#is_reviewed', function(event) {
             			<table id="data-table-list" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
             	            <thead>
             	                <tr>
+                                    <th class="text-center">ACTION</th>
                                     <th>NAME</th>
                                     <th>FILE</th>
                                     <th>ACCOUNT TYPE</th>
                                     <th>BROKER NAME</th>
                                     <th class="text-center">STATUS</th>
-                                    <th class="text-center">ACTION</th>
                                 </tr>
             	            </thead>
             	            <tbody>
@@ -1092,6 +1099,10 @@ $(document).on('change', '#is_reviewed', function(event) {
                             foreach($return as $key=>$val){
                                 ?>
             	                   <tr>
+                                        <td class="text-center">
+                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id'];?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
+                                        </td>
                                         <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
                                         <td><?php echo $val['client_file_number']; ?></td>
                                         <td><?php echo $val['account_type']; ?></td>
@@ -1110,10 +1121,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                 }
                                             ?>
                                         </td>
-                                        <td class="text-center">
-                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id'];?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
-                                        </td>
+                                        
                                     </tr>
                             <?php } ?>
                             </tbody>

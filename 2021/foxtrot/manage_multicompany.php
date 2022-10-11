@@ -41,17 +41,30 @@
         $sliding_scale_commision = isset($_POST['sliding_scale_commision'])?$instance->re_db_input($_POST['sliding_scale_commision']):'';
         $product_category = isset($_POST['product_category'])?$instance->re_db_input($_POST['product_category']):'';
         $p_rate = isset($_POST['p_rate'])?$instance->re_db_input($_POST['p_rate']):'';
+
         $threshold1 = isset($_POST['threshold1'])?$instance->re_db_input($_POST['threshold1']):'';
+        $_POST['threshold1'] = floatval(preg_replace('/[^\d.]/', '', $threshold1));
+
         $l1_rate = isset($_POST['l1_rate'])?$instance->re_db_input($_POST['l1_rate']):'';
         $threshold2 = isset($_POST['threshold2'])?$instance->re_db_input($_POST['threshold2']):'';
+        $_POST['threshold2'] = floatval(preg_replace('/[^\d.]/', '', $threshold2));
+
         $l2_rate = isset($_POST['l2_rate'])?$instance->re_db_input($_POST['l2_rate']):'';
         $threshold3 = isset($_POST['threshold3'])?$instance->re_db_input($_POST['threshold3']):'';
+        $_POST['threshold3'] = floatval(preg_replace('/[^\d.]/', '', $threshold3));
+
         $l3_rate = isset($_POST['l3_rate'])?$instance->re_db_input($_POST['l3_rate']):'';
         $threshold4 = isset($_POST['threshold4'])?$instance->re_db_input($_POST['threshold4']):'';
+        $_POST['threshold4'] = floatval(preg_replace('/[^\d.]/', '', $threshold4));
+
         $l4_rate = isset($_POST['l4_rate'])?$instance->re_db_input($_POST['l4_rate']):'';
         $threshold5 = isset($_POST['threshold5'])?$instance->re_db_input($_POST['threshold5']):'';
+        $_POST['threshold5'] = floatval(preg_replace('/[^\d.]/', '', $threshold5));
+
         $l5_rate = isset($_POST['l5_rate'])?$instance->re_db_input($_POST['l5_rate']):'';
         $threshold6 = isset($_POST['threshold6'])?$instance->re_db_input($_POST['threshold6']):'';
+        $_POST['threshold6'] = floatval(preg_replace('/[^\d.]/', '', $threshold6));
+
         $l6_rate = isset($_POST['l6_rate'])?$instance->re_db_input($_POST['l6_rate']):'';
         $state = isset($_POST['state'])?$instance->re_db_input('state'):'';
         $foreign = isset($_POST['foreign'])?$instance->re_db_input($_POST['foreign']):'';
@@ -222,7 +235,7 @@
         echo $error;
         exit;
     } 
-    /*else if(isset($_GET['action'])&&$_GET['action']=='delete'&&isset($_GET['id'])&&$_GET['id']>0)
+    else if(isset($_GET['action'])&&$_GET['action']=='delete'&&isset($_GET['id'])&&$_GET['id']>0)
     {
         $id = $instance->re_db_input($_GET['id']);
         $return = $instance->delete($id);
@@ -232,7 +245,7 @@
         else{
             header('location:'.CURRENT_PAGE);exit;
         }
-    }*/
+    }
     else if($action=='view'){
         
         $return = $instance->select_company();
