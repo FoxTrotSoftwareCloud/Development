@@ -322,8 +322,14 @@ $(document).on('click','.remove-row',function(){
                 <?php } ?>
                 <a href="#sponsor_notes" data-toggle="modal"><input type="button" onclick="get_sponsor_notes();" name="notes" value="Notes" /></a>
                 <a href="#sponsor_transactions" data-toggle="modal"><input type="button"  name="transactions" value="Transactions" /></a>
-                <a href="#sponsor_attach" data-toggle="modal"><input type="button"  onclick="get_sponsor_attach();" name="attach" value="Attachments" style="margin-right: 10% !important;"/></a>
-                <a href="<?php echo CURRENT_PAGE.'?action=view_sponsor';?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+                <a href="#sponsor_attach" data-toggle="modal"><input type="button"  onclick="get_sponsor_attach();" name="attach" value="Attachments"/></a>
+
+                <?php if($action=='edit_sponsor' && $sponsor_id>0){?>
+                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=sponsor_delete&sponsor_id=<?php echo $sponsor_id ?>');" ><input type="button" name="delete" value="Delete" style="margin-right: 8% !important;"/></a>
+                <?php } ?>
+
+
+                <a onclick="return confirmleave('<?php echo CURRENT_PAGE.'?action=view_sponsor'; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                 <input type="submit" name="sponsor" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
             </div>
            </div>
@@ -353,9 +359,9 @@ $(document).on('click','.remove-row',function(){
     			<table id="data-table" class="table table-striped1 table-bordered">
     	            <thead>
     	                <tr>
+                            <th class="text-center">ACTION</th>
                             <th>SPONSOR NAME</th>
                             <th class="text-center">STATUS</th>
-                            <th class="text-center">ACTION</th>
                         </tr>
     	            </thead>
     	            <tbody>
@@ -364,6 +370,10 @@ $(document).on('click','.remove-row',function(){
                     foreach($return as $key=>$val){
                         ?>
     	                   <tr>
+                                <td class="text-center">
+                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit_sponsor&sponsor_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                    <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=sponsor_delete&sponsor_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
+                                </td>
                                 <td><?php echo $val['name'];?></td>
                                 <td class="text-center">
                                     <?php
@@ -378,10 +388,6 @@ $(document).on('click','.remove-row',function(){
                                             <?php
                                         }
                                     ?>
-                                </td>
-                                <td class="text-center">
-                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit_sponsor&sponsor_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=sponsor_delete&sponsor_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                 </td>
                             </tr>
                     <?php } ?>
@@ -596,13 +602,7 @@ $(document).on('click','.remove-row',function(){
         });
 
         $("div.toolbar").html('<div class="panel-control">'+
-                    '<div class="btn-group dropdown" style="float: right;">'+
-                        '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
-    					'<ul class="dropdown-menu dropdown-menu-right" style="">'+
-    						'<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_sponsor"><i class="fa fa-plus"></i> Add New</a></li>'+
-                        '</ul>'+
-    				'</div>'+
-    			'</div>');
+                    '<a href="<?php echo CURRENT_PAGE; ?>?action=add_sponsor" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a></li></div>');
 } );
 </script>
 <style type="text/css">

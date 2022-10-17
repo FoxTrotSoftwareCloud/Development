@@ -52,9 +52,9 @@
             else if($category==''){
 				$this->errors = 'Please select product category.';
 			}
-			/*else if($sponsor==''){
+			else if($sponsor==''){
 				$this->errors = 'Please select sponsor.';
-			}*/
+			}
 			if($this->errors!=''){
 				return $this->errors;
 			}
@@ -399,6 +399,13 @@
             $type = isset($attachment['type'])?$attachment['type']:'';
             $target_dir = DIR_FS."upload/";
             $ext = strtolower(end(explode('.',$file_name)));
+
+			if($file_name == ''){
+				$this->errors = 'Please select file.';
+			}
+			if($this->errors!=''){
+				return $this->errors;
+			}
             if($file_name!='')
             {
                if(!in_array($ext,$valid_file))
