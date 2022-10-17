@@ -33,7 +33,7 @@ input[type=number]::-webkit-outer-spin-button {
     <?php
     if($action=='add_new'||($action=='edit' && $id>0)){
         ?>
-        <form method="post">
+        <form method="post" onsubmit="return check_Threshold()">
             <ul class="nav nav-tabs <?php if($action=='add_new'||($action=='edit' && $id>0)){  'topfixedtabs';}?>">
                 <li class="active"><a href="#tab_aa" data-toggle="tab">General</a></li>
                 <li><a href="#tab_bb" data-toggle="tab">Commissions</a></li>
@@ -216,20 +216,10 @@ input[type=number]::-webkit-outer-spin-button {
                                 </label>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Clearing Charge Calculation </label><br />
-                                <label class="radio-inline">
-                                  <input type="radio" class="radio" name="clearing_charge_calculation" id="clearing_charge_calculation" value="1" <?php if($action=='edit'){if($clearing_charge_calculation==1){ ?>checked="true"<?php }} ?>/>Gross Payout
-                                </label>
-                                <label class="radio-inline">
-                                  <input type="radio" class="radio" name="clearing_charge_calculation" id="clearing_charge_calculation" value="2" <?php if($action=='edit'){if($clearing_charge_calculation==2){ ?>checked="true"<?php }} ?>/>Net Payout
-                                </label>
-                            </div>
-                        </div>
+                        
                     </div>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Sliding Scale Commission Basis </label><br />
                                 <label class="radio-inline">
@@ -240,6 +230,17 @@ input[type=number]::-webkit-outer-spin-button {
                                 </label>
                                 <label class="radio-inline">
                                   <input type="radio" class="radio" name="sliding_scale_commision" id="sliding_scale_commision" value="3" <?php if($action=='edit'){if($sliding_scale_commision==3){ ?>checked="true"<?php }} ?>/>Year-to-Date Earnings
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Clearing Charge Calculation </label><br />
+                                <label class="radio-inline">
+                                  <input type="radio" class="radio" name="clearing_charge_calculation" id="clearing_charge_calculation" value="1" <?php if($action=='edit'){if($clearing_charge_calculation==1){ ?>checked="true"<?php }} ?>/>Gross Payout
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" class="radio" name="clearing_charge_calculation" id="clearing_charge_calculation" value="2" <?php if($action=='edit'){if($clearing_charge_calculation==2){ ?>checked="true"<?php }} ?>/>Net Payout
                                 </label>
                             </div>
                         </div>
@@ -257,7 +258,6 @@ input[type=number]::-webkit-outer-spin-button {
                             </div>
                         </div>
                     </div>
-
                   
                     <div class="row">
                         <div class="col-md-1">
@@ -267,7 +267,7 @@ input[type=number]::-webkit-outer-spin-button {
                             <div class="form-group">
                                 <label>Threshold $0 to </label>
                                 <input type="text" name="threshold1" id="threshold1" class="form-control" 
-                                value="<?php if($action=='edit' && $threshold1 != ''){ echo "$ ".number_format($threshold1) ;} ?>" 
+                                value="<?php if($action=='edit' && $threshold1 != ''){ echo "$".number_format($threshold1) ;} ?>" 
                                  maxlength="13"/>
                             </div>
                         </div>
@@ -288,7 +288,7 @@ input[type=number]::-webkit-outer-spin-button {
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Threshold </label>
-                                <input type="text" name="threshold2" id="threshold2" class="form-control" value="<?php if($action=='edit' && $threshold2 != ''){echo "$ ".number_format($threshold2);} ?>"  />
+                                <input type="text" name="threshold2" id="threshold2" class="form-control" value="<?php if($action=='edit' && $threshold2 != ''){echo "$".number_format($threshold2);} ?>"  />
                             </div>
                         </div>
                          <div class="col-md-2">
@@ -308,7 +308,7 @@ input[type=number]::-webkit-outer-spin-button {
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Threshold </label>
-                                <input type="text" name="threshold3" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold3" value="<?php if($action=='edit' && $threshold3 != ''){echo "$ ".number_format($threshold3);} ?>" class="form-control" />
+                                <input type="text" name="threshold3" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold3" value="<?php if($action=='edit' && $threshold3 != ''){echo "$".number_format($threshold3);} ?>" class="form-control" />
                             </div>
                         </div>
                          <div class="col-md-2">
@@ -328,7 +328,7 @@ input[type=number]::-webkit-outer-spin-button {
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Threshold </label>
-                                <input type="text" name="threshold4" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold4" value="<?php if($action=='edit' && $threshold4 != ''){echo "$ ".number_format($threshold4);} ?>" class="form-control" />
+                                <input type="text" name="threshold4" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold4" value="<?php if($action=='edit' && $threshold4 != ''){echo "$".number_format($threshold4);} ?>" class="form-control" />
                             </div>
                         </div>
                          <div class="col-md-2">
@@ -348,7 +348,7 @@ input[type=number]::-webkit-outer-spin-button {
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Threshold </label>
-                                <input type="text" name="threshold5" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold5" value="<?php if($action=='edit' && $threshold5 != ''){echo "$ ".number_format($threshold5);} ?>" class="form-control" />
+                                <input type="text" name="threshold5" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="threshold5" value="<?php if($action=='edit' && $threshold5 != ''){echo "$".number_format($threshold5);} ?>" class="form-control" />
                             </div>
                         </div>
                          <div class="col-md-2">
@@ -368,7 +368,7 @@ input[type=number]::-webkit-outer-spin-button {
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Threshold </label>
-                                <input type="text" name="threshold6" id="threshold6" value="<?php if($action=='edit' && $threshold6 != ''){echo "$ ".number_format($threshold6);} ?>" class="form-control" maxlength="14" />
+                                <input type="text" name="threshold6" id="threshold6" value="<?php if($action=='edit' && $threshold6 != ''){echo "$".number_format($threshold6);} ?>" class="form-control" maxlength="14" />
                             </div>
                         </div>
                          <div class="col-md-2">
@@ -421,13 +421,13 @@ input[type=number]::-webkit-outer-spin-button {
                         <?php } ?>
 
                         <a onclick="return confirmleave('<?php echo CURRENT_PAGE; ?>');" ><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                        <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
+                        <input type="submit" name="submit"  value="Save" style="float: right;"/>
                     </div><br />
                 </div>
          </form> 
         </div>
         </div>
-        <?php
+        <?php   
     }
     else{?>
     <div class="panel">
@@ -1077,6 +1077,66 @@ function delete_notes(note_id){
         xmlhttp.open("GET", "manage_multicompany.php?delete_action=delete_notes&note_id="+note_id, true);
         xmlhttp.send();
 }
+
+function check_Threshold(){
+
+        var thr1 = $("#threshold1").val();
+            if(thr1 != ""){
+                thr1 = parseInt(thr1.replace(/[$,]+/g,""));
+            }else{ thr1= 0}  
+        var thr2 = $("#threshold2").val();
+            if(thr2 != ""){
+                thr2 = parseInt(thr2.replace(/[$,]+/g,""));
+            }else{ thr2= 0}
+        var thr3 = $("#threshold3").val();
+            if(thr3 != ""){
+                thr3 = parseInt(thr3.replace(/[$,]+/g,""));
+            }else{ thr3= 0}
+        var thr4 = $("#threshold4").val();
+            if(thr4 != ""){
+                thr4 = parseInt(thr4.replace(/[$,]+/g,""));
+            }else{ thr4= 0}
+        var thr5 = $("#threshold5").val();
+            if(thr5 != ""){
+                thr5 = parseInt(thr5.replace(/[$,]+/g,""));
+            }else{ thr5= 0}
+        var thr6 = $("#threshold6").val();
+            if(thr6 != ""){
+                thr6 = parseInt(thr6.replace(/[$,]+/g,""));
+            }else{ thr6= 0}
+    
+        if(thr2>0 && thr1>0 && thr2<thr1){
+            warnmsg("Threshold2 must be greater then Threshold1"); return false;
+        }
+        if(thr3>0 && thr2>0 && thr3<thr2){
+            warnmsg("Threshold3 must be greater then Threshold2"); return false;
+        }
+        if(thr4>0 && thr3>0 && thr4<thr3){
+            warnmsg("Threshold4 must be greater then Threshold3"); return false;
+        }
+        if(thr5>0 && thr4>0 && thr5<thr4){
+            warnmsg("Threshold5 must be greater then Threshold4"); return false;
+        }
+        if(thr6>0 && thr5>0 && thr6<thr5){
+            warnmsg("Threshold6 must be greater then Threshold5"); return false;
+        }
+        waitingDialog.show()
+        return true;
+}
+
+function warnmsg(msg){
+  
+    bootbox.alert({
+            message: msg,
+            buttons: {
+            ok: {
+                label: '<i class="ion-android-done-all"></i> ok',
+                className: 'btn-warning'
+            },
+            }
+    });
+}
+
 </script>
 <script>
 $('#demo-dp-range .input-daterange').datepicker({
