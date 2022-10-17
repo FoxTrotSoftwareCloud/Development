@@ -98,8 +98,10 @@
         }
 
         if($return===true){
-            header("location:".CURRENT_PAGE.'?reprocessed=1');
+            header("location:".CURRENT_PAGE.'?tab=processed_files&id='.$id.'&file_type='.$file_type);
             exit;
+        } else if($return==='exception'){
+            header("location:".CURRENT_PAGE.'?tab=review_files&id='.$id.'&file_type='.$file_type);
         }
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
@@ -205,9 +207,6 @@
         OR (isset($_POST['upload_dazl_file']) && $_POST['upload_dazl_file']=='upload_dazl_file')
     )
     {
-        
-        echo "<p>test line 208</p>";
-        
         $error = $upload_sponsor_file = $localFolder = $result = '';
         $uploadFiles = $dim = [];
         $uploaded =  0;
