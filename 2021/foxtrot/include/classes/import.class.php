@@ -3145,7 +3145,7 @@
                                 $product_category_id = (isset($check_data_val['product_category']) ? $check_data_val['product_category'] : '1');
                                 
                                 $foundProduct = [
-                                    'category'=> $product_category,
+                                    'category'=> $product_category_id,
                                     'name'=>"*GENERIC PRODUCT - ".strtoupper($file_sponsor_array['name']),
                                     'security'=>"*GENERIC".strtoupper($file_sponsor_array['name']),
                                     'id'=>0,
@@ -3312,7 +3312,7 @@
                                             $q = "INSERT INTO ".IMPORT_EXCEPTION.""
                                                 ." SET error_code_id=24"
                                                     .",field='alpha_code'"
-                                                    .",field_value='{$check_data_val['alpha_code']}'"
+                                                    .",field_value='".$this->re_db_input($check_data_val['alpha_code'])."'"
                                                     .",file_type=$commissionFileType"
                                                     .$insert_exception_string;
                                             $res = $this->re_db_query($q);
