@@ -1858,15 +1858,7 @@
                 }
             ]
         });
-        $("div.toolbar2").html('<div class="panel-control">' +
-            '<div class="btn-group dropdown" style="float: right;">' +
-            '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>' +
-            '<ul class="dropdown-menu dropdown-menu-right" style="">' +
-            '<li><a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=add_ftp"><i class="fa fa-plus"></i> Add new FTP Site</a></li>' +
-            '<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-minus"></i> Back to List of Current Files Page</a></li>' +
-            '</ul>' +
-            '</div>' +
-            '</div>');
+        $("div.toolbar2").html('<a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=add_ftp" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add new FTP Site</a> <a href="<?php echo CURRENT_PAGE; ?>" class="btn btn-sm btn-primary">Back</a>');
 
         $('#data-table3').DataTable({
             "pageLength": 25,
