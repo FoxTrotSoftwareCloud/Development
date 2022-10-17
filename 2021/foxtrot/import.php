@@ -205,6 +205,9 @@
         OR (isset($_POST['upload_dazl_file']) && $_POST['upload_dazl_file']=='upload_dazl_file')
     )
     {
+        
+        echo "<p>test line 208</p>";
+        
         $error = $upload_sponsor_file = $localFolder = $result = '';
         $uploadFiles = $dim = [];
         $uploaded =  0;
@@ -243,15 +246,15 @@
                         // b. Load Detail
                         if ($result){
                             $result = $instance->process_file_dazl($uploadFiles[$key]['file_id']);
-                        } else {
+                        } else if (empty($uploadFiles[$key]['error'])){
                             $uploadFiles[$key]['error'] = 'Curent file table not updated';
                             $result = 0;
                         }
                         // c. Process the data
                         if (is_array($result)){
                             $result = $instance->reprocess_current_files($uploadFiles[$key]['file_id']);
-                        } else {
-                            $uploadFiles[$key]['error'] = 'File records not decoded';
+                        } else if (empty($uploadFiles[$key]['error'])){
+                            $uploadFiles[$key]['error'] =  'File records not decoded';
                             $result = 0;
                         }
                         // Final update
@@ -259,14 +262,22 @@
                             $uploadFiles[$key]['result'] = 'Upload successful';
                             $uploaded = 1;
                             $error = '';
-                        } else {
+                        } else if (empty($uploadFiles[$key]['error'])){
                             $uploadFiles[$key]['error'] = 'Reprocess failed';
                             $error = 'Upload failed';
+                        }
+                    }
+                    $error = '';
+                        
+                    foreach($uploadFiles AS $key=>$row){
+                        if ($row['error']!=''){
+                            $error .= "File: ".$row['file_name'].": ".$row['error']."\r\n"; 
                         }
                     }
                 } else {
                     $error = 'No files specified. Procedure cancelled.';
                 }
+                
             }
         } else if ($upload_sponsor_file == 'upload_generic_csv_file') {
             $localFolder = rtrim($instance_importGeneric->dataInterface['local_folder'],"/")."/";
