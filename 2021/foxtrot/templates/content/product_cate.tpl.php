@@ -120,11 +120,11 @@ function default_min_threshold() {
             			<table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
             	            <thead>
             	                <tr>
+                                    <th class="text-center">ACTION</th>
                                     <th>PRODUCT NAME</th>
                                     <th>CUSIP</th>
                                     <th>SPONSOR NAME</th>
                                     <th class="text-center">STATUS</th>
-                                    <th class="text-center">ACTION</th>
                                 </tr>
             	            </thead>
             	            <tbody>
@@ -133,6 +133,10 @@ function default_min_threshold() {
                             foreach($return as $key=>$val){
                                 ?>
             	                   <tr>
+                                        <td class="text-center">
+                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit_product&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit" ></i> Edit</a>
+                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash" ></i> Delete</a> -->
+                                        </td>
                                         <td><?php echo $val['name'];?></td>
                                         <td><?php echo $val['cusip']; ?></td>
                                         <td><?php echo $val['sponsor']; ?></td>
@@ -149,10 +153,6 @@ function default_min_threshold() {
                                                     <?php
                                                 }
                                             ?>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit_product&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit" ></i> Edit</a>
-                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash" ></i> Delete</a>
                                         </td>
                                     </tr>
                             <?php } ?>
@@ -209,12 +209,12 @@ function default_min_threshold() {
                         <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
                             <thead>
                                 <tr>
+                                    <th class="text-center">ACTION</th>
                                     <th>PRODUCT NAME</th>
                                     <th>CATEGORY</th>
                                     <th>CUSIP</th>
                                     <th>SPONSOR NAME</th>
                                     <th class="text-center">STATUS</th>
-                                    <th class="text-center">ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -223,6 +223,10 @@ function default_min_threshold() {
                             foreach($return as $key=>$val){
                                 ?>
                                    <tr>
+                                        <td class="text-center">
+                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit_product&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
+                                        </td>
                                         <td><?php echo $val['name'];?></td>
                                         <td><?php echo $val['type']; ?></td>
                                         <td><?php echo $val['cusip']; ?></td>
@@ -240,10 +244,6 @@ function default_min_threshold() {
                                                     <?php
                                                 }
                                             ?>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit_product&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a>
                                         </td>
                                     </tr>
                             <?php } ?>
@@ -312,7 +312,7 @@ function default_min_threshold() {
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Product Name <span class="text-red">*</span></label><br />
-                                        <input type="text" maxlength="40" class="form-control" name="name" value="<?php echo $name; ?>"  />
+                                        <input type="text" maxlength="40" class="form-control" name="name" value="<?php echo $name; ?>" required />
                                     </div>
                                 </div>
                                 <!--div class="col-md-6">
@@ -328,7 +328,7 @@ function default_min_threshold() {
                                     <div id="div_sponsor">
                                     <div class="form-group">
                                         <label>Sponsor <span class="text-red">*</span></label><br />
-                                        <select class="form-control" name="sponsor" id="sponsor">
+                                        <select class="form-control" name="sponsor" id="sponsor" required>
                                             <option value="">Select Sponsor</option>
                                              <?php foreach($get_sponsor as $key=>$val){?>
                                             <option value="<?php echo $val['id'];?>" <?php if($sponsor != '' && $sponsor==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>
@@ -796,9 +796,14 @@ function default_min_threshold() {
                             <?php } ?>
                             <a href="#product_notes" data-toggle="modal"><input type="button" onclick="get_product_notes();" name="notes" value="Notes" /></a>
                             <a href="#product_transactions" data-toggle="modal"><input type="button" name="attach" value="Transactions" /></a>
-                            <a href="#product_attach" data-toggle="modal"><input type="button"  onclick="get_product_attach();" name="attach" value="Attachments" style="margin-right: 10%;"/></a>
-                            <a href="<?php echo CURRENT_PAGE.'?action=view_product&cancel=true';?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                            <input type="submit" name="product" onclick="waitingDialog.show();" value="Save" style="float: right;"/>
+                            <a href="#product_attach" data-toggle="modal"><input type="button"  onclick="get_product_attach();" name="attach" value="Attachments" /></a>
+
+                            <?php if($action=='edit_product' && $id>0){?>
+                                <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $_GET['category']; ?>&id=<?php echo $id; ?>');" ><input type="button" name="delete" value="Delete" style="margin-right: 8% !important;"/></a>
+                            <?php } ?>
+
+                            <a onclick="return confirmleave('<?php echo CURRENT_PAGE.'?action=view_product&cancel=true'; ?>');" ><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+                            <input type="submit" name="product"  value="Save" style="float: right;"/>
                         </div>
                     </div>
 			    </form>

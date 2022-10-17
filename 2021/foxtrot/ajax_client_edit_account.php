@@ -1,3 +1,5 @@
+
+
 <?php  
   require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
@@ -13,41 +15,41 @@ $(document).ready(function(){
     $('#ssn').mask("999-99-9999");
 });
 </script>
- <form method="post" name="add_new_account" onsubmit="return formsubmit_account();">
-        <div class="inputpopup">
+ <form method="post" id="add_new_account" name="add_new_account" onsubmit="return formsubmit_account();">
+        <div class="form-group">
 			<label>Joint Name:</label>
             <input type="text" name="joint_name" value="<?php echo $get_account['joint_name'];?>" id="joint_name" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>SSN:</label>
             <input type="text" name="ssn" id="ssn" value="<?php echo $get_account['ssn'];?>" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>DOB:</label>
             <input type="text" name="dob" id="dob" value="<?php echo $get_account['dob'];?>" class="form-control" />
         </div>
         
-		  <div class="inputpopup">
+		  <div class="form-group">
 			<label>Employer:</label>
             <input type="text" name="employer" id="employer" value="<?php echo $get_account['employer'];?>" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>Emp. Address:</label>
             <input type="text" name="employer_add" id="employer_add" value="<?php echo $get_account['employer_add'];?>" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>Occupation:</label>
             <input type="text" name="occupation" id="occupation" value="<?php echo $get_account['occupation'];?>" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>Position:</label>
             <input type="text" name="position" id="position" value="<?php echo $get_account['position'];?>" class="form-control" />
 		</div>
-		<div class="inputpopup">
+		<div class="form-group">
 			<label>Income:</label>
             <input type="text" name="income" id="income" value="<?php echo $get_account['income'];?>" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>Securities-Related Firm?:</label>
             <input type="checkbox" name="security_related_firm" value="1" <?php if($get_account['securities']==1){?>checked="true"<?php }?> id="security_related_firm" class="checkbox" />
 		</div>
@@ -67,41 +69,41 @@ $(document).ready(function(){
     
     
     
-    <form method="post" name="add_new_account" onsubmit="return formsubmit_account();">
-        <div class="inputpopup">
+    <form method="post" id="add_new_account" name="add_new_account" onsubmit="return formsubmit_account();">
+        <div class="form-group">
 			<label>Joint Name:</label>
             <input type="text" name="joint_name" id="joint_name" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>SSN:</label>
             <input type="text" name="ssn" id="ssn" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>DOB:</label>
             <input type="text" name="dob" id="dob" class="form-control" />
         </div>
         
-		<div class="inputpopup">
+		<div class="form-group">
 			<label>Employer:</label>
             <input type="text" name="employer" id="employer" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>Emp. Address:</label>
             <input type="text" name="employer_add" id="employer_add" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>Occupation:</label>
             <input type="text" name="occupation" id="occupation" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>Position:</label>
             <input type="text" name="position" id="position" class="form-control" />
 		</div>
-		<div class="inputpopup">
+		<div class="form-group">
 			<label>Income:</label>
             <input type="text" name="income" id="income" class="form-control" />
 		</div>
-        <div class="inputpopup">
+        <div class="form-group">
 			<label>Securities-Related Firm?:</label>
             <input type="checkbox" name="security_related_firm" value="1" id="security_related_firm" class="checkbox" />
 		</div>

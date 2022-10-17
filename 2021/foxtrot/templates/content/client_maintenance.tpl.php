@@ -23,6 +23,19 @@
             margin-left: 8% !important;
         }
     }
+
+
+	#add_new_account_modal form{
+		text-align: center;
+	}
+	#add_new_account_modal form label{
+		float: left;
+		width: 30%;
+	}
+	#add_new_account_modal form .form-control{
+		width: 50%;
+	}
+	
 </style>
 <script>
 function addMoreDocs(){
@@ -1261,10 +1274,8 @@ $(document).on('change', '#is_reviewed', function(event) {
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
 					<h4 class="modal-title">Add Joint Account</h4>
 				</div>
-				<div class="modal-body">
-                <form method="post" id="add_new_account" name="add_new_account" onsubmit="return formsubmit_account();">
-                    
-				</form>					
+				<div class="modal-body" id="add_new_account_modal">
+               			
                 
 				</div><!-- End of Modal body -->
 				</div><!-- End of Modal content -->
@@ -1864,7 +1875,7 @@ function get_client_edit(account_id){
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) 
             {
-                document.getElementById("add_new_account").innerHTML = this.responseText;
+                document.getElementById("add_new_account_modal").innerHTML = this.responseText;
             }
         };
         xmlhttp.open("GET", "ajax_client_edit_account.php?&id="+account_id, true);
