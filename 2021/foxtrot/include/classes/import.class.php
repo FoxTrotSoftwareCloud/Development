@@ -2522,7 +2522,7 @@
 
                                 $q = "UPDATE ".IMPORT_EXCEPTION.""
                                     ." SET"
-                                        ."error_code_id=".($dataSettings['update_client'] ? 'error_code_id' : 23)
+                                        ." error_code_id=".($dataSettings['update_client'] ? 'error_code_id' : 23)
                                         .",solved='".$dataSettings['update_client']."'"
                                         .",process_completed='".$dataSettings['update_client']."'"
                                         .",is_delete = 0"
@@ -3042,7 +3042,7 @@
                                 if(empty($broker) AND empty($brokerAlias)){
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
                                             ." SET"
-                                                ."error_code_id='1'"
+                                                ." error_code_id='1'"
                                                 .",field='representative_number'"
                                                 .",field_value='$rep_number'"
                                                 .",file_type = $commissionFileType"
