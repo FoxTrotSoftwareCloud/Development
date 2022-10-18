@@ -398,7 +398,7 @@
                                     // Do the Deed!
                                     if ($licenceDetail['id']){
                                         $q = "UPDATE ".constant($licenceDetail['licence_table']).""
-                                                ." SET"
+                                                ." SET "
                                                     ." broker_id=".$licenceDetail['broker_id']
                                                     .",type_of_licences=".$licenceDetail['type_of_licences']
                                                     .",state_id=".$licenceDetail['state_id']
@@ -411,7 +411,7 @@
                                         $result = $this->re_db_query($q);
                                     } else {
                                         $q = "INSERT INTO ".constant($licenceDetail['licence_table']).""
-                                                ." SET"
+                                                ." SET "
                                                     ." broker_id=".$licenceDetail['broker_id']
                                                     .",type_of_licences=".$licenceDetail['type_of_licences']
                                                     .",state_id=".$licenceDetail['state_id']
@@ -623,7 +623,7 @@
                             $res = 0;
                             if ($accountNo!='' AND (int)$sponsorId>0 AND (int)$new_client>0){
                                 $q = "INSERT ".CLIENT_ACCOUNT.""
-                                    ." SET"
+                                    ." SET "
                                         ." account_no = '".$accountNo."'"
                                         .",sponsor_company = $sponsorId"
                                         .",client_id = $new_client"
@@ -918,7 +918,7 @@
                 $res = 0;
                 if ($sponsorId > 0){
                     $q = "INSERT INTO ".BROKER_ALIAS.""
-                        ." SET"
+                        ." SET "
                             ." broker_id=$broker_id"
                             .",alias_name='$brokerAlias'"
                             .",sponsor_company=$sponsorId"
@@ -2109,7 +2109,7 @@
 
                     if (empty($file_array['sponsor_id']) AND !in_array(strtolower(substr($file_array['source'],0,3)),['daz'])){
                         $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                ." SET"
+                                ." SET "
                                     ." file_id='".$file_id."'"
                                     .",error_code_id='14'"
                                     .",field='sponsor_id'"
@@ -2182,7 +2182,7 @@
 
                             if (empty($file_sponsor_array)){
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET"
+                                        ." SET "
                                             ." file_id='".$file_id."'"
                                             .",error_code_id='14'"
                                             .",field='sponsor_id'"
@@ -2262,7 +2262,7 @@
 
                             if($broker_id == 0 ) {
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET"
+                                        ." SET "
                                             ." file_id='".$check_data_val['file_id']."'"
                                             .",error_code_id='1'"
                                             .",field='representative_number'"
@@ -2282,7 +2282,7 @@
                                 $result++;
                             } else {
                                 $q = "UPDATE $detailTable"
-                                        ." SET"
+                                        ." SET "
                                             ." broker_id=$broker_id"
                                             .$this->update_common_sql()
                                         ." WHERE id=".$check_data_val['id']
@@ -2296,7 +2296,7 @@
 
                                     if($current_date > $check_broker_termination) {
                                         $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                                ." SET"
+                                                ." SET "
                                                     ." file_id='".$check_data_val['file_id']."'"
                                                     .",error_code_id='2'"
                                                     .",field='u5'"
@@ -2319,7 +2319,7 @@
                             }
                         } else {
                             $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET"
+                                    ." SET "
                                         ." file_id='".$check_data_val['file_id']."'"
                                         .",error_code_id='13'"
                                         .",field='representative_number'"
@@ -2341,7 +2341,7 @@
                         // Account Number Already Exists
                         if($existingAccountArray AND !$reassignClient){
                             $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET"
+                                    ." SET "
                                         ." file_id='".$check_data_val['file_id']."'"
                                         .",error_code_id='12'"
                                         .",field='mutual_fund_customer_account_number'"
@@ -2367,7 +2367,7 @@
 
                             if (empty($social_security_number)) {
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET"
+                                        ." SET "
                                             ." file_id='".$check_data_val['file_id']."'"
                                             .",error_code_id='13'"
                                             .",field='social_security_number'"
@@ -2404,7 +2404,7 @@
                                 $res = '';
 
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET"
+                                    ." SET "
                                         ." file_id='".$check_data_val['file_id']."'"
                                         .",error_code_id='19'"
                                         .",field='social_security_number'"
@@ -2521,7 +2521,7 @@
                                 }
 
                                 $q = "UPDATE ".IMPORT_EXCEPTION.""
-                                    ." SET"
+                                    ." SET "
                                         ." error_code_id=".($dataSettings['update_client'] ? 'error_code_id' : 23)
                                         .",solved='".$dataSettings['update_client']."'"
                                         .",process_completed='".$dataSettings['update_client']."'"
@@ -2667,7 +2667,7 @@
                                 // Update EXCEPTIONS table if CLIENT_MASTER wasn't updated
                                 if ($existingSocialArray){
                                     $q = "UPDATE ".IMPORT_EXCEPTION.""
-                                            ." SET"
+                                            ." SET "
                                                 ." file_id='".$check_data_val['file_id']."'"
                                                 .",field='client_account_no'"
                                                 .",field_value='$last_inserted_account_no_id'"
@@ -2746,7 +2746,7 @@
                             }
 
                             $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                ." SET"
+                                ." SET "
                                     ." file_id='".$check_data_val['file_id']."'"
                                     .",error_code_id=13"
                                     .",field='$field'"
@@ -2779,7 +2779,7 @@
                             if($this->re_db_num_rows($res_ProductCategory)==0){
                                 // EXCEPTION: Product Category not found
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET"
+                                    ." SET "
                                         ." file_id='".$check_data_val['file_id']."'"
                                         .",error_code_id='17'"
                                         .",field='major_security_type'"
@@ -2818,7 +2818,7 @@
 
                                     // Flag the record as "solved". No need to clear the exception
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET"
+                                        ." SET "
                                             ." file_id='".$check_data_val['file_id']."'"
                                             .",error_code_id='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? '16' : '15')."'"
                                             .",field='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? 'cusip_number' : 'ticker_symbol')."'"
@@ -2836,7 +2836,7 @@
 
                                     // Update DETAIL data TABLE for added/updated products
                                     $q = "UPDATE ".$detailTable.""
-                                        ." SET"
+                                        ." SET "
                                             ." product_category_id=".$array_ProductCategory['id']
                                             .",product_id=".$array_SymbolCusipCheck['id']
                                             .",process_result=2"
@@ -2848,7 +2848,7 @@
                                 else {
                                     // Checks Passed: INSERT PRODUCT
                                     $q = "INSERT INTO ".PRODUCT_LIST.""
-                                        ." SET"
+                                        ." SET "
                                             ." category='".$array_ProductCategory['id']."'"
                                             .",name='".trim($check_data_val['fund_name']).(trim($check_data_val['product_name'])!='' ? '/' : '').trim($check_data_val['product_name'])."'"
                                             .",ticker_symbol='".$check_data_val['ticker_symbol']."'"
@@ -2862,7 +2862,7 @@
                                     $reprocess_status = $res_InsertProduct;
 
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                            ."SET"
+                                            ."SET "
                                                 ." file_id='".$check_data_val['file_id']."'"
                                                 .",error_code_id='0'"
                                                 .",solved='1'"
@@ -2940,7 +2940,7 @@
 
                             if (empty($file_sponsor_array)){
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET"
+                                        ." SET "
                                             ." file_id='".$file_id."'"
                                             .",error_code_id='14'"
                                             .",field='sponsor_id'"
@@ -3041,7 +3041,7 @@
 
                                 if(empty($broker) AND empty($brokerAlias)){
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                            ." SET"
+                                            ." SET "
                                                 ." error_code_id='1'"
                                                 .",field='representative_number'"
                                                 .",field_value='$rep_number'"
@@ -5222,7 +5222,7 @@
 			return $return;
 		}
 
-        // PHP Version of console.log(). For debugging on the server
+        // PHP Version of console.log(). For debugging on the client
         function PHPconsole_log($output, $with_script_tags = true) {
             $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
             if ($with_script_tags) {
