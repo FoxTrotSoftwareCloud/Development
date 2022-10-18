@@ -5222,7 +5222,7 @@
 			return $return;
 		}
 
-        // PHP Version of console.log(). For debugging on the server
+        // PHP Version of console.log(). For debugging on the client
         function PHPconsole_log($output, $with_script_tags = true) {
             $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
             if ($with_script_tags) {
