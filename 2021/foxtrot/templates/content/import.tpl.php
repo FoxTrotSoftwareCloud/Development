@@ -285,7 +285,7 @@
                                                                 <th>Last Processed</th>
                                                                 <th>Sponsor</th>
                                                                 <th>Batch#</th>
-                                                                <th>Check Amount / <br> Posted Amount</th>
+                                                                <th>Check Amount/ <br> Posted Amount</th>
                                                                 <th>Results</th>
                                                                 <th>Notes</th>
                                                             </thead>
@@ -371,7 +371,7 @@
                                                                                     $filename = $val['file_name'];
                                                                                     echo $str = (strlen($filename) > 22) ? substr($filename, 0, 20) . '...' : $filename;
                                                                                     ?></td>
-                                                                                <td class="filetype" onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
                                                                                                                                                                                                     echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
                                                                                                                                                                                                 } ?></td>
@@ -399,7 +399,7 @@
                                                                                 }
                                                                                 ?>
 
-                                                                                <td style="text-align:right ;">
+                                                                                <td style="text-align:right ;" class="chkamt">
                                                                                     <?php
 
                                                                                     if ($file_type_id == 2 || $file_type_id == 9) {
@@ -407,11 +407,11 @@
                                                                                         if($total_processed_commission_for_import[0]['Total_commission'] == $total_Check_Amount &&  $total_Check_Amount != 0){ 
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
-                                                                                        echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
-
-                                                                                        echo "<br>";
 
                                                                                         echo ' $' . number_format($total_Check_Amount, 2);
+                                                                                        echo "<br>";
+                                                                                        echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
+                                                                                       
                                                                                     } else {
 
                                                                                         echo $total_import;
@@ -1778,8 +1778,8 @@
         width: 13%;
     }
 
-    #data-table .filetype {
-        width: 18%;
+    #data-table .chkamt {
+        width: 12%;
     }
 
     #data-table .source {
