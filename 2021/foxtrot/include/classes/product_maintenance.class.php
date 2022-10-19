@@ -403,9 +403,7 @@
 			if($file_name == ''){
 				$this->errors = 'Please select file.';
 			}
-			if($this->errors!=''){
-				return $this->errors;
-			}
+			
             if($file_name!='')
             {
                if(!in_array($ext,$valid_file))
@@ -449,6 +447,9 @@
                 }
 
             }
+			if($this->errors!=''){
+				return $this->errors;
+			}
 		}
         public function select_attach(){
 			$return = array();

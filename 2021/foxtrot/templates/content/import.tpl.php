@@ -1903,7 +1903,7 @@
             '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>' +
             '<ul class="dropdown-menu dropdown-menu-right" style="">' +
             '<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-minus"></i> Back to List of Current Files Page</a></li>' +
-            '<li><a href="<?php echo SITE_URL . 'report_processed_data.php?id=' . $file_id; ?>" target="_blank"><i class="fa fa-plus"></i> Output to print</a></li>' +
+            '<li><a href="<?php echo SITE_URL . 'report_processed_data.php?id=' . $file_id; ?>" target="_blank"><i class="fa fa-plus"></i> Output to PDF</a></li>' +
             '</ul>' +
             '</div>' +
             '</div>');

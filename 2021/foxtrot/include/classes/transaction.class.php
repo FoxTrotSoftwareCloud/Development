@@ -1358,6 +1358,15 @@ class transaction extends db{
 			return $return;
 		}
 
+		public function get_brokername_by_id($id){
+			
+				$q="SELECT first_name,last_name FROM ".BROKER_MASTER." WHERE id=$id";
+
+				$res = $this->re_db_query($q);
+				$result = mysqli_fetch_assoc($res);
+				return $result['last_name'].$result['first_name'];
+		}
+
 		public function select_sponsor_by_id($id){
 			$return = array();
 
