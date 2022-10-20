@@ -110,8 +110,12 @@
                   <div class="row annual-broker-date-type">
                       <div class="col-md-12 ">
                             <div class="form-group"> 
-                                    <input checked style="display:inline;" type="radio" class="radio" name="annual-broker-date-type" value="1"> Trade Date  &nbsp;&nbsp;&nbsp;
-                                    <input style="display:inline;" type="radio" class="radio" name="annual-broker-date-type" value="2"> Settlement Date
+                                <label class="radio-inline">
+                                    <input checked type="radio" class="radio" name="annual-broker-date-type" value="1">&nbsp; Trade Date  &nbsp;&nbsp;&nbsp;
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" class="radio" name="annual-broker-date-type" value="2">&nbsp; Settlement Date
+                                </label>
                             </div>
                       </div>
                   </div>
@@ -151,9 +155,12 @@
                         </div>
                         <div class="col-md-12">
                                 <div class="form-group">
-                                     
-                                      <input  type="radio" class="radio" name="earning_by" id="earning_by_broker" style="display: inline;" value="1" <?php if($sort_by == 1 || $sort_by == ''){echo 'checked="checked"';}?>/> Earnings By Broker
-                                       <input type="radio" class="radio" name="earning_by" id="earning_by_branch" style="display: inline;" value="2" <?php if(isset($sort_by) && ($sort_by == 2)){echo 'checked="checked"';}?>/> Earnings By Branch
+                                    <label class="radio-inline">
+                                      <input  type="radio" class="radio" name="earning_by" id="earning_by_broker" value="1" <?php if($sort_by == 1 || $sort_by == ''){echo 'checked="checked"';}?>/>&nbsp; Earnings By Broker
+                                    </label>
+                                    <label class="radio-inline">
+                                       <input type="radio" class="radio" name="earning_by" id="earning_by_branch" value="2" <?php if(isset($sort_by) && ($sort_by == 2)){echo 'checked="checked"';}?>/>&nbsp; Earnings By Branch
+                                    </label>
                                 </div>
                         </div>
                         <div class="col-md-12">
@@ -207,7 +214,7 @@
                         </div>
                         
                         <div class="col-md-12">
-                            <div class="form-group">
+                            <div class="form-group" style="margin-top:1.5em ;">
 
                                 <?php 
                                     $ranks = ['Rank on Total Earnings','Rank on Gross Concessions','Rank on Total Sales',
@@ -215,21 +222,20 @@
                                     foreach ($ranks as $key => $rank_name) {
                                         $uid = strtolower(str_replace(' ','_', $rank_name));
                                         $checked = ($key==0) ? 'checked' : '';
-                                        echo '<input '.$checked.' type="radio" class="radio" name="report_rank" id="'.$uid.'" style="display: inline;" value="'.($key+1).'" /> <label for="'.$uid.'"> '.$rank_name.'&nbsp;&nbsp;&nbsp; </label> ';
+                                        echo ' <label class="radio-inline"><input '.$checked.' type="radio" class="radio" name="report_rank" id="'.$uid.'" value="'.($key+1).'" /> &nbsp;'.$rank_name.'&nbsp;&nbsp;&nbsp; </label> ';
                                     }
-
-
                                 ?>
-                                
-                                
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <input id="broker_type_all-brokers" checked="checked" type="radio" class="radio" name="broker_type" value="1" style="display: inline;"> 
-                                <label for="broker_type_all-brokers"> All Brokers  &nbsp;&nbsp;&nbsp; </label>
-                                <input id="broker_type_top-broker" type="radio" class="radio" name="broker_type" value="2" style="display: inline;"> 
-                                <label for="broker_type_top-broker">Top Brokers Only &nbsp;&nbsp;&nbsp; </label> 
+                                <label class="radio-inline">
+                                    <input id="broker_type_all-brokers" checked="checked" type="radio" class="radio" name="broker_type" value="1" style="display: inline;"> &nbsp; All Brokers  &nbsp;&nbsp;&nbsp; 
+                                </label>
+                                <label class="radio-inline">
+                                    <input id="broker_type_top-broker" type="radio" class="radio" name="broker_type" value="2" > 
+                                    &nbsp;Top Brokers Only &nbsp;&nbsp;&nbsp; 
+                                </label> 
                                 <input type="number" value="1" name="top_broker_count" min="1" max="200" style="display: inline;">
                             </div>
                         </div>
@@ -237,12 +243,15 @@
 
                         <div class="col-md-12">
                                 <div class="form-group">
-                                     
-                                      <input type="radio" class="radio earning_by" name="date_earning_by" id="earning_by" style="display: inline;" value="1" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "checked='checked'";}?>/> Current Payroll
-                                       <input type="radio" class="radio earning_by" name="date_earning_by" id="earning_by" style="display: inline;" value="2" <?php if(isset($sort_by) && ($sort_by == 2)){echo "checked='checked'";}?>/> Specified Date Range
+                                    <label class="radio-inline">
+                                        <input type="radio" class="radio earning_by" name="date_earning_by" id="earning_by" value="1" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "checked='checked'";}?>/>&nbsp; Current Payroll
+                                    </label>
+                                    <label class="radio-inline">
+                                       <input type="radio" class="radio earning_by" name="date_earning_by" id="earning_by" value="2" <?php if(isset($sort_by) && ($sort_by == 2)){echo "checked='checked'";}?>/> &nbsp; Specified Date Range
+                                    </label>
                                 </div>
                         </div>
-                        <div class="col-md-12 date-options" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "style='display:none'";}?>/>
+                        <div class="col-md-12 date-options" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "style='display:none'";}?> >
                                 <div class="col-md-6 beginning_date">
                             <div class="form-group beginning_date">
                                 <label>Beginning Date </label>
@@ -317,9 +326,12 @@
                     <div class="row sort_by_options" id="div_sort_by">
                         <div class="col-md-12">
                                 <div class="form-group">
-                                     
-                                      <input type="radio" class="radio" name="sort_by" id="sort_by" style="display: inline;" value="1" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "checked='checked'";}?>/> Sort by Sponsor&nbsp;&nbsp;&nbsp;
-                                       <input type="radio" class="radio" name="sort_by" id="sort_by" style="display: inline;" value="2" <?php if(isset($sort_by) && ($sort_by == 2)){echo "checked='checked'";}?>/> Sort by Investment Amount
+                                    <label class="radio-inline">
+                                      <input type="radio" class="radio" name="sort_by" id="sort_by" value="1" <?php if(isset($sort_by) && ($sort_by == 1 || $sort_by == '')){echo "checked='checked'";}?>/>&nbsp; Sort by Sponsor&nbsp;&nbsp;&nbsp;
+                                    </label>
+                                    <label class="radio-inline">
+                                       <input type="radio" class="radio" name="sort_by" id="sort_by" style="display: inline;" value="2" <?php if(isset($sort_by) && ($sort_by == 2)){echo "checked='checked'";}?>/> &nbsp; Sort by Investment Amount
+                                    </label>
                                 </div>
                         </div>
                     </div>
@@ -329,19 +341,30 @@
                      <div class="row transaction-date-options" id="div_date_by">
                         <div class="col-md-12">
                                 <div class="form-group">
-                                     
-                                      <input type="radio" class="radio" name="date_by" id="date_by" style="display: inline;" value="1" <?php if(isset($date_by) && ($date_by == 1 || $date_by == '')){echo "checked='checked'";}?>/> Transaction Date&nbsp;&nbsp;&nbsp;
-                                       <input type="radio" class="radio" name="date_by" id="date_by" style="display: inline;" value="2" <?php if(isset($date_by) && ($date_by == 2)){echo "checked='checked'";}?>/>Commission Received Date
+                                    <label class="radio-inline">
+                                      <input type="radio" class="radio" name="date_by" id="date_by" value="1" <?php if(isset($date_by) && ($date_by == 1 || $date_by == '')){echo "checked='checked'";}?>/>&nbsp; Transaction Date&nbsp;&nbsp;&nbsp;
+                                    </label>
+                                    <label class="radio-inline">
+                                       <input type="radio" class="radio" name="date_by" id="date_by" value="2" <?php if(isset($date_by) && ($date_by == 2)){echo "checked='checked'";}?>/>&nbsp; Commission Received Date
+                                    </label>
                                 </div>
                         </div>
                     </div>
                 <div class="row output-options" >
                     <div class="col-md-12">
                         <div class="form-group">
-                            <input type="radio" class="radio" name="output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/> Output to Screen&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Output to Printer&nbsp;&nbsp;&nbsp; 
-                            <input type="radio"  class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Output to Excel&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/> Output to PDF
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_screen" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/>&nbsp; Output to Screen&nbsp;&nbsp;&nbsp;
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_printer" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/>&nbsp; Output to Printer&nbsp;&nbsp;&nbsp; 
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio"  class="radio" name="output" id="output_to_excel" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/>&nbsp; Output to Excel&nbsp;&nbsp;&nbsp;
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_pdf" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/>&nbsp; Output to PDF
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -637,6 +660,9 @@ function get_product(cat){
     width: 100% !important;
 }
 
+input[type=radio]{
+    margin-top: 1px;
+}
 input[type=checkbox] + label , input[type=radio] + label {
     font-weight: normal;
 }

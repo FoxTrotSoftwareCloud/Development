@@ -4689,7 +4689,7 @@
             $return = array();
             
             if($customWhere != '') {
-                $q = "SELECT at.*,sum(at.commission) as Total_commission"
+                 $q = "SELECT DISTINCT(temp_data_id),commission"
                         ." FROM ".IMPORT_EXCEPTION." at"
                         
                         ." WHERE $customWhere"
@@ -4703,7 +4703,12 @@
     			     array_push($return,$row);
     			}
             }
-			return $return;
+
+            $sum=0;
+            foreach($return as $record){
+                $sum+= $record['commission'];
+            }
+			return $sum;
 		}
 
         public function select_total_records($customWhere=''){

@@ -171,7 +171,7 @@
 
                                     $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
 
-                                    $total_commission_amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
+                                    $total_commission_amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
                                 } else if ($get_file_type == '3') {
                                     $fileTypeDescription = "Securities";
                                 } else {
@@ -231,7 +231,7 @@
 
                                         $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
 
-                                        $total_Check_Amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
+                                        $total_Check_Amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
 
                                     ?>
 
@@ -322,11 +322,13 @@
 
                                                                         $fid_to_send = $val['id'];
                                                                         if ($file_type_id == 2 || $file_type_id == 9) {
+
                                                                             $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=0");
 
                                                                             $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=1");
 
-                                                                            $total_Check_Amount = ($total_unprocessed_commission_for_import[0]['Total_commission']) + ($total_processed_commission_for_import[0]['Total_commission']);
+                                                                            $total_Check_Amount = $total_unprocessed_commission_for_import + $total_processed_commission_for_import;
+                                                                            
                                                                         }
                                                                         else{
                                                                             $total_unprocessed_import = $instance->select_total_records("`is_delete`=0 AND `file_id`=$fid_to_send AND `file_type`=$file_type_id AND `solved`=0");
@@ -404,13 +406,13 @@
 
                                                                                     if ($file_type_id == 2 || $file_type_id == 9) {
 
-                                                                                        if($total_processed_commission_for_import[0]['Total_commission'] == $total_Check_Amount &&  $total_Check_Amount != 0){ 
+                                                                                        if($total_processed_commission_for_import == $total_Check_Amount &&  $total_Check_Amount != 0){ 
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
 
                                                                                         echo ' $' . number_format($total_Check_Amount, 2);
                                                                                         echo "<br>";
-                                                                                        echo ' $' . number_format($total_processed_commission_for_import[0]['Total_commission'], 2);
+                                                                                        echo ' $' . number_format($total_processed_commission_for_import, 2);
                                                                                        
                                                                                     } else {
 
@@ -606,7 +608,7 @@
                                                     ?>
 
                                                     <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
-                                                        <table id="data-table3" class="table table-bordered table-stripped table-hover">
+                                                        <table id="data-table3" class="table table-bordered">
                                                             <thead>
                                                                 <th>Date</th>
                                                                 <?php if (isset($get_file_type) && in_array($get_file_type, ['1', '2', '9'])) { ?>
@@ -640,8 +642,9 @@
                                                                 $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
                                                                 $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
                                                                 $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
-
-
+                                                
+                                                                    $prev_temp_data_id = 0;
+                                                                    $bg_color = '#fff';
                                                                 foreach ($return_exception as $error_key => $error_val) {
                                                                     if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
                                                                         $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
@@ -765,8 +768,23 @@
                                                                         }
                                                                     }
 
+
+                                                                    $temp_data_id = $error_val['temp_data_id'];
+
+                                                                    if($prev_temp_data_id == 0){
+                                                                        $color = '#fff';
+                                                                    }
+                                                                    if($prev_temp_data_id != 0 && $prev_temp_data_id != $temp_data_id){
+                                                                        $color = ($color == '#f5f5f5') ? '#fff' : '#f5f5f5';
+                                                                        $bg_color = $color;
+                                                                    }
+                                                                    if($prev_temp_data_id == $temp_data_id){
+                                                                        $bg_color = $color;
+                                                                    }
+                                                                    
+
                                                                 ?>
-                                                                    <tr>
+                                                                    <tr style="background-color: <?= $bg_color ?>;">
                                                                         <td><?php echo date('m/d/Y', strtotime($error_val['date'])); ?></td>
                                                                         <?php if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2', '9'])) { ?>
                                                                             <td><?php echo $error_val['rep']; ?></td>
@@ -816,7 +834,9 @@
                                                                             </form>
                                                                         </td>
                                                                     </tr>
-                                                                <?php } ?>
+                                                                <?php                                                                
+                                                                $prev_temp_data_id = $temp_data_id;
+                                                            } ?>
                                                             </tbody>
                                                         </table>
                                                     </div>

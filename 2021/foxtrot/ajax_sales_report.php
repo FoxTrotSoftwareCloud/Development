@@ -251,12 +251,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                             }
                             else {
                             $trans_rows[] = $row_item;
-                        }
-
+                            }  
+                            
                             $sub_earning_1099= $sub_check_amount = $sub_net_comm = $sub_gross_earning = 0;
 
                             foreach($trans_rows as $trans_data ){
-
+                                if($trans_data['gross_production']=="" || $trans_data['gross_production']==null){
+                                    $trans_data['gross_production']=0;
+                                }
 
                              $gross_earning=$trans_data['gross_production'] - $trans_data['commission_received'];
                              $net_commission=$trans_data['commission_paid'] + $trans_data['split_paid'] + $trans_data['override_paid'];
@@ -271,12 +273,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                              $sub_net_comm+=$net_commission;
                              $sub_check_amount+=$check_amount;
                              $sub_earning_1099+=$earning_1099; 
-
+                        
                 ?>
                             <tr>
                             <td style="text-align:left;font-weight:bold;"><h5><?php echo $trans_data['broker_lastname'].', '.$trans_data['broker_firstname'];?> </h5></td>
 
-                            <td style="text-align:left;font-weight:bold;"><h5><?php echo $trans_data['clearing_number'];?> </h5></td>
+                            <td style="text-align:left;font-weight:bold;width:10%;"><h5><?php echo $trans_data['clearing_number'];?> </h5></td>
 
                             <td style="text-align:right;font-weight:bold;"><h5><?php echo '$'.number_format($gross_earning,2);?></h5></td>
                             <td style="text-align:right;font-weight:bold;"><h5><?php echo '$'.number_format($net_commission,2);?></h5></td>

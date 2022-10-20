@@ -1542,7 +1542,7 @@ class transaction extends db{
 		    	$return = array();
 		        $con='';
 
-		        $con.=" and payroll_date between '".$beginning_date."' and '".$ending_date."' ";
+		        $con.=" payroll_date between '".$beginning_date."' and '".$ending_date."' ";
 		        if($without_earning!=1){
 		        	$con.=" and net_earnings <> '' ";
 		        }
@@ -1563,6 +1563,10 @@ class transaction extends db{
 		                     `pr`.`minimum_check_amount`,
 		                     `pr`.`finra`,
 		                     `pr`.`sipc`,
+		                     `pr`.`commission_received`,
+		                     `pr`.`commission_paid`,
+		                     `pr`.`split_paid`,
+		                     `pr`.`override_paid`,
 		                     `pr`.`sipc_gross`,
 		                     `pr`.`net_production`,
 		                     `pr`.`adjustments`,
@@ -1578,7 +1582,7 @@ class transaction extends db{
 		    			FROM `".PRIOR_PAYROLL_MASTER."` AS `pr`
 		                LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `pr`.`broker_id`
 		                LEFT JOIN ft_branch_master as   br on br.id = pr.branch
-		                WHERE `pr`.`is_delete`='0' ".$con."
+		                WHERE ".$con."
 		                ORDER BY `bm`.`last_name` desc";
 		            // echo $q;
 		        $all_transactions = [];
