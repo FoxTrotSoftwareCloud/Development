@@ -408,7 +408,7 @@
             {
                if(!in_array($ext,$valid_file))
                {
-                   $this->errors = 'Please select valid file.';
+                   $this->errors = "Please select valid file. valid file extensions are ( 'png', 'jpg', 'jpeg', 'bmp', 'pdf', 'xls', 'txt', 'xlsx')";
                }
                else
                {

@@ -2803,7 +2803,7 @@ $(document).ready(function(){
                                     <table class="table table-bordered table-stripped table-hover">
                                        <thead>
                                           <th>Series</th>
-                                          <th>License Name / Description</th>
+                                          <th>Registration Name</th>
                                           <th>Approval Date</th>
                                           <th>Expiration Date</th>
                                           <th>Reason</th>

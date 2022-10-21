@@ -3041,7 +3041,7 @@
 
                                 if(empty($broker) AND empty($brokerAlias)){
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                            ." SET"
+                                            ." SET "
                                                 ."error_code_id='1'"
                                                 .",field='representative_number'"
                                                 .",field_value='$rep_number'"
