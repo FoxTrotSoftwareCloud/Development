@@ -55,6 +55,11 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                                     <a href="<?php echo CURRENT_PAGE;?>?action=view_objective"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                                 					<input type="submit"  onclick="waitingDialog.show();" name="submit_objective" value="Save" style="float: right;"/>	
+
+                                                    <?php if($action=='edit_objective' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_objective&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -80,8 +85,8 @@
                         			<table id="data-table1" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -90,11 +95,11 @@
                                                 foreach($return_objective as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_objective&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_objective&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_objective&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -145,6 +150,11 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_income"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                                                     <input type="submit"  onclick="waitingDialog.show();" name="submit_income" value="Save" style="float: right;"/>	
+
+                                                    <?php if($action=='edit_income' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_income&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -170,8 +180,8 @@
                         			<table id="data-table2" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -180,11 +190,11 @@
                                                 foreach($return_income as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_income&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_income&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_income&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -234,6 +244,10 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_horizon"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                                                     <input type="submit"  onclick="waitingDialog.show();" name="submit_horizon" value="Save" style="float: right;"/>	
+
+                                                    <?php if($action=='edit_horizon' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_horizon&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -259,8 +273,8 @@
                         			<table id="data-table3" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -269,11 +283,11 @@
                                                 foreach($return_horizon as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_horizon&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_horizon&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_horizon&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -322,7 +336,11 @@
                                                     <label></label>
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_networth"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
-                                                    <input type="submit"  onclick="waitingDialog.show();" name="submit_networth" value="Save" style="float: right;"/>	
+                                                    <input type="submit"  onclick="waitingDialog.show();" name="submit_networth" value="Save" style="float: right;"/>
+                                                    
+                                                    <?php if($action=='edit_networth' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_networth&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -348,8 +366,8 @@
                         			<table id="data-table4" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -358,11 +376,11 @@
                                                 foreach($return_networth as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_networth&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_networth&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_networth&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -412,6 +430,10 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_risk_tolerance"><input type="button" name="cancel" value="Cancel" style="float:right;"/></a>
                                                     <input type="submit"  onclick="waitingDialog.show();" name="submit_risk_tolerance" value="Save" style="float:right;"/>	
+
+                                                    <?php if($action=='edit_risk_tolerance' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_risk_tolerance&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -437,8 +459,8 @@
                         			<table id="data-table5" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -447,11 +469,11 @@
                                                 foreach($return_risk_tolerance as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_risk_tolerance&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_risk_tolerance&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_risk_tolerance&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -501,6 +523,10 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_annual_expenses"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                                                     <input type="submit"  onclick="waitingDialog.show();" name="submit_annual_expenses" value="Save" style="float: right;"/>	
+
+                                                    <?php if($action=='edit_annual_expenses' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_annual_expenses&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -526,8 +552,8 @@
                         			<table id="data-table6" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -536,11 +562,11 @@
                                                 foreach($return_annual_expenses as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_annual_expenses&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_annual_expenses&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_annual_expenses&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -590,6 +616,10 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_liqudity_needs"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                                                     <input type="submit"  onclick="waitingDialog.show();" name="submit_liqudity_needs" value="Save" style="float: right;"/>	
+
+                                                    <?php if($action=='edit_liqudity_needs' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_liqudity_needs&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -615,8 +645,8 @@
                         			<table id="data-table7" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -625,11 +655,11 @@
                                                 foreach($return_liqudity_needs as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_liqudity_needs&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_liqudity_needs&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_liqudity_needs&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -679,6 +709,10 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_liquid_net_worth"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                                                     <input type="submit"  onclick="waitingDialog.show();" name="submit_liquid_net_worth" value="Save" style="float: right;" />	
+
+                                                    <?php if($action=='edit_liquid_net_worth' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_liquid_net_worth&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -704,8 +738,8 @@
                         			<table id="data-table8" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -714,11 +748,11 @@
                                                 foreach($return_liquid_net_worth as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_liquid_net_worth&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_liquid_net_worth&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_liquid_net_worth&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -768,6 +802,10 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_special_expenses"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                                                     <input type="submit"  onclick="waitingDialog.show();" name="submit_special_expenses" value="Save" style="float: right;"/>	
+
+                                                    <?php if($action=='edit_special_expenses' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_special_expenses&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -793,8 +831,8 @@
                         			<table id="data-table9" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -803,11 +841,11 @@
                                                 foreach($return_special_expenses as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_special_expenses&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_special_expenses&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_special_expenses&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -857,6 +895,10 @@
                                                     <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                                 					<a href="<?php echo CURRENT_PAGE;?>?action=view_portfolio"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                                                     <input type="submit"  onclick="waitingDialog.show();" name="submit_portfolio" value="Save" style="float: right;"/>	
+
+                                                    <?php if($action=='edit_portfolio' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_portfolio&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -882,8 +924,8 @@
                         			<table id="data-table10" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th>OPTIONS</th>
                                                 <th class="text-center">ACTION</th>
+                                                <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
                         	            <tbody>
@@ -892,11 +934,11 @@
                                                 foreach($return_portfolio as $key=>$val){
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $val['option']; ?></td>
                                                         <td class="text-center">
                                                             <a href="<?php echo CURRENT_PAGE; ?>?action=edit_portfolio&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_portfolio&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_portfolio&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                         </td>
+                                                        <td><?php echo $val['option']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -945,6 +987,10 @@
                                                 <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                             					<a href="<?php echo CURRENT_PAGE;?>?action=view_time_for_exp"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                                                 <input type="submit"  onclick="waitingDialog.show();" name="submit_time_for_exp" value="Save" style="float: right;"/>	
+
+                                                <?php if($action=='edit_time_for_exp' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_time_for_exp&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                             </div>
                                         </div>
                                     </div>
@@ -970,8 +1016,8 @@
                     			<table id="data-table11" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     	            <thead>
                     	                <tr>
-                                            <th>OPTIONS</th>
                                             <th class="text-center">ACTION</th>
+                                            <th>OPTIONS</th>
                                         </tr>
                     	            </thead>
                     	            <tbody>
@@ -980,11 +1026,11 @@
                                             foreach($return_time_for_exp as $key=>$val){
                                                 ?>
                                                 <tr>
-                                                    <td><?php echo $val['option']; ?></td>
                                                     <td class="text-center">
                                                         <a href="<?php echo CURRENT_PAGE; ?>?action=edit_time_for_exp&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_time_for_exp&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                        <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_time_for_exp&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                     </td>
+                                                    <td><?php echo $val['option']; ?></td>
                                                 </tr>
                                                 <?php
                                             }
@@ -1033,6 +1079,10 @@
                                                 <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
                             					<a href="<?php echo CURRENT_PAGE;?>?action=view_account_use"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                                                 <input type="submit"  onclick="waitingDialog.show();" name="submit_account_use" value="Save" style="float: right;"/>	
+
+                                                <?php if($action=='edit_account_use' && $id>0){?>
+                                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_account_use&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+                                                    <?php } ?>
                                             </div>
                                         </div>
                                     </div>
@@ -1058,8 +1108,8 @@
                     			<table id="data-table12" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     	            <thead>
                     	                <tr>
-                                            <th>OPTIONS</th>
                                             <th class="text-center">ACTION</th>
+                                            <th>OPTIONS</th>
                                         </tr>
                     	            </thead>
                     	            <tbody>
@@ -1068,11 +1118,11 @@
                                             foreach($return_account_use as $key=>$val){
                                                 ?>
                                                 <tr>
-                                                    <td><?php echo $val['option']; ?></td>
                                                     <td class="text-center">
                                                         <a href="<?php echo CURRENT_PAGE; ?>?action=edit_account_use&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_account_use&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
+                                                        <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_account_use&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
                                                     </td>
+                                                    <td><?php echo $val['option']; ?></td>
                                                 </tr>
                                                 <?php
                                             }

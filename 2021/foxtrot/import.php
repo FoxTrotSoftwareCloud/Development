@@ -306,7 +306,7 @@
         
         if(empty($error) AND $uploaded){
             $_SESSION['success'] = $successMessage;
-            header("location:".CURRENT_PAGE."?action=view&reprocessed=1");
+            header("location:".CURRENT_PAGE);
         } else{
             $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
             header("location:".CURRENT_PAGE."?tab=open_ftp");

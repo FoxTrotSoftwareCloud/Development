@@ -382,9 +382,9 @@ $(document).on('click','.remove-row',function(){
 			<table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
 	            <thead>
 	                <tr>
+                        <th class="text-center">ACTION</th>
                         <th>SCHEDULE</th>
                         <th class="text-center">STATUS</th>
-                        <th class="text-center">ACTION</th>
                     </tr>
 	            </thead>
 	            <tbody>
@@ -393,6 +393,9 @@ $(document).on('click','.remove-row',function(){
                         foreach($return as $key=>$val){
                             ?>
                             <tr>
+                                <td class="text-center">
+                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                </td>
                                 <td><?php echo $val['payout_schedule_name']; ?></td>
                                 <td class="text-center">
                                     <?php
@@ -407,9 +410,6 @@ $(document).on('click','.remove-row',function(){
                                             <?php
                                         }
                                     ?>
-                                </td>
-                                <td class="text-center">
-                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                 </td>
                             </tr>
                             <?php

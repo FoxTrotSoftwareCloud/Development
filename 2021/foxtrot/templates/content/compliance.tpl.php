@@ -1,7 +1,7 @@
 <div class="container">
 <h1>Report</h1>
     <div class="col-md-12 well">
-        <form method="POST" id="report_form" action="/CloudFox/compliance.php">
+        <form method="POST" id="report_form">
          <div class="row">
             <div class="col-md-6">
                 <div class="form-group">

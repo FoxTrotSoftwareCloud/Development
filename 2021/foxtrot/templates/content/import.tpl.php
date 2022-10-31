@@ -179,6 +179,20 @@
                                 }
 
                                 if ($_GET['tab'] == "review_files") { ?>
+                                
+
+                                <form method="post" id="reprocessform" style="display: none;">
+
+                                    <select name="process_file_<?php echo $_GET['id'] ?>"  class="form-control form-go-action">
+                                        <option value="5" selected>Reprocess</option>
+                                    </select>
+                                    <input type="text" name="id" id="id" value="<?php echo $get_file_data['id'] ?>">
+                                    <input type="text" name="process_file_type" id="process_file_type" value="<?php echo $get_file_data['file_type'] ?>">
+                                    <input type="text" name="process_file_type_code" id="process_file_type_code" value="<?php echo $get_file_data['file_type_code'] ?>">
+                                    <input type="hidden" name="go" value="go">
+                                    <button type="submit"><i class="fa fa-refresh"></i> submit</button>
+                                    </form>
+
                                     <h3>Review & Resolve Exceptions <a class="btn btn-primary pull-right" href="import.php">Back</a> </h3><br />
                                     <h4 style="margin-right: 5% !important; display: inline;">File: <?php if (isset($get_file_data['file_name'])) {
                                                                                                         echo $get_file_data['file_name'];
@@ -1905,6 +1919,7 @@
             '<ul class="dropdown-menu dropdown-menu-right" style="">' +
             '<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-minus"></i> Back to List of Current Files Page</a></li>' +
             '<li><a href="<?php echo SITE_URL . 'report_exception_data.php?id=' . $file_id; ?>" target="_blank"><i class="fa fa-plus"></i> Output to PDF</a></li>' +
+            '<li><a href="javascript:void(0)" onclick="reprocessme()"><i class="fa fa-refresh"></i> Reprocess</a></li>' +
             '</ul>' +
             '</div>' +
             '</div>');
@@ -1966,6 +1981,10 @@
             '</div>' +
             '</div>');
     });
+
+    function reprocessme(){
+        $('#reprocessform').submit();
+    }
 
     function get_product(category_id) {
         category_id = document.getElementById("assign_cusip_product_category").value;

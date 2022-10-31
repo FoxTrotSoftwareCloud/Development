@@ -110,13 +110,19 @@
                                 ?>
                     <?php }?>
 				</div>	
-			</div>
+			</div>		
             				
 		</div>
         <div class="panel-footer fixedbtmenu">
         <div class="selectwrap container">
             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
-			<a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+
+            <a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
+
+            <?php if($action=='edit' && $id>0){?>
+                <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $id ?>');" ><input type="button" name="delete" value="Delete"  style="float: right;"/></a>
+            <?php } ?>
+                
             <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save" style="float: right;"/>	
         </div>
         </div>
@@ -139,11 +145,11 @@
     			<table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
     	            <thead>
     	                <tr>
+                            <th class="text-center">ACTION</th>
                             <th>FIRST NAME</th>
                             <th>LAST NAME</th>
                             <th>USER NAME</th>
                             <th class="text-center">STATUS</th>
-                            <th class="text-center">ACTION</th>
                         </tr>
     	            </thead>
     	            <tbody>
@@ -152,6 +158,10 @@
                             foreach($return as $key=>$val){
                                 ?>
                                 <tr>
+                                    <td class="text-center">
+                                        <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                        <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a> -->
+                                    </td>
                                     <td><?php echo $val['first_name']; ?></td>
                                     <td><?php echo $val['last_name']; ?></td>
                                     <td><?php echo $val['user_name']; ?></td>
@@ -168,10 +178,6 @@
                                                 <?php
                                             }
                                         ?>
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                        <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash"></i> delete</a>
                                     </td>
                                 </tr>
                                 <?php

@@ -67,10 +67,10 @@
             <div class="table-responsive" id="register_data">
 			<table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
 	            <thead>
-	                <tr>
+                    <tr>
+                        <th class="text-center">ACTION</th>
                         <th>CATEGORY</th>
                         <th class="text-center">STATUS</th>
-                        <th class="text-center">ACTION</th>
                     </tr>
 	            </thead>
 	            <tbody>
@@ -79,6 +79,9 @@
                         foreach($return as $key=>$val){
                             ?>
                             <tr>
+                                <td class="text-center">
+                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                </td>
                                 <td><?php echo $val['type'] ?></td>
                                 <td class="text-center">
                                     <?php
@@ -93,9 +96,6 @@
                                             <?php
                                         }
                                     ?>
-                                </td>
-                                <td class="text-center">
-                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                 </td>
                             </tr>
                             <?php
