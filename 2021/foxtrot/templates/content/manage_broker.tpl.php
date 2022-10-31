@@ -891,7 +891,7 @@ $(document).ready(function(){
                                     <div class="form-group">
                                        <label>State </label>
                                        <select name="state_general" id="state_general" class="form-control">
-                                          <option value="">Select State</option>
+                                          <option value="0">Select State</option>
                                           <?php foreach($get_state as $statekey=>$stateval){?>
                                           <option <?php if($action == 'edit' && $state_id == $stateval['id'] ){ echo 'selected="true"';} ?> value="<?php echo $stateval['id']; ?>"><?php echo $stateval['name']; ?></option>
                                           <?php } ?>
@@ -1151,7 +1151,7 @@ $(document).ready(function(){
                                     <div class="form-group">
                                        <label>Pay Method </label>
                                        <select name="pay_method" id="pay_method" class="form-control">
-                                          <option value="">Select Pay Type</option>
+                                          <option value="0">Select Pay Type</option>
                                           <option <?php if(isset($pay_method) && $pay_method == 1){echo "selected='selected'";}?> value="1">ACH</option>
                                           <option <?php if(isset($pay_method) && $pay_method == 2){echo "selected='selected'";}?> value="2">Check</option>
                                        </select>
@@ -3223,7 +3223,7 @@ $(document).ready(function(){
                                     <div class="col-md-4">
                                        <div class="form-group">
                                           <select name="branch_3" id="branch_3" class="form-control">
-                                             <option value="">Select Branch</option>
+                                             <option value="0">Select Branch</option>
                                              <?php foreach($select_branch as $key=>$val){?>
                                              <option value="<?php echo $val['id'];?>" <?php if(isset($branch_3) && $branch_3==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>
                                              <?php } ?>
@@ -3233,7 +3233,7 @@ $(document).ready(function(){
                                     <div class="col-md-4">
                                        <div class="form-group">
                                           <select name="branch_office_3" id="branch_office_3" class="form-control">
-                                             <option value="">Select Branch Office</option>
+                                             <option value="0">Select Branch Office</option>
                                              <?php foreach($get_branch_office as $key=>$val){?>
                                              <option value="<?php echo $val['id'];?>" <?php if(isset($branch_office_3) && $branch_office_3==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>
                                              <?php } ?>

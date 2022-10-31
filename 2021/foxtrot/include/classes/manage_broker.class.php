@@ -163,13 +163,13 @@
 			$fund = isset($data['fund'])?$this->re_db_input($data['fund']):'';
 			$internal = isset($data['internal'])?$this->re_db_input($data['internal']):'';
       $display_on_statement = isset($data['display_on_statement'])?$this->re_db_input($data['display_on_statement']):'';
-			$ssn_mask = isset($data['ssn'])?$this->re_db_input($data['ssn']):'';
+			$ssn_mask = (isset($data['ssn']) && $data['ssn'] != '')?$this->re_db_input($data['ssn']):0;
       $ssn = str_replace("-", '', $ssn_mask);
-      $tax_id_mask = isset($data['tax_id'])?$this->re_db_input($data['tax_id']):'';
+      $tax_id_mask = (isset($data['tax_id']) && $data['tax_id'] !='')?$this->re_db_input($data['tax_id']):0;
       $tax_id = str_replace("-", '', $tax_id_mask);
 			$crd = isset($data['crd'])?$this->re_db_input($data['crd']):'';
       $active_status_cdd = isset($data['active_status_cdd'])?$this->re_db_input($data['active_status_cdd']):'';
-			$pay_method = isset($data['pay_method'])?$this->re_db_input($data['pay_method']):'';
+			$pay_method = (isset($data['pay_method'])&& $data['pay_method'] != '')?$this->re_db_input($data['pay_method']):0;
 			/*$branch_manager = isset($data['branch_manager'])?$this->re_db_input($data['branch_manager']):'';
         $branch_name = isset($data['branch_name'])?$this->re_db_input($data['branch_name']):'';
         $branch_office = isset($data['branch_office'])?$this->re_db_input($data['branch_office']):'';*/
@@ -282,13 +282,14 @@
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
       if ($id > 0)
         $originalInstance = $this->select_broker_general_by_id($id);
-			$home_general = isset($data['home_general'])?$this->re_db_input($data['home_general']):'';
+			$home_general = isset($data['home_general'])?$this->re_db_input($data['home_general']):0;
 			$home_address1_general = isset($data['home_address1_general'])?$this->re_db_input($data['home_address1_general']):'';
 			$home_address2_general = isset($data['home_address2_general'])?$this->re_db_input($data['home_address2_general']):'';
       $business_address1_general = isset($data['business_address1_general'])?$this->re_db_input($data['business_address1_general']):'';
 			$business_address2_general = isset($data['business_address2_general'])?$this->re_db_input($data['business_address2_general']):'';
 			$city_general = isset($data['city_general'])?$this->re_db_input($data['city_general']):'';
-			$state_general = isset($data['state_general'])?$this->re_db_input($data['state_general']):'';
+			$state_general = isset($data['state_general'])?$this->re_db_input($data['state_general']):0;
+      // echo $state_general; die;
 			$zip_code_general = isset($data['zip_code_general'])?$this->re_db_input($data['zip_code_general']):'';
       $telephone_mask = isset($data['telephone_general'])?$this->re_db_input($data['telephone_general']):'';
       $telephone_no = str_replace("-", '', $telephone_mask);
@@ -312,7 +313,7 @@
 			$web_password_general = isset($data['web_password_general'])?$this->re_db_input($data['web_password_general']):'';
 			$dob_general = isset($data['dob_general'])?$this->re_db_input(date('Y-m-d',strtotime($data['dob_general']))):'';
 			$prospect_date_general = isset($data['prospect_date_general'])?$this->re_db_input(date('Y-m-d',strtotime($data['prospect_date_general']))):'';
-			$reassign_broker_general = isset($data['reassign_broker_general'])?$this->re_db_input($data['reassign_broker_general']):'';
+			$reassign_broker_general = (isset($data['reassign_broker_general']) && $data['reassign_broker_general'] != '')?$this->re_db_input($data['reassign_broker_general']):0;
 			$u4_general = isset($data['u4_general'])?$this->re_db_input(date('Y-m-d',strtotime($data['u4_general']))):'';
       if($data['u5_general'] != '')
       {
@@ -948,7 +949,7 @@
             $payout_schedule_id = isset($data['schedule_id'])?$this->re_db_input($data['schedule_id']):'';
             $payout_schedule_name = isset($data['schedule_name'])?$this->re_db_input($data['schedule_name']):'';
             $transaction_type_general = isset($data['transaction_type_general'])?$this->re_db_input($data['transaction_type_general']):'1';
-            $product_category1 = isset($data['product_category1'])?$this->re_db_input($data['product_category1']):'';
+            $product_category1 = isset($data['product_category1'])?$this->re_db_input($data['product_category1']):0;
             $product_category2 = isset($data['product_category2'])?$this->re_db_input($data['product_category2']):'0';
             $product_category3 = isset($data['product_category3'])?$this->re_db_input($data['product_category3']):'0';
             $product_category4 = isset($data['product_category4'])?$this->re_db_input($data['product_category4']):'0';
@@ -956,7 +957,7 @@
             $cumulative = isset($data['cumulative'])?$this->re_db_input($data['cumulative']):'0';
             $year = isset($data['year'])?$this->re_db_input($data['year']):'';
             $calculation_detail = isset($data['calculation_detail'])?$this->re_db_input($data['calculation_detail']):'';
-            $clearing_charge_deducted_from = isset($data['clearing_charge_deducted_from'])?$this->re_db_input($data['clearing_charge_deducted_from']):'';
+            $clearing_charge_deducted_from = isset($data['clearing_charge_deducted_from'])?$this->re_db_input($data['clearing_charge_deducted_from']):0;
             $reset = isset($data['reset'])?$this->re_db_input(date('Y-m-d',strtotime($data['reset']))):$this->defaultEmptyDate;
             $description_type = isset($data['description_type'])?$this->re_db_input($data['description_type']):'';
             $team_member = isset($data['team_member'])?$data['team_member']:array();
@@ -967,26 +968,26 @@
             $summarize_12B1_from_autoposting = isset($data['summarize_12B1_from_autoposting'])?$this->re_db_input($data['summarize_12B1_from_autoposting']):'';
             $start = isset($data['start'])?$this->re_db_input(date('Y-m-d',strtotime($data['start']))):$this->defaultEmptyDate;
             $until = isset($data['until'])?$this->re_db_input(date('Y-m-d',strtotime($data['until']))):$this->defaultEmptyDate;
-            $apply_to = isset($data['apply_to'])?$this->re_db_input($data['apply_to']):'';
-            $product_2 = isset($data['product_2'])?$this->re_db_input($data['product_2']):'';
-            $product_3 = isset($data['product_3'])?$this->re_db_input($data['product_3']):'';
-            $product_4 = isset($data['product_4'])?$this->re_db_input($data['product_4']):'';
-            $product_5 = isset($data['product_5'])?$this->re_db_input($data['product_5']):'';
-            $calculate_on = isset($data['calculate_on'])?$this->re_db_input($data['calculate_on']):'';
-            $deduct = isset($data['deduct'])?$this->re_db_input($data['deduct']):'';
+            $apply_to = isset($data['apply_to'])?$this->re_db_input($data['apply_to']):0;
+            $product_2 = isset($data['product_2'])?$this->re_db_input($data['product_2']):0;
+            $product_3 = (isset($data['product_3']) && $data['product_3'] != '')?$this->re_db_input($data['product_3']):0;
+            $product_4 = (isset($data['product_4']) && $data['product_4'] != '')?$this->re_db_input($data['product_4']):0;
+            $product_5 = (isset($data['product_5']) && $data['product_5'] != '')?$this->re_db_input($data['product_5']):0;
+            $calculate_on = isset($data['calculate_on'])?$this->re_db_input($data['calculate_on']):0;
+            $deduct = (isset($data['deduct']) && $data['deduct'] != '')?$this->re_db_input($data['deduct']):0;
             $hold_commissions = isset($data['hold_commissions'])?$this->re_db_input($data['hold_commissions']):'';
 
             if(isset($data['hold_commission_until']) && $data['hold_commission_until']!='')
             {
                 $hold_commission_until = date('Y-m-d',strtotime($data['hold_commission_until']));
             } else {
-              $hold_commission_until = '';
+              $hold_commission_until = date('Y-m-d',strtotime('0000-00-00'));
             }
-
+            // echo $hold_commission_until; die;
             if(isset($data['hold_commission_after']) && $data['hold_commission_after']!='') {
               $hold_commission_after = date('Y-m-d',strtotime($data['hold_commission_after']));
             } else {
-              $hold_commission_after = '';
+              $hold_commission_after = date('Y-m-d',strtotime('0000-00-00'));
             }
 
             $record = 0;
@@ -1142,12 +1143,15 @@
                   // $from= date('y-m-d'(strtotime($postedData["from"][$key],0000));
                   // $active = $postedData['active'][$key];
                   $category = $postedData['category'][$key];
+                  if($category == ""){
+                    $category = 0;
+                  }
                   $state= $postedData["state"][$key];
                   $from= date('Y-m-d', strtotime($postedData["from"][$key]));
                   $to= date('Y-m-d', strtotime($postedData["to"][$key]));
                   $reason= $postedData["reason"][$key];
                    
-                  $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$category."' ,`state_id`='".$state."',  `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'";
+                  $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$category."' ,`state_id`='".$state."',  `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'"; 
                   $res = $this->re_db_query($q);
                   $rowCounter = 1;
                 }
@@ -1379,7 +1383,9 @@
         {
           // echo '<pre>';print_r($data); die;
           $id = isset($data['id'])?$this->re_db_input($data['id']):0;
-          $categorey=isset($data['category'])?$this->re_db_input($data['category']):'';
+          $categorey=isset($data['category'])?$this->re_db_input($data['category']):0;
+          // echo '<pre>';print_r($categorey); die;
+
           // $type_of_licences =isset($data['type'])?$this->re_db_input($data['type']):'';
           // $ = isset($data['pass_through'])?$this->re_db_input($data['pass_through']):'0';
           // $product_category = (isset($data['product_category']) && strlen($data['product_category'] > 0))?$this->re_db_input($data['product_category']):'0';
@@ -2134,11 +2140,12 @@
           if ($id > 0)
             $originalInstance = $this->select_broker_branch_by_id($id);
           $branch_broker = isset($data['branch_broker'])?$this->re_db_input($data['branch_broker']):'';
-          $branch_1 = isset($data['branch_1'])?$this->re_db_input($data['branch_1']):'';
-          $branch_office_1 = isset($data['branch_office_1'])?$this->re_db_input($data['branch_office_1']):'';
-          $branch_2 = isset($data['branch_2'])?$this->re_db_input($data['branch_2']):'';
-          $branch_office_2 = isset($data['branch_office_2'])?$this->re_db_input($data['branch_office_2']):'';
-          $branch_3 = isset($data['branch_3'])?$this->re_db_input($data['branch_3']):'';
+          $branch_1 = (isset($data['branch_1']) && $data['branch_1'] != '')?$this->re_db_input($data['branch_1']):0;
+          $branch_office_1 = (isset($data['branch_office_1']) && $data['branch_office_1'] != '')?$this->re_db_input($data['branch_office_1']):0;
+          $branch_2 = (isset($data['branch_2']) && $data['branch_2'] != '')?$this->re_db_input($data['branch_2']):0;
+          $branch_office_2 = (isset($data['branch_office_2']) && $data['branch_office_2'] != '')?$this->re_db_input($data['branch_office_2']):0;
+          $branch_3 = isset($data['branch_3'])?$this->re_db_input($data['branch_3']):0;
+
           $branch_office_3 = isset($data['branch_office_3'])?$this->re_db_input($data['branch_office_3']):'';
           $assess_branch_office_fee = isset($data['assess_branch_office_fee'])?$this->re_db_input($data['assess_branch_office_fee']):0;
           $assess_audit_fee = isset($data['assess_audit_fee'])?$this->re_db_input($data['assess_audit_fee']):0;

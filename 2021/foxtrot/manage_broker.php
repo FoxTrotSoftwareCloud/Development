@@ -174,7 +174,7 @@
 		$branch_office_1 = isset($_POST['branch_office_1'])?$instance->re_db_input($_POST['branch_office_1']):'';
         $branch_2 = isset($_POST['branch_2'])?$instance->re_db_input($_POST['branch_2']):'';
 		$branch_office_2 = isset($_POST['branch_office_2'])?$instance->re_db_input($_POST['branch_office_2']):'';
-        $branch_3 = isset($_POST['branch_3'])?$instance->re_db_input($_POST['branch_3']):'';
+        $branch_3 = isset($_POST['branch_3'])?$instance->re_db_input($_POST['branch_3']):0;
 		$branch_office_3 = isset($_POST['branch_office_3'])?$instance->re_db_input($_POST['branch_office_3']):'';
         $assess_branch_office_fee = isset($_POST['assess_branch_office_fee'])?$instance->re_db_input($_POST['assess_branch_office_fee']):0;
 		$assess_audit_fee = isset($_POST['assess_audit_fee'])?$instance->re_db_input($_POST['assess_audit_fee']):0;
@@ -185,7 +185,7 @@
         $return = $instance->insert_update($_POST);
 
         $return1 = $instance->insert_update_general($_POST);
-
+  
         //payout tab
         $return2 = $instance->insert_update_payout($_POST);
         $return_fixed_rates = $instance->insert_update_payout_fixed_rates($_POST,$_POST['id']);
@@ -196,7 +196,6 @@
         //security tab
 
         // $returnSecurity = $instance->insert_update_licences_security($_POST);
-
 
         $return6 = $instance->insert_update_licences1($_POST);
         //insurance tab
