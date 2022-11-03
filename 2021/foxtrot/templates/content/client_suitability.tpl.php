@@ -85,7 +85,7 @@
                         			<table id="data-table1" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -180,7 +180,7 @@
                         			<table id="data-table2" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -273,7 +273,7 @@
                         			<table id="data-table3" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -366,7 +366,7 @@
                         			<table id="data-table4" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -459,7 +459,7 @@
                         			<table id="data-table5" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -552,7 +552,7 @@
                         			<table id="data-table6" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -645,7 +645,7 @@
                         			<table id="data-table7" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -738,7 +738,7 @@
                         			<table id="data-table8" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -765,7 +765,7 @@
                           </div>
                           <?php  }?>
                 </div>
-                <div class="tab-pane <?php if((isset($_GET['action'])&& $_GET['action']=='add_new_special_expenses') || (isset($_GET['action'])&& $_GET['action']=='view_special_expenses') || (isset($_GET['action'])&& $_GET['action']=='edit_special_expenses')){?>active<?php }?>" " id="tab_h">
+                <div class="tab-pane <?php if((isset($_GET['action'])&& $_GET['action']=='add_new_special_expenses') || (isset($_GET['action'])&& $_GET['action']=='view_special_expenses') || (isset($_GET['action'])&& $_GET['action']=='edit_special_expenses')){?>active<?php }?>"  id="tab_h">
                 <?php 
                         if($action=='add_new_special_expenses' || ($action=='edit_special_expenses' && $id>0)){
                             ?>
@@ -831,7 +831,7 @@
                         			<table id="data-table9" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -924,7 +924,7 @@
                         			<table id="data-table10" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         	            <thead>
                         	                <tr>
-                                                <th class="text-center">ACTION</th>
+                                                <th class="text-center" style="width: 18%;">ACTION</th>
                                                 <th>OPTIONS</th>
                                             </tr>
                         	            </thead>
@@ -1016,7 +1016,7 @@
                     			<table id="data-table11" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     	            <thead>
                     	                <tr>
-                                            <th class="text-center">ACTION</th>
+                                            <th class="text-center" style="width: 18%;">ACTION</th>
                                             <th>OPTIONS</th>
                                         </tr>
                     	            </thead>
@@ -1108,7 +1108,7 @@
                     			<table id="data-table12" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     	            <thead>
                     	                <tr>
-                                            <th class="text-center">ACTION</th>
+                                            <th class="text-center" style="width: 18%;">ACTION</th>
                                             <th>OPTIONS</th>
                                         </tr>
                     	            </thead>

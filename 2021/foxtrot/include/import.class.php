@@ -2826,7 +2826,7 @@ class import extends db
                             if (empty($broker) and empty($brokerAlias)) {
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
                                     ." SET"
-                                    ."error_code_id='1'"
+                                    ." error_code_id='1'"
                                     .",field='representative_number'"
                                     .",field_value='$rep_number'"
                                     .",file_type = $commissionFileType"

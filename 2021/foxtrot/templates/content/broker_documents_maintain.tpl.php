@@ -86,10 +86,10 @@
     			<table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
     	            <thead>
     	                <tr>
-                            <th class="text-center">ACTION</th>
+                            <th class="text-center" style="width: 12%;">ACTION</th>
                             <th>Broker Document Description</th>
                             <th>Required</th>
-                            <th>Status</th>
+                            <th style="width: 12%;">Status</th>
                         </tr>
     	            </thead>
     	            <tbody>

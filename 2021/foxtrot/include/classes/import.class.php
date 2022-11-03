@@ -3042,7 +3042,7 @@
                                 if(empty($broker) AND empty($brokerAlias)){
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
                                             ." SET "
-                                                ."error_code_id='1'"
+                                                ." error_code_id='1'"
                                                 .",field='representative_number'"
                                                 .",field_value='$rep_number'"
                                                 .",file_type = $commissionFileType"
@@ -4709,6 +4709,27 @@
                 $sum+= $record['commission'];
             }
 			return $sum;
+		}
+
+        public function unique_trades_count($customWhere=''){
+            $return = array();
+            
+            if($customWhere != '') {
+                 $q = "SELECT count(DISTINCT(temp_data_id)) as total_trades"
+                        ." FROM ".IMPORT_EXCEPTION." at"
+                        
+                        ." WHERE $customWhere";
+            }
+			$res = $this->re_db_query($q);
+
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+    			}
+            }
+           
+			return $return[0]['total_trades'];
 		}
 
         public function select_total_records($customWhere=''){

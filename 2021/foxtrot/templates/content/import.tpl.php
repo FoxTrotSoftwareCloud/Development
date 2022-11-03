@@ -170,8 +170,13 @@
                                     $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
 
                                     $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-
+                                 
                                     $total_commission_amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
+                                    
+                                    $total_unique_trade_unprocessed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
+                                    $total_unique_trade_processed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
+                                   
+
                                 } else if ($get_file_type == '3') {
                                     $fileTypeDescription = "Securities";
                                 } else {
@@ -591,10 +596,10 @@
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files") {
                                                                                     echo "active";
-                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review</a></li>
+                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review (<?php echo $total_unique_trade_unprocessed ?>)</a></li>
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "processed_files") {
                                                                                     echo "active";
-                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed</a></li>
+                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed(<?php echo $total_unique_trade_processed ?>)</a></li>
                                     </ul> <?php } ?> <br />
 
                                 <!-- Tab 1 is started -->

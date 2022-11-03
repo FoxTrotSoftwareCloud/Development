@@ -382,9 +382,9 @@ $(document).on('click','.remove-row',function(){
 			<table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
 	            <thead>
 	                <tr>
-                        <th class="text-center">ACTION</th>
+                        <th class="text-center" style="width: 12%;">ACTION</th>
                         <th>SCHEDULE</th>
-                        <th class="text-center">STATUS</th>
+                        <th class="text-center" style="width: 12%;">STATUS</th>
                     </tr>
 	            </thead>
 	            <tbody>
