@@ -142,6 +142,9 @@
          * @return mixed
          */
         public function resolve_exceptions($data){
+
+            // echo "<pre>"; print_r($data);die;
+
             $this->errors = '';
             $result = $resolveAction = 0;
             $resultMessage = '';
@@ -226,6 +229,179 @@
 			if($exception_value==''){
 				$this->errors = 'Please enter field value.';
 			}
+
+            if($resolveAction==8 && $error_code_id == 27 || $error_code_id == 26){
+                //  echo "<pre>"; print_r($data);die;
+
+                $client_id=$data['client_id'];
+                if($client_id>0){
+
+                    if(!isset($data['client_birthdate'])|| $data['client_birthdate'] == ''){
+                        $this->errors = 'Please Enter Client Birthdate';
+                    }
+                    if($this->errors!=''){
+                        return $this->errors; 
+                    }else {
+                        
+                        // set Birthdate of client
+                        $birthdate = $this->re_db_input(date('Y-m-d h:i:s',strtotime($data['client_birthdate'])));
+
+                        //Age Calculation
+                        $from = new DateTime($birthdate);
+                        $to   = new DateTime('today');
+                        $age=  $from->diff($to)->y;
+                     
+
+                        $q = "UPDATE ".CLIENT_MASTER.""
+                                ." SET birth_date='".$birthdate."', age='".$age."'"
+                                        .$this->update_common_sql()
+                                ." WHERE id=".$client_id
+                            ; 
+                            
+                            $res = $this->re_db_query($q);
+
+                            if($res)
+                            {
+                                $q = "UPDATE ".IMPORT_EXCEPTION.""
+                                    ." SET resolve_action=8, solved=1 "
+                                        .$this->update_common_sql()
+                                    ." WHERE id=".$exception_record_id
+                                ;
+                                $res2 = $this->re_db_query($q);
+                        
+                                $result=1;
+                            }
+                    }
+                
+                } else{
+                    $this->errors = 'Client ID not found.';
+                }
+
+            }
+
+            if($resolveAction==7 && $exception_value_2='proof_of_identity' && $error_code_id == 28){
+                // echo "<pre>"; print_r($data);die;
+
+                $client_id=$data['client_id'];
+                if($client_id>0){
+                    
+                    if(!isset($data['cip_state_employe']) || $data['cip_state_employe'] == ''){
+                        $this->errors = 'Please Select State';
+                    }
+                    if(!isset($data['cip_number']) || $data['cip_number'] == ''){
+                        $this->errors = 'Please Enter Number';
+                    }
+                    if(!isset($data['cip_options'])){
+                        $this->errors = 'Please select Options';
+                    }
+                    if($this->errors!=''){
+                        return $this->errors; 
+                        die;
+                    }else {
+                    
+                        $cip_option = $data['cip_options'];
+                        $cip_other = isset($data['cip_other'])?$data['cip_other']:'';
+                        $cip_number= $data['cip_number'];
+                        $cip_expiration = isset($data['cip_expiration'])?$this->re_db_input(date('Y-m-d h:i:s',strtotime($data['cip_expiration']))):'0000-00-00';
+                        $cip_state= $data['cip_state_employe'];
+                        $cip_date_verified = isset($data['cip_date_verified'])?$this->re_db_input(date('Y-m-d h:i:s',strtotime($data['cip_date_verified']))):'0000-00-00';
+
+                        $check_query="SELECT * FROM ".CLIENT_EMPLOYMENT." WHERE `client_id` =".$client_id;
+                        $res = $this->re_db_query($check_query);
+
+                        if ($this->re_db_num_rows($res) == 1 ) {
+
+                            $q = "UPDATE ".CLIENT_EMPLOYMENT.""
+                                        ." SET options=". $cip_option 
+                                        .", other='". $cip_other
+                                        ."', number='". $cip_number
+                                        ."', expiration='". $cip_expiration
+                                        ."', state='". $cip_state
+                                        ."', date_verified='". $cip_date_verified."' "
+                                                .$this->update_common_sql()
+                                        ." WHERE client_id=".$client_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                    if($res)
+                                    {
+                                        $q = "UPDATE ".IMPORT_EXCEPTION.""
+                                            ." SET resolve_action=7, solved=1 "
+                                                .$this->update_common_sql()
+                                            ." WHERE id=".$exception_record_id
+                                        ;
+                                        $res2 = $this->re_db_query($q);
+                                
+                                        // $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,0);
+
+                                        $result=1;
+                                    }
+                        }
+                        else{
+                            //insert Client Employment details
+                                $q = "INSERT INTO `".CLIENT_EMPLOYMENT."` SET `client_id`='".$client_id."',`occupation`='',`employer`='',`address`='',`position`='',`security_related_firm`='0',`finra_affiliation`='0',`spouse_name`='',`spouse_ssn`='',`dependents`='',`salutation`='',`options`='".$cip_option."',`other`='".$cip_other."',`number`='".$cip_number."',`expiration`='".$cip_expiration."',`state`='".$cip_state."',`date_verified`='".$cip_date_verified."',`telephone`=''".$this->insert_common_sql().$this->update_common_sql(); 
+                                    $res = $this->re_db_query($q);
+
+                                    if($res){
+                                        $q = "UPDATE ".IMPORT_EXCEPTION.""
+                                            ." SET resolve_action=7, solved=1 "
+                                                .$this->update_common_sql()
+                                            ." WHERE id=".$exception_record_id
+                                        ;
+                                        $res2 = $this->re_db_query($q);
+                                
+                                        $result=1;
+                                    }
+                        }
+                    }
+
+                } else{
+                    $this->errors = 'Client ID not found.';
+                }
+            }
+
+            if($resolveAction==5 && $exception_value_2== 'client_state' && $error_code_id == 29){
+                $state_id=$data['client_assign_state'];
+                $client_id=$data['client_id'];
+                //  echo "<pre>"; print_r($data);die;
+
+                if($client_id>0){
+                    if($state_id>0){
+
+                        // Assign state to client
+
+                        $q = "UPDATE ".CLIENT_MASTER.""
+                                ." SET state=".$state_id
+                                        .$this->update_common_sql()
+                                ." WHERE id=".$client_id
+                            ; 
+                            
+                            $res = $this->re_db_query($q);
+
+                            if($res)
+                            {
+                                $q = "UPDATE ".IMPORT_EXCEPTION.""
+                                    ." SET resolve_action=5, solved=1 "
+                                        .$this->update_common_sql()
+                                    ." WHERE id=".$exception_record_id
+                                ;
+                                $res2 = $this->re_db_query($q);
+                        
+                                $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,0);
+
+                                $result=1;
+                            }
+                    }
+                    else{
+                        $this->errors = 'Please select State.';
+                    }
+                }
+                else{
+                    $this->errors = 'Client ID not found.';
+                }
+
+            }
+
             if($exception_field == 'representative_number' AND $exception_value == '' AND empty($rep_for_broker))
             {
                 $this->errors = 'Please enter rep number.';
@@ -5629,4 +5805,3 @@
         }
         
     }
-?>

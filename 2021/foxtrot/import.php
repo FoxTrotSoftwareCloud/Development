@@ -25,6 +25,7 @@
     $instance_broker = new broker_master();
     $get_broker = $instance_broker->select(1);
     $instance_client = new client_maintenance();
+    $get_state = $instance_client->select_state();
     $get_client = $instance_client->select(1);
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor(1);
@@ -177,6 +178,8 @@
         }else{
             $exception_value = isset($_POST['exception_value'])?$instance->re_db_input($_POST['exception_value']):'';
         }
+
+        // echo "<pre>"; print_r($_POST);die;
 
         $return = $instance->resolve_exceptions($_POST);
 

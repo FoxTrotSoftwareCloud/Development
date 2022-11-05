@@ -665,8 +665,15 @@
                                                                     $prev_temp_data_id = 0;
                                                                     $bg_color = '#fff';
                                                                 foreach ($return_exception as $error_key => $error_val) {
+
+                                                                    $client_id=0;
+
+                                                                    // echo "<pre>"; print_r($error_val);
+                                                                    
                                                                     if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
                                                                         $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
+                                                                        // echo "<pre>"; print_r($return_client_existing_data);
+
                                                                         $existing_field_value = $error_val['field_value'];
 
                                                                         if ($error_val['field'] == 'social_security_number') {
@@ -708,7 +715,9 @@
                                                                                 $error_val['rep_name'] = trim($brokerRow['last_name']) . (($brokerRow['last_name'] != '' and $brokerRow['last_name'] != '') ? ', ' : '') . trim($brokerRow['first_name']);
                                                                             }
                                                                         }
+                                                                        // echo "<pre>"; print_r($return_commission_existing_data['client_id']);
 
+                                                                        $client_id = $return_commission_existing_data['client_id'];
                                                                         if (!empty($return_commission_existing_data['client_id'])) {
                                                                             $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);
 
@@ -849,7 +858,7 @@
                                                                             <form method="post">
 
                                                                                 <input type="hidden" name="id" id="id" value="" />
-                                                                                <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id']; ?>','<?php echo $error_val['file_type']; ?>','<?php echo $error_val['temp_data_id']; ?>','<?php echo $error_val['field']; ?>','<?php echo $error_val['rep']; ?>','<?php echo $existing_field_value; ?>',<?php echo $error_val['error_code_id']; ?>,<?php echo $error_val['id']; ?>,'<?php echo $error_val['account_no']; ?>');" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
+                                                                                <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id']; ?>','<?php echo $error_val['file_type']; ?>','<?php echo $error_val['temp_data_id']; ?>','<?php echo $error_val['field']; ?>','<?php echo $error_val['rep']; ?>','<?php echo $existing_field_value; ?>',<?php echo $error_val['error_code_id']; ?>,<?php echo $error_val['id']; ?>,'<?php echo $error_val['account_no']; ?>','<?php echo $client_id ?>');" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
                                                                             </form>
                                                                         </td>
                                                                     </tr>
@@ -1617,8 +1626,125 @@
                                 <label id="lbl_reassign_broker_trades" for="reassign_broker"> Reassign Trade to Another Broker</label><br />
                                 <input type="radio" class="radio" name="resolve_broker_terminated" id="delete_record" style="display: inline;" value="4" onclick="reassign_broker_(this.value);" />
                                 <label for="delete_record"> Delete Trade Record</label><br />
+
+                                <div id="client_state_error" style="display: none;">
+                                    <input type="radio" class="radio" name="resolve_broker_terminated" id="enter_state" style="display: inline;" value="5" onclick="reassign_broker_(this.value);" />
+                                    <label id="lbl_reassign_broker_trades" for="enter_state"> Select client State </label><br />
+                                </div>
+                                <div id="client_CIP_info" style="display: none;">
+                                    <input type="radio" class="radio" name="resolve_broker_terminated" id="CIP_info" style="display: inline;" value="7" onclick="reassign_broker_(this.value);" />
+                                    <label id="lbl_reassign_broker_trades" for="enter_state"> Enter CIP Info </label><br />
+                                </div>
+                                <div id="client_birthdate" style="display: none;">
+                                    <input type="radio" class="radio" name="resolve_broker_terminated" id="bithdate" style="display: inline;" value="8" onclick="reassign_broker_(this.value);" />
+                                    <label id="lbl_reassign_broker_trades" for="enter_state"> Enter Client Birthdate </label><br />
+                                </div>
                             </div>
                         </div>
+
+                        <div class="row" id="enter_client_birthdate" style="display: none;">
+                            <div class="col-md-5">
+                                <div class="inputpopup">
+                                    <label class="pull-right" id="label_assign_to_existing_client">Enter Client Birthdate</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="inputpopup">
+                                    <div id="demo-dp-range">
+                                            <div class="input-daterange input-group" id="datepicker">
+                                                <input type="text" name="client_birthdate" id="bdate" class="form-control"/>
+                                            </div>
+                                        </div>  
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="enter_client_cip" style="display: none;">
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4><b>CIP</b></h4><br />
+                                </div>
+                            </div> 
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label><span class="text-red"></span></label>
+                                        <input type="radio" onclick="close_other()" name="cip_options" id="options" class="radio" style="display: inline;" value="1" />&nbsp;<label>Driver License</label>&nbsp;&nbsp;
+                                        <input type="radio" onclick="close_other()" name="cip_options" id="options" class="radio" style="display: inline;" value="2" />&nbsp;<label>Passport</label>&nbsp;&nbsp;
+                                        <input type="radio" onclick="open_other()" name="cip_options" id="options" class="radio" style="display: inline;" value="3" />&nbsp;<label>Other</label>&nbsp;
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6" style="display: none;" id="other_div">
+                                    <div class="form-group">
+                                        <label>Other </label>
+                                        <input type="text" name="cip_other" id="other" class="form-control" value=""/>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Number </label>
+                                        <input type="text" name="cip_number" id="number" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Expiration </label>
+                                        <div id="demo-dp-range">
+                                            <div class="input-daterange input-group" id="datepicker">
+                                                <input type="text" name="cip_expiration" id="expiration" class="form-control"/>
+                                            </div>
+                                        </div>                                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>State </label>
+                                        <select name="cip_state_employe" id="state_employe" class="form-control">
+                                            <option value="">Select State</option>
+                                            <?php foreach($get_state as $key=>$val){ ?>
+                                            <option value="<?php echo $val['id'];?>" ><?php echo $val['name'];?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Date Verified </label>
+                                        <div id="demo-dp-range">
+                                            <div class="input-daterange input-group" id="datepicker">
+                                                <input type="text" name="cip_date_verified" id="date_verified" class="form-control"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+
+                        <div class="row" id="enter_client_state_div" style="display: none;">
+                            <div class="col-md-5">
+                                <div class="inputpopup">
+                                    <label class="pull-right" id="label_assign_to_existing_client">Assign to Existing State</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="inputpopup">
+                                    <input type="hidden" name="client_id" id="client_id" value="">
+                                    <select name="client_assign_state" id="client_assign_state" class="form-control">
+                                        <option value="">Select State </option>
+                                        <?php foreach ($get_state as $key => $val) { ?>
+                                            <option value="<?php echo $val['id'];?>"> <?php echo $val['name'];?> </option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    
                         <div class="row" style="display: none;" id="broker_termination_options_clients">
                             <div class="col-md-5">
                                 <div class="inputpopup">
@@ -2046,6 +2172,9 @@
         exceptionField = document.getElementById('broker_termination_options_trades').dataset.exceptionField;
         $("#assign_rep_to_broker").css('display', 'none');
         $("#assign_client_to_account").css('display', 'none');
+        $("#enter_client_state_div").css('display', 'none');
+        $("#enter_client_cip").css('display', 'none');
+        $("#enter_client_birthdate").css('display', 'none');
 
         if (value == 3) {
             if (['objectives', 'rule_engine'].includes(exceptionField)) {
@@ -2054,9 +2183,27 @@
                 $("#assign_rep_to_broker").css('display', 'block');
             }
         }
+        if(value == 5){
+            $("#enter_client_state_div").css('display', 'block');
+        }
+        if(value == 7){
+            $("#enter_client_cip").css('display', 'block');
+        }
+        if(value == 8){
+            $("#enter_client_birthdate").css('display', 'block');
+        }
     }
 
-    function add_exception_value(exception_file_id, exception_file_type, temp_data_id, exception_field, rep_number, existing_field_value, error_code_id, exception_record_id, client_account_no) {
+    function open_other()
+    {
+        $('#other_div').css('display','block');
+    }
+    function close_other()
+    {
+        $('#other_div').css('display','none');
+    }
+
+    function add_exception_value(exception_file_id, exception_file_type, temp_data_id, exception_field, rep_number, existing_field_value, error_code_id, exception_record_id, client_account_no,client_id) {
         $('#msg_exception').html('');
 
         //--- For testing
@@ -2069,7 +2216,8 @@
             ',  existing_field_value:' + typeof existing_field_value + ': ' + existing_field_value +
             ',  error_code_id:' + typeof error_code_id + ': ' + error_code_id +
             ',  exception_record_id:' + typeof exception_record_id + ': ' + exception_record_id +
-            ',  client_account_no:' + typeof client_account_no + ': ' + client_account_no
+            ',  client_account_no:' + typeof client_account_no + ': ' + client_account_no+
+            ',  client_id:' + typeof client_id + ': ' + client_id
         );
 
         // Some arguments are passed as strings, which messes up the "[array].includes(#value#)" function which is type sensitive 
@@ -2082,6 +2230,8 @@
         // Trade/Commission records display more detailed elements and Resolve options than Clients & Securities
         tradeOrCommRecord = [2, 9].includes(exception_file_type);
 
+        document.getElementById("client_id").value = client_id;
+
         document.getElementById("field_label").innerHTML = 'Add Exception Value';
         document.getElementById("exception_data_id").value = temp_data_id;
         document.getElementById("exception_field").value = exception_field;
@@ -2093,6 +2243,10 @@
         document.getElementById("link_div").innerHTML = '';
 
         $("#exception_value").css('display', 'block');
+        $("#client_state_error").css('display', 'none');
+        $("#client_CIP_info").css('display', 'none');
+        $("#client_birthdate").css('display', 'none');
+        $("#enter_client_birthdate").css('display', 'none');
         $("#exception_value_date").css('display', 'none');
         $("#exception_value_date_display").css('display', 'none');
         $("#exception_value_dis").css('display', 'none');
@@ -2101,6 +2255,9 @@
         $("#row_skip_exception").css('display', 'none');
         $("#status").css('display', 'none');
         $("#social_security_number").css('display', 'none');
+        $("#enter_client_state_div").css('display', 'none');
+        $("#enter_client_cip").css('display', 'none');
+
         //-- 08/20/22 Moved into "assign_code_to_sponsor"
         // $("#sponsor").css('display','none');
         $("#objectives").css('display', 'none');
@@ -2115,6 +2272,16 @@
         $("#assign_code_for_sponsor").css('display', 'none');
         $("#broker_termination_options_clients").css('display', 'none');
         $("#broker_termination_options_trades").css('display', 'none');
+
+        if(error_code_id == 29){
+            $("#client_state_error").css('display', 'block');
+        }
+        if(error_code_id == 28){
+            $("#client_CIP_info").css('display', 'block');
+        }
+        if(error_code_id == 27 || error_code_id == 26){
+            $("#client_birthdate").css('display', 'block');
+        }
 
         if (exception_file_type == 3 && error_code_id == 13) {
             // SFR File - Missing/Invalid Data

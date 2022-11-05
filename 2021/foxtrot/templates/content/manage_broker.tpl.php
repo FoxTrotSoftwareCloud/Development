@@ -6,7 +6,7 @@
 
 <script type="text/javascript">
    $(document).ready(function() {
-      console.log("works");
+      // console.log("works");
 
       $('#telephone_general').mask("(999) 999-9999");
       $('#fax_general').mask("(999) 999-9999");
@@ -509,7 +509,7 @@
    var waitingDialog = waitingDialog || (function($) {
       'use strict';
 
-      // Creating modal dialog's DOM
+      // Creating modal dialog DOM
       var $dialog = $(
          '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
          '<div class="modal-dialog modal-m">' +
@@ -2374,7 +2374,7 @@
                                                       echo '';
                                                    } ?>" id="tab_securities">
                                  <div class="panel-overlay-wrap">
-                                    <div class="panel">
+                                    <div class="panel" style="background-color:rgba(219, 232, 219, 0.5)">
                                        <div class="panel-heading">
                                           <h4 class="panel-title" style="font-size: 16px;">
                                              <?php if (isset($_SESSION['broker_full_name'])) {
@@ -2417,17 +2417,20 @@
                                                  <a href="javscript:void(0);" id="add_new_securities_btn" class="btn btn-primary button"> Add New</a>
                                               </div> -->
                                                 <div class="securities_data">
-                                                   <table class="table table-bordered table-stripped table-hover">
+                                                   <table class="table table-bordered table-stripped table-hover license_cat_wrap">
                                                       <thead>
                                                          <tr>
-                                                            <th style="width: 15%;">Active</th>
+                                                            <th style="width: 15%;">Active  <br>
+                                                               <span style="font-size: 13px;">Select All</span>
+                                                               <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
+                                                         </th>
                                                             <th>State</th>
                                                             <th>From</th>
                                                             <th>To</th>
                                                             <th>Reason</th>
                                                          </tr>
                                                       </thead>
-                                                      <tbody id="data_sec_row">
+                                                      <tbody id="data_sec_row" class="panel-row-wrap">
 
                                                          <?php $row_counter = 0;
                                                          if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_securities)) {
@@ -2690,7 +2693,7 @@
                                                       echo "active";
                                                    } ?>" id="tab_insurance">
                                  <div class="panel-overlay-wrap">
-                                    <div class="panel">
+                                    <div class="panel" style="background-color: rgb(211, 229, 235);">
                                        <div class="panel-heading">
                                           <h4 class="panel-title" style="font-size: 16px;">
                                              <?php if (isset($_SESSION['broker_full_name'])) {
@@ -2708,7 +2711,7 @@
                                        </div>
                                        <input type="hidden" name="type" value="2" />
                                        <!-- SECURITY -->
-                                       <div class="panel-body">
+                                       <div class="panel-body license_cat_wrap">
                                           <div class="row">
                                              <div class="col-md-2">
                                                 <div class="form-group">
@@ -2748,7 +2751,7 @@
                                              foreach ($edit_licences_insurance as $key => $val) {
                                                 foreach ($get_state_new as $statekey => $stateval) {
                                                    if ($val['state_id'] == $stateval['id']) { ?>
-                                                      <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important;">
+                                                      <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important; background-color:rgb(211, 229, 235)" >
                                                          <div class="row">
                                                             <div class="col-md-2">
                                                                <div class="form-group" style="margin-bottom: 0px !important;">
@@ -2862,7 +2865,7 @@
                                                       echo "active";
                                                    } ?>" id="tab_ria">
                                  <div class="panel-overlay-wrap">
-                                    <div class="panel">
+                                    <div class="panel" style="background-color:rgba(241, 226, 228, 0.5)">
                                        <div class="panel-heading">
                                           <h4 class="panel-title" style="font-size: 16px;">
                                              <?php if (isset($_SESSION['broker_full_name'])) {
@@ -2879,7 +2882,7 @@
                                           <h4 class="panel-title" style="font-size: 16px;"><input type="checkbox" value="1" <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && (isset($row1) && $row1 == 1)) { ?>checked="true" <?php } ?> class="checkbox" name="pass_through" style="display: inline !important;" /> Waive Home State Fee</h4>
                                        </div>
                                        <input type="hidden" name="type" value="3" />
-                                       <div class="panel-body">
+                                       <div class="panel-body license_cat_wrap">
                                           <div class="row">
                                              <div class="col-md-2">
                                                 <div class="form-group">
@@ -2919,7 +2922,7 @@
                                              foreach ($edit_licences_ria as $key => $val) {
                                                 foreach ($get_state_new as $statekey => $stateval) {
                                                    if ($val['state_id'] == $stateval['id']) { ?>
-                                                      <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important;">
+                                                      <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important; background-color:rgba(244, 236, 238, 0.5)">
                                                          <div class="row">
                                                             <div class="col-md-2">
                                                                <div class="form-group" style="margin-bottom: 0px !important;">
@@ -4868,7 +4871,7 @@
          $('a[href="#client_transactions"]').trigger('click');
       <?php endif; ?>
       $('.check_all').click(function() {
-         console.log($(this).parents('.license_cat_wrap').find('.panel-row-wrap  [type="checkbox"]'));
+         // console.log($(this).parents('.license_cat_wrap').find('.panel-row-wrap  [type="checkbox"]'));
          if ($(this).is(":checked")) {
             $(this).parents('.license_cat_wrap').find('.panel-row-wrap [type="checkbox"]').prop("checked", true);
          } else {
