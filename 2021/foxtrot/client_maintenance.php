@@ -504,12 +504,14 @@
         $state = isset($return['state'])?$instance->re_db_output($return['state']):'';
         $zip_code = isset($return['zip_code'])?$instance->re_db_output($return['zip_code']):'';
         $citizenship = isset($return['citizenship'])?$instance->re_db_output($return['citizenship']):'';
-        $birth_date = isset($return['birth_date'])?$instance->re_db_output($return['birth_date']):'';
+
+        $birth_date =(isset($return['birth_date']) && ($return['birth_date']!="0000-00-00 00:00:00"))?$instance->re_db_output($return['birth_date']):'';
         $age = isset($return['age'])?$instance->re_db_output($return['age']):'';
-        $date_established = isset($return['date_established'])?$instance->re_db_output($return['date_established']):'';
-        $open_date = isset($return['open_date'])?$instance->re_db_output($return['open_date']):'';
-        $naf_date = isset($return['naf_date'])?$instance->re_db_output($return['naf_date']):'';
-        $last_contacted = isset($return['last_contacted'])?$instance->re_db_output($return['last_contacted']):'';
+        $date_established =(isset($return['date_established']) && ($return['date_established']!="0000-00-00 00:00:00"))?$instance->re_db_output($return['date_established']):'';
+        $open_date = (isset($return['open_date']) && ($return['open_date']!="0000-00-00 00:00:00")) ?$instance->re_db_output($return['open_date']):'';
+        $naf_date = (isset($return['naf_date']) && ($return['naf_date']!="0000-00-00 00:00:00"))?$instance->re_db_output($return['naf_date']):'';
+        $last_contacted = (isset($return['last_contacted']) && ($return['last_contacted']!="0000-00-00 00:00:00"))?$instance->re_db_output($return['last_contacted']):'';
+
         $account_type = isset($return['account_type'])?$instance->re_db_output($return['account_type']):'';
         $broker_name = isset($return['broker_name'])?$instance->re_db_output($return['broker_name']):'';
         $telephone = isset($return['telephone'])?$instance->re_db_output($return['telephone']):'';

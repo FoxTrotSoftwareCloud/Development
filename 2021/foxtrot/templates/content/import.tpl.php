@@ -1639,6 +1639,12 @@
                                     <input type="radio" class="radio" name="resolve_broker_terminated" id="bithdate" style="display: inline;" value="8" onclick="reassign_broker_(this.value);" />
                                     <label id="lbl_reassign_broker_trades" for="enter_state"> Enter Client Birthdate </label><br />
                                 </div>
+                                <div id="broker_mismatch" style="display: none;">
+                                    <input type="radio" class="radio" name="resolve_broker_terminated" id="import_broker" style="display: inline;" value="9" />
+                                    <label id="lbl_reassign_broker_trades" for="import_broker"> Import Broker </label><br />
+                                    <input type="radio" class="radio" name="resolve_broker_terminated" id="client_broker_on_file" style="display: inline;" value="10" />
+                                    <label id="lbl_reassign_broker_trades" for="client_broker_on_file"> Client Broker On File </label><br />
+                                </div>
                             </div>
                         </div>
 
@@ -2247,6 +2253,7 @@
         $("#client_CIP_info").css('display', 'none');
         $("#client_birthdate").css('display', 'none');
         $("#enter_client_birthdate").css('display', 'none');
+        $("#broker_mismatch").css('display', 'none');
         $("#exception_value_date").css('display', 'none');
         $("#exception_value_date_display").css('display', 'none');
         $("#exception_value_dis").css('display', 'none');
@@ -2272,7 +2279,10 @@
         $("#assign_code_for_sponsor").css('display', 'none');
         $("#broker_termination_options_clients").css('display', 'none');
         $("#broker_termination_options_trades").css('display', 'none');
-
+        
+        if(error_code_id == 30){
+            $("#broker_mismatch").css('display', 'block');
+        }
         if(error_code_id == 29){
             $("#client_state_error").css('display', 'block');
         }

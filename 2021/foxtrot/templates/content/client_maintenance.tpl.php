@@ -417,8 +417,8 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                 <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>Date Established </label>
-                                                        <input type="text" name="date_established1" id="date_established1" disabled="true" value="<?php if($date_established !=''){ echo date('m/d/Y',strtotime($date_established)); }else{ echo date("m/d/Y"); }?>" class="form-control" />
-                                                        <input type="hidden" name="date_established" id="date_established" value="<?php if($date_established !=''){ echo $date_established; }else{ echo date("m/d/Y"); }?>" class="form-control" />
+                                                        <input type="text" name="date_established1" id="date_established1" disabled="true" value="<?php if($date_established !=''){ echo date('m/d/Y',strtotime($date_established)); }else{ if($action=='add_new'){ echo date("m/d/Y"); }}?>" class="form-control" />
+                                                        <input type="hidden" name="date_established" id="date_established" value="<?php if($date_established !=''){ echo $date_established; }else{ if($action=='add_new'){ echo date("m/d/Y"); } }?>" class="form-control" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">

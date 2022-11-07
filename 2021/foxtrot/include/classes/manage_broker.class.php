@@ -279,6 +279,8 @@
 
     /** Insert update general data for broker. **/
     public function insert_update_general($data){
+
+      $this->errors='';
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
       if ($id > 0)
         $originalInstance = $this->select_broker_general_by_id($id);
@@ -459,11 +461,34 @@
 					$this->errors = 'This broker is already exists.';
 				}
 				*/
+
+        if($web_id_general!=''){
+          $q = "SELECT * FROM `".BROKER_GENERAL."` WHERE `web_id`='".$web_id_general."' AND  `id`!=".$id;
+          $res = $this->re_db_query($q);
+				  $numrows = $this->re_db_num_rows($res);
+				  if($numrows>0){
+					  $this->errors = 'Username <b><u>'.$web_id_general.'</u></b> is already exists please enter another username.';
+
+            if($id==0){
+              $web_id_general='';
+            }
+            else{
+              $q="SELECT `web_id` FROM `".BROKER_GENERAL."` WHERE `id`='".$id."'";
+              $res = $this->re_db_query($q);
+              if($this->re_db_num_rows($res)>0){
+                $return = $this->re_db_fetch_array($res);
+                $web_id_general=$return['web_id'];
+              }
+            }
+				  }
+        }
+        
 				if($this->errors!='')
         {
-					return $this->errors;
+           $_SESSION['error'] = $this->errors;
+				    // echo $this->errors;die;
 				}
-				else if($id>=0)
+				if($id>=0)
         {
 					if($id==0)
           {
@@ -476,8 +501,7 @@
                       .",`eft_information`='".$eft_info_general."',`start_date`='".$start_date_general."',`transaction_type`='".$transaction_type_general."',`routing`='".$routing_general."',`account_no`='".$account_no_general."'"
                       .",`cfp`='".$cfp_general."',`chfp`='".$chfp_general."',`cpa`='".$cpa_general."',`clu`='".$clu_general."',`cfa`='".$cfa_general."',`ria`='".$ria_general."',`insurance`='".$insurance_general."'"
                       .",higher_risk = '".$higher_risk."' ,  exam_notes = '".$exam_notes."' ,finra_exam_date = '".$finra_exam_date."'"
-                      .$this->insert_common_sql()
-            ;
+                      .$this->insert_common_sql();
                
 						$res = $this->re_db_query($q);
             if($res){

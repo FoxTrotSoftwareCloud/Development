@@ -229,8 +229,52 @@
 			if($exception_value==''){
 				$this->errors = 'Please enter field value.';
 			}
+            if($resolveAction==9 && $error_code_id == 30 )
+            {
+                // echo "<pre>"; print_r($data);die;
+                $q = "UPDATE ".IMPORT_EXCEPTION.""
+                ." SET resolve_action=9, solved=1 "
+                    .$this->update_common_sql()
+                ." WHERE id=".$exception_record_id;
+                $res2 = $this->re_db_query($q);
+                
+                $result=1;
+            }
+            if($resolveAction==10 && $error_code_id == 30 )
+            {
+                //  echo "<pre>"; print_r($data);die;
 
-            if($resolveAction==8 && $error_code_id == 27 || $error_code_id == 26){
+                $client_id=$data['client_id'];
+                if($client_id>0){
+                    
+                    $q="SELECT `broker_name` FROM `".CLIENT_MASTER."` WHERE `id`='".$client_id."'";
+                    $res = $this->re_db_query($q);
+                    if($this->re_db_num_rows($res)>0){
+                        $return = $this->re_db_fetch_array($res);
+                        $broker_id=$return['broker_name'];
+
+                        $q="SELECT * FROM `".BROKER_MASTER."` WHERE `id`='".$broker_id."'";
+                        $res = $this->re_db_query($q);
+                        if($this->re_db_num_rows($res)>0){
+                            $broker_data = $this->re_db_fetch_array($res);
+                            $rep_name=$broker_data['first_name']." ". $broker_data['middle_name']." ".$broker_data['last_name'];
+
+                            $q = "UPDATE ".IMPORT_EXCEPTION.""
+                            ." SET rep='".$broker_data['fund']."', rep_name='".$rep_name."', resolve_action=10, solved=1 "
+                                .$this->update_common_sql()
+                            ." WHERE id=".$exception_record_id;
+                            if($res2 = $this->re_db_query($q)){
+                                $result=1;
+                            }
+                        }
+                    }
+                    
+                } else{
+                    $this->errors = 'Client ID not found.';
+                }
+            }
+
+            if($resolveAction==8 && $error_code_id == 27 || $error_code_id == 26 ){
                 //  echo "<pre>"; print_r($data);die;
 
                 $client_id=$data['client_id'];
