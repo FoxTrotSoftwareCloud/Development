@@ -542,5 +542,16 @@
 			
 			return $result;
 		}
+
+		public function check_if_branch_manager($id){
+			
+			$q="SELECT branch_id FROM user_master WHERE id=$id";
+
+			$res = $this->re_db_query($q);
+			$result = mysqli_fetch_assoc($res);
+			$result=$result['branch_id'];
+
+			return $result;
+		}
         
     }

@@ -1257,6 +1257,47 @@ class transaction extends db{
 			return $return;
 		}
 
+		function daily_trade_blotter_report($company_id=0,$branch_id=0,$broker_id=0,$beginning_date,$ending_date){
+			$return = array();
+			$con='';
+			if($company_id>0)
+            {
+                $con.=" AND `at`.`company` = ".$company_id." ";
+                //$index_column='company';
+            }
+			if($branch_id>0)
+            {
+                $con.=" AND `at`.`branch` = ".$branch_id." ";
+                //$index_column='branch';
+            }
+            if($broker_id>0)
+            {
+                $con.=" AND `at`.`broker_name` = ".$broker_id." ";
+               // $index_column='broker_name';
+            }
+			if($beginning_date != '' && $ending_date != '')
+            {
+                $con.=" AND `at`.`trade_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+            }
+
+		$q = "SELECT `at`.*,`bt`.id as batch_number,`bt`.batch_desc as batch_desc,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname,`bm`.first_name as broker_firstname,`bm`.last_name as broker_last_name
+				FROM `".$this->table."` AS `at`
+				LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `at`.`batch`
+				LEFT JOIN `".CLIENT_MASTER."` as `cl` on `cl`.`id` = `at`.`client_name`
+				LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_name`
+				WHERE `at`.`is_delete`='0'
+				ORDER BY `at`.`trade_date` desc";
+		$res = $this->re_db_query($q);
+		if($this->re_db_num_rows($res)>0){
+			$a = 0;
+			while($row = $this->re_db_fetch_array($res)){
+				 array_push($return,$row);
+
+			}
+		}
+		return $return;
+	}
+
  public function select_transcation_history_report_v2($report_for,$sort_by=1,$branch=0,$broker='',$rep='',$client='',$product='',$beginning_date='',$ending_date='',$batch=0,$date_by="1",$filter_by="1",$is_trail=0,$prod_cat=array())
  	{
 			$return = array();
@@ -1836,6 +1877,8 @@ class transaction extends db{
 			$_SESSION['info'] = USER_CANCEL_MESSAGE;
 			return true;
 		}
+
+		
 
 }
 
