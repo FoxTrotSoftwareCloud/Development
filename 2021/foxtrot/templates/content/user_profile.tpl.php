@@ -51,6 +51,22 @@
 				</div>	
 			</div>
             <div class="row">
+				<div class="col-sm-2 form-group">
+                    <input type="checkbox" style=" display: inline" class="checkbox" <?php if($branch_id>0){ echo "checked"; } ?> onclick="show_branches(this.checked)"/>
+                    <label>Branch Access </label>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <select name="branch_id" id="user_branch" class="form-control" <?php if($branch_id==0){echo "disabled"; } ?>>
+                        <option value="0">Select Branch</option>
+                        <?php foreach ($branch_list as $key => $val) { ?>
+                            <option <?php if ($action == 'edit' && $branch_id == $val['id']) {
+                                        echo 'selected="true"';
+                                        } ?> value="<?php echo $val['id']; ?>"><?php echo $val['name']; ?></option>
+                            <?php } ?>                 
+                    </select>
+                </div>
+            </div>
+            <div class="row">
 				<div class="col-sm-6 form-group">
 					<label>Upload Image </label>
 				    <input type="file" class="form-control" name="file_image" onchange="readURL(this);" id="file_image" value="<?php echo $user_image;?>" />
@@ -266,6 +282,16 @@ function chk_all_class(chk)
 			}
 		}
 	}
+}
+function show_branches(chk)
+{
+    if(chk == true){
+        $("#user_branch").removeAttr("disabled");
+    }
+    else{
+        $("#user_branch").attr("disabled","true");
+    }
+   
 }
 /*function checkLength(el) {//alert('hii');
   if (el.length != 4) {

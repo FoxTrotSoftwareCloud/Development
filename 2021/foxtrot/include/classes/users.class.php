@@ -139,6 +139,7 @@
 			$email = isset($data['email'])?trim($this->re_db_input($data['email'])):'';
             $password = isset($data['password'])?trim($this->re_db_input($data['password'])):'';
 			$confirm_password = isset($data['confirm_password'])?trim($this->re_db_input($data['confirm_password'])):'';
+            $branch_id = isset($data['branch_id'])?trim($this->re_db_input($data['branch_id'])):0;
             $menu_rights = isset($data['check_sub'])?$data['check_sub']:array();
             $main_menu_rights = isset($data['check_parent'])?$data['check_parent']:array();
             
@@ -221,7 +222,7 @@
 					
                     if($id==0){
 						
-						$q = "INSERT INTO `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`user_name`='".$uname."', `email`='".$email."', `image`='".$file_image."', `password`='".$this->encryptor($password)."' ".$this->insert_common_sql();
+						$q = "INSERT INTO `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`user_name`='".$uname."', `email`='".$email."', `image`='".$file_image."', `password`='".$this->encryptor($password)."' ,`branch_id`='".$branch_id."' ".$this->insert_common_sql();
 						$res = $this->re_db_query($q);
                         $last_id = $this->re_db_insert_id($res);
                         if($last_id>0)
@@ -259,7 +260,7 @@
 						if($file_image!=''){
 							$con_image .= " , `image`='".$file_image."' ";
 						}
-						$q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`user_name`='".$uname."', `email`='".$email."' ".$con." ".$con_image." ".$this->update_common_sql()." WHERE `id`='".$id."'";
+						$q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`user_name`='".$uname."',`branch_id`='".$branch_id."',`email`='".$email."' ".$con." ".$con_image." ".$this->update_common_sql()." WHERE `id`='".$id."'";
 						$res = $this->re_db_query($q);
 						if($res){
                             
