@@ -165,7 +165,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     // add a page
     $pdf->AddPage('L');
     // Title
-    $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="40px" />';
+    $img = '<img src="upload/logo/'.$system_logo.'" height="40px" />';
     
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
