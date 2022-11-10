@@ -1280,23 +1280,24 @@ class transaction extends db{
                 $con.=" AND `at`.`trade_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
             }
 
-		$q = "SELECT `at`.*,`bt`.id as batch_number,`bt`.batch_desc as batch_desc,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname,`bm`.first_name as broker_firstname,`bm`.last_name as broker_last_name
+			$q = "SELECT `at`.id,`at`.branch,`at`.trade_date,`at`.ch_date as check_date,`at`.invest_amount,`at`.commission_received,`at`.commission_received_date,`at`.created_time,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname,`bm`.first_name as broker_firstname,`bm`.last_name as broker_last_name ,`sm`.name as sponsor_name,`pl`.name as product_name,`um`.first_name as created_by
 				FROM `".$this->table."` AS `at`
-				LEFT JOIN `".BATCH_MASTER."` as `bt` on `bt`.`id` = `at`.`batch`
 				LEFT JOIN `".CLIENT_MASTER."` as `cl` on `cl`.`id` = `at`.`client_name`
 				LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_name`
-				WHERE `at`.`is_delete`='0'
-				ORDER BY `at`.`trade_date` desc";
-		$res = $this->re_db_query($q);
-		if($this->re_db_num_rows($res)>0){
-			$a = 0;
-			while($row = $this->re_db_fetch_array($res)){
-				 array_push($return,$row);
+				LEFT JOIN `".SPONSOR_MASTER."` as `sm` on `sm`.`id` = `at`.`sponsor`
+				LEFT JOIN `".PRODUCT_LIST."` as `pl` on `pl`.`id` = `at`.`product`
+				LEFT JOIN `".USER_MASTER."` as `um` on `um`.`id` = `at`.`created_by`
+				WHERE `at`.`is_delete`='0'".$con." ";
+			$res = $this->re_db_query($q);
+			if($this->re_db_num_rows($res)>0){
+				$a = 0;
+				while($row = $this->re_db_fetch_array($res)){
+					array_push($return,$row);
 
+				}
 			}
+			return $return;
 		}
-		return $return;
-	}
 
  public function select_transcation_history_report_v2($report_for,$sort_by=1,$branch=0,$broker='',$rep='',$client='',$product='',$beginning_date='',$ending_date='',$batch=0,$date_by="1",$filter_by="1",$is_trail=0,$prod_cat=array())
  	{

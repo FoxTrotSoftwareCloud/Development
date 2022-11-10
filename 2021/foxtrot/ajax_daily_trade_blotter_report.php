@@ -72,7 +72,7 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
 
 
         $trade_data= $instance_trans->daily_trade_blotter_report($company_id,$branch_id,$broker_id,$beginning_date,$ending_date);
-        // echo "<pre>"; print_r($trade_data);die;
+        // echo "<pre>"; print_r($trade_data);
     
         ?>
         <div class="print_section accounting">
@@ -95,34 +95,34 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
             <div class="print_content">
                 <table>
                     <thead>
-                        <tr style="background:#f1f1f1;text-transform: capitalize;">
-                            <th style="font-size: 12px;">TRADE#</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">BRANCH</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">DATE</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">CHECK DATE</th>
+                        <tr style="background:#f1f1f1;text-transform: capitalize;" style="width: 100%;">
+                            <th style="font-size: 12px; width: 6%;">TRADE#</th>
+                            <th style="padding: 8px 3px;font-size: 12px; width: 6%;">BRANCH</th>
+                            <th style="padding: 8px 3px;font-size: 12px; width: 8%;">DATE</th>
+                            <th style="padding: 8px 3px;font-size: 12px; width: 10%;">CHECK DATE</th>
                             <th style="padding: 8px 3px;font-size: 12px;">CLIENT</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">BROKER</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">SPONSOR</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">PRODUCT</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">AMOUNT</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">COMM.EXP/COMM.REC</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">DATE REC,DATE PAID</th>
+                            <th style="padding: 8px 3px;font-size: 12px; width: 13%;">BROKER</th>
+                            <th style="padding: 8px 3px;font-size: 12px;">SPONSOR/ <br>PRODUCT</th>
+                            <th style="padding: 8px 3px;font-size: 12px; width: 5%;">AMOUNT</th>
+                            <th style="padding: 15px 3px;font-size: 12px; width: 8%;">COMM.EXP/<br>COMM.REC</th>
+                            <th style="padding: 8px 3px;font-size: 12px; width: 6%;">DATE REC,<br> DATE PAID</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>111456</td>
-                            <td>111</td>
-                            <td>111</td>
-                            <td>111</td>
-                            <td>111</td>
-                            <td>111</td>
-                            <td>111</td>
-                            <td>111</td>
-                            <td>111</td>
-                            <td>111</td>
-                            <td>111</td>
+                    <?php foreach($trade_data as $trade){?>
+                        <tr style="height:30px ;">
+                            <td width="5%"><?php echo $trade['id'] ?><br><?php echo $trade['created_by'] ?></td>
+                            <td width="5%"><?php echo $trade['branch'] ?></td>
+                            <td width="15%"><?php echo date('m/d/Y',strtotime($trade['trade_date']));?></td>
+                            <td><?php echo date('m/d/Y',strtotime($trade['check_date']));?></td>
+                            <td><?php echo $trade['client_lastname'].", ".$trade['client_firstname'] ?></td>
+                            <td><?php echo $trade['broker_last_name'].", ".$trade['broker_firstname'] ?></td>
+                            <td><?php echo $trade['sponsor_name']?><br><?php echo $trade['product_name']?></td>
+                            <td><?php echo $trade['invest_amount'] ?></td>
+                            <td><?php echo isset($trade['commission_exp'])? $trade['commission_exp']:''?><br><?php echo $trade['commission_received']?></td>
+                            <td><?php echo $trade['commission_received_date']?><br><?php echo isset($trade['commission_exp'])? $trade['commission_exp']:''?></td>                        
                         </tr>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>
