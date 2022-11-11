@@ -1292,8 +1292,8 @@ class transaction extends db{
 			if($this->re_db_num_rows($res)>0){
 				$a = 0;
 				while($row = $this->re_db_fetch_array($res)){
+					$row['date_paid']='0000-00-00';
 					array_push($return,$row);
-
 				}
 			}
 			return $return;

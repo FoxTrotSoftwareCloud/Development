@@ -2,18 +2,10 @@
 require_once("include/config.php");
 require_once(DIR_FS . "islogin.php");
 $instance = new client_review();
-$return_client_accounts = array();
 $filter_array = array();
-$product_category = '';
-$product_category_name = '';
 $beginning_date = '';
 $ending_date = '';
-
-$client_sponsor_instance = new manage_sponsor();
-$get_sponsors = $client_sponsor_instance->select_sponsor();
-
 $instance_trans = new transaction();
-
 $instance_broker = new broker_master();
 $get_brokers = $instance_broker->select_broker();
 $instance_company = new manage_company();
@@ -30,8 +22,7 @@ $img = '<img src="' . SITE_URL . "upload/logo/" . $system_logo . '" height="25px
 //filter batch report
 if (isset($_GET['filter']) && $_GET['filter'] != '') {
     $filter_array = json_decode($_GET['filter'], true);
-    // $state_id = isset($filter_array['state'])?$filter_array['state']:0;
-             $sponsor_id = isset($filter_array['sponsor'])?$filter_array['sponsor']:'';
+    $sponsor_id = isset($filter_array['sponsor'])?$filter_array['sponsor']:'';
     $report_for = isset($filter_array['report_for']) ? trim($filter_array['report_for']) : '';
     $company_id = isset($filter_array['company']) ? $filter_array['company'] : 0;
     $branch_id = isset($filter_array['branch']) ? $filter_array['branch'] : 0;
@@ -68,8 +59,6 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
    
     if ($report_for == 1) {
         $is_recrod_found = false;
-        $return_client_accounts = $instance->get_client_account_list($sponsor_id, $broker_id);
-
 
         $trade_data= $instance_trans->daily_trade_blotter_report($company_id,$branch_id,$broker_id,$beginning_date,$ending_date);
         // echo "<pre>"; print_r($trade_data);
@@ -96,33 +85,71 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                 <table>
                     <thead>
                         <tr style="background:#f1f1f1;text-transform: capitalize;" style="width: 100%;">
-                            <th style="font-size: 12px; width: 6%;">TRADE#</th>
-                            <th style="padding: 8px 3px;font-size: 12px; width: 6%;">BRANCH</th>
-                            <th style="padding: 8px 3px;font-size: 12px; width: 8%;">DATE</th>
-                            <th style="padding: 8px 3px;font-size: 12px; width: 10%;">CHECK DATE</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">CLIENT</th>
-                            <th style="padding: 8px 3px;font-size: 12px; width: 13%;">BROKER</th>
-                            <th style="padding: 8px 3px;font-size: 12px;">SPONSOR/ <br>PRODUCT</th>
-                            <th style="padding: 8px 3px;font-size: 12px; width: 5%;">AMOUNT</th>
-                            <th style="padding: 15px 3px;font-size: 12px; width: 8%;">COMM.EXP/<br>COMM.REC</th>
-                            <th style="padding: 8px 3px;font-size: 12px; width: 6%;">DATE REC,<br> DATE PAID</th>
+                            <th style="font-size: 12px; width: 7%;">TRADE#</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 6%;">BRANCH</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 8%;">DATE</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 8%;">CHECK DATE</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 15%;" >CLIENT</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 13%;">BROKER</th>
+                            <th style="padding: 8px 0px;font-size: 12px;">SPONSOR/ <br>PRODUCT</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 6%;">AMOUNT</th>
+                            <th style="padding: 15px 0px;font-size: 12px; width: 8%;">COMM.REC</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 8%;">DATE REC/<br> DATE PAID</th>
                         </tr>
                     </thead>
                     <tbody>
-                    <?php foreach($trade_data as $trade){?>
+                    <?php 
+                        $total_amount=0.00;
+                        $total_comm_rec= 0.00;
+                        foreach($trade_data as $trade){
+                            $is_recrod_found=true;?>
                         <tr style="height:30px ;">
-                            <td width="5%"><?php echo $trade['id'] ?><br><?php echo $trade['created_by'] ?></td>
+                            <td><?php echo $trade['id'] ?></td>
                             <td width="5%"><?php echo $trade['branch'] ?></td>
                             <td width="15%"><?php echo date('m/d/Y',strtotime($trade['trade_date']));?></td>
-                            <td><?php echo date('m/d/Y',strtotime($trade['check_date']));?></td>
+                            <td><?php echo ($trade['check_date']!= '0000-00-00')? date('m/d/Y',strtotime($trade['check_date'])):''; ?></td>
                             <td><?php echo $trade['client_lastname'].", ".$trade['client_firstname'] ?></td>
                             <td><?php echo $trade['broker_last_name'].", ".$trade['broker_firstname'] ?></td>
-                            <td><?php echo $trade['sponsor_name']?><br><?php echo $trade['product_name']?></td>
+                            <td><?php echo $trade['sponsor_name']?></td>
                             <td><?php echo $trade['invest_amount'] ?></td>
-                            <td><?php echo isset($trade['commission_exp'])? $trade['commission_exp']:''?><br><?php echo $trade['commission_received']?></td>
-                            <td><?php echo $trade['commission_received_date']?><br><?php echo isset($trade['commission_exp'])? $trade['commission_exp']:''?></td>                        
+                            <td><?php echo $trade['commission_received']?></td>
+                            <td><?php echo date('m/d/Y',strtotime($trade['commission_received_date']));?></td>                        
                         </tr>
-                        <?php } ?>
+                        <tr>
+                            <td colspan="2"><?php echo $trade['created_by'] ?></td>
+                            <td colspan="2"><?php echo date('m/d/Y h:i:s',strtotime($trade['created_time']));?></td>
+                            <td></td>
+                            <td></td>
+                            <td><?php echo $trade['product_name']?></td>
+                            <td></td>
+                            <td></td>
+                            <td><?php echo ($trade['date_paid']!= '0000-00-00')? date('m/d/Y',strtotime($trade['date_paid'])):''; ?></td>
+                        </tr>
+                        <?php $total_amount += $trade['invest_amount'];
+                              $total_comm_rec += $trade['commission_received'];
+                        } ?>
+
+                        <?php
+                            if($is_recrod_found==true)
+                            {?>
+                        <tr>
+                            <td colspan="6"></td>
+                            <td style="text-align: center;"><hr><b>TOTAL:</b></td>
+                            <td><hr><b><?php echo number_format($total_amount,2) ; ?></b></td>
+                            <td colspan="2" style="padding-left: 3px;"><hr><b><?php echo number_format($total_comm_rec,2) ; ?></b></td>
+                        </tr>
+                        <?php } 
+                        ?>
+                        
+                        <?php
+                            if($is_recrod_found==false)
+                            {?>
+                                <tr>
+                                   <td style="font-size:12px;text-align:center; padding: 15px 5px;" colspan="10"><b>No Records Found.</b> </td>
+                                </tr>
+                            <?php } 
+                        ?>
+
                     </tbody>
                 </table>
             </div>

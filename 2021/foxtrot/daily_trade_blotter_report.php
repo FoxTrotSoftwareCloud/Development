@@ -53,6 +53,8 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
     $broker = isset($filter_array['broker']) ? $instance->re_db_input($filter_array['broker']) : '';
     $branch = isset($filter_array['branch']) ? $instance->re_db_input($filter_array['branch']) : '';
     $report_for = isset($filter_array['report_for']) ? $instance->re_db_input($filter_array['report_for']) : '';
+    $beginning_date=isset($filter_array['beginning_date'])?$instance->re_db_input($filter_array['beginning_date']):'';
+    $ending_date=isset($filter_array['ending_date'])?$instance->re_db_input($filter_array['ending_date']):'';
 }
 
 $content = "daily_trade_blotter_report";
