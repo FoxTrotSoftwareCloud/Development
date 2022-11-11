@@ -64,7 +64,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     // add a page
     //$pdf->AddPage('L');
     // Title
-    $img = '<img src="'.SITE_URL."upload/logo/".$system_logo.'" height="25px" />';
+    $img = '<img src="upload/logo/'.$system_logo.'" height="25px" />';
     
     
     
