@@ -100,12 +100,27 @@
         foreach($return_solved_exception as $process_key=>$process_val)
         {
             $total_records = $total_records+1;
+            if($process_val['rep_name']){
+                $lnm=$fnm='';
+                $process_val['rep_name']=trim($process_val['rep_name']);
+                $arr=explode(" ",$process_val['rep_name']);
+               
+                if(sizeof($arr)==3){
+                    $lnm=$arr[2];
+                    $fnm=$arr[0];
+                }
+                if(sizeof($arr)==2){
+                    $lnm=$arr[1];
+                    $fnm=$arr[0];
+                }
+                $process_val['rep_name']=$lnm.", ".$fnm;
+            }
                     
             $sheet_data[0]['A'.$i] = array($instance->re_db_output(date('m/d/Y',strtotime($process_val['date']))),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
             $sheet_data[0]['B'.$i] = array($instance->re_db_output($process_val['rep']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-            $sheet_data[0]['C'.$i] = array($instance->re_db_output($process_val['rep_name']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+            $sheet_data[0]['C'.$i] = array($instance->re_db_output($process_val['rep_name']),array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
             $sheet_data[0]['D'.$i] = array($instance->re_db_output($process_val['account_no']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
-            $sheet_data[0]['E'.$i] = array($instance->re_db_output($process_val['client']),array('center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
+            $sheet_data[0]['E'.$i] = array($instance->re_db_output($process_val['client']),array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
             if(isset($get_file_type) && $get_file_type == '1')
             {
                 $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']);

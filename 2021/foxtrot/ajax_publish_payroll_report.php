@@ -85,7 +85,7 @@ if(isset($_GET['report_name']) && $_GET['report_name'] == '1'){
     <div class="col-md-6">
         <div class="form-group">
             <label>Output Destination </label>
-            <select class="form-control" name="output">
+            <select class="form-control" name="output" id="output_options1">
                 <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
                 <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
                 <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>
@@ -149,7 +149,7 @@ else if(isset($_GET['report_name']) && in_array((int)$_GET['report_name'], [2,5]
     <div class="col-md-6">
         <div class="form-group">
             <label>Output Destination </label>
-            <select class="form-control" name="output">
+            <select class="form-control" name="output" id="output_options2">
                 <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
                 <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
                 <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>
@@ -220,7 +220,7 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '3'){ ?>
     <div class="col-md-6">
         <div class="form-group">
             <label>Output Destination </label>
-            <select class="form-control" name="output">
+            <select class="form-control" name="output" id="output_options3">
                 <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
                 <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
                 <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>
@@ -266,7 +266,7 @@ else if(isset($_GET['report_name']) && $_GET['report_name'] == '4'){ ?>
     <div class="col-md-6">
         <div class="form-group">
             <label>Output Destination </label>
-            <select class="form-control" name="output">
+            <select class="form-control" name="output" id="output_options4">
                 <option value="1" <?php echo ($output==1)?'selected':''?> >Screen</option>
                 <option value="2" <?php echo ($output==2)?'selected':''?> >Print Preview</option>
                 <option value="3" <?php echo ($output==3)?'selected':''?> >Excel</option>

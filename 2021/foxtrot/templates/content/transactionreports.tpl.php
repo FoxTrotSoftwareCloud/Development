@@ -352,7 +352,7 @@ function get_product(cat){
               $("#report_form").submit(function(ev){
   
        
-                 if($("input[name='output']:checked").val()== 4){
+                if($("input[name='output']:checked").val()== 4){
                     ev.preventDefault();
                     const data = new FormData(ev.target);
                        value = Object.fromEntries(data.entries());
@@ -367,15 +367,30 @@ function get_product(cat){
                               url = "http://foxtrotsoftware.com/CloudFox/transaction_report_print.php?filter="+JSON.stringify(value);
                         }
                         
-                       
-
-
-                       
-                   
                     var win= window.open(url,"blank");
                     win.focus();
                     return false;
-                 }
+                }
+
+                if($("input[name='output']:checked").val()== 2){
+                    ev.preventDefault();
+                    const data = new FormData(ev.target);
+                       value = Object.fromEntries(data.entries());
+                       report_for = $("select[name='report_for']").val() ;
+                      // console.log(report_for )
+                      
+                        if( $("#report_for").val() == "broker"){
+
+                            url = "http://foxtrotsoftware.com/CloudFox/transaction_broker_report_print.php?open=output_print&filter="+JSON.stringify(value);
+                        }
+                        else{
+                              url = "http://foxtrotsoftware.com/CloudFox/transaction_report_print.php?open=output_print&filter="+JSON.stringify(value);
+                        }
+
+                    var win= window.open(url,"blank");
+                    win.focus();
+                    return false;
+                }
          });
         });       
 </script>

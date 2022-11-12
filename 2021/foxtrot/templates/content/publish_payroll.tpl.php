@@ -7,7 +7,7 @@
 ?>
     <div class="tab-content col-md-12">
         <div class="tab-pane active" id="tab_a">
-            <form method="post">
+            <form method="post" id="report-form">
                 <div class="tab-content">
                     <div class="row">
                         <div class="col-md-4" style="float: right;">
@@ -134,6 +134,42 @@ $(document).ready(function(){
     report_name = document.getElementById("publish_report").value;
     open_reports(report_name);
 });
+
+$(function() {
+            $("#report-form").submit(function(ev){
+
+                var _form = $(this);
+                var output_type=1;
+                var e1 = document.getElementById("output_options1");
+                var e2 = document.getElementById("output_options2");
+                var e3 = document.getElementById("output_options3");
+                var e4 = document.getElementById("output_options4");
+
+                if(e1!= null){
+                    var output_type = e1.value;
+                }
+                else if(e2!= null){
+                    var output_type = e2.value;
+                }
+                else if(e3!= null){
+                    var output_type = e3.value;
+                }
+                else if(e4!= null){
+                    var output_type = e4.value;
+                }
+
+                if(output_type == 4 || output_type == 2) {
+                 
+                    _form.attr('target','_blank');
+                     //return false;
+                }
+                else {
+                    _form.removeAttr('target');
+                }
+             });
+
+        });       
+
 </script>
 <style>
 .btn-primary {

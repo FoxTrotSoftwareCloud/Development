@@ -53,15 +53,17 @@ $total_records=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0">
                 <tr>';
-                    $html .='<td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File: '.$get_file_data['file_name'].'</td>
-                    <td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Source: '.$get_file_data['source'].'</td>
-                    <td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File Type: '.$get_file_data['file_type'].'</td>
-                    <td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Date: '.date('m/d/Y',strtotime($get_file_data['last_processed_date'])).'</td>';
+                    $html .='<td width="50%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File: '.$get_file_data['file_name'].'</td>
+                    <td width="20%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Source: '.$get_file_data['source'].'</td>
+                    <td width="30%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Date: '.date('m/d/Y',strtotime($get_file_data['last_processed_date'])).'</td>
+                </tr>
+                <tr>
+                    <td width="50%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File Type: '.$get_file_data['file_type'].'</td>';
                     if(isset($get_file_type) && $get_file_type == '2')
                     {
                         $batch_id = $instance->get_file_batch($file_id);
-                        $html .='<td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Batch: '.$batch_id.'</td>';
-                        $html .='<td width="18%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Amount: $'.number_format($total_commission_amount,2).'</td>';
+                        $html .='<td width="20%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Batch: '.$batch_id.'</td>';
+                        $html .='<td width="30%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Amount: $'.number_format($total_commission_amount,2).'</td>';
                     }
                 $html .='</tr>
             </table>';
@@ -74,9 +76,9 @@ $total_records=0;
                 <tr style="background-color: #f1f1f1;">
                     <td style="text-align:center;"><h5>DATE</h5></td>
                     <td style="text-align:center;width:8%;"><h5>REP#</h5></td>
-                    <td style="text-align:center;width:20%;"><h5>REP NAME</h5></td>
+                    <td style="text-align:left;width:20%;"><h5>REP NAME</h5></td>
                     <td style="text-align:center;"><h5>ACCOUNT#</h5></td>
-                    <td style="text-align:center;"><h5>CLIENT NAME</h5></td>';
+                    <td style="text-align:left;"><h5>CLIENT NAME</h5></td>';
                     if(isset($get_file_type) && $get_file_type == '1')
                     {
                         $html.='<td style="width:25%;text-align:center;"><h5>CLIENT ADDRESS</h5></td>';
@@ -98,9 +100,9 @@ $total_records=0;
             $html.='<tr>
                        <td style="font-size:8px;font-weight:normal;text-align:center;">'.date('m/d/Y',strtotime($process_val['date'])).'</td>
                        <td style="font-size:8px;font-weight:normal;text-align:center;">'.$process_val['rep'].'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">'.$process_val['rep_name'].'</td>
+                       <td style="font-size:8px;font-weight:normal;text-align:left;">'.$process_val['rep_name'].'</td>
                        <td style="font-size:8px;font-weight:normal;text-align:center;">'.$process_val['account_no'].'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:center;">'.$process_val['client'].'</td>';
+                       <td style="font-size:8px;font-weight:normal;text-align:left;">'.$process_val['client'].'</td>';
                         if(isset($get_file_type) && $get_file_type == '1')
                         {
                             $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']);

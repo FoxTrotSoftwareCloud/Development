@@ -18,7 +18,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Select Report </label>
-                    <select class="form-control" name="report_for" id="report_for" onchange="changeTitle()">
+                    <select class="form-control" name="report_for" id="report_for">
                         <option value="1" <?php if(isset($report_for) && ($report_for == 1 || $report_for == '')){echo "selected='true'";}?>>Commission Posting Log</option>
                         <option value="2" <?php if(isset($report_for) && $report_for == 2){echo "selected='true'";}?>>Batch Report</option>
                         <option value="3" <?php if(isset($report_for) && $report_for == 3){echo "selected='true'";}?>>Hold Report</option>
@@ -335,6 +335,32 @@ jQuery(function($){
                 }
                 if(report_for == "4"){
                     url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?filter="+JSON.stringify(value);
+
+                }
+
+            var win= window.open(url,"blank");
+            win.focus();
+            return false;
+        }
+        if($("input[name='output']:checked").val()== 2 || $("input[name='payable_output']:checked").val()== 2){
+            ev.preventDefault();
+            const data = new FormData(ev.target);
+                value = Object.fromEntries(data.entries());
+                report_for = $("select[name='report_for']").val() ;
+                // console.log(report_for )
+                if(report_for == "1"){
+                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_batch.php?open=output_print&filter="+JSON.stringify(value);
+                }
+                if(report_for == "2"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_batch.php?open=output_print&filter="+JSON.stringify(value);
+
+                }
+                if(report_for == "3"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_hold.php?open=output_print&filter="+JSON.stringify(value);
+
+                }
+                if(report_for == "4"){
+                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?open=output_print&filter="+JSON.stringify(value);
 
                 }
 

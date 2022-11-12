@@ -933,6 +933,23 @@
 
                                                                 foreach ($return_solved_exception as $process_key => $process_val) {
                                                                     $total_commission_amount = $total_commission_amount + $process_val['commission'];
+
+                                                                    if($process_val['rep_name']){
+                                                                        $lnm=$fnm='';
+                                                                        $process_val['rep_name']=trim($process_val['rep_name']);
+                                                                        $arr=explode(" ",$process_val['rep_name']);
+                                                                       
+                                                                        if(sizeof($arr)==3){
+                                                                            $lnm=$arr[2];
+                                                                            $fnm=$arr[0];
+                                                                        }
+                                                                        if(sizeof($arr)==2){
+                                                                            $lnm=$arr[1];
+                                                                            $fnm=$arr[0];
+                                                                        }
+                                                                        $process_val['rep_name']=$lnm.", ".$fnm;
+                                                                    }
+
                                                                 ?>
 
                                                                     <tr>
@@ -2076,6 +2093,7 @@
             '<ul class="dropdown-menu dropdown-menu-right" style="">' +
             '<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-minus"></i> Back to List of Current Files Page</a></li>' +
             '<li><a href="<?php echo SITE_URL . 'report_processed_data.php?id=' . $file_id; ?>" target="_blank"><i class="fa fa-plus"></i> Output to PDF</a></li>' +
+            '<li><a href="<?php echo SITE_URL . 'report_processed_data_excel.php?id=' . $file_id; ?>"><i class="fa fa-plus"></i> Export to Excel</a></li>' +
             '</ul>' +
             '</div>' +
             '</div>');
