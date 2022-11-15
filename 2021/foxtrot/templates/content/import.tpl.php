@@ -596,10 +596,17 @@
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files") {
                                                                                     echo "active";
-                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review (<?php echo $total_unique_trade_unprocessed ?>)</a></li>
+                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review 
+                                                                                <?php 
+                                                                                    if($_GET['file_type']== 2 || $_GET['file_type']== 9){
+                                                                                        echo "(".$total_unique_trade_unprocessed.")" ;}
+                                                                                    ?></a></li>
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "processed_files") {
                                                                                     echo "active";
-                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed(<?php echo $total_unique_trade_processed ?>)</a></li>
+                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed
+                                                                                <?php 
+                                                                                    if($_GET['file_type']== 2 || $_GET['file_type']== 9){
+                                                                                    echo "(".$total_unique_trade_processed.")"; }?></a></li>
                                     </ul> <?php } ?> <br />
 
                                 <!-- Tab 1 is started -->

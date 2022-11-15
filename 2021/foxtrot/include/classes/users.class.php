@@ -78,6 +78,19 @@
     		return $return;
    		}
 
+    	public function select_managers(){
+    		$return = array();
+    		
+    		$q = "SELECT `um`.id,`um`.first_name,`um`.last_name,`um`.branch_id
+                FROM `".$this->table."` AS `um`
+                WHERE `um`.`is_delete`='0' AND `um`.`branch_id` > '0' ";
+    		$res = $this->re_db_query($q);
+    		while($row = $this->re_db_fetch_array($res)){
+    			array_push($return,$row);
+    		}
+    		return $return;
+   		}
+
    		public function get_user($id) {
    			$return = array();
     		

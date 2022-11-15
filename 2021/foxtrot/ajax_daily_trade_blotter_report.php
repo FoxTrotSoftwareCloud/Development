@@ -107,13 +107,13 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                             <td><?php echo $trade['id'] ?></td>
                             <td width="5%"><?php echo $trade['branch'] ?></td>
                             <td width="15%"><?php echo date('m/d/Y',strtotime($trade['trade_date']));?></td>
-                            <td><?php echo ($trade['check_date']!= '0000-00-00')? date('m/d/Y',strtotime($trade['check_date'])):''; ?></td>
+                            <td><?php echo (isset($trade['check_date']) && $trade['check_date']!= '0000-00-00')? date('m/d/Y',strtotime($trade['check_date'])):''; ?></td>
                             <td><?php echo $trade['client_lastname'].", ".$trade['client_firstname'] ?></td>
                             <td><?php echo $trade['broker_last_name'].", ".$trade['broker_firstname'] ?></td>
                             <td><?php echo $trade['sponsor_name']?></td>
                             <td><?php echo $trade['invest_amount'] ?></td>
                             <td><?php echo $trade['commission_received']?></td>
-                            <td><?php echo date('m/d/Y',strtotime($trade['commission_received_date']));?></td>                        
+                            <td><?php echo (isset($trade['commission_received_date']) && $trade['commission_received_date']!= '0000-00-00')? date('m/d/Y',strtotime($trade['commission_received_date'])):'' ;?></td>                        
                         </tr>
                         <tr>
                             <td colspan="2"><?php echo $trade['created_by'] ?></td>
@@ -123,7 +123,7 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                             <td><?php echo $trade['product_name']?></td>
                             <td></td>
                             <td></td>
-                            <td><?php echo ($trade['date_paid']!= '0000-00-00')? date('m/d/Y',strtotime($trade['date_paid'])):''; ?></td>
+                            <td><?php echo (isset($trade['date_paid']) && $trade['date_paid']!= '0000-00-00')? date('m/d/Y',strtotime($trade['date_paid'])):''; ?></td>
                         </tr>
                         <?php $total_amount += $trade['invest_amount'];
                               $total_comm_rec += $trade['commission_received'];

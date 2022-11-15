@@ -3529,17 +3529,20 @@
                                         $_SESSION['warning'] = $instance_client_maintenance->errors;
 
                                         if (stripos($instance_client_maintenance->errors, '(24)') !== false){
-                                            $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                                ." SET error_code_id=24"
-                                                    .",field='alpha_code'"
-                                                    .",field_value='{$check_data_val['alpha_code']}'"
-                                                    .",file_type=$commissionFileType"
-                                                    .$insert_exception_string;
-                                            $res = $this->re_db_query($q);
-                                            $exception_raised = 1;
-                                            $last_inserted_exception = $this->re_db_insert_id();
 
-                                            $result++;
+                                            if($commissionFileType != 9){
+                                                $q = "INSERT INTO ".IMPORT_EXCEPTION.""
+                                                    ." SET error_code_id=24"
+                                                        .",field='alpha_code'"
+                                                        .",field_value='{$check_data_val['alpha_code']}'"
+                                                        .",file_type=$commissionFileType"
+                                                        .$insert_exception_string;
+                                                $res = $this->re_db_query($q);
+                                                $exception_raised = 1;
+                                                $last_inserted_exception = $this->re_db_insert_id();
+
+                                                $result++;
+                                            }
                                         }
                                     }
                                     // $_SESSION[$for_import] populated in the called function

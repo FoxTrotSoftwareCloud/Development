@@ -116,14 +116,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         foreach($trade_data as $trade) {
 
             $trade_date=date('m/d/Y',strtotime($trade['trade_date']));
-            if($trade['check_date']== '0000-00-00')
+            if(!isset($trade['check_date']) || $trade['check_date']== '0000-00-00')
             { 
                 $trade['check_date']='';
             } 
             else{
                 $trade['check_date']=date('m/d/Y',strtotime($trade['check_date']));
             }
-            if($trade['date_paid']== '0000-00-00')
+            if(!isset($trade['date_paid']) || $trade['date_paid']== '0000-00-00')
             { 
                 $trade['date_paid']='';
             } 

@@ -27,6 +27,21 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group wrap">
+                            <label>Branch Manager</label>
+                            <select class="form-control" name="" onchange="get_branch_by_manager()" id="branch_manager">
+                                <option value="0">All Branch Managers</option>
+                                <?php foreach($manager_list as $managerN): ?>
+                                    <option value="<?php echo $managerN['branch_id']; ?>"><?php echo $managerN['last_name'].", ".$managerN['first_name'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group wrap">
@@ -40,7 +55,7 @@
                                     <input type="hidden" name="branch" value="<?php echo $is_branch_manager ?>" class="form-control">
 
                             <?php }else{ ?>
-                                <select class="form-control" name="branch">
+                                <select class="form-control" name="branch" id="branch_id">
                                         <option value="0">All Branches</option>
                                         <?php foreach($branch_list as $branchN): ?>
                                             <option value="<?php echo $branchN['id'];?>" <?php echo isset($branch) && $branch==$branchN['id'] ? 'selected' : '' ?>><?php echo $branchN['name']; ?></option>
@@ -59,20 +74,6 @@
                                 <option value="0">All Brokers</option>
                                 <?php foreach($get_brokers as $brokerN): ?>
                                     <option value="<?php echo $brokerN['id']; ?>" <?php echo isset($broker) && $broker==$brokerN['id'] ? 'selected' : '' ?>><?php echo $brokerN['last_name'].', '.$brokerN['first_name']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group wrap">
-                            <label>Branch Manager</label>
-                            <select class="form-control" name="">
-                                <option value="0">All Branch Managers</option>
-                                <?php foreach($branch_list as $branch): ?>
-                                    <option value="<?php echo $branch['broker']; ?>"><?php echo $instance_branch->get_manager_name_by_id($branch['broker']); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -206,6 +207,11 @@ $('#demo-dp-range .input-daterange').datepicker({
              });
 
         });       
+
+        function get_branch_by_manager(){
+            branch_id= $('#branch_manager').val();
+            $('#branch_id').val(branch_id);
+        }
 </script>
 <style>
 .btn-primary {
