@@ -1488,50 +1488,91 @@
                               </h4>
                            </div>
                            <div class="panel-body">
-                              <h4>
-                                 Payout Schedule
-                                 <!--<a href="#broker_payout_schedule" data-toggle="modal" class="btn btn-sm btn-success" style="display: inline !important; float: right !important;"><i class="fa fa-plus"></i> Add New Payout</a>-->
-                              </h4>
-                              <br />
-                              <div class="panel" id="div_fixed_rates">
-                                 <div class="titlebox">Fixed Rates</div>
-                                 <div class="row">
-                                    <div class="col-md-6">
-                                       <div class="table-responsive">
-                                          <table class="table">
-                                             <tbody>
-                                                <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_payout_fixed_rates)) { ?>
-                                                   <?php foreach ($edit_payout_fixed_rates as $key => $val) { ?>
-                                                      <tr>
-                                                         <td style="float: right;padding-top: 15px;border-top:0px; "><label><?php echo $val['type']; ?>: </label></td>
-                                                         <td style="border-top:0px;width: 130px;">
-                                                            <input type="hidden" name="fixed_category_id[]" value="<?php echo $val['category_id']; ?>" />
-                                                            <div class="input-group">
-                                                               <input type="text" name="category_rates_<?php echo $val['category_id']; ?>" id="category_rates_<?php echo $val['category_id']; ?>" value="<?php echo $val['category_rates']; ?>" class="form-control charge" onchange="handleChange(this);" style="display: inline ;" />
-                                                               <span class="input-group-addon">%</span>
-                                                            </div>
-                                                         </td>
-                                                      </tr>
-                                                   <?php }
-                                                } else { ?>
-                                                   <?php foreach ($product_category as $key => $val) { ?>
-                                                      <tr>
-                                                         <td style="float: right;border-top:0px;padding-top: 15px;"><label><?php echo $val['type']; ?>: </label></td>
-                                                         <td style="border-top:0px;">
-                                                            <input type="hidden" name="fixed_category_id[]" value="<?php echo $val['id']; ?>" />
-                                                            <div class="input-group">
-                                                               <input type="text" name="category_rates_<?php echo $val['id']; ?>" id="category_rates_<?php echo $val['id']; ?>" value="" class="form-control charge" onchange="handleChange(this);" style="display: inline ;" />
-                                                               <span class="input-group-addon">%</span>
-                                                            </div>
-                                                         </td>
-                                                      </tr>
-                                                <?php }
-                                                } ?>
-                                             </tbody>
-                                          </table>
+                              <div class="row">
+                                 <div class="col-md-2" style="margin-top: 20px;">
+                                    <h4>
+                                       Payout Schedule
+                                       <!--<a href="#broker_payout_schedule" data-toggle="modal" class="btn btn-sm btn-success" style="display: inline !important; float: right !important;"><i class="fa fa-plus"></i> Add New Payout</a>-->
+                                    </h4>
+                                 </div>
+                                 <div class="col-md-10">
+                                    <div class="panel" style="border: 1px solid #cccccc !important; padding: 10px !important;">
+                                       <div class="row">
+                                          <div class="col-md-2">
+                                             <div class="form-group">
+                                                <label>Hold Commissions </label><br />
+                                                <input type="checkbox" class="checkbox" name="hold_commissions" value="1" <?php if (isset($edit_payout['hold_commissions']) && $edit_payout['hold_commissions'] != '') {
+                                                                                                                              echo "checked='true'";
+                                                                                                                           } ?> />
+                                             </div>
+                                          </div>
+                                          <div class="col-md-5">
+                                             <div class="form-group">
+                                                <label>Until </label>
+                                                <div id="demo-dp-range">
+                                                   <div class="input-daterange input-group" id="datepicker">
+                                                      <input type="text" name="hold_commission_until" id="hold_commission_until" value="<?php if (isset($edit_payout['hold_commission_until']) && ($edit_payout['hold_commission_until'] != '' && $edit_payout['hold_commission_until'] != 0000 - 00 - 00)) {
+                                                             echo date('m/d/Y', strtotime($edit_payout['hold_commission_until']));
+                                                            } ?>" class="form-control" />
+                                                      <label class="input-group-addon btn" for="hold_commission_until">
+                                                         <span class="fa fa-calendar"></span>
+                                                      </label>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          <div class="col-md-5">
+                                             <div class="form-group">
+                                                <label>After </label>
+                                                <div id="demo-dp-range">
+                                                   <div class="input-daterange input-group" id="datepicker">
+                                                      <input type="text" name="hold_commission_after" id="hold_commission_after" value="<?php if (isset($edit_payout['hold_commission_after']) && ($edit_payout['hold_commission_after'] != '' && $edit_payout['hold_commission_after'] != 0000 - 00 - 00)) {
+                                                                                                                                             echo date('m/d/Y', strtotime($edit_payout['hold_commission_after']));
+                                                                                                                                          } ?>" class="form-control" />
+                                                      <label class="input-group-addon btn" for="hold_commission_after">
+                                                         <span class="fa fa-calendar"></span>
+                                                      </label>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
                                        </div>
                                     </div>
+                                 
                                  </div>
+                              </div>
+                             
+                              <br />
+                              <div class="panel" id="div_fixed_rates">
+                                 <fieldset>
+                                    <legend>Fixed Rates:</legend>
+                                       <div class="row">
+                                       <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_payout_fixed_rates)) { ?>
+                                          <?php foreach ($edit_payout_fixed_rates as $key => $val) { ?>
+                                             <div class="col-md-2" style="text-align: right; margin-bottom:10px"><label><?php echo $val['type']; ?></label></div>
+                                             <div class="col-md-2" style="margin-bottom:10px">
+                                                <input type="hidden" name="fixed_category_id[]" value="<?php echo $val['category_id']; ?>" />
+                                                <div class="input-group">
+                                                   <input type="text" name="category_rates_<?php echo $val['category_id']; ?>" id="category_rates_<?php echo $val['category_id']; ?>" value="<?php echo $val['category_rates']; ?>" class="form-control charge" onchange="handleChange(this);" style="display: inline ;" />
+                                                   <span class="input-group-addon">%</span>
+                                                </div>
+                                             </div>
+                                          <?php }
+                                                } else { ?>
+                                          <?php foreach ($product_category as $key => $val) { ?>
+                                             <div class="col-md-2" style="text-align: right; margin-bottom:10px"><label><?php echo $val['type']; ?></label></div>
+                                             <div class="col-md-2" style="margin-bottom:10px">
+                                                <input type="hidden" name="fixed_category_id[]" value="<?php echo $val['id']; ?>" />
+                                                <div class="input-group">
+                                                   <input type="text" name="category_rates_<?php echo $val['id']; ?>" id="category_rates_<?php echo $val['id']; ?>" value="" class="form-control charge" onchange="handleChange(this);" style="display: inline ;" />
+                                                   <span class="input-group-addon">%</span>
+                                                </div>
+                                             </div>
+                                          
+                                          <?php }
+                                                } ?>
+                                       </div>
+                                 </fieldset>
                               </div>
                               <div class="row">
                                  <div class="col-md-6">
@@ -1731,8 +1772,8 @@
                                              <div class="form-group">
                                                 <label>Reset </label>
                                                 <div id="demo-dp-range">
-                                                   <div class="input-daterange input-group" id="datepicker">
-                                                      <input type="text" name="reset" value="<?php if (isset($edit_payout['reset']) && $edit_payout['reset'] != '') {
+                                                   <div class="input-daterange input-daterange-limit input-group" id="datepicker">
+                                                      <input type="text" name="reset" id="reset" value="<?php if (isset($edit_payout['reset']) && $edit_payout['reset'] != '') {
                                                                                                 echo date('m/d/Y', strtotime($edit_payout['reset']));
                                                                                              } ?>" class="form-control" />
                                                       <label class="input-group-addon btn" for="reset">
@@ -1833,46 +1874,7 @@
                                     </div>
                                  </div>
                               </div>
-                              <div class="row">
-                                 <div class="col-md-4">
-                                    <div class="form-group">
-                                       <label>Hold Commissions </label><br />
-                                       <input type="checkbox" class="checkbox" name="hold_commissions" value="1" <?php if (isset($edit_payout['hold_commissions']) && $edit_payout['hold_commissions'] != '') {
-                                                                                                                     echo "checked='true'";
-                                                                                                                  } ?> />
-                                    </div>
-                                 </div>
-                                 <div class="col-md-4">
-                                    <div class="form-group">
-                                       <label>Until </label>
-                                       <div id="demo-dp-range">
-                                          <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="hold_commission_until" id="hold_commission_until" value="<?php if (isset($edit_payout['hold_commission_until']) && ($edit_payout['hold_commission_until'] != '' && $edit_payout['hold_commission_until'] != 0000 - 00 - 00)) {
-                                                                                                                                    echo date('m/d/Y', strtotime($edit_payout['hold_commission_until']));
-                                                                                                                                 } ?>" class="form-control" />
-                                             <label class="input-group-addon btn" for="hold_commission_until">
-                                                <span class="fa fa-calendar"></span>
-                                             </label>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                                 <div class="col-md-4">
-                                    <div class="form-group">
-                                       <label>After </label>
-                                       <div id="demo-dp-range">
-                                          <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="hold_commission_after" id="hold_commission_after" value="<?php if (isset($edit_payout['hold_commission_after']) && ($edit_payout['hold_commission_after'] != '' && $edit_payout['hold_commission_after'] != 0000 - 00 - 00)) {
-                                                                                                                                    echo date('m/d/Y', strtotime($edit_payout['hold_commission_after']));
-                                                                                                                                 } ?>" class="form-control" />
-                                             <label class="input-group-addon btn" for="hold_commission_after">
-                                                <span class="fa fa-calendar"></span>
-                                             </label>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
+                            
                            </div>
                         </div>
                         <div class="panel-overlay">
@@ -4721,7 +4723,16 @@
 <script type="text/javascript">
    $(document).ready(function() {
 
-
+      $('body').on('focus', ".input-daterange-limit", function() {
+          current_date = new Date();
+         $(this).datepicker({
+            format: "mm/dd/yyyy",
+            todayBtn: "linked",
+            autoclose: true,
+            todayHighlight: true,
+            startDate: current_date,
+         });
+      });
 
       $('body').on('focus', ".input-daterange", function() {
          $(this).datepicker({

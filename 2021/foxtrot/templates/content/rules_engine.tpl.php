@@ -1,4 +1,4 @@
-a<div class="container">
+<div class="container">
     <h1>Rules Engine</h1>
 
     <div class="col-lg-12 well">

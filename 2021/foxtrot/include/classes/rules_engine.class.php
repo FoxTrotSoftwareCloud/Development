@@ -333,6 +333,7 @@
          */
         function check_client_documentation($clientId=0){
 			// Rule #4
+			//Client Account Deficient Documentation
             $return = $res = 0;
             $blankDate = date("Y-m-d 00:00:00", strtotime(''));
             $clientId = (int)$this->re_db_input($clientId);

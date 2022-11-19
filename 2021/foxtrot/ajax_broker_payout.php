@@ -266,8 +266,8 @@ $(document).on('click','.remove-row',function(){
             <div class="form-group">
                 <label>Reset </label>
                 <div id="demo-dp-range">
-                    <div class="input-daterange input-group" id="datepicker">
-                        <input type="text" name="reset"  value="<?php if(isset($reset) && $reset!=''){ echo date('m/d/Y',strtotime($reset)); } ?>"  class="form-control"  />
+                    <div class="input-daterange input-daterange-limit input-group" id="datepicker">
+                        <input type="text" name="reset" id="reset" value="<?php if(isset($reset) && $reset!=''){ echo date('m/d/Y',strtotime($reset)); } ?>"  class="form-control"  />
                         <label class="input-group-addon btn" for="reset">
                            <span class="fa fa-calendar"></span>
                         </label>
