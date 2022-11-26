@@ -1186,6 +1186,22 @@ PostResult( msg );
                                         <?php
                                             unset($temp_data_interface); 
                                         }
+                                        // Add NFS 11/20/22 -->
+                                        $temp_data_interface = new data_interfaces_master();
+                                        $temp_data_found = $temp_data_interface->select("`name` LIKE 'NFS%'");
+                                        if(count($temp_data_found)){ ?>
+                                            <tr>
+                                                <td><?php echo $temp_data_found[0]['name'];?></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>
+                                                    <input type="file" name="nfs_files[]" class="form-control" multiple/>
+                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Upload</button>
+                                                </td>
+                                            </tr>
+                                        <?php
+                                            unset($temp_data_interface, $temp_data_found); 
+                                        }
                                     } ?>
                                     </tbody>
                                 </table>
