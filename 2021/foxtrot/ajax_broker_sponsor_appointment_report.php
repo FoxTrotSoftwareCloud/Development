@@ -23,6 +23,7 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
     $filter_array = json_decode($_GET['filter'], true);
     $sponsor_id = isset($filter_array['sponsor'])?$filter_array['sponsor']:'';
     $broker_id = isset($filter_array['broker']) ? $filter_array['broker'] : 0;
+    $group_by = $filter_array['allias_groupby'];
 
     $total_records = 0;
     $total_records_sub = 0;
@@ -43,11 +44,11 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
         $sponsor_name=$queried_sponsor['name'];
     }
    
-        $is_recrod_found = false;
+    $is_recrod_found = false;
 
-        $list_data= $instance->broker_sponsor_appointment_report($broker_id,$sponsor_id);
-        //echo "<pre>"; print_r($list_data);
-        ?>
+    $list_data= $instance->broker_sponsor_appointment_report($broker_id,$sponsor_id,$group_by);
+    //echo "<pre>"; print_r($list_data);
+    ?>
         <div class="print_section accounting">
 
             <table border="0" width="100%">
@@ -69,7 +70,7 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                         <tr style="background:#f1f1f1;text-transform: capitalize;" style="width: 100%;">
                             <th style="font-size: 12px; width: 20%;">APPT #</th>
                             <th style="padding: 8px 0px;font-size: 12px; width: 10%;">DATE</th>
-                            <th style="padding: 8px 0px;font-size: 12px; width: 30%;" >COMPANY</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 30%;" ><?php if($group_by=='broker'){ echo "COMPANY"; }else{ echo "BROKER"; } ?></th>
                             <th style="padding: 8px 0px;font-size: 12px; width: 10%;" >STATE</th>
                             <th style="padding: 8px 0px;font-size: 12px; width: 10%;" >TERM DATE</th>
                             <th style="padding: 8px 0px;font-size: 12px; width: 20%;">REP #</th>
@@ -80,26 +81,34 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                         $total_amount=0.00;
                         $total_comm_rec= 0.00;
                         foreach($list_data as $row){
-                            $is_recrod_found=true;?>
-                        <tr style="height:30px ;">
-                            <td><?php echo $row['alias_name'] ?></td>
-                            <td><?php echo (isset($row['date']) && $row['date']!= '0000-00-00')? date('m/d/Y',strtotime($row['date'])):''; ?></td>
-                            <td><?php echo $row['sponsor_name']?></td>
-                            <td><?php echo $row['state_name']?></td>
-                            <td><?php echo (isset($row['termdate']) && $row['termdate']!= '0000-00-00')? date('m/d/Y',strtotime($row['termdate'])):''; ?></td>
-                            <td><?php echo $row['broker_last_name'].", ".$row['broker_first_name'] ?></td>
-                        </tr>
-                       
-                        <?php 
-                            // $total_amount += $trade['invest_amount'];
-                            // $total_comm_rec += $trade['commission_received'];
+                            if($row['appointments']!=array()){
+                                $is_recrod_found=true;?>
+                                <tr>
+                                    <td colspan="6" style="text-align: left;font-size: 12px;font-weight: bold;">
+                                        <?php echo $row['full_name'] ?>
+                                    </td>
+                                </tr>
+                                <?php foreach($row['appointments'] as $appointment){ 
+                                        $broker_name=$appointment['broker_last_name'].", ".$appointment['broker_first_name'];
+                                    ?>
+                                    <tr style="height:30px ;">
+                                        <td><?php echo $appointment['alias_name'] ?></td>
+                                        <td><?php echo (isset($appointment['date']) && $appointment['date']!= '0000-00-00')? date('m/d/Y',strtotime($appointment['date'])):''; ?></td>
+                                        <td><?php if($group_by=='broker'){ echo $appointment['sponsor_name']; }else{ echo $broker_name; }?></td>
+                                        <td><?php echo $appointment['state_name']?></td>
+                                        <td><?php echo (isset($appointment['termdate']) && $appointment['termdate']!= '0000-00-00')? date('m/d/Y',strtotime($appointment['termdate'])):''; ?></td>
+                                        <td></td>
+                                    </tr>
+                        
+                                <?php }
+                            }
                         } ?>
                     
                         <?php
                             if($is_recrod_found==false)
                             {?>
                                 <tr>
-                                   <td style="font-size:12px;text-align:center; padding: 15px 5px;" colspan="10"><b>No Records Found.</b> </td>
+                                   <td style="font-size:12px;text-align:center; padding: 15px 5px;" colspan="6"><b>No Records Found.</b> </td>
                                 </tr>
                             <?php } 
                         ?>
@@ -109,8 +118,4 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
             </div>
         </div>
 
-    </tbody>
-    </table>
-<?php  }
-
-?>
+<?php } ?>

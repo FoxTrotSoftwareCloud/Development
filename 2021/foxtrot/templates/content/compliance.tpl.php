@@ -107,10 +107,23 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label class="radio-inline">
-                                    <input type="radio" class="radio" name="cip_client" id="all_clients" value="2" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/>&nbsp; All Clients &nbsp;
+                                    <input type="radio" class="radio" name="cip_client" id="all_clients" value="2" checked />&nbsp; All Clients &nbsp;
                             </label>
                             <label class="radio-inline">
-                                <input type="radio" class="radio" name="cip_client" id="cip_clients" style="display: inline;" value="1" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/>&nbsp; Clients With CIP Data&nbsp; 
+                                <input type="radio" class="radio" name="cip_client" id="cip_clients" style="display: inline;" value="1" />&nbsp; Clients With CIP Data &nbsp; 
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row appointments">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="radio-inline">
+                                    <input type="radio" class="radio" name="allias_groupby" id="broker" value="broker" checked />&nbsp; Group by Broker &nbsp;
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="allias_groupby" id="sponsor" style="display: inline;" value="sponsor"/>&nbsp;Group by Sponsor &nbsp; 
                             </label>
                         </div>
                     </div>
@@ -213,6 +226,7 @@ $('#demo-dp-range .input-daterange').datepicker({
                 let _option=$(this).children('option:selected').val();
                 $('.dont-contact-client').hide();
                 $('.cip_clients').hide();
+                $('.appointments').hide();
                 if (_option==2 || _option==3) {
                     $(".sponser").parents('.wrap').hide();
                 }
@@ -239,7 +253,8 @@ $('#demo-dp-range .input-daterange').datepicker({
                 if (_option==9) {
                     $(".sponser").parents('.wrap').show();
                     $(".state").parents('.wrap').hide();
-                    $("#broker_dropdown").children('option:eq(0)').text("All Brokers")
+                    $("#broker_dropdown").children('option:eq(0)').text("All Brokers");
+                    $('.appointments').show();
                 }
 
                 if (_option==10) {

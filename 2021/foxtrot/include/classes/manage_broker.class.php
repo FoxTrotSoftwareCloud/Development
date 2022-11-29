@@ -3328,37 +3328,86 @@
       return $return;
     }
 
-    function broker_sponsor_appointment_report($broker_id=0,$sponsor_id=0){
-			$return = array();
+    function broker_sponsor_appointment_report($broker_id=0,$sponsor_id=0, $groupby=''){
 			$con='';
-		
+      $con1='';
+      $con2='';
+
         if($broker_id>0)
         {
             $con.=" AND `at`.`broker_id` = ".$broker_id." ";
+            $con1.=" AND broker.id='".$broker_id."'";  
             // $index_column='broker_id';
         }
 
         if($sponsor_id>0)
         {
             $con.=" AND `at`.`sponsor_company` = ".$sponsor_id." ";
+            $con2.= " AND `sponsor`.`id` = ".$sponsor_id." ";
             //$index_column='sponsor_company';
         }
-	
-			  $q = "SELECT `at`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name ,`sm`.name as sponsor_name,`st`.name as state_name
-				FROM `".BROKER_ALIAS."` AS `at`
-				LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_id`
-				LEFT JOIN `".SPONSOR_MASTER."` as `sm` on `sm`.`id` = `at`.`sponsor_company`
-				LEFT JOIN `".STATE_MASTER."` as `st` on `st`.`id` = `at`.`state`
-				WHERE `at`.`is_delete`='0'".$con." ";
 
-        $res = $this->re_db_query($q);
-        if($this->re_db_num_rows($res)>0){
-          $a = 0;
-          while($row = $this->re_db_fetch_array($res)){
-            array_push($return,$row);
+        $all_brokers=array();  
+        $all_sponsors=array();  
+        $all_appointments=array();
+
+        //fetch all appointments
+        $q = "SELECT `at`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name ,`sm`.name as sponsor_name,`st`.name as state_name
+        FROM `".BROKER_ALIAS."` AS `at`
+        LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_id`
+        LEFT JOIN `".SPONSOR_MASTER."` as `sm` on `sm`.`id` = `at`.`sponsor_company`
+        LEFT JOIN `".STATE_MASTER."` as `st` on `st`.`id` = `at`.`state`
+        WHERE `at`.`is_delete`='0'".$con." ";
+
+        $res1 = $this->re_db_query($q);
+        if($this->re_db_num_rows($res1)>0){
+          while($row = $this->re_db_fetch_array($res1)){
+            array_push($all_appointments,$row);
           }
         }
-        return $return;
+
+        //echo "<pre>"; print_r($all_appointments);die;
+
+        if($groupby == "broker"){
+
+            //fetch all brokers
+            $broker_query="SELECT CONCAT(broker.last_name,', ',broker.first_name)  full_name, broker.first_name as bfname, broker.last_name as lfname,broker.id as broker_id FROM `".BROKER_MASTER."` AS `broker` WHERE `broker`.`is_delete`='0'".$con1." ORDER BY full_name ASC";
+
+            $res = $this->re_db_query($broker_query);
+            if($this->re_db_num_rows($res)>0){
+              while($row = $this->re_db_fetch_array($res)){
+                  array_push($all_brokers,$row);
+              }
+            }
+
+            foreach($all_brokers as &$broker) {
+              $broker['appointments']=array_filter($all_appointments,function($appointment) use ($broker){
+                return $broker['broker_id']==$appointment['broker_id'] ? true :false;
+              });
+            }        
+
+            return $all_brokers;
+        }
+        else if($groupby == "sponsor"){
+
+           //fetch all sponsors
+           $sponsor_query="SELECT  sponsor.name as full_name, sponsor.id as sponsor_id FROM `".SPONSOR_MASTER."` AS `sponsor` WHERE `sponsor`.`is_delete`='0'".$con2." ORDER BY full_name ASC";
+
+           $res = $this->re_db_query($sponsor_query);
+           if($this->re_db_num_rows($res)>0){
+             while($row = $this->re_db_fetch_array($res)){
+                 array_push($all_sponsors,$row);
+             }
+           }
+
+           foreach($all_sponsors as &$sponsor) {
+            $sponsor['appointments']=array_filter($all_appointments,function($appointment) use ($sponsor){
+              return $sponsor['sponsor_id']==$appointment['sponsor_company'] ? true :false;
+            });
+          }        
+
+          return $all_sponsors;
+        }
 		}
   }
 ?>
