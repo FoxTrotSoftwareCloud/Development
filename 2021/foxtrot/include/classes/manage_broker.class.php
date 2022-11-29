@@ -3327,5 +3327,38 @@
 
       return $return;
     }
+
+    function broker_sponsor_appointment_report($broker_id=0,$sponsor_id=0){
+			$return = array();
+			$con='';
+		
+        if($broker_id>0)
+        {
+            $con.=" AND `at`.`broker_id` = ".$broker_id." ";
+            // $index_column='broker_id';
+        }
+
+        if($sponsor_id>0)
+        {
+            $con.=" AND `at`.`sponsor_company` = ".$sponsor_id." ";
+            //$index_column='sponsor_company';
+        }
+	
+			  $q = "SELECT `at`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name ,`sm`.name as sponsor_name,`st`.name as state_name
+				FROM `".BROKER_ALIAS."` AS `at`
+				LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`broker_id`
+				LEFT JOIN `".SPONSOR_MASTER."` as `sm` on `sm`.`id` = `at`.`sponsor_company`
+				LEFT JOIN `".STATE_MASTER."` as `st` on `st`.`id` = `at`.`state`
+				WHERE `at`.`is_delete`='0'".$con." ";
+
+        $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+          $a = 0;
+          while($row = $this->re_db_fetch_array($res)){
+            array_push($return,$row);
+          }
+        }
+        return $return;
+		}
   }
 ?>

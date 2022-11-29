@@ -18,10 +18,10 @@
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Compliance Exceptions Report</option>
 
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Continuing Education Report</option>
-                        <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Broker Sponsor Appointments Listing</option>
+                        <option value="9" <?php if(isset($report_for) && $report_for == 9){echo "selected='true'";}?>>Broker Sponsor Appointments Listing</option>
                    <!--      <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>OFAC Activity Report</option>
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>FINCEN Activity Report</option> -->
-                        <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>CIP Report</option>
+                        <option value="10" <?php if(isset($report_for) && $report_for == 10){echo "selected='true'";}?>>CIP Report</option>
 
                     </select>
                 </div>
@@ -30,7 +30,7 @@
        <!--  <input type="hidden" name="report_for" id="report_for" value="3"/> -->
         <br />
         <div class="panel" id="report_filters">
-        <div class="titlebox">Client Review Report</div><br />
+        <div class="titlebox">Compliance Reports</div><br />
         <div class="row">
             <div class="col-md-8">
                 <div class="row">
@@ -62,11 +62,11 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group wrap">
-                            <label>Sponser </label>
+                            <label>Sponsor </label>
                             <select class="form-control sponser" name="sponsor">
-                                <option value="0">All Sponsers</option>
+                                <option value="0">All Sponsors</option>
                                 <?php foreach($get_sponsors as $get_sponsor): ?>
-                                    <option value="<?php echo $get_sponsor['id']; ?>"><?php echo $get_sponsor['name']; ?></option>
+                                    <option value="<?php echo $get_sponsor['id']; ?>" <?php echo isset($sponser) && $sponser==$get_sponsor['id'] ? 'selected' : '' ?>><?php echo $get_sponsor['name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -103,13 +103,33 @@
                         </div>
                     </div>
                 </div>
+                <div class="row cip_clients">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="radio-inline">
+                                    <input type="radio" class="radio" name="cip_client" id="all_clients" value="2" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/>&nbsp; All Clients &nbsp;
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="cip_client" id="cip_clients" style="display: inline;" value="1" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/>&nbsp; Clients With CIP Data&nbsp; 
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <input type="radio" class="radio" name="output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/> <label for="output_to_screen">  Output to Screen </label>&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/> Output to Printer&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/> Output to Excel&nbsp;&nbsp;&nbsp;
-                            <input type="radio" class="radio" name="output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/> <label for="output_to_pdf"> Output to PDF </label> 
+                        <label class="radio-inline">
+                                    <input type="radio" class="radio" name="output" id="output_to_screen" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/>&nbsp; Output to Screen &nbsp;
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_printer" style="display: inline;" value="2" <?php if(isset($output) && $output == 2){echo "checked='checked'";}?>/>&nbsp; Output to Printer&nbsp; 
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" class="radio" name="output" id="output_to_excel" style="display: inline;" value="3" <?php if(isset($output) && $output == 3){echo "checked='checked'";}?>/>&nbsp; Output to Excel&nbsp;
+                            </label>
+                            <label class="radio-inline"> 
+                                <input type="radio" class="radio" name="output" id="output_to_pdf" style="display: inline;" value="4" <?php if(isset($output) && $output == 4){echo "checked='checked'";}?>/> &nbsp;Output to PDF
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -156,9 +176,12 @@ $(document).ready(function(){
             document.getElementById("output_screen_content").innerHTML = this.responseText;
         }
     };
-    xmlhttp.open('GET', 'ajax_client_report.php?filter=<?php echo $_GET['filter']; ?>', true);
+    if(<?php echo $report_for ?> == 9){
+        xmlhttp.open('GET', 'ajax_broker_sponsor_appointment_report.php?filter=<?php echo $_GET['filter']; ?>', true);
+    }else if(<?php echo $report_for ?> != 10){
+        xmlhttp.open('GET', 'ajax_client_report.php?filter=<?php echo $_GET['filter']; ?>', true);
+    }
     xmlhttp.send();
-
 
     $('#myModal').modal({
             show: true
@@ -189,13 +212,14 @@ $('#demo-dp-range .input-daterange').datepicker({
                 event.preventDefault();
                 let _option=$(this).children('option:selected').val();
                 $('.dont-contact-client').hide();
+                $('.cip_clients').hide();
                 if (_option==2 || _option==3) {
                     $(".sponser").parents('.wrap').hide();
                 }
                 else {
                    $(".sponser").parents('.wrap').show(); 
                 }
-                if (_option==1 || _option==3) {
+                if (_option==1 || _option==3 || _option==9) {
                     $(".state").parents('.wrap').hide();
                 }
                 else {
@@ -205,35 +229,57 @@ $('#demo-dp-range .input-daterange').datepicker({
                     $(".beginning_date").hide();
                     $(".ending_date").hide();
                 }
-                else {
-                    $("#broker_label").text('Supervisor')
-                    $("#broker_dropdown").children('option:eq(0)').text("All Supervisors")
-                    $(".beginning_date").show();
-                    $(".ending_date").show();
+                // else {
+                //     $("#broker_label").text('Supervisor')
+                //     $("#broker_dropdown").children('option:eq(0)').text("All Supervisors")
+                //     $(".beginning_date").show();
+                //     $(".ending_date").show();
+                // }
+
+                if (_option==9) {
+                    $(".sponser").parents('.wrap').show();
+                    $(".state").parents('.wrap').hide();
+                    $("#broker_dropdown").children('option:eq(0)').text("All Brokers")
                 }
 
-                 if (_option==3) {
+                if (_option==10) {
+                    $(".sponser").parents('.wrap').show();
+                    $(".state").parents('.wrap').hide();
+                    $(".beginning_date").show();
+                    $(".ending_date").show();
+                    $('.dont-contact-client').show();
+                    $('.cip_clients').show();
+                }
+
+                if (_option==3) {
                     $(".sponser").parents('.wrap').hide();
                      $(".state").parents('.wrap').hide();
                      $("#broker_dropdown").children('option:eq(0)').text("All Branch Managers")
                     $(".beginning_date").show();
                     $(".ending_date").show();
                      $('.dont-contact-client').show();
-                 }
+                }
+                
             }).trigger('change');
 
 
             $("#report_form").submit(function(ev){
                 var _form = $(this);
+                var report_for = $('#report_for').val();
                 var output_type = $(this).find("input[name='output']:checked").val();
-                if(output_type == 4 || output_type == 2) {
+                if(output_type == 4 || output_type == 2 ) {
                  
+                    _form.attr('target','_blank');
+                     //return false;
+                }
+                else if(output_type == 1 && report_for == 10){
                     _form.attr('target','_blank');
                      //return false;
                 }
                 else {
                     _form.removeAttr('target');
                 }
+               
              });
         });       
 </script>
@@ -256,5 +302,8 @@ $('#demo-dp-range .input-daterange').datepicker({
 }
 input[type=checkbox] + label, input[type=radio] + label {
     font-weight: normal;
+}
+input[type=radio]{
+    margin-top: 1px;
 }
 </style>

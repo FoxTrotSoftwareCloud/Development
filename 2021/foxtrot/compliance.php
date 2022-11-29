@@ -84,6 +84,45 @@ $return_from_broker_client = array();
                 header("location:".SITE_URL."report_client_review_pdf.php?filter=".$data_array);exit;
             }
         }
+        else if($report_for == 9)
+        {
+            if($output == 1)
+            {
+                header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
+            }
+            else if($output == 2)
+            {
+                header("location:".SITE_URL."report_broker_sponsor_appointment_pdf.php?open=output_print&filter=".$data_array);exit;
+            }
+            else if($output == 3){
+                
+                header("location:".SITE_URL."report_broker_sponsor_appointment_excel.php?filter=".$data_array);exit;
+            }
+            else if($output == 4){
+                
+                header("location:".SITE_URL."report_broker_sponsor_appointment_pdf.php?filter=".$data_array);exit;
+            }
+        }
+        else if($report_for == 10)
+        {
+            if($output == 1)
+            {
+                // header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
+                header("location:".SITE_URL."ajax_client_cip_report.php?filter=".$data_array);exit;
+            }
+            else if($output == 2)
+            {
+                header("location:".SITE_URL."report_client_cip_pdf.php?open=output_print&filter=".$data_array);exit;
+            }
+            else if($output == 3){
+                
+                header("location:".SITE_URL."report_client_cip_excel.php?filter=".$data_array);exit;
+            }
+            else if($output == 4){
+                
+                header("location:".SITE_URL."report_client_cip_pdf.php?filter=".$data_array);exit;
+            }
+        }
     }
     if(isset($_GET['filter']) && $_GET['filter'] != '')
     {
@@ -91,7 +130,7 @@ $return_from_broker_client = array();
         $output = isset($filter_array['output'])?$instance->re_db_input($filter_array['output']):'';
         $state = isset($filter_array['state'])?$instance->re_db_input($filter_array['state']):'';
         $broker = isset($filter_array['broker'])?$instance->re_db_input($filter_array['broker']):'';
-        $sponser = isset($filter_array['sponser'])?$instance->re_db_input($filter_array['sponser']):'';
+        $sponser = isset($filter_array['sponsor'])?$instance->re_db_input($filter_array['sponsor']):'';
         $report_for = isset($filter_array['report_for'])?$instance->re_db_input($filter_array['report_for']):'';
         $dont_contact_client = isset($filter_array['dont_contact_client'])?$instance->re_db_input($filter_array['dont_contact_client']):0;
          $beginning_date = isset($filter_array['beginning_date'])?$instance->re_db_input($filter_array['beginning_date']):'';

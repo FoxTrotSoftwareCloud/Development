@@ -1366,5 +1366,80 @@
             }
 				return $return;
 		 }
+		
+		function client_cip_report($beginning_date,$ending_date,$broker_id=0,$cip_client=0,$dont_contact_client=0,$sponsor_id=0){
+			$return = array();
+			$con='';
+
+			if($cip_client == 1){
+
+				if($beginning_date != '' && $ending_date != '')
+				{
+					$con.=" AND `cm`.`open_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+				}
+			
+				if($dont_contact_client == 1)
+				{
+					$con.=" AND `cm`.`do_not_contact` = '0' ";
+					// $index_column='do_not_contact';
+				}
+
+				if($broker_id>0)
+				{
+					$con.=" AND `cm`.`split_broker` = ".$broker_id." ";
+					// $index_column='broker_id';
+				}
+				
+				$q = "SELECT `cm`.*,`at`.number as employ_number,`at`.expiration,`at`.state as employ_state,`at`.date_verified,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name ,`st`.name as state_name
+					FROM `".CLIENT_EMPLOYMENT."` AS `at`
+					LEFT JOIN `".$this->table."` as `cm` on `cm`.`id` = `at`.`client_id`
+					LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `cm`.`split_broker`
+					LEFT JOIN `".STATE_MASTER."` as `st` on `st`.`id` = `at`.`state`
+					WHERE `at`.`is_delete`='0'".$con." ";
+
+					$res = $this->re_db_query($q);
+					if($this->re_db_num_rows($res)>0){
+					$a = 0;
+						while($row = $this->re_db_fetch_array($res)){
+							array_push($return,$row);
+						}
+					}
+			}
+			else{
+
+				if($beginning_date != '' && $ending_date != '')
+				{
+					$con.=" AND `at`.`open_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+				}
+
+				if($dont_contact_client == 1)
+				{
+					$con.=" AND `at`.`do_not_contact` = '0' ";
+					// $index_column='do_not_contact';
+				}
+			
+				if($broker_id>0)
+				{
+					$con.=" AND `at`.`split_broker` = ".$broker_id." ";
+					// $index_column='broker_id';
+				}
+
+				$q = "SELECT `at`.*,`ce`.number as employ_number,`ce`.expiration,`ce`.state as employ_state,`ce`.date_verified,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name ,`st`.name as state_name
+					FROM `".$this->table."` AS `at`
+					LEFT JOIN `".CLIENT_EMPLOYMENT."` as `ce` on `ce`.`client_id` = `at`.`id`
+					LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `at`.`split_broker`
+					LEFT JOIN `".STATE_MASTER."` as `st` on `st`.`id` = `at`.`state`
+					WHERE `at`.`is_delete`='0'".$con." ";
+
+					$res = $this->re_db_query($q);
+					if($this->re_db_num_rows($res)>0){
+					$a = 0;
+						while($row = $this->re_db_fetch_array($res)){
+							array_push($return,$row);
+						}
+					}
+			}
+        	return $return;
+		}
     }
 ?>
