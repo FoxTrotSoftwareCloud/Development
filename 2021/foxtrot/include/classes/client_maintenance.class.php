@@ -1394,7 +1394,7 @@
 					FROM `".CLIENT_EMPLOYMENT."` AS `at`
 					LEFT JOIN `".$this->table."` as `cm` on `cm`.`id` = `at`.`client_id`
 					LEFT JOIN `".BROKER_MASTER."` as `bm` on `bm`.`id` = `cm`.`split_broker`
-					LEFT JOIN `".STATE_MASTER."` as `st` on `st`.`id` = `at`.`state`
+					LEFT JOIN `".STATE_MASTER."` as `st` on `st`.`id` = `cm`.`state`
 					WHERE `at`.`is_delete`='0'".$con." ";
 
 					$res = $this->re_db_query($q);
