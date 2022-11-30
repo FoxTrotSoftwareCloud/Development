@@ -25,6 +25,7 @@
     $instance_broker = new broker_master();
     $get_broker = $instance_broker->select(1);
     $instance_client = new client_maintenance();
+    $get_state = $instance_client->select_state();
     $get_client = $instance_client->select(1);
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor(1);
@@ -178,6 +179,8 @@
             $exception_value = isset($_POST['exception_value'])?$instance->re_db_input($_POST['exception_value']):'';
         }
 
+        // echo "<pre>"; print_r($_POST);die;
+
         $return = $instance->resolve_exceptions($_POST);
 
         if($return===true){
@@ -306,7 +309,7 @@
         
         if(empty($error) AND $uploaded){
             $_SESSION['success'] = $successMessage;
-            header("location:".CURRENT_PAGE."?action=view&reprocessed=1");
+            header("location:".CURRENT_PAGE);
         } else{
             $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
             header("location:".CURRENT_PAGE."?tab=open_ftp");

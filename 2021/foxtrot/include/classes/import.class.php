@@ -142,6 +142,9 @@
          * @return mixed
          */
         public function resolve_exceptions($data){
+
+            // echo "<pre>"; print_r($data);die;
+
             $this->errors = '';
             $result = $resolveAction = 0;
             $resultMessage = '';
@@ -226,6 +229,223 @@
 			if($exception_value==''){
 				$this->errors = 'Please enter field value.';
 			}
+            if($resolveAction==9 && $error_code_id == 30 )
+            {
+                // echo "<pre>"; print_r($data);die;
+                $q = "UPDATE ".IMPORT_EXCEPTION.""
+                ." SET resolve_action=9, solved=1 "
+                    .$this->update_common_sql()
+                ." WHERE id=".$exception_record_id;
+                $res2 = $this->re_db_query($q);
+                
+                $result=1;
+            }
+            if($resolveAction==10 && $error_code_id == 30 )
+            {
+                //  echo "<pre>"; print_r($data);die;
+
+                $client_id=$data['client_id'];
+                if($client_id>0){
+                    
+                    $q="SELECT `broker_name` FROM `".CLIENT_MASTER."` WHERE `id`='".$client_id."'";
+                    $res = $this->re_db_query($q);
+                    if($this->re_db_num_rows($res)>0){
+                        $return = $this->re_db_fetch_array($res);
+                        $broker_id=$return['broker_name'];
+
+                        $q="SELECT * FROM `".BROKER_MASTER."` WHERE `id`='".$broker_id."'";
+                        $res = $this->re_db_query($q);
+                        if($this->re_db_num_rows($res)>0){
+                            $broker_data = $this->re_db_fetch_array($res);
+                            $rep_name=$broker_data['first_name']." ". $broker_data['middle_name']." ".$broker_data['last_name'];
+
+                            $q = "UPDATE ".IMPORT_EXCEPTION.""
+                            ." SET rep='".$broker_data['fund']."', rep_name='".$rep_name."', resolve_action=10, solved=1 "
+                                .$this->update_common_sql()
+                            ." WHERE id=".$exception_record_id;
+                            if($res2 = $this->re_db_query($q)){
+                                $result=1;
+                            }
+                        }
+                    }
+                    
+                } else{
+                    $this->errors = 'Client ID not found.';
+                }
+            }
+
+            if($resolveAction==8 && $error_code_id == 27 || $error_code_id == 26 ){
+                //  echo "<pre>"; print_r($data);die;
+
+                $client_id=$data['client_id'];
+                if($client_id>0){
+
+                    if(!isset($data['client_birthdate'])|| $data['client_birthdate'] == ''){
+                        $this->errors = 'Please Enter Client Birthdate';
+                    }
+                    if($this->errors!=''){
+                        return $this->errors; 
+                    }else {
+                        
+                        // set Birthdate of client
+                        $birthdate = $this->re_db_input(date('Y-m-d h:i:s',strtotime($data['client_birthdate'])));
+
+                        //Age Calculation
+                        $from = new DateTime($birthdate);
+                        $to   = new DateTime('today');
+                        $age=  $from->diff($to)->y;
+                     
+
+                        $q = "UPDATE ".CLIENT_MASTER.""
+                                ." SET birth_date='".$birthdate."', age='".$age."'"
+                                        .$this->update_common_sql()
+                                ." WHERE id=".$client_id
+                            ; 
+                            
+                            $res = $this->re_db_query($q);
+
+                            if($res)
+                            {
+                                $q = "UPDATE ".IMPORT_EXCEPTION.""
+                                    ." SET resolve_action=8, solved=1 "
+                                        .$this->update_common_sql()
+                                    ." WHERE id=".$exception_record_id
+                                ;
+                                $res2 = $this->re_db_query($q);
+                        
+                                $result=1;
+                            }
+                    }
+                
+                } else{
+                    $this->errors = 'Client ID not found.';
+                }
+
+            }
+
+            if($resolveAction==7 && $exception_value_2='proof_of_identity' && $error_code_id == 28){
+                // echo "<pre>"; print_r($data);die;
+
+                $client_id=$data['client_id'];
+                if($client_id>0){
+                    
+                    if(!isset($data['cip_state_employe']) || $data['cip_state_employe'] == ''){
+                        $this->errors = 'Please Select State';
+                    }
+                    if(!isset($data['cip_number']) || $data['cip_number'] == ''){
+                        $this->errors = 'Please Enter Number';
+                    }
+                    if(!isset($data['cip_options'])){
+                        $this->errors = 'Please select Options';
+                    }
+                    if($this->errors!=''){
+                        return $this->errors; 
+                        die;
+                    }else {
+                    
+                        $cip_option = $data['cip_options'];
+                        $cip_other = isset($data['cip_other'])?$data['cip_other']:'';
+                        $cip_number= $data['cip_number'];
+                        $cip_expiration = isset($data['cip_expiration'])?$this->re_db_input(date('Y-m-d h:i:s',strtotime($data['cip_expiration']))):'0000-00-00';
+                        $cip_state= $data['cip_state_employe'];
+                        $cip_date_verified = isset($data['cip_date_verified'])?$this->re_db_input(date('Y-m-d h:i:s',strtotime($data['cip_date_verified']))):'0000-00-00';
+
+                        $check_query="SELECT * FROM ".CLIENT_EMPLOYMENT." WHERE `client_id` =".$client_id;
+                        $res = $this->re_db_query($check_query);
+
+                        if ($this->re_db_num_rows($res) == 1 ) {
+
+                            $q = "UPDATE ".CLIENT_EMPLOYMENT.""
+                                        ." SET options=". $cip_option 
+                                        .", other='". $cip_other
+                                        ."', number='". $cip_number
+                                        ."', expiration='". $cip_expiration
+                                        ."', state='". $cip_state
+                                        ."', date_verified='". $cip_date_verified."' "
+                                                .$this->update_common_sql()
+                                        ." WHERE client_id=".$client_id
+                                    ;
+                                    $res = $this->re_db_query($q);
+
+                                    if($res)
+                                    {
+                                        $q = "UPDATE ".IMPORT_EXCEPTION.""
+                                            ." SET resolve_action=7, solved=1 "
+                                                .$this->update_common_sql()
+                                            ." WHERE id=".$exception_record_id
+                                        ;
+                                        $res2 = $this->re_db_query($q);
+                                
+                                        // $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,0);
+
+                                        $result=1;
+                                    }
+                        }
+                        else{
+                            //insert Client Employment details
+                                $q = "INSERT INTO `".CLIENT_EMPLOYMENT."` SET `client_id`='".$client_id."',`occupation`='',`employer`='',`address`='',`position`='',`security_related_firm`='0',`finra_affiliation`='0',`spouse_name`='',`spouse_ssn`='',`dependents`='',`salutation`='',`options`='".$cip_option."',`other`='".$cip_other."',`number`='".$cip_number."',`expiration`='".$cip_expiration."',`state`='".$cip_state."',`date_verified`='".$cip_date_verified."',`telephone`=''".$this->insert_common_sql().$this->update_common_sql(); 
+                                    $res = $this->re_db_query($q);
+
+                                    if($res){
+                                        $q = "UPDATE ".IMPORT_EXCEPTION.""
+                                            ." SET resolve_action=7, solved=1 "
+                                                .$this->update_common_sql()
+                                            ." WHERE id=".$exception_record_id
+                                        ;
+                                        $res2 = $this->re_db_query($q);
+                                
+                                        $result=1;
+                                    }
+                        }
+                    }
+
+                } else{
+                    $this->errors = 'Client ID not found.';
+                }
+            }
+
+            if($resolveAction==5 && $exception_value_2== 'client_state' && $error_code_id == 29){
+                $state_id=$data['client_assign_state'];
+                $client_id=$data['client_id'];
+                //  echo "<pre>"; print_r($data);die;
+
+                if($client_id>0){
+                    if($state_id>0){
+
+                        // Assign state to client
+
+                        $q = "UPDATE ".CLIENT_MASTER.""
+                                ." SET state=".$state_id
+                                        .$this->update_common_sql()
+                                ." WHERE id=".$client_id
+                            ; 
+                            
+                            $res = $this->re_db_query($q);
+
+                            if($res)
+                            {
+                                $q = "UPDATE ".IMPORT_EXCEPTION.""
+                                    ." SET resolve_action=5, solved=1 "
+                                        .$this->update_common_sql()
+                                    ." WHERE id=".$exception_record_id
+                                ;
+                                $res2 = $this->re_db_query($q);
+                        
+                                $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,0);
+
+                                $result=1;
+                            }
+                    }
+                    else{
+                        $this->errors = 'Please select State.';
+                    }
+                }
+                else{
+                    $this->errors = 'Client ID not found.';
+                }
+
+            }
+
             if($exception_field == 'representative_number' AND $exception_value == '' AND empty($rep_for_broker))
             {
                 $this->errors = 'Please enter rep number.';
@@ -398,7 +618,7 @@
                                     // Do the Deed!
                                     if ($licenceDetail['id']){
                                         $q = "UPDATE ".constant($licenceDetail['licence_table']).""
-                                                ." SET "
+                                                ." SET"
                                                     ." broker_id=".$licenceDetail['broker_id']
                                                     .",type_of_licences=".$licenceDetail['type_of_licences']
                                                     .",state_id=".$licenceDetail['state_id']
@@ -411,7 +631,7 @@
                                         $result = $this->re_db_query($q);
                                     } else {
                                         $q = "INSERT INTO ".constant($licenceDetail['licence_table']).""
-                                                ." SET "
+                                                ." SET"
                                                     ." broker_id=".$licenceDetail['broker_id']
                                                     .",type_of_licences=".$licenceDetail['type_of_licences']
                                                     .",state_id=".$licenceDetail['state_id']
@@ -623,7 +843,7 @@
                             $res = 0;
                             if ($accountNo!='' AND (int)$sponsorId>0 AND (int)$new_client>0){
                                 $q = "INSERT ".CLIENT_ACCOUNT.""
-                                    ." SET "
+                                    ." SET"
                                         ." account_no = '".$accountNo."'"
                                         .",sponsor_company = $sponsorId"
                                         .",client_id = $new_client"
@@ -918,7 +1138,7 @@
                 $res = 0;
                 if ($sponsorId > 0){
                     $q = "INSERT INTO ".BROKER_ALIAS.""
-                        ." SET "
+                        ." SET"
                             ." broker_id=$broker_id"
                             .",alias_name='$brokerAlias'"
                             .",sponsor_company=$sponsorId"
@@ -2109,7 +2329,7 @@
 
                     if (empty($file_array['sponsor_id']) AND !in_array(strtolower(substr($file_array['source'],0,3)),['daz'])){
                         $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                ." SET "
+                                ." SET"
                                     ." file_id='".$file_id."'"
                                     .",error_code_id='14'"
                                     .",field='sponsor_id'"
@@ -2182,7 +2402,7 @@
 
                             if (empty($file_sponsor_array)){
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET "
+                                        ." SET"
                                             ." file_id='".$file_id."'"
                                             .",error_code_id='14'"
                                             .",field='sponsor_id'"
@@ -2262,7 +2482,7 @@
 
                             if($broker_id == 0 ) {
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET "
+                                        ." SET"
                                             ." file_id='".$check_data_val['file_id']."'"
                                             .",error_code_id='1'"
                                             .",field='representative_number'"
@@ -2282,7 +2502,7 @@
                                 $result++;
                             } else {
                                 $q = "UPDATE $detailTable"
-                                        ." SET "
+                                        ." SET"
                                             ." broker_id=$broker_id"
                                             .$this->update_common_sql()
                                         ." WHERE id=".$check_data_val['id']
@@ -2296,7 +2516,7 @@
 
                                     if($current_date > $check_broker_termination) {
                                         $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                                ." SET "
+                                                ." SET"
                                                     ." file_id='".$check_data_val['file_id']."'"
                                                     .",error_code_id='2'"
                                                     .",field='u5'"
@@ -2319,7 +2539,7 @@
                             }
                         } else {
                             $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET "
+                                    ." SET"
                                         ." file_id='".$check_data_val['file_id']."'"
                                         .",error_code_id='13'"
                                         .",field='representative_number'"
@@ -2341,7 +2561,7 @@
                         // Account Number Already Exists
                         if($existingAccountArray AND !$reassignClient){
                             $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET "
+                                    ." SET"
                                         ." file_id='".$check_data_val['file_id']."'"
                                         .",error_code_id='12'"
                                         .",field='mutual_fund_customer_account_number'"
@@ -2367,7 +2587,7 @@
 
                             if (empty($social_security_number)) {
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET "
+                                        ." SET"
                                             ." file_id='".$check_data_val['file_id']."'"
                                             .",error_code_id='13'"
                                             .",field='social_security_number'"
@@ -2404,7 +2624,7 @@
                                 $res = '';
 
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET "
+                                    ." SET"
                                         ." file_id='".$check_data_val['file_id']."'"
                                         .",error_code_id='19'"
                                         .",field='social_security_number'"
@@ -2521,8 +2741,8 @@
                                 }
 
                                 $q = "UPDATE ".IMPORT_EXCEPTION.""
-                                    ." SET "
-                                        ." error_code_id=".($dataSettings['update_client'] ? 'error_code_id' : 23)
+                                    ." SET"
+                                        ."error_code_id=".($dataSettings['update_client'] ? 'error_code_id' : 23)
                                         .",solved='".$dataSettings['update_client']."'"
                                         .",process_completed='".$dataSettings['update_client']."'"
                                         .",is_delete = 0"
@@ -2667,7 +2887,7 @@
                                 // Update EXCEPTIONS table if CLIENT_MASTER wasn't updated
                                 if ($existingSocialArray){
                                     $q = "UPDATE ".IMPORT_EXCEPTION.""
-                                            ." SET "
+                                            ." SET"
                                                 ." file_id='".$check_data_val['file_id']."'"
                                                 .",field='client_account_no'"
                                                 .",field_value='$last_inserted_account_no_id'"
@@ -2746,7 +2966,7 @@
                             }
 
                             $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                ." SET "
+                                ." SET"
                                     ." file_id='".$check_data_val['file_id']."'"
                                     .",error_code_id=13"
                                     .",field='$field'"
@@ -2779,7 +2999,7 @@
                             if($this->re_db_num_rows($res_ProductCategory)==0){
                                 // EXCEPTION: Product Category not found
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET "
+                                    ." SET"
                                         ." file_id='".$check_data_val['file_id']."'"
                                         .",error_code_id='17'"
                                         .",field='major_security_type'"
@@ -2818,7 +3038,7 @@
 
                                     // Flag the record as "solved". No need to clear the exception
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET "
+                                        ." SET"
                                             ." file_id='".$check_data_val['file_id']."'"
                                             .",error_code_id='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? '16' : '15')."'"
                                             .",field='".($array_SymbolCusipCheck['cusip']==$cusipNumber ? 'cusip_number' : 'ticker_symbol')."'"
@@ -2836,7 +3056,7 @@
 
                                     // Update DETAIL data TABLE for added/updated products
                                     $q = "UPDATE ".$detailTable.""
-                                        ." SET "
+                                        ." SET"
                                             ." product_category_id=".$array_ProductCategory['id']
                                             .",product_id=".$array_SymbolCusipCheck['id']
                                             .",process_result=2"
@@ -2848,7 +3068,7 @@
                                 else {
                                     // Checks Passed: INSERT PRODUCT
                                     $q = "INSERT INTO ".PRODUCT_LIST.""
-                                        ." SET "
+                                        ." SET"
                                             ." category='".$array_ProductCategory['id']."'"
                                             .",name='".trim($check_data_val['fund_name']).(trim($check_data_val['product_name'])!='' ? '/' : '').trim($check_data_val['product_name'])."'"
                                             .",ticker_symbol='".$check_data_val['ticker_symbol']."'"
@@ -2862,7 +3082,7 @@
                                     $reprocess_status = $res_InsertProduct;
 
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                            ."SET "
+                                            ."SET"
                                                 ." file_id='".$check_data_val['file_id']."'"
                                                 .",error_code_id='0'"
                                                 .",solved='1'"
@@ -2940,7 +3160,7 @@
 
                             if (empty($file_sponsor_array)){
                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                        ." SET "
+                                        ." SET"
                                             ." file_id='".$file_id."'"
                                             .",error_code_id='14'"
                                             .",field='sponsor_id'"
@@ -3145,7 +3365,7 @@
                                 $product_category_id = (isset($check_data_val['product_category']) ? $check_data_val['product_category'] : '1');
                                 
                                 $foundProduct = [
-                                    'category'=> $product_category_id,
+                                    'category'=> $product_category,
                                     'name'=>"*GENERIC PRODUCT - ".strtoupper($file_sponsor_array['name']),
                                     'security'=>"*GENERIC".strtoupper($file_sponsor_array['name']),
                                     'id'=>0,
@@ -3309,17 +3529,20 @@
                                         $_SESSION['warning'] = $instance_client_maintenance->errors;
 
                                         if (stripos($instance_client_maintenance->errors, '(24)') !== false){
-                                            $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                                ." SET error_code_id=24"
-                                                    .",field='alpha_code'"
-                                                    .",field_value='".$this->re_db_input($check_data_val['alpha_code'])."'"
-                                                    .",file_type=$commissionFileType"
-                                                    .$insert_exception_string;
-                                            $res = $this->re_db_query($q);
-                                            $exception_raised = 1;
-                                            $last_inserted_exception = $this->re_db_insert_id();
 
-                                            $result++;
+                                            if($commissionFileType != 9){
+                                                $q = "INSERT INTO ".IMPORT_EXCEPTION.""
+                                                    ." SET error_code_id=24"
+                                                        .",field='alpha_code'"
+                                                        .",field_value='{$check_data_val['alpha_code']}'"
+                                                        .",file_type=$commissionFileType"
+                                                        .$insert_exception_string;
+                                                $res = $this->re_db_query($q);
+                                                $exception_raised = 1;
+                                                $last_inserted_exception = $this->re_db_insert_id();
+
+                                                $result++;
+                                            }
                                         }
                                     }
                                     // $_SESSION[$for_import] populated in the called function
@@ -4689,7 +4912,7 @@
             $return = array();
             
             if($customWhere != '') {
-                $q = "SELECT at.*,sum(at.commission) as Total_commission"
+                 $q = "SELECT DISTINCT(temp_data_id),commission"
                         ." FROM ".IMPORT_EXCEPTION." at"
                         
                         ." WHERE $customWhere"
@@ -4703,7 +4926,33 @@
     			     array_push($return,$row);
     			}
             }
-			return $return;
+
+            $sum=0;
+            foreach($return as $record){
+                $sum+= $record['commission'];
+            }
+			return $sum;
+		}
+
+        public function unique_trades_count($customWhere=''){
+            $return = array();
+            
+            if($customWhere != '') {
+                 $q = "SELECT count(DISTINCT(temp_data_id)) as total_trades"
+                        ." FROM ".IMPORT_EXCEPTION." at"
+                        
+                        ." WHERE $customWhere";
+            }
+			$res = $this->re_db_query($q);
+
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+    			}
+            }
+           
+			return $return[0]['total_trades'];
 		}
 
         public function select_total_records($customWhere=''){
@@ -5222,7 +5471,7 @@
 			return $return;
 		}
 
-        // PHP Version of console.log(). For debugging on the client
+        // PHP Version of console.log(). For debugging on the server
         function PHPconsole_log($output, $with_script_tags = true) {
             $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
             if ($with_script_tags) {
@@ -5603,4 +5852,3 @@
         }
         
     }
-?>
