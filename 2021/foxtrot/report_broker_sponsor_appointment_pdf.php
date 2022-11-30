@@ -112,9 +112,9 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             
                 foreach($row['appointments'] as $appointment){
                     $appointment['date'] = (isset($appointment['date']) && $appointment['date']!= '0000-00-00')? date('m/d/Y',strtotime($appointment['date'])):''; 
+                    $broker_name=$appointment['broker_last_name'].", ".$appointment['broker_first_name'];
                     $broker_sponsor_name= ($group_by=='broker')? $appointment['sponsor_name']: $broker_name;
                     $appointment['termdate'] = (isset($appointment['termdate']) && $appointment['termdate']!= '0000-00-00')? date('m/d/Y',strtotime($appointment['termdate'])):''; 
-                    $broker_name=$appointment['broker_last_name'].", ".$appointment['broker_first_name'];
                     $html.='<tr>
                             <td>'.$appointment['alias_name'].'</td>
                             <td>'.$appointment['date'].'</td>

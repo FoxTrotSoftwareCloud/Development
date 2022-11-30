@@ -5850,5 +5850,36 @@
             }
             return $return;
         }
+
+        function complience_exception_report($beginning_date,$ending_date,$broker_id=0,$client=0){
+         
+            $return = array();
+            $con='';
+
+            if($broker_id>0)
+            {
+                $con.=" AND `at`.`broker_name` = ".$broker_id." ";
+               // $index_column='broker_name';
+            }
+			if($beginning_date != '' && $ending_date != '')
+            {
+                $con.=" AND `at`.`date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+            }
+			
+			$q = "SELECT `at`.* , `em`.`error` as `error_message`
+					FROM `".IMPORT_EXCEPTION."` AS `at`
+                    LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` as `em` on `em`.`id` = `at`.`error_code_id`
+                    WHERE `at`.`is_delete`='0' AND `at`.`solved`='0'
+                    ORDER BY `at`.`id` ASC";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+                     
+    			}
+            }
+			return $return;
+        }
         
     }

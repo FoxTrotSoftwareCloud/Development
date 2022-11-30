@@ -72,25 +72,23 @@ $total_records = 0;
         array(
             
             'A1'=>array(date("m/d/Y"),array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('A1','A3'))),
-            'B1'=>array($heading." \r\n ".$subheading2."  ",array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','J3'))),
-            'K1'=>array(' PAGE 1',array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('K1','L3'))),
+            'B1'=>array($heading." \r\n ".$subheading2."  ",array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','N3'))),
+            'O1'=>array(' PAGE 1',array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('O1','P3'))),
             
             'A4'=>array('',array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A4','L4'))),
 
-            'B5'=>array(strtoupper("APPT #"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('B5','D5'))),
-            'E5'=>array(strtoupper("DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),    
-            'F5'=>array($broker_sponsor_heading,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('F5','I5'))),
-            'J5'=>array(strtoupper("STATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'K5'=>array(strtoupper("TERM DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'L5'=>array(strtoupper("REP #") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'B5'=>array(strtoupper("APPT #"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('B5','D5'))),
+            'E5'=>array(strtoupper("DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('E5','F5'))),    
+            'G5'=>array($broker_sponsor_heading,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('G5','J5'))),
+            'K5'=>array(strtoupper("STATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('K5','L5'))),
+            'M5'=>array(strtoupper("TERM DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('M5','N5'))),
+            'O5'=>array(strtoupper("REP #") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('O5','P5'))),
 
-            'A6'=>array(" " ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'A6'=>array('',array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('A6','L6'))),
+            'A6'=>array('',array('center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A6','P6'))),
         )
     );
     $i = 7;
     
-
     if($list_data != array()) {
         $last_record=0;
         $is_recrod_found=false;
@@ -98,26 +96,27 @@ $total_records = 0;
         $total_comm_rec= 0.00;
         foreach($list_data as $row) {
 
-            // $row['employ_number']=isset($row['employ_number'])?$row['employ_number']:'';
-            // $row['expiration'] = (isset($row['expiration']) && $row['expiration']!= '0000-00-00')? date('m/d/Y',strtotime($row['expiration'])):''; 
-            // $row['employ_state']=isset($row['employ_state'])?$row['employ_state']:'';
-            // $row['date_verified'] = (isset($row['date_verified']) && $row['date_verified']!= '0000-00-00')? date('m/d/Y',strtotime($row['date_verified'])):''; 
-            // $row['open_date'] = (isset($row['open_date']) && $row['open_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['open_date'])):''; 
-            // $row['birth_date'] = (isset($row['birth_date']) && $row['birth_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['birth_date'])):''; 
-        
-            $sheet_data[0]['B'.$i] = array($row['full_name'], array('bold','left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('B'.$i,'D'.$i)));
-           
-            // $sheet_data[0]['D'.$i] = array($row['employ_number'],array('left','size'=>array(8),'color'=>array('000000')));
-            // $sheet_data[0]['E'.$i] = array($row['expiration'],array('left','size'=>array(8),'color'=>array('000000')));
-            // $sheet_data[0]['F'.$i] = array($row['employ_state'], array('left','color'=>array('000000'),'size'=>array(10)));
-            // $sheet_data[0]['G'.$i] = array($row['date_verified'], array('left','color'=>array('000000'),'size'=>array(10)));
-            // $sheet_data[0]['H'.$i] = array($row['open_date'], array('left','color'=>array('000000'),'size'=>array(10)));
-            // $sheet_data[0]['I'.$i] = array($row['birth_date'], array('left','color'=>array('000000'),'size'=>array(10)));
+            if($row['appointments']!=array()){
             
-            // $sheet_data[0]['M'.$i] = array($address, array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('M'.$i,'O'.$i)));
-            
+                $sheet_data[0]['B'.$i] = array($row['full_name'], array('bold','left','color'=>array('000000'),'size'=>array(11),'font_name'=>array('Calibri'),'merge'=>array('B'.$i,'D'.$i)));
 
-            $i= $i+1;
+               
+                foreach($row['appointments'] as $appointment){
+                    $i++;
+                    $appointment['date'] = (isset($appointment['date']) && $appointment['date']!= '0000-00-00')? date('m/d/Y',strtotime($appointment['date'])):''; 
+                    $appointment['termdate'] = (isset($appointment['termdate']) && $appointment['termdate']!= '0000-00-00')? date('m/d/Y',strtotime($appointment['termdate'])):''; 
+                    $broker_name=$appointment['broker_last_name'].", ".$appointment['broker_first_name'];
+                    $broker_sponsor_name= ($group_by=='broker')? $appointment['sponsor_name']: $broker_name;
+
+                    $sheet_data[0]['B'.$i] = array($appointment['alias_name'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('B'.$i,'D'.$i)));
+                    $sheet_data[0]['E'.$i] = array($appointment['date'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('E'.$i,'F'.$i)));
+                    $sheet_data[0]['G'.$i] = array($broker_sponsor_name, array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('G'.$i,'J'.$i)));
+                    $sheet_data[0]['K'.$i] = array($appointment['state_name'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('K'.$i,'L'.$i)));
+                    $sheet_data[0]['M'.$i] = array($appointment['termdate'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('M'.$i,'N'.$i)));
+                    $sheet_data[0]['O'.$i] = array('', array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('O'.$i,'P'.$i)));
+                }
+                $i= $i+1;
+            }
         }
     }
     

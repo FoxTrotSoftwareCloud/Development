@@ -15,7 +15,7 @@
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Branch Audit Report</option>
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Broker State Licenses Report</option>
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Client Activity/Churning Report</option>
-                        <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Compliance Exceptions Report</option>
+                        <option value="7" <?php if(isset($report_for) && $report_for == 7){echo "selected='true'";}?>>Compliance Exceptions Report</option>
 
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Continuing Education Report</option>
                         <option value="9" <?php if(isset($report_for) && $report_for == 9){echo "selected='true'";}?>>Broker Sponsor Appointments Listing</option>
@@ -72,6 +72,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="row clients">
+                    <div class="col-md-12">
+                        <div class="form-group wrap">
+                            <label>Clients </label>
+                            <select class="form-control " name="client">
+                                <option value="0">All Clients</option>
+                                <?php foreach($get_clients as $get_client): ?>
+                                    <option value="<?php echo $get_client['id']; ?>" <?php echo isset($client) && $client==$get_client['id'] ? 'selected' : '' ?>><?php echo $get_client['last_name'].", ".$get_client['first_name']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                   <div class="row dont-contact-client">
                       <div class="col-md-12 ">
                             <div class="form-group"> 
@@ -107,10 +120,10 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label class="radio-inline">
-                                    <input type="radio" class="radio" name="cip_client" id="all_clients" value="2" checked />&nbsp; All Clients &nbsp;
+                                    <input type="radio" class="radio" name="cip_client" id="all_clients" value="2" <?php if(isset($cip_client) && ($cip_client == '2' || $cip_client == '')){echo "checked='checked'";}?> />&nbsp; All Clients &nbsp;
                             </label>
                             <label class="radio-inline">
-                                <input type="radio" class="radio" name="cip_client" id="cip_clients" style="display: inline;" value="1" />&nbsp; Clients With CIP Data &nbsp; 
+                                <input type="radio" class="radio" name="cip_client" id="cip_clients" style="display: inline;" value="1" <?php if(isset($cip_client) && $cip_client == '1'){echo "checked='checked'";}?>/>&nbsp; Clients With CIP Data &nbsp; 
                             </label>
                         </div>
                     </div>
@@ -120,10 +133,10 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label class="radio-inline">
-                                    <input type="radio" class="radio" name="allias_groupby" id="broker" value="broker" checked />&nbsp; Group by Broker &nbsp;
+                                    <input type="radio" class="radio" name="allias_groupby" id="broker" value="broker" <?php if(isset($allias_groupby) && ($allias_groupby == 'broker' || $allias_groupby == '')){echo "checked='checked'";}?> />&nbsp; Group by Broker &nbsp;
                             </label>
                             <label class="radio-inline">
-                                <input type="radio" class="radio" name="allias_groupby" id="sponsor" style="display: inline;" value="sponsor"/>&nbsp;Group by Sponsor &nbsp; 
+                                <input type="radio" class="radio" name="allias_groupby" id="sponsor" style="display: inline;" value="sponsor" <?php if(isset($allias_groupby) && $allias_groupby == 'sponsor'){echo "checked='checked'";}?>/>&nbsp;Group by Sponsor &nbsp; 
                             </label>
                         </div>
                     </div>
@@ -191,6 +204,8 @@ $(document).ready(function(){
     };
     if(<?php echo $report_for ?> == 9){
         xmlhttp.open('GET', 'ajax_broker_sponsor_appointment_report.php?filter=<?php echo $_GET['filter']; ?>', true);
+    }else if(<?php echo $report_for ?> == 7){
+        xmlhttp.open('GET', 'ajax_complience_exception_report.php?filter=<?php echo $_GET['filter']; ?>', true);
     }else if(<?php echo $report_for ?> != 10){
         xmlhttp.open('GET', 'ajax_client_report.php?filter=<?php echo $_GET['filter']; ?>', true);
     }
@@ -227,6 +242,7 @@ $('#demo-dp-range .input-daterange').datepicker({
                 $('.dont-contact-client').hide();
                 $('.cip_clients').hide();
                 $('.appointments').hide();
+                $('.clients').hide();
                 if (_option==2 || _option==3) {
                     $(".sponser").parents('.wrap').hide();
                 }
@@ -243,12 +259,15 @@ $('#demo-dp-range .input-daterange').datepicker({
                     $(".beginning_date").hide();
                     $(".ending_date").hide();
                 }
-                // else {
-                //     $("#broker_label").text('Supervisor')
-                //     $("#broker_dropdown").children('option:eq(0)').text("All Supervisors")
-                //     $(".beginning_date").show();
-                //     $(".ending_date").show();
-                // }
+
+                if (_option==7) {
+                    $(".sponser").parents('.wrap').hide();
+                    $(".state").parents('.wrap').hide();
+                    $('.clients').show();
+                    $("#broker_dropdown").children('option:eq(0)').text("All Brokers");
+                    $(".beginning_date").show();
+                    $(".ending_date").show();
+                }
 
                 if (_option==9) {
                     $(".sponser").parents('.wrap').show();
