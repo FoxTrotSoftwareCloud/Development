@@ -97,7 +97,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group beginning_date">
-                            <label>Beginning Date </label>
+                            <label>Beginning Open Date </label>
                             <div id="demo-dp-range">
                                 <div class="input-daterange input-group" id="datepicker">
                                     <input type="text" name="beginning_date" id="beginning_date" class="form-control" value="<?php if(isset($beginning_date) && $beginning_date != ''){ echo $beginning_date;} else {echo date('m/01/Y');} ?>"/>
@@ -107,7 +107,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group ending_date">
-                            <label>Ending Date </label>
+                            <label>Ending Open Date </label>
                             <div id="demo-dp-range">
                                 <div class="input-daterange input-group" id="datepicker">
                                     <input type="text" name="ending_date" id="ending_date" class="form-control" value="<?php if(isset($ending_date) && $ending_date != ''){ echo $ending_date;} else {echo date('m/d/Y');} ?>"/>

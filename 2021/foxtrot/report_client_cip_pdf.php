@@ -73,13 +73,17 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
 
     $subheading = 'CLIENT CIP REPORT';
-    $subheading3= 'Trade Dates: '. $trade_dates;
+    $subheading3= 'Open Dates: '. $trade_dates;
     $subheading2= 'Broker: '. $queried_brokers.', Sponsor: '. $sponsor_name.", ".$cip_info ;
+    $dont_contact_client="";
+    if($exclude_donot_contact_client == 1){
+        $dont_contact_client= "<br> Excluding 'Do Not Contact' Clients";
+    }
      $html='<table border="0" width="100%">
                         <tr>';
                          $html .='<td width="20%" align="left">'.date("m/d/Y").'</td>';
                         
-                        $html .='<td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">'.$img.'<br/><strong><h9>'.$subheading.'<br/>'.$subheading3.' <br> '.$subheading2 .'<br></h9></strong></td>';
+                        $html .='<td width="60%" style="font-size:12px;font-weight:bold;text-align:center;">'.$img.'<br/><strong><h9>'.$subheading.'<br/>'.$subheading3.' <br> '.$subheading2.$dont_contact_client .'<br></h9></strong></td>';
                                          
                             $html.='<td width="20%" align="right">Page 1</td>';
                         
@@ -97,21 +101,21 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $pdf->SetFont('times','',10);
     $html='<table border="0" cellpadding="1" width="100%" border-spacing:0px;>
             <tr style="background-color: #f1f1f1;color:#393939;margin:3px;font-size: 10px">
+                <th style="padding: 8px 0px; ">NAME</th>
+                <th style="padding: 8px 0px;  width: 10%;">ADDRESS</th>
+                <th style="padding: 15px 0px;  width: 6%;">CITY</th>
+                <th style="padding: 8px 0px;  width: 6%;">STATE</th>
+                <th style="padding: 8px 0px;  width: 6%;">ZIP CODE</th>
+                <th style="padding: 8px 0px;  width: 8%;">PHONE NUMBER</th>
+                <th style="padding: 8px 0px;  width: 8%;">SSN</th>
+                <th style="padding: 8px 0px;  width: 7%;">OPEN DATE</th>
+                <th style="padding: 8px 0px; ">DOB</th>
                 <th style="  width: 5%;">ID</th>
                 <th style="  width: 5%;">TYPE</th>
                 <th style="padding: 8px 0px;  width: 6%;">NUMBER</th>
                 <th style="padding: 8px 0px;  width: 7%;">EXPIRATION DATE</th>
                 <th style="padding: 8px 0px;  width: 5%;">STATE</th>
                 <th style="padding: 8px 0px;  width: 7%;" >VARIFIED DATE</th>
-                <th style="padding: 8px 0px;  width: 7%;">OPEN DATE</th>
-                <th style="padding: 8px 0px; ">DOB</th>
-                <th style="padding: 8px 0px; ">NAME</th>
-                <th style="padding: 8px 0px;  width: 8%;">ADDRESS</th>
-                <th style="padding: 15px 0px;  width: 8%;">CITY</th>
-                <th style="padding: 8px 0px;  width: 6%;">STATE</th>
-                <th style="padding: 8px 0px;  width: 6%;">ZIP CODE</th>
-                <th style="padding: 8px 0px;  width: 8%;">PHONE NUMBER</th>
-                <th style="padding: 8px 0px;  width: 8%;">SSN</th>
             </tr>';
     $html.='<tr><th colspan="15">
                         </th></tr>';
@@ -130,14 +134,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $row['open_date'] = (isset($row['open_date']) && $row['open_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['open_date'])):''; 
             $row['birth_date'] = (isset($row['birth_date']) && $row['birth_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['birth_date'])):''; 
             $html.='<tr>
-                        <td></td>
-                        <td></td>
-                        <td>'.$row['employ_number'].'</td>
-                        <td>'.$row['expiration'].'</td>
-                        <td>'.$row['employ_state'].'</td>
-                        <td>'.$row['date_verified'].'</td>
-                        <td>'.$row['open_date'].'</td>
-                        <td>'.$row['birth_date'].'</td>
                         <td>'.$row['last_name'].', '.$row['first_name'].'</td>
                         <td>'.$row['address1'].', '.$row['address2'].'</td>
                         <td>'.$row['city'].'</td>
@@ -145,6 +141,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         <td>'.$row['zip_code'].'</td>
                         <td>'.$row['telephone'].'</td>
                         <td>'.$row['client_ssn'].'</td>
+                        <td>'.$row['open_date'].'</td>
+                        <td>'.$row['birth_date'].'</td>
+                        <td></td>
+                        <td></td>
+                        <td>'.$row['employ_number'].'</td>
+                        <td>'.$row['expiration'].'</td>
+                        <td>'.$row['employ_state'].'</td>
+                        <td>'.$row['date_verified'].'</td>
                     </tr>';
            
             $html.='<br/>';                             

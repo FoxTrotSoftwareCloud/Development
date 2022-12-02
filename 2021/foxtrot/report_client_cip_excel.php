@@ -58,7 +58,7 @@ $queried_brokers = isset($broker_id) && $broker_id != 0 ? implode(",", array_map
     return $brokerA['id'] == $broker_id ? true : false;
 }))) : 'All Brokers';
 
-$trade_dates= date('m/d/Y',strtotime($beginning_date)) ." thru ". date('m/d/Y',strtotime($ending_date));
+$open_dates= ", Open Dates: ".date('m/d/Y',strtotime($beginning_date)) ." thru ". date('m/d/Y',strtotime($ending_date));
 
 $cip_info = "All Clients";
 if($cip_client == 1){
@@ -75,8 +75,12 @@ $is_recrod_found = false;
     $list_data= $instance_client->client_cip_report($beginning_date,$ending_date,$broker_id,$cip_client,$exclude_donot_contact_client,$sponsor_id);
         //echo "<pre>"; print_r($list_data);
     
-    $heading = $excel_name = 'CLIENT CIP REPORT';    
-    $subheading2= 'Broker: '. $queried_brokers.', Sponsor: '. $sponsor_name.", ".$cip_info ;
+    $heading = $excel_name = 'CLIENT CIP REPORT';  
+    $dont_contact_client="";
+    if($exclude_donot_contact_client == 1){
+        $dont_contact_client= ", Excluding 'Do Not Contact' Clients";
+    }  
+    $subheading2= 'Broker: '. $queried_brokers.', Sponsor: '. $sponsor_name.", ".$cip_info. $open_dates. $dont_contact_client;
 
 
     $sheet_data = array( // Set sheet data.
@@ -87,24 +91,24 @@ $is_recrod_found = false;
             'B1'=>array($heading." \r\n ".$subheading2."  ",array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','S2'))),
             'T1'=>array(' PAGE 1',array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('T1','U2'))),
             
-            'A3'=>array('',array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A3','Y3'))),
+            'A3'=>array('',array('bold','center','color'=>array('000000'),'size'=>array(12),'font_name'=>array('Calibri'),'merge'=>array('A3','U3'))),
 
 
-            'B4'=>array(strtoupper('ID'),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'C4'=>array(strtoupper("TYPE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'D4'=>array(strtoupper("NUMBER") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'E4'=>array(strtoupper("EXPIRATION DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'F4'=>array(strtoupper("STATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'G4'=>array(strtoupper("VARIFIED DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'H4'=>array(strtoupper("OPEN DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'I4'=>array(strtoupper("DOB") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'J4'=>array(strtoupper("NAME"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('J4','L4'))),
-            'M4'=>array(strtoupper("ADDRESS"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('M4','O4'))),
-            'P4'=>array(strtoupper("CITY") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'Q4'=>array(strtoupper("STATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'R4'=>array(strtoupper("ZIP CODE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'S4'=>array(strtoupper("PHONE NUMBER"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('S4','T4'))),
-            'U4'=>array(strtoupper("SSN") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'B4'=>array(strtoupper("NAME"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('B4','D4'))),
+            'E4'=>array(strtoupper("ADDRESS"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('E4','G4'))),
+            'H4'=>array(strtoupper("CITY") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'I4'=>array(strtoupper("STATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'J4'=>array(strtoupper("ZIP CODE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'K4'=>array(strtoupper("PHONE NUMBER"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('K4','L4'))),
+            'M4'=>array(strtoupper("SSN") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'N4'=>array(strtoupper("OPEN DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'O4'=>array(strtoupper("DOB") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'P4'=>array(strtoupper('ID'),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'Q4'=>array(strtoupper("TYPE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'R4'=>array(strtoupper("NUMBER") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'S4'=>array(strtoupper("EXPIRATION DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'T4'=>array(strtoupper("STATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'U4'=>array(strtoupper("VARIFIED DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
         )
     );
     $i = 5;
@@ -126,21 +130,22 @@ $is_recrod_found = false;
             $address = $row['address1'].', '.$row['address2'];
 
 
-            // $sheet_data[0]['B'.$i] = array($row['id'],array('left','bold','size'=>array(8),'color'=>array('000000')));
-            // $sheet_data[0]['C'.$i] = array($row['branch'],array('left','bold','size'=>array(8),'color'=>array('000000')));
-            $sheet_data[0]['D'.$i] = array($row['employ_number'],array('left','size'=>array(8),'color'=>array('000000')));
-            $sheet_data[0]['E'.$i] = array($row['expiration'],array('left','size'=>array(8),'color'=>array('000000')));
-            $sheet_data[0]['F'.$i] = array($row['employ_state'], array('left','color'=>array('000000'),'size'=>array(10)));
-            $sheet_data[0]['G'.$i] = array($row['date_verified'], array('left','color'=>array('000000'),'size'=>array(10)));
-            $sheet_data[0]['H'.$i] = array($row['open_date'], array('left','color'=>array('000000'),'size'=>array(10)));
-            $sheet_data[0]['I'.$i] = array($row['birth_date'], array('left','color'=>array('000000'),'size'=>array(10)));
-            $sheet_data[0]['J'.$i] = array($name, array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('J'.$i,'L'.$i)));
-            $sheet_data[0]['M'.$i] = array($address, array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('M'.$i,'O'.$i)));
-            $sheet_data[0]['P'.$i] = array($row['city'],array('left','bold','size'=>array(8),'color'=>array('000000')));
-            $sheet_data[0]['Q'.$i] = array($row['state_name'],array('left','bold','size'=>array(8),'color'=>array('000000')));
-            $sheet_data[0]['R'.$i] = array($row['zip_code'],array('left','bold','size'=>array(8),'color'=>array('000000')));
-            $sheet_data[0]['S'.$i] = array($row['telephone'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('S'.$i,'T'.$i)));
-            $sheet_data[0]['U'.$i] = array($row['client_ssn'],array('left','bold','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['B'.$i] = array($name, array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('B'.$i,'D'.$i)));
+            $sheet_data[0]['E'.$i] = array($address, array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('E'.$i,'G'.$i)));
+            $sheet_data[0]['H'.$i] = array($row['city'],array('left','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['I'.$i] = array($row['state_name'],array('left','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['J'.$i] = array($row['zip_code'],array('left','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['K'.$i] = array($row['telephone'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('K'.$i,'L'.$i)));
+            $sheet_data[0]['M'.$i] = array($row['client_ssn'],array('left','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['N'.$i] = array($row['open_date'], array('left','color'=>array('000000'),'size'=>array(10)));
+            $sheet_data[0]['O'.$i] = array($row['birth_date'], array('left','color'=>array('000000'),'size'=>array(10)));
+
+            // $sheet_data[0]['P'.$i] = array($row['id'],array('left','bold','size'=>array(8),'color'=>array('000000')));
+            // $sheet_data[0]['Q'.$i] = array($row['type'],array('left','bold','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['R'.$i] = array($row['employ_number'],array('left','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['S'.$i] = array($row['expiration'],array('left','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['T'.$i] = array($row['employ_state'], array('left','color'=>array('000000'),'size'=>array(10)));
+            $sheet_data[0]['U'.$i] = array($row['date_verified'], array('left','color'=>array('000000'),'size'=>array(10)));
 
             $i= $i+1;
         }
