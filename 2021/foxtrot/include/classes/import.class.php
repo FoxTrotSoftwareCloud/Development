@@ -681,6 +681,7 @@
 
                                 } else {
                                     $this->errors = 'Licence update failed - Product Category not found.';
+                                    return $this->errors;
                                 }
                             } else if($exception_field == 'objectives') {
                                 // Commission Client Objectives <> Product Objectives - add Objective to Client
@@ -816,10 +817,12 @@
                             $result = $this->resolve_exception_3Reassign('client_id', $acc_for_client, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                             break;
                         default:
+                            //echo "here"; die;
                             // ACCOUNT NUMBER NOT FOUND - Add Account # to existing client (Error Code: 18)
                             // CLIENT NAME ALREADY EXISTS - (Error Code: 24)
                             $new_client = $acc_for_client;
-                            $sponsorId = (int)$this->get_current_file_type($exception_file_id, 'sponsor_id');
+                            //echo $exception_file_id; die;
+                            $sponsorId = (int)$this->get_current_file_type($exception_file_id,'sponsor_id');
                             $accountNo = $exception_value;
 
                             if($sponsorId == 0 AND $exception_file_type == 2){
@@ -842,6 +845,8 @@
                             
                             $res = 0;
                             if ($accountNo!='' AND (int)$sponsorId>0 AND (int)$new_client>0){
+                                //echo 'here'; die;
+
                                 $q = "INSERT ".CLIENT_ACCOUNT.""
                                     ." SET"
                                         ." account_no = '".$accountNo."'"
@@ -853,6 +858,8 @@
 
                             if ($res)
                             {
+                               // echo $commDetailTable; die;
+
                                 // Update "resolve_exceptions" field to flag detail as "special handling" record
                                 $res = $this->read_update_serial_field($commDetailTable, "WHERE file_id=$exception_file_id AND id=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
 
@@ -866,7 +873,9 @@
 
                                 if ($res){
                                     $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
-
+                                    if($this->errors != ''){
+                                        return $this->errors;
+                                    }
                                     // Check if this update can clear other exceptions in the file
                                     // Clear all the Exceptions for the same Exception and Broker #
                                     $q = "SELECT ex.id AS exception_id, ex.temp_data_id, ex.error_code_id, ex.field, det.customer_account_number"
@@ -891,6 +900,7 @@
                             } else {
                                 if ((int)$sponsorId == 0){
                                     $this->errors = "Sponsor not found. Account # not added.";
+                                    return $this->errors;
                                 }
                             }
                             break;
@@ -2111,14 +2121,15 @@
                          foreach($data_array as $main_key=>$main_val)
                          {
                             $RHR = $main_val['RHR'];
+                            //echo "<pre>";print_r($RHR);die;
 
                             $file_type = trim($RHR['file_type']);
                             if($file_type == 'SECURITY FILE')
                             {
-                                $q = "INSERT INTO ".IMPORT_SFR_HEADER_DATA." SET file_id='".$id."',record_type='".$RHR['record_type']."',sequence_number='".$RHR['sequence_number']."',file_type='".$RHR['file_type']."',super_sheet_date='".date('Y-m-d',strtotime($RHR['super_sheet_date']))."',processed_date='".date('Y-m-d',strtotime($RHR['processed_date']))."',processed_time='".date('H:i:s',strtotime($RHR['processed_time']))."',job_name='".$RHR['job_name']."',file_format_code='".$RHR['file_format_code']."',request_number='".$RHR['request_number']."',extra_*_1='".$RHR['*']."',system_id='".$RHR['system_id']."',management_code='".$RHR['management_code']."',extra_*_2='".$RHR['**']."',unused_mutual_fund='".$RHR['unused_mutual_fund']."',life_date_type='".$RHR['life_date_type']."',unused_RHR_001='".$RHR['unused_header_RHR']."'".$this->insert_common_sql();                                     }
+                                $q = "INSERT INTO ".IMPORT_SFR_HEADER_DATA." SET file_id='".$id."',record_type='".$RHR['record_type']."',sequence_number='".$RHR['sequence_number']."',file_type='".$RHR['file_type']."',super_sheet_date='".date('Y-m-d',strtotime($RHR['super_sheet_date']))."',processed_date='".date('Y-m-d',strtotime($RHR['processed_date']))."',processed_time='".date('H:i:s',strtotime($RHR['processed_time']))."',job_name='".$RHR['job_name']."',file_format_code='".$RHR['file_format_code']."',request_number='".$RHR['request_number']."',`extra_*_1`='".$RHR['*']."',system_id='".$RHR['system_id']."',management_code='".$RHR['management_code']."',`extra_*_2`='".$RHR['**']."',unused_mutual_fund='".$RHR['unused_mutual_fund']."',life_date_type='".$RHR['life_date_type']."',unused_RHR_001='".$RHR['unused_header_RHR']."'".$this->insert_common_sql();                                     }
                             else
                             {
-                                $q = "INSERT INTO ".IMPORT_HEADER1_DATA." SET file_id='".$id."',record_type='".$RHR['record_type']."',sequence_number='".$RHR['sequence_number']."',file_type='".$RHR['file_type']."',super_sheet_date='".date('Y-m-d',strtotime($RHR['super_sheet_date']))."',processed_date='".date('Y-m-d',strtotime($RHR['processed_date']))."',processed_time='".date('H:i:s',strtotime($RHR['processed_time']))."',job_name='".$RHR['job_name']."',file_format_code='".$RHR['file_format_code']."',request_number='".$RHR['request_number']."',extra_*_1='".$RHR['*']."',system_id='".$RHR['system_id']."',management_code='".$RHR['management_code']."',extra_*_2='".$RHR['**']."',populated_by_dst='".$RHR['populated_by_dst']."',variable_universal_life='".$RHR['variable_universal_life']."',unused_RHR_001='".$RHR['unused_header_RHR']."'".$this->insert_common_sql();
+                                $q = "INSERT INTO ".IMPORT_HEADER1_DATA." SET file_id='".$id."',record_type='".$RHR['record_type']."',sequence_number='".$RHR['sequence_number']."',file_type='".$RHR['file_type']."',super_sheet_date='".date('Y-m-d',strtotime($RHR['super_sheet_date']))."',processed_date='".date('Y-m-d',strtotime($RHR['processed_date']))."',processed_time='".date('H:i:s',strtotime($RHR['processed_time']))."',job_name='".$RHR['job_name']."',file_format_code='".$RHR['file_format_code']."',request_number='".$RHR['request_number']."',`extra_*_1`='".$RHR['*']."',system_id='".$RHR['system_id']."',management_code='".$RHR['management_code']."',`extra_*_2`='".$RHR['**']."',populated_by_dst='".$RHR['populated_by_dst']."',variable_universal_life='".$RHR['variable_universal_life']."',unused_RHR_001='".$RHR['unused_header_RHR']."'".$this->insert_common_sql();
                             }
                 			$res = $this->re_db_query($q);
                             $rhr_inserted_id = $this->re_db_insert_id();
@@ -2134,7 +2145,7 @@
                                 {
                                     if($plh_key == 001)
                                     {
-                                        $q = "INSERT INTO ".IMPORT_HEADER2_DATA." SET file_id='".$id."',header_id='".$rhr_inserted_id."',record_type1='".$plh_val['record_type1']."',sequence_number1='".$plh_val['sequence_number1']."',anniversary_date='".date('Y-m-d',strtotime($plh_val['anniversary_date']))."',issue_date='".date('Y-m-d',strtotime($plh_val['issue_date']))."',product_code='".$plh_val['product_code']."',policy_contract_number='".$plh_val['policy_contract_number']."',death_benefit_option='".$plh_val['death_benefit_option']."',current_policy_face_amount='".$plh_val['current_policy_face_amount']."',current_sum_of_riders='".$plh_val['current_sum_of_riders']."',current_face_amount_including_sum_of_riders='".$plh_val['current_face_amount_including_sum_of_riders']."',name_of_primary_beneficiary='".$plh_val['name_of_primary_beneficiary']."',multiple_primary_beneficiary(M)='".$plh_val['multiple_primary_beneficiary(M)']."',name_of_secondary_beneficiary='".$plh_val['name_of_secondary_beneficiary']."',multiple_secondary_beneficiary(M)='".$plh_val['multiple_secondary_beneficiary(M)']."',policy_status='".$plh_val['policy_status']."',unused_PLH_001='".$plh_val['unused_PLH_001']."'".$this->insert_common_sql();
+                                        $q = "INSERT INTO ".IMPORT_HEADER2_DATA." SET file_id='".$id."',header_id='".$rhr_inserted_id."',record_type1='".$plh_val['record_type1']."',sequence_number1='".$plh_val['sequence_number1']."',anniversary_date='".date('Y-m-d',strtotime($plh_val['anniversary_date']))."',issue_date='".date('Y-m-d',strtotime($plh_val['issue_date']))."',product_code='".$plh_val['product_code']."',policy_contract_number='".$plh_val['policy_contract_number']."',death_benefit_option='".$plh_val['death_benefit_option']."',current_policy_face_amount='".$plh_val['current_policy_face_amount']."',current_sum_of_riders='".$plh_val['current_sum_of_riders']."',current_face_amount_including_sum_of_riders='".$plh_val['current_face_amount_including_sum_of_riders']."',name_of_primary_beneficiary='".$plh_val['name_of_primary_beneficiary']."',`multiple_primary_beneficiary(M)`='".$plh_val['multiple_primary_beneficiary(M)']."',name_of_secondary_beneficiary='".$plh_val['name_of_secondary_beneficiary']."',`multiple_secondary_beneficiary(M)`='".$plh_val['multiple_secondary_beneficiary(M)']."',policy_status='".$plh_val['policy_status']."',unused_PLH_001='".$plh_val['unused_PLH_001']."'".$this->insert_common_sql();
                                         $res = $this->re_db_query($q);
                                         $plh_inserted_id = $this->re_db_insert_id();
                                         $data_status = true;
@@ -2162,7 +2173,7 @@
                                         }
                                         else
                                         {
-                                            $q = "INSERT INTO ".IMPORT_DETAIL_DATA." SET file_id='".$id."',header_id='".$rhr_inserted_id."',record_type1='".$seq_val['record_type1']."',sequence_number1='".$seq_val['sequence_number1']."',dealer_number='".$seq_val['dealer_number']."',dealer_branch_number='".$seq_val['dealer_branch_number']."',cusip_number='".$seq_val['cusip_number']."',mutual_fund_fund_code='".$seq_val['mutual_fund_fund_code']."',mutual_fund_customer_account_number='".$seq_val['mutual_fund_customer_account_number']."',account_number_code='".$seq_val['account_number_code']."',mutual_fund_established_date='".date('Y-m-d',strtotime($seq_val['mutual_fund_established_date']))."',last_maintenance_date='".date('Y-m-d',strtotime($seq_val['last_maintenance_date']))."',line_code='".$seq_val['line_code']."',alpha_code='".$seq_val['alpha_code']."',mutual_fund_dealer_level_control_code='".$seq_val['mutual_fund_dealer_level_control_code']."',social_code='".$seq_val['social_code']."',resident_state_country_code='".$seq_val['resident_state_country_code']."',social_security_number='".$seq_val['social_security_number']."',ssn_status_code='".$seq_val['ssn_status_code']."',systematic_withdrawal_plan(SWP)_account='".$seq_val['systematic_withdrawal_plan(SWP)_account']."',pre_authorized_checking_amount='".$seq_val['pre_authorized_checking_amount']."',automated_clearing_house_account(ACH)='".$seq_val['automated_clearing_house_account(ACH)']."',mutual_fund_reinvest_to_another_account='".$seq_val['mutual_fund_reinvest_to_another_account']."',mutual_fund_capital_gains_distribution_option='".$seq_val['mutual_fund_capital_gains_distribution_option']."',mutual_fund_divident_distribution_option='".$seq_val['mutual_fund_divident_distribution_option']."',check_writing_account='".$seq_val['check_writing_account']."',expedited_redemption_account='".$seq_val['expedited_redemption_account']."',mutual_fund_sub_account='".$seq_val['mutual_fund_sub_account']."',foreign_tax_rate='".$seq_val['foreign_tax_rate']."',zip_code='".$seq_val['zip_code']."',zipcode_future_expansion='".$seq_val['zipcode_future_expansion']."',cumulative_discount_number='".$seq_val['cumulative_discount_number']."',letter_of_intent(LOI)_number='".$seq_val['letter_of_intent(LOI)_number']."',timer_flag='".$seq_val['timer_flag']."',list_bill_account='".$seq_val['list_bill_account']."',mutual_fund_monitored_VIP_account='".$seq_val['mutual_fund_monitored_VIP_account']."',mutual_fund_expedited_exchange_account='".$seq_val['mutual_fund_expedited_exchange_account']."',mutual_fund_penalty_withholding_account='".$seq_val['mutual_fund_penalty_withholding_account']."',certificate_issuance_code='".$seq_val['certificate_issuance_code']."',mutual_fund_stop_transfer_flag='".$seq_val['mutual_fund_stop_transfer_flag']."',mutual_fund_blue_sky_exemption_flag='".$seq_val['mutual_fund_blue_sky_exemption_flag']."',bank_card_issued='".$seq_val['bank_card_issued']."',fiduciary_account='".$seq_val['fiduciary_account']."',plan_status_code='".$seq_val['plan_status_code']."',mutual_fund_net_asset_value(NAV)_account='".$seq_val['mutual_fund_net_asset_value(NAV)_account']."',mailing_flag='".$seq_val['mailing_flag']."',interested_party_code='".$seq_val['interested_party_code']."',mutual_fund_share_account_phone_check_redemption_code='".$seq_val['mutual_fund_share_account_phone_check_redemption_code']."',mutual_fund_share_account_house_account_code='".$seq_val['mutual_fund_share_account_house_account_code']."'".$this->insert_common_sql();
+                                            $q = "INSERT INTO ".IMPORT_DETAIL_DATA." SET file_id='".$id."',header_id='".$rhr_inserted_id."',record_type1='".$seq_val['record_type1']."',sequence_number1='".$seq_val['sequence_number1']."',dealer_number='".$seq_val['dealer_number']."',dealer_branch_number='".$seq_val['dealer_branch_number']."',cusip_number='".$seq_val['cusip_number']."',mutual_fund_fund_code='".$seq_val['mutual_fund_fund_code']."',mutual_fund_customer_account_number='".$seq_val['mutual_fund_customer_account_number']."',account_number_code='".$seq_val['account_number_code']."',mutual_fund_established_date='".date('Y-m-d',strtotime($seq_val['mutual_fund_established_date']))."',last_maintenance_date='".date('Y-m-d',strtotime($seq_val['last_maintenance_date']))."',line_code='".$seq_val['line_code']."',alpha_code='".$seq_val['alpha_code']."',mutual_fund_dealer_level_control_code='".$seq_val['mutual_fund_dealer_level_control_code']."',social_code='".$seq_val['social_code']."',resident_state_country_code='".$seq_val['resident_state_country_code']."',social_security_number='".$seq_val['social_security_number']."',ssn_status_code='".$seq_val['ssn_status_code']."',`systematic_withdrawal_plan(SWP)_account`='".$seq_val['systematic_withdrawal_plan(SWP)_account']."',pre_authorized_checking_amount='".$seq_val['pre_authorized_checking_amount']."',`automated_clearing_house_account(ACH)`='".$seq_val['automated_clearing_house_account(ACH)']."',mutual_fund_reinvest_to_another_account='".$seq_val['mutual_fund_reinvest_to_another_account']."',mutual_fund_capital_gains_distribution_option='".$seq_val['mutual_fund_capital_gains_distribution_option']."',mutual_fund_divident_distribution_option='".$seq_val['mutual_fund_divident_distribution_option']."',check_writing_account='".$seq_val['check_writing_account']."',expedited_redemption_account='".$seq_val['expedited_redemption_account']."',mutual_fund_sub_account='".$seq_val['mutual_fund_sub_account']."',foreign_tax_rate='".$seq_val['foreign_tax_rate']."',zip_code='".$seq_val['zip_code']."',zipcode_future_expansion='".$seq_val['zipcode_future_expansion']."',cumulative_discount_number='".$seq_val['cumulative_discount_number']."',`letter_of_intent(LOI)_number`='".$seq_val['letter_of_intent(LOI)_number']."',timer_flag='".$seq_val['timer_flag']."',list_bill_account='".$seq_val['list_bill_account']."',mutual_fund_monitored_VIP_account='".$seq_val['mutual_fund_monitored_VIP_account']."',mutual_fund_expedited_exchange_account='".$seq_val['mutual_fund_expedited_exchange_account']."',mutual_fund_penalty_withholding_account='".$seq_val['mutual_fund_penalty_withholding_account']."',certificate_issuance_code='".$seq_val['certificate_issuance_code']."',mutual_fund_stop_transfer_flag='".$seq_val['mutual_fund_stop_transfer_flag']."',mutual_fund_blue_sky_exemption_flag='".$seq_val['mutual_fund_blue_sky_exemption_flag']."',bank_card_issued='".$seq_val['bank_card_issued']."',fiduciary_account='".$seq_val['fiduciary_account']."',plan_status_code='".$seq_val['plan_status_code']."',`mutual_fund_net_asset_value(NAV)_account`='".$seq_val['mutual_fund_net_asset_value(NAV)_account']."',mailing_flag='".$seq_val['mailing_flag']."',interested_party_code='".$seq_val['interested_party_code']."',mutual_fund_share_account_phone_check_redemption_code='".$seq_val['mutual_fund_share_account_phone_check_redemption_code']."',mutual_fund_share_account_house_account_code='".$seq_val['mutual_fund_share_account_house_account_code']."'".$this->insert_common_sql();
                                         }
                             			$res = $this->re_db_query($q);
                                         $detail_inserted_id = $this->re_db_insert_id();
@@ -2170,19 +2181,19 @@
                                     }
                                     else if($seq_key == 002)
                                     {
-                                        $q = "UPDATE ".IMPORT_DETAIL_DATA." SET record_type2='".$seq_val['record_type2']."',sequence_number2='".$seq_val['sequence_number2']."',mutual_fund_dividend_mail_account='".$seq_val['mutual_fund_dividend_mail_account']."',mutual_fund_stop_purchase_account='".$seq_val['mutual_fund_stop_purchase_account']."',stop_mail_account='".$seq_val['stop_mail_account']."',mutual_fund_fractional_check='".$seq_val['mutual_fund_fractional_check']."',registration_line1='".$seq_val['registration_line1']."',registration_line2='".$seq_val['registration_line2']."',registration_line3='".$seq_val['registration_line3']."',registration_line4='".$seq_val['registration_line4']."',customer_date_of_birth='".(empty(trim($seq_val['customer_date_of_birth'])) ? '' : date('Y-m-d',strtotime($seq_val['customer_date_of_birth'])))."',mutual_fund_account_price_schedule_code='".$seq_val['mutual_fund_account_price_schedule_code']."',unused_002_1='".$seq_val['unused_detail']."'".$this->update_common_sql()." WHERE id='".$detail_inserted_id."'";
+                                        $q = "UPDATE ".IMPORT_DETAIL_DATA." SET record_type2='".$seq_val['record_type2']."',sequence_number2='".$seq_val['sequence_number2']."',mutual_fund_dividend_mail_account='".$seq_val['mutual_fund_dividend_mail_account']."',mutual_fund_stop_purchase_account='".$seq_val['mutual_fund_stop_purchase_account']."',stop_mail_account='".$seq_val['stop_mail_account']."',mutual_fund_fractional_check='".$seq_val['mutual_fund_fractional_check']."',registration_line1='".$seq_val['registration_line1']."',registration_line2='".$seq_val['registration_line2']."',registration_line3='".$seq_val['registration_line3']."',registration_line4='".$seq_val['registration_line4']."',customer_date_of_birth='".(empty(trim($seq_val['customer_date_of_birth'])) ? '0000-00-00' : date('Y-m-d',strtotime($seq_val['customer_date_of_birth'])))."',mutual_fund_account_price_schedule_code='".$seq_val['mutual_fund_account_price_schedule_code']."',unused_002_1='".$seq_val['unused_detail']."'".$this->update_common_sql()." WHERE id='".$detail_inserted_id."'";
                             			$res = $this->re_db_query($q);
                                         $data_status = true;
                                     }
                                     else if($seq_key == 003)
                                     {
-                                        $q = "UPDATE ".IMPORT_DETAIL_DATA." SET record_type3='".$seq_val['record_type3']."',sequence_number3='".$seq_val['sequence_number3']."',account_registration_line5='".$seq_val['account_registration_line5']."',account_registration_line6='".$seq_val['account_registration_line6']."',account_registration_line7='".$seq_val['account_registration_line7']."',representative_number='".trim($seq_val['representative_number'])."',representative_name='".$seq_val['representative_name']."',position_close_out_indicator='".$seq_val['position_close_out_indicator']."',account_type_indicator='".$seq_val['account_type_indicator']."',product_identifier_code(VA only)='".$seq_val['product_identifier_code(VA only)']."',mutual_fund_alternative_investment_program_managers_variable_ann='".$seq_val['mutual_fund_alternative_investment_program_managers_variable_annuties_and_VUL']."'".$this->update_common_sql()." WHERE id='".$detail_inserted_id."'";
+                                        $q = "UPDATE ".IMPORT_DETAIL_DATA." SET record_type3='".$seq_val['record_type3']."',sequence_number3='".$seq_val['sequence_number3']."',account_registration_line5='".$seq_val['account_registration_line5']."',account_registration_line6='".$seq_val['account_registration_line6']."',account_registration_line7='".$seq_val['account_registration_line7']."',representative_number='".trim($seq_val['representative_number'])."',representative_name='".$seq_val['representative_name']."',position_close_out_indicator='".$seq_val['position_close_out_indicator']."',account_type_indicator='".$seq_val['account_type_indicator']."',`product_identifier_code(VA only)`='".$seq_val['product_identifier_code(VA only)']."',mutual_fund_alternative_investment_program_managers_variable_ann='".$seq_val['mutual_fund_alternative_investment_program_managers_variable_annuties_and_VUL']."'".$this->update_common_sql()." WHERE id='".$detail_inserted_id."'";
                             			$res = $this->re_db_query($q);
                                         $data_status = true;
                                     }
                                     else if($seq_key == 004)
                                     {
-                                        $q = "UPDATE ".IMPORT_DETAIL_DATA." SET record_type4='".$seq_val['record_type4']."',sequence_number4='".$seq_val['sequence_number4']."',brokerage_identification_number(BIN)='".$seq_val['brokerage_identification_number(BIN)']."',account_number_code_004='".$seq_val['account_number_code_004']."',primary_investor_phone_number='".$seq_val['primary_investor_phone_number']."',secondary_investor_phone_number='".$seq_val['secondary_investor_phone_number']."',NSCC_trust_company_number='".$seq_val['NSCC_trust_company_number']."',NSCC_third_party_administrator_number='".$seq_val['NSCC_third_party_administrator_number']."',unused_004_1='".$seq_val['unused_004_1']."',trust_custodian_id_number='".$seq_val['trust_custodian_id_number']."',third_party_administrator_id_number='".$seq_val['third_party_administrator_id_number']."',unused_004_2='".$seq_val['unused_004_2']."'".$this->update_common_sql()." WHERE id='".$detail_inserted_id."'";
+                                        $q = "UPDATE ".IMPORT_DETAIL_DATA." SET record_type4='".$seq_val['record_type4']."',sequence_number4='".$seq_val['sequence_number4']."',`brokerage_identification_number(BIN)`='".$seq_val['brokerage_identification_number(BIN)']."',account_number_code_004='".$seq_val['account_number_code_004']."',primary_investor_phone_number='".$seq_val['primary_investor_phone_number']."',secondary_investor_phone_number='".$seq_val['secondary_investor_phone_number']."',NSCC_trust_company_number='".$seq_val['NSCC_trust_company_number']."',NSCC_third_party_administrator_number='".$seq_val['NSCC_third_party_administrator_number']."',unused_004_1='".$seq_val['unused_004_1']."',trust_custodian_id_number='".$seq_val['trust_custodian_id_number']."',third_party_administrator_id_number='".$seq_val['third_party_administrator_id_number']."',unused_004_2='".$seq_val['unused_004_2']."'".$this->update_common_sql()." WHERE id='".$detail_inserted_id."'";
                             			$res = $this->re_db_query($q);
                                         $data_status = true;
                                     }
@@ -2249,7 +2260,7 @@
                                 {
                                     foreach($detail_val as $seq_key=>$seq_val)
                                     {
-                                        $q = "INSERT INTO ".IMPORT_IDC_DETAIL_DATA." SET file_id='".$id."',idc_header_id='".$rhr_inserted_id."',commission_record_type_code='".$seq_val['commission_record_type_code']."',dealer_number='".$seq_val['dealer_number']."',dealer_branch_number='".$seq_val['dealer_branch_number']."',representative_number='".trim($seq_val['representative_number'])."',representative_name='".$seq_val['representative_name']."',cusip_number='".$seq_val['cusip_number']."',alpha_code='".$seq_val['alpha_code']."',trade_date='".date('Y-m-d',strtotime($seq_val['trade_date']))."',gross_transaction_amount='".($seq_val['gross_transaction_amount']/100)."',gross_amount_sign_code='".$seq_val['gross_amount_sign_code']."',dealer_commission_amount='".($seq_val['dealer_commission_amount']/100)."',commission_rate='".$seq_val['commission_rate']."',customer_account_number='".$seq_val['customer_account_number']."',account_number_type_code='".$seq_val['account_number_type_code']."',purchase_type_code='".$seq_val['purchase_type_code']."',social_code='".$seq_val['social_code']."',cumulative_discount_number='".$seq_val['cumulative_discount_number']."',letter_of_intent(LOI)_number='".$seq_val['letter_of_intent(LOI)_number']."',social_security_number='".$seq_val['social_security_number']."',social_security_number_status_code='".$seq_val['social_security_number_status_code']."',transaction_share_count='".$seq_val['transaction_share_count']."',share_price_amount='".$seq_val['share_price_amount']."',resident_state_country_code='".$seq_val['resident_state_country_code']."',dealer_commission_sign_code='".$seq_val['dealer_commission_sign_code']."'".$this->insert_common_sql();
+                                        $q = "INSERT INTO ".IMPORT_IDC_DETAIL_DATA." SET file_id='".$id."',idc_header_id='".$rhr_inserted_id."',commission_record_type_code='".$seq_val['commission_record_type_code']."',dealer_number='".$seq_val['dealer_number']."',dealer_branch_number='".$seq_val['dealer_branch_number']."',representative_number='".trim($seq_val['representative_number'])."',representative_name='".$seq_val['representative_name']."',cusip_number='".$seq_val['cusip_number']."',alpha_code='".$seq_val['alpha_code']."',trade_date='".date('Y-m-d',strtotime($seq_val['trade_date']))."',gross_transaction_amount='".($seq_val['gross_transaction_amount']/100)."',gross_amount_sign_code='".$seq_val['gross_amount_sign_code']."',dealer_commission_amount='".($seq_val['dealer_commission_amount']/100)."',commission_rate='".$seq_val['commission_rate']."',customer_account_number='".$seq_val['customer_account_number']."',account_number_type_code='".$seq_val['account_number_type_code']."',purchase_type_code='".$seq_val['purchase_type_code']."',social_code='".$seq_val['social_code']."',cumulative_discount_number='".$seq_val['cumulative_discount_number']."',`letter_of_intent(LOI)_number`='".$seq_val['letter_of_intent(LOI)_number']."',social_security_number='".$seq_val['social_security_number']."',social_security_number_status_code='".$seq_val['social_security_number_status_code']."',transaction_share_count='".$seq_val['transaction_share_count']."',share_price_amount='".$seq_val['share_price_amount']."',resident_state_country_code='".$seq_val['resident_state_country_code']."',dealer_commission_sign_code='".$seq_val['dealer_commission_sign_code']."'".$this->insert_common_sql();
                             			$res = $this->re_db_query($q);
                                         $data_status = true;
                                    }
@@ -3526,7 +3537,8 @@
                                     ]);
 
                                     if ($updateResult['insert_client_master']==0 AND !empty($instance_client_maintenance->errors)){
-                                        $_SESSION['warning'] = $instance_client_maintenance->errors;
+
+                                        //$_SESSION['warning'] = $instance_client_maintenance->errors;
 
                                         if (stripos($instance_client_maintenance->errors, '(24)') !== false){
 
@@ -4907,6 +4919,31 @@
             }
 			return $return;
 		}
+        public function select_total_exception_commission( $customWhere='', $source=''){
+			$source = $this->re_db_input($source);
+            $return = array();
+            $con = '';
+
+                $q2 = "SELECT count(*) as total_records "
+                        ." FROM ".IMPORT_EXCEPTION." at"
+                        ." WHERE $customWhere"
+                        ." ORDER BY id ASC"
+                ;
+                $res2 = $this->re_db_query($q2);
+                $row2 = $this->re_db_fetch_array($res2);
+                $return['total_records']=$row2;
+             
+               $q3 = "SELECT SUM(at.commission) as total_commission"
+               ." FROM ".IMPORT_EXCEPTION." at"
+               ." WHERE $customWhere"
+               ." ORDER BY id ASC"
+                ;
+                $res3 = $this->re_db_query($q3);
+                $row3 = $this->re_db_fetch_array($res3);
+                $return['total_commission']=$row3;
+			
+			return $return;
+		}
 
         public function select_total_commission($customWhere=''){
             $return = array();
@@ -5137,6 +5174,38 @@
     			     array_push($return,$row);
     			}
             }
+			return $return;
+		}
+        public function select_solved_exception_total($file_id, $file_type=0){
+			$return = array();
+            $con = ($file_type) ? " AND at.file_type=".$file_type : '';
+
+			$q = "SELECT count(*) as total_records"
+					." FROM ".IMPORT_EXCEPTION." AS at"
+                    ." LEFT JOIN ".IMPORT_CURRENT_FILES." AS cf on at.file_id = cf.id"
+                    ." WHERE at.is_delete=0"
+                      ." AND at.solved='1'"
+                      ." AND at.file_id='".$file_id."'"
+                      .$con
+            ;
+			$res = $this->re_db_query($q);
+            $row = $this->re_db_fetch_array($res);
+            array_push($return,$row);
+
+
+            $q2 = "SELECT SUM(at.commission) as total_commission"
+					." FROM ".IMPORT_EXCEPTION." AS at"
+                    ." LEFT JOIN ".IMPORT_CURRENT_FILES." AS cf on at.file_id = cf.id"
+                    ." WHERE at.is_delete=0"
+                      ." AND at.solved='1'"
+                      ." AND at.file_id='".$file_id."'"
+                      .$con
+            ;
+			$res2 = $this->re_db_query($q2);
+            $row2 = $this->re_db_fetch_array($res2);
+            
+    		array_push($return,$row2);
+    			
 			return $return;
 		}
         public function get_total_commission_amount($file_id){

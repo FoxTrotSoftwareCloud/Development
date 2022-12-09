@@ -60,7 +60,10 @@
         // Action Choices
         if(isset($process_file) && $process_file == 1)
         {
-            $return = $instance->delete_current_files($id);
+            $return_delete = $instance->delete_current_files($id);
+            if($return_delete===true){
+                header("location:".SITE_URL."import.php");
+            }
         }
         else if(isset($process_file) && $process_file == 2)
         {

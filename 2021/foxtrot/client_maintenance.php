@@ -684,6 +684,7 @@
         }
         
         if ($detailData){
+         //   echo "<pre>"; print_r($detailData);die;
             // Broker 
             $broker_name = $dbins->re_db_input($detailData['broker_id']);
     
@@ -694,32 +695,32 @@
                 // Passing the parameter strips off the zeroes    
                 $client_file_number = ltrim($detailData['mutual_fund_customer_account_number'],'0');
 
-                if (count($clientNameArray) == 2) {
-                    $fname = $clientNameArray[0];
-                    $lname = $clientNameArray[1];
-                } else if (count($clientNameArray)==3 AND strlen($clientNameArray[1])==1) {
-                    $fname = $clientNameArray[0];
-                    $mi = $clientNameArray[1];
-                    $lname = $clientNameArray[2];
-                } else {
-                    $lname = TRIM($row['client']);
-                }
+                // if (count($clientNameArray) == 2) {
+                //     $fname = $clientNameArray[0];
+                //     $lname = $clientNameArray[1];
+                // } else if (count($clientNameArray)==3 AND strlen($clientNameArray[1])==1) {
+                //     $fname = $clientNameArray[0];
+                //     $mi = $clientNameArray[1];
+                //     $lname = $clientNameArray[2];
+                // } else {
+                //     $lname = TRIM($row['client']);
+                // }
             } else if (in_array($file_type, [2, 9])){
                 if (isset($detailData['customer_name']) AND $detailData['customer_name']!=''){
-                    $clientNameArray = explode(' ', trim($detailData['customer_name']));
+                    //$clientNameArray = explode(' ', trim($detailData['customer_name']));
 
-                    if (count($clientNameArray) == 2) {
-                        $fname = $clientNameArray[0];
-                        $lname = $clientNameArray[1];
-                    } else if (count($clientNameArray)==3 AND strlen($clientNameArray[1])==1) {
-                        $fname = $clientNameArray[0];
-                        $mi = $clientNameArray[1];
-                        $lname = $clientNameArray[2];
-                    } else {
-                        $lname = $clientNameArray[0];
-                    }
+                    // if (count($clientNameArray) == 2) {
+                    //     $fname = $clientNameArray[0];
+                    //     $lname = $clientNameArray[1];
+                    // } else if (count($clientNameArray)==3 AND strlen($clientNameArray[1])==1) {
+                    //     $fname = $clientNameArray[0];
+                    //     $mi = $clientNameArray[1];
+                    //     $lname = $clientNameArray[2];
+                    // } else {
+                    //     $lname = $clientNameArray[0];
+                    // }
                 } else {
-                    $lname = $detailData['alpha_code'];
+                    //$lname = $detailData['alpha_code'];
                 }
                 // Passing the parameter strips off the zeroes    
                 $client_file_number = ltrim($detailData['customer_account_number'],'0');

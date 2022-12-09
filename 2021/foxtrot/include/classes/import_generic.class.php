@@ -55,7 +55,8 @@ class import_generic extends import {
         $productCategoryArray = $instance_product_maintenance->select_category($product_category_id);
         $source = $this->re_db_input($source);
         
-        if (($source!='GENERIC' OR pathInfo($fileName, PATHINFO_EXTENSION)=='CSV') AND !in_array($fileName, $currentImportFiles)){
+        if (($source!='GENERIC' OR pathInfo($fileName, PATHINFO_EXTENSION)=='CSV' OR pathInfo($fileName, PATHINFO_EXTENSION)=='csv') AND !in_array($fileName, $currentImportFiles)){
+
             // File Type
             // Have to use the stripos()!==false, stripos() returns unpredictable "false" values(booleanfalse OR 0 OR <blank>) and if the position is found at the beginning the string, it returns 0
             if (strtoupper(substr($source,0,2))=="DAZ") {

@@ -28,7 +28,7 @@
         
     $creator                = "Foxtrot User";
     $last_modified_by       = "Foxtrot User";
-    $title                  = "Foxtrot Review Processed Data Excel";
+    $title                  = "Foxtrot Processed Activity Excel";
     $subject                = "Foxtrot Review Processed Data";
     $description            = "Foxtrot Review Processed Data. Generated on : ".date('Y-m-d h:i:s');
     $keywords               = "Foxtrot Review Processed Data office 2007";
@@ -47,8 +47,8 @@
         $sheet_data = array( // Set sheet data.
             0=> // Excel sub sheet indexed.
             array(
-                'A1'=>array('LOGO',array('bold','center','color'=>array('000000'),'size'=>array(16),'font_name'=>array('Calibri'),'merge'=>array('A1','A2'))),
-                'B1'=>array('REVIEW PROCESSED DATA',array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','E2'))),
+                'A1'=>array('',array('bold','center','color'=>array('000000'),'size'=>array(16),'font_name'=>array('Calibri'),'merge'=>array('A1','A2'))),
+                'B1'=>array('PROCESSED ACTIVITY',array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','E2'))),
                 'F1'=>array($system_company_name,array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('F1','F2'))),
                 
                 'A3'=>array('File: '.$get_file_data['file_name'],array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
@@ -71,8 +71,8 @@
         $sheet_data = array( // Set sheet data.
             0=> // Excel sub sheet indexed.
             array(
-                'A1'=>array('LOGO',array('bold','center','color'=>array('000000'),'size'=>array(16),'font_name'=>array('Calibri'),'merge'=>array('A1','A2'))),
-                'B1'=>array('REVIEW PROCESSED DATA',array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','E2'))),
+                'A1'=>array('',array('bold','center','color'=>array('000000'),'size'=>array(16),'font_name'=>array('Calibri'),'merge'=>array('A1','A2'))),
+                'B1'=>array('PROCESSED ACTIVITY',array('bold','center','color'=>array('000000'),'size'=>array(14),'font_name'=>array('Calibri'),'merge'=>array('B1','E2'))),
                 'F1'=>array($system_company_name,array('bold','center','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('F1','H2'))),
                 
                 'A3'=>array('File: '.$get_file_data['file_name'],array('bold','center','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
