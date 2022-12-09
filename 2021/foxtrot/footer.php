@@ -3,7 +3,7 @@
 <div class="sectionwrapper footerwrapp">
 	<div class="container">
 		<div class="footerwrapper">
-			<div class="copyrights">2017 Copyright &copy; FoxTrot, LLC</div>
+			<div class="copyrights"><?php echo date('Y') ?> Copyright &copy; FoxTrot, LLC</div>
 			<div class="footersocial">
 				<a href="#" target="_blank"><i class="fa fa-facebook"></i></a>
 				<a href="#" target="_blank"><i class="fa fa-twitter"></i></a>

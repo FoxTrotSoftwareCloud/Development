@@ -211,7 +211,7 @@
                                                                                                     } else echo '00-00-0000' ?></h4>
 
                                     <?php if (in_array($get_file_type, [2, 9])) { ?>
-                                        <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$' . number_format($total_commission_amount, 2); ?></h4>
+                                        <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_commission_amount, 2); ?></h4>
                                        
                                     <?php }
                                 } else { ?>
@@ -255,7 +255,7 @@
 
                                     ?>
 
-                                        <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$' . number_format($total_Check_Amount, 2); ?></h4>
+                                        <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_Check_Amount, 2); ?></h4>
                                         
                             <?php }
                                 }

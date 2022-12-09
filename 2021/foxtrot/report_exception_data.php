@@ -70,22 +70,22 @@ $total_records=0;
     $pdf->SetFont('times','',10);
     $html='<table border="0" cellpadding="1" width="100%">
                 <tr style="background-color: #f1f1f1;">
-                    <td style="text-align:center;width:5%;"><h5>DATE</h5></td>
-                    <td style="text-align:center;width:8%;"><h5>REP#</h5></td>
-                    <td style="text-align:center;width:18%;"><h5>REP NAME</h5></td>
-                    <td style="text-align:center;"><h5>ACCOUNT#</h5></td>
-                    <td style="text-align:center;"><h5>CLIENT NAME</h5></td>';
+                    <td style="text-align:right;width:5%;"><h5>DATE</h5></td>
+                    <td style="text-align:right;width:8%;"><h5>REP#</h5></td>
+                    <td style="text-align:right;width:18%;"><h5>REP NAME</h5></td>
+                    <td style="text-align:right;"><h5>ACCOUNT#</h5></td>
+                    <td style="text-align:right;"><h5>CLIENT NAME</h5></td>';
                     if(isset($get_file_type) && $get_file_type == '1')
                     {
-                        $html.='<td style="width:25%;text-align:center;"><h5>CLIENT ADDRESS</h5></td>';
+                        $html.='<td style="width:25%;text-align:right;"><h5>CLIENT ADDRESS</h5></td>';
                     }
                     else if(isset($get_file_type) && $get_file_type == '2')
                     {
-                        $html.='<td style="text-align:center;"><h5>CUSIP</h5></td>';
-                        $html.='<td style="text-align:center;"><h5>PRINCIPAL</h5></td>';
-                        $html.='<td style="text-align:center;"><h5>COMMISSION</h5></td>';
+                        $html.='<td style="text-align:right;"><h5>CUSIP</h5></td>';
+                        $html.='<td style="text-align:right;"><h5>PRINCIPAL</h5></td>';
+                        $html.='<td style="text-align:right;"><h5>COMMISSION</h5></td>';
                     }
-                    $html.='<td style="width:18%;text-align:center;"><h5>ISSUE</h5></td>
+                    $html.='<td style="width:16%;text-align:right;"><h5>ISSUE</h5></td>
                 </tr>';
     //$pdf->Line(10, 81, 290, 81);
     if($return_exception != array())
@@ -94,21 +94,21 @@ $total_records=0;
         {
             $total_records = $total_records+1;
             $html.='<tr style="height:1px;">
-                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.date('m/d/Y',strtotime($error_val['date'])).'</td>
-                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$error_val['rep'].'</td>
-                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$error_val['rep_name'].'</td>
-                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$error_val['account_no'].'</td>
-                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$error_val['client'].'</td>';
+                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.date('m/d/Y',strtotime($error_val['date'])).'</td>
+                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['rep'].'</td>
+                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['rep_name'].'</td>
+                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['account_no'].'</td>
+                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['client'].'</td>';
                     if(isset($get_file_type) && $get_file_type == '1')
                     {
                         $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']);
-                        $html.='<td style="font-size:8px;font-weight:normal;text-align:center;">'.$get_client_data[0]['client_address'].'</td>';
+                        $html.='<td style="font-size:8px;font-weight:normal;text-align:right;">'.$get_client_data[0]['client_address'].'</td>';
                     }
                     else if(isset($get_file_type) && $get_file_type == '2')
                     {
                         $total_investments = $total_investments+$error_val['principal'];
                         $total_commissions = $total_commissions+$error_val['commission'];
-                        $html.='<td style="font-size:8px;font-weight:normal;text-align:center;">'.$error_val['cusip'].'</td>';
+                        $html.='<td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['cusip'].'</td>';
                         if($error_val['principal'] > 0){ 
                             $html.='<td style="font-size:8px;font-weight:normal;text-align:right;">'.'$'.number_format($error_val['principal'],2).'</td>';
                         }else{
@@ -120,21 +120,21 @@ $total_records=0;
                             $html.='<td style="font-size:8px;font-weight:normal;text-align:right;">$0</td>';
                         }
                     }
-                    $html.='<td style="font-size:8px;font-weight:normal;text-align:center;">'.$error_val['error'].'</td>
+                    $html.='<td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['error'].'</td>
             </tr>';
         } 
         if(isset($get_file_type) && $get_file_type == '1')
         {
             $html.='<tr style="background-color: #f1f1f1;">
                         <td colspan="6" style="font-size:8px;font-weight:bold;text-align:right;"></td>
-                        <td style="font-size:8px;font-weight:bold;text-align:center;">Total Records: '.$total_records.'</td>';
+                        <td style="font-size:8px;font-weight:bold;text-align:right;">Total Records: '.$total_records.'</td>';
             $html.='</tr>';
         }
         else if(isset($get_file_type) && $get_file_type == '2')
         {
             $html.='<tr style="background-color: #f1f1f1;">
                         <td colspan="5" style="font-size:8px;font-weight:bold;text-align:right;"></td>
-                        <td style="font-size:8px;font-weight:bold;text-align:center;">Total Records: '.$total_records.'</td>';
+                        <td style="font-size:8px;font-weight:bold;text-align:right;">Total Records: '.$total_records.'</td>';
                         if(isset($get_file_type) && $get_file_type == '2')
                         {
                             if($total_investments > 0){ 

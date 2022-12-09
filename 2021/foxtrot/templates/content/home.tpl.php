@@ -2,6 +2,11 @@
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/highcharts-3d.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
+<style>
+    .text-right{
+        text-align: right;
+    }
+</style>
 <script type="text/javascript" lang="javaScript">
 $(document).ready(function (){
 
@@ -466,17 +471,17 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
 					</div>
           <table width='100%' class="graphdata02 <?php print $dailyImportingStatus; ?>"> 
             <tr>
-                <td>New Files to Process:</td>
-                <td><?php echo $di_new_files; ?></td>
+                <td class="text-right">New Files to Process:</td>
+                <td width="15%" style="padding-left: 30px;"><?php echo $di_new_files; ?></td>
                 <td rowspan="5" width='60%'><div id="container_daily_importing" style="min-width: 200px; height: 200px;  max-width: 3000px; margin:  auto"></div></td>
             </tr>
             <tr>
-                <td>Completed Files:</td>
-                <td><?php echo $di_completed_files; ?></td>
+                <td class="text-right">Completed Files:</td>
+                <td width="15%" style="padding-left: 30px;"><?php echo $di_completed_files; ?></td>
             </tr>
             <tr>
-                <td>Partially Completed Files:</td>
-                <td><?php echo $di_partially_completed_files; ?></td>
+                <td class="text-right">Partially Completed Files:</td>
+                <td width="15%" style="padding-left: 30px;"><?php echo $di_partially_completed_files; ?></td>
             </tr>
           </table>
 					<div class="graphimg"></div>
@@ -502,24 +507,24 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
 								<span class="data01count">$<?php echo number_format($commission_received_amount);?></span>
 							</div>
 							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
-								<span class="data01title"><b>Ticket Charges:</b></span>
+								<span class="data01title"><b>Charges:</b></span>
 								<span class="data01count">$<?php echo number_format($charge_amount);?></span>
 							</div>
 						</div>
 					</div>
           <table width='100%' class="graphdata02_2 <?php print $commissionsStatus; ?>"> 
-            <tr>
+            <tr class="text-right">
               <td>Investment Amount:</td>
-              <td>$<?php echo number_format($invest_amount);?></td>
+              <td>$<?php echo number_format($invest_amount,2);?></td>
               <td rowspan="5" style="width: 60%;"><div id="container_commission" style="min-width: 200px; height: 200px; max-width: 3000px; margin:  auto"></div></td>
             </tr>
-            <tr>
+            <tr class="text-right">
               <td>Commission Received:</td>
-              <td>$<?php echo number_format($commission_received_amount);?></td>
+              <td>$<?php echo number_format($commission_received_amount,2);?></td>
             </tr>
-            <tr>
-              <td>Ticket Charges:</td>
-              <td>$<?php echo number_format($charge_amount);?></td>
+            <tr class="text-right">
+              <td>Charges:</td>
+              <td>$<?php echo number_format($charge_amount,2);?></td>
             </tr>
           </table>
 					<div class="graphimg"></div>
@@ -576,41 +581,37 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
 					</div>
           <table width='100%' class="graphdata02_3 <?php print $payrollStatus; ?>"> 
               <tr>
-                  <td>Last Cutoff</td>
-                  <td>15-11-2017</td>
-                  <td rowspan="9" style="width: 60%;"><div id="container_payroll" style="min-width: 200px; height: 200px; max-width: 3000px; margin:  auto"></div></td>
+                  <td class="text-right">Last Cutoff Date:</td>
+                  <td width="15%" style="padding-left: 30px;">15-11-2017</td>
+                  <td rowspan="9" style="width: 60%;"><div id="container_payroll" style="min-width: 200px; height: 300px; max-width: 3000px; margin:  auto"></div></td>
               </tr>
               <tr>
-                  <td>Gross Commission</td>
-                  <td>$325k</td>
+                  <td class="text-right">Gross Commission:</td>
+                  <td width="15%" style="padding-left: 30px;">$325k</td>
               </tr>
               <tr>
-                  <td>Average Payout Rate</td>
-                  <td>$346.512.1</td>
+                  <td class="text-right">Charges:</td>
+                  <td width="15%" style="padding-left: 30px;">$1.5k</td>
               </tr>
               <tr>
-                  <td>Charges</td>
-                  <td>$1.5k</td>
+                  <td class="text-right">Net Commission:</td>
+                  <td width="15%" style="padding-left: 30px;">$228k</td>
               </tr>
               <tr>
-                  <td>Net Commission</td>
-                  <td>$228k</td>
+                  <td class="text-right">Adjustments:</td>
+                  <td width="15%" style="padding-left: 30px;">$4.5k</td>
               </tr>
               <tr>
-                  <td>Adjustment</td>
-                  <td>$4.5k</td>
+                  <td class="text-right">Total Check Amount:</td>
+                  <td width="15%" style="padding-left: 30px;">$265k</td>
               </tr>
               <tr>
-                  <td>Total Check Amount</td>
-                  <td>$265k</td>
+                  <td class="text-right">Balance Carried Forward:</td>
+                  <td width="15%" style="padding-left: 30px;">$45k</td>
               </tr>
               <tr>
-                  <td>Balance Carried Forword</td>
-                  <td>$45k</td>
-              </tr>
-              <tr>
-                  <td>Retention</td>
-                  <td>$415k</td>
+                  <td class="text-right">Retention:</td>
+                  <td width="15%" style="padding-left: 30px;">$415k</td>
               </tr>
           </table>
 					<div class="graphimg"></div>
@@ -651,7 +652,7 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
                         <td style="text-align: left;min-width: 145px;"><?php echo '&nbsp;&nbsp;'.$total_hold_transaction;?></td>
                     </tr>
                     <tr>
-                        <td colspan="2"> <div id="container3" style="min-width: 290px; height: 400px; margin: 0 auto"></div> </td>
+                        <td colspan="2"> <div id="container3" style="min-width: 290px; height: 290px; margin: 0 auto"></div> </td>
                     </tr>
                 </table>
 				<div class="graphimg">
@@ -685,7 +686,7 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
 				</div>
                 <table width='100%' class="graphdata02_5 <?php print $ytdProductionStatus; ?>"> 
                     <tr>
-                        <td colspan="4" width='60%'><div id="container2" style="min-width: 190px; max-width: 800px; height: 400px; margin: 0 auto"></div></td>
+                        <td colspan="4" width='60%'><div id="container2" style="min-width: 190px; max-width: 800px; height: 350px; margin: 0 auto"></div></td>
                     </tr>
                     <?php 
                         foreach($ytd_product_category as $key=>$val){

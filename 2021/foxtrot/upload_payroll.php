@@ -15,9 +15,9 @@
 
     $instance = new payroll();
     $instance_broker_master = new broker_master();
-    $payroll_date = '';
-    $clearing_business_cutoff_date = '';
-    $direct_business_cutoff_date = '';
+    $payroll_date = date('m/d/Y');
+    $clearing_business_cutoff_date = date('m/d/Y', strtotime('last day of previous month'));
+    $direct_business_cutoff_date = date('m/d/Y', strtotime('last day of previous month'));;
     $payroll_transactions_array = $instance->select_payroll_transactions();
     $select_brokers = $instance_broker_master->select_broker_by_branch_company();
     $instance_multi_company = new manage_company();
