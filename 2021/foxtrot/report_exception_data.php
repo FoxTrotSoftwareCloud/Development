@@ -57,7 +57,7 @@ $total_records=0;
                     <td width="23%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Source: '.$get_file_data['source'].'</td>
                     <td width="24%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File Type: '.$get_file_data['file_type'].'</td>
                     <td width="15%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Date: '.date('m/d/Y',strtotime($get_file_data['last_processed_date'])).'</td>';
-                    if(isset($get_file_type) && $get_file_type == '2')
+                    if(isset($get_file_type) && ($get_file_type == '2' || $get_file_type == '9') )
                     {
                         $html .='<td width="15%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Amount: $'.number_format($total_commission_amount,2).'</td>';
                     }
@@ -79,7 +79,7 @@ $total_records=0;
                     {
                         $html.='<td style="width:25%;text-align:right;"><h5>CLIENT ADDRESS</h5></td>';
                     }
-                    else if(isset($get_file_type) && $get_file_type == '2')
+                    else if(isset($get_file_type) &&  ($get_file_type == '2' || $get_file_type == '9'))
                     {
                         $html.='<td style="text-align:right;"><h5>CUSIP</h5></td>';
                         $html.='<td style="text-align:right;"><h5>PRINCIPAL</h5></td>';
@@ -104,7 +104,7 @@ $total_records=0;
                         $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']);
                         $html.='<td style="font-size:8px;font-weight:normal;text-align:right;">'.$get_client_data[0]['client_address'].'</td>';
                     }
-                    else if(isset($get_file_type) && $get_file_type == '2')
+                    else if(isset($get_file_type) &&  ($get_file_type == '2' || $get_file_type == '9'))
                     {
                         $total_investments = $total_investments+$error_val['principal'];
                         $total_commissions = $total_commissions+$error_val['commission'];
@@ -130,12 +130,12 @@ $total_records=0;
                         <td style="font-size:8px;font-weight:bold;text-align:right;">Total Records: '.$total_records.'</td>';
             $html.='</tr>';
         }
-        else if(isset($get_file_type) && $get_file_type == '2')
+        else if(isset($get_file_type) &&  ($get_file_type == '2' || $get_file_type == '9'))
         {
             $html.='<tr style="background-color: #f1f1f1;">
                         <td colspan="5" style="font-size:8px;font-weight:bold;text-align:right;"></td>
                         <td style="font-size:8px;font-weight:bold;text-align:right;">Total Records: '.$total_records.'</td>';
-                        if(isset($get_file_type) && $get_file_type == '2')
+                        if(isset($get_file_type) &&  ($get_file_type == '2' || $get_file_type == '9'))
                         {
                             if($total_investments > 0){ 
                                 $html.='<td style="font-size:8px;font-weight:bold;text-align:right;">'.'$'.number_format($total_investments,2).'</td>';

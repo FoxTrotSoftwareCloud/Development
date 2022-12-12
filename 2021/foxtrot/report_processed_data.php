@@ -59,7 +59,7 @@ $total_records=0;
                 </tr>
                 <tr>
                     <td width="50%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">File Type: '.$get_file_data['file_type'].'</td>';
-                    if(isset($get_file_type) && $get_file_type == '2')
+                    if(isset($get_file_type) && ($get_file_type == '2' || $get_file_type == '9'))
                     {
                         $batch_id = $instance->get_file_batch($file_id);
                         $html .='<td width="20%" style="font-size:10px;font-weight:bold;margin-right: 5% !important;">Batch: '.$batch_id.'</td>';
@@ -76,14 +76,14 @@ $total_records=0;
                 <tr style="background-color: #f1f1f1;">
                     <td style="text-align:right;"><h5>DATE</h5></td>
                     <td style="text-align:right;width:8%;"><h5>REP#</h5></td>
-                    <td style="text-align:left;width:20%;"><h5>REP NAME</h5></td>
+                    <td style="text-align:right;width:20%;"><h5>REP NAME</h5></td>
                     <td style="text-align:right;"><h5>ACCOUNT#</h5></td>
-                    <td style="text-align:left;"><h5>CLIENT NAME</h5></td>';
+                    <td style="text-align:right;"><h5>CLIENT NAME</h5></td>';
                     if(isset($get_file_type) && $get_file_type == '1')
                     {
                         $html.='<td style="width:25%;text-align:right;"><h5>CLIENT ADDRESS</h5></td>';
                     }
-                    else if(isset($get_file_type) && $get_file_type == '2')
+                    else if(isset($get_file_type) && ($get_file_type == '2' || $get_file_type == '9'))
                     {
                         $html.='<td style="text-align:right;"><h5>CUSIP</h5></td>';
                         $html.='<td style="text-align:right;"><h5>PRINCIPAL</h5></td>';
@@ -100,15 +100,15 @@ $total_records=0;
             $html.='<tr>
                        <td style="font-size:8px;font-weight:normal;text-align:right;">'.date('m/d/Y',strtotime($process_val['date'])).'</td>
                        <td style="font-size:8px;font-weight:normal;text-align:right;">'.$process_val['rep'].'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:left;">'.$process_val['rep_name'].'</td>
+                       <td style="font-size:8px;font-weight:normal;text-align:right;">'.$process_val['rep_name'].'</td>
                        <td style="font-size:8px;font-weight:normal;text-align:right;">'.$process_val['account_no'].'</td>
-                       <td style="font-size:8px;font-weight:normal;text-align:left;">'.$process_val['client'].'</td>';
+                       <td style="font-size:8px;font-weight:normal;text-align:right;">'.$process_val['client'].'</td>';
                         if(isset($get_file_type) && $get_file_type == '1')
                         {
                             $get_client_data = $instance->get_client_data($file_id,$process_val['temp_data_id']);
                             $html.='<td style="font-size:8px;font-weight:normal;text-align:right;">'.$get_client_data[0]['client_address'].'</td>';
                         }
-                        else if(isset($get_file_type) && $get_file_type == '2')
+                        else if(isset($get_file_type) && ($get_file_type == '2' || $get_file_type == '9'))
                         {
                             $total_investments = $total_investments+$process_val['principal'];
                             $total_commissions = $total_commissions+$process_val['commission'];
@@ -133,12 +133,12 @@ $total_records=0;
                         <td style="font-size:8px;font-weight:bold;text-align:right;">Total Records: '.$total_records.'</td>';
             $html.='</tr>';
         }
-        else if(isset($get_file_type) && $get_file_type == '2')
+        else if(isset($get_file_type) && ($get_file_type == '2' || $get_file_type == '9'))
         {
             $html.='<tr style="background-color: #f1f1f1;">
                         <td colspan="5" style="font-size:8px;font-weight:bold;text-align:right;"></td>
                         <td style="font-size:8px;font-weight:bold;text-align:right;">Total Records: '.$total_records.'</td>';
-                        if(isset($get_file_type) && $get_file_type == '2')
+                        if(isset($get_file_type) && ($get_file_type == '2' || $get_file_type == '9'))
                         {
                             if($total_investments > 0){ 
                                 $html.='<td style="font-size:8px;font-weight:bold;text-align:right;">'.'$'.number_format($total_investments,2).'</td>';

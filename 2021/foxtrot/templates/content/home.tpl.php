@@ -384,15 +384,18 @@ Highcharts.chart('container_payroll', {
     },
     xAxis: {
         categories: [
-            'Last Cutoff',
-            'Gross Commission',
-            'Average Payout Rate',
-            'Charges',
-            'Net Commission',
-            'Adjustment',
-            'Total Check Amount',
-            'Balance Carried Forword',  
-            'Retention'
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',  
+            'September',
+            'October',
+            'November',
+            'December',
         ],
         crosshair: true
     },
@@ -420,7 +423,7 @@ Highcharts.chart('container_payroll', {
     series: [{
         
         name: 'Payroll',
-        data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6]
+        data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6,50,50,50]
 
     }]
 });
