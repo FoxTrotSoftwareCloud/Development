@@ -1801,6 +1801,7 @@ class payroll extends db{
                     ." `rp`.`payout_rate` AS rate,"
                     ." `rp`.`is_split`,"
                     ." `rp`.`broker_id` AS `broker_name`,"
+                    ." `rp`.`client_account_number`,"
                     ." `com`.`company_name`,"
                     ." `cm`.`first_name` AS client_firstname,"
                     ." `cm`.`last_name` AS client_lastname,"

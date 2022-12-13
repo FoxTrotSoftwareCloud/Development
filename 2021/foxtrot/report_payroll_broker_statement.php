@@ -184,15 +184,15 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $html='<table border="0" width="100%">';
                         $html.='<tr style="background-color: #f1f1f1;">
                             <td width="10%" style="text-align:center;"><h5>TRADE DATE</h5></td>
-                            <td width="15%" style="text-align:center;"><h5>CLIENT</h5></td>
-                            <td width="15%" style="text-align:center;"><h5>INVESTMENT</h5></td>
+                            <td style="text-align:left;"><h5>CLIENT/<br>CLIENT ACCOUNT #</h5></td>
+                            <td width="15%" style="text-align:left;"><h5>INVESTMENT</h5></td>
                             <td width="5%" style="text-align:center;"><h5>B/S</h5></td>
-                            <td width="9%" style="text-align:center;"><h5>INVESTMENT AMOUNT</h5></td>
-                            <td width="9%" style="text-align:center;"><h5>GROSS COMMISSION</h5></td>
-                            <td width="9%" style="text-align:center;"><h5>CLEARING CHARGE</h5></td>
-                            <td width="9%" style="text-align:center;"><h5>NET COMMISSION</h5></td>
-                            <td width="9%" style="text-align:center;"><h5>RATE</h5></td>
-                            <td width="10%" style="text-align:center;"><h5>BROKER COMMISSION</h5></td>
+                            <td width="9%" style="text-align:right;"><h5>INVESTMENT AMOUNT</h5></td>
+                            <td width="9%" style="text-align:right;"><h5>GROSS COMMISSION</h5></td>
+                            <td width="9%" style="text-align:right;"><h5>CLEARING CHARGE</h5></td>
+                            <td width="9%" style="text-align:right;"><h5>NET COMMISSION</h5></td>
+                            <td width="9%" style="text-align:right;"><h5>RATE</h5></td>
+                            <td width="10%" style="text-align:right;"><h5>BROKER COMMISSION</h5></td>
                         </tr>
                         <br/>';
             if(isset($brokers_comm_data['direct_transactions']) && $brokers_comm_data['direct_transactions'] != array())
@@ -251,8 +251,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         if($comm_sub_data['trade_date'] != '0000-00-00' && $comm_sub_data['trade_date'] != ''){ $trade_date = date('m/d/Y',strtotime($comm_sub_data['trade_date'])); }  
                         $html.='<tr>
                                    <td style="font-size:8px;font-weight:normal;text-align:center;">'.$trade_date.'</td>
-                                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$comm_sub_data['client_firstname'].', '.$comm_sub_data['client_lastname'].'</td>
-                                   <td style="font-size:8px;font-weight:normal;text-align:center;">'.$comm_sub_data['batch_description'].'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:left;">'.$comm_sub_data['client_firstname'].', '.$comm_sub_data['client_lastname'].'<br>'.$comm_sub_data['client_account_number'].'</td>
+                                   <td style="font-size:8px;font-weight:normal;text-align:left;">'.$comm_sub_data['batch_description'].'</td>
                                    <td style="font-size:8px;font-weight:normal;text-align:center;">'.$buy_sell.'</td>
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($comm_sub_data['investment_amount'],2).'</td>
                                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.number_format($comm_sub_data['commission_received'],2).'</td>
@@ -522,7 +522,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $total_check_amount = ($total_broker_transactions+$total_split_transactions+$total_override_transactions+$total_adjustments+$total_base_salary+$total_prior_balance+$total_finra_assessment+$total_sipc_assessment);
             $pdf->SetFont('times','B',12);
             $pdf->SetFont('times','',10);
-            $html='<table border="0" width="100%">';
+            $html='<table border="0" width="95%">';
                         $html.='<tr>
                                <td colspan="10" style="font-size:8px;font-weight:bold;text-align:right;">BROKER COMMISSION TOTALS</td>
                         </tr>';
@@ -568,7 +568,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             
             $pdf->SetFont('times','B',12);
             $pdf->SetFont('times','',10);
-            $html='<table width="100%">
+            $html='<table width="95%">
                     <tr align="left" style="font-size:10px;font-weight:normal;text-align:left;">
                         <td width="70%">
                             <table width="100%">
@@ -648,7 +648,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $html='<table>';
         $html.='<tr style="background-color: #f1f1f1;">
                     <td width="10%" style="text-align:center;"><h5>TRADE DATE#</h5></td>
-                    <td width="15%" style="text-align:center;"><h5>CLIENT</h5></td>
+                    <td width="15%" style="text-align:center;"><h5>CLIENT/<br>CLIENT ACCOUNT #</h5></td>
                     <td width="15%" style="text-align:center;"><h5>INVESTMENT</h5></td>
                     <td width="5%" style="text-align:center;"><h5>B/S</h5></td>
                     <td width="9%" style="text-align:center;"><h5>INVESTMENT AMOUNT</h5></td>

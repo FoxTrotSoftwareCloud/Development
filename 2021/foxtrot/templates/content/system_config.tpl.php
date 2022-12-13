@@ -67,13 +67,13 @@
                 <div class="col-md-6">
                     <div class="form-group"> 
                         <label>FINRA Assessment </label>
-                        <input type="number" value="<?php echo $finra;?>" required="required" min="0" max=" 9.99999999" class="form-control" name="finra" id="finra"  />
+                        <input type="number" value="<?php echo number_format($finra,5);?>" required="required" min="0" max="99.99999" class="form-control" name="finra" id="finra"  />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>SIPC Assessment </label>
-                        <input type="number" value="<?php echo $sipc;?>"  required="required" min="0" max=" 9.99999999" class="form-control" name="sipc"  />
+                        <input type="number" value="<?php echo number_format($sipc,5);?>"  required="required" min="0" max="99.99999" class="form-control" name="sipc"  />
                     </div>
                 </div>
             </div>
