@@ -1705,6 +1705,7 @@ class payroll extends db{
             $companyName = $manage_company->select_company_by_id($company);
             $companyName = $companyName['company_name'];
         }
+        $return['company_name'] = $companyName;
         if($payroll_id != '') {
             $con.=" AND `pc`.`payroll_id` = '".$payroll_id."'";
             $payroll_date = $this->get_payroll_uploads($payroll_id);
@@ -1738,6 +1739,7 @@ class payroll extends db{
                     `bm`.`first_name` AS broker_firstname,
                     `bm`.`last_name` AS broker_lastname,
                     `bm`.`fund`,
+                    `bm`.`display_on_statement`,
                     `bm`.`internal`,
                     0 AS `payroll_draw`,
                     0 AS `salary`,
@@ -1873,6 +1875,7 @@ class payroll extends db{
                     ." `pt`.`type` AS product_category,"
                     ." `psr`.`id` AS split_id,"
                     ." `rp`.`trade_date`,"
+                    ." `rp`.`client_account_number`,"
                     ." `cm`.`first_name` AS client_firstname,"
                     ." `cm`.`last_name` AS client_lastname,"
                     ." `bc`.`batch_desc` AS batch_description,"
@@ -1930,6 +1933,7 @@ class payroll extends db{
                    ." `pt`.`type` as product_category,"
                    ." `por`.`id` as override_id,"
                    ." `rp`.`trade_date`,"
+                   ." `rp`.`client_account_number`,"
                    ." `cm`.`first_name` as client_firstname,"
                    ." `cm`.`last_name` as client_lastname,"
                    ." `bc`.`batch_desc` as batch_description,"

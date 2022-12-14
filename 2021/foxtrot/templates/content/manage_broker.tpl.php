@@ -3477,7 +3477,7 @@
                                        <div class="col-md-4">
                                           <div class="form-group">
                                              <select name="branch_office_1" id="branch_office_1" class="form-control">
-                                                <option value="">Select Branch Office</option>
+                                                <option value="">Select Branch Type</option>
                                                 <?php foreach ($get_branch_office as $key => $val) { ?>
                                                    <option value="<?php echo $val['id']; ?>" <?php if (isset($branch_office_1) && $branch_office_1 == $val['id']) {
                                                                                                 echo "selected='selected'";
@@ -3508,7 +3508,7 @@
                                        <div class="col-md-4">
                                           <div class="form-group">
                                              <select name="branch_office_2" id="branch_office_2" class="form-control">
-                                                <option value="">Select Branch Office</option>
+                                                <option value="">Select Branch Type</option>
                                                 <?php foreach ($get_branch_office as $key => $val) { ?>
                                                    <option value="<?php echo $val['id']; ?>" <?php if (isset($branch_office_2) && $branch_office_2 == $val['id']) {
                                                                                                 echo "selected='selected'";
@@ -3539,7 +3539,7 @@
                                        <div class="col-md-4">
                                           <div class="form-group">
                                              <select name="branch_office_3" id="branch_office_3" class="form-control">
-                                                <option value="0">Select Branch Office</option>
+                                                <option value="0">Select Branch Type</option>
                                                 <?php foreach ($get_branch_office as $key => $val) { ?>
                                                    <option value="<?php echo $val['id']; ?>" <?php if (isset($branch_office_3) && $branch_office_3 == $val['id']) {
                                                                                                 echo "selected='selected'";

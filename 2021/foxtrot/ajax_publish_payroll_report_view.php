@@ -39,7 +39,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $payroll_date = $payroll_date['payroll_date'];
 
         $get_broker_commission_data = $instance_payroll->get_broker_commission_report_data($company,$payroll_id,$broker,$print_type);
-    
+        //echo "<pre>"; print_r($get_broker_commission_data);die;
         if($payroll_date != ''){ 
             $payroll_date = date('F d, Y',strtotime($payroll_date));
         }
@@ -49,7 +49,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         }
         else
         {
-            $company = 'All Company';
+            $company = $system_company_name;
         }
         
         if(isset($get_broker_commission_data['broker_transactions']) && $get_broker_commission_data['broker_transactions'] != array())
@@ -113,12 +113,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 <td width="30%" align="left"><?php echo $img;?></td>
                             <?php } ?>
                             <td width="40%" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo $company;?></td>
-                            <?php
+                            <!-- <?php
                             if(isset($system_company_name) && $system_company_name != '')
-                            {?>
-                                <td width="30%" style="font-size:12px;font-weight:bold;text-align:right;"><?php echo $system_company_name;?></td>
-                            <?php
-                            }?>
+                            {?> -->
+                                <td width="30%" style="font-size:12px;font-weight:bold;text-align:right;">
+                                    <!-- <?php echo $system_company_name;?> -->
+                                </td>
+                            <!-- <?php
+                            }?> -->
                         </tr>
                         <tr>
                             <td width="100%" colspan="3" style="font-size:16px;font-weight:bold;text-align:center;"><?php echo 'BROKER STATEMENT';?></td>
@@ -129,12 +131,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                  </table>
                  <table border="0" width="100%">
                         <tr>
-                            <td width="70%" align="left" style="font-size:10px;"><?php echo $broker_name;?></td>
-                            <td width="30%" align="left" style="font-size:10px;">BROKER#/FUND/INTERNAL : <?php echo $brokers_comm_data['broker_name'].' / '.$brokers_comm_data['fund'].' / '.$brokers_comm_data['internal'];?></td>
+                            <td width="80%" align="left" style="font-size:10px;"><?php echo $broker_name;?></td>
+                            <td width="20%" align="left" style="font-size:10px;">Broker : <?php echo $brokers_comm_data['display_on_statement'];?></td>
                         </tr>
                         <tr>
-                            <td width="70%" align="left" style="font-size:10px;"><?php echo $broker_address;?></td>
-                            <td width="30%" align="left" style="font-size:10px;">BRANCH# : <?php echo strtoupper($broker_branch);?></td>
+                            <td width="80%" align="left" style="font-size:10px;"><?php echo $broker_address;?></td>
+                            <td width="20%" align="left" style="font-size:10px;">BRANCH# : <?php echo strtoupper($brokers_comm_data['branch_name1']);?></td>
                         </tr>
                         <tr>
                             <td width="20%" align="left" style="font-size:10px;"><?php echo $broker_city;?></td>
@@ -147,7 +149,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                      <thead>
                         <tr style="background-color: #f1f1f1;">
                             <td width="10%" style="text-align:center;"><h5>TRADE DATE</h5></td>
-                            <td width="15%" style="text-align:center;"><h5>CLIENT</h5></td>
+                            <td width="15%" style="text-align:center;"><h5>CLIENT/<br>ACCOUNT#</h5></td>
                             <td width="15%" style="text-align:center;"><h5>INVESTMENT</h5></td>
                             <td width="5%" style="text-align:center;"><h5>B/S</h5></td>
                             <td width="9%" style="text-align:center;"><h5>INVESTMENT AMOUNT</h5></td>
@@ -218,14 +220,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 if($comm_sub_data['trade_date'] != '0000-00-00' && $comm_sub_data['trade_date'] != ''){ $trade_date = date('m/d/Y',strtotime($comm_sub_data['trade_date'])); } ?>
                                 <tr>
                                    <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trade_date;?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $comm_sub_data['client_firstname'].', '.$comm_sub_data['client_lastname'];?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $comm_sub_data['batch_description'];?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:left;"><?php echo $comm_sub_data['client_firstname'].', '.$comm_sub_data['client_lastname'];?> <br> <?php echo $comm_sub_data['client_account_number']; ?> </td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:left;"><?php echo $comm_sub_data['batch_description'];?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $buy_sell;?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['investment_amount'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['commission_received'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['charge'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['net_commission'],2);?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['rate'],2); ?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['rate'],2).'%'; ?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['commission_paid'],2);?></td>
                                 </tr>
                             <?php
@@ -313,8 +315,8 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 if($override_sub_data['trade_date'] != '0000-00-00' && $override_sub_data['trade_date'] != ''){ $trade_date = date('m/d/Y',strtotime($override_sub_data['trade_date'])); }?>  
                                 <tr>
                                    <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trade_date; ?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $override_sub_data['client_firstname'].', '.$override_sub_data['client_lastname'];?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $override_sub_data['batch_description'];?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:left;"><?php echo $override_sub_data['client_firstname'].', '.$override_sub_data['client_lastname'];?> <br> <?php echo $override_sub_data['client_account_number'] ?> </td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:left;"><?php echo $override_sub_data['batch_description'];?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $buy_sell;?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($override_sub_data['investment_amount'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($override_sub_data['commission_received'],2);?></td>
@@ -407,14 +409,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                 if($split_sub_data['trade_date'] != '0000-00-00' && $split_sub_data['trade_date'] != ''){ $trade_date = date('m/d/Y',strtotime($split_sub_data['trade_date'])); }?>  
                                 <tr>
                                    <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $trade_date;?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $split_sub_data['client_firstname'].', '.$split_sub_data['client_lastname'];?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $split_sub_data['batch_description'];?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:left;"><?php echo $split_sub_data['client_firstname'].', '.$split_sub_data['client_lastname'];?> <br> <?php echo $split_sub_data['client_account_number'] ?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:left;"><?php echo $split_sub_data['batch_description'];?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $buy_sell;?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['investment_amount'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['commission_received'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['charge'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['net_commission'],2);?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['rate'],2);?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['rate'],2).'%';?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($split_sub_data['rate_amount'],2);?></td>
                                 </tr>
                             <?php
@@ -594,12 +596,14 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         <td width="30%" align="left"><?php echo $img;?></td>
                     <?php } ?>
                     <td width="40%" style="font-size:14px;font-weight:bold;text-align:center;"><?php echo $company;?></td>
-                    <?php
+                    <!-- <?php
                     if(isset($system_company_name) && $system_company_name != '')
-                    {?>
-                        <td width="30%" style="font-size:12px;font-weight:bold;text-align:right;"><?php echo $system_company_name;?></td>
-                    <?php
-                    }?>
+                    {?> -->
+                        <td width="30%" style="font-size:12px;font-weight:bold;text-align:right;">
+                            <!-- <?php echo $system_company_name;?> -->
+                        </td>
+                    <!-- <?php
+                    }?> -->
                 </tr>
                 <tr>
                     <td width="100%" colspan="3" style="font-size:16px;font-weight:bold;text-align:center;"><?php echo 'COMMISSION STATEMENT';?></td>
@@ -611,7 +615,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         <table>
             <tr style="background-color: #f1f1f1;">
                 <td width="10%" style="text-align:center;"><h5>TRADE DATE#</h5></td>
-                <td width="15%" style="text-align:center;"><h5>CLIENT</h5></td>
+                <td width="15%" style="text-align:center;"><h5>CLIENT/<br>ACCOUNT#</h5></td>
                 <td width="15%" style="text-align:center;"><h5>INVESTMENT</h5></td>
                 <td width="5%" style="text-align:center;"><h5>B/S</h5></td>
                 <td width="9%" style="text-align:center;"><h5>INVESTMENT AMOUNT</h5></td>
