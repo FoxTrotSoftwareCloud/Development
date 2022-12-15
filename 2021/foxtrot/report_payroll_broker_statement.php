@@ -184,15 +184,15 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $html='<table border="0" width="100%">';
                         $html.='<tr style="background-color: #f1f1f1;">
                             <td width="10%" style="text-align:center;"><h5>TRADE DATE</h5></td>
-                            <td style="text-align:left;"><h5>CLIENT/<br>ACCOUNT#</h5></td>
-                            <td width="15%" style="text-align:left;"><h5>INVESTMENT</h5></td>
+                            <td style="text-align:center;"><h5>CLIENT/<br>ACCOUNT#</h5></td>
+                            <td width="15%" style="text-align:center;"><h5>INVESTMENT</h5></td>
                             <td width="5%" style="text-align:center;"><h5>B/S</h5></td>
-                            <td width="9%" style="text-align:right;"><h5>INVESTMENT AMOUNT</h5></td>
-                            <td width="9%" style="text-align:right;"><h5>GROSS COMMISSION</h5></td>
-                            <td width="9%" style="text-align:right;"><h5>CLEARING CHARGE</h5></td>
-                            <td width="9%" style="text-align:right;"><h5>NET <br> COMMISSION</h5></td>
-                            <td width="9%" style="text-align:right;"><h5>RATE</h5></td>
-                            <td width="10%" style="text-align:right;"><h5>BROKER COMMISSION</h5></td>
+                            <td width="9%" style="text-align:center;"><h5>INVESTMENT AMOUNT</h5></td>
+                            <td width="9%" style="text-align:center;"><h5>GROSS COMMISSION</h5></td>
+                            <td width="9%" style="text-align:center;"><h5>CLEARING CHARGE</h5></td>
+                            <td width="9%" style="text-align:center;"><h5>NET <br> COMMISSION</h5></td>
+                            <td width="9%" style="text-align:center;"><h5>RATE</h5></td>
+                            <td width="10%" style="text-align:center;"><h5>BROKER COMMISSION</h5></td>
                         </tr>
                         <br/>';
             if(isset($brokers_comm_data['direct_transactions']) && $brokers_comm_data['direct_transactions'] != array())

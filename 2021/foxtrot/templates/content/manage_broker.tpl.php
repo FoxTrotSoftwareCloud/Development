@@ -677,7 +677,7 @@
                   </div>
                </div>
             </ul>
-            <form method="post" onsubmit="return waitingDialog.show();">
+            <form method="post" onsubmit="return waitingDialog.show();" id="broker_form">
 
                <div class="tab-content">
                   <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "general") {
