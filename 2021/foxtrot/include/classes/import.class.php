@@ -3376,8 +3376,9 @@
                                 $product_category_id = (isset($check_data_val['product_category']) ? $check_data_val['product_category'] : '1');
                                 
                                 $foundProduct = [
-                                    'category'=> $product_category,
+                                    'category'=> $product_category_id,
                                     'name'=>"*GENERIC PRODUCT - ".strtoupper($file_sponsor_array['name']),
+                                    'cusip'=>$check_data_val['cusip_number'],
                                     'security'=>"*GENERIC".strtoupper($file_sponsor_array['name']),
                                     'id'=>0,
                                     'product_category'=>$check_data_val['product_category'],

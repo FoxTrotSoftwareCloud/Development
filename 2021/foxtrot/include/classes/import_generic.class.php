@@ -153,6 +153,7 @@ class import_generic extends import {
                 } else {
                     // Validate the file values
                     $fieldValues = "";
+                    $rowArray[12]=$rowArray[3];
                     foreach ($rowArray AS $fieldKey=>$fieldValue){
                         // Check if field is a date and convert it to a 'Y-m-d' format
                         if ($fieldKey == 2){
@@ -170,7 +171,7 @@ class import_generic extends import {
                     } else {
                         $tableFields = "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
                             ." `customer_account_number`, `alpha_code`, `comm_type`,`gross_transaction_amount`,"
-                            ." `gross_commission_amount`, `rep_regular`, `rep_trail`, `dealer_commission_amount`";
+                            ." `gross_commission_amount`, `rep_regular`, `rep_trail`, `dealer_commission_amount`, `cusip_number`";
                     }
                     // Insert record into the detail table
                     $q = "INSERT INTO `".IMPORT_GEN_DETAIL_DATA."` "

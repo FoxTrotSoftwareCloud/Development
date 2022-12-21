@@ -81,8 +81,8 @@
 			$fname = isset($data['fname'])?$this->re_db_input($data['fname']):'';
 			$lname = isset($data['lname'])?$this->re_db_input($data['lname']):'';
 			$mi = isset($data['mi'])?$this->re_db_input($data['mi']):'';
-			$do_not_contact = isset($data['do_not_contact'])?$this->re_db_input($data['do_not_contact']):'';
-			$active = isset($data['active'])?$this->re_db_input($data['active']):'';
+			$do_not_contact = isset($data['do_not_contact'])?$this->re_db_input($data['do_not_contact']):0;
+			$active = isset($data['active'])?$this->re_db_input($data['active']):0;
 			$is_reviewed = isset($data['is_reviewed'])?1:0;
 			$reviewed_at = isset($data['is_reviewed'])?date("Y-m-d H:i:s",strtotime($this->re_db_input($data['is_reviewed']))):'';
 			$reviewed_by = isset($data['reviewed_by'])?$this->re_db_input($data['reviewed_by']):'';
@@ -94,7 +94,7 @@
 			$household = isset($data['household'])?$this->re_db_input($data['household']):'';
 			$broker_name = isset($data['broker_name'])?$this->re_db_input($data['broker_name']):'';
 			$split_broker = isset($data['split_broker'])?$this->re_db_input($data['split_broker']):'';
-			$split_rate = isset($data['split_rate'])?$this->re_db_input($data['split_rate']):'';
+			$split_rate = isset($data['split_rate'])?$this->re_db_input($data['split_rate']):0;
 			$address1 = isset($data['address1'])?$this->re_db_input($data['address1']):'';
 			$address2 = isset($data['address2'])?$this->re_db_input($data['address2']):'';
 			$city = isset($data['city'])?$this->re_db_input($data['city']):'';
@@ -108,7 +108,7 @@
 			$telephone_no = str_replace("-", '', $telephone_mask);
 			$telephone_brack1 = str_replace("(", '', $telephone_no);
 			$telephone = str_replace(")", '', $telephone_brack1);
-			$contact_status = isset($data['contact_status'])?$this->re_db_input($data['contact_status']):'';
+			$contact_status = isset($data['contact_status'])?$this->re_db_input($data['contact_status']):0;
 			$birth_date = isset($data['birth_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['birth_date']))):'0000-00-00';
 			$date_established = isset($data['date_established'])?$this->re_db_input(date('Y-m-d',strtotime($data['date_established']))):'0000-00-00';
 			$open_date = isset($data['open_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['open_date']))):'0000-00-00';
