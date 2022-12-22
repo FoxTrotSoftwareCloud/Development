@@ -72,9 +72,11 @@ $total_records=0;
                 <tr style="background-color: #f1f1f1;">
                     <td style="text-align:right;width:5%;"><h5>DATE</h5></td>
                     <td style="text-align:right;width:8%;"><h5>REP#</h5></td>
-                    <td style="text-align:right;width:18%;"><h5>REP NAME</h5></td>
+                    <td style="width:3%;"></td>
+                    <td style="text-align:left;width:14%;"><h5>REP NAME</h5></td>
                     <td style="text-align:right;"><h5>ACCOUNT#</h5></td>
-                    <td style="text-align:right;"><h5>CLIENT NAME</h5></td>';
+                    <td style="width:3%;"></td>
+                    <td style="text-align:left;"><h5>CLIENT NAME</h5></td>';
                     if(isset($get_file_type) && $get_file_type == '1')
                     {
                         $html.='<td style="width:25%;text-align:right;"><h5>CLIENT ADDRESS</h5></td>';
@@ -96,9 +98,11 @@ $total_records=0;
             $html.='<tr style="height:1px;">
                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.date('m/d/Y',strtotime($error_val['date'])).'</td>
                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['rep'].'</td>
-                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['rep_name'].'</td>
+                   <td></td>
+                   <td style="font-size:8px;font-weight:normal;text-align:left;">'.$error_val['rep_name'].'</td>
                    <td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['account_no'].'</td>
-                   <td style="font-size:8px;font-weight:normal;text-align:right;">'.$error_val['client'].'</td>';
+                   <td></td>
+                   <td style="font-size:8px;font-weight:normal;text-align:left;">'.$error_val['client'].'</td>';
                     if(isset($get_file_type) && $get_file_type == '1')
                     {
                         $get_client_data = $instance->get_client_data($file_id,$error_val['temp_data_id']);
@@ -126,14 +130,14 @@ $total_records=0;
         if(isset($get_file_type) && $get_file_type == '1')
         {
             $html.='<tr style="background-color: #f1f1f1;">
-                        <td colspan="6" style="font-size:8px;font-weight:bold;text-align:right;"></td>
+                        <td colspan="8" style="font-size:8px;font-weight:bold;text-align:right;"></td>
                         <td style="font-size:8px;font-weight:bold;text-align:right;">Total Records: '.$total_records.'</td>';
             $html.='</tr>';
         }
         else if(isset($get_file_type) &&  ($get_file_type == '2' || $get_file_type == '9'))
         {
             $html.='<tr style="background-color: #f1f1f1;">
-                        <td colspan="5" style="font-size:8px;font-weight:bold;text-align:right;"></td>
+                        <td colspan="7" style="font-size:8px;font-weight:bold;text-align:right;"></td>
                         <td style="font-size:8px;font-weight:bold;text-align:right;">Total Records: '.$total_records.'</td>';
                         if(isset($get_file_type) &&  ($get_file_type == '2' || $get_file_type == '9'))
                         {
@@ -155,7 +159,7 @@ $total_records=0;
     else
     {
         $html.='<tr>
-                    <td style="font-size:8px;font-weight:cold;text-align:center;" colspan="8">No Records Found.</td>
+                    <td style="font-size:8px;font-weight:cold;text-align:center;" colspan="10">No Records Found.</td>
                 </tr>';
     }           
     $html.='</table>';

@@ -228,6 +228,7 @@
             // Validate Exception Field
 			if($exception_value==''){
 				$this->errors = 'Please enter field value.';
+                return $this->errors;
 			}
             if($resolveAction==9 && $error_code_id == 30 )
             {
@@ -271,6 +272,7 @@
                     
                 } else{
                     $this->errors = 'Client ID not found.';
+                    return $this->errors; 
                 }
             }
 
@@ -319,6 +321,7 @@
                 
                 } else{
                     $this->errors = 'Client ID not found.';
+                    return $this->errors; 
                 }
 
             }
@@ -401,6 +404,7 @@
 
                 } else{
                     $this->errors = 'Client ID not found.';
+                    return $this->errors; 
                 }
             }
 
@@ -442,6 +446,9 @@
                 }
                 else{
                     $this->errors = 'Client ID not found.';
+                }
+                if($this->errors !=''){
+                    return $this->errors; 
                 }
 
             }
@@ -817,7 +824,6 @@
                             $result = $this->resolve_exception_3Reassign('client_id', $acc_for_client, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                             break;
                         default:
-                            //echo "here"; die;
                             // ACCOUNT NUMBER NOT FOUND - Add Account # to existing client (Error Code: 18)
                             // CLIENT NAME ALREADY EXISTS - (Error Code: 24)
                             $new_client = $acc_for_client;
@@ -896,6 +902,7 @@
                                             $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $excRow['temp_data_id']);
                                         }
                                     }
+                                    $result=1;
                                 }
                             } else {
                                 if ((int)$sponsorId == 0){
@@ -1117,7 +1124,7 @@
         /*** Action 2: Add BROKER ALIAS ***/
         function resolve_exception_2AddAlias($brokerAlias='', $brokerId=0, $file_type=0, $file_id=0, $detail_data_id=0, $exception_record_id=0) {
             // ADD BROKER ALIAS(user-defined -> rep_for_broker)  - "Broker #(ALIAS) not found" exception
-            $result = $res = $sponsorId = 0;
+            $result = $res = $success = $sponsorId = 0;
             $errorMsg = '';
             $fileSource = $this->import_table_select($file_id, $file_type);
             $importFileTable = $fileSource['table'];
@@ -1170,7 +1177,7 @@
                                 .$this->update_common_sql()
                             ." WHERE id=".$exception_record_id
                     ;
-                    $res = $this->re_db_query($q);
+                    $success = $this->re_db_query($q);
 
                     $result = $this->reprocess_current_files($file_id, $file_type, $detail_data_id);
 
@@ -1204,7 +1211,7 @@
             }
             
             if ($errorMsg == ''){
-                return $result;
+                return $success;
             } else {
                 $this->errors = $errorMsg;
                 return $this->errors;
@@ -3342,7 +3349,7 @@
                                 $result++;
                             }
                         }
-                        // IDC PRODUCT Validation
+                        // IDC PRODUCT Validation    
                         $productFound = 0;
 
                         if(!$commissionAddOnTheFly_Product AND empty($check_data_val['cusip_number'])){

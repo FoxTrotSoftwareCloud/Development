@@ -361,7 +361,7 @@
 
                                                                         if (isset($val['imported_date']) && $val['imported_date'] != '') {
 
-                                                                            $sponsorLink = CURRENT_PAGE . "?tab=preview_files&id={$val['id']}&file_type=$file_type_id";
+                                                                            $sponsorLink = CURRENT_PAGE . "?tab=processed_files&id={$val['id']}&file_type=$file_type_id";
                                                                 ?>
                                                                             <tr id="<?php echo '$key' . $key ?>">
 
