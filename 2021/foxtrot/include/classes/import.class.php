@@ -3352,7 +3352,9 @@
                         // IDC PRODUCT Validation    
                         $productFound = 0;
 
-                        if(!$commissionAddOnTheFly_Product AND empty($check_data_val['cusip_number'])){
+                        //23-12-2022 
+                        //As column D is considered as cusip in filetype 9 check for cusip in all file types
+                        if(empty($check_data_val['cusip_number'])){
                             $q = "INSERT INTO ".IMPORT_EXCEPTION.""
                                     ." SET error_code_id='13'"
                                         .",field='cusip_number'"
@@ -3483,9 +3485,13 @@
                                         ." FROM ".CLIENT_ACCOUNT." AS ca"
                                         ." LEFT JOIN ".CLIENT_MASTER." AS cm ON ca.client_id=cm.id AND cm.is_delete=0"
                                         ." WHERE TRIM(LEADING '0' FROM ca.account_no)='".ltrim($this->re_db_input($check_data_val['customer_account_number']), '0')."'"
-                                            ." AND ca.sponsor_company='".$sponsor_id."'"
                                             ." AND ca.is_delete=0 AND ca.client_id=cm.id"
                                 ;
+
+                                if($commissionFileType != 9){
+                                    $q.=" AND ca.sponsor_company='".$sponsor_id."'";
+                                }
+
                                 $res = $this->re_db_query($q);
 
                                 if ($this->re_db_num_rows($res)>0){

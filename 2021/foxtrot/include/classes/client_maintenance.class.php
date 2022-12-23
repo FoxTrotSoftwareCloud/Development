@@ -90,7 +90,7 @@
 			$client_file_number = isset($data['client_file_number'])?$this->re_db_input($data['client_file_number']):'';
 			$clearing_account = isset($data['clearing_account'])?$this->re_db_input($data['clearing_account']):'';
 			$client_ssn = isset($data['client_ssn'])?$this->re_db_input($data['client_ssn']):'';
-			$account_type = isset($data['account_type'])?$this->re_db_input($data['account_type']):'';
+			$account_type = isset($data['account_type'])?$this->re_db_input($data['account_type']):0;
 			$household = isset($data['household'])?$this->re_db_input($data['household']):'';
 			$broker_name = isset($data['broker_name'])?$this->re_db_input($data['broker_name']):'';
 			$split_broker = isset($data['split_broker'])?$this->re_db_input($data['split_broker']):'';

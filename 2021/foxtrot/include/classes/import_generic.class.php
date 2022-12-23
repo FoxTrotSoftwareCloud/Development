@@ -164,6 +164,7 @@ class import_generic extends import {
                         $fieldValues .= (empty($fieldValues) ? '' : ', ').$addValue;
                     }
                     // Table Fields to populate
+                    // 20-12-2022 considered column D as cusip_number so it is added in detail table
                     $tableFields = '';
                     if ($currentFileType == $this->fileNamePrefix.'RIA') {
                         $tableFields =  "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
