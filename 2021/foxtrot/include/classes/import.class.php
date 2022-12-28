@@ -230,6 +230,8 @@
 				$this->errors = 'Please enter field value.';
                 return $this->errors;
 			}
+
+            //IMPORT BROKER <> CLIENT BROKER ON FILE
             if($resolveAction==9 && $error_code_id == 30 )
             {
                 // echo "<pre>"; print_r($data);die;
@@ -241,9 +243,14 @@
                 
                 $result=1;
             }
+
+            //IMPORT BROKER <> CLIENT BROKER ON FILE
             if($resolveAction==10 && $error_code_id == 30 )
             {
                 //  echo "<pre>"; print_r($data);die;
+
+                $fileSource = $this->import_table_select($exception_file_id, $exception_file_type);
+                $table= $fileSource['table'];
 
                 $client_id=$data['client_id'];
                 if($client_id>0){
@@ -260,11 +267,22 @@
                             $broker_data = $this->re_db_fetch_array($res);
                             $rep_name=$broker_data['first_name']." ". $broker_data['middle_name']." ".$broker_data['last_name'];
 
+
+                            //updated on 28-12-2022
+                            //update detail table "broker_id" to client's broker
+                            $q = "UPDATE ".$table.""
+                            ." SET broker_id='".$broker_id."', representative_number='". $broker_data['fund'] ."' "
+                                .$this->update_common_sql()
+                            ." WHERE id=".$exception_data_id;
+                            $this->re_db_query($q);
+
+
                             $q = "UPDATE ".IMPORT_EXCEPTION.""
                             ." SET rep='".$broker_data['fund']."', rep_name='".$rep_name."', resolve_action=10, solved=1 "
                                 .$this->update_common_sql()
                             ." WHERE id=".$exception_record_id;
                             if($res2 = $this->re_db_query($q)){
+                                $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,$exception_data_id);
                                 $result=1;
                             }
                         }
@@ -276,6 +294,7 @@
                 }
             }
 
+            //26-CLIENT OF LEGAL AGE || 27-CLIENT BIRTH DATE NOT SPECIFIED
             if($resolveAction==8 && $error_code_id == 27 || $error_code_id == 26 ){
                 //  echo "<pre>"; print_r($data);die;
 
@@ -314,8 +333,10 @@
                                     ." WHERE id=".$exception_record_id
                                 ;
                                 $res2 = $this->re_db_query($q);
-                        
-                                $result=1;
+                                if($res2){
+                                    $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,0);
+                                    $result=1;
+                                }
                             }
                     }
                 
@@ -326,6 +347,7 @@
 
             }
 
+            //CLIENT PROOF OF IDENTITY NOT SPECIFIED - 28
             if($resolveAction==7 && $exception_value_2='proof_of_identity' && $error_code_id == 28){
                 // echo "<pre>"; print_r($data);die;
 
@@ -379,9 +401,10 @@
                                         ;
                                         $res2 = $this->re_db_query($q);
                                 
-                                        // $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,0);
-
-                                        $result=1;
+                                        $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,$exception_data_id);
+                                        if($res2){
+                                            $result=1;
+                                        }
                                     }
                         }
                         else{
@@ -396,8 +419,11 @@
                                             ." WHERE id=".$exception_record_id
                                         ;
                                         $res2 = $this->re_db_query($q);
-                                
-                                        $result=1;
+
+                                        $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,$exception_data_id);
+                                        if($res2){
+                                            $result=1;
+                                        }
                                     }
                         }
                     }
@@ -408,10 +434,10 @@
                 }
             }
 
+            //Client State not specified-29
             if($resolveAction==5 && $exception_value_2== 'client_state' && $error_code_id == 29){
                 $state_id=$data['client_assign_state'];
                 $client_id=$data['client_id'];
-                //  echo "<pre>"; print_r($data);die;
 
                 if($client_id>0){
                     if($state_id>0){
@@ -435,9 +461,10 @@
                                 ;
                                 $res2 = $this->re_db_query($q);
                         
-                                $result = $this->reprocess_current_files($exception_file_id, $exception_file_type,0);
-
-                                $result=1;
+                                $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
+                                if($res2){
+                                    $result=1;
+                                }
                             }
                     }
                     else{
@@ -997,6 +1024,7 @@
                                 $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $excRow['temp_data_id']);
                             }
                         }
+                        $result=1;
                     }
                 }
             }
