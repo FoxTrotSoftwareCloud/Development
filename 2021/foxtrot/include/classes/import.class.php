@@ -5962,34 +5962,187 @@
             return $return;
         }
 
-        function complience_exception_report($beginning_date,$ending_date,$broker_id=0,$client=0){
-         
+        function complience_exception_report($beginning_date,$ending_date,$broker_id=0,$client_id=0){
+            $exceptions = array();
             $return = array();
             $con='';
-
-            if($broker_id>0)
-            {
-                $con.=" AND `at`.`broker_name` = ".$broker_id." ";
-               // $index_column='broker_name';
-            }
-			if($beginning_date != '' && $ending_date != '')
-            {
-                $con.=" AND `at`.`date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
-            }
 			
 			$q = "SELECT `at`.* , `em`.`error` as `error_message`
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` as `em` on `em`.`id` = `at`.`error_code_id`
-                    WHERE `at`.`is_delete`='0' AND `at`.`solved`='0'
+                    WHERE `at`.`is_delete`='0' AND `at`.`solved`='0' AND (`at`.`file_type`='2' OR `at`.`file_type`='9')
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
-    			     array_push($return,$row);
-                     
+    			     array_push($exceptions,$row); 
     			}
             }
+
+            foreach($exceptions as $exception){
+                $table = $this->import_table_select($exception['file_id'], $exception['file_type']);
+
+                //if detail table found
+                if(!empty($table['table'])){
+                    $exception['detail_table']= $table['table'];
+
+                    if($broker_id>0)
+                    {   
+                        $con.=" AND `at`.`broker_id` = ".$broker_id." ";
+                       // $index_column='broker_name';
+                    }
+                    if($client_id>0)
+                    {   
+                        $con.=" AND `at`.`client_id` = ".$client_id." ";
+                       // $index_column='broker_name';
+                    }
+                    if($beginning_date != '' && $ending_date != '')
+                    {
+                        if($table['table'] == 'ft_dazl_comm_data'){
+                            $con.=" AND `at`.`trade_date` between '".date('Ymd',strtotime($beginning_date))."' and '".date('Ymd',strtotime($ending_date))."' ";
+                        }
+                        else{
+                            $con.=" AND `at`.`trade_date` between '".date('Y-m-d',strtotime($beginning_date))."' and '".date('Y-m-d',strtotime($ending_date))."' ";
+                        }
+                    }
+
+                    $q = "SELECT `at`.*
+					FROM `".$table['table']."` AS `at`
+                    WHERE `at`.`id`='".$exception['temp_data_id']."' AND `at`.`is_delete`='0'".$con." ";
+
+                    $res = $this->re_db_query($q);
+
+                    if($this->re_db_num_rows($res)>0){
+
+                        $instance_client = new client_maintenance();
+                        $exception['message']='';
+
+                        $row = $this->re_db_fetch_array($res);
+                        
+                        if($row['created_time']){
+                            $exception['scan_date']= $row['created_time'];
+                        }
+                        if(isset($row['trade_date'])){
+                            $exception['trade_date']=  $row['trade_date'] ;
+
+                            //Set Error Messages
+
+                            //1-BROKER NOT FOUND
+                            if($exception['error_code_id'] == 1){
+                                $exception['message'] = 'Broker - '.$row['representative_name']."<br>Representative Number - ".$row['representative_number'];
+                            }
+                            
+                            //11-CUSIP NOT FOUND
+                            if($exception['error_code_id'] == 11){
+                                $exception['message'] = 'Cusip - '.$row['cusip_number']." not found in Product list";
+                            }
+
+                            //13-INVALID/MISSING DATA
+                            if($exception['error_code_id']== 13){
+                                if($exception['field'] == "cusip_number"){
+                                    $exception['message'] = 'Cusip Number is Missing';
+                                }
+                                if($exception['field'] == "fund_name"){
+                                    $exception['message'] = 'Fund Name is Missing';
+                                }
+                                if($exception['field'] == "representative_number"){
+                                    $exception['message'] = 'Representative Number is Missing';
+                                }
+                                if($exception['field'] == "customer_account_number"){
+                                    $exception['message'] = 'Customer Account Number is Missing';
+                                }
+                                if($exception['field'] == "social_security_number"){
+                                    $exception['message'] = 'Social Security Number is Missing';
+                                }
+                            }
+
+                            //18-CLIENT ACCT.# NOT FOUND
+                            if($exception['error_code_id'] == 18){
+                                $exception['message'] = 'Account # - '.ltrim($row['customer_account_number'], '0')."<br>Client - ".$row['alpha_code'];
+                            }
+                            
+                            //21-MISSING ACCOUNT DOCUMENTATION
+                            if($exception['error_code_id']== 21){
+                                if($exception['field'] == "rule_engine" && $exception['field_value'] == "no_naf_date"){
+                                    $client = $instance_client->get_client_name_acct($row['client_id']);
+                            
+                                    $exception['message'] .= 'Client : '.$client['last_name'].", ".$client['first_name'];
+                                    $exception['message'] .= '<br>NAF Date: (None)';
+                                }
+                            }
+
+                            //23-DATA INTERFACE PERMISSION ERROR
+                            if($exception['error_code_id']== 23){
+                                $exception['message'] = "SSN - ".$exception['field'];
+                            }
+
+                            //26-CLIENT OF LEGAL AGE
+                            if($exception['error_code_id'] == 26){
+                                if($row['client_id'] > 0){
+                                    $client = $instance_client->get_client_name($row['client_id']);
+
+                                    $exception['message'] .= 'Client : '.$client[0]['last_name'].", ".$client[0]['first_name'];
+                                    $exception['message'] .= '<br>Age : ('. $client[0]['age'] .') Years';
+                                }
+                            }
+
+                            //27-CLIENT BIRTH DATE NOT SPECIFIED
+                            if($exception['error_code_id'] == 27){
+                                if($row['client_id'] > 0){
+                                    $client = $instance_client->get_client_name_acct($row['client_id']);
+                            
+                                    $exception['message'] .= 'Client : '.$client['last_name'].", ".$client['first_name'];
+                                    $exception['message'] .= '<br>Birth date: (None)';
+                                }
+                            }
+
+                            //28-CLIENT PROOF OF IDENTITY NOT SPECIFIED
+                            if($exception['error_code_id'] == 28){
+                                if($row['client_id'] > 0){
+                                    $client = $instance_client->get_client_name_acct($row['client_id']);
+                            
+                                    $exception['message'] .= 'Client : '.$client['last_name'].", ".$client['first_name'];
+                                    $exception['message'] .= '<br>CIP Info: (Blank)';
+                                }
+                            }
+
+                            //29-CLIENT STATE NOT SPECIFIED
+                            if($exception['error_code_id'] == 29){
+                                if($row['client_id'] > 0){
+                                    $client = $instance_client->get_client_name_acct($row['client_id']);
+                            
+                                    $exception['message'] .= 'Client : '.$client['last_name'].", ".$client['first_name'];
+                                    $exception['message'] .= '<br>State: (None)';
+                                }
+                            }
+
+                            //30-IMPORT BROKER <> CLIENT BROKER ON FILE
+                            if($exception['error_code_id'] == 30){
+                                $client_broker=$broker_on_file=0;
+                                $client_data= $instance_client->get_client_name_acct($row['client_id']);
+                                
+                                if(!empty($client_data)){
+                                    $exception['message'] .= 'Client : '.$client_data['last_name'].", ".$client_data['first_name'];
+                                }
+                                if($client_data['broker_name'] > 0){
+                                    $client_broker = $instance_client->get_broker_full_name($client_data['broker_name']);
+                                    $exception['message'] .= '<br>Client Rep : '.$client_broker;
+                                }
+                                if($row['broker_id']>0){
+                                    $broker = $instance_client->get_broker_full_name($row['broker_id']);
+                                    $exception['message'] .= '<br>Specified Rep : '.$broker;
+                                }
+                            }
+
+                            array_push($return,$exception); 
+                        }
+                     
+                    }
+                }
+            }
+            
+            //echo "<pre>"; print_r($return);die;
 			return $return;
         }
         

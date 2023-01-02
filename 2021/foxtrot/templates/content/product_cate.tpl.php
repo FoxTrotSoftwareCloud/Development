@@ -279,7 +279,7 @@ function default_min_threshold() {
                     <div class="btn-group dropdown" style="float: right;">
 						<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
 						<ul class="dropdown-menu dropdown-menu-right">
-							<li><a href="<?php echo CURRENT_PAGE; ?>?action=view_product&category=<?php echo $category;?>"><i class="fa fa-eye"></i> View List</a></li>
+							<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
 						</ul>
 					</div>
 				</ul>

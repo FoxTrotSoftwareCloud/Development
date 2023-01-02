@@ -26,7 +26,7 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
     $filter_array = json_decode($_GET['filter'], true);
     $client = isset($filter_array['client'])? $filter_array['client']:0;
     $broker_id = isset($filter_array['broker']) ? $filter_array['broker'] : 0;
-    $beginning_date = isset($filter_array['beginning_date']) && !empty($filter_array['beginning_date']) ? date('Y-m-d H:i:s', strtotime($instance->re_db_input($filter_array['beginning_date']))) : '';
+    $beginning_date = isset($filter_array['beginning_date']) && !empty($filter_array['beginning_date']) ? date('Y-m-d', strtotime($instance->re_db_input($filter_array['beginning_date']))) : '';
     $ending_date = isset($filter_array['ending_date']) && !empty($filter_array['ending_date']) ? date('Y-m-d', strtotime($instance->re_db_input($filter_array['ending_date']))) : '';
 
     $total_records = 0;
@@ -75,12 +75,12 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                 <table>
                     <thead>
                         <tr style="background:#f1f1f1;text-transform: capitalize;" style="width: 100%;">
-                            <th style="font-size: 12px; width: 8%;">SCAN DATE</th>
-                            <th style="font-size: 12px; width: 8%;">STATUS</th>
+                            <th style="font-size: 12px; width: 10%;">TRADE DATE <br>SCAN DATE</th>
+                            <th style="font-size: 12px; width: 10%;">STATUS</th>
                             <th style="padding: 8px 0px;font-size: 12px; width: 8%;">TRADE #</th>
-                            <th style="padding: 8px 0px;font-size: 12px; width: 20%;">CLIENT</th>
-                            <th style="padding: 8px 0px;font-size: 12px; width: 20%;">BROKER</th> 
-                            <th style="padding: 8px 0px;font-size: 12px;">MESSAGE <br><br><br></th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 17%;">CLIENT</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 17%;">BROKER</th> 
+                            <th style="padding: 8px 0px;font-size: 12px;">MESSAGE </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,18 +89,20 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                         foreach($list_data as $row){
                             $is_recrod_found=true;?>
                             <tr>
-                                <td colspan="5"><?php echo $row['error_message'] ?> - Warning Message</td>
+                                <td><?php echo (isset($row['trade_date']) && $row['trade_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['trade_date'])):'--'; ?></td>
+                                <td colspan="4"><?php echo $row['error_message'] ?></td>
                                 <td></td>
                             </tr>
                             
-                            <tr style="height:30px; border-bottom: 2px solid black;">
+                            <tr style="height:30px; border-bottom:1px solid black;">
                             
-                                <td><?php echo (isset($row['date']) && $row['date']!= '0000-00-00')? date('m/d/Y',strtotime($row['date'])):''; ?></td>
+                                <td><?php echo (isset($row['scan_date']) && $row['scan_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['scan_date'])):''; ?></td>
                                 <td>FAIL</td>
-                                <td><?php echo $row['rep'] ?></td>
+                                <!-- <td><?php echo $row['id']." - ".$row['detail_table'] ?></td> -->
+                                <td></td>
                                 <td><?php echo $row['client'] ?></td>
                                 <td><?php echo $row['rep_name'] ?></td>
-                                <td><?php echo $row['field'] ?></td>
+                                <td><?php echo isset($row['message'])?$row['message']:'' ?></td>
                             </tr>
                             
                         <?php } ?>

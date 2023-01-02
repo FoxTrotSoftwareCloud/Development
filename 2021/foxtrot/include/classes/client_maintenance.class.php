@@ -1023,6 +1023,44 @@
             }
 			return $return;
 		}
+		public function get_client_name_acct($id){
+			$row = array();
+
+			$q = "SELECT `at`.`first_name`, `at`.`last_name`, `at`.`broker_name`
+					FROM `".$this->table."` AS `at`
+                    WHERE `at`.`is_delete`='0' and `at`.`id`=".$id."
+                    ORDER BY `at`.`id` ASC";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+
+    			$row = $this->re_db_fetch_array($res);
+
+				//get client account no
+				$q2 = "SELECT `at`.account_no
+				FROM `".CLIENT_ACCOUNT."` AS `at`
+                WHERE `at`.`is_delete`='0' and `at`.`client_id`=".$id."
+                ORDER BY `at`.`id` ASC";
+				$res2 = $this->re_db_query($q2);
+				if($this->re_db_num_rows($res2)>0){
+					$acctno = $this->re_db_fetch_array($res2);
+					$row['acct_no'] = $acctno['account_no'];
+				}
+    		}
+            
+			return $row;
+		}
+		public function get_broker_full_name($id){
+
+			$q = "SELECT `at`.first_name, `at`.`last_name`
+			FROM `".BROKER_MASTER."` AS `at`
+			WHERE `at`.`is_delete`='0' AND `at`.`id`='".$id."'";
+			$res = $this->re_db_query($q);
+			if($this->re_db_num_rows($res)>0){
+				$broker= $this->re_db_fetch_array($res);
+				return $broker['last_name'].", ".$broker['first_name'];
+			}
+		}
+
         public function get_sponsor_data($id){
 			$return = array();
 
