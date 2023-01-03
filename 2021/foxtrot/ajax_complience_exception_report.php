@@ -88,13 +88,13 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                       
                         foreach($list_data as $row){
                             $is_recrod_found=true;?>
-                            <tr>
+                            <tr style="height:20px;">
                                 <td><?php echo (isset($row['trade_date']) && $row['trade_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['trade_date'])):'--'; ?></td>
                                 <td colspan="4"><?php echo $row['error_message'] ?></td>
                                 <td></td>
                             </tr>
                             
-                            <tr style="height:30px; border-bottom:1px solid black;">
+                            <tr style="height:30px; border-bottom:1px solid black; vertical-align: text-top;">
                             
                                 <td><?php echo (isset($row['scan_date']) && $row['scan_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['scan_date'])):''; ?></td>
                                 <td>FAIL</td>

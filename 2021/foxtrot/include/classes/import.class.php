@@ -5966,11 +5966,16 @@
             $exceptions = array();
             $return = array();
             $con='';
+            $con_test='';
+            //for test purpose
+            if(isset($_GET['test_date'])){
+                $con_test = "AND `at`.`date` = ".date('Ymd',strtotime($_GET['test_date']));
+            }
 			
 			$q = "SELECT `at`.* , `em`.`error` as `error_message`
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` as `em` on `em`.`id` = `at`.`error_code_id`
-                    WHERE `at`.`is_delete`='0' AND `at`.`solved`='0' AND (`at`.`file_type`='2' OR `at`.`file_type`='9')
+                    WHERE `at`.`is_delete`='0' AND `at`.`solved`='0' AND (`at`.`file_type`='2' OR `at`.`file_type`='9') ".$con_test."
                     ORDER BY `at`.`id` ASC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
@@ -5980,6 +5985,7 @@
     			}
             }
 
+            //echo "<pre>"; print_r($exceptions);die;
             foreach($exceptions as $exception){
                 $table = $this->import_table_select($exception['file_id'], $exception['file_type']);
 
@@ -5990,12 +5996,10 @@
                     if($broker_id>0)
                     {   
                         $con.=" AND `at`.`broker_id` = ".$broker_id." ";
-                       // $index_column='broker_name';
                     }
                     if($client_id>0)
                     {   
                         $con.=" AND `at`.`client_id` = ".$client_id." ";
-                       // $index_column='broker_name';
                     }
                     if($beginning_date != '' && $ending_date != '')
                     {
