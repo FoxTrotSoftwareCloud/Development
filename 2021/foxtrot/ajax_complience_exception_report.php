@@ -76,10 +76,10 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                     <thead>
                         <tr style="background:#f1f1f1;text-transform: capitalize;" style="width: 100%;">
                             <th style="font-size: 12px; width: 10%;">TRADE DATE <br>SCAN DATE</th>
-                            <th style="font-size: 12px; width: 10%;">STATUS</th>
-                            <th style="padding: 8px 0px;font-size: 12px; width: 8%;">TRADE #</th>
-                            <th style="padding: 8px 0px;font-size: 12px; width: 17%;">CLIENT</th>
-                            <th style="padding: 8px 0px;font-size: 12px; width: 17%;">BROKER</th> 
+                            <th style="padding: 8px 0px;font-size: 11px; width: 10%;">TRADE #</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 16%;">CLIENT</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 11%;">CLIENT ACCOUNT NUMBER</th>
+                            <th style="padding: 8px 0px;font-size: 12px; width: 20%;">BROKER</th> 
                             <th style="padding: 8px 0px;font-size: 12px;">MESSAGE </th>
                         </tr>
                     </thead>
@@ -90,17 +90,17 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                             $is_recrod_found=true;?>
                             <tr style="height:20px;">
                                 <td><?php echo (isset($row['trade_date']) && $row['trade_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['trade_date'])):'--'; ?></td>
-                                <td colspan="4"><?php echo $row['error_message'] ?></td>
+                                <td colspan="3"><?php echo $row['error_message'] ?></td>
                                 <td></td>
                             </tr>
                             
                             <tr style="height:30px; border-bottom:1px solid black; vertical-align: text-top;">
                             
                                 <td><?php echo (isset($row['scan_date']) && $row['scan_date']!= '0000-00-00')? date('m/d/Y',strtotime($row['scan_date'])):''; ?></td>
-                                <td>FAIL</td>
                                 <!-- <td><?php echo $row['id']." - ".$row['detail_table'] ?></td> -->
-                                <td></td>
+                                <td><?php echo (isset($row['transaction_id']))? $row['transaction_id'] :''; ?></td>
                                 <td><?php echo $row['client'] ?></td>
+                                <td><?php echo isset($row['client_account'])?$row['client_account']:'' ?></td>
                                 <td><?php echo $row['rep_name'] ?></td>
                                 <td><?php echo isset($row['message'])?$row['message']:'' ?></td>
                             </tr>

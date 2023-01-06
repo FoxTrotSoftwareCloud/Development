@@ -86,9 +86,9 @@ $list_data= $instance_import->complience_exception_report($beginning_date,$endin
             'C4'=>array(strtoupper("SCAN DATE") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
             'D4'=>array(strtoupper("EXCEPTION"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('D4','G4'))),
 
-            'H4'=>array(strtoupper("STATUS") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'I4'=>array(strtoupper("TRADE #") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
-            'J4'=>array(strtoupper("CLIENT"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('J4','L4'))),
+            'H4'=>array(strtoupper("TRADE #") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
+            'I4'=>array(strtoupper("CLIENT") ,array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('I4','K4'))),
+            'L4'=>array(strtoupper("CLIENT ACCT#"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'))),
             'M4'=>array(strtoupper("BROKER"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('M4','O4'))),
             'P4'=>array(strtoupper("MESSAGE"),array('bold','left','color'=>array('000000'),'background'=>array('f1f1f1'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('P4','W4'))),
           
@@ -109,13 +109,12 @@ $list_data= $instance_import->complience_exception_report($beginning_date,$endin
 
             $exception['message']=isset($exception['message'])? str_replace('<br>', ',  ',$exception['message'])  :'' ;
 
-
             $sheet_data[0]['B'.$i] = array($exception['trade_date'],array('left','bold','size'=>array(8),'color'=>array('000000')));
             $sheet_data[0]['C'.$i] = array($exception['scan_date'],array('left','bold','size'=>array(8),'color'=>array('000000')));
             $sheet_data[0]['D'.$i] = array($exception['error_message'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('D'.$i,'G'.$i)));
-            $sheet_data[0]['H'.$i] = array('FAIL',array('left','bold','size'=>array(8),'color'=>array('000000')));
-            $sheet_data[0]['I'.$i] = array('',array('left','bold','size'=>array(8),'color'=>array('000000')));
-            $sheet_data[0]['J'.$i] = array($exception['client'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('J'.$i,'L'.$i)));
+            $sheet_data[0]['H'.$i] = array($exception['transaction_id'],array('left','bold','size'=>array(8),'color'=>array('000000')));
+            $sheet_data[0]['I'.$i] = array($exception['client'],array('left','bold','size'=>array(8),'color'=>array('000000'),'merge'=>array('I'.$i,'K'.$i)));
+            $sheet_data[0]['L'.$i] = array($exception['client_account'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri')));
             $sheet_data[0]['M'.$i] = array($exception['rep_name'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('M'.$i,'O'.$i)));
             $sheet_data[0]['P'.$i] = array($exception['message'], array('left','color'=>array('000000'),'size'=>array(10),'font_name'=>array('Calibri'),'merge'=>array('P'.$i,'W'.$i)));
           

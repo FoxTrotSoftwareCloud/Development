@@ -96,12 +96,12 @@ $list_data= $instance_import->complience_exception_report($beginning_date,$endin
 
     $html='<table border="0" cellpadding="1" width="100%" border-spacing:0px;>
     <tr style="background-color: #f1f1f1;color:#393939;margin:3px">
-        <th style="font-size: 12px; width: 13%;">TRADE DATE <br>SCAN DATE</th>
-        <th style="font-size: 12px; width: 12%;">STATUS</th>
-        <th style="padding: 8px 0px;font-size: 12px; width: 11%;">TRADE #</th>
+        <th style="font-size: 12px; width: 12%;">TRADE DATE <br>SCAN DATE</th>
+        <th style="padding: 8px 0px;font-size: 12px; width: 12%;">TRADE #</th>
         <th style="padding: 8px 0px;font-size: 12px; width: 17%;">CLIENT</th>
+        <th style="font-size: 12px; width: 15%;">CLIENT ACCOUNT NUMBER</th>
         <th style="padding: 8px 0px;font-size: 12px; width: 17%;">BROKER</th> 
-        <th style="padding: 8px 0px;font-size: 12px; width: 30%;">MESSAGE </th>
+        <th style="padding: 8px 0px;font-size: 12px; width: 27%;">MESSAGE </th>
     </tr>
     <tr>
         <th colspan="6"></th>
@@ -122,18 +122,20 @@ $list_data= $instance_import->complience_exception_report($beginning_date,$endin
 
             $exception['scan_date']=(isset($exception['scan_date']) && $exception['scan_date'] != '0000-00-00')? date('m/d/Y',strtotime($exception['scan_date'])) :'--' ;
 
+            $exception['client_account']=isset($exception['client_account'])? $exception['client_account'] :'' ;
+            $exception['transaction_id']=isset($exception['transaction_id'])? $exception['transaction_id'] :'' ;
             $exception['message']=isset($exception['message'])? $exception['message'] :'' ;
            
-            $html.='<tr style="color:#393939;">
+            $html.='<tr style="color:#393939;height:20px;">
                         <td>'. $exception['trade_date'] .'</td>
                         <td colspan="4">'.$exception['error_message'].'</td>
                         <td></td>
                     </tr>
-                    <tr style="color:#393939;">
+                    <tr style="color:#393939;height:30px;vertical-align: text-top;">
                         <td>'. $exception['scan_date'].'</td>
-                        <td>FAIL</td>
-                        <td></td>
+                        <td>'.$exception['transaction_id'].'</td>
                         <td>'.$exception['client'].'</td>
+                        <td>'.$exception['client_account'].'</td>
                         <td>'.$exception['rep_name'].'</td>
                         <td>'.$exception['message'].'</td>
                     </tr>';

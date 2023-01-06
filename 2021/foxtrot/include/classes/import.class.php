@@ -455,7 +455,7 @@
                             if($res)
                             {
                                 $q = "UPDATE ".IMPORT_EXCEPTION.""
-                                    ." SET resolve_action=5, solved=1 "
+                                    ." SET resolve_action=5,resolve_assign_to=".$state_id.", solved=1 "
                                         .$this->update_common_sql()
                                     ." WHERE id=".$exception_record_id
                                 ;
@@ -5967,11 +5967,12 @@
             $return = array();
             $con='';
             $con_test='';
-            //for test purpose
+            //this is for test purpose and need to remove this fix date when server have extend memory limit
             if(isset($_GET['test_date'])){
-                $con_test = "AND `at`.`date` = ".date('Ymd',strtotime($_GET['test_date']));
+                //$con_test = "AND `at`.`date` < ".date('Ymd',strtotime($_GET['test_date']));
             }
-			
+            $con_test = "AND `at`.`date` < ".date('Ymd',strtotime('2022-12-07'));
+
 			$q = "SELECT `at`.* , `em`.`error` as `error_message`
 					FROM `".IMPORT_EXCEPTION."` AS `at`
                     LEFT JOIN `".IMPORT_EXCEPTION_MASTER."` as `em` on `em`.`id` = `at`.`error_code_id`
@@ -6027,6 +6028,15 @@
                         if($row['created_time']){
                             $exception['scan_date']= $row['created_time'];
                         }
+
+                        if($row['transaction_master_id'] > 0){
+                            $exception['transaction_id']= $row['transaction_master_id'];
+                        }
+
+                        if($row['customer_account_number'] != ''){
+                            $exception['client_account']= ltrim($row['customer_account_number'], '0');
+                        }
+
                         if(isset($row['trade_date'])){
                             $exception['trade_date']=  $row['trade_date'] ;
 
@@ -6063,7 +6073,7 @@
 
                             //18-CLIENT ACCT.# NOT FOUND
                             if($exception['error_code_id'] == 18){
-                                $exception['message'] = 'Account # - '.ltrim($row['customer_account_number'], '0')."<br>Client - ".$row['alpha_code'];
+                                $exception['message'] = 'Account # - '.$exception['client_account'];
                             }
                             
                             //21-MISSING ACCOUNT DOCUMENTATION
