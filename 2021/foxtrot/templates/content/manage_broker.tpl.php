@@ -452,7 +452,7 @@
          '</tr>';
 
 
-      $(html).insertBefore('#add_row_alias');
+      $(html).insertAfter('#add_row_alias');
    }
    $(document).on('click', '.remove-row', function() {
       $(this).closest('.tr').remove();
@@ -501,7 +501,7 @@
          '</tr>';
 
 
-      $(html).insertBefore('#add_row_docs');
+      $(html).insertAfter('#add_row_docs');
    }
    $(document).on('click', '.remove-row', function() {
       $(this).closest('.tr').remove();
@@ -2263,9 +2263,9 @@
                               foreach ($charge_type_arr as $charge_type) {
                               ?>
                                  <div class="row">
-                                    <div class="col-md-12 pass_through_charge">
+                                    <div class="col-md-3 pass_through_charge" style="text-align: center;">
                                        <div class="form-group">
-                                          <h4><b><?php echo $charge_type['charge_type']; ?></b></h4>
+                                          <h4><b><?php echo $charge_type['charge_type']; ?> </b></h4>
                                        </div>
                                     </div>
                                  </div>
@@ -2425,7 +2425,7 @@
                                                             <th style="width: 15%;">Active  <br>
                                                                <span style="font-size: 13px;">Select All</span>
                                                                <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
-                                                         </th>
+                                                            </th>
                                                             <th>State</th>
                                                             <th>From</th>
                                                             <th>To</th>
@@ -2472,7 +2472,7 @@
 
                                                                            <div id="demo-dp-range">
                                                                               <div class="input-daterange input-group" id="datepicker">
-                                                                                 <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]" value="<?php echo date('m/d/Y', strtotime(trim($secval['received']))); ?>" class="form-control" />
+                                                                                 <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]" id="data_sec[received][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['received']) && $secval['received']!='1970-01-01') { echo date('m/d/Y', strtotime(trim($secval['received']))); } ?>" class="form-control" />
                                                                                  <label class="input-group-addon btn" for="data_sec[received][<?php echo $row_counter; ?>]">
                                                                                     <span class="fa fa-calendar"></span>
                                                                                  </label>
@@ -2482,8 +2482,8 @@
                                                                         <td>
                                                                            <div id="demo-dp-range">
                                                                               <div class="input-daterange input-group" id="datepicker">
-                                                                                 <input type="text" name="data_sec[to][<?php echo $row_counter; ?>]" id="data_sec[to][<?php echo $row_counter; ?>]" value="<?php echo date('m/d/Y', strtotime(trim($secval['terminated']))); ?>" class="form-control" />
-                                                                                 <label class="input-group-addon btn" for="override">
+                                                                                 <input type="text" name="data_sec[to][<?php echo $row_counter; ?>]" id="data_sec[to][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['terminated']) && $secval['terminated']!='1970-01-01') { echo date('m/d/Y', strtotime(trim($secval['terminated']))); } ?>" class="form-control" />
+                                                                                 <label class="input-group-addon btn" for="data_sec[to][<?php echo $row_counter; ?>]">
                                                                                     <span class="fa fa-calendar"></span>
                                                                                  </label>
                                                                               </div>
@@ -2492,23 +2492,58 @@
                                                                         <td>
                                                                            <input type="text" name="data_sec[reason][<?php echo $row_counter; ?>]" id="data_sec[reason][<?php echo $row_counter; ?>]" value="<?php echo $secval['reson']; ?>" class="form-control" />
                                                                         </td>
-                                                                        <td>
+                                                                        <!-- <td>
                                                                            <button type="button" tabindex="-1" class="btn remove-licrow btn-icon btn-circle"><i class="fa fa-minus"></i></button>
-                                                                        </td>
+                                                                        </td> -->
                                                                      </tr>
                                                          <?php }
-                                                               }
+                                                         }else {
+                                                            foreach ($get_state_new as $statekey => $stateval) { 
+                                                               $row_counter++; ?>
+                                                               <tr class="tr">
+                                                                  <td>
+                                                                     <input type="checkbox" name="data_sec[active][<?php echo $row_counter; ?>]" class="checkbox">
+                                                                     <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="">
+                                                                  </td>
+                                                                  <td>
+                                                                     <?php echo $stateval['name']; ?>
+                                                                     <input type="hidden" name="data_sec[state][<?php echo $row_counter; ?>]" value="<?php echo $stateval['id'] ?>">
+                                                                  </td>
+                                                                  <td>
+                                                                     <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                           <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]" id="data_sec['from'][<?php echo $row_counter; ?>]" value="" class="form-control" />
+                                                                           <label class="input-group-addon btn" for="data_sec['from'][<?php echo $row_counter; ?>]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                        </div>
+                                                                     </div>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                           <input type="text" name="data_sec[to][<?php echo $row_counter; ?>]" id="data_sec['to'][<?php echo $row_counter; ?>]" value="" class="form-control" />
+                                                                           <label class="input-group-addon btn" for="data_sec['to'][<?php echo $row_counter; ?>]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                        </div>
+                                                                     </div>
+                                                                  </td>
+                                                                  <td>
+                                                                     <input type="text" name="data_sec[reason][<?php echo $row_counter; ?>]" id="data_sec['reason'][<?php echo $row_counter; ?>]" value="" class="form-control" />
+                                                                  </td>
+                                                               </tr>
+                                                            
+                                                         <?php }
+                                                         }
                                                           
                                                          $row_counter++;  ?>
 
 
-                                                         <tr class="tr">
+                                                         <!-- <tr class="tr">
                                                             <td>
-
                                                                <input type="checkbox" name="data_sec[active][<?php echo $row_counter; ?>]" class="checkbox">
-
                                                                <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="">
-
                                                             </td>
                                                             <td>
                                                                <select class="form-control" name="data_sec[state][<?php echo $row_counter; ?>]" id="data_sec['state'][<?php echo $row_counter; ?>]" style="display: inline !important;">
@@ -2517,35 +2552,17 @@
                                                                      <option value="<?php echo $stateval['id']; ?>"><?php echo $stateval['name']; ?></option>
                                                                   <?php endforeach; ?>
                                                                </select>
-
                                                             </td>
                                                             <td>
-                                                               <div id="demo-dp-range">
-                                                                  <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]" id="data_sec['from'][<?php echo $row_counter; ?>]" value="" class="form-control" />
-                                                                     <label class="input-group-addon btn" for="override">
-                                                                        <span class="fa fa-calendar"></span>
-                                                                     </label>
-                                                                  </div>
-                                                               </div>
+                                                               
                                                             </td>
                                                             <td>
-                                                               <div id="demo-dp-range">
-                                                                  <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data_sec[to][<?php echo $row_counter; ?>]" id="data_sec['to'][<?php echo $row_counter; ?>]" value="" class="form-control" />
-                                                                     <label class="input-group-addon btn" for="override">
-                                                                        <span class="fa fa-calendar"></span>
-                                                                     </label>
-                                                                  </div>
-                                                               </div>
+                                                               
                                                             </td>
                                                             <td>
                                                                <input type="text" name="data_sec[reason][<?php echo $row_counter; ?>]" id="data_sec['reason'][<?php echo $row_counter; ?>]" value="" class="form-control" />
                                                             </td>
-                                                            <td>
-                                                               <button type="button" onclick="add_sec_row(<?php echo $row_counter; ?>);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
-                                                            </td>
-                                                         </tr>
+                                                         </tr> -->
                                                       </tbody>
                                                    </table>
                                                 </div>
@@ -2695,7 +2712,7 @@
                                                       echo "active";
                                                    } ?>" id="tab_insurance">
                                  <div class="panel-overlay-wrap">
-                                    <div class="panel" style="background-color: rgb(211, 229, 235);">
+                                    <div class="panel" style="background-color: rgba(211, 229, 235, 0.5)">
                                        <div class="panel-heading">
                                           <h4 class="panel-title" style="font-size: 16px;">
                                              <?php if (isset($_SESSION['broker_full_name'])) {
@@ -2713,144 +2730,118 @@
                                        </div>
                                        <input type="hidden" name="type" value="2" />
                                        <!-- SECURITY -->
-                                       <div class="panel-body license_cat_wrap">
-                                          <div class="row">
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>Active </h4>
-                                                   <span style="font-size: 13px;">Select All</span>
-                                                   <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
-                                                </div>
-                                             </div>
-
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>State</h4>
-                                                </div>
-                                             </div>
-                                             <!-- <div class="col-md-2">
-                                             <div class="form-group">
-                                                <h4>Fee</h4>
-                                             </div>
-                                          </div> -->
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>Received</h4>
-                                                </div>
-                                             </div>
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>Terminated</h4>
-                                                </div>
-                                             </div>
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>Reason</h4>
-                                                </div>
-                                             </div>
-                                          </div>
-                                          <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_insurance)) {
-                                             foreach ($edit_licences_insurance as $key => $val) {
-                                                foreach ($get_state_new as $statekey => $stateval) {
-                                                   if ($val['state_id'] == $stateval['id']) { ?>
-                                                      <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important; background-color:rgb(211, 229, 235)" >
-                                                         <div class="row">
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" <?php if ($val['active_check'] == 1) { ?>checked="true" <?php } ?> value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
-                                                               </div>
-                                                            </div>
-
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <label><?php echo $stateval['name']; ?></label>
-                                                               </div>
-                                                            </div>
-                                                            <!--  <div class="col-md-2">
-                                                <div class="input-group">
-                                                   <span class="input-group-addon">$</span>
-                                                   <input class="form-control charge" onkeypress="return isFloatNumber(this,event)" value="<?php echo $val['fee']; ?>" name="data2[<?php echo $stateval['id'] ?>][fee]"  type="text" maxlength="4" placeholder="$0-$9,999" />
-                                                </div>
-                                             </div> -->
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                       <div class="panel-body">
+                                       <div class="row">
+                                          <table class="table table-bordered table-stripped table-hover license_cat_wrap">
+                                             <thead>
+                                                <tr>
+                                                   <th style="width: 15%;">Active <br>
+                                                      <span style="font-size: 13px;">Select All</span>
+                                                      <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
+                                                   </th>
+                                                   <th>State</th>
+                                                   <th>Received</th>
+                                                   <th>Terminated</th>
+                                                   <th>Reason</th>
+                                                </tr>
+                                             </thead>
+                                             <tbody id="data_sec_row" class="panel-row-wrap">
+                                                <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_insurance)) {
+                                                foreach ($edit_licences_insurance as $key => $val) {
+                                                   foreach ($get_state_new as $statekey => $stateval) {
+                                                      if ($val['state_id'] == $stateval['id']) { ?>
+                                                            
+                                                            <tr class="tr">
+                                                               <td>
+                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                     <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" <?php if ($val['active_check'] == 1) { ?>checked="true" <?php } ?> value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
+                                                                  </div>
+                                                               </td>
+                                                               <td>
+                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                     <?php echo $stateval['name']; ?>
+                                                                  </div>
+                                                               </td>
+                                                               <td>
+                                                                  <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                           <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received']!='1970-01-01') { echo date('m/d/Y', strtotime($val['received'])); } ?>" class="form-control" />
+                                                                           <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][received]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                        </div>
+                                                                     </div>
+                                                               </td>
+                                                               <td>
                                                                   <div id="demo-dp-range">
                                                                      <div class="input-daterange input-group" id="datepicker">
-                                                                        <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="<?php echo date('m/d/Y', strtotime($val['received'])); ?>" class="form-control" />
+                                                                        <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated']!='1970-01-01') { echo date('m/d/Y', strtotime($val['terminated'])); } ?>" class="form-control" />
+                                                                        <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][terminated]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
                                                                      </div>
+                                                                  </div>
+                                                               </td>
+                                                               <td>
+                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                     <input class="form-control" value="<?php echo $val['reson'] ?>" name="data2[<?php echo $stateval['id'] ?>][reason]" id="data2[<?php echo $stateval['id'] ?>][reason]" type="text" />
+                                                                  </div>
+                                                               </td>
+                                                            </tr>
+
+                                                      <?php }
+                                                      }
+                                                   } 
+                                                }else { ?>
+                                                   <?php foreach ($get_state_new as $statekey => $stateval) {?>
+
+                                                      <tr class="tr">
+                                                         <td>
+                                                            <div class="form-group" style="margin-bottom: 0px !important;">
+                                                               <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
+                                                            </div>
+                                                         </td>
+                                                         <td>
+                                                            <div class="form-group" style="margin-bottom: 0px !important;">
+                                                               <?php echo $stateval['name']; ?>
+                                                            </div>
+                                                         </td>
+                                                         <td>
+                                                            <div class="form-group" style="margin-bottom: 0px !important;">
+                                                               <div id="demo-dp-range">
+                                                                  <div class="input-daterange input-group" id="datepicker">
+                                                                     <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="" class="form-control" />
+                                                                     <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][received]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                     </label>
                                                                   </div>
                                                                </div>
                                                             </div>
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <div id="demo-dp-range">
-                                                                     <div class="input-daterange input-group" id="datepicker">
-                                                                        <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="<?php echo date('m/d/Y', strtotime($val['terminated'])) ?>" class="form-control" />
-                                                                     </div>
+                                                         </td>
+                                                         <td>
+                                                            <div class="form-group" style="margin-bottom: 0px !important;">
+                                                               <div id="demo-dp-range">
+                                                                  <div class="input-daterange input-group" id="datepicker">
+                                                                     <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="" class="form-control" />
+                                                                     <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][terminated]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
                                                                   </div>
                                                                </div>
                                                             </div>
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <input class="form-control" value="<?php echo $val['reson'] ?>" name="data2[<?php echo $stateval['id'] ?>][reason]" id="data2[<?php echo $stateval['id'] ?>][reason]" type="text" />
-                                                               </div>
+                                                         </td>
+                                                         <td>
+                                                            <div class="form-group" style="margin-bottom: 0px !important;">
+                                                               <input class="form-control" value="" name="data2[<?php echo $stateval['id'] ?>][reason]" id="data2[<?php echo $stateval['id'] ?>][reason]" type="text" />
                                                             </div>
-                                                         </div>
-                                                      </div>
-                                             <?php }
-                                                }
-                                             }
-                                          } else { ?>
-                                             <?php foreach ($get_state_new as $statekey => $stateval) { ?>
-                                                <div class="panel" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important;">
-                                                   <div class="row">
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
-                                                         </div>
-                                                      </div>
-
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <label><?php echo $stateval['name']; ?></label>
-                                                         </div>
-                                                      </div>
-                                                      <div class="col-md-2">
-                                                         <div class="input-group">
-                                                            <span class="input-group-addon">$</span>
-                                                            <input class="form-control charge" onkeypress="return isFloatNumber(this,event)" value="" name="data2[<?php echo $stateval['id'] ?>][fee]" type="text" maxlength="4" placeholder="$0-$9,999" />
-                                                         </div>
-                                                      </div>
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <div id="demo-dp-range">
-                                                               <div class="input-daterange input-group" id="datepicker">
-                                                                  <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="" class="form-control" />
-                                                               </div>
-                                                            </div>
-                                                         </div>
-                                                      </div>
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <div id="demo-dp-range">
-                                                               <div class="input-daterange input-group" id="datepicker">
-                                                                  <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="" class="form-control" />
-                                                               </div>
-                                                            </div>
-                                                         </div>
-                                                      </div>
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <input class="form-control" value="" name="data2[<?php echo $stateval['id'] ?>][reason]" id="data2[<?php echo $stateval['id'] ?>][reason]" type="text" />
-                                                         </div>
-                                                      </div>
-                                                   </div>
-                                                </div>
-                                          <?php }
-                                          } ?>
+                                                         </td>
+                                                      </tr>
+                                                <?php } 
+                                                } ?>
+                                             </tbody>
+                                          </table>
                                        </div>
-
-
+                                       </div>
 
                                        <div class="panel-overlay">
                                           <div class="panel-overlay-content pad-all unselectable">
@@ -2884,141 +2875,120 @@
                                           <h4 class="panel-title" style="font-size: 16px;"><input type="checkbox" value="1" <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && (isset($row1) && $row1 == 1)) { ?>checked="true" <?php } ?> class="checkbox" name="pass_through" style="display: inline !important;" /> Waive Home State Fee</h4>
                                        </div>
                                        <input type="hidden" name="type" value="3" />
-                                       <div class="panel-body license_cat_wrap">
+                                       <div class="panel-body">
                                           <div class="row">
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>Active </h4>
-                                                   <span style="font-size: 13px;">Select All</span>
-                                                   <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
-                                                </div>
-                                             </div>
+                                          <table class="table table-bordered table-stripped table-hover license_cat_wrap">
+                                             <thead>
+                                                   <tr>
+                                                      <th style="width: 15%;">Active <br>
+                                                         <span style="font-size: 13px;">Select All</span>
+                                                         <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
+                                                      </th>
+                                                      <th>State</th>
+                                                      <th>Received</th>
+                                                      <th>Terminated</th>
+                                                      <th>Reason</th>
+                                                   </tr>
+                                             </thead>
+                                             <tbody id="data_sec_row" class="panel-row-wrap">
+                                                <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_ria)) {
+                                                   foreach ($edit_licences_ria as $key => $val) {
+                                                      foreach ($get_state_new as $statekey => $stateval) {
+                                                         if ($val['state_id'] == $stateval['id']) { ?>
+                                                            <tr class="tr">
+                                                               <td>
+                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                     <input type="checkbox" name="data3[<?php echo $stateval['id'] ?>][active_check]" <?php if ($val['active_check'] == 1) { ?>checked="true" <?php } ?> value="1" id="data3[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
+                                                                  </div>
+                                                               </td>
+                                                               <td>
+                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                     <?php echo $stateval['name']; ?>
+                                                                  </div>
+                                                               </td>
+                                                               <td>
+                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                     <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                           <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received']!='1970-01-01') { echo date('m/d/Y', strtotime($val['received'])); } ?>" class="form-control" />
+                                                                           <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][received]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                        </div>
+                                                                     </div>
+                                                                  </div>
+                                                               </td>
+                                                               <td>
+                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                     <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                           <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated']!='1970-01-01') { echo date('m/d/Y', strtotime($val['terminated'])); } ?>" class="form-control" />
+                                                                           <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][terminated]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                        </div>
+                                                                     </div>
+                                                                  </div>
+                                                               </td>
+                                                               <td>
+                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                     <input class="form-control" value="<?php echo $val['reson'] ?>" name="data3[<?php echo $stateval['id'] ?>][reason]" id="data3[<?php echo $stateval['id'] ?>][reason]" type="text" />
+                                                                  </div>
+                                                               </td>
+                                                            </tr>
 
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>State</h4>
-                                                </div>
-                                             </div>
-                                             <!--   <div class="col-md-2">
-                                             <div class="form-group">
-                                                <h4>Fee</h4>
-                                             </div>
-                                          </div> -->
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>Received</h4>
-                                                </div>
-                                             </div>
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>Terminated</h4>
-                                                </div>
-                                             </div>
-                                             <div class="col-md-2">
-                                                <div class="form-group">
-                                                   <h4>Reason</h4>
-                                                </div>
-                                             </div>
+                                                         <?php }
+                                                         }
+                                                       }
+                                                   } else { ?>
+                                                      <?php foreach ($get_state_new as $statekey => $stateval) { ?>
+
+                                                         <tr class="tr">
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <input type="checkbox" name="data3[<?php echo $stateval['id'] ?>][active_check]" value="1" id="data3[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
+                                                               </div>
+                                                            </td>
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <?php echo $stateval['name']; ?>
+                                                               </div>
+                                                            </td>
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <div id="demo-dp-range">
+                                                                     <div class="input-daterange input-group" id="datepicker">
+                                                                        <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="" class="form-control" />
+                                                                        <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][received]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                     </div>
+                                                                  </div>
+                                                               </div>
+                                                            </td>
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <div id="demo-dp-range">
+                                                                     <div class="input-daterange input-group" id="datepicker">
+                                                                        <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="" class="form-control" />
+                                                                        <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][terminated]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                     </div>
+                                                                  </div>
+                                                               </div>
+                                                            </td>
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                               <input class="form-control" value="" name="data3[<?php echo $stateval['id'] ?>][reason]" id="data3[<?php echo $stateval['id'] ?>][reason]" type="text" />
+                                                               </div>
+                                                            </td>
+                                                         </tr>
+                                                      <?php }
+                                                   } ?>
+                                             </tbody>
+                                          </table>
                                           </div>
-                                          <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_ria)) {
-                                             foreach ($edit_licences_ria as $key => $val) {
-                                                foreach ($get_state_new as $statekey => $stateval) {
-                                                   if ($val['state_id'] == $stateval['id']) { ?>
-                                                      <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important; background-color:rgba(244, 236, 238, 0.5)">
-                                                         <div class="row">
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <input type="checkbox" name="data3[<?php echo $stateval['id'] ?>][active_check]" <?php if ($val['active_check'] == 1) { ?>checked="true" <?php } ?> value="1" id="data3[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
-                                                               </div>
-                                                            </div>
-
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <label><?php echo $stateval['name']; ?></label>
-                                                               </div>
-                                                            </div>
-                                                            <!--  <div class="col-md-2">
-                                                <div class="input-group">
-                                                   <span class="input-group-addon">$</span>
-                                                   <input class="form-control charge" onkeypress="return isFloatNumber(this,event)" value="<?php echo $val['fee'] ?>" name="data3[<?php echo $stateval['id'] ?>][fee]" type="text" maxlength="4" placeholder="$0-$9,999" />
-                                                </div>
-                                             </div> -->
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <div id="demo-dp-range">
-                                                                     <div class="input-daterange input-group" id="datepicker">
-                                                                        <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="<?php echo date('m/d/Y', strtotime($val['received'])) ?>" class="form-control" />
-                                                                     </div>
-                                                                  </div>
-                                                               </div>
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <div id="demo-dp-range">
-                                                                     <div class="input-daterange input-group" id="datepicker">
-                                                                        <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="<?php echo date('m/d/Y', strtotime($val['terminated'])) ?>" class="form-control" />
-                                                                     </div>
-                                                                  </div>
-                                                               </div>
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                               <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                  <input class="form-control" value="<?php echo $val['reson'] ?>" name="data3[<?php echo $stateval['id'] ?>][reason]" id="data3[<?php echo $stateval['id'] ?>][reason]" type="text" />
-                                                               </div>
-                                                            </div>
-                                                         </div>
-                                                      </div>
-                                             <?php }
-                                                }
-                                             }
-                                          } else { ?>
-                                             <?php foreach ($get_state_new as $statekey => $stateval) { ?>
-                                                <div class="panel" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important;">
-                                                   <div class="row">
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <input type="checkbox" name="data3[<?php echo $stateval['id'] ?>][active_check]" value="1" id="data3[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
-                                                         </div>
-                                                      </div>
-
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <label><?php echo $stateval['name']; ?></label>
-                                                         </div>
-                                                      </div>
-                                                      <div class="col-md-2">
-                                                         <div class="input-group">
-                                                            <span class="input-group-addon">$</span>
-                                                            <input class="form-control charge" onkeypress="return isFloatNumber(this,event)" value="" name="data3[<?php echo $stateval['id'] ?>][fee]" type="text" maxlength="4" placeholder="$0-$9,999" />
-                                                         </div>
-                                                      </div>
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <div id="demo-dp-range">
-                                                               <div class="input-daterange input-group" id="datepicker">
-                                                                  <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="" class="form-control" />
-                                                               </div>
-                                                            </div>
-                                                         </div>
-                                                      </div>
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <div id="demo-dp-range">
-                                                               <div class="input-daterange input-group" id="datepicker">
-                                                                  <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="" class="form-control" />
-                                                               </div>
-                                                            </div>
-                                                         </div>
-                                                      </div>
-                                                      <div class="col-md-2">
-                                                         <div class="form-group" style="margin-bottom: 0px !important;">
-                                                            <input class="form-control" value="" name="data3[<?php echo $stateval['id'] ?>][reason]" id="data3[<?php echo $stateval['id'] ?>][reason]" type="text" />
-                                                         </div>
-                                                      </div>
-                                                   </div>
-                                                </div>
-                                          <?php }
-                                          } ?>
                                        </div>
                                        <div class="panel-overlay">
                                           <div class="panel-overlay-content pad-all unselectable">
@@ -3057,8 +3027,8 @@
                                     <div class="table-responsive" id="table-scroll" style="height:1075px;">
                                        <table class="table table-bordered table-stripped table-hover">
                                           <thead>
-                                             <th>Series</th>
-                                             <th>Registration Name</th>
+                                             <!-- <th>Series</th> -->
+                                             <th>Series Registration Name</th>
                                              <th>Approval Date</th>
                                              <th>Expiration Date</th>
                                              <th>Reason</th>
@@ -3071,7 +3041,7 @@
                                                       if ($regval['id'] == $val['license_id']) {
                                              ?>
                                                          <tr>
-                                                            <td><?php echo $regval['id']; ?></a></td>
+                                                            <!-- <td><?php echo $regval['id']; ?></a></td> -->
                                                             <td><?php echo $regval['type']; ?></td>
                                                             <!--
                                                 <select class="form-control" name="series_product_category" style="display: inline !important;">
@@ -3091,14 +3061,14 @@
                                                             <td>
                                                                <div id="demo-dp-range">
                                                                   <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][approval_date]" value="<?php echo date('m/d/Y', strtotime($val['approval_date'])); ?>" class="form-control" />
+                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][approval_date]" value="<?php  if (isset($val['approval_date']) && $val['approval_date'] != '' && $val['approval_date']!='1970-01-01') { echo date('m/d/Y', strtotime($val['approval_date'])); } ?>" class="form-control" />
                                                                   </div>
                                                                </div>
                                                             </td>
                                                             <td>
                                                                <div id="demo-dp-range">
                                                                   <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][expiration_date]" value="<?php echo date('m/d/Y', strtotime($val['expiration_date'])); ?>" class="form-control" />
+                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][expiration_date]" value="<?php if (isset($val['expiration_date']) && $val['expiration_date'] != '' && $val['expiration_date']!='1970-01-01') { echo date('m/d/Y', strtotime($val['expiration_date'])); } ?>" class="form-control" />
                                                                   </div>
                                                                </div>
                                                             </td>
@@ -3321,8 +3291,8 @@
                                                             <option value="0">All Companies</option>
                                                             <?php foreach ($get_sponsor as $key_sponsor => $val_sponsor) { ?>
                                                                <option value="<?php echo $val_sponsor['id']; ?>" <?php if ($val['sponsor_company'] != '' && $val['sponsor_company'] == $val_sponsor['id']) {
-                                                                                                                     echo "selected='selected'";
-                                                                                                                  } ?>><?php echo $val_sponsor['name']; ?></option>
+                                                                  echo "selected='selected'";
+                                                               } ?>><?php echo $val_sponsor['name']; ?></option>
                                                             <?php } ?>
                                                          </select>
                                                       </td>
@@ -3334,8 +3304,8 @@
                                                          <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
                                                                <input type="text" name="alias[date][<?php echo $doc_id; ?>]" value="<?php if (isset($val['date']) && $val['date'] != '') {
-                                                                                                                                       echo date('m/d/Y', strtotime($val['date']));
-                                                                                                                                    } ?>" class="form-control" />
+                                                                  echo date('m/d/Y', strtotime($val['date']));
+                                                               } ?>" class="form-control" />
                                                             </div>
                                                          </div>
                                                       </td>
@@ -3344,17 +3314,17 @@
                                                             <option value="0">Select State</option>
                                                             <?php foreach ($get_state as $statekey => $stateval) { ?>
                                                                <option value="<?php echo $stateval['id']; ?>" <?php if ($val['state'] != '' && $val['state'] == $stateval['id']) {
-                                                                                                                  echo "selected='selected'";
-                                                                                                               } ?>><?php echo $stateval['name']; ?></option>
+                                                                  echo "selected='selected'";
+                                                               } ?>><?php echo $stateval['name']; ?></option>
                                                             <?php } ?>
                                                          </select>
                                                       </td>
                                                       <td>
                                                          <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
-                                                               <input type="text" name="alias[termdate][<?php echo $doc_id; ?>]" value="<?php if (isset($val['termdate']) && $val['termdate'] != '') {
-                                                                                                                                          echo date('m/d/Y', strtotime($val['termdate']));
-                                                                                                                                       } ?>" class="form-control" />
+                                                               <input type="text" name="alias[termdate][<?php echo $doc_id; ?>]" value="<?php if (isset($val['termdate']) && $val['termdate'] != '' && $val['termdate']!='1970-01-01') {
+                                                                  echo date('m/d/Y', strtotime($val['termdate']));
+                                                               } ?>" class="form-control" />
                                                             </div>
                                                          </div>
                                                       </td>
@@ -3372,16 +3342,16 @@
                                                       <option value="0">All Companies</option>
                                                       <?php foreach ($get_sponsor as $key_sponsor => $val_sponsor) { ?>
                                                          <option value="<?php echo $val_sponsor['id']; ?>" <?php if (isset($alias_sponsor) && $alias_sponsor == $val_sponsor['id']) {
-                                                                                                               echo "selected='selected'";
-                                                                                                            } ?>><?php echo $val_sponsor['name']; ?></option>
+                                                            echo "selected='selected'";
+                                                      } ?>><?php echo $val_sponsor['name']; ?></option>
                                                       <?php } ?>
                                                    </select>
                                                 </td>
                                                 <td>
                                                    <!-- 09/02/22 Remove the keystroke filtering:  onkeypress="return isOnlyAlphaNumeric(this,event)" pattern="^[A-Za-z0-9 ]*$"-->
                                                    <input type="text" name="alias[alias_name][<?php echo $doc_id; ?>]" maxlength="20" value="<?php if (isset($alias_number) && $alias_number != '') {
-                                                                                                                                                echo $alias_number;
-                                                                                                                                             } ?>" max="20" class="form-control" />
+                                                            echo $alias_number;
+                                                      } ?>" max="20" class="form-control" />
                                                 </td>
                                                 <td>
                                                    <div id="demo-dp-range">
@@ -3395,8 +3365,8 @@
                                                       <option value="0">Select State</option>
                                                       <?php foreach ($get_state as $statekey => $stateval) { ?>
                                                          <option value="<?php echo $stateval['id']; ?>" <?php if (isset($alias_state['state']) == $stateval['id']) {
-                                                                                                            echo "selected='selected'";
-                                                                                                         } ?>><?php echo $stateval['name']; ?></option>
+                                                            echo "selected='selected'";
+                                                      } ?>><?php echo $stateval['name']; ?></option>
                                                       <?php } ?>
                                                    </select>
                                                 </td>

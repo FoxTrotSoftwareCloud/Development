@@ -1711,10 +1711,10 @@
         $res = 0;
 
         foreach($data as $key=>$val){
-          $docs_receive=isset($val['docs_receive'])?$this->re_db_input($val['docs_receive']):'';
+          $docs_receive=isset($val['docs_receive']) && ($val['docs_receive'] != '')?$this->re_db_input($val['docs_receive']):0;
           $docs_description=isset($val['docs_description'])?$this->re_db_input($val['docs_description']):'';
           $docs_date=isset($val['docs_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['docs_date']))):'';
-          $docs_required = isset($val['docs_required'])?$this->re_db_input($val['docs_required']):'';
+          $docs_required = isset($val['docs_required']) && ($val['docs_required'] != '') ?$this->re_db_input($val['docs_required']):0;
 
           if( $docs_description!=''){
             $q = "INSERT INTO `".BROKER_REQ_DOC."`"
@@ -1738,10 +1738,10 @@
         $res = 0;
 
         foreach($data as $key=>$val){
-          $docs_receive=isset($val['docs_receive'])?$this->re_db_input($val['docs_receive']):'';
+          $docs_receive=isset($val['docs_receive'])&& ($val['docs_receive'] != '') ?$this->re_db_input($val['docs_receive']):0;
           $docs_description=isset($val['docs_description'])?$this->re_db_input($val['docs_description']):'';
           $docs_date=isset($val['docs_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['docs_date']))):'';
-          $docs_required = isset($val['docs_required'])?$this->re_db_input($val['docs_required']):'';
+          $docs_required = isset($val['docs_required']) && ($val['docs_required'] != '') ?$this->re_db_input($val['docs_required']):0;
 
           if( $docs_description!=''){
             if($flag4==0){
@@ -1858,6 +1858,7 @@
                                     .",`sponsor_company`='".$sponsor_company."'"
                                     .",`date`='".$date."'"
                                     .",`termdate`='".$termdate."'"
+                                    .",`state`='".$state."'"
                                     .$this->insert_common_sql()
                             ;
                             $res = $this->re_db_query($q);
