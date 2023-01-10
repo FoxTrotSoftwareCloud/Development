@@ -32,4 +32,5 @@
     include_once(DIR_FS_CLASSES."payroll_calculation.class.php");
     include_once(DIR_FS_CLASSES."import_generic.class.php");
     include_once(DIR_FS_CLASSES."webcrd.class.php");
+    include_once(DIR_FS_CLASSES."dst_fetch.class.php");
 ?>

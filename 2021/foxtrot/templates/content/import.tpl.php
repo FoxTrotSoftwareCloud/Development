@@ -1,5 +1,6 @@
 <script language="javascript">
     function GetFileList() {
+        // Code Copied from --> FAN Mail HTTPs Download Guide
         document.getElementsByName("HTTPDL_result").value = "";
         console.log(HTTPDL, "HTTPDL")
 
@@ -12,33 +13,37 @@
         //--------------------------------
         // TEST Environment - 11/29/22
         //--------------------------------
-        HTTPDL.Target = "/tf/FANMail-test";
-        HTTPDL.Client = "419041819";
+        // HTTPDL.Target = "/tf/FANMail-test";
+        // HTTPDL.Client = "419041819";
+        HTTPDL.Target = "/tf/FANMail";
+        HTTPDL.Client = "415171403";
+        HTTPDL.UserID = "FMTSTHTP";
+        HTTPDL.Password = "TESTING#"; //Password.value;
         //--------------------------------
         // PRODUCTION ENVIRONMENT
         //--------------------------------
         // HTTPDL.Target = "/tf/FANMail";
         // HTTPDL.Client = "415171403";
+        // HTTPDL.UserID = 'FM018141'; //TEST DELETE ME: $("#UserID").val();
+        // HTTPDL.Password = 'Please12'; //TEST DELETE ME: $("#Password").val();
         //--------------------------------
-
-        // Note: For testing UserID and Password will be supplied by DST
-        HTTPDL.UserID = $("#UserID").val();
-        HTTPDL.Password = $("#Password").val(); //Password.value;
-        // HTTPDL.ftpType = $("#ftpType").val();
+        HTTPDL.ftpType = $("#ftpType").val();
         
-        //***
-        console.log("UserID: " + $("#UserID").val() + ", Password: " + $("#Password").val() + ", ftpType: " + $("#ftpType").val());
-        // ***/
+        //****/
+        console.log("UserID: " + HTTPDL.UserID  + ", Password: " + HTTPDL.Password + ", ftpType: " + HTTPDL.ftpType + ", Status: " + HTTPDL.status);
+        console.log("$('#UserID').val(): " + $("#UserID").val()  + ", $('#Password').val(): " + $("#Password").val() + ", $('#ftpType').val(): " + $("#ftpType").val());
+        //****/
         
         var list = HTTPDL.GetFileListAsXML();
-        //alert(list);
+        //****/
+        console.log("List: " + list + ", GetFileListAsXML: " + HTTPDL.GetFileListAsXML);
+        //****/
+        
         var dlist = "No file list returned";
-        //HTTPs Download Guide Product Guide
         var xmldoc = MSXML3;
         xmldoc.async = false;
         xmldoc.preserveWhiteSpace = true;
         xmldoc.loadXML(list);
-
         var docelement = xmldoc.documentElement;
 
         if (docelement.hasChildNodes()) {
@@ -1478,9 +1483,10 @@
                                     </div>
 
                                     <div class="panel-body" onunload="TerminateDownload()" id="fetch_file_div" style="display: none;">
-
-                                        <object id="HTTPDL" style="height: 0px !important; width: 0px !important;" classid="CLSID:2DEA82A9-7FEF-4F68-8091-B800ECF54C9F" codeBase="./dsthttpdl.dll"></object>
-                                        <!--<object style="display:none" id="SOME_ID" classid="clsid:SOME_CLASS_ID" codebase="./somePath.dll"></object>-->
+                                        <!-- 11/30/22 Try the ID for controls in the FAN Mail HTTPS guide-->
+                                        <!-- Old Version:  <object id="HTTPDL" style="height: 0px !important; width: 0px !important;" classid="CLSID:2DEA82A9-7FEF-4F68-8091-B800ECF54C9F" codeBase="./dsthttpdl.dll"></object> -->
+                                        <!-- Old Version   <object id="MSXML3" style="DISPLAY: none" codeBase="http:msxml3.cab#version=8,00,7820,0" type="application/x-oleobject" data="data:application/x-oleobject;base64,EQ/Z9nOc0xGzLgDAT5kLtA==" classid="clsid:f5078f32-c551-11d3-89b9-0000f81fe221"></object> -->
+                                        <object id="HTTPDL" style="height: 0px !important; width: 0px !important;" classid="CLSID:2DEA82A9-7FEF-4F68-8091-B800ECF54C9F" codeBase="http:DSTHTTPDL.cab#version=1,0,0,2"></object>
                                         <object id="MSXML3" style="DISPLAY: none" codeBase="http:msxml3.cab#version=8,00,7820,0" type="application/x-oleobject" data="data:application/x-oleobject;base64,EQ/Z9nOc0xGzLgDAT5kLtA==" classid="clsid:f5078f32-c551-11d3-89b9-0000f81fe221"></object>
 
                                         <div id="Main">
