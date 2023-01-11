@@ -8,11 +8,10 @@ class DSTFetch {
     //------------------------------------------------------------------------------------------------------------
     public $fileList = [];
     public $fetchStatus = "";
-    //-- Initialize cURL PROPERTIES
-    private $userId = "";
-    private $password = "";
-    private $localFolder = "";
     //-- DST Creds
+    private $password = "";
+    private $userId = "";
+    private $localFolder = "";
     private $client = "";
     private $params = "";
     private $headerDlua = "";
@@ -20,26 +19,78 @@ class DSTFetch {
     private $url = "";
     private $txid = "";
     private $dataDir = "";
+    private $dimId = 0;
+    private $testMode = 0;
     
-    function __construct() {
-        // $this->setUserId(''); // XML/LA User
-        $this->setUserId('fmtsthtp'); // Test User   
-            
-        // $this->setPassword(''); // XML/LA Password
-        $this->setPassword('testing#'); // Test User Password    
-        // $this->setPassword('testing#"');  // Bad Password
+    function __construct(int $dimId=2, $testMode=0) {
+        $this->testMode = $testMode;
         
-        //-- Path format:
-        $this->setLocalFolder('c:/1TestDSTRetrieve/Files/');    
-        
-        $this->setClient('415171403');    
-        $this->setParams("?tx=RetrieveFile&cz=".$this->client);    
-        $this->setUrl("https://filetransfer.financialtrans.com/tf/FANMail".$this->params);    
-        $this->setHeaderDlua(base64_encode($this->userId.":".$this->password));
-        $this->setHeaderRequester("FANMail_Retrieve");
-        $this->setDataDir("c:/1TestDSTRetrieve/files/");
+        $this->dimId = $dimId;    
+        $this->client = '415171403';    
+        $this->params = "?tx=RetrieveFile&cz=".$this->client;    
+        $this->url = "https://filetransfer.financialtrans.com/tf/FANMail".$this->params;    
+        $this->headerRequester = "FANMail_Retrieve";
+        $this->get_credentials($dimId);
+        // Create an error handler for bad creds and data directory - 01/10/23 li
+        if (empty($this->userId) or empty($this->password) or empty($this->localFolder)){
+            $this->fetchStatus = "DST FETCH - Initiated: [EXCEPTION] User Name, Password and/or Local Folder not specified or invalid";
+        } else {
+            $this->fetchStatus = "DST FETCH: Initiated...";
+        }
+        $this->headerDlua = base64_encode($this->userId.":".$this->password);
     }
-
+    
+    private function get_credentials(int $dimId=2){
+        global $dbins;
+        $return = 0;
+        $tableValues = [];
+        
+        $q = "SELECT name,dim_id,user_name,password,local_folder FROM ".DATA_INTERFACES." WHERE dim_id=$dimId";
+        $res = $dbins->re_db_query($q);
+        $return = $dbins->re_db_num_rows($res);
+        
+        if ($return){
+            $tableValues = $dbins->re_db_fetch_array($res);
+            $this->setUserId($tableValues['user_name']);
+            $this->setPassword($dbins->decryptor($tableValues['password']));
+            $this->setDataDir($tableValues['local_folder']);
+            $this->setLocalFolder($tableValues['local_folder']);
+        }
+        
+        return $return;
+    }
+    
+    // Main function: Pull all the files from the DST server
+    function fetch(){
+        $return = $temp = [];
+        $return = $this->get_file_list();
+        
+        if (count($return) > 0){
+            // TEST DELETE ME - 01/10/23 Only fetch the first 5 of the list
+            if ($this->testMode){
+                $temp = $return;
+                foreach ($return as $index=>$file){
+                    $fileNum = substr($file['name'], 8, 5);
+                    $temp[$index]['filenum'] = $fileNum;
+                }
+                usort($temp, function($item1, $item2){
+                    return $item1['filenum'] <=> $item2['filenum']; 
+                });
+                
+                $end = 5;
+                $return = [];
+                for ($i=0; $i<$end; $i++){
+                    $return[]['name'] = $temp[$i]['name'];
+                }
+            }
+            
+            $return = $this->download_file($return);
+            $return = $this->delete_file($return);
+        }
+        
+        return $return;
+    }
+    
     function get_file_list() {
         $this->fetchStatus = "Getting files...";
         $this->fileList = [];
@@ -70,7 +121,7 @@ class DSTFetch {
             $this->fetchStatus = "Get File List - PASS, Count: ".count($this->fileList);
         } else if (strpos($output,'html')!==false){
             $document = new DOMDocument();
-            $document->loadHTML($output);
+            $document->loadHTML( substr($output, strpos($output,"<html>")) );
             
             if (!empty($document->getElementsByTagName('h1'))) {
                 $this->fetchStatus = "Get File List - FAIL: ".$document->getElementsByTagName('h1')[0]->nodeValue;
@@ -92,7 +143,7 @@ class DSTFetch {
         foreach ($fileList->FileList->File as $file){
             $i++;
             foreach ($file->attributes() as $name=>$value){
-                $return[] = (string)$value; 
+                $return[]['name'] = (string)$value; 
             }
         }
         
@@ -103,19 +154,19 @@ class DSTFetch {
         $this->fetchStatus = "Downloading files...";
         $downloadCount = count($downloadList);
         $return = [];
-        $success = $file = $output = 0;
-        
-        if ($downloadCount>0 && strtolower(substr($downloadList[0],-3))=='zip') {
+        $success = $file = $output = $i = 0;
+        $fileName = strtoupper(isset($downloadList[$i]['name']) ? $downloadList[$i]['name'] : $downloadList[$i]);
+
+        if ($downloadCount>0 && substr($fileName,-3) =='ZIP') {
             //-- Start cURL Operations
             $handle = curl_init();
-            // curl_setopt($handle, CURLOPT_HEADER, true);
             curl_setopt($handle, CURLOPT_HTTPHEADER, array('X-File-Requester: '.$this->headerRequester, 'X-Dlua: '.$this->headerDlua));
-            // curl_setopt($handle, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($handle, CURLOPT_CUSTOMREQUEST, 'GET');
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-            // curl_setopt($handle, CURLOPT_FAILONERROR, true);
-            // curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($handle, CURLOPT_FAILONERROR, true);
             
-            foreach ($downloadList as $index=>$fileName){
+            foreach ($downloadList as $index=>$iFile){
+                $fileName = strtoupper(isset($iFile['name']) ? $iFile['name'] : $iFile);
                 $this->fetchStatus = "Downloading files..."."File ".($index+1)." of $downloadCount: $fileName";
                 // Make sure the file doesn't already exist
                 $output = 0;
@@ -183,35 +234,40 @@ class DSTFetch {
             
             for ($i=0; $i < count($deleteList); $i++){
                 $fileName = strtoupper(isset($deleteList[$i]['name']) ? $deleteList[$i]['name'] : $deleteList[$i]);
+                $fileStatus = strtoupper(isset($deleteList[$i]['status']) ? $deleteList[$i]['status'] : "*not specified*");
+                
                 $this->fetchStatus = "Deleteing files..."."File ".($i+1)." of $deleteCount: $fileName";
-                // Make sure the file doesn't already exist
-                $event = "&tidx=".$this->txid."&event=DeleteFile&file=".$fileName;
-                curl_setopt($handle, CURLOPT_URL, $this->url.$event);
-                $output = curl_exec($handle);
-                
-                // Check in the response header for good\bad delete
-                $errorNum = $errorMsg = $temp = "";
-                if (strpos($output, "X-Error: ")!==false){
-                    // Did this extra step to not confuse myself and future generations
-                    $temp = substr($output, strpos($output, "X-Error: ")+strlen("X-Error: "));
-                    $errorNum = trim(substr($temp, 0, strpos($temp,"\n")));
-                }
-                if (strpos($output, "X-Error-Message: ")!==false){
-                    // Did this extra step to not confuse myself and future generations
-                    $temp = substr($output, strpos($output, "X-Error-Message: ")+strlen("X-Error-Message: "));
-                    $errorMsg = trim(substr($temp, 0, strpos($temp,"\n")));
-                }
-                
-                if ($errorMsg === ""){
-                    $success++;
-                    $return[] = ["name"=>$fileName, "status"=>"deleted"];
-                    if (isset($deleteList[$i]['status'])){
-                        $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deleted";
+                // Make sure the file was downloaded before deleting from the DST(remote) server
+                if (substr($fileStatus,0,strlen("DOWNLOADED")-1)=="DOWNLOADED" or $fileStatus="*NOT SPECIFIED*"){
+                    // Make sure the file doesn't already exist
+                    $event = "&tidx=".$this->txid."&event=DeleteFile&file=".$fileName;
+                    curl_setopt($handle, CURLOPT_URL, $this->url.$event);
+                    $output = curl_exec($handle);
+                    
+                    // Check in the response header for good\bad delete
+                    $errorNum = $errorMsg = $temp = "";
+                    if (strpos($output, "X-Error: ")!==false){
+                        // Did this extra step to not confuse myself and future generations
+                        $temp = substr($output, strpos($output, "X-Error: ")+strlen("X-Error: "));
+                        $errorNum = trim(substr($temp, 0, strpos($temp,"\n")));
                     }
-                } else {
-                    $return[] = ["name"=>$fileName, "status"=>"deletion failed-".$errorNum."-".$errorMsg];
-                    if (isset($deleteList[$i]['status'])){
-                        $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deletion failed-".$errorNum."-".$errorMsg;
+                    if (strpos($output, "X-Error-Message: ")!==false){
+                        // Did this extra step to not confuse myself and future generations
+                        $temp = substr($output, strpos($output, "X-Error-Message: ")+strlen("X-Error-Message: "));
+                        $errorMsg = trim(substr($temp, 0, strpos($temp,"\n")));
+                    }
+                    
+                    if ($errorMsg === ""){
+                        $success++;
+                        $return[] = ["name"=>$fileName, "status"=>"deleted"];
+                        if (isset($deleteList[$i]['status'])){
+                            $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deleted";
+                        }
+                    } else {
+                        $return[] = ["name"=>$fileName, "status"=>"deletion failed-".$errorNum."-".$errorMsg];
+                        if (isset($deleteList[$i]['status'])){
+                            $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deletion failed-".$errorNum."-".$errorMsg;
+                        }
                     }
                 }
             }
@@ -288,7 +344,7 @@ class DSTFetch {
 
     function setUserId (string $setUserId) { $this->userId = trim($setUserId); }
     function setPassword (string $setPassword) { $this->password = trim($setPassword); }
-    function setLocalFolder (string $setLocalFolder) { $this->localFolder = trim($setLocalFolder); }
+    function setLocalFolder (string $setLocalFolder) { $this->localFolder = DIR_FS.rtrim($setLocalFolder,'/').'/'; }
     function setClient (string $setClient) { $this->client = trim($setClient); }
     function setParams (string $setParams) { $this->params = trim($setParams); }
     function setUrl (string $setUrl) { $this->url = trim($setUrl); }
@@ -296,8 +352,7 @@ class DSTFetch {
     function setHeaderDlua (string $setHeaderDlua) { $this->headerDlua = trim($setHeaderDlua); }
     function setHeaderRequester (string $setHeaderRequester) { $this->headerRequester= trim($setHeaderRequester); }
     function setDataDir (string $setDataDir) { 
-        $instance_db = new db();
-        $this->dataDir= rtrim($instance_db->re_db_input(trim($setDataDir)), "/")."/"; 
+        $this->dataDir = DIR_FS.rtrim($setDataDir,'/').'/'; 
     }
 }
 ?>
