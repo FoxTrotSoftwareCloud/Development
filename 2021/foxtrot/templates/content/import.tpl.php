@@ -1,49 +1,30 @@
 <script language="javascript">
     function GetFileList() {
-        // Code Copied from --> FAN Mail HTTPs Download Guide
         document.getElementsByName("HTTPDL_result").value = "";
         console.log(HTTPDL, "HTTPDL")
-
         //HTTPDL_result.value = "";
         HTTPDL.Host = "filetransfer.financialtrans.com";
         HTTPDL.UseProxy = false;
-        HTTPDL.LocalDirectory = $("#DstDir").val();
+        HTTPDL.LocalDirectory = "E:\foxtrot_idc_file";
         HTTPDL.UseHttps = true;
-        
-        //--------------------------------
-        // TEST Environment - 11/29/22
-        //--------------------------------
-        // HTTPDL.Target = "/tf/FANMail-test";
-        // HTTPDL.Client = "419041819";
+        // Note: Test System Information
         HTTPDL.Target = "/tf/FANMail";
+        //HTTPDL.Client = "419041819";
         HTTPDL.Client = "415171403";
-        HTTPDL.UserID = "FMTSTHTP";
-        HTTPDL.Password = "TESTING#"; //Password.value;
-        //--------------------------------
-        // PRODUCTION ENVIRONMENT
-        //--------------------------------
-        // HTTPDL.Target = "/tf/FANMail";
-        // HTTPDL.Client = "415171403";
-        // HTTPDL.UserID = 'FM018141'; //TEST DELETE ME: $("#UserID").val();
-        // HTTPDL.Password = 'Please12'; //TEST DELETE ME: $("#Password").val();
-        //--------------------------------
-        HTTPDL.ftpType = $("#ftpType").val();
-        
-        //****/
-        console.log("UserID: " + HTTPDL.UserID  + ", Password: " + HTTPDL.Password + ", ftpType: " + HTTPDL.ftpType + ", Status: " + HTTPDL.status);
-        console.log("$('#UserID').val(): " + $("#UserID").val()  + ", $('#Password').val(): " + $("#Password").val() + ", $('#ftpType').val(): " + $("#ftpType").val());
-        //****/
-        
+        //415171403
+        // Note: For testing UserID and Password will be supplied by DST
+        HTTPDL.UserID = UserID.value;
+        HTTPDL.ftpType = ftpType.value;
+        HTTPDL.Password = Password.value;
         var list = HTTPDL.GetFileListAsXML();
-        //****/
-        console.log("List: " + list + ", GetFileListAsXML: " + HTTPDL.GetFileListAsXML);
-        //****/
-        
+        //alert(list);
         var dlist = "No file list returned";
+        //HTTPs Download Guide Product Guide
         var xmldoc = MSXML3;
         xmldoc.async = false;
         xmldoc.preserveWhiteSpace = true;
         xmldoc.loadXML(list);
+
         var docelement = xmldoc.documentElement;
 
         if (docelement.hasChildNodes()) {
@@ -163,7 +144,7 @@
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <?php if (isset($_GET['exception_file_id']) && $_GET['exception_file_id'] != '') { ?>
                     <div class="alert alert-warning" role="alert" style="margin-top:20px">Some exceptions are generated. Please look at <a href="<?php echo CURRENT_PAGE . '?tab=review_files&id=' . $_GET['exception_file_id'] . '&file_type=' . $_GET['file_type'] ?>">View/Print</a> page.</div>
-                <?php } ?>
+                <? } ?>
                 <div class="graphbox">
 
                     <div class="graphboxtitle">Import </div>
@@ -230,7 +211,8 @@
                                                                                                     } else echo '00-00-0000' ?></h4>
 
                                     <?php if (in_array($get_file_type, [2, 9])) { ?>
-                                        <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$' . number_format($total_commission_amount, 2); ?></h4>
+                                        <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_commission_amount, 2); ?></h4>
+                                       
                                     <?php }
                                 } else { ?>
                                     <h3>Preview Data <a class="btn btn-primary pull-right" href="import.php">Back</a></h3><br />
@@ -273,7 +255,8 @@
 
                                     ?>
 
-                                        <h4 style="margin-right: 0% !important; display: inline;">Amount: <?php echo '$' . number_format($total_Check_Amount, 2); ?></h4>
+                                        <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_Check_Amount, 2); ?></h4>
+                                        
                             <?php }
                                 }
                             } ?>
@@ -378,7 +361,7 @@
 
                                                                         if (isset($val['imported_date']) && $val['imported_date'] != '') {
 
-                                                                            $sponsorLink = CURRENT_PAGE . "?tab=preview_files&id={$val['id']}&file_type=$file_type_id";
+                                                                            $sponsorLink = CURRENT_PAGE . "?tab=processed_files&id={$val['id']}&file_type=$file_type_id";
                                                                 ?>
                                                                             <tr id="<?php echo '$key' . $key ?>">
 
@@ -687,6 +670,8 @@
                                                                 $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
                                                                 $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
                                                                 $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
+                                                                $total_exception_commission = $instance->select_total_exception_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
+                                                                //echo "<pre>"; print_r($total_exception_commission);die;
                                                 
                                                                     $prev_temp_data_id = 0;
                                                                     $bg_color = '#fff';
@@ -891,8 +876,26 @@
                                                                 <?php                                                                
                                                                 $prev_temp_data_id = $temp_data_id;
                                                             } ?>
+                                                         
                                                             </tbody>
                                                         </table>
+                                                        <?php
+                                                        if($return_exception!=array()){ ?>
+                                                            <table class="table">
+                                                                <tr style="text-align: right;">
+                                                                    <!-- <td style="width: 40%;"><b>Total : <?php echo $total_exception_commission['total_records']['total_records'] ?> </b></td> -->
+
+                                                                    <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9'])){ ?>
+                                                                            <td style="width: 60%;"><b> Total Commission : <?php echo '$'.number_format($total_exception_commission['total_commission']['total_commission'],2) ?> </b></td>
+                                                                    <?php } ?>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </table>
+                                                        <?php }
+                                                                    
+                                                        ?> 
                                                     </div>
                                                 </div>
                                             </div>
@@ -956,6 +959,9 @@
                                                                 }
                                                                 $return_solved_exception = $instance->select_solved_exception_data($file_id, $get_file_type);
 
+                                                              $total_records_commissions = $instance->select_solved_exception_total($file_id, $get_file_type);
+                                                              //echo "<pre>"; print_r($total_records_commissions);die; 
+
 
                                                                 foreach ($return_solved_exception as $process_key => $process_val) {
                                                                     $total_commission_amount = $total_commission_amount + $process_val['commission'];
@@ -976,7 +982,7 @@
                                                                         $process_val['rep_name']=$lnm.", ".$fnm;
                                                                     }
 
-                                                                ?>
+                                                                    ?>
 
                                                                     <tr>
                                                                         <td><?php echo date('m/d/Y', strtotime($process_val['date'])); ?></td>
@@ -1022,6 +1028,23 @@
                                                                 <?php } ?>
                                                             </tbody>
                                                         </table>
+
+                                                        <?php
+                                                        if($return_solved_exception!=array()){ ?>
+                                                            <table class="table">
+                                                            <tr style="text-align: right;">
+                                                                               
+                                                                <!-- <td style="width: 70%;"><b> Total : <?php echo $total_records_commissions[0]['total_records']; ?> </b></td> -->
+   
+                                                                <?php if(isset($get_file_type) && in_array($get_file_type, ['2', '9'])){ ?>
+                                                                <td><b> Total Commission : <?php echo '$'.number_format($total_records_commissions[1]['total_commission'],2) ;  ?> </b></td>
+                                                                <?php } ?>
+                                                            </tr>
+                                                            </table>
+                                                        <?php }
+                                                                    
+                                                        ?> 
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -1445,6 +1468,22 @@
                                                             <?php
                                                                     unset($temp_data_interface);
                                                                 }
+                                                                // Add NFS 11/20/22 -->
+                                                                $temp_data_interface = new data_interfaces_master();
+                                                                $temp_data_found = $temp_data_interface->select("`name` LIKE 'NFS%'");
+                                                                if(count($temp_data_found)){ ?>
+                                                                    <tr>
+                                                                        <td><?php echo $temp_data_found[0]['name'];?></td>
+                                                                        <td></td>
+                                                                        <td></td>
+                                                                        <td>
+                                                                            <input type="file" name="nfs_files[]" class="form-control" multiple/>
+                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Upload</button>
+                                                                        </td>
+                                                                    </tr>
+                                                                <?php
+                                                                    unset($temp_data_interface, $temp_data_found); 
+                                                                }
                                                             } ?>
                                                         </tbody>
                                                     </table>
@@ -1483,10 +1522,9 @@
                                     </div>
 
                                     <div class="panel-body" onunload="TerminateDownload()" id="fetch_file_div" style="display: none;">
-                                        <!-- 11/30/22 Try the ID for controls in the FAN Mail HTTPS guide-->
-                                        <!-- Old Version:  <object id="HTTPDL" style="height: 0px !important; width: 0px !important;" classid="CLSID:2DEA82A9-7FEF-4F68-8091-B800ECF54C9F" codeBase="./dsthttpdl.dll"></object> -->
-                                        <!-- Old Version   <object id="MSXML3" style="DISPLAY: none" codeBase="http:msxml3.cab#version=8,00,7820,0" type="application/x-oleobject" data="data:application/x-oleobject;base64,EQ/Z9nOc0xGzLgDAT5kLtA==" classid="clsid:f5078f32-c551-11d3-89b9-0000f81fe221"></object> -->
-                                        <object id="HTTPDL" style="height: 0px !important; width: 0px !important;" classid="CLSID:2DEA82A9-7FEF-4F68-8091-B800ECF54C9F" codeBase="http:DSTHTTPDL.cab#version=1,0,0,2"></object>
+
+                                        <object id="HTTPDL" style="height: 0px !important; width: 0px !important;" classid="CLSID:2DEA82A9-7FEF-4F68-8091-B800ECF54C9F" codeBase="./dsthttpdl.dll"></object>
+                                        <!--<object style="display:none" id="SOME_ID" classid="clsid:SOME_CLASS_ID" codebase="./somePath.dll"></object>-->
                                         <object id="MSXML3" style="DISPLAY: none" codeBase="http:msxml3.cab#version=8,00,7820,0" type="application/x-oleobject" data="data:application/x-oleobject;base64,EQ/Z9nOc0xGzLgDAT5kLtA==" classid="clsid:f5078f32-c551-11d3-89b9-0000f81fe221"></object>
 
                                         <div id="Main">
@@ -1509,7 +1547,7 @@
                                             <!--HTTPs Download Guide Product Guide-->
                                             <div class="panel-footer">
                                                 <div class="selectwrap">
-                                                    <input type="button" value="Download Files" onclick="GetFileList('localdirectory')" />
+                                                    <input type="button" value="Download Files" onclick="GetFileList()" />
                                                     <input type="button" value="Cancel Download" onclick="CancelDownload()" />
                                                     <!--<a href="<?php echo CURRENT_PAGE . '?tab=open_ftp&action=view_ftp'; ?>"><input type="button" name="cancel" value="Cancel" /></a>-->
                                                     <a href="#upload_zip_import" data-toggle="modal"><input type="button" name="import_files" value="Import Files" /></a>
@@ -2036,7 +2074,7 @@
 
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>' +
-            '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Import All</a>');
+            '<a class="btn btn-sm btn-default" href="<?php echo CURRENT_PAGE; ?>?action=process_all" style="display:inline;">Reprocess All</a>');
 
         $('#data-table1').DataTable({
             "pageLength": 25,
@@ -2258,18 +2296,18 @@
         $('#msg_exception').html('');
 
         //--- For testing
-        // console.log(
-        //     'exception_file_id:' + typeof exception_file_id + ': ' + exception_file_id +
-        //     ',  exception_file_type:' + typeof exception_file_type + ': ' + exception_file_type +
-        //     ',  temp_data_id:' + typeof temp_data_id + ': ' + temp_data_id +
-        //     ',  exception_field:' + typeof exception_field + ': ' + exception_field +
-        //     ',  rep_number:' + typeof rep_number + ': ' + rep_number +
-        //     ',  existing_field_value:' + typeof existing_field_value + ': ' + existing_field_value +
-        //     ',  error_code_id:' + typeof error_code_id + ': ' + error_code_id +
-        //     ',  exception_record_id:' + typeof exception_record_id + ': ' + exception_record_id +
-        //     ',  client_account_no:' + typeof client_account_no + ': ' + client_account_no+
-        //     ',  client_id:' + typeof client_id + ': ' + client_id
-        // );
+        console.log(
+            'exception_file_id:' + typeof exception_file_id + ': ' + exception_file_id +
+            ',  exception_file_type:' + typeof exception_file_type + ': ' + exception_file_type +
+            ',  temp_data_id:' + typeof temp_data_id + ': ' + temp_data_id +
+            ',  exception_field:' + typeof exception_field + ': ' + exception_field +
+            ',  rep_number:' + typeof rep_number + ': ' + rep_number +
+            ',  existing_field_value:' + typeof existing_field_value + ': ' + existing_field_value +
+            ',  error_code_id:' + typeof error_code_id + ': ' + error_code_id +
+            ',  exception_record_id:' + typeof exception_record_id + ': ' + exception_record_id +
+            ',  client_account_no:' + typeof client_account_no + ': ' + client_account_no+
+            ',  client_id:' + typeof client_id + ': ' + client_id
+        );
 
         // Some arguments are passed as strings, which messes up the "[array].includes(#value#)" function which is type sensitive 
         // BUT, "if" statements are NOT type sensitive -> "if (exception_file_id == '1')" & "if (exception_file_id == 1) isn't type sensitive, unlike "==="
