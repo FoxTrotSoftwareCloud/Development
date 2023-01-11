@@ -144,7 +144,7 @@
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <?php if (isset($_GET['exception_file_id']) && $_GET['exception_file_id'] != '') { ?>
                     <div class="alert alert-warning" role="alert" style="margin-top:20px">Some exceptions are generated. Please look at <a href="<?php echo CURRENT_PAGE . '?tab=review_files&id=' . $_GET['exception_file_id'] . '&file_type=' . $_GET['file_type'] ?>">View/Print</a> page.</div>
-                <? } ?>
+                <?php } ?>
                 <div class="graphbox">
 
                     <div class="graphboxtitle">Import </div>
