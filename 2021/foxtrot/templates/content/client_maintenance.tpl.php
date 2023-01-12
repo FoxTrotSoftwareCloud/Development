@@ -395,7 +395,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                 </div>
                                             </div> -->
                                             <div class="row">
-                                            	<div class="col-md-6">
+                                            	<div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>Birth Date </label>
                                                         <div id="demo-dp-range">
@@ -405,11 +405,33 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label>Age </label>
                                                         <input type="text" name="age1" id="age1" class="form-control" disabled="true" value="<?php echo $age; ?>"/>
                                                         <input type="hidden" name="age" id="age" class="form-control" value="<?php echo $age; ?>"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Gender </label>
+                                                        <select name="gender" id="gender" class="form-control">
+                                                            <option <?php if ($gender == "0") {
+                                                                        echo 'selected="true"';
+                                                                    } ?> value="0">Select Gender</option>
+                                                            <option <?php if ($gender == "1") {
+                                                                        echo 'selected="true"';
+                                                                    } ?> value="1">Male</option>
+                                                            <option <?php if ($gender == "2") {
+                                                                        echo 'selected="true"';
+                                                                    } ?> value="2">Female</option>
+                                                            <option <?php if ($gender == "3") {
+                                                                        echo 'selected="true"';
+                                                                    } ?> value="3">Non Binary</option>
+                                                            <option <?php if ($gender == "4") {
+                                                                        echo 'selected="true"';
+                                                                    } ?> value="4">Other/Unspecified</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div> 
@@ -594,7 +616,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <label>Expiration </label>
                                                         <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
-                                                               <input type="text" name="expiration" id="expiration" class="form-control" value="<?php echo date('m/d/Y',strtotime($expiration)); ?>"/>
+                                                               <input type="text" name="expiration" id="expiration" class="form-control" value="<?php if($expiration!=''){ echo date('m/d/Y',strtotime($expiration)); } ?>"/>
                                                             </div>
                                                         </div>                                                        
                                                     </div>
@@ -617,7 +639,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <label>Date Verified </label>
                                                         <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
-                                                                <input type="text" name="date_verified" id="date_verified" class="form-control" value="<?php echo date('m/d/Y',strtotime($date_verified)); ?>"/>
+                                                                <input type="text" name="date_verified" id="date_verified" class="form-control" value="<?php if($date_verified!=''){ echo date('m/d/Y',strtotime($date_verified)); } ?>"/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -647,7 +669,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     
-                                                    <select multiple="multiple" data-required="true" id="objectives" name="objectives[]">
+                                                    <select multiple="multiple" id="objectives" name="objectives[]">
                                                         <?php foreach($get_objectives as $key=>$val):  ?>
                                                             <option <?php  echo in_array($val['id'], $objectives_check_id) ? "selected='selected'":"";?>  value="<?php echo $val['id'];?>"><?php echo $val['option'];?> </option>
                                                         <?php endforeach; ?>
@@ -1018,7 +1040,7 @@ $(document).on('change', '#is_reviewed', function(event) {
                                                         <label>Sign Date </label>
                                                         <div id="demo-dp-range">
         					                                <div class="input-daterange input-group" id="datepicker">
-                                                                <input type="text" name="sign_date" id="sign_date" value="<?php echo date('m/d/Y',strtotime($sign_date));?>" class="form-control" />
+                                                                <input type="text" name="sign_date" id="sign_date" value="<?php if($sign_date!=''){ echo date('m/d/Y',strtotime($sign_date)); } ?>" class="form-control" />
         					                                </div>
         				                                </div>
                                                     </div>
@@ -1120,17 +1142,18 @@ $(document).on('change', '#is_reviewed', function(event) {
                             <?php
                             $count = 0;
                             foreach($return as $key=>$val){
+                                $editLink = CURRENT_PAGE . "?action=edit&id={$val['id']}";
                                 ?>
             	                   <tr>
-                                        <td class="text-center">
-                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id'];?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                        <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
+                                            <a href="<?php echo $editLink;?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                             <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                                         </td>
-                                        <td><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
-                                        <td><?php echo $val['client_file_number']; ?></td>
-                                        <td><?php echo $val['account_type']; ?></td>
-                                        <td><?php echo $val['broker_fname']." ".$val['broker_lname']; ?></td>
-                                        <td class="text-center">
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['last_name'].", ".$val['first_name']; ?></td>
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['client_file_number']; ?></td>
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['account_type']; ?></td>
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['broker_fname']." ".$val['broker_lname']; ?></td>
+                                        <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
                                             <?php
                                                 if($val['status']==1){
                                                     ?>

@@ -30,6 +30,7 @@
     $state = '';
     $zip_code = '';
     $age = '';
+    $gender= '';
     $ofac_check = '';
     $fincen_check = '';
     $telephone = '';
@@ -157,6 +158,7 @@
         $state = isset($_POST['state'])?$instance->re_db_input($_POST['state']):'';
         $zip_code = isset($_POST['zip_code'])?$instance->re_db_input($_POST['zip_code']):'';
         $age = isset($_POST['age'])?$instance->re_db_input($_POST['age']):'';
+        $gender = isset($_POST['gender'])?$instance->re_db_input($_POST['gender']):0;
         $ofac_check = isset($_POST['ofac_check'])?$instance->re_db_input($_POST['ofac_check']):'';
         $fincen_check = isset($_POST['fincen_check'])?$instance->re_db_input($_POST['fincen_check']):'';
         $telephone = isset($_POST['telephone'])?$instance->re_db_input($_POST['telephone']):'';
@@ -507,6 +509,7 @@
 
         $birth_date =(isset($return['birth_date']) && ($return['birth_date']!="0000-00-00 00:00:00"))?$instance->re_db_output($return['birth_date']):'';
         $age = isset($return['age'])?$instance->re_db_output($return['age']):'';
+        $gender = isset($return['gender'])?$instance->re_db_output($return['gender']):0;
         $date_established =(isset($return['date_established']) && ($return['date_established']!="0000-00-00 00:00:00"))?$instance->re_db_output($return['date_established']):'';
         $open_date = (isset($return['open_date']) && ($return['open_date']!="0000-00-00 00:00:00")) ?$instance->re_db_output($return['open_date']):'';
         $naf_date = (isset($return['naf_date']) && ($return['naf_date']!="0000-00-00 00:00:00"))?$instance->re_db_output($return['naf_date']):'';
@@ -535,9 +538,9 @@
         $options = isset($return_employment['options'])?$instance->re_db_output($return_employment['options']):'';
         $other = isset($return_employment['other'])?$instance->re_db_output($return_employment['other']):'';
         $number = isset($return_employment['number'])?$instance->re_db_output($return_employment['number']):'';
-        $expiration = isset($return_employment['expiration'])?$instance->re_db_output($return_employment['expiration']):'';
+        $expiration = (isset($return_employment['expiration']) && ($return_employment['expiration']!="0000-00-00 00:00:00"))?$instance->re_db_output($return_employment['expiration']):'';
         $state_employe = isset($return_employment['state'])?$instance->re_db_output($return_employment['state']):'';
-        $date_verified = isset($return_employment['date_verified'])?$instance->re_db_output($return_employment['date_verified']):'';
+        $date_verified = (isset($return_employment['date_verified'])&& ($return_employment['date_verified']!="0000-00-00 00:00:00"))?$instance->re_db_output($return_employment['date_verified']):'';
 
         $return_suitability = $instance->edit_suitability($id);
         $income = isset($return_suitability['income'])?$instance->re_db_output($return_suitability['income']):'';
@@ -552,7 +555,7 @@
         $timeframe_for_special_exp = isset($return_suitability['time_frame_for_special_exp'])?$instance->re_db_output($return_suitability['time_frame_for_special_exp']):'';
         $account_use = isset($return_suitability['account_use'])?$instance->re_db_output($return_suitability['account_use']):'';
         $signed_by = isset($return_suitability['signed_by'])?$instance->re_db_output($return_suitability['signed_by']):'';
-        $sign_date = isset($return_suitability['sign_date'])?$instance->re_db_output($return_suitability['sign_date']):'';
+        $sign_date = (isset($return_suitability['sign_date']) && ($return_suitability['sign_date']!="0000-00-00 00:00:00"))?$instance->re_db_output($return_suitability['sign_date']):'';
         $tax_bracket = isset($return_suitability['tax_bracket'])?$instance->re_db_output($return_suitability['tax_bracket']):'';
         $tax_id = isset($return_suitability['tax_id'])?$instance->re_db_output($return_suitability['tax_id']):'';
 

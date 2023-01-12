@@ -101,6 +101,8 @@
 			$state = isset($data['state'])?$this->re_db_input($data['state']):'';
 			$zip_code = isset($data['zip_code'])?$this->re_db_input($data['zip_code']):'';
 			$age = isset($data['age'])?$this->re_db_input($data['age']):0;
+			//new field 'gender' added 12-01-2023
+			$gender = isset($data['gender'])?$this->re_db_input($data['gender']):0;
 			$ofac_check = isset($data['ofac_check'])?$this->re_db_input($data['ofac_check']):'';
 			$fincen_check = isset($data['fincen_check'])?$this->re_db_input($data['fincen_check']):'';
 			$citizenship = isset($data['citizenship'])?$this->re_db_input($data['citizenship']):'';
@@ -109,11 +111,11 @@
 			$telephone_brack1 = str_replace("(", '', $telephone_no);
 			$telephone = str_replace(")", '', $telephone_brack1);
 			$contact_status = isset($data['contact_status'])?$this->re_db_input($data['contact_status']):0;
-			$birth_date = isset($data['birth_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['birth_date']))):'0000-00-00';
-			$date_established = isset($data['date_established'])?$this->re_db_input(date('Y-m-d',strtotime($data['date_established']))):'0000-00-00';
-			$open_date = isset($data['open_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['open_date']))):'0000-00-00';
-			$naf_date = isset($data['naf_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['naf_date']))):'0000-00-00';
-			$last_contacted = isset($data['last_contacted'])?$this->re_db_input(date('Y-m-d',strtotime($data['last_contacted']))):'0000-00-00';
+			$birth_date = (isset($data['birth_date']) && $data['birth_date']!='') ? $this->re_db_input(date('Y-m-d',strtotime($data['birth_date']))):'0000-00-00';
+			$date_established = (isset($data['date_established']) && $data['date_established']!='' )?$this->re_db_input(date('Y-m-d',strtotime($data['date_established']))):'0000-00-00';
+			$open_date = (isset($data['open_date']) && $data['open_date']!='') ?$this->re_db_input(date('Y-m-d',strtotime($data['open_date']))):'0000-00-00';
+			$naf_date = (isset($data['naf_date']) && $data['naf_date']!='')?$this->re_db_input(date('Y-m-d',strtotime($data['naf_date']))):'0000-00-00';
+			$last_contacted = (isset($data['last_contacted']) && $data['last_contacted']!='')?$this->re_db_input(date('Y-m-d',strtotime($data['last_contacted']))):'0000-00-00';
 			$objectives = isset($data['objectives']) ? ($data['objectives']) : array();
 			$split_rate_category = isset($data['split_rate_category'])?$this->re_db_input($data['split_rate_category']):'';
 			$split_rate_to = isset($data['split_rate_to'])?$this->re_db_input($data['split_rate_to']):'';
@@ -132,9 +134,10 @@
 				$this->errors = 'Please enter client file number.';
 			} else if($naf_date=='' AND $naf_date == '0000-00-00' AND $for_import != 'reprocess_add_client_on_the_fly'){
 				$this->errors = 'Please enter NAF Date.';
-			} else if(empty($objectives) AND $for_import != 'reprocess_add_client_on_the_fly'){
-				$this->errors = 'Please enter Source Objectives.';
-			}
+			} 
+			// else if(empty($objectives) AND $for_import != 'reprocess_add_client_on_the_fly'){
+			// 	$this->errors = 'Please enter Source Objectives.';
+			// }
 
 			if($this->errors!=''){
 				return $this->errors;
@@ -187,6 +190,7 @@
 										.",`birth_date`='".$birth_date."'"
 										.",`date_established`='".$date_established."'"
 										.",`age`='".$age."'"
+										.",`gender`='".$gender."'"
 										.",`open_date`='".$open_date."'"
 										.",`naf_date`='".$naf_date."'"
 										.",`last_contacted`='".$last_contacted."'"
@@ -227,14 +231,14 @@
 							return false;
 						}
 				} else if ($id>0) {
-					$q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`mi`='".$mi."',`do_not_contact`='".$do_not_contact."',`active`='".$active."',`ofac_check`='".$ofac_check."',`fincen_check`='".$fincen_check."',`long_name`='".$long_name."',`client_file_number`='".$client_file_number."',`clearing_account`='".$clearing_account."',`client_ssn`='".$client_ssn."',`house_hold`='".$household."',`split_broker`='".$split_broker."',`split_rate`='".$split_rate."',`address1`='".$address1."',`address2`='".$address2."',`city`='".$city."',`state`='".$state."',`zip_code`='".$zip_code."',`citizenship`='".$citizenship."',`birth_date`='".$birth_date."',`date_established`='".$date_established."',`age`='".$age."',`open_date`='".$open_date."',`naf_date`='".$naf_date."',`last_contacted`='".$last_contacted."',`account_type`='".$account_type."',`broker_name`='".$broker_name."',`telephone`='".$telephone."',`contact_status`='".$contact_status."',`reviewed_at`='".$reviewed_at."',`reviewed_by`='".$reviewed_by."',`is_reviewed`='".$is_reviewed."' ,`split_rate_to`='".$split_rate_to."',`split_rate_from`='".$split_rate_from."',`split_rate_category`='".$split_rate_category."' ".$this->update_common_sql()." WHERE `id`='".$id."'";
+					$q = "UPDATE `".$this->table."` SET `first_name`='".$fname."',`last_name`='".$lname."',`mi`='".$mi."',`do_not_contact`='".$do_not_contact."',`active`='".$active."',`ofac_check`='".$ofac_check."',`fincen_check`='".$fincen_check."',`long_name`='".$long_name."',`client_file_number`='".$client_file_number."',`clearing_account`='".$clearing_account."',`client_ssn`='".$client_ssn."',`house_hold`='".$household."',`split_broker`='".$split_broker."',`split_rate`='".$split_rate."',`address1`='".$address1."',`address2`='".$address2."',`city`='".$city."',`state`='".$state."',`zip_code`='".$zip_code."',`citizenship`='".$citizenship."',`birth_date`='".$birth_date."',`date_established`='".$date_established."',`age`='".$age."',`gender`='".$gender."',`open_date`='".$open_date."',`naf_date`='".$naf_date."',`last_contacted`='".$last_contacted."',`account_type`='".$account_type."',`broker_name`='".$broker_name."',`telephone`='".$telephone."',`contact_status`='".$contact_status."',`reviewed_at`='".$reviewed_at."',`reviewed_by`='".$reviewed_by."',`is_reviewed`='".$is_reviewed."' ,`split_rate_to`='".$split_rate_to."',`split_rate_from`='".$split_rate_from."',`split_rate_category`='".$split_rate_category."' ".$this->update_common_sql()." WHERE `id`='".$id."'";
 					$res = $this->re_db_query($q);
 
 					if ($res){
 						$newInstance = $this->select_client_master($id);
 						$fieldsToWatch = array('first_name', 'last_name', 'mi', 'do_not_contact', 'active', 'ofac_check', 'fincen_check', 'long_name', 'client_file_number',
 							'clearing_account', 'client_ssn', 'house_hold', 'split_broker', 'split_rate', 'address1', 'address2', 'city', 'state', 'zip_code', 'citizenship',
-							'birth_date', 'date_established', 'age', 'open_date', 'naf_date', 'last_contacted', 'account_type', 'broker_name', 'telephone', 'contact_status',
+							'birth_date', 'date_established', 'age','gender', 'open_date', 'naf_date', 'last_contacted', 'account_type', 'broker_name', 'telephone', 'contact_status',
 							'reviewed_at', 'reviewed_by', 'is_reviewed'); //, '');
 						$this->update_history(CLIENT_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
 
@@ -304,9 +308,9 @@
 			$options = isset($data['options'])?$this->re_db_input($data['options']):'';
 			$other = isset($data['other'])?$this->re_db_input($data['other']):'';
 			$number = isset($data['number'])?$this->re_db_input($data['number']):'';
-			$expiration = isset($data['expiration'])?$this->re_db_input(date('Y-m-d',strtotime($data['expiration']))):'0000-00-00';
+			$expiration = (isset($data['expiration']) && $data['expiration']!='' )?$this->re_db_input(date('Y-m-d',strtotime($data['expiration']))):'0000-00-00';
 			$state_employe = isset($data['state_employe'])?$this->re_db_input($data['state_employe']):'';
-			$date_verified = isset($data['date_verified'])?$this->re_db_input(date('Y-m-d',strtotime($data['date_verified']))):'0000-00-00';
+			$date_verified = (isset($data['date_verified']) && $data['date_verified']!='' )?$this->re_db_input(date('Y-m-d',strtotime($data['date_verified']))):'0000-00-00';
 			$telephone_mask = isset($data['telephone_employment'])?$this->re_db_input($data['telephone_employment']):'';
 			$telephone_no = str_replace("-", '', $telephone_mask);
 			$telephone_brack1 = str_replace("(", '', $telephone_no);
@@ -464,7 +468,7 @@
             $timeframe_for_special_exp = isset($data['timeframe_for_special_exp'])?$this->re_db_input($data['timeframe_for_special_exp']):'';
             $account_use = isset($data['account_use'])?$this->re_db_input($data['account_use']):'';
             $signed_by = isset($data['signed_by'])?$this->re_db_input($data['signed_by']):'';
-            $sign_date = isset($data['sign_date'])?$this->re_db_input(date('Y-m-d',strtotime($data['sign_date']))):'0000-00-00';
+            $sign_date = (isset($data['sign_date']) && $data['sign_date']!='' )?$this->re_db_input(date('Y-m-d',strtotime($data['sign_date']))):'0000-00-00';
             $tax_bracket = isset($data['tax_bracket'])?$this->re_db_input($data['tax_bracket']):'';
             $tax_id = isset($data['tax_id'])?$this->re_db_input($data['tax_id']):'';
 			// 06/10/22 Add empty-originalInstance check, some existing clients aren't in Client Suitability database, not sure why

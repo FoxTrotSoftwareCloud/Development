@@ -313,10 +313,10 @@
 			$email2_general = isset($data['email2_general'])?$this->re_db_input($data['email2_general']):'';
 			$web_id_general = isset($data['web_id_general'])?$this->re_db_input($data['web_id_general']):'';
 			$web_password_general = isset($data['web_password_general'])?$this->re_db_input($data['web_password_general']):'';
-			$dob_general = isset($data['dob_general'])?$this->re_db_input(date('Y-m-d',strtotime($data['dob_general']))):'';
-			$prospect_date_general = isset($data['prospect_date_general'])?$this->re_db_input(date('Y-m-d',strtotime($data['prospect_date_general']))):'';
+			$dob_general = (isset($data['dob_general']) && $data['dob_general']!='')?$this->re_db_input(date('Y-m-d',strtotime($data['dob_general']))):'0000-00-00';
+			$prospect_date_general = (isset($data['prospect_date_general']) && $data['prospect_date_general']!='')?$this->re_db_input(date('Y-m-d',strtotime($data['prospect_date_general']))):'0000-00-00';
 			$reassign_broker_general = (isset($data['reassign_broker_general']) && $data['reassign_broker_general'] != '')?$this->re_db_input($data['reassign_broker_general']):0;
-			$u4_general = isset($data['u4_general'])?$this->re_db_input(date('Y-m-d',strtotime($data['u4_general']))):'';
+			$u4_general = (isset($data['u4_general']) && $data['u4_general']!="")?$this->re_db_input(date('Y-m-d',strtotime($data['u4_general']))):'0000-00-00';
       if($data['u5_general'] != '')
       {
           $u5_general = isset($data['u5_general'])?$this->re_db_input(date('Y-m-d',strtotime($data['u5_general']))):'';
@@ -328,7 +328,7 @@
       $day_after_u5 = isset($data['day_after_u5'])?$this->re_db_input($data['day_after_u5']):'';
 			$dba_name_general = isset($data['dba_name_general'])?$this->re_db_input($data['dba_name_general']):'';
 			$eft_info_general = isset($data['eft_info_general'])?$this->re_db_input($data['eft_info_general']):'';
-      $start_date_general = isset($data['start_date_general'])?$this->re_db_input(date('Y-m-d',strtotime($data['start_date_general']))):'';
+      $start_date_general = (isset($data['start_date_general'])&& $data['start_date_general']!='')?$this->re_db_input(date('Y-m-d',strtotime($data['start_date_general']))):'0000-00-00';
 			$transaction_type_general = isset($data['transaction_type_general1'])?$this->re_db_input($data['transaction_type_general1']):'';
 			$routing_general = isset($data['routing_general'])?$this->re_db_input($data['routing_general']):'';
 			$account_no_general = isset($data['account_no_general'])?$this->re_db_input($data['account_no_general']):'';
@@ -1146,7 +1146,7 @@
                      $from= date('Y-m-d', strtotime($postedData["from"][$key]));
                      $to= date('Y-m-d', strtotime($postedData["to"][$key]));
                      $reason= $postedData["reason"][$key];
-                     $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."',`active_check`='".$active_check."', `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
+                     $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$_SESSION['last_insert_id']."', `product_category`='".$category."' ,`state_id`='".$state."',`active_check`='".$active_check."', `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
                       $res = $this->re_db_query($q);
                }
            }else{
@@ -1826,7 +1826,7 @@
                     $sponsor_company = isset($val['sponsor_company'])? (int)$this->re_db_input($val['sponsor_company']) : 0;
                     $date = isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):$this->defaultEmptyDate;
                     // Term Date & State can be null, so default to that value
-                    $termdate = isset($val['termdate'])?$this->re_db_input(date('Y-m-d',strtotime($val['termdate']))):null;
+                    $termdate = (isset($val['termdate']) && $val['termdate']!='' )?$this->re_db_input(date('Y-m-d',strtotime($val['termdate']))):null;
                     $state = isset($val['state'])?$this->re_db_input($val['state']):null;
   
                     if($alias_name!='' AND $sponsor_company>0){
@@ -1893,8 +1893,8 @@
             {
               foreach($data['data4'] as $key=>$val)
               {
-                $approval_date=isset($val['approval_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['approval_date']))):'';
-                $expiration_date=isset($val['expiration_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['expiration_date']))):'';
+                $approval_date=(isset($val['approval_date']) && $val['approval_date']!="") ?$this->re_db_input(date('Y-m-d',strtotime($val['approval_date']))):'0000-00-00';
+                $expiration_date=(isset($val['expiration_date']) && $val['expiration_date']!="" )?$this->re_db_input(date('Y-m-d',strtotime($val['expiration_date']))):'0000-00-00';
                 $register_reason=isset($val['register_reason'])?$this->re_db_input($val['register_reason']):'';
                 $type = isset($val['type'])?$this->re_db_input($val['type']):'';
                 $q = "INSERT INTO `".BROKER_REGISTER_MASTER."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`license_id`='".$key."' ,`license_name`='".$type."' ,
@@ -1928,8 +1928,8 @@
               $newValues = array();
               foreach($data['data4'] as $key=>$val)
               {
-                $approval_date=isset($val['approval_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['approval_date']))):'';
-                $expiration_date=isset($val['expiration_date'])?$this->re_db_input(date('Y-m-d',strtotime($val['expiration_date']))):'';
+                $approval_date=(isset($val['approval_date'])&& $val['approval_date']!="" )?$this->re_db_input(date('Y-m-d',strtotime($val['approval_date']))):'0000-00-00';
+                $expiration_date=(isset($val['expiration_date'])&& $val['expiration_date']!="" )?$this->re_db_input(date('Y-m-d',strtotime($val['expiration_date']))):'0000-00-00';
                 $register_reason=isset($val['register_reason'])?$this->re_db_input($val['register_reason']):'';
                 $type = isset($val['type'])?$this->re_db_input($val['type']):'';
 

@@ -221,17 +221,18 @@ function default_min_threshold() {
                             <?php
                             $count = 0;
                             foreach($return as $key=>$val){
+                                $editLink = CURRENT_PAGE . "?action=edit_product&category={$val['category']}&id={$val['id']}";
                                 ?>
                                    <tr>
-                                        <td class="text-center">
-                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit_product&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                        <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
+                                            <a href="<?php echo $editLink; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                             <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                                         </td>
-                                        <td><?php echo $val['name'];?></td>
-                                        <td><?php echo $val['type']; ?></td>
-                                        <td><?php echo $val['cusip']; ?></td>
-                                        <td><?php echo $val['sponsor']; ?></td>
-                                        <td class="text-center">
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['name'];?></td>
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['type']; ?></td>
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['cusip']; ?></td>
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['sponsor']; ?></td>
+                                        <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
                                             <?php
                                                 if($val['status']==1){
                                                     ?>
@@ -253,22 +254,8 @@ function default_min_threshold() {
                      </div>
                 </div>
 
-
-
-
-
-
-
-
-
-
-
-
                 <?php
                     }
-
-
-
 
                     else if($action=='add_product' || $action=='add_product_from_trans' || ($action=='edit_product' && $id>0)){
                 ?>

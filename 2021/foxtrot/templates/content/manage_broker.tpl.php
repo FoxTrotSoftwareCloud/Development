@@ -1103,7 +1103,10 @@
                                                    } ?> value="2">Female</option>
                                           <option <?php if ($gender == "3") {
                                                       echo 'selected="true"';
-                                                   } ?> value="3">Other</option>
+                                                   } ?> value="3">Non Binary</option>
+                                          <option <?php if ($gender == "4") {
+                                                      echo 'selected="true"';
+                                                   } ?> value="4">Other/Unspecified</option>
                                        </select>
                                     </div>
                                  </div>
@@ -1201,9 +1204,9 @@
                                        <label>DOB </label>
                                        <div id="demo-dp-range">
                                           <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="dob_general" id="dob_general" value="<?php if ($action == 'edit') {
-                                                                                                               echo date('m/d/Y', strtotime($dob));
-                                                                                                            } ?>" class="form-control" />
+                                             <input type="text" name="dob_general" id="dob_general" value="<?php if ($action == 'edit' && $dob!='' && $dob!='0000-00-00') {
+                                                            echo date('m/d/Y', strtotime($dob));
+                                                          } ?>" class="form-control" />
                                              <label class="input-group-addon btn" for="dob_general">
                                                 <span class="fa fa-calendar"></span>
                                              </label>
@@ -1216,9 +1219,9 @@
                                        <label>Prospect Date </label><br />
                                        <div id="demo-dp-range">
                                           <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="prospect_date_general" id="prospect_date_general" value="<?php if ($action == 'edit') {
-                                                                                                                                    echo date('m/d/Y', strtotime($prospect_date));
-                                                                                                                                 } ?>" class="form-control" />
+                                             <input type="text" name="prospect_date_general" id="prospect_date_general" value="<?php if ($action == 'edit' && $prospect_date!='' && $prospect_date!='0000-00-00') {
+                                                         echo date('m/d/Y', strtotime($prospect_date));
+                                                      } ?>" class="form-control" />
                                              <label class="input-group-addon btn" for="prospect_date_general">
                                                 <span class="fa fa-calendar"></span>
                                              </label>
@@ -1231,9 +1234,9 @@
                                        <label>U4/Active Date </label><br />
                                        <div id="demo-dp-range">
                                           <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="u4_general" id="u4_general" value="<?php if ($action == 'edit') {
-                                                                                                            echo date('m/d/Y', strtotime($u4));
-                                                                                                         } ?>" class="form-control" />
+                                             <input type="text" name="u4_general" id="u4_general" value="<?php if ($action == 'edit' && $u4!='' && $u4!='0000-00-00') {
+                                                   echo date('m/d/Y', strtotime($u4));
+                                             } ?>" class="form-control" />
                                              <label class="input-group-addon btn" for="u4_general">
                                                 <span class="fa fa-calendar"></span>
                                              </label>
@@ -1246,9 +1249,9 @@
                                        <label>U5/Termination Date </label><br />
                                        <div id="demo-dp-range">
                                           <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="u5_general" id="u5_general" value="<?php if ($action == 'edit' && $u5 != '') {
-                                                                                                            echo date('m/d/Y', strtotime($u5));
-                                                                                                         } ?>" class="form-control" />
+                                             <input type="text" name="u5_general" id="u5_general" value="<?php if ($action == 'edit' && $u5 != '' && $u5!='0000-00-00') {
+                                                      echo date('m/d/Y', strtotime($u5));
+                                                } ?>" class="form-control" />
                                              <label class="input-group-addon btn" for="u5_general">
                                                 <span class="fa fa-calendar"></span>
                                              </label>
@@ -1337,9 +1340,9 @@
                                           <label>Start Date </label><br />
                                           <div id="demo-dp-range">
                                              <div class="input-daterange input-group" id="datepicker">
-                                                <input type="text" name="start_date_general" id="start_date_general" value="<?php if ($action == 'edit') {
-                                                                                                                                 echo date('m/d/Y', strtotime($start_date));
-                                                                                                                              } ?>" class="form-control" />
+                                                <input type="text" name="start_date_general" id="start_date_general" value="<?php if ($action == 'edit' && $start_date!='' && $start_date!='0000-00-00') {
+                                                            echo date('m/d/Y', strtotime($start_date));
+                                                         } ?>" class="form-control" />
                                                 <label class="input-group-addon btn" for="start_date_general">
                                                    <span class="fa fa-calendar"></span>
                                                 </label>
@@ -1434,19 +1437,20 @@
                                  <?php
                                  $count = 0;
                                  foreach ($return as $key => $val) {
+                                    $editLink = CURRENT_PAGE . "?action=edit&id={$val['id']}";
+
                                  ?>
                                     <tr>
-                                       <td class="text-center">
-                                          <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                       <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
+                                          <a href="<?php echo $editLink; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                           <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                                        </td>
-                                       <td><?php echo $val['last_name'] . ", " . $val['first_name']; ?></td>
-                                       <td><?php echo $val['crd']; ?></td>
-                                       <td><?php echo $val['fund']; ?></td>
-                                       <!--td><?php echo $val['internal']; ?></td-->
-                                       <td class="internal"><?php echo $val['internal']; ?></td>
-                                       <td><?php echo date('m/d/Y', strtotime($val['u4'])); ?></td>
-                                       <td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['last_name'] . ", " . $val['first_name']; ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['crd']; ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['fund']; ?></td>
+                                       <td class="internal" onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['internal']; ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php if(isset($val['u4']) && $val['u4']!="0000-00-00"){ echo date('m/d/Y', strtotime($val['u4'])); } ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'">
                                           <?php
                                           if ($val['active_status'] == 1) {
                                              echo "Active";
@@ -2427,8 +2431,8 @@
                                                                <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
                                                             </th>
                                                             <th>State</th>
-                                                            <th>From</th>
-                                                            <th>To</th>
+                                                            <th>Received</th>
+                                                            <th>Terminated</th>
                                                             <th>Reason</th>
                                                          </tr>
                                                       </thead>
@@ -3061,14 +3065,14 @@
                                                             <td>
                                                                <div id="demo-dp-range">
                                                                   <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][approval_date]" value="<?php  if (isset($val['approval_date']) && $val['approval_date'] != '' && $val['approval_date']!='1970-01-01') { echo date('m/d/Y', strtotime($val['approval_date'])); } ?>" class="form-control" />
+                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][approval_date]" value="<?php  if (isset($val['approval_date']) && $val['approval_date'] != '' && $val['approval_date']!='0000-00-00') { echo date('m/d/Y', strtotime($val['approval_date'])); } ?>" class="form-control" />
                                                                   </div>
                                                                </div>
                                                             </td>
                                                             <td>
                                                                <div id="demo-dp-range">
                                                                   <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][expiration_date]" value="<?php if (isset($val['expiration_date']) && $val['expiration_date'] != '' && $val['expiration_date']!='1970-01-01') { echo date('m/d/Y', strtotime($val['expiration_date'])); } ?>" class="form-control" />
+                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][expiration_date]" value="<?php if (isset($val['expiration_date']) && $val['expiration_date'] != '' && $val['expiration_date']!='0000-00-00') { echo date('m/d/Y', strtotime($val['expiration_date'])); } ?>" class="form-control" />
                                                                   </div>
                                                                </div>
                                                             </td>
@@ -3322,7 +3326,7 @@
                                                       <td>
                                                          <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
-                                                               <input type="text" name="alias[termdate][<?php echo $doc_id; ?>]" value="<?php if (isset($val['termdate']) && $val['termdate'] != '' && $val['termdate']!='1970-01-01') {
+                                                               <input type="text" name="alias[termdate][<?php echo $doc_id; ?>]" value="<?php if (isset($val['termdate']) && $val['termdate'] != '' && $val['termdate']!='0000-00-00') {
                                                                   echo date('m/d/Y', strtotime($val['termdate']));
                                                                } ?>" class="form-control" />
                                                             </div>
@@ -4248,7 +4252,8 @@
                "bSearchable": false,
                "aTargets": [0]
             }
-         ]
+         ],
+         "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[1, "asc"]'; ?>],
       });
 
       $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>' +
