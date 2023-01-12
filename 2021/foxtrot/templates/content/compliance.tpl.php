@@ -12,11 +12,11 @@
                         <option value="3" <?php if(isset($report_for) && $report_for == 3){echo "selected='true'";}?>>Client Review Report</option>
                         <option value="9" <?php if(isset($report_for) && $report_for == 9){echo "selected='true'";}?>>Broker Sponsor Appointments Listing</option>
                         <option value="10" <?php if(isset($report_for) && $report_for == 10){echo "selected='true'";}?>>CIP Report</option>
+                        <option value="5" <?php if(isset($report_for) && $report_for == 5){echo "selected='true'";}?>>Broker State Licenses Report</option>
                         <option value="2" <?php if(isset($report_for) && $report_for == 2){echo "selected='true'";}?>>Broker License Renewal Statements</option>
                         <option value="1" <?php if(isset($report_for) && $report_for == 1){echo "selected='true'";}?>>E&O Statements</option>
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Broker Registrations Report</option>
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Branch Audit Report</option>
-                        <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Broker State Licenses Report</option>
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Client Activity/Churning Report</option>
 
                         <option value="1" <?php if(isset($report_for) && $report_for == 4){echo "selected='true'";}?>>Continuing Education Report</option>
@@ -33,14 +33,15 @@
         <div class="titlebox">Compliance Reports</div><br />
         <div class="row">
             <div class="col-md-8">
+                
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group wrap">
-                            <label>State </label>
-                            <select class="form-control state" name="state">
-                                <option value="0">All States</option>
-                                <?php foreach($get_states as $statetemp): ?>
-                                    <option value="<?php echo $statetemp['id']; ?>" <?php echo isset($state) && $state==$statetemp['id'] ? 'selected' : '' ?>><?php echo $statetemp['name']; ?></option>
+                            <label>Branch </label>
+                            <select class="form-control" name="branch" id="branch_dropdown">
+                                <option value="0">All Branches</option>
+                                <?php foreach($get_branches as $branchN): ?>
+                                    <option value="<?php echo $branchN['id']; ?>" <?php echo isset($branch) && $branch==$branchN['id'] ? 'selected' : '' ?>><?php echo $branchN['name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -54,6 +55,19 @@
                                 <option value="0">All Brokers</option>
                                 <?php foreach($get_brokers as $brokerN): ?>
                                     <option value="<?php echo $brokerN['id']; ?>" <?php echo isset($broker) && $broker==$brokerN['id'] ? 'selected' : '' ?>><?php echo $brokerN['last_name'].', '.$brokerN['first_name']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group wrap">
+                            <label>State </label>
+                            <select class="form-control state" name="state">
+                                <option value="0">All States</option>
+                                <?php foreach($get_states as $statetemp): ?>
+                                    <option value="<?php echo $statetemp['id']; ?>" <?php echo isset($state) && $state==$statetemp['id'] ? 'selected' : '' ?>><?php echo $statetemp['name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -206,6 +220,8 @@ $(document).ready(function(){
         xmlhttp.open('GET', 'ajax_broker_sponsor_appointment_report.php?filter=<?php echo $_GET['filter']; ?>', true);
     }else if(<?php echo $report_for ?> == 7){
         xmlhttp.open('GET', 'ajax_complience_exception_report.php?filter=<?php echo $_GET['filter']; ?>', true);
+    }else if(<?php echo $report_for ?> == 5){
+        xmlhttp.open('GET', 'ajax_broker_state_license_report.php?filter=<?php echo $_GET['filter']; ?>', true);
     }else if(<?php echo $report_for ?> != 10){
         xmlhttp.open('GET', 'ajax_client_report.php?filter=<?php echo $_GET['filter']; ?>', true);
     }
@@ -242,6 +258,7 @@ $('#demo-dp-range .input-daterange').datepicker({
                 $('.dont-contact-client').hide();
                 $('.cip_clients').hide();
                 $('.appointments').hide();
+                $('#branch_dropdown').parents('.wrap').hide();
                 $('.clients').hide();
                 if (_option==2 || _option==3) {
                     $(".sponser").parents('.wrap').hide();
@@ -258,6 +275,13 @@ $('#demo-dp-range .input-daterange').datepicker({
                 if (_option!=3) {
                     $(".beginning_date").hide();
                     $(".ending_date").hide();
+                }
+
+                if (_option==5) {
+                    $('#branch_dropdown').parents('.wrap').show();
+                    $(".sponser").parents('.wrap').hide();
+                    $(".state").parents('.wrap').show();
+                    $("#broker_dropdown").children('option:eq(0)').text("All Brokers");
                 }
 
                 if (_option==7) {

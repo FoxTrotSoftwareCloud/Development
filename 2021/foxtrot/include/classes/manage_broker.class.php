@@ -3410,5 +3410,71 @@
           return $all_sponsors;
         }
 		}
+    function broker_state_license_report($branch=0,$broker_id=0,$state=0){
+      
+      $con='';
+      $all_states=array();
+      $all_licenses = array();
+
+         //fetch all licenses securities
+         $q = "SELECT `bls`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name 
+         FROM `ft_broker_licences_securities` AS `bls`
+         LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `bls`.`broker_id`
+         WHERE `bls`.`is_delete`='0' AND `bls`.`active_check`='1'";
+
+         $res1 = $this->re_db_query($q);
+         if($this->re_db_num_rows($res1)>0){
+           while($row = $this->re_db_fetch_array($res1)){
+             array_push($all_licenses,$row);
+           }
+         }
+
+         //fetch all licenses insurances
+         $q = "SELECT `bli`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name 
+         FROM `ft_broker_licences_insurance` AS `bli`
+         LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `bli`.`broker_id`
+         WHERE `bli`.`is_delete`='0' AND `bli`.`active_check`='1'";
+
+         $res1 = $this->re_db_query($q);
+         if($this->re_db_num_rows($res1)>0){
+           while($row = $this->re_db_fetch_array($res1)){
+             array_push($all_licenses,$row);
+           }
+         }
+
+         //fetch all licenses ria
+         $q = "SELECT `blr`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name 
+         FROM `ft_broker_licences_ria` AS `blr`
+         LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `blr`.`broker_id`
+         WHERE `blr`.`is_delete`='0' AND `blr`.`active_check`='1'";
+
+// SELECT `bls`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name FROM `ft_broker_licences_securities` AS `bls` LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `bls`.`broker_id` WHERE `bls`.`is_delete`='0' AND `bls`.`active_check`='1' UNION ALL SELECT `bli`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name FROM `ft_broker_licences_insurance` AS `bli` LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `bli`.`broker_id` WHERE `bli`.`is_delete`='0' AND `bli`.`active_check`='1' UNION ALL SELECT `blr`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name FROM `ft_broker_licences_ria` AS `blr` LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `blr`.`broker_id` WHERE `blr`.`is_delete`='0' AND `blr`.`active_check`='1';
+
+// SELECT `bls`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name FROM `ft_broker_licences_securities` AS `bls` LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `bls`.`broker_id` WHERE `bls`.`is_delete`='0' AND `bls`.`active_check`='1' UNION SELECT `bli`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name FROM `ft_broker_licences_insurance` AS `bli` LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `bli`.`broker_id` WHERE `bli`.`is_delete`='0' AND `bli`.`active_check`='1' UNION SELECT `blr`.*,`bm`.first_name as broker_first_name,`bm`.last_name as broker_last_name FROM `ft_broker_licences_ria` AS `blr` LEFT JOIN `ft_broker_master` as `bm` on `bm`.`id` = `blr`.`broker_id` WHERE `blr`.`is_delete`='0' AND `blr`.`active_check`='1';
+
+
+         $res1 = $this->re_db_query($q);
+         if($this->re_db_num_rows($res1)>0){
+           while($row = $this->re_db_fetch_array($res1)){
+             array_push($all_licenses,$row);
+           }
+         }
+ 
+       //  echo "<pre>"; print_r($all_licenses);die;
+ 
+
+      //fetch all states
+      $state_query="SELECT `s`.* FROM `".STATE_MASTER."` AS `s` 
+                WHERE `s`.`is_delete`='0' AND `s`.`status`='1' ORDER BY `s`.`id` ASC";
+
+      $res = $this->re_db_query($state_query);
+      if($this->re_db_num_rows($res)>0){
+        while($row = $this->re_db_fetch_array($res)){
+            array_push($all_states,$row);
+        }
+      }
+      return $all_states;
+
+    }
   }
 ?>

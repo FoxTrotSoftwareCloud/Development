@@ -10,10 +10,13 @@ $instance_client = new client_maintenance();
 $get_clients=$instance_client->select();
 $client_sponsor_instance = new manage_sponsor();
 $get_sponsors = $client_sponsor_instance->select_sponsor();
+$branch_instance = new branch_maintenance();
+$get_branches= $branch_instance->select();
 $state = '';
 $broker = '';
 $sponser = '';
 $client = '';
+$branch = '';
 $output = '';
 $report_for = '';
 $do_not_contact = '';
@@ -27,6 +30,7 @@ $return_from_broker_client = array();
         $output = isset($_POST['output'])?$instance->re_db_input($_POST['output']):0;
         $state = isset($_POST['state'])?$instance->re_db_input($_POST['state']):0;
         $broker = isset($_POST['broker'])?$instance->re_db_input($_POST['broker']):0;
+        $branch = isset($_POST['branch'])?$instance->re_db_input($_POST['branch']):0;
         $sponser = isset($_POST['sponser'])?$instance->re_db_input($_POST['sponser']):'';
         $report_for = isset($_POST['report_for'])?$instance->re_db_input($_POST['report_for']):'';
         $dont_contact_client = isset($_POST['dont_contact_client'])?$instance->re_db_input($_POST['dont_contact_client']):0;
@@ -87,6 +91,25 @@ $return_from_broker_client = array();
             else if($output == 4){
                 
                 header("location:".SITE_URL."report_client_review_pdf.php?filter=".$data_array);exit;
+            }
+        }
+        else if($report_for == 5)
+        {
+            if($output == 1)
+            {
+                header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;
+            }
+            else if($output == 2)
+            {
+                header("location:".SITE_URL."report_broker_state_license_pdf.php?open=output_print&filter=".$data_array);exit;
+            }
+            else if($output == 3){
+                
+                header("location:".SITE_URL."report_broker_state_license_excel.php?filter=".$data_array);exit;
+            }
+            else if($output == 4){
+                
+                header("location:".SITE_URL."report_broker_state_license_pdf.php?filter=".$data_array);exit;
             }
         }
         else if($report_for == 7)
@@ -154,6 +177,7 @@ $return_from_broker_client = array();
         $output = isset($filter_array['output'])?$instance->re_db_input($filter_array['output']):'';
         $state = isset($filter_array['state'])?$instance->re_db_input($filter_array['state']):'';
         $broker = isset($filter_array['broker'])?$instance->re_db_input($filter_array['broker']):'';
+        $branch = isset($filter_array['branch'])?$instance->re_db_input($filter_array['branch']):'';
         $sponser = isset($filter_array['sponsor'])?$instance->re_db_input($filter_array['sponsor']):'';
         $report_for = isset($filter_array['report_for'])?$instance->re_db_input($filter_array['report_for']):'';
         $dont_contact_client = isset($filter_array['dont_contact_client'])?$instance->re_db_input($filter_array['dont_contact_client']):0;
