@@ -333,11 +333,15 @@
     }
     else if(isset($_GET['tab']) && $_GET['tab'] =='open_ftp')
     {
-        $return_ftplist = $instance->select_ftp();
+        // 01/11/23 Use "DATA_INTERFACE" table i/o "FTP_MASTER"
+        // $return_ftplist = $instance->select_ftp();
+        $return_dimlist = $instance_dim->select("name LIKE 'DST%' ORDER BY id");
     }
     else if(isset($_GET['tab']) && $_GET['tab'] =='get_ftp' && $ftp_id>0)
     {
-        $return_ftp_host = $instance->select_ftp_user($ftp_id);
+        // 01/11/23 Use "DATA_INTERFACE" table i/o "FTP_MASTER"
+        // $return_ftp_host = $instance->select_ftp_user($ftp_id);
+        $return_dim_host = $instance_dim->edit($ftp_id);
     }
     else if(isset($_GET['action'])&&$_GET['action']=='ftp_status' && $ftp_id>0 &&isset($_GET['status'])&&($_GET['status']==0 || $_GET['status']==1))
     {
@@ -379,6 +383,23 @@
     }
     else if($action=='view'){
         $return = $instance->select_current_files();//echo '<pre>';print_r($return);exit;
+    }
+    else if($action == 'fetchDST' AND (isset($_GET['dim_id'])))
+    {
+        // 01/11/23 2nd parameter is for test mode(pulls 5 files at a time)
+        $instance_dst_fetch = new DSTFetch((int)$_GET['dim_id'], 1);
+        $return = $instance_dst_fetch->fetch();
+        $responseText = "";
+        
+        if ($return){
+            $responseText = "";
+            
+            foreach ($return as $index=>$file){
+                $responseText .= (empty($responseText) ? "" : "<br>").trim($file['name']).": ".$file['status'];
+            }
+        }
+        echo $instance_dst_fetch->fetchStatus.$responseText;
+        exit;
     }
 
     $content = "import";

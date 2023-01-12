@@ -66,7 +66,7 @@ class DSTFetch {
         $return = $this->get_file_list();
         
         if (count($return) > 0){
-            // TEST DELETE ME - 01/10/23 Only fetch the first 5 of the list
+            // TEST MODE - 01/10/23 Only fetch the first 5 of the list
             if ($this->testMode){
                 $temp = $return;
                 foreach ($return as $index=>$file){
@@ -85,6 +85,7 @@ class DSTFetch {
             }
             
             $return = $this->download_file($return);
+            $return = $this->extract_file($return);
             $return = $this->delete_file($return);
         }
         
@@ -92,7 +93,7 @@ class DSTFetch {
     }
     
     function get_file_list() {
-        $this->fetchStatus = "Getting files...";
+        $this->fetchStatus .= "<br>Getting files...";
         $this->fileList = [];
         // Have to store info from the response header
         $headerSize = 0;
@@ -118,19 +119,19 @@ class DSTFetch {
         
         if (strpos($output,'xml')!==false){
             $this->fileList = $this->xml_to_file_list(substr($output, $headerSize));
-            $this->fetchStatus = "Get File List - PASS, Count: ".count($this->fileList);
+            $this->fetchStatus .= "<br>Get File List - PASS, Count: ".count($this->fileList);
         } else if (strpos($output,'html')!==false){
             $document = new DOMDocument();
             $document->loadHTML( substr($output, strpos($output,"<html>")) );
             
             if (!empty($document->getElementsByTagName('h1'))) {
-                $this->fetchStatus = "Get File List - FAIL: ".$document->getElementsByTagName('h1')[0]->nodeValue;
+                $this->fetchStatus .= "<br>Get File List - FAIL: ".$document->getElementsByTagName('h1')[0]->nodeValue;
             } else if (!empty($document->getElementsByTagName('title'))) {
-                $this->fetchStatus = "Get File List - FAIL: ".$document->getElementsByTagName('title')[0]->nodeValue;
+                $this->fetchStatus .= "<br>Get File List - FAIL: ".$document->getElementsByTagName('title')[0]->nodeValue;
             }
         } else {
             // $fetchStatus = str_get_html($output);
-            $this->fetchStatus = "Get File List - FAIL: Reason not specified";
+            $this->fetchStatus .= "<br>Get File List - FAIL: Reason not specified";
         }
         return $this->fileList;
     }
@@ -143,7 +144,7 @@ class DSTFetch {
         foreach ($fileList->FileList->File as $file){
             $i++;
             foreach ($file->attributes() as $name=>$value){
-                $return[]['name'] = (string)$value; 
+                $return[] = ['name'=>(string)$value, 'status'=>'']; 
             }
         }
         
@@ -151,7 +152,7 @@ class DSTFetch {
     }
     
     function download_file(array $downloadList=[]) {
-        $this->fetchStatus = "Downloading files...";
+        $this->fetchStatus .= "<br>Downloading files...";
         $downloadCount = count($downloadList);
         $return = [];
         $success = $file = $output = $i = 0;
@@ -167,7 +168,7 @@ class DSTFetch {
             
             foreach ($downloadList as $index=>$iFile){
                 $fileName = strtoupper(isset($iFile['name']) ? $iFile['name'] : $iFile);
-                $this->fetchStatus = "Downloading files..."."File ".($index+1)." of $downloadCount: $fileName";
+                $this->fetchStatus .= "<br>Downloading "."File ".($index+1)." of $downloadCount: $fileName";
                 // Make sure the file doesn't already exist
                 $output = 0;
                 $dupFile = [];
@@ -191,16 +192,17 @@ class DSTFetch {
                         $success++;
                         $return[] = ["name"=>$fileName, "status"=>"downloaded"];
                         
-                        // Unzip the file in the same directory, and delete the ZIP file
-                        $output = $this->extract_file([$return[count($return)-1]]);
-                        if (count($output)){
-                            $return[count($return)-1]['status'] .= '/'.$output[0]['status'];
-                        }
-                        // Delete the file from the DST Server
-                        $output = $this->delete_file([$return[count($return)-1]]);
-                        if (count($output)){
-                            $return[count($return)-1]['status'] .= '/'.$output[0]['status'];
-                        }
+                        // 01/11/23 Skip this and just load the whole array when each step is complete: 1)Download -> 2)Extract/Remove .ZIP -> 3)Delete Remote File
+                        // // Unzip the file in the same directory, and delete the ZIP file
+                        // $output = $this->extract_file([$return[count($return)-1]]);
+                        // if (count($output)){
+                        //     $return[count($return)-1]['status'] .= '/'.$output[0]['status'];
+                        // }
+                        // // Delete the file from the DST Server
+                        // $output = $this->delete_file([$return[count($return)-1]]);
+                        // if (count($output)){
+                        //     $return[count($return)-1]['status'] .= '/'.$output[0]['status'];
+                        // }
                         
                     } else {
                         $return[] = ["name"=>$fileName, "status"=>"download failed"];
@@ -208,20 +210,21 @@ class DSTFetch {
                 }
             }
             curl_close($handle);
-            $this->fetchStatus = "Downloading files: Complete: ".$success." of ".($index+1)." files successfully downloaded";
+            $this->fetchStatus .= "<br>Downloading files: Complete: ".$success." of ".($index+1)." files successfully downloaded";
         } else {
-            $this->fetchStatus = "Downloading files: No files specified. Procedure cancelled.";
+            $this->fetchStatus .= "<br>Downloading files: No files specified. Procedure cancelled.";
         }
         
         return $return;
     }
 
     function delete_file(array $deleteList=[]) {
-        $this->fetchStatus = "Deleting files...";
+        $this->fetchStatus .= "<br>Deleting files...";
         $deleteCount = count($deleteList);
         $return = [];
         $success = $i = 0;
         $fileName = strtoupper(isset($deleteList[$i]['name']) ? $deleteList[$i]['name'] : $deleteList[$i]);
+        $status = "";
         
         if ($deleteCount>0 && substr($fileName,-3)=='ZIP') {
             //-- Start cURL Operations
@@ -236,7 +239,7 @@ class DSTFetch {
                 $fileName = strtoupper(isset($deleteList[$i]['name']) ? $deleteList[$i]['name'] : $deleteList[$i]);
                 $fileStatus = strtoupper(isset($deleteList[$i]['status']) ? $deleteList[$i]['status'] : "*not specified*");
                 
-                $this->fetchStatus = "Deleteing files..."."File ".($i+1)." of $deleteCount: $fileName";
+                $this->fetchStatus .= "<br>Deleteing File ".($i+1)." of $deleteCount: $fileName";
                 // Make sure the file was downloaded before deleting from the DST(remote) server
                 if (substr($fileStatus,0,strlen("DOWNLOADED")-1)=="DOWNLOADED" or $fileStatus="*NOT SPECIFIED*"){
                     // Make sure the file doesn't already exist
@@ -259,35 +262,42 @@ class DSTFetch {
                     
                     if ($errorMsg === ""){
                         $success++;
-                        $return[] = ["name"=>$fileName, "status"=>"deleted"];
+                        $status = 'deleted';
+                        
                         if (isset($deleteList[$i]['status'])){
                             $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deleted";
+                            $status = $deleteList[$i]['status'];
                         }
+                        $return[] = ["name"=>$fileName, "status"=>$status];
                     } else {
-                        $return[] = ["name"=>$fileName, "status"=>"deletion failed-".$errorNum."-".$errorMsg];
+                        $status = "deletion failed-".$errorNum."-".$errorMsg;
+                        
                         if (isset($deleteList[$i]['status'])){
                             $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deletion failed-".$errorNum."-".$errorMsg;
+                            $status = $deleteList[$i]['status'];
                         }
+                        $return[] = ["name"=>$fileName, "status"=>$status];
                     }
                 }
             }
             curl_close($handle);
-            $this->fetchStatus = "Downloading files: Complete: ".$success." of ".($i+1)." files successfully downloaded";
+            $this->fetchStatus .= "<br>Downloading files: Complete: ".$success." of ".($i+1)." files successfully downloaded";
         } else {
-            $this->fetchStatus = "Downloading files: No files specified. Procedure cancelled.";
+            $this->fetchStatus .= "<br>Downloading files: No files specified. Procedure cancelled.";
         }
         
         return $return;
     }
 
     function extract_file(array $extractList=[]) {
-        $this->fetchStatus = "Extracting files...";
+        $this->fetchStatus .= "<br>Extracting files...";
         $extractCount = count($extractList);
         //-- TEST DELETE ME - reinstate db() and any references when moved into the Production/Test environment
         // $instance_db = new db();
         $return = [];
         $success = $i = 0;
         $fileName = strtoupper(isset($extractList[$i]['name']) ? $extractList[$i]['name'] : $extractList[$i]);
+        $status = "";
         
         if ($extractCount>0 && strtolower(substr($fileName,-3))=='zip') {
             $unzip = new ZipArchive;
@@ -295,7 +305,7 @@ class DSTFetch {
 
             for ($i=0; $i < count($extractList); $i++){
                 $fileName = strtoupper(isset($extractList[$i]['name']) ? $extractList[$i]['name'] : $extractList[$i]);
-                $this->fetchStatus = "extracting files..."."File ".($i+1)." of $extractCount: $fileName";
+                $this->fetchStatus .= "<br>Extracting File ".($i+1)." of $extractCount: $fileName";
                 $output = $unlinked = 0;
                 //-- Actual Extraction
                 if ($unzip->open($dir.$fileName)) {
@@ -307,19 +317,25 @@ class DSTFetch {
                 //-- Update the file array
                 if ($output){
                     $success++;
-                    $return[] = ["name"=>$fileName, "status"=>"extracted"];
+                    $status = "extracted";
+                    
                     if (isset($extractList[$i]['status'])){
                         $extractList[$i]['status'] = trim($extractList[$i]['status'])."/extracted";
+                        $status = $extractList[$i]['status'];
                     }
+                    $return[] = ["name"=>$fileName, "status"=>$status];
                 } else if (count($return)==0 or $return[count($return)-1]!=$fileName){
-                    $return[] = ["name"=>$fileName, "status"=>"extraction failed"];
+                    $status = "extraction failed";
                     if (isset($extractList[$i]['status'])){
                         $extractList[$i]['status'] = trim($extractList[$i]['status'])."/deletion failed";
+                        $status = $extractList[$i]['status'];
                     }
+                    $return[] = ["name"=>$fileName, "status"=>$status];
                 }
                 //-- Delete the ZIP file
                 if ($output){
                     $unlinked = unlink($dir.$fileName);
+                    $status = "";
                     
                     if ($unlinked){
                         $return[count($return)-1]['status'] .= "/local ZIP file deleted";
@@ -334,9 +350,9 @@ class DSTFetch {
                     }
                 }
             }
-            $this->fetchStatus = "Extracting files: Complete: ".$success." of ".($i+1)." files successfully extracted";
+            $this->fetchStatus .= "<br>Extracting files: Complete: ".$success." of ".($i+1)." files successfully extracted";
         } else {
-            $this->fetchStatus = "Extracting files: No files specified. Procedure cancelled.";
+            $this->fetchStatus .= "<br>Extracting files: No files specified. Procedure cancelled.";
         }
         
         return $return;

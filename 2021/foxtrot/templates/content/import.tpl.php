@@ -1,135 +1,3 @@
-<script language="javascript">
-    function GetFileList() {
-        document.getElementsByName("HTTPDL_result").value = "";
-        console.log(HTTPDL, "HTTPDL")
-        //HTTPDL_result.value = "";
-        HTTPDL.Host = "filetransfer.financialtrans.com";
-        HTTPDL.UseProxy = false;
-        HTTPDL.LocalDirectory = "E:\foxtrot_idc_file";
-        HTTPDL.UseHttps = true;
-        // Note: Test System Information
-        HTTPDL.Target = "/tf/FANMail";
-        //HTTPDL.Client = "419041819";
-        HTTPDL.Client = "415171403";
-        //415171403
-        // Note: For testing UserID and Password will be supplied by DST
-        HTTPDL.UserID = UserID.value;
-        HTTPDL.ftpType = ftpType.value;
-        HTTPDL.Password = Password.value;
-        var list = HTTPDL.GetFileListAsXML();
-        //alert(list);
-        var dlist = "No file list returned";
-        //HTTPs Download Guide Product Guide
-        var xmldoc = MSXML3;
-        xmldoc.async = false;
-        xmldoc.preserveWhiteSpace = true;
-        xmldoc.loadXML(list);
-
-        var docelement = xmldoc.documentElement;
-
-        if (docelement.hasChildNodes()) {
-            dlist = "<form name=\"Selection\">";
-            var nodeList = docelement.childNodes;
-            var node = nodeList.nextNode();
-            while (node != null) {
-                var file = node.getAttribute("name");
-                var display = node.getAttribute("short-name");
-                if (HTTPDL.ftpType == 1) {
-                    var file_type_array = ["07", "08", "09", "C1"];
-                    var file_name_array = display.split('.');
-                    var get_file_first_string = file_name_array[0];
-                    var get_file_last_character = get_file_first_string.slice(-2);
-                    //alert(file_type_array);
-                    for (var i = 0; i < file_type_array.length; i++) {
-                        if (file_type_array[i] === get_file_last_character) {
-
-                            dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
-                            dlist += file;
-                            dlist += "\">&nbsp;";
-                            dlist += display;
-                            dlist += "<br>";
-                        }
-                    }
-                } else {
-                    dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
-                    dlist += file;
-                    dlist += "\">&nbsp;";
-                    dlist += display;
-                    dlist += "<br>";
-                }
-                node = nodeList.nextNode();
-            }
-            //HTTPs Download Guide Product Guide
-            dlist += "<br>";
-            dlist += "<div class=\"panel-footer\">";
-            dlist += "<div class=\"selectwrap\">";
-            dlist += "<input type=\"button\" value=\"Download Files\" onclick=\"Download()\">";
-            dlist += "&nbsp;<input type=\"button\" value=\"Cancel\" onclick=\"CancelDownload()\">";
-            dlist += "</div>";
-            dlist += "<br>";
-            dlist += "</div>";
-            dlist += "</form>";
-        }
-        //--- 08/10/22 TEST DELETE ME---> console.log(dlist);
-        //document.getElementByID("FileList").innerHTML=dlist;
-        document.getElementById("FileList").innerHTML = dlist;
-        Download();
-        //FileList.innerHTML = dlist;
-    }
-
-    function Download() {
-        HTTPDL.LocalDirectory = DestDir.value;
-        document.getElementById('subscribe_frm');
-        var selection = document.forms["Selection"].sfile;
-
-        //var selection = document.forms[0].sfile;console.log(selection);
-        var flist = "";
-        for (index = 0; index < selection.length; ++index) { //alert(selection[index]);
-            /*if ( selection[index].checked )
-            {*/
-            flist += selection[index].value;
-            flist += ";";
-            /*}*/
-        }
-        PostResult("Begin Download");
-        //HTTPs Download Guide Product Guide
-        HTTPDL.DownloadFiles(flist);
-    }
-
-    function CancelDownload() {
-        HTTPDL.CancelRequest();
-    }
-
-    function TerminateDownload() {
-        HTTPDL.Terminate();
-    }
-
-    function PostResult(msg) {
-        content = HTTPDL_result.value;
-        content += msg;
-        content += "\r\n";
-        HTTPDL_result.value = content;
-    }
-</script>
-<script for="HTTPDL" event="DownloadError( code, msg )" language="javascript">
-    PostResult(msg);
-</script>
-<script for="HTTPDL" event="DownloadComplete()" language="javascript">
-    //HTTPs Download Guide Product Guide
-    PostResult("DownloadComplete");
-</script>
-<script for="HTTPDL" event="DownloadProgress( msg )" language="javascript">
-    PostResult(msg);
-</script>
-<!--<div class="container">
-<h1>Import</h1>
-
-<div class="col-lg-8 well">
-<div class="tab-content col-md-12">
-</div>
-</div>
-
-<div class="col-lg-4 well">-->
 
 <!--<div class="tab-content col-md-12">
 </div>
@@ -1276,9 +1144,11 @@
                             </div>
                         </div>
                         <div class="tab-content col-md-12">
-                            <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "open_ftp") {
-                                                        echo "active";
-                                                    } ?>" id="ftp">
+                            <div class="tab-pane 
+                                <?php if (isset($_GET['tab']) && $_GET['tab'] == "open_ftp") {
+                                    echo "active";
+                                } ?>" id=ftp"
+                            >
                                 <?php
                                 if ($action == 'add_ftp' || ($action == 'edit_ftp' && $ftp_id > 0)) { ?>
                                     <form method="POST">
@@ -1404,10 +1274,11 @@
                                                             <?php
                                                             if (isset($_GET['tab']) && $_GET['tab'] == 'open_ftp') {
                                                                 $count = 0;
-                                                                foreach ($return_ftplist as $key => $val) {
+                                                                // 01/11/23 Use "DATA_INTERFACE" table i/o "FTP_MASTER"
+                                                                foreach ($return_dimlist as $key => $val) {
                                                             ?>
                                                                     <tr>
-                                                                        <td><?php echo $val['host_name']; ?></td>
+                                                                        <td><?php echo $val['name']; ?></td>
                                                                         <td><?php echo $val['user_name']; ?></td>
                                                                         <td class="text-center">
                                                                             <?php if ($val['status'] == 1) { ?>
@@ -1417,7 +1288,7 @@
                                                                             <?php } ?>
                                                                         </td>
                                                                         <td class="text-center">
-                                                                            <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                                                            <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a> -->
                                                                             <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a>
                                                                             <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a>
                                                                             <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
@@ -1518,7 +1389,7 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <h3 class="panel-title"><i class="fa fa-file"></i> Download Files (Only used with Internet Explorer)</h3>
+                                        <h3 class="panel-title"><i class="fa fa-file"></i> Fetch Files</h3>
                                     </div>
 
                                     <div class="panel-body" onunload="TerminateDownload()" id="fetch_file_div" style="display: none;">
@@ -1532,22 +1403,22 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>User ID <span class="text-red">*</span></label><br />
-                                                        <input type="text" class="form-control" name="UserID" id="UserID" value="<?php echo $return_ftp_host['user_name']; ?>" disabled="true" />
+                                                        <input type="text" class="form-control" name="UserID" id="UserID" value="<?php echo $return_dim_host['user_name']; ?>" disabled="true" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Destination Directory (local): </label><br />
-                                                        <input type="text" value="<?php echo $return_ftp_host['folder_location']; ?>" id="DestDir" disabled="true" class="form-control" /></p>
-                                                        <input type="hidden" class="form-control" name="Password" id="Password" disabled="true" value="<?php echo $instance->decryptor($return_ftp_host['password']); ?>" />
-                                                        <input type="hidden" class="form-control" name="ftpType" id="ftpType" disabled="true" value="<?php echo $return_ftp_host['ftp_file_type']; ?>" />
+                                                        <input type="text" value="<?php echo $return_dim_host['local_folder']; ?>" id="DestDir" disabled="true" class="form-control" /></p>
+                                                        <input type="hidden" class="form-control" name="Password" id="Password" disabled="true" value="<?php echo $instance->decryptor($return_dim_host['password']); ?>" />
+                                                        <input type="hidden" class="form-control" name="Dim_id" id="Dim_id" disabled="true" value="<?php echo $return_dim_host['dim_id']; ?>" />
                                                     </div>
                                                 </div>
                                             </div>
                                             <!--HTTPs Download Guide Product Guide-->
                                             <div class="panel-footer">
                                                 <div class="selectwrap">
-                                                    <input type="button" value="Download Files" onclick="GetFileList()" />
+                                                    <input type="button" value="Download Files" onclick="fetchDST()" />
                                                     <input type="button" value="Cancel Download" onclick="CancelDownload()" />
                                                     <!--<a href="<?php echo CURRENT_PAGE . '?tab=open_ftp&action=view_ftp'; ?>"><input type="button" name="cancel" value="Cancel" /></a>-->
                                                     <a href="#upload_zip_import" data-toggle="modal"><input type="button" name="import_files" value="Import Files" /></a>
@@ -1557,7 +1428,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <textarea name="HTTPDL_result" rows="10" cols="50" wrap="soft" class="form-control"></textarea>
+                                                    <textarea name="HTTPDL_result" id="HTTPDL_result" rows="10" cols="50" wrap="soft" class="form-control"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -2380,10 +2251,6 @@
             // SFR File - Missing/Invalid Data
             // 03/05/22 Not needed with file_type and error_code_id criteria --- && ['major_security_type', 'cusip_number', 'fund_name'].includes(exception_field)
             const existingDetailValues = <?php echo isset($existingDetailValues) ? json_encode($existingDetailValues) : json_encode(['fund_name' => '', 'cusip_number' => '', 'product_category_id' => '0']); ?>;
-
-            // 08/29/22 TEST DELETE ME
-            console.log("error_code_id==13: existingDetailValues['cusip_number']=" + existingDetailValues['cusip_number'] + ", existingDetailValues['product_category_id']=" + existingDetailValues['product_category_id']);
-
             const parentRow = '#assign_cusip_to_product';
 
             $(parentRow).css("display", "block");
@@ -2867,4 +2734,32 @@
             }
         }
     }
+    
+    function fetchDST() {
+        var xmlhttp = new XMLHttpRequest();
+        let dimID = document.getElementById("Dim_id").value;
+        
+        // TEST DELETE ME 01/11/23
+        console.log('DimID -> document.getElementById(Dim_id):' + dimID);
+        document.getElementById("HTTPDL_result").value = "Downloading files...Please wait...";
+        
+        xmlhttp.onreadystatechange = function() {
+            // TEST DELETE ME 01/11/23
+            console.log('fetchDST(): this.status: ' + this.status);
+
+            if (this.readyState == 4 && this.status == 200) {
+                var data = this.responseText;
+                
+                // TEST DELETE ME 01/11/23
+                console.log('this.responseText:' + this.responseText);
+                
+                if (data != '') {
+                    document.getElementById("HTTPDL_result").value = data;
+                }
+            }
+        };
+        xmlhttp.open("GET", "import.php?action=fetchDST&dim_id=" + dimID, true);
+        xmlhttp.send();
+    }
+
 </script>
