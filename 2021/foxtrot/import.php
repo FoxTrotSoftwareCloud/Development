@@ -25,6 +25,7 @@
     $instance_broker = new broker_master();
     $get_broker = $instance_broker->select(1);
     $instance_client = new client_maintenance();
+    $get_state = $instance_client->select_state();
     $get_client = $instance_client->select(1);
     $instance_sponsor = new manage_sponsor();
     $get_sponsor = $instance_sponsor->select_sponsor(1);
@@ -59,7 +60,10 @@
         // Action Choices
         if(isset($process_file) && $process_file == 1)
         {
-            $return = $instance->delete_current_files($id);
+            $return_delete = $instance->delete_current_files($id);
+            if($return_delete===true){
+                header("location:".SITE_URL."import.php");
+            }
         }
         else if(isset($process_file) && $process_file == 2)
         {
@@ -177,6 +181,8 @@
         }else{
             $exception_value = isset($_POST['exception_value'])?$instance->re_db_input($_POST['exception_value']):'';
         }
+
+        // echo "<pre>"; print_r($_POST);die;
 
         $return = $instance->resolve_exceptions($_POST);
 
@@ -306,7 +312,7 @@
         
         if(empty($error) AND $uploaded){
             $_SESSION['success'] = $successMessage;
-            header("location:".CURRENT_PAGE."?action=view&reprocessed=1");
+            header("location:".CURRENT_PAGE);
         } else{
             $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
             header("location:".CURRENT_PAGE."?tab=open_ftp");
@@ -330,11 +336,15 @@
     }
     else if(isset($_GET['tab']) && $_GET['tab'] =='open_ftp')
     {
-        $return_ftplist = $instance->select_ftp();
+        // 01/11/23 Use "DATA_INTERFACE" table i/o "FTP_MASTER"
+        // $return_ftplist = $instance->select_ftp();
+        $return_dimlist = $instance_dim->select("name LIKE 'DST%' ORDER BY id");
     }
     else if(isset($_GET['tab']) && $_GET['tab'] =='get_ftp' && $ftp_id>0)
     {
-        $return_ftp_host = $instance->select_ftp_user($ftp_id);
+        // 01/11/23 Use "DATA_INTERFACE" table i/o "FTP_MASTER"
+        // $return_ftp_host = $instance->select_ftp_user($ftp_id);
+        $return_dim_host = $instance_dim->edit($ftp_id);
     }
     else if(isset($_GET['action'])&&$_GET['action']=='ftp_status' && $ftp_id>0 &&isset($_GET['status'])&&($_GET['status']==0 || $_GET['status']==1))
     {
@@ -376,6 +386,15 @@
     }
     else if($action=='view'){
         $return = $instance->select_current_files();//echo '<pre>';print_r($return);exit;
+    }
+    else if($action == 'fetchDST' AND (isset($_GET['dim_id'])))
+    {
+        // 01/11/23 2nd parameter is for test mode(pulls 2-5 files at a time(testMode == 1)
+        $instance_dst_fetch = new DSTFetch((int)$_GET['dim_id'], 0);
+        $return = $instance_dst_fetch->fetch();
+        $responseText = "";
+        echo $instance_dst_fetch->fetchStatus.$responseText;
+        exit;
     }
 
     $content = "import";

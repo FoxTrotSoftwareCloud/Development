@@ -28,7 +28,7 @@ require_once(DIR_FS."islogin.php");?>
 <!-- <script src="js/jquery.min.js"></script> -->
 <script src="<?php echo SITE_JS; ?>bootstrap-datepicker.min.js"></script>
 <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
-
+<script src="<?php echo SITE_JS; ?>/jquery.priceformat.min.js"></script>
 <!-- Datatables-->
 <link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>datatables/dataTables.bootstrap.min.css" />
 <link rel="stylesheet" href="<?php echo SITE_PLUGINS; ?>datatables/buttons.dataTables.min.css" />
@@ -61,9 +61,9 @@ require_once(DIR_FS."islogin.php");?>
 .error{
 	border: 1px solid red!important;
 }
-body .container{
-	 width: 1300px;
-}
+/* body .container{
+	 width: 1500px;
+} */
 .dropdown-submenu>.dropdown-menu {
     top: 0;
     left: 100%;
