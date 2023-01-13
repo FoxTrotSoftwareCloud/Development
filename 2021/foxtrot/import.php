@@ -389,8 +389,8 @@
     }
     else if($action == 'fetchDST' AND (isset($_GET['dim_id'])))
     {
-        // 01/11/23 2nd parameter is for test mode(pulls 2-5 files at a time)
-        $instance_dst_fetch = new DSTFetch((int)$_GET['dim_id'], 1);
+        // 01/11/23 2nd parameter is for test mode(pulls 2-5 files at a time(testMode == 1)
+        $instance_dst_fetch = new DSTFetch((int)$_GET['dim_id'], 0);
         $return = $instance_dst_fetch->fetch();
         $responseText = "";
         echo $instance_dst_fetch->fetchStatus.$responseText;
