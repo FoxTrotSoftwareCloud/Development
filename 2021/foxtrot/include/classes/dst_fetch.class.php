@@ -66,22 +66,22 @@ class DSTFetch {
         $return = $this->get_file_list();
         
         if (count($return) > 0){
-            // TEST MODE - 01/10/23 Only fetch the first 5 of the list
-            if ($this->testMode){
-                $temp = $return;
-                foreach ($return as $index=>$file){
-                    $fileNum = substr($file['name'], 8, 5);
-                    $temp[$index]['filenum'] = $fileNum;
-                }
-                usort($temp, function($item1, $item2){
-                    return $item1['filenum'] <=> $item2['filenum']; 
-                });
-                
-                $end = 5;
-                $return = [];
-                for ($i=0; $i<$end; $i++){
-                    $return[]['name'] = $temp[$i]['name'];
-                }
+            //--- Sort the files by file identifier, so the oldest files are downloaded first
+            $temp = $return;
+            foreach ($return as $index=>$file){
+                $fileNum = substr($file['name'], 8, 5);
+                $temp[$index]['filenum'] = $fileNum;
+            }
+            usort($temp, function($item1, $item2){
+                return $item1['filenum'] <=> $item2['filenum']; 
+            });
+            
+            // TEST MODE - 01/10/23 Only fetch the first 5 of the list, otherwise load ALL the sorted files in $return array
+            $end = $this->testMode ? 2 : count($return);
+            
+            $return = [];
+            for ($i=0; $i<$end; $i++){
+                $return[]['name'] = $temp[$i]['name'];
             }
             
             $return = $this->download_file($return);
@@ -93,7 +93,7 @@ class DSTFetch {
     }
     
     function get_file_list() {
-        $this->fetchStatus .= "<br>Getting files...";
+        $this->fetchStatus .= "\r\nRetrieving File List...";
         $this->fileList = [];
         // Have to store info from the response header
         $headerSize = 0;
@@ -119,19 +119,19 @@ class DSTFetch {
         
         if (strpos($output,'xml')!==false){
             $this->fileList = $this->xml_to_file_list(substr($output, $headerSize));
-            $this->fetchStatus .= "<br>Get File List - PASS, Count: ".count($this->fileList);
+            $this->fetchStatus .= "\r\nGET File List - Successful, File Count: ".count($this->fileList);
         } else if (strpos($output,'html')!==false){
             $document = new DOMDocument();
             $document->loadHTML( substr($output, strpos($output,"<html>")) );
             
             if (!empty($document->getElementsByTagName('h1'))) {
-                $this->fetchStatus .= "<br>Get File List - FAIL: ".$document->getElementsByTagName('h1')[0]->nodeValue;
+                $this->fetchStatus .= "\r\nGET File List - FAIL: ".$document->getElementsByTagName('h1')[0]->nodeValue;
             } else if (!empty($document->getElementsByTagName('title'))) {
-                $this->fetchStatus .= "<br>Get File List - FAIL: ".$document->getElementsByTagName('title')[0]->nodeValue;
+                $this->fetchStatus .= "\r\nGet File List - FAIL: ".$document->getElementsByTagName('title')[0]->nodeValue;
             }
         } else {
             // $fetchStatus = str_get_html($output);
-            $this->fetchStatus .= "<br>Get File List - FAIL: Reason not specified";
+            $this->fetchStatus .= "\r\nGet File List - FAIL: Reason not specified";
         }
         return $this->fileList;
     }
@@ -152,7 +152,7 @@ class DSTFetch {
     }
     
     function download_file(array $downloadList=[]) {
-        $this->fetchStatus .= "<br>Downloading files...";
+        $this->fetchStatus .= "\r\nDownloading files...";
         $downloadCount = count($downloadList);
         $return = [];
         $success = $file = $output = $i = 0;
@@ -168,7 +168,7 @@ class DSTFetch {
             
             foreach ($downloadList as $index=>$iFile){
                 $fileName = strtoupper(isset($iFile['name']) ? $iFile['name'] : $iFile);
-                $this->fetchStatus .= "<br>Downloading "."File ".($index+1)." of $downloadCount: $fileName";
+                $this->fetchStatus .= "\r\nDownloading "."File ".($index+1)." of $downloadCount: $fileName";
                 // Make sure the file doesn't already exist
                 $output = 0;
                 $dupFile = [];
@@ -210,87 +210,16 @@ class DSTFetch {
                 }
             }
             curl_close($handle);
-            $this->fetchStatus .= "<br>Downloading files: Complete: ".$success." of ".($index+1)." files successfully downloaded";
+            $this->fetchStatus .= "\r\nDownloading files - Complete: ".$success." of ".($index+1)." files successfully downloaded";
         } else {
-            $this->fetchStatus .= "<br>Downloading files: No files specified. Procedure cancelled.";
-        }
-        
-        return $return;
-    }
-
-    function delete_file(array $deleteList=[]) {
-        $this->fetchStatus .= "<br>Deleting files...";
-        $deleteCount = count($deleteList);
-        $return = [];
-        $success = $i = 0;
-        $fileName = strtoupper(isset($deleteList[$i]['name']) ? $deleteList[$i]['name'] : $deleteList[$i]);
-        $status = "";
-        
-        if ($deleteCount>0 && substr($fileName,-3)=='ZIP') {
-            //-- Start cURL Operations
-            $handle = curl_init();
-            curl_setopt($handle, CURLOPT_HEADER, true);
-            curl_setopt($handle, CURLOPT_HTTPHEADER, array('X-File-Requester: '.$this->headerRequester, 'X-Dlua: '.$this->headerDlua));
-            curl_setopt($handle, CURLOPT_CUSTOMREQUEST, 'GET');
-            curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($handle, CURLOPT_FAILONERROR, true);
-            
-            for ($i=0; $i < count($deleteList); $i++){
-                $fileName = strtoupper(isset($deleteList[$i]['name']) ? $deleteList[$i]['name'] : $deleteList[$i]);
-                $fileStatus = strtoupper(isset($deleteList[$i]['status']) ? $deleteList[$i]['status'] : "*not specified*");
-                
-                $this->fetchStatus .= "<br>Deleteing File ".($i+1)." of $deleteCount: $fileName";
-                // Make sure the file was downloaded before deleting from the DST(remote) server
-                if (substr($fileStatus,0,strlen("DOWNLOADED")-1)=="DOWNLOADED" or $fileStatus="*NOT SPECIFIED*"){
-                    // Make sure the file doesn't already exist
-                    $event = "&tidx=".$this->txid."&event=DeleteFile&file=".$fileName;
-                    curl_setopt($handle, CURLOPT_URL, $this->url.$event);
-                    $output = curl_exec($handle);
-                    
-                    // Check in the response header for good\bad delete
-                    $errorNum = $errorMsg = $temp = "";
-                    if (strpos($output, "X-Error: ")!==false){
-                        // Did this extra step to not confuse myself and future generations
-                        $temp = substr($output, strpos($output, "X-Error: ")+strlen("X-Error: "));
-                        $errorNum = trim(substr($temp, 0, strpos($temp,"\n")));
-                    }
-                    if (strpos($output, "X-Error-Message: ")!==false){
-                        // Did this extra step to not confuse myself and future generations
-                        $temp = substr($output, strpos($output, "X-Error-Message: ")+strlen("X-Error-Message: "));
-                        $errorMsg = trim(substr($temp, 0, strpos($temp,"\n")));
-                    }
-                    
-                    if ($errorMsg === ""){
-                        $success++;
-                        $status = 'deleted';
-                        
-                        if (isset($deleteList[$i]['status'])){
-                            $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deleted";
-                            $status = $deleteList[$i]['status'];
-                        }
-                        $return[] = ["name"=>$fileName, "status"=>$status];
-                    } else {
-                        $status = "deletion failed-".$errorNum."-".$errorMsg;
-                        
-                        if (isset($deleteList[$i]['status'])){
-                            $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deletion failed-".$errorNum."-".$errorMsg;
-                            $status = $deleteList[$i]['status'];
-                        }
-                        $return[] = ["name"=>$fileName, "status"=>$status];
-                    }
-                }
-            }
-            curl_close($handle);
-            $this->fetchStatus .= "<br>Downloading files: Complete: ".$success." of ".($i+1)." files successfully downloaded";
-        } else {
-            $this->fetchStatus .= "<br>Downloading files: No files specified. Procedure cancelled.";
+            $this->fetchStatus .= "\r\nDownloading files: No files specified. Procedure cancelled.";
         }
         
         return $return;
     }
 
     function extract_file(array $extractList=[]) {
-        $this->fetchStatus .= "<br>Extracting files...";
+        $this->fetchStatus .= "\r\nExtracting files...";
         $extractCount = count($extractList);
         //-- TEST DELETE ME - reinstate db() and any references when moved into the Production/Test environment
         // $instance_db = new db();
@@ -305,7 +234,7 @@ class DSTFetch {
 
             for ($i=0; $i < count($extractList); $i++){
                 $fileName = strtoupper(isset($extractList[$i]['name']) ? $extractList[$i]['name'] : $extractList[$i]);
-                $this->fetchStatus .= "<br>Extracting File ".($i+1)." of $extractCount: $fileName";
+                $this->fetchStatus .= "\r\nExtracting File ".($i+1)." of $extractCount: $fileName";
                 $output = $unlinked = 0;
                 //-- Actual Extraction
                 if ($unzip->open($dir.$fileName)) {
@@ -350,9 +279,80 @@ class DSTFetch {
                     }
                 }
             }
-            $this->fetchStatus .= "<br>Extracting files: Complete: ".$success." of ".($i+1)." files successfully extracted";
+            $this->fetchStatus .= "\r\nExtracting files - Complete: ".$success." of ".($i)." files successfully extracted";
         } else {
-            $this->fetchStatus .= "<br>Extracting files: No files specified. Procedure cancelled.";
+            $this->fetchStatus .= "\r\nExtracting files: No files specified. Procedure cancelled.";
+        }
+        
+        return $return;
+    }
+
+    function delete_file(array $deleteList=[]) {
+        $this->fetchStatus .= "\r\nDeleting remote files...";
+        $deleteCount = count($deleteList);
+        $return = [];
+        $success = $i = 0;
+        $fileName = strtoupper(isset($deleteList[$i]['name']) ? $deleteList[$i]['name'] : $deleteList[$i]);
+        $status = "";
+        
+        if ($deleteCount>0 && substr($fileName,-3)=='ZIP') {
+            //-- Start cURL Operations
+            $handle = curl_init();
+            curl_setopt($handle, CURLOPT_HEADER, true);
+            curl_setopt($handle, CURLOPT_HTTPHEADER, array('X-File-Requester: '.$this->headerRequester, 'X-Dlua: '.$this->headerDlua));
+            curl_setopt($handle, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($handle, CURLOPT_FAILONERROR, true);
+            
+            for ($i=0; $i < count($deleteList); $i++){
+                $fileName = strtoupper(isset($deleteList[$i]['name']) ? $deleteList[$i]['name'] : $deleteList[$i]);
+                $fileStatus = strtoupper(isset($deleteList[$i]['status']) ? $deleteList[$i]['status'] : "*not specified*");
+                
+                $this->fetchStatus .= "\r\nDeleting File ".($i+1)." of $deleteCount: $fileName";
+                // Make sure the file was downloaded before deleting from the DST(remote) server
+                if (substr($fileStatus,0,strlen("DOWNLOADED")-1)=="DOWNLOADED" or $fileStatus="*NOT SPECIFIED*"){
+                    // Make sure the file doesn't already exist
+                    $event = "&tidx=".$this->txid."&event=DeleteFile&file=".$fileName;
+                    curl_setopt($handle, CURLOPT_URL, $this->url.$event);
+                    $output = curl_exec($handle);
+                    
+                    // Check in the response header for good\bad delete
+                    $errorNum = $errorMsg = $temp = "";
+                    if (strpos($output, "X-Error: ")!==false){
+                        // Did this extra step to not confuse myself and future generations
+                        $temp = substr($output, strpos($output, "X-Error: ")+strlen("X-Error: "));
+                        $errorNum = trim(substr($temp, 0, strpos($temp,"\n")));
+                    }
+                    if (strpos($output, "X-Error-Message: ")!==false){
+                        // Did this extra step to not confuse myself and future generations
+                        $temp = substr($output, strpos($output, "X-Error-Message: ")+strlen("X-Error-Message: "));
+                        $errorMsg = trim(substr($temp, 0, strpos($temp,"\n")));
+                    }
+                    
+                    if ($errorMsg === ""){
+                        $success++;
+                        $status = 'deleted';
+                        
+                        if (isset($deleteList[$i]['status'])){
+                            $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/remotes deleted";
+                            $status = $deleteList[$i]['status'];
+                        }
+                        $return[] = ["name"=>$fileName, "status"=>$status];
+                    } else {
+                        $status = "deletion failed-".$errorNum."-".$errorMsg;
+                        
+                        if (isset($deleteList[$i]['status'])){
+                            $deleteList[$i]['status'] = trim($deleteList[$i]['status'])."/deletion failed-".$errorNum."-".$errorMsg;
+                            $status = $deleteList[$i]['status'];
+                        }
+                        $return[] = ["name"=>$fileName, "status"=>$status];
+                    }
+                }
+            }
+            curl_close($handle);
+            $this->fetchStatus .= "\r\nDeleting Remote Files - Complete: ".$success." of ".($i)." files successfully downloaded";
+        } else {
+            $this->fetchStatus .= "\r\n[EXCEPTION]Delete Remote Files: No files specified. Procedure cancelled.";
         }
         
         return $return;
