@@ -196,18 +196,19 @@
         echo $error;
         exit;
     }
-    else if(isset($_POST['fetch_files']) && $_POST['fetch_files']== 'Fetch Files')
-    {
-        $return = $instance->insert_update_files($_POST);
-        if($return===true){
-            echo '1';exit;
-        }
-        else{
-            $error = !isset($_SESSION['warning'])?$return:'';
-        }
-        echo $error;
-        exit;
-    }
+    // *** Deprecated 01/16/23 - Called from "<div id="upload_zip_import>" Import all the files in the "DATA_INTERFACE->local_folder" field instead ***
+    // else if(isset($_POST['fetch_files']) && $_POST['fetch_files']== 'Fetch Files')
+    // {
+    //     $return = $instance->insert_update_files($_POST);
+    //     if($return===true){
+    //         echo '1';exit;
+    //     }
+    //     else{
+    //         $error = !isset($_SESSION['warning'])?$return:'';
+    //     }
+    //     echo $error;
+    //     exit;
+    // }
     else if(
         (isset($_POST['upload_generic_csv_file']) && $_POST['upload_generic_csv_file']=='upload_generic_csv_file')
         OR (isset($_POST['upload_dazl_file']) && $_POST['upload_dazl_file']=='upload_dazl_file')
@@ -394,6 +395,34 @@
         $return = $instance_dst_fetch->fetch();
         $responseText = "";
         echo $instance_dst_fetch->fetchStatus.$responseText;
+        exit;
+    }
+    else if($action == 'importFiles' AND (isset($_GET['dim_id'])))
+    {
+        $instance_dim = new data_interfaces_master();
+        $dimID = (int)$_GET['dim_id'];
+        $dimInfo = $instance_dim->edit($dimID);
+        $return = $responseText = '';
+        
+        if ($dimInfo){
+            $responseText = "Initiating file import for ".trim($dimInfo['name'])."...";
+            echo $responseText;    
+            
+            $return = $instance->insert_update_files($dimID);
+            $responseText = "\r\nImport complete...";
+        
+            if ($return){
+                foreach ($return as $file){
+                    $responseText .= "\r\n".$file['name'].": ".$file['status'];
+                }
+            } else {
+                $responseText = " No files imported.";
+            }
+            echo $responseText;
+        } else {
+            $responseText = "Invalid Data Interface #: ".$dimID.". Import cancelled.";
+            echo $responseText;
+        }
         exit;
     }
 
