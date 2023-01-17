@@ -399,6 +399,7 @@
     }
     else if($action == 'importFiles' AND (isset($_GET['dim_id'])))
     {
+        // Import all the DST TXT files from "DATA_TNTERFACE -> local_folder"  (done after a file fetch from DST Server)
         $instance_dim = new data_interfaces_master();
         $dimID = (int)$_GET['dim_id'];
         $dimInfo = $instance_dim->edit($dimID);

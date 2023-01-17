@@ -1868,13 +1868,23 @@
          * @return string|bool 
          */
         public function insert_update_files($dimID=2){
+            $res = 0;
             $instance_dim = new data_interfaces_master();
             $dimInfo = $instance_dim->edit($dimID);
             $directory = DIR_FS.($dimInfo['local_folder']);
+            $completedDir = rtrim($directory,'/').'/completed';
             $extension = 'TXT';
             $all_files = array_filter(scandir($directory), function ($dirContents) use($extension){
                 return strcasecmp(pathinfo($dirContents, PATHINFO_EXTENSION),$extension)==0;
             });
+            
+            // Create a "completed" subdirectory for downloaded files
+            if (!file_exists($completedDir)){
+                $res = mkdir($completedDir);
+                if ($res === false){
+                    $this->errors = "Network Error: 'Completed' subdirectory cannot be created. Check with CloudFox administrator for server permission rights.";
+                }
+            }
             
             if (count($all_files)==0){
                 $this->errors = "No download files found for ".trim($dimInfo['name']).". Please check 'Supervisor > Data Interfaces' page for valid directory and credentials.";
@@ -1886,7 +1896,8 @@
             else
             {
                 $return_files = [];
-                $goodFile = 0;
+                $goodFile = $fileHandle =  0;
+                $this->errors = "";
                 
                 foreach($all_files as $file_key=>$file_val)
                 {
@@ -1899,6 +1910,7 @@
                         $file_type_array = array('07'=>'Non-Financial Activity','08'=>'New Account Activity','09'=>'Account Master Position','C1'=>'DST Commission');
                         $file_name_array = explode('.',$file_val);
                         $file_type_checkkey = substr($file_name_array[0], -2);//print_r($ext_filename);exit;
+                        
                         if (array_key_exists($file_type_checkkey, $file_type_array))
                         {
                             if(isset($file_type_checkkey) && ($file_type_checkkey == '07' || $file_type_checkkey == '08' || $file_type_checkkey == '09')){
@@ -1934,15 +1946,22 @@
                             // Process/Load the data into the import header/detail tables
                             $res = $this->process_current_files($id);
                             $return_files[count($return_files)-1]['status'] .= ', 2. File Processed';
+                            $fileHandle = rename(rtrim($directory,'/').'/'.$file_val, rtrim($completedDir,'/').'/'.$file_val);
+                            
+                            if (!$fileHandle) {
+                                $this->errors .= ($this->errors != '' ? '\r\n' : '')."FILE ERROR: File ".$file_val." not moved to 'Completed' folder.";
+                            }
                         }
                         else
                         {
-                            $return_files[] = ['name'=>$file_val, 'status'=>'EXCEPTION: Invalid File Type: '.$file_type_checkkey, 'file_id'=>0];
+                            $return_files[] = ['name'=>$file_val, 'status'=>'SKIPPED: Invalid File Type: '.$file_type_checkkey, 'file_id'=>0];
+                            $fileHandle = unlink(rtrim($directory,'/').'/'.$file_val);
                         }
                     }
                     else
                     {
-                        $return_files[] = ['name'=>$file_val, 'status'=>'EXCEPTION: File already imported', 'file_id'=>0];
+                        $return_files[] = ['name'=>$file_val, 'status'=>'SKIPPED: File already imported', 'file_id'=>0];
+                        $fileHandle = unlink(rtrim($directory,'/').'/'.$file_val);
                     }
 
                 }
