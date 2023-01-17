@@ -1419,9 +1419,12 @@
                                             <div class="panel-footer">
                                                 <div class="selectwrap">
                                                     <input type="button" value="Download Files" onclick="fetchDST()" />
-                                                    <input type="button" value="Cancel Download" onclick="CancelDownload()" />
+                                                    <input type="button" value="Import Files" onclick="importFiles()" />
+                                                    <!-- <input type="button" value="Cancel Download" onclick="CancelDownload()" /> -->
                                                     <!--<a href="<?php echo CURRENT_PAGE . '?tab=open_ftp&action=view_ftp'; ?>"><input type="button" name="cancel" value="Cancel" /></a>-->
-                                                    <a href="#upload_zip_import" data-toggle="modal"><input type="button" name="import_files" value="Import Files" /></a>
+                                                    <!-- 01/16/23 Just import all the files in the "local_folder" specified in the data_interface table
+                                                        <a href="#upload_zip_import" data-toggle="modal"><input type="button" name="import_files" value="Import Files" /></a> 
+                                                    -->
                                                 </div><br />
                                             </div>
                                         </div>
@@ -1448,8 +1451,9 @@
 
                                 </div>
                             </div>
-                            <!-- Modal for add files -->
-                            <div id="upload_zip_import" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                            <!--*** Modal for add files ***-->
+                            <!--***01/16/23*** Changed to IMPORT ALL files instead of prompting the user for one or group of files manually --> 
+                            <!-- <div id="upload_zip_import" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header" style="margin-bottom: 0px !important;">
@@ -1463,7 +1467,6 @@
                                             </div>
                                             <form id="form_import_files" name="form_import_files" style="padding: 10px;" method="post" onsubmit="return formsubmitfiles();" enctype="multipart/form-data">
                                                 <div class="inputpopup">
-                                                    <!--<input type="file" class="form-control" name="file_attach" id="file_attach"/>-->
                                                     <input type="file" id="files" name="files[]" multiple="multiple" accept="zip/*" class="form-control" />
                                                 </div>
                                                 <div class="inputpopup">
@@ -1471,10 +1474,10 @@
                                                     <button type="submit" class="btn btn-sm btn-warning" id="fetch_files" name="fetch_files" value="Fetch Files"><i class="fa fa-save"></i> Save</button>
                                                 </div>
                                             </form>
-                                        </div><!-- End of Modal body -->
-                                    </div><!-- End of Modal content -->
-                                </div><!-- End of Modal dialog -->
-                            </div><!-- End of Modal -->
+                                        </div> <!-- End of Modal body -- >
+                                    </div> <!-- End of Modal content -- >
+                                </div> <!-- End of Modal dialog -- >
+                            <!-- </div>End of Modal -->
                         </div>
                     </div>
                 </div>
@@ -2739,19 +2742,9 @@
         var xmlhttp = new XMLHttpRequest();
         let dimID = document.getElementById("Dim_id").value;
         
-        // TEST DELETE ME 01/11/23
-        console.log('DimID -> document.getElementById(Dim_id):' + dimID);
-        document.getElementById("HTTPDL_result").value = "Downloading files...Please wait...";
-        
         xmlhttp.onreadystatechange = function() {
-            // TEST DELETE ME 01/11/23
-            console.log('fetchDST(): this.status: ' + this.status);
-
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
-                
-                // TEST DELETE ME 01/11/23
-                console.log('this.responseText:' + this.responseText);
                 
                 if (data != '') {
                     document.getElementById("HTTPDL_result").value = data;
@@ -2759,6 +2752,22 @@
             }
         };
         xmlhttp.open("GET", "import.php?action=fetchDST&dim_id=" + dimID, true);
+        xmlhttp.send();
+    }
+    function importFiles() {
+        var xmlhttp = new XMLHttpRequest();
+        let dimID = document.getElementById("Dim_id").value;
+        
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = this.responseText;
+                
+                if (data != '') {
+                    document.getElementById("HTTPDL_result").value = data;
+                }
+            }
+        };
+        xmlhttp.open("GET", "import.php?action=importFiles&dim_id=" + dimID, true);
         xmlhttp.send();
     }
 

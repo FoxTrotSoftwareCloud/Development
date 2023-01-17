@@ -1862,124 +1862,98 @@
 				return false;
 			}
 		}
-        public function insert_update_files($data){
-            $all_files = $id = isset($_FILES['files'])?$_FILES['files']:array();
-
-            if(isset($all_files['name'][0]) && $all_files['name'][0] == ''){
-				$this->errors = 'Please select files.';
-			}
-            if(isset($all_files['name']) && count($all_files['name'])>15)
-            {
-                $this->errors = 'File selection limit maximum 15.';
+        
+        /** 01/16/23 Updated to import all fetched files in the "Local Folder" for specified "dimID"
+         * @param mixed $data 
+         * @return string|bool 
+         */
+        public function insert_update_files($dimID=2){
+            $instance_dim = new data_interfaces_master();
+            $dimInfo = $instance_dim->edit($dimID);
+            $directory = DIR_FS.($dimInfo['local_folder']);
+            $extension = 'TXT';
+            $all_files = array_filter(scandir($directory), function ($dirContents) use($extension){
+                return strcasecmp(pathinfo($dirContents, PATHINFO_EXTENSION),$extension)==0;
+            });
+            
+            if (count($all_files)==0){
+                $this->errors = "No download files found for ".trim($dimInfo['name']).". Please check 'Supervisor > Data Interfaces' page for valid directory and credentials.";
             }
+            
             if($this->errors!=''){
 				return $this->errors;
 			}
-            else{
-
-                $files_array = $this->reArrayFiles($all_files);
-
-                foreach($files_array as $file_key=>$file_val)
+            else
+            {
+                $return_files = [];
+                $goodFile = 0;
+                
+                foreach($all_files as $file_key=>$file_val)
                 {
-                    $valid_file = array('zip');
-                    $dir = $file_val['tmp_name'];
-                    $file_name = $file_val['name'];
-                    $path= $dir;
-
-                    $file_import = '';
-                    $ext_filename = '';
-
-                    $ext = strtolower(end(explode('.',$file_name)));
-
-                    if($file_name!='')
+                    $res = $id = 0;
+                    $source = '';
+                    $check_current_array = $this->check_current_files(0, $file_val);
+                    
+                    if(count($check_current_array)==0)
                     {
-                        if(!in_array($ext,$valid_file))
+                        $file_type_array = array('07'=>'Non-Financial Activity','08'=>'New Account Activity','09'=>'Account Master Position','C1'=>'DST Commission');
+                        $file_name_array = explode('.',$file_val);
+                        $file_type_checkkey = substr($file_name_array[0], -2);//print_r($ext_filename);exit;
+                        if (array_key_exists($file_type_checkkey, $file_type_array))
                         {
-                            $this->errors = 'Please select valid file.';
+                            if(isset($file_type_checkkey) && ($file_type_checkkey == '07' || $file_type_checkkey == '08' || $file_type_checkkey == '09')){
+                                $source = 'DSTFANMail';
+                            }
+                            else if(isset($file_type_checkkey) && $file_type_checkkey == 'C1'){
+                                $source = 'DSTIDC';
+                            }
+                            
+                            $sponsor_array = $this->get_sponsor_on_system_management_code(substr($file_val,0,3),substr($file_val,3,2));
+                            
+                            if (empty($sponsor_array)){
+                                $sponsor_array = ['id'=>0, 'name'=>'*Not Found*', 'dst_code'=>substr($file_val,0,5)];
+                            }
+                            
+                            $q = "INSERT INTO ".IMPORT_CURRENT_FILES
+                                    ." SET "
+                                    ."user_id='".$_SESSION['user_id']."'"
+                                    .",imported_date='".date('Y-m-d')."'"
+                                    .",last_processed_date=''"
+                                    .",file_name='".$file_val."'"
+                                    .",file_type='".$file_type_array[$file_type_checkkey]."'"
+                                    .",source='".$source."'"
+                                    .",sponsor_id=".$sponsor_array['id']
+                                    .",dim_id=".$dimInfo['dim_id']
+                                    .$this->insert_common_sql();
+                            $res = $this->re_db_query($q);
+                            $id = $this->re_db_insert_id();
+
+                            $goodFile++;
+                            $return_files[] = ['name'=>$file_val, 'status'=>'SUCCESS: 1.INSERT-Current Files DB', 'file_id'=>$id];
+                            
+                            // Process/Load the data into the import header/detail tables
+                            $res = $this->process_current_files($id);
+                            $return_files[count($return_files)-1]['status'] .= ', 2. File Processed';
                         }
                         else
                         {
-                              $zip = new ZipArchive;
-                              $res = $zip->open($path);
-
-                              if ($res === TRUE) {
-                                for ($i = 0; $i < $zip->numFiles; $i++) {
-
-                                     $ext_filename = $zip->getNameIndex($i);
-
-                                 }
-                                 if (!file_exists(DIR_FS."import_files/user_".$_SESSION['user_id'])) {
-                                    mkdir(DIR_FS."import_files/user_".$_SESSION['user_id'], 0777, true);
-                                 }
-                                 //print_r(DIR_FS."import_files/user_".$_SESSION['user_id']);exit;
-                                 $zip->extractTo(DIR_FS."import_files/user_".$_SESSION['user_id']);
-                                 $zip->close();
-                              }
+                            $return_files[] = ['name'=>$file_val, 'status'=>'EXCEPTION: Invalid File Type: '.$file_type_checkkey, 'file_id'=>0];
                         }
                     }
-                    if($this->errors!=''){
-        				return $this->errors;
-        			}
                     else
                     {
-                        $source = '';
-                        $already_file_array = $this->check_current_files($_SESSION['user_id']);
-                        if(!in_array($ext_filename,$already_file_array))
-                        {
-                            $file_type_array = array('07'=>'Non-Financial Activity','08'=>'New Account Activity','09'=>'Account Master Position','C1'=>'DST Commission');
-                            $file_name_array = explode('.',$ext_filename);
-                            $file_type_checkkey = substr($file_name_array[0], -2);//print_r($ext_filename);exit;
-                            if (array_key_exists($file_type_checkkey, $file_type_array))
-                            {
-                                if(isset($file_type_checkkey) && ($file_type_checkkey == '07' || $file_type_checkkey == '08' || $file_type_checkkey == '09')){
-                                    $source = 'DSTFANMail';
-                                }
-                                else if(isset($file_type_checkkey) && $file_type_checkkey == 'C1'){
-                                    $source = 'DSTIDC';
-                                }
-                                $sponsor_array = $this->get_sponsor_on_system_management_code(substr($ext_filename,0,3),substr($ext_filename,3,2));
-                                if (empty($sponsor_array)){
-                                    $sponsor_array = ['id'=>0, 'name'=>'*Not Found*', 'dst_code'=>substr($ext_filename,0,5)];
-                                }
-                                $q = "INSERT INTO ".IMPORT_CURRENT_FILES.""
-                                        ." SET "
-                                        ."user_id='".$_SESSION['user_id']."'"
-                                        .",imported_date='".date('Y-m-d')."'"
-                                        .",last_processed_date=''"
-                                        .",file_name='".$ext_filename."'"
-                                        .",file_type='".$file_type_array[$file_type_checkkey]."'"
-                                        .",source='".$source."'"
-                                        .",sponsor_id=".$sponsor_array['id']
-                                        .$this->insert_common_sql();
-                                $res = $this->re_db_query($q);
-                                $id = $this->re_db_insert_id();
-                            }
-                            else
-                            {
-                                $q = "INSERT INTO ".IMPORT_CURRENT_FILES.""
-                                    ." SET "
-                                        ."user_id='".$_SESSION['user_id']."'"
-                                        .",imported_date='".date('Y-m-d')."'"
-                                        .",last_processed_date=''"
-                                        .",file_name='".$ext_filename."'"
-                                        .",file_type='-'"
-                                        .",source=''"
-                                        .$this->insert_common_sql();
-                                $res = $this->re_db_query($q);
-                                $id = $this->re_db_insert_id();
-                            }
-                        }
-
+                        $return_files[] = ['name'=>$file_val, 'status'=>'EXCEPTION: File already imported', 'file_id'=>0];
                     }
 
                 }
-                if($res){
+
+                if($goodFile OR $return_files){
     			    $_SESSION['success'] = INSERT_MESSAGE;
-    				return true;
+    				return $return_files;
     			}
     			else{
     				$_SESSION['warning'] = UNKWON_ERROR;
-    				return false;
+    				return $return_files;
     			}
             }
 		}
@@ -2022,10 +1996,13 @@
                 $this->errors='';
                 //print_r($return);
 				if($return == 0){
+                    $instance_dim = new data_interfaces_master();
                     $file_string_array = array();
+                    
                     $get_file = $this->select_user_files($id);
                     $file_name = $get_file['file_name'];
-                    $file_path = DIR_FS."import_files/user_".$_SESSION['user_id']."/".$file_name;
+                    $dimInfo = $instance_dim->edit($get_file['dim_id']);
+                    $file_path = DIR_FS.rtrim($dimInfo['local_folder'],'/').'/'.$file_name;
 
                     if(!file_exists($file_path)){
                      $_SESSION['warning'] = " Import File did not existed";
@@ -2405,7 +2382,11 @@
                     $res = $this->re_db_query($q);
 
                     $detailIdQuery = $fileSource = '';
-                    $dataSettings = $instance_data_interface->edit(0, $file_array['source']);
+                    if (isset($file_array['dim_id']) AND $file_array['dim_id']){
+                        $dataSettings = $instance_data_interface->edit($file_array['dim_id']);
+                    } else {
+                        $dataSettings = $instance_data_interface->edit(0, $file_array['source']);
+                    }
 
                     /*************************************************
                      * DST CLIENT DATA (NFA(07) / NAA(08) / AMP(09))
@@ -2781,8 +2762,8 @@
                                     $exceptionId = $existingAccountExceptionId;
                                 }
 
-                                $q = "UPDATE ".IMPORT_EXCEPTION.""
-                                    ." SET"
+                                $q = "UPDATE ".IMPORT_EXCEPTION
+                                    ." SET "
                                         ."error_code_id=".($dataSettings['update_client'] ? 'error_code_id' : 23)
                                         .",solved='".$dataSettings['update_client']."'"
                                         .",process_completed='".$dataSettings['update_client']."'"

@@ -86,7 +86,10 @@ class DSTFetch {
             
             $return = $this->download_file($return);
             $return = $this->extract_file($return);
-            $return = $this->delete_file($return);
+                
+            if (!$this->testMode) {
+                $return = $this->delete_file($return);
+            }
         }
         
         return $return;
@@ -191,19 +194,6 @@ class DSTFetch {
                     if ($output){
                         $success++;
                         $return[] = ["name"=>$fileName, "status"=>"downloaded"];
-                        
-                        // 01/11/23 Skip this and just load the whole array when each step is complete: 1)Download -> 2)Extract/Remove .ZIP -> 3)Delete Remote File
-                        // // Unzip the file in the same directory, and delete the ZIP file
-                        // $output = $this->extract_file([$return[count($return)-1]]);
-                        // if (count($output)){
-                        //     $return[count($return)-1]['status'] .= '/'.$output[0]['status'];
-                        // }
-                        // // Delete the file from the DST Server
-                        // $output = $this->delete_file([$return[count($return)-1]]);
-                        // if (count($output)){
-                        //     $return[count($return)-1]['status'] .= '/'.$output[0]['status'];
-                        // }
-                        
                     } else {
                         $return[] = ["name"=>$fileName, "status"=>"download failed"];
                     }
