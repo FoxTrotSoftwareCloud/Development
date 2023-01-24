@@ -20,10 +20,10 @@
             $minimum_check_amount = isset($data['minimum_check_amount'])?$this->re_db_input($data['minimum_check_amount']):'';
             $finra = isset($data['finra'])?$this->re_db_input($data['finra']):'';
             $sipc = isset($data['sipc'])?$this->re_db_input($data['sipc']):'';
-            $brocker_pick_lists = isset($data['brocker_pick_lists'])?$this->re_db_input($data['brocker_pick_lists']):'';
-            $branch_pick_lists = isset($data['branch_pick_lists'])?$this->re_db_input($data['branch_pick_lists']):'';
+            $brocker_pick_lists = (isset($data['brocker_pick_lists']) && $data['brocker_pick_lists']!='')?$this->re_db_input($data['brocker_pick_lists']):0;
+            $branch_pick_lists = (isset($data['branch_pick_lists']) && $data['branch_pick_lists']!='') ?$this->re_db_input($data['branch_pick_lists']):0;
             $brocker_statement = isset($data['brocker_statement'])?$this->re_db_input($data['brocker_statement']):'';
-            $firm_does_not_participate = isset($data['firm_does_not_participate'])?$this->re_db_input($data['firm_does_not_participate']):'';
+            $firm_does_not_participate = (isset($data['firm_does_not_participate']) && $data['firm_does_not_participate']!='')?$this->re_db_input($data['firm_does_not_participate']):0;
             $logo= isset($_FILES['logo'])?$_FILES['logo']:array();
             $valid_file = array('jpg','jpeg','png','bmp');
             

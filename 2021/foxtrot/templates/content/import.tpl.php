@@ -315,7 +315,7 @@
                                                                 $count = 0;
                                                                 if (isset($return) && $return != array()) {
                                                                     $return = $instance->select_current_files(1);
-
+                                                                    
                                                                     foreach ($return as $key => $val) {
                                                                         $return_file_data_array = $instance->get_file_array($val['id']);
                                                                         $isImportCompleted = $val['processed'] == 1 && $val['process_completed'] == 1;
@@ -394,9 +394,9 @@
                                                                                     $filename = $val['file_name'];
                                                                                     echo $str = (strlen($filename) > 22) ? substr($filename, 0, 20) . '...' : $filename;
                                                                                     ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $val['file_type']; ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
-                                                                                                                                                                                                    echo date('m/d/Y H:i:s', strtotime($val['last_processed_date']));
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if($val['source']== 'DAZL Daily'){ echo 'DAZL ';} echo $val['file_type']; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00') {
+                                                                                                                                                                                                    echo date('m/d/Y', strtotime($val['last_processed_date']));
                                                                                                                                                                                                 } ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A'; ?></td>
@@ -2053,24 +2053,25 @@
             "bInfo": false,
             "bAutoWidth": false,
             "dom": '<"toolbar">frtip',
-            "aoColumnDefs": [{
-                    "bSortable": true,
-                    "aTargets": [6, 7]
+            "aoColumnDefs": [
+                {
+                    "bSortable": false,
+                    "aTargets": [0,9]
                 },
                 {
                     "bSearchable": false,
-                    "aTargets": [6, 7]
+                    "aTargets": [0,9]
                 },
                 {
                     "type": 'date',
-                    "targets": [3]
+                    "targets": [4]
                 },
             ],
             // "columnDefs": [{
             //        "width": "40%",
             //        "targets": 0,
             //    },],
-            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[3, "desc"]'; ?>],
+            "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[4, "desc"]'; ?>],
 
         });
         $("div.toolbar").html('<a class="btn btn-sm btn-warning" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>' +

@@ -1590,7 +1590,8 @@ $(document).ready(function() {
         "bAutoWidth": false,
         "dom": '<"toolbar">frtip',
         "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 0 ] }, 
-                        { "bSearchable": false, "aTargets": [ 0 ] }]
+                        { "bSearchable": false, "aTargets": [ 0 ] }],
+        "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[1, "asc"]'; ?>],
         });
         $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>');
     

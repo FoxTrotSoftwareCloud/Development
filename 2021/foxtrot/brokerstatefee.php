@@ -12,7 +12,7 @@ $get_states = $client_maintenance_instance->select_state();
     if(isset($_POST['submit']) && $_POST['submit']=='Save') {
         
         for($i=0;$i<count($_POST['state_fee']);$i++) {
-            $state_fee = $_POST['state_fee'][$i];
+            $state_fee = ($_POST['state_fee'][$i]!='')? $_POST['state_fee'][$i] : 0.00;
             $state_id = $_POST['state_id'][$i];
             $res= $broker_instance->save_broker_state_fee($state_id,$state_fee);
         }
