@@ -144,7 +144,7 @@
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <?php if (isset($_GET['exception_file_id']) && $_GET['exception_file_id'] != '') { ?>
                     <div class="alert alert-warning" role="alert" style="margin-top:20px">Some exceptions are generated. Please look at <a href="<?php echo CURRENT_PAGE . '?tab=review_files&id=' . $_GET['exception_file_id'] . '&file_type=' . $_GET['file_type'] ?>">View/Print</a> page.</div>
-                <? } ?>
+                <?php } ?>
                 <div class="graphbox">
 
                     <div class="graphboxtitle">Import </div>
@@ -2436,7 +2436,7 @@
             $("#exception_value").css('display', 'none');
 
             result += 1;
-        } else if (exception_field == 'representative_number') {
+        } else if (exception_field == 'representative_number' || error_code_id == 1) {
             document.getElementById("field_label").innerHTML = (error_code_id == 13 ? 'Missing Field' : 'Alias # Not Found');
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'manage_broker.php?action=add_new&rep_no='; ?>' + rep_number + '<?php echo '&file_id='; ?>' + exception_file_id + '&file_type=' + exception_file_type + '<?php echo '&exception_data_id='; ?>' + temp_data_id + '<?php echo '&exception_record_id='; ?>' + exception_record_id + '" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
             document.getElementById("exception_value").value = (error_code_id == 13 ? '<Broker Alias/Fund #>' : rep_number);
