@@ -403,7 +403,10 @@
    var flag = 0,
       test = 0;
 
-   function addMoreAlias(note_doc) {
+   function addMoreAlias(note_doc, obj) {
+
+      let _this = $(obj);
+
       $('#demo-dp-range .input-daterange').datepicker({
          format: "mm/dd/yyyy",
          todayBtn: "linked",
@@ -447,12 +450,14 @@
          '</td>' +
 
          '<td>' +
-         '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>' +
+         '<button type="button" tabindex="-1" onclick="addMoreAlias('+test+',this);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>' +
          '</td>' +
          '</tr>';
 
+         _this.removeAttr('onclick').removeClass('btn-purple').addClass('remove-row').html('<i class="fa fa-minus"></i>');
 
-      $(html).insertAfter('#add_row_alias');
+         _this.closest('tr').after(html);
+
    }
    $(document).on('click', '.remove-row', function() {
       $(this).closest('.tr').remove();
@@ -460,7 +465,10 @@
    var flag = 0,
       test = 0;
 
-   function addMoreDocs(note_doc) {
+   function addMoreDocs(note_doc, obj) {
+
+      let _this = $(obj);
+
       $('#demo-dp-range .input-daterange').datepicker({
          format: "mm/dd/yyyy",
          todayBtn: "linked",
@@ -496,12 +504,13 @@
          '<input type="checkbox" name="data[docs_required][' + test + ']" class="checkbox" value="1" id="docs_required' + test + '"/>' +
          '</td>' +
          '<td>' +
-         '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>' +
+         '<button type="button" tabindex="-1" onclick="addMoreDocs('+test+',this);"  class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>' +
          '</td>' +
          '</tr>';
 
+         _this.removeAttr('onclick').removeClass('btn-purple').addClass('remove-row').html('<i class="fa fa-minus"></i>');
 
-      $(html).insertAfter('#add_row_docs');
+         _this.closest('tr').after(html);
    }
    $(document).on('click', '.remove-row', function() {
       $(this).closest('.tr').remove();
@@ -3242,7 +3251,7 @@
                                                    <input type="checkbox" name="data[docs_required][<?php echo $doc_id; ?>]" value="1" class="checkbox" id="docs_required" />
                                                 </td>
                                                 <td>
-                                                   <button type="button" onclick="addMoreDocs(<?php echo $doc_id; ?>);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
+                                                   <button type="button" onclick="addMoreDocs(<?php echo $doc_id; ?>,this);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
                                                 </td>
                                              </tr>
                                           </tbody>
@@ -3382,7 +3391,7 @@
                                                    </div>
                                                 </td>
                                                 <td>
-                                                   <button type="button" onclick="addMoreAlias(<?php echo $doc_id; ?>);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
+                                                   <button type="button" onclick="addMoreAlias(<?php echo $doc_id; ?> ,this);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
                                                 </td>
                                              </tr>
                                           </tbody>

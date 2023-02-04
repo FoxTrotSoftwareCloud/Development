@@ -1005,13 +1005,13 @@
             {
                 $hold_commission_until = date('Y-m-d',strtotime($data['hold_commission_until']));
             } else {
-              $hold_commission_until = date('Y-m-d',strtotime('0000-00-00'));
+              $hold_commission_until = '0000-00-00';
             }
             // echo $hold_commission_until; die;
             if(isset($data['hold_commission_after']) && $data['hold_commission_after']!='') {
               $hold_commission_after = date('Y-m-d',strtotime($data['hold_commission_after']));
             } else {
-              $hold_commission_after = date('Y-m-d',strtotime('0000-00-00'));
+              $hold_commission_after = '0000-00-00';
             }
 
             $record = 0;
@@ -1826,7 +1826,7 @@
                     $sponsor_company = isset($val['sponsor_company'])? (int)$this->re_db_input($val['sponsor_company']) : 0;
                     $date = isset($val['date'])?$this->re_db_input(date('Y-m-d',strtotime($val['date']))):$this->defaultEmptyDate;
                     // Term Date & State can be null, so default to that value
-                    $termdate = (isset($val['termdate']) && $val['termdate']!='' )?$this->re_db_input(date('Y-m-d',strtotime($val['termdate']))):null;
+                    $termdate = (isset($val['termdate']) && $val['termdate']!='' )?$this->re_db_input(date('Y-m-d',strtotime($val['termdate']))):'0000-00-00';
                     $state = isset($val['state'])?$this->re_db_input($val['state']):null;
   
                     if($alias_name!='' AND $sponsor_company>0){
