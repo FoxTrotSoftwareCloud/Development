@@ -1793,6 +1793,24 @@
 			return $return;
 		}
 
+        public function get_data_interface_username($file_type_id){
+
+            $file_type='';
+            if($file_type_id == 1)
+            {
+                $file_type= 'DST FANMail';
+            }
+            elseif($file_type_id == 2){
+                $file_type='DST IDC';
+            }
+
+            $q="SELECT `user_name` FROM ".DATA_INTERFACES." WHERE `name` LIKE '". $file_type."'";
+            $res = $this->re_db_query($q);
+            $row = $this->re_db_fetch_array($res);
+
+           return $row['user_name'];
+		}
+
         public function select_ftp_user($id=''){
 			$return = array();
 

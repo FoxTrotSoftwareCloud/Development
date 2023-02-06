@@ -1408,7 +1408,8 @@
                                                             ?>
                                                                     <tr>
                                                                         <td><?php echo $val['host_name']; ?></td>
-                                                                        <td><?php echo $val['user_name']; ?></td>
+                                                                        <!-- 06-02-2023 --- get username from data interfaces and not use ftp username -->
+                                                                        <td><?php echo $instance->get_data_interface_username($val['ftp_file_type']); ?></td>
                                                                         <td class="text-center">
                                                                             <?php if ($val['status'] == 1) { ?>
                                                                                 <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success"><i class="fa fa-check-square-o"></i> Active</a>
