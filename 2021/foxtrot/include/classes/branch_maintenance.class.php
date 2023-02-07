@@ -16,10 +16,10 @@
             $data['last_audit_date'] = date('Y-m-d',strtotime($data['last_audit_date']));
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
             $name = isset($data['name'])?$this->re_db_input($data['name']):'';
-            $broker = isset($data['broker'])?$this->re_db_input($data['broker']):'';
-            $b_status = isset($data['b_status'])?$this->re_db_input($data['b_status']):'';
+            $broker = (isset($data['broker']) && $data['broker']!='') ?$this->re_db_input($data['broker']):0;
+            $b_status = (isset($data['b_status']) && $data['b_status']!='') ?$this->re_db_input($data['b_status']):0;
             $contact = isset($data['contact'])?$this->re_db_input($data['contact']):'';
-            $company = isset($data['company'])?$this->re_db_input($data['company']):'';
+            $company = (isset($data['company']) && $data['company']!='')?$this->re_db_input($data['company']):0;
             if(!isset($data['osj']))
             {
                 $data['osj']=0;
@@ -30,26 +30,26 @@
                 $data['non_registered']=0;
             }
             $non_registered = isset($data['non_registered'])?$this->re_db_input($data['non_registered']):0;
-            $finra_fee = isset($data['finra_fee'])?$this->re_db_input($data['finra_fee']):'';
+            $finra_fee = (isset($data['finra_fee']) && $data['finra_fee']!='') ?$this->re_db_input($data['finra_fee']):0.00;
             $business_address1 = isset($data['business_address1'])?$this->re_db_input($data['business_address1']):'';
             $business_address2 = isset($data['business_address2'])?$this->re_db_input($data['business_address2']):'';
             $business_city = isset($data['business_city'])?$this->re_db_input($data['business_city']):'';
-            $business_state = isset($data['business_state'])?$this->re_db_input($data['business_state']):'';
+            $business_state = (isset($data['business_state']) && $data['business_state']!='') ?$this->re_db_input($data['business_state']):0;
             $business_zipcode = isset($data['business_zipcode'])?$this->re_db_input($data['business_zipcode']):'';
             $mailing_address1 = isset($data['mailing_address1'])?$this->re_db_input($data['mailing_address1']):'';
             $mailing_address2 = isset($data['mailing_address2'])?$this->re_db_input($data['mailing_address2']):'';
             $mailing_city = isset($data['mailing_city'])?$this->re_db_input($data['mailing_city']):'';
-            $mailing_state = isset($data['mailing_state'])?$this->re_db_input($data['mailing_state']):'';
+            $mailing_state = (isset($data['mailing_state']) && $data['mailing_state']!='') ?$this->re_db_input($data['mailing_state']):0;
             $mailing_zipcode = isset($data['mailing_zipcode'])?$this->re_db_input($data['mailing_zipcode']):'';
             $email = isset($data['email'])?$this->re_db_input($data['email']):'';
             $website = isset($data['website'])?$this->re_db_input($data['website']):'';
             $phone = isset($data['phone'])?$this->re_db_input($data['phone']):'';
             $facsimile = isset($data['facsimile'])?$this->re_db_input($data['facsimile']):'';
-            $date_established = isset($data['date_established'])?$this->re_db_input($data['date_established']):'';
-            $date_terminated = isset($data['date_terminated'])?$this->re_db_input($data['date_terminated']):'';
-            $finra_start_date = isset($data['finra_start_date'])?$this->re_db_input($data['finra_start_date']):'';
-            $finra_end_date = isset($data['finra_end_date'])?$this->re_db_input($data['finra_end_date']):'';
-            $last_audit_date = isset($data['last_audit_date'])?$this->re_db_input($data['last_audit_date']):'';
+            $date_established = (isset($data['date_established']) && $data['date_established']!='')?$this->re_db_input($data['date_established']):'0000-00-00';
+            $date_terminated = (isset($data['date_terminated']) && $data['date_terminated']!='')?$this->re_db_input($data['date_terminated']):'0000-00-00';
+            $finra_start_date = (isset($data['finra_start_date']) && $data['finra_start_date']!='')?$this->re_db_input($data['finra_start_date']):'0000-00-00';
+            $finra_end_date = (isset($data['finra_end_date']) && $data['finra_end_date']!='')?$this->re_db_input($data['finra_end_date']):'0000-00-00';
+            $last_audit_date = (isset($data['last_audit_date']) && $data['last_audit_date']!='')?$this->re_db_input($data['last_audit_date']):'0000-00-00';
 			
             
 			if($name==''){

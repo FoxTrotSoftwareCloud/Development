@@ -84,7 +84,7 @@
 			$do_not_contact = isset($data['do_not_contact'])?$this->re_db_input($data['do_not_contact']):0;
 			$active = isset($data['active'])?$this->re_db_input($data['active']):0;
 			$is_reviewed = isset($data['is_reviewed'])?1:0;
-			$reviewed_at = isset($data['is_reviewed'])?date("Y-m-d H:i:s",strtotime($this->re_db_input($data['is_reviewed']))):'';
+			$reviewed_at = (isset($data['is_reviewed']) && $data['is_reviewed']!=0) ?date("Y-m-d H:i:s",strtotime($this->re_db_input($data['is_reviewed']))): '0000-00-00';
 			$reviewed_by = isset($data['reviewed_by'])?$this->re_db_input($data['reviewed_by']):'';
 			$long_name = isset($data['long_name'])?$this->re_db_input($data['long_name']):'';
 			$client_file_number = isset($data['client_file_number'])?$this->re_db_input($data['client_file_number']):'';
@@ -94,13 +94,13 @@
 			$household = isset($data['household'])?$this->re_db_input($data['household']):'';
 			$broker_name = isset($data['broker_name'])?$this->re_db_input($data['broker_name']):'';
 			$split_broker = isset($data['split_broker'])?$this->re_db_input($data['split_broker']):'';
-			$split_rate = isset($data['split_rate'])?$this->re_db_input($data['split_rate']):0;
+			$split_rate = (isset($data['split_rate']) && $data['split_rate']!='')?$this->re_db_input($data['split_rate']):0;
 			$address1 = isset($data['address1'])?$this->re_db_input($data['address1']):'';
 			$address2 = isset($data['address2'])?$this->re_db_input($data['address2']):'';
 			$city = isset($data['city'])?$this->re_db_input($data['city']):'';
 			$state = isset($data['state'])?$this->re_db_input($data['state']):'';
 			$zip_code = isset($data['zip_code'])?$this->re_db_input($data['zip_code']):'';
-			$age = isset($data['age'])?$this->re_db_input($data['age']):0;
+			$age = (isset($data['age']) && $data['age']!='') ? $this->re_db_input($data['age']):0;
 			//new field 'gender' added 12-01-2023
 			$gender = isset($data['gender'])?$this->re_db_input($data['gender']):0;
 			$ofac_check = isset($data['ofac_check'])?$this->re_db_input($data['ofac_check']):'';
@@ -298,14 +298,14 @@
 			$employer = isset($data['employer'])?$this->re_db_input($data['employer']):'';
 			$address_employement = isset($data['address_employement'])?$this->re_db_input($data['address_employement']):'';
 			$position = isset($data['position'])?$this->re_db_input($data['position']):'';
-			$security_related_firm = isset($data['security_related_firm'])?$this->re_db_input($data['security_related_firm']):'';
-			$finra_affiliation = isset($data['finra_affiliation'])?$this->re_db_input($data['finra_affiliation']):'';
+			$security_related_firm = (isset($data['security_related_firm']) && $data['security_related_firm']!='')?$this->re_db_input($data['security_related_firm']):0;
+			$finra_affiliation = (isset($data['finra_affiliation']) && $data['finra_affiliation']!='') ?$this->re_db_input($data['finra_affiliation']):0;
 			$spouse_name = isset($data['spouse_name'])?$this->re_db_input($data['spouse_name']):'';
 			$spouse_ssn_mask = isset($data['spouse_ssn'])?$this->re_db_input($data['spouse_ssn']):'';
 			$spouse_ssn = str_replace("-", '', $spouse_ssn_mask);
 			$dependents = isset($data['dependents'])?$this->re_db_input($data['dependents']):'';
 			$salutation = isset($data['salutation'])?$this->re_db_input($data['salutation']):'';
-			$options = isset($data['options'])?$this->re_db_input($data['options']):'';
+			$options = (isset($data['options']) && $data['options']!='') ?$this->re_db_input($data['options']):0;
 			$other = isset($data['other'])?$this->re_db_input($data['other']):'';
 			$number = isset($data['number'])?$this->re_db_input($data['number']):'';
 			$expiration = (isset($data['expiration']) && $data['expiration']!='' )?$this->re_db_input(date('Y-m-d',strtotime($data['expiration']))):'0000-00-00';
@@ -457,20 +457,20 @@
 				$originalInstance = $this->select_client_suitability_by_id($id);
 			}
             $income = isset($data['income'])?$this->re_db_input($data['income']):'';
-            $goal_horizone = isset($data['goal_horizone'])?$this->re_db_input($data['goal_horizone']):'';
-            $net_worth = isset($data['net_worth'])?$this->re_db_input($data['net_worth']):'';
-            $risk_tolerance = isset($data['risk_tolerance'])?$this->re_db_input($data['risk_tolerance']):'';
-            $annual_expenses = isset($data['annual_expenses'])?$this->re_db_input($data['annual_expenses']):'';
-            $liquidity_needs = isset($data['liquidity_needs'])?$this->re_db_input($data['liquidity_needs']):'';
-            $liquid_net_worth = isset($data['liquid_net_worth'])?$this->re_db_input($data['liquid_net_worth']):'';
-            $special_expenses = isset($data['special_expenses'])?$this->re_db_input($data['special_expenses']):'';
-            $per_of_portfolio = isset($data['per_of_portfolio'])?$this->re_db_input($data['per_of_portfolio']):'';
-            $timeframe_for_special_exp = isset($data['timeframe_for_special_exp'])?$this->re_db_input($data['timeframe_for_special_exp']):'';
-            $account_use = isset($data['account_use'])?$this->re_db_input($data['account_use']):'';
+            $goal_horizone = (isset($data['goal_horizone']) && $data['goal_horizone']!='' )?$this->re_db_input($data['goal_horizone']):0;
+            $net_worth = (isset($data['net_worth']) && $data['net_worth']!='')?$this->re_db_input($data['net_worth']):0;
+            $risk_tolerance = (isset($data['risk_tolerance'])&& $data['risk_tolerance']!='')?$this->re_db_input($data['risk_tolerance']):0;
+            $annual_expenses = (isset($data['annual_expenses']) && $data['annual_expenses']!='')?$this->re_db_input($data['annual_expenses']):0;
+            $liquidity_needs = (isset($data['liquidity_needs']) && $data['liquidity_needs']) ?$this->re_db_input($data['liquidity_needs']):0;
+            $liquid_net_worth = (isset($data['liquid_net_worth']) && $data['liquid_net_worth']!='') ?$this->re_db_input($data['liquid_net_worth']):0;
+            $special_expenses = (isset($data['special_expenses']) && $data['special_expenses']!='')?$this->re_db_input($data['special_expenses']):0;
+            $per_of_portfolio = (isset($data['per_of_portfolio']) && $data['per_of_portfolio']!='') ?$this->re_db_input($data['per_of_portfolio']):0;
+            $timeframe_for_special_exp = (isset($data['timeframe_for_special_exp']) && $data['timeframe_for_special_exp']!='')?$this->re_db_input($data['timeframe_for_special_exp']):0;
+            $account_use = (isset($data['account_use']) && $data['account_use']!='')?$this->re_db_input($data['account_use']):0;
             $signed_by = isset($data['signed_by'])?$this->re_db_input($data['signed_by']):'';
             $sign_date = (isset($data['sign_date']) && $data['sign_date']!='' )?$this->re_db_input(date('Y-m-d',strtotime($data['sign_date']))):'0000-00-00';
             $tax_bracket = isset($data['tax_bracket'])?$this->re_db_input($data['tax_bracket']):'';
-            $tax_id = isset($data['tax_id'])?$this->re_db_input($data['tax_id']):'';
+            $tax_id = (isset($data['tax_id']) && $data['tax_id']!='') ?$this->re_db_input($data['tax_id']):0;
 			// 06/10/22 Add empty-originalInstance check, some existing clients aren't in Client Suitability database, not sure why
 			if($id==0 OR empty($originalInstance)){
 				$res = $suitabilityClientId = 0;

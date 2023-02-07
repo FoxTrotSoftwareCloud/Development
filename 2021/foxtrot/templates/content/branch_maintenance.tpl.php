@@ -377,8 +377,8 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                             </td>
 
                             <td><?php echo $val['name'];?></td>
-                            <td><?php echo $instance->get_company_name_by_id($val['company']); ?></td>
-                            <td><?php echo $instance->get_manager_name_by_id($val['broker']); ?></td>
+                            <td><?php echo ($val['company']>0)? $instance->get_company_name_by_id($val['company']):''; ?></td>
+                            <td><?php echo ($val['broker']>0)? $instance->get_manager_name_by_id($val['broker']):''; ?></td>
 
                             <!-- <td class="text-center">
                                 <?php

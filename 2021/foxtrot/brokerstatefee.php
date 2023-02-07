@@ -16,8 +16,8 @@ $get_states = $client_maintenance_instance->select_state();
             $state_id = $_POST['state_id'][$i];
             $res= $broker_instance->save_broker_state_fee($state_id,$state_fee);
         }
-      
-         header("location:/CloudFox/brokerstatefee.php?msg=success");exit;
+        //07-02-2023 - change below url for horan/foxtrotsoftware.com
+         header("location:/brokerstatefee.php?msg=success");exit;
     }
  
     $feeData=  $broker_instance->load_broker_state_fee();
