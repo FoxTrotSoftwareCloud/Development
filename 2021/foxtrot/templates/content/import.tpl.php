@@ -1395,7 +1395,7 @@
                                                             <tr>
                                                                 <th>Host Name</th>
                                                                 <th>Username</th>
-                                                                <th>Status</th>
+                                                                <th>Sponsor</th>
                                                                 <th class="text-center">ACTION</th>
                                                             </tr>
                                                         </thead>
@@ -1411,16 +1411,18 @@
                                                                         <!-- 06-02-2023 --- get username from data interfaces and not use ftp username -->
                                                                         <td><?php echo $instance->get_data_interface_username($val['ftp_file_type']); ?></td>
                                                                         <td class="text-center">
-                                                                            <?php if ($val['status'] == 1) { ?>
+                                                                            DST
+                                                                            <!-- <?php if ($val['status'] == 1) { ?>
                                                                                 <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success"><i class="fa fa-check-square-o"></i> Active</a>
                                                                             <?php } else { ?>
                                                                                 <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Inactive</a>
-                                                                            <?php } ?>
+                                                                            <?php } ?> -->
                                                                         </td>
                                                                         <td class="text-center">
-                                                                            <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a>
-                                                                            <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a>
+                                                                            <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a> 
+                                                                            <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a>-->
+                                                                            <a href="#" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Download</a>
                                                                             <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
                                                                         </td>
                                                                     </tr>
@@ -1460,10 +1462,10 @@
                                                                     <tr>
                                                                         <td><?php echo $dazl[0]['name']; ?></td>
                                                                         <td></td>
-                                                                        <td></td>
+                                                                        <td class="text-center">DAZL</td>
                                                                         <td>
                                                                             <input type="file" name="dazl_files[]" class="form-control" multiple />
-                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Upload</button>
+                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Download</button>
                                                                         </td>
                                                                     </tr>
                                                             <?php
@@ -1476,10 +1478,10 @@
                                                                     <tr>
                                                                         <td><?php echo $temp_data_found[0]['name'];?></td>
                                                                         <td></td>
-                                                                        <td></td>
+                                                                        <td class="text-center">NFS</td>
                                                                         <td>
                                                                             <input type="file" name="nfs_files[]" class="form-control" multiple/>
-                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Upload</button>
+                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Download</button>
                                                                         </td>
                                                                     </tr>
                                                                 <?php
