@@ -2739,7 +2739,7 @@
                                                 $row1 = $val['waive_home_state_fee'];
                                              }
                                           }  ?>
-                                          <h4 class="panel-title" style="font-size: 16px;"><input type="checkbox" <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && (isset($row1) && $row1 == 1)) { ?>checked="true" <?php } ?> value="1 " class="checkbox" name="pass_through" style="display: inline !important;" /> Waive Home State Fee</h4>
+                                          <h4 class="panel-title" style="font-size: 16px;"><input type="checkbox" <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && (isset($row1) && $row1 == 1)) { ?>checked="true" <?php } ?> value="1" class="checkbox" name="pass_through" style="display: inline !important;" /> Waive Home State Fee</h4>
                                        </div>
                                        <input type="hidden" name="type" value="2" />
                                        <!-- SECURITY -->

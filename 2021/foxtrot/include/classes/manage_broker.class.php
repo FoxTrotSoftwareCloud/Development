@@ -583,7 +583,7 @@
           {
             foreach($data as $key=>$val)
             {
-              $sliding_rates = isset($val['sliding_rates'])?$this->re_db_input($val['sliding_rates']):'';
+              $sliding_rates = isset($val['sliding_rates'])?$this->re_db_input($val['sliding_rates']):0;
               $from =isset($val['from'])?$this->re_db_input($val['from']):'';
               $to =isset($val['to'])?$this->re_db_input($val['to']):'';
               $per =isset($val['per'])?$this->re_db_input($val['per']):'';
@@ -616,7 +616,7 @@
             $newArray = array();
             foreach($data as $key=>$val)
             {
-              $sliding_rates =isset($val['sliding_rates'])?$this->re_db_input($val['sliding_rates']):'0';
+              $sliding_rates =isset($val['sliding_rates'])?$this->re_db_input($val['sliding_rates']):0;
               $from =isset($val['from'])?$this->re_db_input($val['from']):'';
               $to =isset($val['to'])?$this->re_db_input($val['to']):'';
               $per =isset($val['per'])?$this->re_db_input($val['per']):'';
