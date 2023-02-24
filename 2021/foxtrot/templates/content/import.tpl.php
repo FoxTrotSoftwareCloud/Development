@@ -1,126 +1,126 @@
 <script language="javascript">
-    function GetFileList() {
-        document.getElementsByName("HTTPDL_result").value = "";
-        console.log(HTTPDL, "HTTPDL")
-        //HTTPDL_result.value = "";
-        HTTPDL.Host = "filetransfer.financialtrans.com";
-        HTTPDL.UseProxy = false;
-        HTTPDL.LocalDirectory = "E:\foxtrot_idc_file";
-        HTTPDL.UseHttps = true;
-        // Note: Test System Information
-        HTTPDL.Target = "/tf/FANMail";
-        //HTTPDL.Client = "419041819";
-        HTTPDL.Client = "415171403";
-        //415171403
-        // Note: For testing UserID and Password will be supplied by DST
-        HTTPDL.UserID = UserID.value;
-        HTTPDL.ftpType = ftpType.value;
-        HTTPDL.Password = Password.value;
-        var list = HTTPDL.GetFileListAsXML();
-        //alert(list);
-        var dlist = "No file list returned";
-        //HTTPs Download Guide Product Guide
-        var xmldoc = MSXML3;
-        xmldoc.async = false;
-        xmldoc.preserveWhiteSpace = true;
-        xmldoc.loadXML(list);
+    // function GetFileList() {
+    //     document.getElementsByName("HTTPDL_result").value = "";
+    //     console.log(HTTPDL, "HTTPDL")
+    //     //HTTPDL_result.value = "";
+    //     HTTPDL.Host = "filetransfer.financialtrans.com";
+    //     HTTPDL.UseProxy = false;
+    //     HTTPDL.LocalDirectory = "E:\foxtrot_idc_file";
+    //     HTTPDL.UseHttps = true;
+    //     // Note: Test System Information
+    //     HTTPDL.Target = "/tf/FANMail";
+    //     //HTTPDL.Client = "419041819";
+    //     HTTPDL.Client = "415171403";
+    //     //415171403
+    //     // Note: For testing UserID and Password will be supplied by DST
+    //     HTTPDL.UserID = UserID.value;
+    //     HTTPDL.ftpType = ftpType.value;
+    //     HTTPDL.Password = Password.value;
+    //     var list = HTTPDL.GetFileListAsXML();
+    //     //alert(list);
+    //     var dlist = "No file list returned";
+    //     //HTTPs Download Guide Product Guide
+    //     var xmldoc = MSXML3;
+    //     xmldoc.async = false;
+    //     xmldoc.preserveWhiteSpace = true;
+    //     xmldoc.loadXML(list);
 
-        var docelement = xmldoc.documentElement;
+    //     var docelement = xmldoc.documentElement;
 
-        if (docelement.hasChildNodes()) {
-            dlist = "<form name=\"Selection\">";
-            var nodeList = docelement.childNodes;
-            var node = nodeList.nextNode();
-            while (node != null) {
-                var file = node.getAttribute("name");
-                var display = node.getAttribute("short-name");
-                if (HTTPDL.ftpType == 1) {
-                    var file_type_array = ["07", "08", "09", "C1"];
-                    var file_name_array = display.split('.');
-                    var get_file_first_string = file_name_array[0];
-                    var get_file_last_character = get_file_first_string.slice(-2);
-                    //alert(file_type_array);
-                    for (var i = 0; i < file_type_array.length; i++) {
-                        if (file_type_array[i] === get_file_last_character) {
+    //     if (docelement.hasChildNodes()) {
+    //         dlist = "<form name=\"Selection\">";
+    //         var nodeList = docelement.childNodes;
+    //         var node = nodeList.nextNode();
+    //         while (node != null) {
+    //             var file = node.getAttribute("name");
+    //             var display = node.getAttribute("short-name");
+    //             if (HTTPDL.ftpType == 1) {
+    //                 var file_type_array = ["07", "08", "09", "C1"];
+    //                 var file_name_array = display.split('.');
+    //                 var get_file_first_string = file_name_array[0];
+    //                 var get_file_last_character = get_file_first_string.slice(-2);
+    //                 //alert(file_type_array);
+    //                 for (var i = 0; i < file_type_array.length; i++) {
+    //                     if (file_type_array[i] === get_file_last_character) {
 
-                            dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
-                            dlist += file;
-                            dlist += "\">&nbsp;";
-                            dlist += display;
-                            dlist += "<br>";
-                        }
-                    }
-                } else {
-                    dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
-                    dlist += file;
-                    dlist += "\">&nbsp;";
-                    dlist += display;
-                    dlist += "<br>";
-                }
-                node = nodeList.nextNode();
-            }
-            //HTTPs Download Guide Product Guide
-            dlist += "<br>";
-            dlist += "<div class=\"panel-footer\">";
-            dlist += "<div class=\"selectwrap\">";
-            dlist += "<input type=\"button\" value=\"Download Files\" onclick=\"Download()\">";
-            dlist += "&nbsp;<input type=\"button\" value=\"Cancel\" onclick=\"CancelDownload()\">";
-            dlist += "</div>";
-            dlist += "<br>";
-            dlist += "</div>";
-            dlist += "</form>";
-        }
-        //--- 08/10/22 TEST DELETE ME---> console.log(dlist);
-        //document.getElementByID("FileList").innerHTML=dlist;
-        document.getElementById("FileList").innerHTML = dlist;
-        Download();
-        //FileList.innerHTML = dlist;
-    }
+    //                         dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
+    //                         dlist += file;
+    //                         dlist += "\">&nbsp;";
+    //                         dlist += display;
+    //                         dlist += "<br>";
+    //                     }
+    //                 }
+    //             } else {
+    //                 dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
+    //                 dlist += file;
+    //                 dlist += "\">&nbsp;";
+    //                 dlist += display;
+    //                 dlist += "<br>";
+    //             }
+    //             node = nodeList.nextNode();
+    //         }
+    //         //HTTPs Download Guide Product Guide
+    //         dlist += "<br>";
+    //         dlist += "<div class=\"panel-footer\">";
+    //         dlist += "<div class=\"selectwrap\">";
+    //         dlist += "<input type=\"button\" value=\"Download Files\" onclick=\"Download()\">";
+    //         dlist += "&nbsp;<input type=\"button\" value=\"Cancel\" onclick=\"CancelDownload()\">";
+    //         dlist += "</div>";
+    //         dlist += "<br>";
+    //         dlist += "</div>";
+    //         dlist += "</form>";
+    //     }
+    //     //--- 08/10/22 TEST DELETE ME---> console.log(dlist);
+    //     //document.getElementByID("FileList").innerHTML=dlist;
+    //     document.getElementById("FileList").innerHTML = dlist;
+    //     Download();
+    //     //FileList.innerHTML = dlist;
+    // }
 
-    function Download() {
-        HTTPDL.LocalDirectory = DestDir.value;
-        document.getElementById('subscribe_frm');
-        var selection = document.forms["Selection"].sfile;
+    // function Download() {
+    //     HTTPDL.LocalDirectory = DestDir.value;
+    //     document.getElementById('subscribe_frm');
+    //     var selection = document.forms["Selection"].sfile;
 
-        //var selection = document.forms[0].sfile;console.log(selection);
-        var flist = "";
-        for (index = 0; index < selection.length; ++index) { //alert(selection[index]);
-            /*if ( selection[index].checked )
-            {*/
-            flist += selection[index].value;
-            flist += ";";
-            /*}*/
-        }
-        PostResult("Begin Download");
-        //HTTPs Download Guide Product Guide
-        HTTPDL.DownloadFiles(flist);
-    }
+    //     //var selection = document.forms[0].sfile;console.log(selection);
+    //     var flist = "";
+    //     for (index = 0; index < selection.length; ++index) { //alert(selection[index]);
+    //         /*if ( selection[index].checked )
+    //         {*/
+    //         flist += selection[index].value;
+    //         flist += ";";
+    //         /*}*/
+    //     }
+    //     PostResult("Begin Download");
+    //     //HTTPs Download Guide Product Guide
+    //     HTTPDL.DownloadFiles(flist);
+    // }
 
-    function CancelDownload() {
-        HTTPDL.CancelRequest();
-    }
+    // function CancelDownload() {
+    //     HTTPDL.CancelRequest();
+    // }
 
-    function TerminateDownload() {
-        HTTPDL.Terminate();
-    }
+    // function TerminateDownload() {
+    //     HTTPDL.Terminate();
+    // }
 
-    function PostResult(msg) {
-        content = HTTPDL_result.value;
-        content += msg;
-        content += "\r\n";
-        HTTPDL_result.value = content;
-    }
+    // function PostResult(msg) {
+    //     content = HTTPDL_result.value;
+    //     content += msg;
+    //     content += "\r\n";
+    //     HTTPDL_result.value = content;
+    // }
 </script>
-<script for="HTTPDL" event="DownloadError( code, msg )" language="javascript">
+<!-- <script for="HTTPDL" event="DownloadError( code, msg )" language="javascript">
     PostResult(msg);
-</script>
-<script for="HTTPDL" event="DownloadComplete()" language="javascript">
+</script> -->
+<!-- <script for="HTTPDL" event="DownloadComplete()" language="javascript">
     //HTTPs Download Guide Product Guide
     PostResult("DownloadComplete");
-</script>
-<script for="HTTPDL" event="DownloadProgress( msg )" language="javascript">
+</script> -->
+<!-- <script for="HTTPDL" event="DownloadProgress( msg )" language="javascript">
     PostResult(msg);
-</script>
+</script> -->
 <!--<div class="container">
 <h1>Import</h1>
 
@@ -395,9 +395,9 @@
                                                                                     echo $str = (strlen($filename) > 22) ? substr($filename, 0, 20) . '...' : $filename;
                                                                                     ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if($val['source']== 'DAZL Daily'){ echo 'DAZL ';} echo $val['file_type']; ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00') {
-                                                                                                                                                                                                    echo date('m/d/Y', strtotime($val['last_processed_date']));
-                                                                                                                                                                                                } ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
+                                                                                                                                                                                                                                    echo date('m/d/Y', strtotime($val['last_processed_date']));
+                                                                                                                                                                                                                                } ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A'; ?></td>
                                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y', strtotime($val['imported_date'])); ?></td>-->
@@ -1404,12 +1404,12 @@
                                                             <?php
                                                             if (isset($_GET['tab']) && $_GET['tab'] == 'open_ftp') {
                                                                 $count = 0;
-                                                                foreach ($return_ftplist as $key => $val) {
+                                                                // 01/11/23 Use "DATA_INTERFACE" table i/o "FTP_MASTER"
+                                                                foreach ($return_dimlist as $key => $val) {
                                                             ?>
                                                                     <tr>
-                                                                        <td><?php echo $val['host_name']; ?></td>
-                                                                        <!-- 06-02-2023 --- get username from data interfaces and not use ftp username -->
-                                                                        <td><?php echo $instance->get_data_interface_username($val['ftp_file_type']); ?></td>
+                                                                        <td><?php echo $val['name']; ?></td>
+                                                                        <td><?php echo $val['user_name']; ?></td>
                                                                         <td class="text-center">
                                                                             DST
                                                                             <!-- <?php if ($val['status'] == 1) { ?>
@@ -1419,10 +1419,15 @@
                                                                             <?php } ?> -->
                                                                         </td>
                                                                         <td class="text-center">
-                                                                            <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a> 
-                                                                            <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a>-->
-                                                                            <a href="#" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Download</a>
+                                                                            <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a> -->
+                                                                            <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a> -->
+                                                                            <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a> -->
+
+
+                                                                            <!-- updated on 23-02-2023 not used get_ftp tab and directly download & import files from server by clicking below button -->
+
+                                                                            <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>),importFiles(<?= $val['dim_id'] ?>)" ><i class="fa fa-download"></i> Download</button>
+
                                                                             <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
                                                                         </td>
                                                                     </tr>
@@ -1451,7 +1456,7 @@
                                                                         <td>
                                                                             <input type="file" name="upload_generic_csv_file" class="form-control" />
                                                                             <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=uploadGeneric" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Upload</a> -->
-                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-download"></i> Upload</button>
+                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-upload"></i> Upload</button>
                                                                         </td>
                                                                     </tr>
                                                                 <?php }
@@ -1492,6 +1497,13 @@
                                                     </table>
                                                 </div>
                                             </div>
+                                            <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <textarea name="HTTPDL_result" id="HTTPDL_result" rows="10" cols="50" wrap="soft" class="form-control" readonly></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
                                         </form>
                                     </div>
                                     <!--<form method="post" enctype="multipart/form-data">
@@ -1521,7 +1533,7 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <h3 class="panel-title"><i class="fa fa-file"></i> Download Files (Only used with Internet Explorer)</h3>
+                                        <h3 class="panel-title"><i class="fa fa-file"></i> Fetch Files</h3>
                                     </div>
 
                                     <div class="panel-body" onunload="TerminateDownload()" id="fetch_file_div" style="display: none;">
@@ -1535,32 +1547,35 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>User ID <span class="text-red">*</span></label><br />
-                                                        <input type="text" class="form-control" name="UserID" id="UserID" value="<?php echo $return_ftp_host['user_name']; ?>" disabled="true" />
+                                                        <input type="text" class="form-control" name="UserID" id="UserID" value="<?php echo $return_dim_host['user_name']; ?>" disabled="true" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Destination Directory (local): </label><br />
-                                                        <input type="text" value="<?php echo $return_ftp_host['folder_location']; ?>" id="DestDir" disabled="true" class="form-control" /></p>
-                                                        <input type="hidden" class="form-control" name="Password" id="Password" disabled="true" value="<?php echo $instance->decryptor($return_ftp_host['password']); ?>" />
-                                                        <input type="hidden" class="form-control" name="ftpType" id="ftpType" disabled="true" value="<?php echo $return_ftp_host['ftp_file_type']; ?>" />
+                                                        <input type="text" value="<?php echo $return_dim_host['local_folder']; ?>" id="DestDir" disabled="true" class="form-control" /></p>
+                                                        <input type="hidden" class="form-control" name="Password" id="Password" disabled="true" value="<?php echo $instance->decryptor($return_dim_host['password']); ?>" />
+                                                        <input type="hidden" class="form-control" name="Dim_id" id="Dim_id" disabled="true" value="<?php echo $return_dim_host['dim_id']; ?>" />
                                                     </div>
                                                 </div>
                                             </div>
                                             <!--HTTPs Download Guide Product Guide-->
                                             <div class="panel-footer">
                                                 <div class="selectwrap">
-                                                    <input type="button" value="Download Files" onclick="GetFileList()" />
-                                                    <input type="button" value="Cancel Download" onclick="CancelDownload()" />
+                                                    <input type="button" value="Download Files" onclick="fetchDST(<?php echo $return_dim_host['dim_id']; ?>),importFiles(<?php echo $return_dim_host['dim_id']; ?>)" />
+                                                    <!-- <input type="button" value="Import Files" onclick="" /> -->
+                                                    <!-- <input type="button" value="Cancel Download" onclick="CancelDownload()" /> -->
                                                     <!--<a href="<?php echo CURRENT_PAGE . '?tab=open_ftp&action=view_ftp'; ?>"><input type="button" name="cancel" value="Cancel" /></a>-->
-                                                    <a href="#upload_zip_import" data-toggle="modal"><input type="button" name="import_files" value="Import Files" /></a>
+                                                    <!-- 01/16/23 Just import all the files in the "local_folder" specified in the data_interface table
+                                                        <a href="#upload_zip_import" data-toggle="modal"><input type="button" name="import_files" value="Import Files" /></a> 
+                                                    -->
                                                 </div><br />
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <textarea name="HTTPDL_result" rows="10" cols="50" wrap="soft" class="form-control"></textarea>
+                                                    <!-- <textarea name="HTTPDL_result" id="HTTPDL_result" rows="10" cols="50" wrap="soft" class="form-control"></textarea> -->
                                                 </div>
                                             </div>
                                         </div>
@@ -1580,8 +1595,9 @@
 
                                 </div>
                             </div>
-                            <!-- Modal for add files -->
-                            <div id="upload_zip_import" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                            <!--*** Modal for add files ***-->
+                            <!--***01/16/23*** Changed to IMPORT ALL files instead of prompting the user for one or group of files manually --> 
+                            <!-- <div id="upload_zip_import" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header" style="margin-bottom: 0px !important;">
@@ -1595,7 +1611,6 @@
                                             </div>
                                             <form id="form_import_files" name="form_import_files" style="padding: 10px;" method="post" onsubmit="return formsubmitfiles();" enctype="multipart/form-data">
                                                 <div class="inputpopup">
-                                                    <!--<input type="file" class="form-control" name="file_attach" id="file_attach"/>-->
                                                     <input type="file" id="files" name="files[]" multiple="multiple" accept="zip/*" class="form-control" />
                                                 </div>
                                                 <div class="inputpopup">
@@ -1603,10 +1618,10 @@
                                                     <button type="submit" class="btn btn-sm btn-warning" id="fetch_files" name="fetch_files" value="Fetch Files"><i class="fa fa-save"></i> Save</button>
                                                 </div>
                                             </form>
-                                        </div><!-- End of Modal body -->
-                                    </div><!-- End of Modal content -->
-                                </div><!-- End of Modal dialog -->
-                            </div><!-- End of Modal -->
+                                        </div> <!-- End of Modal body -- >
+                                    </div> <!-- End of Modal content -- >
+                                </div> <!-- End of Modal dialog -- >
+                            <!-- </div>End of Modal -->
                         </div>
                     </div>
                 </div>
@@ -2871,4 +2886,44 @@
             }
         }
     }
+    
+    function fetchDST(dimID) {
+        var xmlhttp = new XMLHttpRequest();
+        //let dimID = document.getElementById("Dim_id").value;
+        
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = this.responseText;
+                
+                if (data != '') {
+                    $("#HTTPDL_result").removeAttr("readonly");
+                    document.getElementById("HTTPDL_result").value = '';
+                    document.getElementById("HTTPDL_result").value = data;
+                }
+            }
+        };
+        xmlhttp.open("GET", "import.php?action=fetchDST&dim_id=" + dimID, true);
+        xmlhttp.send();
+    }
+    function importFiles(dimID) {
+        var xmlhttp = new XMLHttpRequest();
+        //let dimID = document.getElementById("Dim_id").value;
+        
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = this.responseText;
+                
+                if (data != '') {
+                    document.getElementById("HTTPDL_result").value += data;
+                    $("#HTTPDL_result").attr("readonly",true);
+                    if(data.includes("done") ){
+                        window.location.href = '<?php echo CURRENT_PAGE ?>';
+                    }
+                }
+            }
+        };
+        xmlhttp.open("GET", "import.php?action=importFiles&dim_id=" + dimID, true);
+        xmlhttp.send();
+    }
+
 </script>
