@@ -670,8 +670,8 @@
                                                     .",type_of_licences=".$licenceDetail['type_of_licences']
                                                     .",state_id=".$licenceDetail['state_id']
                                                     .",active_check=".$licenceDetail['active_check']
-                                                    .",received = '".$licenceDetail['received']."'"
-                                                    .",terminated = '".$licenceDetail['terminated']."'"
+                                                    .",`received` = '".$licenceDetail['received']."'"
+                                                    .",`terminated` = '".$licenceDetail['terminated']."'"
                                                     .$this->insert_common_sql()
                                         ;
                                         $result = $this->re_db_query($q);
@@ -2715,7 +2715,8 @@
                         ********************/
                         if ($result == 0) {
                             $res = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
-                            $long_name = $client_address1 = $client_address2 = $city = $state = $zip_code = $open_date = $email = $last_contacted = $telephone = $telephone_employment = '';
+                            $long_name = $client_address1 = $client_address2 = $city = $state = $zip_code = $email = $telephone = $telephone_employment = '';
+                            $open_date = $last_contacted = '0000-00-00';
                             
                             if ($fileSource == 'daz'){
                                 $city = $this->re_db_input($check_data_val['city']);
@@ -2804,7 +2805,7 @@
                                 }
 
                                 $q = "UPDATE ".IMPORT_EXCEPTION.""
-                                    ." SET"
+                                    ." SET "
                                         ."error_code_id=".($dataSettings['update_client'] ? 'error_code_id' : 23)
                                         .",solved='".$dataSettings['update_client']."'"
                                         .",process_completed='".$dataSettings['update_client']."'"
@@ -2880,6 +2881,7 @@
                                     ." SET "
                                         ."error_code_id=".($dataSettings['add_client'] ? 'error_code_id' : 23)
                                         .",solved='".$dataSettings['add_client']."'"
+                                        .",field=''"
                                         .",process_completed='".$dataSettings['add_client']."'"
                                         .$exceptionFields
                                 ;

@@ -158,6 +158,8 @@
                                 $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
                                 $total_commission_amount = 0.00;
 
+                                $total_unique_trade_unprocessed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
+                                $total_unique_trade_processed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
 
                                 if (empty($get_file_type)) {
                                     $fileTypeDescription = $get_file_data['file_type'];
@@ -172,10 +174,6 @@
                                     $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
                                  
                                     $total_commission_amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
-                                    
-                                    $total_unique_trade_unprocessed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
-                                    $total_unique_trade_processed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-                                   
 
                                 } else if ($get_file_type == '3') {
                                     $fileTypeDescription = "Securities";
@@ -598,18 +596,14 @@
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files") {
                                                                                     echo "active";
-                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review 
-                                                                                <?php 
-                                                                                    if($_GET['file_type']== 2 || $_GET['file_type']== 9){
-                                                                                        echo "(".$total_unique_trade_unprocessed.")" ;}
+                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review  <?php 
+                                                                                        echo "(".$total_unique_trade_unprocessed.")" ;
                                                                                     ?></a></li>
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "processed_files") {
                                                                                     echo "active";
-                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed
-                                                                                <?php 
-                                                                                    if($_GET['file_type']== 2 || $_GET['file_type']== 9){
+                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed <?php 
                                                                                     echo "(".$total_unique_trade_processed.")"; }?></a></li>
-                                    </ul> <?php } ?> <br />
+                                    </ul>  <br />
 
                                 <!-- Tab 1 is started -->
                                 <div class="tab-content">
@@ -1418,16 +1412,19 @@
                                                                                 <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Inactive</a>
                                                                             <?php } ?> -->
                                                                         </td>
-                                                                        <td class="text-center">
+                                                                        <td>
                                                                             <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a> -->
                                                                             <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a> -->
                                                                             <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a> -->
 
 
                                                                             <!-- updated on 23-02-2023 not used get_ftp tab and directly download & import files from server by clicking below button -->
-
-                                                                            <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>),importFiles(<?= $val['dim_id'] ?>)" ><i class="fa fa-download"></i> Download</button>
-
+                                                                            <div class="row">
+                                                                                <div class="col-md-6"></div>
+                                                                                <div class="col-md-6">
+                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>),importFiles(<?= $val['dim_id'] ?>)" ><i class="fa fa-download"></i> Download</button>
+                                                                                </div>
+                                                                            </div>
                                                                             <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
                                                                         </td>
                                                                     </tr>
@@ -1454,9 +1451,15 @@
                                                                         </td>
                                                                         <!-- <td class="text-center"> -->
                                                                         <td>
-                                                                            <input type="file" name="upload_generic_csv_file" class="form-control" />
-                                                                            <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=uploadGeneric" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Upload</a> -->
-                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-upload"></i> Upload</button>
+                                                                            <div class="row">
+                                                                                <div class="col-md-6">
+                                                                                    <input type="file"  name="upload_generic_csv_file" class="form-control" />
+                                                                                    <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=uploadGeneric" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Upload</a> -->
+                                                                                </div>
+                                                                                <div class="col-md-6">
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-upload"></i> Upload</button>
+                                                                                </div>
+                                                                            </div>
                                                                         </td>
                                                                     </tr>
                                                                 <?php }
@@ -1469,8 +1472,13 @@
                                                                         <td></td>
                                                                         <td class="text-center">DAZL</td>
                                                                         <td>
-                                                                            <input type="file" name="dazl_files[]" class="form-control" multiple />
-                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Download</button>
+                                                                            <div class="row">
+                                                                                <div class="col-md-6">
+                                                                                    <input type="file" name="dazl_files[]" class="form-control" multiple />
+                                                                                </div>
+                                                                                <div class="col-md-6">
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Download</button>
+                                                                                </div>
                                                                         </td>
                                                                     </tr>
                                                             <?php
@@ -1485,8 +1493,13 @@
                                                                         <td></td>
                                                                         <td class="text-center">NFS</td>
                                                                         <td>
-                                                                            <input type="file" name="nfs_files[]" class="form-control" multiple/>
-                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Download</button>
+                                                                            <div class="row">
+                                                                                <div class="col-md-6">
+                                                                                    <input type="file" name="nfs_files[]" class="form-control" multiple/>
+                                                                                </div>
+                                                                                <div class="col-md-6">
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Download</button>
+                                                                                </div>
                                                                         </td>
                                                                     </tr>
                                                                 <?php
