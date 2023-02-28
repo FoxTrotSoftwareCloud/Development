@@ -1177,7 +1177,9 @@
                   $to= date('Y-m-d', strtotime($postedData["to"][$key]));
                   $reason= $postedData["reason"][$key];
                    
-                  $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$category."' ,`state_id`='".$state."', `active_check`='".$active_check."', `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'"; 
+                  // removed `product_category`='".$category."' , from query because it is not passed in POST
+
+                  $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `state_id`='".$state."', `active_check`='".$active_check."', `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->update_common_sql()." WHERE `id`='".$row."' and `broker_id`='".$id."'"; 
                   $res = $this->re_db_query($q);
                   $rowCounter = 1;
                 }

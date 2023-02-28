@@ -406,7 +406,7 @@ function setnumber_format(inputtext)
             { "bSearchable": false, "aTargets": [ 6,7 ] },
             { "type": 'date', "targets": [1] },
         ],
-        "order": [[1, 'desc']]
+        "order": [[0, 'desc']]
         };
         if(action =='view_batches') {
             params.order = [[ 0, "desc" ]];

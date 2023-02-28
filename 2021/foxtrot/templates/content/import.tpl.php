@@ -435,6 +435,9 @@
                                                                                        
                                                                                     } else {
 
+                                                                                        if($total_processed_import == $total_import &&  $total_import != 0){ 
+                                                                                            echo '<i class="fa fa-check text-success"></i>';
+                                                                                        }
                                                                                         echo $total_import;
                                                                                         echo "<br>";
                                                                                         echo $total_processed_import;

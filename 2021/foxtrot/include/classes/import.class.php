@@ -622,7 +622,8 @@
                                 }
 
                                 $clientDetail = $instance_client->get_client_name($idcDetailRow['client_id']);
-                                $licenceDetail = $this->checkStateLicence($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1);
+                                $licenceDetail = $this->checkStateLicence($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1, 1);
+                                //echo "<pre>"; print_r($licenceDetail);die;
 
                                 if (!empty($licenceDetail['licence_table']) AND !empty($licenceDetail['state_id'])){
                                     // ADD/UPDATE the existing licence record
@@ -656,9 +657,10 @@
                                                     ." broker_id=".$licenceDetail['broker_id']
                                                     .",type_of_licences=".$licenceDetail['type_of_licences']
                                                     .",state_id=".$licenceDetail['state_id']
+                                                    .",product_category=".$licenceDetail['product_category_id']
                                                     .",active_check=".$licenceDetail['active_check']
-                                                    .",received = '".$licenceDetail['received']."'"
-                                                    .",terminated= '".$licenceDetail['terminated']."'"
+                                                    .",`received` = '".$licenceDetail['received']."'"
+                                                    .",`terminated`= '".$licenceDetail['terminated']."'"
                                                     .$this->update_common_sql()
                                                 ." WHERE id=".$licenceDetail['id']
                                         ;
@@ -669,6 +671,7 @@
                                                     ." broker_id=".$licenceDetail['broker_id']
                                                     .",type_of_licences=".$licenceDetail['type_of_licences']
                                                     .",state_id=".$licenceDetail['state_id']
+                                                    .",product_category=".$licenceDetail['product_category_id']
                                                     .",active_check=".$licenceDetail['active_check']
                                                     .",`received` = '".$licenceDetail['received']."'"
                                                     .",`terminated` = '".$licenceDetail['terminated']."'"
@@ -678,6 +681,7 @@
                                     }
 
                                     if ($result){
+                                        $success =0;
                                         // Update "resolve_exceptions" field to flag detail as "special handling" record
                                         $res = $this->read_update_serial_field($commDetailTable, "WHERE file_id=$exception_file_id AND id=".$exception_data_id, 'resolve_exceptions', $exception_record_id);
 
@@ -687,7 +691,7 @@
                                                         .$this->update_common_sql()
                                                 ." WHERE id=".$exception_record_id
                                         ;
-                                        $res = $this->re_db_query($q);
+                                        $success = $this->re_db_query($q);
 
                                         $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $exception_data_id);
 
@@ -711,6 +715,7 @@
                                                 $result = $this->reprocess_current_files($exception_file_id, $exception_file_type, $excRow['temp_data_id']);
                                             }
                                         }
+                                        $result = $success;
                                     }
 
                                 } else {
@@ -4312,7 +4317,7 @@
         /** Check the state licensing for the specified Broker and Product Category 12/17/21
          * @return bool TRUE - good licensing, FALSE - broker licence not found or not active
          */
-        function checkStateLicence($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date='',$pDetail=0){
+        function checkStateLicence($pBroker_id=0, $pClient_state=0, $pProduct_category_id=0, $pTrade_date='',$pDetail=0,$resolve=0){
             $return = ['licence_id'=>0, 'broker_id'=>$pBroker_id, 'first_name'=>'', 'last_name'=>'', 'active_check'=>0, 'state_id'=>(int)$pClient_state, 'state_name'=>'',
                        'received'=>'', 'terminated'=>'', 'licence_table'=>'', 'product_category_id'=>$pProduct_category_id, 'product_category'=>'', 'trade_date'=>'', 'result'=>0];
             $instance_batches = new batches();
@@ -4338,7 +4343,10 @@
                 $licenceTable = 'BROKER_LICENCES_INSURANCE';
             } else {
                 $licenceTable = 'BROKER_LICENCES_SECURITIES';
-                $prodCatQuery = " AND bls.product_category=$pProduct_category_id";
+                if($resolve == 0 )
+                {
+                    $prodCatQuery = " AND bls.product_category=$pProduct_category_id";
+                }
             }
 
             $return['product_category'] = $product_category;
