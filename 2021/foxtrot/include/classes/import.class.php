@@ -4988,31 +4988,6 @@
             }
 			return $return;
 		}
-        public function select_total_exception_commission( $customWhere='', $source=''){
-			$source = $this->re_db_input($source);
-            $return = array();
-            $con = '';
-
-                $q2 = "SELECT count(*) as total_records "
-                        ." FROM ".IMPORT_EXCEPTION." at"
-                        ." WHERE $customWhere"
-                        ." ORDER BY id ASC"
-                ;
-                $res2 = $this->re_db_query($q2);
-                $row2 = $this->re_db_fetch_array($res2);
-                $return['total_records']=$row2;
-             
-               $q3 = "SELECT SUM(at.commission) as total_commission"
-               ." FROM ".IMPORT_EXCEPTION." at"
-               ." WHERE $customWhere"
-               ." ORDER BY id ASC"
-                ;
-                $res3 = $this->re_db_query($q3);
-                $row3 = $this->re_db_fetch_array($res3);
-                $return['total_commission']=$row3;
-			
-			return $return;
-		}
 
         public function select_total_commission($customWhere=''){
             $return = array();
@@ -5245,38 +5220,7 @@
             }
 			return $return;
 		}
-        public function select_solved_exception_total($file_id, $file_type=0){
-			$return = array();
-            $con = ($file_type) ? " AND at.file_type=".$file_type : '';
-
-			$q = "SELECT count(*) as total_records"
-					." FROM ".IMPORT_EXCEPTION." AS at"
-                    ." LEFT JOIN ".IMPORT_CURRENT_FILES." AS cf on at.file_id = cf.id"
-                    ." WHERE at.is_delete=0"
-                      ." AND at.solved='1'"
-                      ." AND at.file_id='".$file_id."'"
-                      .$con
-            ;
-			$res = $this->re_db_query($q);
-            $row = $this->re_db_fetch_array($res);
-            array_push($return,$row);
-
-
-            $q2 = "SELECT SUM(at.commission) as total_commission"
-					." FROM ".IMPORT_EXCEPTION." AS at"
-                    ." LEFT JOIN ".IMPORT_CURRENT_FILES." AS cf on at.file_id = cf.id"
-                    ." WHERE at.is_delete=0"
-                      ." AND at.solved='1'"
-                      ." AND at.file_id='".$file_id."'"
-                      .$con
-            ;
-			$res2 = $this->re_db_query($q2);
-            $row2 = $this->re_db_fetch_array($res2);
-            
-    		array_push($return,$row2);
-    			
-			return $return;
-		}
+        
         public function get_total_commission_amount($file_id){
 			$return = array();
 
@@ -6186,5 +6130,21 @@
             //echo "<pre>"; print_r($return);die;
 			return $return;
         }
+
+        public function get_deleted_files_list(){
+			$return = array();
+
+			$q = "SELECT id"
+					." FROM ".IMPORT_CURRENT_FILES
+                    ." WHERE is_delete=1";
+			$res = $this->re_db_query($q);
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row['id']);
+    			}
+            }
+			return $return;
+		}
         
     }

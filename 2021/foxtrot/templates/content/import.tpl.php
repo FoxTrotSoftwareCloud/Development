@@ -667,8 +667,8 @@
                                                                 $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
                                                                 $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
                                                                 $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
-                                                                $total_exception_commission = $instance->select_total_exception_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
-                                                                //echo "<pre>"; print_r($total_exception_commission);die;
+
+                                                                $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
                                                 
                                                                     $prev_temp_data_id = 0;
                                                                     $bg_color = '#fff';
@@ -880,10 +880,9 @@
                                                         if($return_exception!=array()){ ?>
                                                             <table class="table">
                                                                 <tr style="text-align: right;">
-                                                                    <!-- <td style="width: 40%;"><b>Total : <?php echo $total_exception_commission['total_records']['total_records'] ?> </b></td> -->
 
                                                                     <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9'])){ ?>
-                                                                            <td style="width: 60%;"><b> Total Commission : <?php echo '$'.number_format($total_exception_commission['total_commission']['total_commission'],2) ?> </b></td>
+                                                                            <td style="width: 60%;"><b> Total Commission : <?php echo '$'.number_format($total_unprocessed_commission_for_import,2) ?> </b></td>
                                                                     <?php } ?>
                                                                     <td></td>
                                                                     <td></td>
@@ -955,9 +954,8 @@
                                                                     $get_file_type = $instance->get_file_type($_GET['id']);
                                                                 }
                                                                 $return_solved_exception = $instance->select_solved_exception_data($file_id, $get_file_type);
-
-                                                              $total_records_commissions = $instance->select_solved_exception_total($file_id, $get_file_type);
-                                                              //echo "<pre>"; print_r($total_records_commissions);die; 
+                                                            
+                                                                $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=1");
 
 
                                                                 foreach ($return_solved_exception as $process_key => $process_val) {
@@ -1030,11 +1028,9 @@
                                                         if($return_solved_exception!=array()){ ?>
                                                             <table class="table">
                                                             <tr style="text-align: right;">
-                                                                               
-                                                                <!-- <td style="width: 70%;"><b> Total : <?php echo $total_records_commissions[0]['total_records']; ?> </b></td> -->
    
                                                                 <?php if(isset($get_file_type) && in_array($get_file_type, ['2', '9'])){ ?>
-                                                                <td><b> Total Commission : <?php echo '$'.number_format($total_records_commissions[1]['total_commission'],2) ;  ?> </b></td>
+                                                                <td><b> Total Commission : <?php echo '$'.number_format($total_processed_commission_for_import,2) ;  ?> </b></td>
                                                                 <?php } ?>
                                                             </tr>
                                                             </table>
