@@ -2485,7 +2485,7 @@
 
                                                                            <div id="demo-dp-range">
                                                                               <div class="input-daterange input-group" id="datepicker">
-                                                                                 <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]" id="data_sec[received][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['received']) && $secval['received']!='1970-01-01') { echo date('m/d/Y', strtotime(trim($secval['received']))); } ?>" class="form-control" />
+                                                                                 <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]" id="data_sec[received][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['received']) && $secval['received']!='1000-01-01') { echo date('m/d/Y', strtotime(trim($secval['received']))); } ?>" class="form-control" />
                                                                                  <label class="input-group-addon btn" for="data_sec[received][<?php echo $row_counter; ?>]">
                                                                                     <span class="fa fa-calendar"></span>
                                                                                  </label>
@@ -2495,7 +2495,7 @@
                                                                         <td>
                                                                            <div id="demo-dp-range">
                                                                               <div class="input-daterange input-group" id="datepicker">
-                                                                                 <input type="text" name="data_sec[to][<?php echo $row_counter; ?>]" id="data_sec[to][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['terminated']) && $secval['terminated']!='1970-01-01') { echo date('m/d/Y', strtotime(trim($secval['terminated']))); } ?>" class="form-control" />
+                                                                                 <input type="text" name="data_sec[to][<?php echo $row_counter; ?>]" id="data_sec[to][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['terminated']) && $secval['terminated']!='1000-01-01') { echo date('m/d/Y', strtotime(trim($secval['terminated']))); } ?>" class="form-control" />
                                                                                  <label class="input-group-addon btn" for="data_sec[to][<?php echo $row_counter; ?>]">
                                                                                     <span class="fa fa-calendar"></span>
                                                                                  </label>
@@ -2778,7 +2778,7 @@
                                                                <td>
                                                                   <div id="demo-dp-range">
                                                                         <div class="input-daterange input-group" id="datepicker">
-                                                                           <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received']!='1970-01-01') { echo date('m/d/Y', strtotime($val['received'])); } ?>" class="form-control" />
+                                                                           <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received']!='1000-01-01') { echo date('m/d/Y', strtotime($val['received'])); } ?>" class="form-control" />
                                                                            <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][received]">
                                                                               <span class="fa fa-calendar"></span>
                                                                            </label>
@@ -2788,7 +2788,7 @@
                                                                <td>
                                                                   <div id="demo-dp-range">
                                                                      <div class="input-daterange input-group" id="datepicker">
-                                                                        <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated']!='1970-01-01') { echo date('m/d/Y', strtotime($val['terminated'])); } ?>" class="form-control" />
+                                                                        <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated']!='1000-01-01') { echo date('m/d/Y', strtotime($val['terminated'])); } ?>" class="form-control" />
                                                                         <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][terminated]">
                                                                               <span class="fa fa-calendar"></span>
                                                                            </label>
@@ -2923,7 +2923,7 @@
                                                                   <div class="form-group" style="margin-bottom: 0px !important;">
                                                                      <div id="demo-dp-range">
                                                                         <div class="input-daterange input-group" id="datepicker">
-                                                                           <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received']!='1970-01-01') { echo date('m/d/Y', strtotime($val['received'])); } ?>" class="form-control" />
+                                                                           <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received']!='1000-01-01') { echo date('m/d/Y', strtotime($val['received'])); } ?>" class="form-control" />
                                                                            <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][received]">
                                                                               <span class="fa fa-calendar"></span>
                                                                            </label>
@@ -2935,7 +2935,7 @@
                                                                   <div class="form-group" style="margin-bottom: 0px !important;">
                                                                      <div id="demo-dp-range">
                                                                         <div class="input-daterange input-group" id="datepicker">
-                                                                           <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated']!='1970-01-01') { echo date('m/d/Y', strtotime($val['terminated'])); } ?>" class="form-control" />
+                                                                           <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated']!='1000-01-01') { echo date('m/d/Y', strtotime($val['terminated'])); } ?>" class="form-control" />
                                                                            <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][terminated]">
                                                                               <span class="fa fa-calendar"></span>
                                                                            </label>

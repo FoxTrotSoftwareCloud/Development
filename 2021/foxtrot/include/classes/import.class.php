@@ -630,11 +630,11 @@
                                     $licenceDetail['id'] = $licenceDetail['licence_id'];
                                     $licenceDetail['active_check'] = 1;
                                     // Date checks - Received & Terminated
-                                    if ($idcDetailRow['trade_date']<$licenceDetail['received']){
+                                    if ($this->isEmptyDate($licenceDetail['received']) OR $idcDetailRow['trade_date']<$licenceDetail['received']){
                                         $licenceDetail['received'] = $idcDetailRow['trade_date'];
                                     }
 
-                                    if ($idcDetailRow['trade_date']>$licenceDetail['terminated']){
+                                    if (!$this->isEmptyDate($licenceDetail['terminated']) AND $idcDetailRow['trade_date']>$licenceDetail['terminated']){
                                         $licenceDetail['terminated'] = $idcDetailRow['trade_date'];
                                     }
 
@@ -673,8 +673,8 @@
                                                     .",state_id=".$licenceDetail['state_id']
                                                     .",product_category=".$licenceDetail['product_category_id']
                                                     .",active_check=".$licenceDetail['active_check']
-                                                    .",`received` = '".$licenceDetail['received']."'"
-                                                    .",`terminated` = '".$licenceDetail['terminated']."'"
+                                                    .",`received` = '".$idcDetailRow['trade_date']."'"
+                                                    .",`terminated` = '1000-01-01'"
                                                     .$this->insert_common_sql()
                                         ;
                                         $result = $this->re_db_query($q);

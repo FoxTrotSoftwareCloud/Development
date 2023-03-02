@@ -1143,8 +1143,8 @@
                      $category = 0;
                      $active_check =(isset($postedData["active"][$key]))? $postedData["active"][$key] : 0;
                      $state= $postedData["state"][$key];
-                     $from= date('Y-m-d', strtotime($postedData["from"][$key]));
-                     $to= date('Y-m-d', strtotime($postedData["to"][$key]));
+                     $from= (isset($postedData["from"][$key]) && $postedData["from"][$key] != '') ? date('Y-m-d', strtotime($postedData["from"][$key])) : $this->defaultEmptyDate;
+                     $to= (isset($postedData["to"][$key]) && $postedData["to"][$key] != '') ? date('Y-m-d', strtotime($postedData["to"][$key])) : $this->defaultEmptyDate ;
                      $reason= $postedData["reason"][$key];
                      $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$_SESSION['last_insert_id']."', `product_category`='".$category."' ,`state_id`='".$state."',`active_check`='".$active_check."', `received`='".$from."' ,`terminated`='".$to."',`reson`='".$reason."' ".$this->insert_common_sql();
                       $res = $this->re_db_query($q);
@@ -1156,8 +1156,8 @@
                   $category = 0;
                   $state= $postedData["state"][$key];
                   $active_check =(isset($postedData["active"][$key]))? $postedData["active"][$key] : 0;
-                  $from= date('Y-m-d', strtotime($postedData["from"][$key]));
-                  $to= date('Y-m-d', strtotime($postedData["to"][$key]));
+                  $from= (isset($postedData["from"][$key]) && $postedData["from"][$key] != '') ? date('Y-m-d', strtotime($postedData["from"][$key])) : $this->defaultEmptyDate ;
+                  $to= (isset($postedData["to"][$key]) && $postedData["to"][$key] != '') ? date('Y-m-d', strtotime($postedData["to"][$key])) : $this->defaultEmptyDate ;
                   $reason= $postedData["reason"][$key];
                   if(!empty($category) and !empty($state) and !empty($from) and !empty($to)){
                         $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."', `product_category`='".$category."' ,`state_id`='".$state."',`active_check`='".$active_check."',
@@ -1173,8 +1173,8 @@
                   $active_check =(isset($postedData["active"][$key]))? $postedData["active"][$key] : 0;
 
                   $state= $postedData["state"][$key];
-                  $from= date('Y-m-d', strtotime($postedData["from"][$key]));
-                  $to= date('Y-m-d', strtotime($postedData["to"][$key]));
+                  $from= (isset($postedData["from"][$key]) && $postedData["from"][$key] != '') ? date('Y-m-d', strtotime($postedData["from"][$key])) : $this->defaultEmptyDate ;
+                  $to= (isset($postedData["to"][$key]) && $postedData["to"][$key] != '') ? date('Y-m-d', strtotime($postedData["to"][$key])) : $this->defaultEmptyDate ;
                   $reason= $postedData["reason"][$key];
                    
                   // removed `product_category`='".$category."' , from query because it is not passed in POST
@@ -1187,8 +1187,8 @@
                        // $active = $postedData['active'][$key];
                       $category = 0;
                        $state= $postedData["state"][$key];
-                       $from= date('Y-m-d', strtotime($postedData["from"][$key]));
-                       $to= date('Y-m-d', strtotime($postedData["to"][$key]));
+                       $from= (isset($postedData["from"][$key]) && $postedData["from"][$key] != '') ? date('Y-m-d', strtotime($postedData["from"][$key])) : $this->defaultEmptyDate ;
+                       $to= (isset($postedData["to"][$key]) && $postedData["to"][$key] != '') ? date('Y-m-d', strtotime($postedData["to"][$key])) : $this->defaultEmptyDate ;
                        $reason= $postedData["reason"][$key];
                     if(empty($category) and empty($state) and empty($from) and empty($to)){
                        $q="DELETE FROM `".BROKER_LICENCES_SECURITIES."` where broker_id='".$id."' and id='".$row."' ";
@@ -1426,8 +1426,8 @@
               {
                 // $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
                 // $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
-                $received = isset($val['received']) ? $this->re_db_input(date('Y-m-d',strtotime($val['received']))) : $this->defaultEmptyDate;
-                $terminated = isset($val['terminated']) ? $this->re_db_input(date('Y-m-d',strtotime($val['terminated']))) : $this->defaultEmptyDate;
+                $received = (isset($val['received']) && $val['received'] != '') ? $this->re_db_input(date('Y-m-d',strtotime($val['received']))) : $this->defaultEmptyDate;
+                $terminated = (isset($val['terminated']) && $val['terminated'] != '')? $this->re_db_input(date('Y-m-d',strtotime($val['terminated']))) : $this->defaultEmptyDate;
                 $reason = isset($val['reason']) ? $this->re_db_input($val['reason']) : '';
                 $active_check = isset($val['active_check']) ? (int)$this->re_db_input($val['active_check']) : 0;
                 // [FIX LATER] 07/17/22 Fee wasn't found - just default to zero to get the program up and running
@@ -1485,8 +1485,8 @@
                   // 'fee' => isset($val['fee'])?$this->re_db_input($val['fee']):'',
                   //-- 07/01/22 Reinstated active check, not sure why it was commented out in the first place
                   'active_check' => isset($val['active_check']) ? (int)$this->re_db_input($val['active_check']) : 0,
-                  'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate,
-                  'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate,
+                  'received' => (isset($val['received']) && $val['received'] != '')?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate,
+                  'terminated' => (isset($val['terminated']) && $val['terminated'] != '')?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate,
                   'reson' => isset($val['reason'])?$this->re_db_input($val['reason']):''
                 );
                 array_push($newValues, $newRow);
@@ -1511,8 +1511,8 @@
                     
                     // 07/01/22 Active Check not being stored(not sure why. Commented out above), (b)added "input" checks to make sure bad data not being stored to the table, e.g. "0000-00-00" defaults to '1969-12-31' in MySQL default to 1000-01-01 to make clear of an empty date
                     $this->defaultEmptyDate = '1000-01-01';
-                    $received = isset($value['received']) ? $this->re_db_input(date('Y-m-d',strtotime($value['received']))) : $this->defaultEmptyDate;
-                    $terminated = isset($value['terminated']) ? $this->re_db_input(date('Y-m-d',strtotime($value['terminated']))) : $this->defaultEmptyDate;
+                    $received = (isset($value['received']) && $value['received'] != '')? $this->re_db_input(date('Y-m-d',strtotime($value['received']))) : $this->defaultEmptyDate;
+                    $terminated = (isset($value['terminated']) && $value['terminated'] != '') ? $this->re_db_input(date('Y-m-d',strtotime($value['terminated']))) : $this->defaultEmptyDate;
                     $reason = isset($value['reson']) ? $this->re_db_input($value['reson']) : '';
                     $active_check = isset($value['active_check']) ? (int)$this->re_db_input($value['active_check']) : 0;
  
@@ -1537,8 +1537,9 @@
               {
                 foreach ($newValues as $key => $value)
                 {
+                  $value['waive_home_state_fee'] = ($value['waive_home_state_fee'] != '')? $value['waive_home_state_fee'] : 0 ;
                   $q="INSERT INTO `".BROKER_LICENCES_INSURANCE."` SET `broker_id`='".$id."' ,`type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
-                    `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `product_category`='".$value['product_category']."' ,`active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
+                    `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
                     `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->insert_common_sql();
                   $res = $this->re_db_query($q);
                 }
@@ -1567,8 +1568,8 @@
               {
                 $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
                 $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
-                $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate;
-                $terminated=isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate;
+                $received=(isset($val['received']) && $val['received'] != '')?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate;
+                $terminated=(isset($val['terminated']) && $val['terminated'] != '')?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate;
                 $reason=isset($val['reason'])?$this->re_db_input($val['reason']):'';
 
                 $q = "INSERT INTO `".BROKER_LICENCES_RIA."` SET `broker_id`='".$_SESSION['last_insert_id']."' ,`type_of_licences`='".$type_of_licences."' ,`state_id`='".$key."' ,
@@ -1611,8 +1612,8 @@
                   'product_category' => $product_category,
                   'active_check' => isset($val['active_check'])?$this->re_db_input($val['active_check']):'0',
                   'fee' => isset($val['fee'])?$this->re_db_input($val['fee']):'',
-                  'received' => isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate,
-                  'terminated' => isset($val['terminated'])?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate,
+                  'received' => (isset($val['received']) && $val['received'] != '')?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):$this->defaultEmptyDate,
+                  'terminated' => (isset($val['terminated']) && $val['terminated'] != '')?$this->re_db_input(date('Y-m-d',strtotime($val['terminated']))):$this->defaultEmptyDate,
                   'reson' => isset($val['reason'])?$this->re_db_input($val['reason']):''
                 );
                 array_push($newValues, $newRow);
@@ -2939,7 +2940,7 @@
 			    ." FROM `".BROKER_LICENCES_SECURITIES."` AS `at`"
           ." WHERE `at`.`is_delete`=0"
           .$con
-          ." ORDER BY `at`.`broker_id`,`at`.`product_category`,`at`.`state_id`,`at`.`received`,`at`.`terminated`"
+          ." ORDER BY `at`.`broker_id`,`at`.`state_id`,`at`.`received`,`at`.`terminated`"
       ;
 
       $res = $this->re_db_query($q);
