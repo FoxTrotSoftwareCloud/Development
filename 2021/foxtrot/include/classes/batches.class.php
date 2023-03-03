@@ -124,7 +124,7 @@
 			$q = "SELECT at.*
 					FROM ".$this->table." AS at
                     WHERE at.is_delete='0'
-                    ORDER BY at.batch_date DESC";
+                    ORDER BY at.id DESC";
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
                 $a = 0;

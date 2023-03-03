@@ -4943,6 +4943,20 @@
             }
 			return $return;
 		}
+
+        public function select_trade_date($file_id,$file_type,$temp_data_id){
+            $fileSource = $this->import_table_select($file_id, $file_type);
+            $importFileTable = $fileSource['table'];
+
+            $q = "SELECT trade_date
+					FROM ".$importFileTable." WHERE id='".$temp_data_id."' ";
+            $res = $this->re_db_query($q);
+            $row = $this->re_db_fetch_array($res);
+           
+            if(isset($row['trade_date'])){
+                return $row['trade_date'];
+            }
+        }
         /**
          * 02/11/22 "$record_id" parmater added to pull just one record at a time
          * 02/16/22 Free form "WHERE" query parameter for Resolve Exceptions, looking for specific exceptions

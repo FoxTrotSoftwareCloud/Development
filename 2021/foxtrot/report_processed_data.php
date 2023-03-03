@@ -73,8 +73,13 @@ $total_records=0;
     $pdf->SetFont('times','B',12);
     $pdf->SetFont('times','',10);
     $html='<table border="0" cellpadding="1" width="100%">
-                <tr style="background-color: #f1f1f1;">
-                    <td style="text-align:right;"><h5>DATE</h5></td>
+                <tr style="background-color: #f1f1f1;">';
+                    if(isset($get_file_type) &&  ($get_file_type == '2' || $get_file_type == '9')){
+                        $html.='<td style="text-align:right;"><h5>TRADE DATE</h5></td>';
+                    }else{
+                        $html.='<td style="text-align:right;"><h5>DATE</h5></td>';
+                    }
+                    $html.='
                     <td style="text-align:right;width:8%;"><h5>REP#</h5></td>
                     <td style="width:3%;"></td>
                     <td style="text-align:left;width:20%;"><h5>REP NAME</h5></td>
@@ -98,6 +103,9 @@ $total_records=0;
     {
         foreach($return_solved_exception as $process_key=>$process_val)
         {
+            if(isset($get_file_type) &&  ($get_file_type == '2' || $get_file_type == '9')){
+                $process_val['date'] = $instance->select_trade_date($file_id,$get_file_type,$process_val['temp_data_id']);
+            }
             $total_records = $total_records+1;
             $html.='<tr>
                        <td style="font-size:8px;font-weight:normal;text-align:right;">'.date('m/d/Y',strtotime($process_val['date'])).'</td>

@@ -635,7 +635,11 @@
                                                     <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                         <table id="data-table3" class="table table-bordered">
                                                             <thead>
-                                                                <th>Date</th>
+                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
+                                                                    <th>Trade Date</th>
+                                                                <?php }else{ ?>
+                                                                    <th>Date</th>
+                                                                <?php } ?>
                                                                 <?php if (isset($get_file_type) && in_array($get_file_type, ['1', '2', '9'])) { ?>
                                                                     <th>Rep#</th>
                                                                     <th>Rep Name</th>
@@ -803,7 +807,9 @@
                                                                             $existing_field_value = $return_sfr_existing_data['major_security_type'];
                                                                         }
                                                                     }
-
+                                                                    if (isset($file_type) && in_array($file_type, ['2', '9'])) {
+                                                                        $error_val['date'] = $instance->select_trade_date($file_id,$file_type,$error_val['temp_data_id']);
+                                                                    }
 
                                                                     $temp_data_id = $error_val['temp_data_id'];
 
@@ -922,8 +928,12 @@
                                                     <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                         <table id="data-table4" class="table table-bordered table-stripped table-hover">
                                                             <thead>
-                                                                <th>Date</th>
-
+                                                                <!-- <th>Date</th> -->
+                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
+                                                                    <th>Trade Date</th>
+                                                                <?php }else{ ?>
+                                                                    <th>Date</th>
+                                                                <?php } ?>
                                                                 <?php if (isset($get_file_type) && $get_file_type == '3') { ?>
                                                                     <th>Fund Name</th>
                                                                     <th>CUSIP</th>
@@ -975,6 +985,10 @@
                                                                             $fnm=$arr[0];
                                                                         }
                                                                         $process_val['rep_name']=$lnm.", ".$fnm;
+                                                                    }
+
+                                                                    if (isset($file_type) && in_array($file_type, ['2', '9'])) {
+                                                                        $process_val['date'] = $instance->select_trade_date($file_id,$file_type,$process_val['temp_data_id']);
                                                                     }
 
                                                                     ?>
@@ -1421,7 +1435,7 @@
                                                                             <div class="row">
                                                                                 <div class="col-md-6"></div>
                                                                                 <div class="col-md-6">
-                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>),importFiles(<?= $val['dim_id'] ?>)" ><i class="fa fa-download"></i> Download</button>
+                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>)" ><i class="fa fa-download"></i> Download</button>
                                                                                 </div>
                                                                             </div>
                                                                             <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
@@ -1574,7 +1588,7 @@
                                             <!--HTTPs Download Guide Product Guide-->
                                             <div class="panel-footer">
                                                 <div class="selectwrap">
-                                                    <input type="button" value="Download Files" onclick="fetchDST(<?php echo $return_dim_host['dim_id']; ?>),importFiles(<?php echo $return_dim_host['dim_id']; ?>)" />
+                                                    <input type="button" value="Download Files" onclick="fetchDST(<?php echo $return_dim_host['dim_id']; ?>)" />
                                                     <!-- <input type="button" value="Import Files" onclick="" /> -->
                                                     <!-- <input type="button" value="Cancel Download" onclick="CancelDownload()" /> -->
                                                     <!--<a href="<?php echo CURRENT_PAGE . '?tab=open_ftp&action=view_ftp'; ?>"><input type="button" name="cancel" value="Cancel" /></a>-->
@@ -2901,7 +2915,6 @@
     
     function fetchDST(dimID) {
         var xmlhttp = new XMLHttpRequest();
-        //let dimID = document.getElementById("Dim_id").value;
         
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -2912,6 +2925,7 @@
                     document.getElementById("HTTPDL_result").value = '';
                     document.getElementById("HTTPDL_result").value = data;
                 }
+                importFiles(dimID);
             }
         };
         xmlhttp.open("GET", "import.php?action=fetchDST&dim_id=" + dimID, true);
@@ -2919,7 +2933,6 @@
     }
     function importFiles(dimID) {
         var xmlhttp = new XMLHttpRequest();
-        //let dimID = document.getElementById("Dim_id").value;
         
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
