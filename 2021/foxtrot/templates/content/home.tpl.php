@@ -590,31 +590,31 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
               </tr>
               <tr>
                   <td class="text-right">Gross Commission:</td>
-                  <td width="15%" style="padding-left: 30px;">$325k</td>
+                  <td width="15%" style="padding-left: 30px;">$0</td>
               </tr>
               <tr>
                   <td class="text-right">Charges:</td>
-                  <td width="15%" style="padding-left: 30px;">$1.5k</td>
+                  <td width="15%" style="padding-left: 30px;">$0</td>
               </tr>
               <tr>
                   <td class="text-right">Net Commission:</td>
-                  <td width="15%" style="padding-left: 30px;">$228k</td>
+                  <td width="15%" style="padding-left: 30px;">$0</td>
               </tr>
               <tr>
                   <td class="text-right">Adjustments:</td>
-                  <td width="15%" style="padding-left: 30px;">$4.5k</td>
+                  <td width="15%" style="padding-left: 30px;">$0</td>
               </tr>
               <tr>
                   <td class="text-right">Total Check Amount:</td>
-                  <td width="15%" style="padding-left: 30px;">$265k</td>
+                  <td width="15%" style="padding-left: 30px;">$0</td>
               </tr>
               <tr>
                   <td class="text-right">Balance Carried Forward:</td>
-                  <td width="15%" style="padding-left: 30px;">$45k</td>
+                  <td width="15%" style="padding-left: 30px;">$0</td>
               </tr>
               <tr>
                   <td class="text-right">Retention:</td>
-                  <td width="15%" style="padding-left: 30px;">$415k</td>
+                  <td width="15%" style="padding-left: 30px;">$0</td>
               </tr>
           </table>
 					<div class="graphimg"></div>

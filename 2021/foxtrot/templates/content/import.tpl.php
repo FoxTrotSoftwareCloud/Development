@@ -2924,6 +2924,7 @@
                     $("#HTTPDL_result").removeAttr("readonly");
                     document.getElementById("HTTPDL_result").value = '';
                     document.getElementById("HTTPDL_result").value = data;
+                    alert(data);
                 }
                 importFiles(dimID);
             }
