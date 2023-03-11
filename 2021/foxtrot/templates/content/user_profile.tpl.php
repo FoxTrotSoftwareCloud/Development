@@ -69,11 +69,13 @@
             <div class="row">
 				<div class="col-sm-6 form-group">
 					<label>Upload Image </label>
-				    <input type="file" class="form-control" name="file_image" onchange="readURL(this);" id="file_image" value="<?php echo $user_image;?>" />
+				    <input type="file" class="form-control" name="file_image" onchange="readURL(this);" id="file_image"  />
                 </div>
+                <?php if($_GET['action'] == 'edit') { ?>
                 <div class="col-sm-6 form-group">
 					<label><img src="<?php echo SITE_URL."upload/"."thumb_".$user_image;?>" id="user_img" class="img img-thumbnail" height="100" width="100"/></label>
                 </div>
+                <?php } ?>
             </div>
             <div class="row">
 				<div class="col-sm-6 form-group">

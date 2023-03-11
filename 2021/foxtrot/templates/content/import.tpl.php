@@ -1470,7 +1470,7 @@
                                                                                     <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=uploadGeneric" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Upload</a> -->
                                                                                 </div>
                                                                                 <div class="col-md-6">
-                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-upload"></i> Upload</button>
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-download"></i> Download</button>
                                                                                 </div>
                                                                             </div>
                                                                         </td>

@@ -195,7 +195,8 @@
             $size = isset($user_image['size'])?$user_image['size']:'';
             $type = isset($user_image['type'])?$user_image['type']:'';
             $target_dir = DIR_FS."upload/";
-            $ext = strtolower(end(explode('.',$file_name)));
+            $file = explode('.',$file_name);
+            $ext = strtolower(end($file));
             if($file_name!='')
             {
                 if(!in_array($ext,$valid_file))
