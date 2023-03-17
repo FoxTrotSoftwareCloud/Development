@@ -1413,6 +1413,22 @@ class payroll extends db{
         }
         return $return;
   }
+
+  public function select_last_cutoff_date($user_id){
+    $return = array();
+   $q = "SELECT `up`.direct_business_cutoff_date
+    FROM `".$this->table."` AS `up`
+    WHERE `up`.`is_delete`='0' and `up`.`is_close`= 0 and created_by=$user_id order by created_time desc limit 1";
+    $res = $this->re_db_query($q);
+        if($this->re_db_num_rows($res)>0){
+    		$row = $this->re_db_fetch_array($res);
+            return $row['direct_business_cutoff_date'];
+        }
+        else{
+            return date('m/d/Y', strtotime('last day of previous month'));
+        }
+  }
+
   public function select_recurring_type(){
     	$return = array();
     	

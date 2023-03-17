@@ -11,6 +11,8 @@
     $dis_month_list = json_encode(array_values($month_array));
 
     $instance = new home();
+    $instance_payroll = new payroll();
+    $direct_business_cutoff_date = $instance_payroll->select_last_cutoff_date($_SESSION['user_id']);
 
     if (isset($_POST['filter']) && $_POST['filter'] == 'Filter') {
        

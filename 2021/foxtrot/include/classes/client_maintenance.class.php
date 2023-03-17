@@ -111,7 +111,7 @@
 			$telephone_brack1 = str_replace("(", '', $telephone_no);
 			$telephone = str_replace(")", '', $telephone_brack1);
 			$contact_status = isset($data['contact_status'])?$this->re_db_input($data['contact_status']):0;
-			$birth_date = (isset($data['birth_date']) && $data['birth_date']!='') ? $this->re_db_input(date('Y-m-d',strtotime($data['birth_date']))):'0000-00-00';
+			$birth_date = (isset($data['birth_date']) && $data['birth_date']!='') ? $this->re_db_input(date('Y-m-d',strtotime($data['birth_date']))):'0000-00-00 00:00:00';
 			$date_established = (isset($data['date_established']) && $data['date_established']!='' )?$this->re_db_input(date('Y-m-d',strtotime($data['date_established']))):'0000-00-00';
 			$open_date = (isset($data['open_date']) && $data['open_date']!='') ?$this->re_db_input(date('Y-m-d',strtotime($data['open_date']))):'0000-00-00';
 			$naf_date = (isset($data['naf_date']) && $data['naf_date']!='')?$this->re_db_input(date('Y-m-d',strtotime($data['naf_date']))):'0000-00-00';

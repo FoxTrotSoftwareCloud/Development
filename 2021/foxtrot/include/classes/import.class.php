@@ -3153,7 +3153,7 @@
                                     $reprocess_status = $res_InsertProduct;
 
                                     $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                            ."SET"
+                                            ." SET"
                                                 ." file_id='".$check_data_val['file_id']."'"
                                                 .",error_code_id='0'"
                                                 .",solved='1'"
@@ -4486,6 +4486,16 @@
             }
 			return $return;
 		}
+        public function check_file_process_status($file_id){
+
+            $q = "SELECT at.processed
+                        FROM ".IMPORT_CURRENT_FILES." AS at
+                        WHERE at.is_delete=0
+                          AND at.id='".$file_id."'";
+            $res = $this->re_db_query($q);
+            $result = $this->re_db_fetch_array($res);
+            return $result['processed'];
+        }
         public function check_file_exception_process($file_id, $exceptionSummary=0, $source=''){
 			$return = 0;
 

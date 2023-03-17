@@ -423,7 +423,8 @@ Highcharts.chart('container_payroll', {
     series: [{
         
         name: 'Payroll',
-        data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6,50,50,50]
+        // data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6,50,50,50]
+        data: [0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0]
 
     }]
 });
@@ -584,8 +585,8 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
 					</div>
           <table width='100%' class="graphdata02_3 <?php print $payrollStatus; ?>"> 
               <tr>
-                  <td class="text-right">Last Cutoff Date:</td>
-                  <td width="15%" style="padding-left: 30px;">15-11-2017</td>
+                  <td class="text-right">Last Cutoff Date: </td>
+                  <td width="15%" style="padding-left: 30px;"><?php echo date("Y-m-d", strtotime($direct_business_cutoff_date)); ?></td>
                   <td rowspan="9" style="width: 60%;"><div id="container_payroll" style="min-width: 200px; height: 300px; max-width: 3000px; margin:  auto"></div></td>
               </tr>
               <tr>

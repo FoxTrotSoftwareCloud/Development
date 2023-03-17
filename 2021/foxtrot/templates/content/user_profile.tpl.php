@@ -52,7 +52,7 @@
 			</div>
             <div class="row">
 				<div class="col-sm-2 form-group">
-                    <input type="checkbox" style=" display: inline" class="checkbox" <?php if($branch_id>0){ echo "checked"; } ?> onclick="show_branches(this.checked)"/>
+                    <input type="checkbox" style=" display: inline" class="checkbox not" <?php if($branch_id>0){ echo "checked"; } ?> onclick="show_branches(this.checked)"/>
                     <label>Branch Access </label>
                 </div>
                 <div class="col-sm-4 form-group">
@@ -270,17 +270,20 @@ function chk_all_class(chk)
 		d=document.getElementsByTagName("input");
 		for(i=0;i<d.length;i++)
 		{
-            var elm_name=d[i].name;
+            //var elm_name=d[i].name;
             if(d[i].type=="checkbox")
 			{
-                if(chk==true)
-				{
-					d[i].checked=true;
-                }
-				else
-				{
-					d[i].checked=false;				  
-                }
+                if(d[i].className !== 'checkbox not'){
+                
+                    if(chk==true)
+                    {
+                        d[i].checked=true;
+                    }
+                    else
+                    {
+                        d[i].checked=false;				  
+                    }
+                    }
 			}
 		}
 	}

@@ -158,9 +158,13 @@ class import_generic extends import {
                         // Check if field is a date and convert it to a 'Y-m-d' format
                         if ($fieldKey == 2){
                             $addValue = '"'.date('Y-m-d', strtotime($fieldValue)).'"';
-                        } else {
+                        } else if($fieldKey == 9 || $fieldKey == 10){
+                            $addValue = empty($fieldValue) ? '0.00' : ('"'.($this->re_db_input(str_replace('"', "", $fieldValue))).'"');
+                        }
+                        else{
                             $addValue = '"'.($this->re_db_input(str_replace('"', "", $fieldValue))).'"';
                         }
+                        
                         $fieldValues .= (empty($fieldValues) ? '' : ', ').$addValue;
                     }
                     // Table Fields to populate

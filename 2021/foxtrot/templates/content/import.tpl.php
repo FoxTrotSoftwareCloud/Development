@@ -407,6 +407,7 @@
 
 
                                                                                 $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
+                                                                                $process_status = $instance->check_file_process_status($val['id']);
 
                                                                                 $count_processed_data = $total_processed_data['processed'];
                                                                                 $count_exception_data = $total_processed_data['exceptions'];
@@ -416,7 +417,12 @@
                                                                                     $total_processed_per = ($count_processed_data * 100) / $total_process;
                                                                                     $total_complete_process = round($total_processed_per);
                                                                                 } else {
-                                                                                    $total_complete_process = 0;
+                                                                                    if($count_processed_data == 0 && $count_exception_data == 0 && $process_status == 1){
+                                                                                        $total_complete_process = 100;
+                                                                                    }
+                                                                                    else{
+                                                                                        $total_complete_process = 0;
+                                                                                    }
                                                                                 }
                                                                                 ?>
 
@@ -425,7 +431,7 @@
 
                                                                                     if ($file_type_id == 2 || $file_type_id == 9) {
 
-                                                                                        if($total_processed_commission_for_import == $total_Check_Amount &&  $total_Check_Amount != 0){ 
+                                                                                        if($total_processed_commission_for_import == $total_Check_Amount && $process_status == 1){ 
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
 
@@ -435,7 +441,7 @@
                                                                                        
                                                                                     } else {
 
-                                                                                        if($total_processed_import == $total_import &&  $total_import != 0){ 
+                                                                                        if($total_processed_import == $total_import && $process_status == 1){ 
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
                                                                                         echo $total_import;
