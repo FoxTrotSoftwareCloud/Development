@@ -37,7 +37,7 @@
             header('location:'.CURRENT_PAGE);exit;
         }
     }  
-    /*else if(isset($_GET['action'])&&$_GET['action']=='delete'&&isset($_GET['id'])&&$_GET['id']>0)
+    else if(isset($_GET['action'])&&$_GET['action']=='delete'&&isset($_GET['id'])&&$_GET['id']>0)
     {
         $id = $instance->re_db_input($_GET['id']);
         $return = $instance->delete($id);
@@ -47,7 +47,7 @@
         else{
             header('location:'.CURRENT_PAGE);exit;
         }
-    }*/
+    }
     else if($action=='view'){
         
         $return = $instance->select_payroll();

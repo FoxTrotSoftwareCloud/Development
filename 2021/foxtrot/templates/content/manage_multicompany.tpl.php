@@ -190,7 +190,7 @@ input[type=number]::-webkit-outer-spin-button {
                                 <label>Inactive Date </label><br />
                                 <div id="demo-dp-range">
                                     <div class="input-daterange input-group" id="datepicker">
-                                        <input type="text" name="i_date" id="i_date" value="<?php if($action=='edit'){echo date(DATE_FORMAT, strtotime($i_date));} ?>" class="form-control" />
+                                        <input type="text" name="i_date" id="i_date" value="<?php if($action=='edit' && $i_date != '1970-01-01'){echo date(DATE_FORMAT, strtotime($i_date));} ?>" class="form-control" />
                                     </div>
                                 </div>
                             </div>
@@ -477,8 +477,8 @@ input[type=number]::-webkit-outer-spin-button {
                                 <td><?php echo $val['company_name']; ?></td>
                                 <td><?php foreach($get_manager as $statekey=>$stateval){ if($val['manager_name'] == $stateval['id']){echo $stateval['first_name'].' '.$stateval['middle_name'].' '.$stateval['last_name']; }} ?></td>
                                 <td><?php echo $val['company_type']; ?></td>
-                                <td><?php echo date('m/d/Y',strtotime($val['e_date'])); ?></td>
-                                <td><?php echo date('m/d/Y',strtotime($val['i_date'])); ?></td>
+                                <td><?php if($val['e_date'] != '1970-01-01'){echo date('m/d/Y',strtotime($val['e_date'])); }?></td>
+                                <td><?php if($val['i_date'] != '1970-01-01'){echo date('m/d/Y',strtotime($val['i_date'])); }?></td>
                                 <!-- <td class="text-center">
                                     <?php
                                         if($val['status']==1){

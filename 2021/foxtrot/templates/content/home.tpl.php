@@ -586,7 +586,7 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
           <table width='100%' class="graphdata02_3 <?php print $payrollStatus; ?>"> 
               <tr>
                   <td class="text-right">Last Cutoff Date: </td>
-                  <td width="15%" style="padding-left: 30px;"><?php echo date("Y-m-d", strtotime($direct_business_cutoff_date)); ?></td>
+                  <td width="15%" style="padding-left: 30px;"><?php if($direct_business_cutoff_date != ""){echo date("Y-m-d", strtotime($direct_business_cutoff_date)); }?></td>
                   <td rowspan="9" style="width: 60%;"><div id="container_payroll" style="min-width: 200px; height: 300px; max-width: 3000px; margin:  auto"></div></td>
               </tr>
               <tr>

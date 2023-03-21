@@ -100,6 +100,22 @@ class broker_document extends db{
         	return false;
         }
     }
+
+	public function delete_broker_document($id){
+		$id = trim($this->re_db_input($id));
+		if($id>0){
+		   $q = "UPDATE `".BROKER_DOCUMENT_MASTER."` SET `is_delete`='1' WHERE `id`='".$id."'";
+		   $res = $this->re_db_query($q);
+			 if($res){
+				 $_SESSION['success'] = DELETE_MESSAGE;
+				 return true;
+			 }
+			 else{
+				 $_SESSION['warning'] = UNKWON_ERROR;
+				 return false;
+			 }
+		 }
+   } 
 }
 
 ?>

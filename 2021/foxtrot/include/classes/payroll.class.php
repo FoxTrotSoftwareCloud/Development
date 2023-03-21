@@ -1424,9 +1424,9 @@ class payroll extends db{
     		$row = $this->re_db_fetch_array($res);
             return $row['direct_business_cutoff_date'];
         }
-        else{
-            return date('m/d/Y', strtotime('last day of previous month'));
-        }
+        // else{
+        //     return date('m/d/Y', strtotime('last day of previous month'));
+        // }
   }
 
   public function select_recurring_type(){

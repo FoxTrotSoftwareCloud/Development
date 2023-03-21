@@ -12,12 +12,12 @@
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
 			$schedule_name = isset($data['schedule_name'])?$this->re_db_input($data['schedule_name']):'';
             $transaction_type_general = isset($data['transaction_type_general'])?$this->re_db_input($data['transaction_type_general']):'1';
-            $product_category = isset($data['product_category'])?$this->re_db_input($data['product_category']):'';
+            $product_category = isset($data['product_category'])?$this->re_db_input($data['product_category']):0;
             $basis = isset($data['basis'])?$this->re_db_input($data['basis']):'';
             $cumulative = isset($data['cumulative'])?$this->re_db_input($data['cumulative']):'0';
             $year = isset($data['year'])?$this->re_db_input($data['year']):'';
             $calculation_detail = isset($data['calculation_detail'])?$this->re_db_input($data['calculation_detail']):'';
-            $clearing_charge_deducted_from = isset($data['clearing_charge_deducted_from'])?$this->re_db_input($data['clearing_charge_deducted_from']):'';
+            $clearing_charge_deducted_from = isset($data['clearing_charge_deducted_from'])?$this->re_db_input($data['clearing_charge_deducted_from']):0;
             $reset = isset($data['reset'])?$this->re_db_input(date('Y-m-d',strtotime($data['reset']))):'0000-00-00';
             $description_type = isset($data['description_type'])?$this->re_db_input($data['description_type']):'';
             $minimum_trade_gross = isset($data['minimum_trade_gross'])?$this->re_db_input($data['minimum_trade_gross']):'';
@@ -109,7 +109,7 @@
                {
                     foreach($data as $key=>$val)
                     {   
-                        $sliding_rates =isset($val['sliding_rates'])?$this->re_db_input($val['sliding_rates']):'';
+                        $sliding_rates =isset($val['sliding_rates'])?$this->re_db_input($val['sliding_rates']):0;
                         $from =isset($val['from'])?$this->re_db_input($val['from']):'';
                         $to =isset($val['to'])?$this->re_db_input($val['to']):'';
                         $per =isset($val['per'])?$this->re_db_input($val['per']):'';
@@ -128,7 +128,7 @@
                {
                     foreach($data as $key=>$val)
                     {
-                        $sliding_rates =isset($val['sliding_rates'])?$this->re_db_input($val['sliding_rates']):'';
+                        $sliding_rates =isset($val['sliding_rates'])?$this->re_db_input($val['sliding_rates']):0;
                         $from =isset($val['from'])?$this->re_db_input($val['from']):'';
                         $to =isset($val['to'])?$this->re_db_input($val['to']):'';
                         $per =isset($val['per'])?$this->re_db_input($val['per']):'';
@@ -287,6 +287,22 @@
 				return false;
 			}
 		}
+
+        public function delete_payout_schedule($id){
+            $id = trim($this->re_db_input($id));
+            if($id>0){
+               $q = "UPDATE `".BROKER_PAYOUT_SCHEDULE."` SET `is_delete`='1' WHERE `id`='".$id."'";
+               $res = $this->re_db_query($q);
+                 if($res){
+                     $_SESSION['success'] = DELETE_MESSAGE;
+                     return true;
+                 }
+                 else{
+                     $_SESSION['warning'] = UNKWON_ERROR;
+                     return false;
+                 }
+             }
+       } 
 		
 	}
 ?>

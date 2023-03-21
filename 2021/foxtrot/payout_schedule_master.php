@@ -86,6 +86,16 @@
         else{
             header('location:'.CURRENT_PAGE);exit;
         }
+    }
+    else if(isset($action) && $action=='delete' && $id>0)
+    {
+        $return = $instance->delete_payout_schedule($id);
+        if($return==true){
+            header('location:'.CURRENT_PAGE.'?action=view');exit;
+        }
+        else{
+            header('location:'.CURRENT_PAGE.'?action=view');exit;
+        }
     }  
     else if($action=='view'){
         

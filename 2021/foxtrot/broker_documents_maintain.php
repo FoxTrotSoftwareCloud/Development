@@ -42,6 +42,16 @@
             header('location:'.CURRENT_PAGE.'?action=view');exit;
         }
     }
+    else if(isset($action) && $action=='delete' && $id>0)
+    {
+        $return = $instance->delete_broker_document($id);
+        if($return==true){
+            header('location:'.CURRENT_PAGE.'?action=view');exit;
+        }
+        else{
+            header('location:'.CURRENT_PAGE.'?action=view');exit;
+        }
+    }  
     else if($action=='view'){
         
         $return = $instance->select();

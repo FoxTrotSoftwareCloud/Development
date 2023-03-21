@@ -13,8 +13,8 @@
 };
 $(document).ready(function(){
     
-    $('#business_zipcode').mask("99999-9999");
-    $('#mailing_zipcode').mask("99999-9999");
+    $('#business_zipcode').mask("99999?-9999");
+    $('#mailing_zipcode').mask("99999?-9999");
     $('#telephone').mask("(999)999-9999");
     $('#facsimile').mask("(999)999-9999");
 });
@@ -246,7 +246,7 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                     <label>Date Established </label>
                     <div id="demo-dp-range">
                         <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" name="date_established" id="date_established" class="form-control" value="<?php if($date_established !=''){ echo date('m/d/Y',strtotime($date_established)); } ?>"/>
+                            <input type="text" name="date_established" id="date_established" class="form-control" value="<?php if($date_established !='' && $date_established != "1970-01-01"){ echo date('m/d/Y',strtotime($date_established)); } ?>"/>
                         </div>
                     </div>
                 </div>
@@ -256,7 +256,7 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                     <label>Date Terminated </label>
                     <div id="demo-dp-range">
                         <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" name="date_terminated" id="date_terminated" class="form-control" value="<?php if($date_terminated !=''){ echo date('m/d/Y',strtotime($date_terminated)); } ?>" />
+                            <input type="text" name="date_terminated" id="date_terminated" class="form-control" value="<?php if($date_terminated !='' && $date_terminated != "1970-01-01"){ echo date('m/d/Y',strtotime($date_terminated)); } ?>" />
                         </div>
                     </div>
                 </div>
@@ -268,7 +268,7 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                     <label>FINRA Start Date </label>
                     <div id="demo-dp-range">
                         <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" name="finra_start_date" id="finra_start_date" class="form-control" value="<?php if($finra_start_date !=''){ echo date('m/d/Y',strtotime($finra_start_date)); } ?>"/>
+                            <input type="text" name="finra_start_date" id="finra_start_date" class="form-control" value="<?php if($finra_start_date !='' && $finra_start_date != "1970-01-01"){ echo date('m/d/Y',strtotime($finra_start_date)); } ?>"/>
                         </div>
                     </div>
                 </div>
@@ -278,7 +278,7 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                     <label>FINRA End Date </label>
                     <div id="demo-dp-range">
                         <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" name="finra_end_date" id="finra_end_date" class="form-control" value="<?php if($finra_end_date !=''){ echo date('m/d/Y',strtotime($finra_end_date)); } ?>" />
+                            <input type="text" name="finra_end_date" id="finra_end_date" class="form-control" value="<?php if($finra_end_date !='' && $finra_end_date != "1970-01-01"){ echo date('m/d/Y',strtotime($finra_end_date)); } ?>" />
                         </div>
                     </div>
                 </div>
@@ -290,7 +290,7 @@ if($action=='add_new'||($action=='edit' && $id>0)){
                     <label>Last Audit Date </label>
                     <div id="demo-dp-range">
                         <div class="input-daterange input-group" id="datepicker">
-                            <input type="text" name="last_audit_date" id="last_audit_date" class="form-control" value="<?php if($last_audit_date !=''){ echo date('m/d/Y',strtotime($last_audit_date)); } ?>" />
+                            <input type="text" name="last_audit_date" id="last_audit_date" class="form-control" value="<?php if($last_audit_date !='' && $last_audit_date != "1970-01-01"){ echo date('m/d/Y',strtotime($last_audit_date)); } ?>" />
                         </div>
                     </div>
                 </div>

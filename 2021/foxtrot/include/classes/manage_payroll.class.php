@@ -137,9 +137,29 @@
 		 * @param id of record
 		 * @return true if success, false message if any errors
 		 * */
-		/*public function delete($id){
+		// public function delete($id){
+		// 	$id = trim($this->re_db_input($id));
+		// 	if($id>0 && ($status==0 || $status==1) ){
+		// 		$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
+		// 		$res = $this->re_db_query($q);
+		// 		if($res){
+		// 		    $_SESSION['success'] = DELETE_MESSAGE;
+		// 			return true;
+		// 		}
+		// 		else{
+		// 		    $_SESSION['warning'] = UNKWON_ERROR;
+		// 			return false;
+		// 		}
+		// 	}
+		// 	else{
+		// 	     $_SESSION['warning'] = UNKWON_ERROR;
+		// 		return false;
+		// 	}
+		// }
+
+		public function delete($id){
 			$id = trim($this->re_db_input($id));
-			if($id>0 && ($status==0 || $status==1) ){
+			if($id>0){
 				$q = "UPDATE `".$this->table."` SET `is_delete`='1' WHERE `id`='".$id."'";
 				$res = $this->re_db_query($q);
 				if($res){
@@ -151,11 +171,8 @@
 					return false;
 				}
 			}
-			else{
-			     $_SESSION['warning'] = UNKWON_ERROR;
-				return false;
-			}
-		}*/
+			
+		}
         
     }
 ?>

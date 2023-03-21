@@ -566,6 +566,10 @@
                   })
                }
             }
+            if($("#email1_general").val() == ''){
+               alert("Please enter Primary Email!");
+               return false;
+            }
             if ($("#email2_general").val() != '') {
                if (!filter.test($("#email2_general").val())) {
                   $("#email2_general").css({

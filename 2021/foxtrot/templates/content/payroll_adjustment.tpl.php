@@ -37,6 +37,11 @@
                         <div class="selectwrap">
                             <label></label>
                             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
+
+                            <?php if ($action == 'edit' && $id > 0) { ?>
+                                <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $id; ?>');"><input type="button" value="Delete" /></a>
+                            <?php } ?>
+
         					<a href="<?php echo CURRENT_PAGE;?>"><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
                             <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save" style="float: right;"/>	
                         </div>
