@@ -360,11 +360,18 @@ class payroll extends db{
      */
     public function calculate_payroll ($data, $payroll_date=''){
         $calculate = new payroll_calculation();
-        
+
         if (isset($data['payroll_id'])) {
             $payroll_id = $data['payroll_id'];
         } else {
             $payroll_id = 0;
+            // return $this->errors = 'Payroll is Empty.';
+            $error = "Payroll is Empty.";
+            if(!empty($error)){
+                $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
+                header("location:".CURRENT_PAGE);
+            }
+            exit;
         }
 
         if (!empty($payroll_date) AND $payroll_date != '0000-00-00 00:00:00'){
@@ -382,10 +389,10 @@ class payroll extends db{
         // Clear Commission Paid field in Payroll Master
         $q = "UPDATE `" .PAYROLL_REVIEW_MASTER. "` SET `commission_paid` = 0, `override_rate` = 0 WHERE payroll_id=".$payroll_id;
         $res = $this->re_db_query($q);
-
+        
         // Breakout SPLIT transactions before calculating the "paid" field - 10/11/21
         $calculate->insert_payroll_split_rates($payroll_id);
-
+ 
         // **********************************************
         // * 1. Broker Commissions 
         // * 2. Split Commissions - added 10/12/21 li
@@ -395,12 +402,11 @@ class payroll extends db{
         
         // Clear out the Override Transactions - populated in "overrideCalculation()"
         $calculate->clearOverrides($payroll_id);
-
+        
         if(count($payroll_commissions)>0) {
             $calculate->commissionCalculation($payroll_commissions, $payroll_date, $payroll_id);
             $calculate->calculateAdjustments($payroll_date, $payroll_id);
             $calculate->calculateCurrentPayroll($payroll_date, $payroll_id);
-
             $q = "UPDATE " .PAYROLL_UPLOAD. "
                     SET
                         `is_calculate`='1',
