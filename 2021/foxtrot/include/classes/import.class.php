@@ -5,7 +5,8 @@
 		public $errors = '';
         public $table = IMPORT_CURRENT_FILES;
         public $GENERIC_file_type = 9;
-        public $IMPORT_File_Types = [1=>'CLIENTS', 2=>'COMMISSIONS', 3=>'PRODUCTS', 9=>'GENERIC CSV COMMISSIONS'];
+        public $ORION_file_type = 11;
+        public $IMPORT_File_Types = [1=>'CLIENTS', 2=>'COMMISSIONS', 3=>'PRODUCTS', 9=>'GENERIC CSV COMMISSIONS',11=>'ORION CSV COMMISSIONS'];
 
         /**
 		 * @param post array
@@ -197,6 +198,8 @@
                 $exception_value = $this->re_db_input($data['exception_value_2']);
             // } else if($exception_field == 'sponsor_id'){
             //     $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
+            } else if($exception_field == 'customer_account_number' && $error_code_id == '13'){
+                $exception_value = isset($data['acc_for_client'])?$this->re_db_input($data['acc_for_client']):'';
             } else {
                 $exception_value = isset($data['exception_value'])?$this->re_db_input($data['exception_value']):'';
             }
@@ -206,6 +209,8 @@
             $acc_for_client = (isset($data['acc_for_client']) ? (int)$this->re_db_input($data['acc_for_client']) : 0);
             $skipException = (isset($data['skip_exception']) ? (int)$this->re_db_input($data['skip_exception']) : 0);
             $code_for_sponsor = (isset($data['sponsor']) ? (int)$this->re_db_input($data['sponsor']) : 0);
+
+            // echo "<pre>"; print_r($data['skip_exception']);die;
 
             //--> RESOLVE ACTION - Element is used for more than just "Broker Terminated" exceptions (radio button input element)
             if(isset($data['resolve_broker_terminated'])){
@@ -224,6 +229,8 @@
             if ($exception_field=='rule_engine' AND $resolveAction==2 AND !in_array($exception_value, ['no_naf_date'])){
                 $resolveAction = 6;
             }
+
+            // echo "<pre>"; print_r($exception_value);die;
 
             // Validate Exception Field
 			if($exception_value==''){
@@ -566,7 +573,7 @@
             }
 
             //--- IDC EXCEPTIONS ---//
-            if(isset($exception_file_type) && in_array($exception_file_type, ['2', $this->GENERIC_file_type])) {
+            if(isset($exception_file_type) && in_array($exception_file_type, ['2', $this->GENERIC_file_type,$this->ORION_file_type])) {
                 $importSelect = $this->import_table_select($exception_file_id, $exception_file_type);
                 $commDetailTable = $importSelect['table'];
                 $sourceId = strtolower(substr($importSelect['source'],0,3));
@@ -876,6 +883,13 @@
 
                             if ($exception_file_type == $this->GENERIC_file_type){
                                 $commDetailData = $this->select_existing_gen_data($exception_data_id);
+                                // Sponsor found
+                                $sponsorId = ($sponsorId==0 ? $commDetailData['sponsor_id'] : $sponsorId);
+                                $accountNo = $commDetailData['customer_account_number'];
+                            }
+
+                            if ($exception_file_type == $this->ORION_file_type){
+                                $commDetailData = $this->select_existing_ori_data($exception_data_id);
                                 // Sponsor found
                                 $sponsorId = ($sponsorId==0 ? $commDetailData['sponsor_id'] : $sponsorId);
                                 $accountNo = $commDetailData['customer_account_number'];
@@ -1743,7 +1757,7 @@
                     $return['source'] = $source;
                     $sourceId = substr($source,0,3);
                 }
-
+                
                 // Determine Detail Table and Field(s) to update
                 if ($return['source']!=''){
                     switch ($file_type){
@@ -1759,6 +1773,8 @@
                                 $return['table'] = DAZL_COMM_DATA;
                             } else if (in_array($sourceId,['gn','gen'])){
                                 $return['table'] = IMPORT_GEN_DETAIL_DATA;
+                            } else if (in_array($sourceId,['or','ori'])){
+                                $return['table'] = IMPORT_ORION_DETAIL_DATA;
                             } else {
                                 $return['table'] = IMPORT_IDC_DETAIL_DATA;
                             }
@@ -1772,6 +1788,9 @@
                             break;
                         case $this->GENERIC_file_type:
                             $return['table'] = IMPORT_GEN_DETAIL_DATA;
+                            break;
+                        case $this->ORION_file_type:
+                            $return['table'] = IMPORT_ORION_DETAIL_DATA;
                             break;
                     }
                 }
@@ -2033,6 +2052,9 @@
                     if ($res['source']=='GENERIC'){
                         $instance_importGeneric = new import_generic();
                         $return = $instance_importGeneric->process_file($res['file_name']);
+                    }else if ($res['source']=='ORION'){
+                        $instance_importOrion = new import_orion();
+                        $return = $instance_importOrion->process_file($res['file_name']);
                     } else if ($res['source']=='DAZL'){
                         $return = $this->process_file_DAZL($res['file_name']);
                     }
@@ -2447,7 +2469,7 @@
                         $importSelect = $this->import_table_select($file_id, 1);
                         $detailTable = $importSelect['table'];
                         $fileSource = substr($importSelect['source'],0,3);
-                    }                        
+                    }
                     
                     foreach($client_data_array as $check_data_key=>$check_data_val) {
 
@@ -3000,7 +3022,7 @@
                         $detailTable = $importSelect['table'];
                         $fileSource = substr($importSelect['source'],0,3);
                     }                        
-                    
+
                     foreach($check_sfr_array as $check_data_key=>$check_data_val) {
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform($detailTable, ["process_result"=>0], 'update', "id=".$check_data_val['id']);
@@ -3199,11 +3221,17 @@
                         // Generic file does not contain a Cusip(or any unique product id or description) and Clients are often added with the transaction, i.e. many will not be in Cloudfox DB. So, add them and let God sort it out
                         $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 1;
                         $fileSource = 'gen';
+                    } else if (in_array($file_type, [$this->ORION_file_type])) {
+                        $commission_detail_array = $this->get_ori_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
+                        $commissionFileType = $this->ORION_file_type;
+                        $commissionAddOnTheFly_Client = $commissionAddOnTheFly_Product = 1;
+                        $fileSource = 'ori';
                     } else if (($detail_record_id==0 AND $file_type==0) OR $file_type) {
                         $commission_detail_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id>0) ? $detail_record_id : 0);
                         $commissionFileType = 2;
                     }
-
+                // echo "<pre>";
+                // print_r($commission_detail_array);die;
                     foreach($commission_detail_array as $check_data_key=>$check_data_val){
                         // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                         $this->re_db_perform($commDetailTable, ["process_result"=>0], 'update', "id=".$check_data_val['id']." AND is_delete=0");
@@ -3271,6 +3299,7 @@
                             $sponsor_id = $file_sponsor_array['id'];
                         // }
 
+                    if($check_data_val['sponsor_id'] != 293){
                         $insert_exception_string =
                              ",file_id='".$check_data_val['file_id']."'"
                             .",temp_data_id='".$check_data_val['id']."'"
@@ -3284,6 +3313,49 @@
                             .",commission='".(in_array($check_data_val['dealer_commission_sign_code'],['1','-']) ? '-' : '').$this->re_db_input($check_data_val['dealer_commission_amount'])."'"
                             .$this->insert_common_sql()
                         ;
+                    }
+
+                    if($check_data_val['sponsor_id'] == 293){
+                        $insert_exception_string =
+                            ",file_id='".$check_data_val['file_id']."'"
+                            .",temp_data_id='".$check_data_val['id']."'"
+                            .",date='".date('Y-m-d')."'"
+                            .",rep='".$this->re_db_input($check_data_val['representative_number'])."'"
+                            .",rep_name='".$check_data_val['representative_name']."'"
+                            .",account_no='".ltrim($check_data_val['customer_account_number'],'0')."'"
+                            .",client='".$this->re_db_input($check_data_val['alpha_code'])."'"
+                            .",cusip='".$check_data_val['cusip_number']."'"
+                            .",principal='".$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
+                            .",commission='".$this->re_db_input($check_data_val['gross_commission_amount'])."'"
+                            .$this->insert_common_sql()
+                        ;
+                    // check product present in list or not if yes then do nothing otherwise add product 
+                        $q_get = "SELECT name ".
+                            " FROM ".PRODUCT_LIST."".
+                            " WHERE is_delete=0".
+                            " AND name='".trim(str_replace(array("'")," ",$check_data_val['invest_product'])," ")."'".
+                            " AND sponsor='".$check_data_val['sponsor_id']."'".
+                            " AND category='".$check_data_val['product_category']."'"
+                            ;
+                        $resProdutNameFind = $this->re_db_query($q_get);
+
+                        // Product name found
+                        if($this->re_db_num_rows($resProdutNameFind)>0){
+                            // product present in list then do nothing
+                        }else{
+                            $q = "INSERT INTO ".PRODUCT_LIST.""
+                            ." SET"
+                                ." category='".$check_data_val['product_category']."'"
+                                .",name='".trim(str_replace(array("'")," ",$check_data_val['invest_product'])," ")."'"
+                                .",sponsor='".$check_data_val['sponsor_id']."'"
+                                .$this->insert_common_sql()
+                            ;
+                            
+                            $res_InsertProduct = $this->re_db_query($q);
+                            $last_inserted_id = $this->re_db_insert_id();
+                            $reprocess_status = $res_InsertProduct;
+                        }
+                    }
 
                         // Exception intervention in resolve exception() by user(reassign client OR broker)
                         $reassignBroker = $reassignClient = 0;
@@ -3316,7 +3388,7 @@
                                 }
                             }
                         }
-
+                    
                         // IDC BROKER Validation
                         if(isset($check_data_val['representative_number']) OR $check_data_val['broker_id']<0){
                             $rep_number = isset($check_data_val['representative_number'])?trim($this->re_db_input($check_data_val['representative_number'])):'';
@@ -3405,6 +3477,7 @@
                         // IDC PRODUCT Validation    
                         $productFound = 0;
 
+                    if($check_data_val['sponsor_id'] != 293){
                         //23-12-2022 
                         //As column D is considered as cusip in filetype 9 check for cusip in all file types
                         if(empty($check_data_val['cusip_number'])){
@@ -3512,21 +3585,36 @@
                                 $result++;
                             }
                         }
+                    }
 
                         //--- IDC CLIENT validation ---//
                         if(!$reassignClient AND empty($check_data_val['customer_account_number'])){
-                            $q = "INSERT INTO ".IMPORT_EXCEPTION.""
-                                    ." SET error_code_id='13'"
-                                        .",field='customer_account_number'"
-                                        .",field_value=''"
-                                        .",file_type=$commissionFileType"
-                                        .$insert_exception_string;
+                            if($check_data_val['sponsor_id'] != 293){
+                                $q = "INSERT INTO ".IMPORT_EXCEPTION.""
+                                ." SET error_code_id='13'"
+                                    .",field='customer_account_number'"
+                                    .",field_value=''"
+                                    .",file_type=$commissionFileType"
+                                    .$insert_exception_string;
+                            }else{
+                                $q = "INSERT INTO ".IMPORT_EXCEPTION.""
+                                ." SET error_code_id='13'"
+                                    .",field='customer_account_number'"
+                                    .",field_value=''"
+                                    .",file_type=$commissionFileType"
+                                    .$insert_exception_string;
+                            }
+                            
                             $res = $this->re_db_query($q);
                             $exception_raised = 1;
                             $last_inserted_exception = $this->re_db_insert_id();
 
                             $result++;
                         } else {
+
+                    //  echo "<pre>";
+                    //  print_r($reassignClient);die;
+
                             if ($reassignClient){
                                 $client_id = $check_data_val['client_id'];
                                 $clientAccount = $instance_client_maintenance->edit($client_id);
@@ -3541,7 +3629,7 @@
                                             ." AND ca.is_delete=0 AND ca.client_id=cm.id"
                                 ;
 
-                                if($commissionFileType != 9){
+                                if($commissionFileType != 9 || $commissionFileType != 11){
                                     $q.=" AND ca.sponsor_company='".$sponsor_id."'";
                                 }
 
@@ -3583,9 +3671,15 @@
                                         // $sponsor_id = $res[0]['id'];
                                     }
                                 }
+
+                // echo "<pre>";
+                // print_r($check_data_val['alpha_code']);die;
+
                                 // Add->Check Client Name
-                                if (empty($check_data_val['alpha_code'])){
+                                if (empty($check_data_val['alpha_code']) && $check_data_val['sponsor_id'] != 293){
                                     $clientAccount = ['last_name'=>'GenericCustomer '.ltrim($this->re_db_input($check_data_val['customer_account_number']),'0')];
+                                } else if (empty($check_data_val['alpha_code']) && $check_data_val['sponsor_id'] == 293){
+                                    $clientAccount = ['last_name'=>'Orion '.ltrim($this->re_db_input($check_data_val['customer_account_number']),'0')];
                                 } else {
                                     $clientAccount = nameParse($check_data_val['alpha_code']);
                                 }
@@ -3609,7 +3703,7 @@
 
                                         if (stripos($instance_client_maintenance->errors, '(24)') !== false){
 
-                                            if($commissionFileType != 9){
+                                            if($commissionFileType != 9 || $commissionFileType != 11){
                                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
                                                     ." SET error_code_id=24"
                                                         .",field='alpha_code'"
@@ -3654,6 +3748,9 @@
                                 }
                                 unset($_SESSION[$for_import]);
                             }
+
+                // echo "<pre>";
+                // print_r($clientAccount);die;
 
                             //--- VALID CLIENT FOUND --//
                             if (!empty($clientAccount['id'])){
@@ -4053,7 +4150,39 @@
                                     }
                                 }
 
-                                $q1 = "INSERT INTO ".TRANSACTION_MASTER.""
+                                if($check_data_val['sponsor_id'] == 293){
+                                    $chareges_amount = ($check_data_val['charge_sign']=='1' ? '-' : '') . ($this->re_db_input($check_data_val['charge']));
+
+                                    $q1 = "INSERT INTO ".TRANSACTION_MASTER.""
+                                        ." SET file_id='".$check_data_val['file_id']."'"
+                                            .",source='".strtoupper($fileSource)."'"
+                                            .",trade_date='".$check_data_val['trade_date']."'"
+                                            .",posting_date='".date('Y-m-d')."'"
+                                            .",invest_amount='".($check_data_val['gross_amount_sign_code']=='1' ? '-' : '').$this->re_db_input($check_data_val['gross_transaction_amount'])."'"
+                                            .",gross_amount_sign_code='".$check_data_val['gross_amount_sign_code']."'"
+                                            .",dealer_commission_sign_code='".$check_data_val['dealer_commission_sign_code']."'"
+                                            .",commission_received='".$commission_received."'"
+                                            .",charge_amount='".$chareges_amount."'"
+                                            .",product_cate='".$product_category_id."'"
+                                            .",product='".$product_id."'"
+                                            .",batch='".$batch_id."'"
+                                            .",sponsor='".$sponsor_id."'"
+                                            .",broker_name='".$broker_id."'"
+                                            .",client_name='".$client_id."'"
+                                            .",client_number='".ltrim($check_data_val['customer_account_number'],'0')."'"
+                                            .",branch='".$branch."'"
+                                            .",company='".$company."'"
+                                            .",split='2'"
+                                            .",buy_sell='1'"
+                                            .",cancel='2'"
+                                            .",commission_received_date='".$batch_date."'"
+                                            .",trail_trade=$isTrail"
+                                            .$con
+                                            .$this->insert_common_sql();
+                                }
+
+                                if($check_data_val['sponsor_id'] != 293){
+                                    $q1 = "INSERT INTO ".TRANSACTION_MASTER.""
                                         ." SET file_id='".$check_data_val['file_id']."'"
                                             .",source='".strtoupper($fileSource)."'"
                                             .",trade_date='".$check_data_val['trade_date']."'"
@@ -4078,6 +4207,8 @@
                                             .",trail_trade=$isTrail"
                                             .$con
                                             .$this->insert_common_sql();
+                                }
+                                
                                 $res1 = $this->re_db_query($q1);
                                 $last_inserted_id = $this->re_db_insert_id();
                                 $transaction_master_id = $last_inserted_id;
@@ -4142,6 +4273,7 @@
                                     $reprocess_status = true;
                                 }
                             }
+                            
                         }
                     }
                 }
@@ -4518,11 +4650,13 @@
                 $return = ["file_id"=>$file_id, "file_name"=>'*Not Found*', "exceptions"=>0, "processed"=>0];
                 // Make sure to re-value the parameter to uppercase for the "in_array()" call below
                 $source = strtoupper($this->re_db_input($source));
-                
+
                 if (empty($source)){
-                    $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA, IMPORT_GEN_DETAIL_DATA];
+                    $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA, IMPORT_GEN_DETAIL_DATA,IMPORT_ORION_DETAIL_DATA];
                 } else if (in_array($source,['DSTIDC'])){
                     $tableArray = [IMPORT_IDC_DETAIL_DATA];
+                } else if (in_array($source,['ORION'])){
+                    $tableArray = [IMPORT_ORION_DETAIL_DATA]; 
                 } else if (in_array($source,['GENERIC'])){
                     $tableArray = [IMPORT_GEN_DETAIL_DATA];
                 } else if (in_array($source,['DS','DST','DSTFANMAIL'])){
@@ -4535,7 +4669,7 @@
 
                 foreach ($tableArray AS $table){
                     $table = strtolower($table);
-                    
+
                     $q = "SELECT a.file_id, b.file_name, SUM(if(a.process_result>0,0,1)) AS exceptions, SUM(if(a.process_result>0,1,0)) AS processed"
                         ." FROM $table a"
                         ." LEFT JOIN ".IMPORT_CURRENT_FILES." b ON a.file_id=b.id AND b.is_delete=0"
@@ -4564,6 +4698,9 @@
             $fileSource = $this->import_table_select($file_id, 1);
             $detailTable = $fileSource['table'];
             
+            echo "<pre>";
+            print_r($detailTable);
+
             if (is_null($process_result)) {
                 // Do nothing
             } else if ($process_result==0){
@@ -4697,6 +4834,42 @@
 
 			$q = "SELECT at.*"
 					." FROM ".IMPORT_GEN_DETAIL_DATA." AS at"
+                    ." WHERE at.is_delete = 0"
+                    ." AND at.file_id = $file_id"
+                        .$con
+                    ." ORDER BY at.id"
+            ;
+			$res = $this->re_db_query($q);
+
+            if($this->re_db_num_rows($res)>0){
+                $a = 0;
+    			while($row = $this->re_db_fetch_array($res)){
+    			     array_push($return,$row);
+
+    			}
+            }
+			return $return;
+		}
+
+        public function get_ori_detail_data($file_id, $process_result=null, $record_id=0){
+			$return = array();
+            $con = '';
+            $file_id = (int)$this->re_db_input($file_id);
+
+            if (!is_null($process_result)) {
+                $con = " AND (at.process_result = '".$process_result."'"
+                       .($process_result==0 ? " OR at.process_result IS NULL" : "")
+                       .")"
+                ;
+            }
+
+            if ($record_id){
+                $record_id = (int)$this->re_db_input($record_id);
+                $con .= " AND at.id=$record_id";
+            }
+
+			$q = "SELECT at.*"
+					." FROM ".IMPORT_ORION_DETAIL_DATA." AS at"
                     ." WHERE at.is_delete = 0"
                     ." AND at.file_id = $file_id"
                         .$con
@@ -5161,6 +5334,22 @@
 
 			$q = "SELECT idc.*"
 					." FROM ".IMPORT_GEN_DETAIL_DATA." AS idc"
+                    ." WHERE idc.is_delete=0"
+                    ."  AND idc.id='".$id."'"
+                    ." ORDER BY idc.id DESC"
+            ;
+			$res = $this->re_db_query($q);
+
+            if($this->re_db_num_rows($res)>0){
+                $return = $this->re_db_fetch_array($res);
+            }
+			return $return;
+		}
+        public function select_existing_ori_data($id){
+			$return = array();
+
+			$q = "SELECT idc.*"
+					." FROM ".IMPORT_ORION_DETAIL_DATA." AS idc"
                     ." WHERE idc.is_delete=0"
                     ."  AND idc.id='".$id."'"
                     ." ORDER BY idc.id DESC"

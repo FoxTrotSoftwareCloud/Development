@@ -160,10 +160,10 @@
 
                                 $total_unique_trade_unprocessed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
                                 $total_unique_trade_processed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-
+                                
                                 if (empty($get_file_type)) {
                                     $fileTypeDescription = $get_file_data['file_type'];
-                                } else if (in_array($get_file_type, ['2', '9'])) {
+                                } else if (in_array($get_file_type, ['2', '9', '11'])) {
                                     $fileTypeDescription = "Commissions";
                                     // $total_commission_amount = (float)$instance->get_file_batch($_GET['id'], 'commission_amount');
 
@@ -180,7 +180,8 @@
                                 } else {
                                     $fileTypeDescription = "Clients";
                                 }
-
+                                // echo "<pre>";
+                                // print_r($_GET['tab']);die;
                                 if ($_GET['tab'] == "review_files") { ?>
                                 
 
@@ -208,7 +209,7 @@
                                                                                                         echo date('m/d/Y', strtotime($get_file_data['last_processed_date']));
                                                                                                     } else echo '00-00-0000' ?></h4>
 
-                                    <?php if (in_array($get_file_type, [2, 9])) { ?>
+                                    <?php if (in_array($get_file_type, [2, 9, 11])) {?>
                                         <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_commission_amount, 2); ?></h4>
                                        
                                     <?php }
@@ -228,7 +229,7 @@
                                     $file_id = isset($_GET['id']) ? $instance->re_db_input($_GET['id']) : 0;
                                     $get_file_type_source = $instance->get_current_file_type($file_id);
 
-                                    if (isset($get_file_type) && in_array($get_file_type, [2, 9])) {
+                                    if (isset($get_file_type) && in_array($get_file_type, [2, 9, 11])) {
                                         // $total_amount = 0;
 
                                         // if ($get_file_type == 9) {
@@ -313,7 +314,7 @@
                                                                 $count = 0;
                                                                 if (isset($return) && $return != array()) {
                                                                     $return = $instance->select_current_files(1);
-                                                                    
+
                                                                     foreach ($return as $key => $val) {
                                                                         $return_file_data_array = $instance->get_file_array($val['id']);
                                                                         $isImportCompleted = $val['processed'] == 1 && $val['process_completed'] == 1;
@@ -335,12 +336,14 @@
                                                                             $file_type_id = 3;
                                                                         } else if (stripos($val['file_type'], 'generic commission') !== false or $val['file_type_code'] == 9) {
                                                                             $file_type_id = 9;
-                                                                        } else {
+                                                                        } else if (stripos($val['file_type'], 'Orion') !== false or $val['file_type_code'] == 11) {
+                                                                            $file_type_id = 11; 
+                                                                        }else {
                                                                             $file_type_id = 1;
                                                                         }
 
                                                                         $fid_to_send = $val['id'];
-                                                                        if ($file_type_id == 2 || $file_type_id == 9) {
+                                                                        if ($file_type_id == 2 || $file_type_id == 9 ||  $file_type_id == 11) {
 
                                                                             $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=0");
 
@@ -356,9 +359,9 @@
 
                                                                         }
 
-
+                                                                        
                                                                         if (isset($val['imported_date']) && $val['imported_date'] != '') {
-
+                                                                        
                                                                             $sponsorLink = CURRENT_PAGE . "?tab=processed_files&id={$val['id']}&file_type=$file_type_id";
                                                                 ?>
                                                                             <tr id="<?php echo '$key' . $key ?>">
@@ -397,7 +400,7 @@
                                                                                                                                                                                                                                     echo date('m/d/Y', strtotime($val['last_processed_date']));
                                                                                                                                                                                                                                 } ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9]) ? $file_batch_id : 'N/A'; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9, 11]) ? $file_batch_id : 'N/A'; ?></td>
                                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y', strtotime($val['imported_date'])); ?></td>-->
 
                                                                                 <?php
@@ -428,8 +431,10 @@
 
                                                                                 <td style="text-align:right ;" class="chkamt">
                                                                                     <?php
+                                                                                    // echo "<pre>";
+                                                                                    // print_r($file_type_id);die;
 
-                                                                                    if ($file_type_id == 2 || $file_type_id == 9) {
+                                                                                    if ($file_type_id == 2 || $file_type_id == 9 || $file_type_id == 11) {
 
                                                                                         if($total_processed_commission_for_import == $total_Check_Amount && $process_status == 1){ 
                                                                                             echo '<i class="fa fa-check text-success"></i>';
@@ -440,6 +445,8 @@
                                                                                         echo ' $' . number_format($total_processed_commission_for_import, 2);
                                                                                        
                                                                                     } else {
+                                                                                        // echo "<pre>";
+                                                                                        // print_r("else");die;
 
                                                                                         if($total_processed_import == $total_import && $process_status == 1){ 
                                                                                             echo '<i class="fa fa-check text-success"></i>';
@@ -641,12 +648,12 @@
                                                     <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
                                                         <table id="data-table3" class="table table-bordered">
                                                             <thead>
-                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
+                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])) { ?>
                                                                     <th>Trade Date</th>
                                                                 <?php }else{ ?>
                                                                     <th>Date</th>
                                                                 <?php } ?>
-                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['1', '2', '9'])) { ?>
+                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['1', '2', '9','11'])) { ?>
                                                                     <th>Rep#</th>
                                                                     <th>Rep Name</th>
                                                                     <th>Account#</th>
@@ -679,7 +686,8 @@
                                                                 $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
 
                                                                 $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
-                                                
+                                                                // echo "<pre>";
+                                                                // print_r($total_unprocessed_commission_for_import);die;
                                                                     $prev_temp_data_id = 0;
                                                                     $bg_color = '#fff';
                                                                 foreach ($return_exception as $error_key => $error_val) {
@@ -709,10 +717,15 @@
                                                                             $existing_field_value = date('m/d/Y', strtotime($u5_date));
                                                                         }
                                                                     }
-                                                                    if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9'])) {
+                                                                    if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9', '11'])) {
+                                                                        // echo "<pre>";
+                                                                        // print_r("here");die;
                                                                         switch ($error_val['file_type']) {
                                                                             case '9':
                                                                                 $return_commission_existing_data = $instance->select_existing_gen_data($error_val['temp_data_id']);
+                                                                                break;
+                                                                            case '11':
+                                                                                $return_commission_existing_data = $instance->select_existing_ori_data($error_val['temp_data_id']);
                                                                                 break;
                                                                             default:
                                                                                 $return_commission_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id'], $file_source);
@@ -834,7 +847,7 @@
                                                                 ?>
                                                                     <tr style="background-color: <?= $bg_color ?>;">
                                                                         <td><?php echo date('m/d/Y', strtotime($error_val['date'])); ?></td>
-                                                                        <?php if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2', '9'])) { ?>
+                                                                        <?php if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2', '9', '11'])) { ?>
                                                                             <td><?php echo $error_val['rep']; ?></td>
                                                                             <td><?php echo $error_val['rep_name']; ?></td>
                                                                             <td><?php echo $error_val['account_no']; ?></td>
@@ -935,7 +948,7 @@
                                                         <table id="data-table4" class="table table-bordered table-stripped table-hover">
                                                             <thead>
                                                                 <!-- <th>Date</th> -->
-                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
+                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])) { ?>
                                                                     <th>Trade Date</th>
                                                                 <?php }else{ ?>
                                                                     <th>Date</th>
@@ -990,10 +1003,13 @@
                                                                             $lnm=$arr[1];
                                                                             $fnm=$arr[0];
                                                                         }
+                                                                        if(sizeof($arr)==1){
+                                                                            $lnm=$arr[0];
+                                                                        }
                                                                         $process_val['rep_name']=$lnm.", ".$fnm;
                                                                     }
 
-                                                                    if (isset($file_type) && in_array($file_type, ['2', '9'])) {
+                                                                    if (isset($file_type) && in_array($file_type, ['2', '9', '11'])) {
                                                                         $process_val['date'] = $instance->select_trade_date($file_id,$file_type,$process_val['temp_data_id']);
                                                                     }
 
@@ -1049,7 +1065,7 @@
                                                             <table class="table">
                                                             <tr style="text-align: right;">
    
-                                                                <?php if(isset($get_file_type) && in_array($get_file_type, ['2', '9'])){ ?>
+                                                                <?php if(isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])){ ?>
                                                                 <td><b> Total Commission : <?php echo '$'.number_format($total_processed_commission_for_import,2) ;  ?> </b></td>
                                                                 <?php } ?>
                                                             </tr>
@@ -1482,6 +1498,29 @@
                                                                         </td>
                                                                     </tr>
                                                                 <?php }
+                                                                // Add ORION 30/03/23 -->
+                                                                
+                                                                $temp_data_interface = new data_interfaces_master();
+                                                                $orion = $temp_data_interface->select("`name` LIKE 'orion%'");
+                                                                if (count($orion)) { ?>
+                                                                    <tr>
+                                                                        <td><?php echo $orion[0]['name']; ?></td>
+                                                                        <td></td>
+                                                                        <td class="text-center">ORION</td>
+                                                                        <td>
+                                                                            <div class="row">
+                                                                                <div class="col-md-6">
+                                                                                    <input type="file" name="upload_orion_file" class="form-control" />
+                                                                                </div>
+                                                                                <div class="col-md-6">
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_orion_file" value="upload_orion_file"><i class="fa fa-download"></i> Download</button>
+                                                                                </div>
+                                                                        </td>
+                                                                    </tr>
+                                                            <?php
+                                                                    unset($temp_data_interface);
+                                                                }
+                                                                // <?php 
                                                                 // Add DAZL 09/04/22 -->
                                                                 $temp_data_interface = new data_interfaces_master();
                                                                 $dazl = $temp_data_interface->select("`name` LIKE 'dazl%'");
@@ -2368,7 +2407,7 @@
         error_code_id = Number(error_code_id);
         result = 0;
         // Trade/Commission records display more detailed elements and Resolve options than Clients & Securities
-        tradeOrCommRecord = [2, 9].includes(exception_file_type);
+        tradeOrCommRecord = [2, 9, 11].includes(exception_file_type);
 
         document.getElementById("client_id").value = client_id;
 

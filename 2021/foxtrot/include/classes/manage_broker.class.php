@@ -3413,6 +3413,17 @@
           return $all_sponsors;
         }
 		}
+
+    public function get_borker_id_by_name($name){
+			$get_broker_list = $this->select_broker();
+        foreach ($get_broker_list as $key => $val){
+            if($val['last_name'] == $name){
+                $id = $val['id'];
+            }
+        }
+			return $id;
+		}
+
     function broker_state_license_report($branch=0,$broker_id=0,$state=0){
       
       $con='';

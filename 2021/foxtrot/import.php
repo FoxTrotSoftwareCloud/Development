@@ -31,6 +31,7 @@
     $get_sponsor = $instance_sponsor->select_sponsor(1);
     $instance_batches = new batches();
     $instance_importGeneric = new import_generic();
+    $instance_importOrion = new import_orion();
     $instance_dim = new data_interfaces_master();
 
     if(isset($_GET['id']) && $_GET['id'] !='') {
@@ -53,6 +54,8 @@
             $file_type = 3;
         } else if (stripos($_POST['process_file_type'],'generic commission')!==false || $_POST['process_file_type_code']=='9'){
             $file_type = 9;
+        } else if (stripos($_POST['process_file_type'],'orion')!==false || $_POST['process_file_type_code']=='11'){
+            $file_type = 11;
         } else {
             $file_type = 1;
         }
@@ -182,7 +185,7 @@
             $exception_value = isset($_POST['exception_value'])?$instance->re_db_input($_POST['exception_value']):'';
         }
 
-        // echo "<pre>"; print_r($_POST);die;
+        // echo "<pre>"; print_r($_POST['exception_value']);die;
 
         $return = $instance->resolve_exceptions($_POST);
 
@@ -305,6 +308,47 @@
             }
             if ($uploaded){
                 $uploaded = $instance_importGeneric->process_file($_FILES[$upload_sponsor_file]['name'], $_POST['generic_sponsor'], $_POST['generic_product_category']);
+                $successMessage = "File '".$_FILES[$upload_sponsor_file]['name']."' uploaded and processed.";
+            } else if (empty($error)){
+                $error = 'File not uploaded. Please check privileges on the directory & file: '.$$_FILES[$upload_sponsor_file]['name'];
+            }
+        }
+        
+        if(empty($error) AND $uploaded){
+            $_SESSION['success'] = $successMessage;
+            header("location:".CURRENT_PAGE);
+        } else{
+            $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
+            header("location:".CURRENT_PAGE."?tab=open_ftp");
+        }
+        exit;
+    }
+    // *** 03/30/2023 ORION file upload
+    else if(isset($_POST['upload_orion_file']) && $_POST['upload_orion_file']=='upload_orion_file')
+    {
+        $error = $upload_sponsor_file = $localFolder = $result = '';
+        $uploadFiles = $dim = [];
+        $uploaded =  0;
+        $upload_sponsor_file = 'upload_orion_file';
+        
+      if ($upload_sponsor_file == 'upload_orion_file') {
+            // print_r($instance_importOrion->dataInterface['local_folder']);die;
+            $localFolder = rtrim($instance_importOrion->dataInterface['local_folder'],"/")."/";
+            // echo '<pre>';
+            // print_r($_FILES);die;
+            // Validate file parameters
+            if (empty($_FILES[$upload_sponsor_file]['name'])){
+                $error = 'No file specified. Procedure cancelled.';
+            } else if (file_exists($localFolder.$_FILES[$upload_sponsor_file]['name'])){
+                $error = "File '".$_FILES[$upload_sponsor_file]['name']."' already uploaded. Please select another file or rename current file.";
+            }
+
+            // Upload file
+            if (empty($error)){
+                $uploaded = $instance->upload_file($_FILES[$upload_sponsor_file], $instance_importOrion->dataInterface['local_folder']);
+            }
+            if ($uploaded){
+                $uploaded = $instance_importOrion->process_file($_FILES[$upload_sponsor_file]['name']);
                 $successMessage = "File '".$_FILES[$upload_sponsor_file]['name']."' uploaded and processed.";
             } else if (empty($error)){
                 $error = 'File not uploaded. Please check privileges on the directory & file: '.$$_FILES[$upload_sponsor_file]['name'];

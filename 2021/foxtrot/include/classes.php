@@ -33,4 +33,5 @@
     include_once(DIR_FS_CLASSES."import_generic.class.php");
     include_once(DIR_FS_CLASSES."webcrd.class.php");
     include_once(DIR_FS_CLASSES."dst_fetch.class.php");
+    include_once(DIR_FS_CLASSES."import_orion.class.php");
 ?>

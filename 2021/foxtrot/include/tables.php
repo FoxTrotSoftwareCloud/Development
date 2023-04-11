@@ -132,4 +132,5 @@
     define('DAZL_ACCOUNT_DATA','ft_dazl_account_data');
     define('DAZL_COMM_DATA','ft_dazl_comm_data');
     define('DAZL_HEADER_DATA','ft_dazl_header_data');
+    define('IMPORT_ORION_DETAIL_DATA','ft_import_orion_detail_data');
 ?>
