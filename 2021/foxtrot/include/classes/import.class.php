@@ -4151,7 +4151,9 @@
                                 }
 
                                 if($check_data_val['sponsor_id'] == 293){
-                                    $chareges_amount = ($check_data_val['charge_sign']=='1' ? '-' : '') . ($this->re_db_input($check_data_val['charge']));
+                                    // $chareges_amount = ($check_data_val['charge_sign']=='1' ? '-' : '') . ($this->re_db_input($check_data_val['charge']));
+
+                                    $chareges_amount = ($this->re_db_input($check_data_val['charge']));
 
                                     $q1 = "INSERT INTO ".TRANSACTION_MASTER.""
                                         ." SET file_id='".$check_data_val['file_id']."'"

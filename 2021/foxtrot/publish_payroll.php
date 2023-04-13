@@ -10,7 +10,7 @@
     if ($payroll_id > 0){
         $_SESSION['publish_payroll']['payroll_id'] = $payroll_id;
     }
-    
+
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){
         $data_array = json_encode($_POST);
         $publish_report = isset($_POST['publish_report'])?$instance->re_db_input($_POST['publish_report']):0;

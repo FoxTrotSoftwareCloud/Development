@@ -186,7 +186,7 @@ class import_orion extends import {
                             
                             if($broker_id == 0)
                             {
-                                $data['active_status_cdd'] = 0;
+                                $data['active_status_cdd'] = 1;
                                 $data['fund'] = $repnumber;
                                 $data['lname'] = $brokername;
                                 $borker_add=$instance_broker->insert_update($data);
@@ -240,15 +240,15 @@ class import_orion extends import {
                             if($fieldKey == 7){
                                 $get_sign = str_replace(array("$",","," "),"",$fieldValue);
                                 if($get_sign == "-"){
-                                    $addValue = 1;
-                                }else{
                                     $addValue = 0;
+                                }else{
+                                    $addValue = 1;
                                     
                                 }
                                 $fieldValues .= (empty($fieldValues) ? '' : ', ').$addValue;
                                 $addValuecheck = str_replace(array("$","-",","," "),"",$fieldValue);
                                 $addValue = empty($addValuecheck) ? 0.00 : $addValuecheck;
-                                $fieldValues .= (empty($fieldValues) ? '' : ', ').$addValue;
+                                $fieldValues .= (empty($fieldValues) ? '' : ', ')."-".$addValue;
                             }
                             if($fieldKey == 8){
                                 $addValuecheck = str_replace(array("$","-",","," "),"",$fieldValue);
@@ -267,7 +267,6 @@ class import_orion extends import {
                     // Table Fields to populate
                     // 20-12-2022 considered column D as cusip_number so it is added in detail table
                     $tableFields = '';
-                    $today_date = date('Y-m-d');
 
                     // $tableFields = "`representative_name`, `representative_number`,`client_name`, `invest_product`, `customer_account_number`,`net_amount`, `comm_rec`, `charge`, `rep_comm`, `dealer_commission_amount`";
                     $tableFields = "`representative_name`, `representative_number`,`client_name`, `invest_product`, `customer_account_number`,`gross_transaction_amount`, `gross_commission_amount`, `charge_sign`, `charge`, `rep_comm`, `dealer_commission_amount`";
@@ -275,7 +274,7 @@ class import_orion extends import {
                     $q = "INSERT INTO `".IMPORT_ORION_DETAIL_DATA."` "
                         ."(`file_id`,`broker_id`, `product_category`, `sponsor_id`, `trade_date`, ".$tableFields.$insertCommonSQL['fields'].")"
                         ." values "
-                        ."($file_id, $broker_id, $productCategoryId, $sponsor_id, ".$today_date.", ".$fieldValues.$insertCommonSQL['values'].")"
+                        ."($file_id, $broker_id, $productCategoryId, $sponsor_id, \"".date('Y-m-d')."\", ".$fieldValues.$insertCommonSQL['values'].")"
                     ;
                     $res = $this->re_db_query($q);
                     

@@ -163,7 +163,7 @@ class payroll extends db{
         $upload_reps = isset($data['upload']) ? $data['upload'] : [];
         $uploadRepsQuery = '';
         $company_id = isset($_POST['company-select']) ? (int)$this->re_db_input($_POST['company-select']) : 0;
-        
+    
         if($payroll_date == ''){
             $this->errors = 'Please enter a payroll date.';
         } else if($clearing_business_cutoff_date =='' AND $direct_business_cutoff_date ==''){
@@ -220,13 +220,20 @@ class payroll extends db{
             $res = $this->re_db_query($q);
             $last_inserted_id = $this->re_db_insert_id();
         }
-        
+// echo "<pre>";
+// print_r($direct_business_cutoff_date);
+// echo "<pre>";
+// print_r($clearing_business_cutoff_date);
         // DIRECT BUSINESS Trades
         if ($direct_business_cutoff_date != '') {
             $trades_array = $this->select_trades($direct_business_cutoff_date,1,$uploadRepsQuery,$company_id);
-            
+
             foreach($trades_array as $key=>$val)
             {
+        // echo "<pre>";
+        // print_r("if");
+        // echo "<pre>";
+        // print_r($val);    
                 $q = "INSERT INTO `".PAYROLL_REVIEW_MASTER."`"
                         ." SET `payroll_id`='".$last_inserted_id."',`trade_number`='".$val['id']."',`trade_date`='".$val['trade_date']."' ,`product`='".$val['product']."',`product_category`='".$val['product_cate']."'"
                                 .",`client_account_number`='".$val['client_number']."',`client_name`='".$val['client_name']."',`broker_id`='".$val['broker_name']."',`quantity`='".$val['units']."',`price`='".$val['shares']."'"
@@ -250,6 +257,10 @@ class payroll extends db{
             
             foreach($trades_array AS $key=>$val)
             {
+        // echo "<pre>";
+        // print_r("else");
+        // echo "<pre>";
+        // print_r($val);
                 $q = "INSERT INTO `".PAYROLL_REVIEW_MASTER."`"
                     ." SET "
                         ."`payroll_id`='".$last_inserted_id."'"
@@ -283,7 +294,8 @@ class payroll extends db{
             }
             $total_trades += count($trades_array);
         }
-        
+        // echo "<pre>";
+        // print_r($total_trades);die;
         if($res){
             if($total_trades>0)
             {
@@ -385,7 +397,7 @@ class payroll extends db{
         if($payroll_date != '') {
             $payroll_date = date('Y-m-d',strtotime($payroll_date));
         }
-        
+
         // Clear Commission Paid field in Payroll Master
         $q = "UPDATE `" .PAYROLL_REVIEW_MASTER. "` SET `commission_paid` = 0, `override_rate` = 0 WHERE payroll_id=".$payroll_id;
         $res = $this->re_db_query($q);
@@ -399,10 +411,10 @@ class payroll extends db{
         // * 3. Override Commissions - added 9/26/21 li
         // **********************************************
         $payroll_commissions = $calculate->select_payroll_calculation_transactions($payroll_id);
-        
+
         // Clear out the Override Transactions - populated in "overrideCalculation()"
         $calculate->clearOverrides($payroll_id);
-        
+
         if(count($payroll_commissions)>0) {
             $calculate->commissionCalculation($payroll_commissions, $payroll_date, $payroll_id);
             $calculate->calculateAdjustments($payroll_date, $payroll_id);
@@ -1320,7 +1332,7 @@ class payroll extends db{
 
     public function select_trades($commission_received_date, $directClearing=0, $queryFilter='', $company=0){
     	$return = array();
-        $clearingSources = "('DS', 'DZ', 'GN', 'MN')" ;
+        $clearingSources = "('DS', 'DZ', 'GN', 'MN','ORI')" ;
         $con = '';
 
         if ($directClearing == 1) {
@@ -1335,7 +1347,7 @@ class payroll extends db{
             $company = (int)$this->re_db_input($company);
             $con .= " AND `trans`.`company` = $company";
         }
- 
+        
         if($commission_received_date != '') {
             $q = "SELECT `trans`.*,`bt`.id as batch_number,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname"
                     ." FROM `".TRANSACTION_MASTER."` AS `trans`"

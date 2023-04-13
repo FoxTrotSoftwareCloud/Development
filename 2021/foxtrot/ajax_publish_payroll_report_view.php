@@ -25,7 +25,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
     $filter_array = json_decode($_GET['filter'],true);
     $publish_report = isset($filter_array['publish_report'])?$filter_array['publish_report']:0;
-    
+
     if($publish_report==1)
     {
         $pdf_for_broker = isset($filter_array['pdf_for_broker'])?$filter_array['pdf_for_broker']:'';
@@ -39,7 +39,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $payroll_date = $payroll_date['payroll_date'];
 
         $get_broker_commission_data = $instance_payroll->get_broker_commission_report_data($company,$payroll_id,$broker,$print_type);
-        //echo "<pre>"; print_r($get_broker_commission_data);die;
+
         if($payroll_date != ''){ 
             $payroll_date = date('F d, Y',strtotime($payroll_date));
         }
@@ -51,7 +51,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         {
             $company = $system_company_name;
         }
-        
+
         if(isset($get_broker_commission_data['broker_transactions']) && $get_broker_commission_data['broker_transactions'] != array())
         {
             foreach($get_broker_commission_data['broker_transactions'] as $brokers_comm_key=>$brokers_comm_data)
@@ -225,7 +225,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                                    <td style="font-size:10px;font-weight:normal;text-align:center;"><?php echo $buy_sell;?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['investment_amount'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['commission_received'],2);?></td>
-                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['charge'],2);?></td>
+                                   <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo str_replace("-"," ",number_format($comm_sub_data['charge'],2));?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['net_commission'],2);?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['rate'],2).'%'; ?></td>
                                    <td style="font-size:10px;font-weight:normal;text-align:right;"><?php echo number_format($comm_sub_data['commission_paid'],2);?></td>
