@@ -3707,7 +3707,7 @@
                                                 $q = "INSERT INTO ".IMPORT_EXCEPTION.""
                                                     ." SET error_code_id=24"
                                                         .",field='alpha_code'"
-                                                        .",field_value='{$check_data_val['alpha_code']}'"
+                                                        .",field_value='{".str_replace(array("'"),"\'",$check_data_val['alpha_code'])."}'"
                                                         .",file_type=$commissionFileType"
                                                         .$insert_exception_string;
                                                 $res = $this->re_db_query($q);

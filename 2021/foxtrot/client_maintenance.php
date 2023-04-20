@@ -723,7 +723,7 @@
                     //     $lname = $clientNameArray[0];
                     // }
                 } else {
-                    //$lname = $detailData['alpha_code'];
+                    $lname = $detailData['alpha_code'];
                 }
                 // Passing the parameter strips off the zeroes    
                 $client_file_number = ltrim($detailData['customer_account_number'],'0');

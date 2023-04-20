@@ -826,7 +826,7 @@
                                                                             $existing_field_value = $return_sfr_existing_data['major_security_type'];
                                                                         }
                                                                     }
-                                                                    if (isset($file_type) && in_array($file_type, ['2', '9'])) {
+                                                                    if (isset($file_type) && in_array($file_type, ['2', '9', '11'])) {
                                                                         $error_val['date'] = $instance->select_trade_date($file_id,$file_type,$error_val['temp_data_id']);
                                                                     }
 
@@ -906,7 +906,7 @@
                                                             <table class="table">
                                                                 <tr style="text-align: right;">
 
-                                                                    <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9'])){ ?>
+                                                                    <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9', '11'])){ ?>
                                                                             <td style="width: 60%;"><b> Total Commission : <?php echo '$'.number_format($total_unprocessed_commission_for_import,2) ?> </b></td>
                                                                     <?php } ?>
                                                                     <td></td>
