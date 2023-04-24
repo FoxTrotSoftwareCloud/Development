@@ -684,8 +684,11 @@
             $detailData = $instance_import->select_existing_idc_data($exceptionId, $importSelect['source']);
         } else if ($file_type==9) {
             $detailData = $instance_import->select_existing_gen_data($exceptionId);
+        } else if ($file_type==11) {
+            $detailData = $instance_import->select_existing_ori_data($exceptionId);
         }
-        
+        // echo "<pre>";
+        // print_r($detailData);die;
         if ($detailData){
          //   echo "<pre>"; print_r($detailData);die;
             // Broker 
@@ -708,7 +711,7 @@
                 // } else {
                 //     $lname = TRIM($row['client']);
                 // }
-            } else if (in_array($file_type, [2, 9])){
+            } else if (in_array($file_type, [2, 9, 11])){
                 if (isset($detailData['customer_name']) AND $detailData['customer_name']!=''){
                     //$clientNameArray = explode(' ', trim($detailData['customer_name']));
 
@@ -723,10 +726,23 @@
                     //     $lname = $clientNameArray[0];
                     // }
                 } else {
-                    $lname = $detailData['alpha_code'];
+                    
+                    if(!empty($detailData['client_id'])){
+                        $instance_client = new client_maintenance();
+                        $clientDetail = $instance_client->get_client_name($detailData['client_id']);
+
+                        if ($clientDetail) {
+                            $lname = $clientDetail[0]['last_name'];
+                            $fname = $clientDetail[0]['first_name'];
+                        }
+
+                    }else{
+                        $lname = $detailData['alpha_code'];
+                    }
+                    // $lname = $detailData['alpha_code'];
                 }
-                // Passing the parameter strips off the zeroes    
-                $client_file_number = ltrim($detailData['customer_account_number'],'0');
+            // Passing the parameter strips off the zeroes  
+            $client_file_number = ltrim($detailData['customer_account_number'],'0');
             }
             if (empty($sponsor_company) AND isset($detailData['sponsor_id']) AND !empty($detailData['sponsor_id'])){
                 $sponsor_company = $detailData['sponsor_id'];

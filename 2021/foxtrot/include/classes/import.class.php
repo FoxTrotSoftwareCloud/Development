@@ -4293,7 +4293,7 @@
                     .$this->update_common_sql()
                 ." WHERE id=$file_id";
             $res = $this->re_db_query($q);
-            
+
             if (stripos($file_array['source'], 'dazl')!==false){
                 $con = '';
                 if ($file_type>0){
@@ -4308,6 +4308,12 @@
                             .$con
                 ;
                 $res = $this->re_db_query($q);
+            }
+
+            if($check_file_exception_process['exceptions'] == 0){
+                echo '<script>alert("Congratulations! \nAll trades have been successfully resolved")</script>';
+                echo '<script>location.reload();</script>';
+                exit;
             }
 
             if($exception_raised == 1){
@@ -5232,7 +5238,10 @@
     			     array_push($return,$row);
     			}
             }
-           
+
+            // if($return[0]['total_trades'] == 0){
+            //     echo '<script>alert("Congratulations! \nAll trades have been successfully resolved")</script>';
+            // }
 			return $return[0]['total_trades'];
 		}
 
