@@ -4311,9 +4311,11 @@
             }
 
             if($check_file_exception_process['exceptions'] == 0){
-                echo '<script>alert("Congratulations! \nAll trades have been successfully resolved")</script>';
-                echo '<script>location.reload();</script>';
-                exit;
+                // echo '<script>alert("Congratulations! \nAll trades have been successfully resolved")</script>';
+                // echo '<script>location.reload();</script>';
+                // exit;
+                $_SESSION['zero_exception'] = 'no exception';
+                return true;
             }
 
             if($exception_raised == 1){

@@ -1,3 +1,27 @@
+<?php
+if(isset($_SESSION['zero_exception'])){
+    $fileid = $_GET['id'];
+    $filetype = $_GET['file_type'];
+    $redirecturl = SITE_URL.'import.php';
+    echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+        echo "<script>
+            $(document).ready(function(){
+            Swal.fire({
+                icon: 'success',
+                title: 'Congratulations!',
+                text: 'All trades have been successfully resolved.',
+                confirmButtonText:'OK'
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    window.location.href = '$redirecturl?tab=processed_files&id=$fileid&file_type=$filetype'
+                }
+            });
+        });
+        </script>";
+
+    unset($_SESSION['zero_exception']);
+}
+?>
 <script language="javascript">
     // function GetFileList() {
     //     document.getElementsByName("HTTPDL_result").value = "";
