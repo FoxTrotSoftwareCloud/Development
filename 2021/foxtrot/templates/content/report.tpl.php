@@ -196,7 +196,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label>Output to</label> <br/>
+                            <label>Output to <?php echo $output; ?></label> <br/>
                             <label class="radio-inline">
                                 <input type="radio" class="radio" name="payable_output" id="output_to_screen" style="display: inline;" value="1" <?php if(isset($output) && ($output == 1 || $output == '')){echo "checked='checked'";}?>/>Screen&nbsp;&nbsp;&nbsp;
                             </label>
@@ -296,7 +296,6 @@ jQuery(function($){
 
     $("select[name='report_for']").change(function(){
         // console.log(this.value,"this.value")
-
         if(this.value == 1){
             document.getElementById("titlebox").textContent = "Commission Posting Log";
         }
@@ -309,6 +308,7 @@ jQuery(function($){
         if(this.value ==4){
             document.getElementById("titlebox").textContent = "Payables Report";
             $("#report_filters").addClass('payable-report');
+            // document.getElementById("output_to_pdf").value = 1;
         }
         else{
             $("#report_filters").removeClass('payable-report');
@@ -316,25 +316,27 @@ jQuery(function($){
     }).trigger("change");
 
     $("#report-form").submit(function(ev){
-        if($("input[name='output']:checked").val()== 4 || $("input[name='payable_output']:checked").val()== 4){
+        let report_type= document.getElementById("titlebox").textContent;
+        if(($("input[name='output']:checked").val()== 4 && report_type != "Payables Report") || ($("input[name='payable_output']:checked").val()== 4 && report_type == "Payables Report")){
             ev.preventDefault();
+            
             const data = new FormData(ev.target);
                 value = Object.fromEntries(data.entries());
                 report_for = $("select[name='report_for']").val() ;
                 // console.log(report_for )
                 if(report_for == "1"){
-                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_batch.php?filter="+JSON.stringify(value);
+                        url = "<?php echo SITE_URL ?>report_transaction_by_batch.php?filter="+JSON.stringify(value);
                 }
                 if(report_for == "2"){
-                    url = "http://foxtrotsoftware.com/CloudFox/report_batch.php?filter="+JSON.stringify(value);
+                    url = "<?php echo SITE_URL ?>report_batch.php?filter="+JSON.stringify(value);
 
                 }
                 if(report_for == "3"){
-                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_hold.php?filter="+JSON.stringify(value);
+                    url = "<?php echo SITE_URL ?>report_transaction_by_hold.php?filter="+JSON.stringify(value);
 
                 }
                 if(report_for == "4"){
-                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?filter="+JSON.stringify(value);
+                    url = "<?php echo SITE_URL ?>report_transaction_by_payable.php?filter="+JSON.stringify(value);
 
                 }
 
@@ -342,25 +344,25 @@ jQuery(function($){
             win.focus();
             return false;
         }
-        if($("input[name='output']:checked").val()== 2 || $("input[name='payable_output']:checked").val()== 2){
+        if(($("input[name='output']:checked").val()== 2 && report_type != "Payables Report") || ($("input[name='payable_output']:checked").val()== 2 && report_type == "Payables Report")){
             ev.preventDefault();
             const data = new FormData(ev.target);
                 value = Object.fromEntries(data.entries());
                 report_for = $("select[name='report_for']").val() ;
                 // console.log(report_for )
                 if(report_for == "1"){
-                        url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_batch.php?open=output_print&filter="+JSON.stringify(value);
+                    url = "<?php echo SITE_URL ?>report_transaction_by_batch.php?open=output_print&filter="+JSON.stringify(value);
                 }
                 if(report_for == "2"){
-                    url = "http://foxtrotsoftware.com/CloudFox/report_batch.php?open=output_print&filter="+JSON.stringify(value);
+                    url = "<?php echo SITE_URL ?>report_batch.php?open=output_print&filter="+JSON.stringify(value);
 
                 }
                 if(report_for == "3"){
-                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_hold.php?open=output_print&filter="+JSON.stringify(value);
+                    url = "<?php echo SITE_URL ?>report_transaction_by_hold.php?open=output_print&filter="+JSON.stringify(value);
 
                 }
                 if(report_for == "4"){
-                    url = "http://foxtrotsoftware.com/CloudFox/report_transaction_by_payable.php?open=output_print&filter="+JSON.stringify(value);
+                    url = "<?php echo SITE_URL ?>report_transaction_by_payable.php?open=output_print&filter="+JSON.stringify(value);
 
                 }
 
