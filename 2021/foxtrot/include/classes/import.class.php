@@ -160,7 +160,7 @@
             // Populate "Exception Value" per Exception Field
             if($exception_field == 'u5'){
                 $exception_value = isset($data['exception_value_date'])?$this->re_db_input($data['exception_value_date']):'';
-            } else if($exception_field == 'social_security_number'){
+            } else if($exception_field == 'social_security_number' || $exception_field == 'mutual_fund_customer_account_number'){
                 if($exception_file_type==1){
                     // Skip error for missing SSN. Field will be empty
                     $exception_value = $exception_record_id;
@@ -210,7 +210,7 @@
             $skipException = (isset($data['skip_exception']) ? (int)$this->re_db_input($data['skip_exception']) : 0);
             $code_for_sponsor = (isset($data['sponsor']) ? (int)$this->re_db_input($data['sponsor']) : 0);
 
-            // echo "<pre>"; print_r($data['skip_exception']);die;
+            // echo "<pre>"; print_r($data);die;
 
             //--> RESOLVE ACTION - Element is used for more than just "Broker Terminated" exceptions (radio button input element)
             if(isset($data['resolve_broker_terminated'])){
@@ -551,7 +551,9 @@
                 else if($exception_field == 'representative_number' AND $error_code_id == 13){
                     $result = $this->resolve_exception_3Reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                 }
-                else if($exception_field == 'social_security_number'){
+                else if($exception_field == 'social_security_number' || $exception_field == 'mutual_fund_customer_account_number'){
+                    // echo "<pre>"; print_r(empty($acc_for_client));echo "<br/>";
+
                     if($resolveAction == 4){
                         $result = $this->resolve_exception_4Delete($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                     } else if(!empty($acc_for_client)){
@@ -1510,6 +1512,9 @@
             $result = 0;
             $fileSource = $this->import_table_select($file_id, $file_type);
             $importFileTable = $fileSource['table'];
+
+            // echo "<pre>"; print_r($detail_data_id);
+            // echo "<pre>"; print_r($importFileTable);die;
 
             if (in_array($reassign_field,['broker_id','client_id']) AND $newId AND $file_type AND $file_id AND $detail_data_id AND $exception_record_id){
                 $res = $q = '';
@@ -4708,8 +4713,8 @@
             $fileSource = $this->import_table_select($file_id, 1);
             $detailTable = $fileSource['table'];
             
-            echo "<pre>";
-            print_r($detailTable);
+            // echo "<pre>";
+            // print_r($detailTable);
 
             if (is_null($process_result)) {
                 // Do nothing
