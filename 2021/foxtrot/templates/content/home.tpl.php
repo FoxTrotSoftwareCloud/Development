@@ -391,26 +391,13 @@
         });*/
         Highcharts.chart('container_payroll', {
             chart: {
-                type: 'column'
+                type: 'line'
             },
             title: {
                 text: ''
             },
             xAxis: {
-                categories: [
-                    'January',
-                    'February',
-                    'March',
-                    'April',
-                    'May',
-                    'June',
-                    'July',
-                    'August',
-                    'September',
-                    'October',
-                    'November',
-                    'December',
-                ],
+                categories: <?php echo $last_12_month_list ?>,
                 crosshair: true
             },
             yAxis: {
@@ -435,12 +422,15 @@
                 }
             },
             series: [{
+                name: 'Gross Commissions',
+                data: [<?php echo $grocess_commission_data; ?>]
 
-                name: 'Payroll',
-                // data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 50, 50, 50]
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }, {
+                name: 'Net Commissions',
+                data: [<?php echo $net_commission_data; ?>]
 
             }]
+
         });
     });
 </script>
@@ -565,79 +555,81 @@ $ytdProductionStatus = $widgetSettings->ytdProduction == 'expanded' ? '' : 'show
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Last Cutoff :</b></span>
-                                    <span class="data01count">15-11-2017</span>
+                                    <span class="data01count"><?php if ($direct_business_cutoff_date != "") {
+                                                                    echo date("Y-m-d", strtotime($direct_business_cutoff_date));
+                                                                } ?></span>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Gross Commission :</b></span>
-                                    <span class="data01count">$325k</span>
+                                    <span class="data01count">$<?php echo ($gross_commission != 0) ? number_format($gross_commission, 2) : 0 ?></span>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Average Payout Rate :</b></span>
-                                    <span class="data01count">$346.512.1</span>
+                                    <span class="data01count">$<?php echo ($average_check_amount != 0) ? number_format($average_check_amount, 2) : 0 ?></span>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Charges :</b></span>
-                                    <span class="data01count">$1.5k</span>
+                                    <span class="data01count">$<?php echo ($charge != 0) ? number_format($charge, 2) : 0 ?></span>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Net Commission :</b></span>
-                                    <span class="data01count">$228k</span>
+                                    <span class="data01count">$<?php echo ($net_commission != 0) ? number_format($net_commission, 2) : 0 ?></span>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Adjustment :</b></span>
-                                    <span class="data01count">$4.5k</span>
+                                    <span class="data01count">$<?php echo ($adjustments != 0) ? number_format($adjustments, 2) : 0 ?></span>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Total Check Amount :</b></span>
-                                    <span class="data01count">$265k</span>
+                                    <span class="data01count">$<?php echo ($check_amount != 0) ? number_format($check_amount, 2) : 0 ?></span>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Balance Carried Forword :</b></span>
-                                    <span class="data01count">$45k</span>
+                                    <span class="data01count">$<?php echo ($balance != 0) ? number_format($balance, 2) : 0 ?></span>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pull-left">
                                     <span class="data01title"><b>Retention :</b></span>
-                                    <span class="data01count">$415k</span>
+                                    <span class="data01count">$<?php echo ($retention != 0) ? number_format($retention, 2) : 0 ?></span>
                                 </div>
                             </div>
                         </div>
                         <table width='100%' class="graphdata02_3 <?php print $payrollStatus; ?>">
                             <tr>
                                 <td class="text-right">Last Cutoff Date: </td>
-                                <td width="15%" style="padding-left: 30px;"><?php if ($direct_business_cutoff_date != "") {
-                                                                                echo date("Y-m-d", strtotime($direct_business_cutoff_date));
-                                                                            } ?></td>
+                                <td class="data01count" style="padding-right: 20px;"><?php if ($direct_business_cutoff_date != "") {
+                                                                                            echo date("Y-m-d", strtotime($direct_business_cutoff_date));
+                                                                                        } ?></td>
                                 <td rowspan="9" style="width: 60%;">
                                     <div id="container_payroll" style="min-width: 200px; height: 300px; max-width: 3000px; margin:  auto"></div>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="text-right">Gross Commission:</td>
-                                <td width="15%" style="padding-left: 30px;">$0</td>
+                                <td class="data01count" style="padding-right: 20px;">$<?php echo ($gross_commission != 0) ? number_format($gross_commission, 2) : 0 ?></td>
                             </tr>
                             <tr>
                                 <td class="text-right">Charges:</td>
-                                <td width="15%" style="padding-left: 30px;">$0</td>
+                                <td class="data01count" style="padding-right: 20px;">$<?php echo ($charge != 0) ? number_format($charge, 2) : 0 ?></td>
                             </tr>
                             <tr>
                                 <td class="text-right">Net Commission:</td>
-                                <td width="15%" style="padding-left: 30px;">$0</td>
+                                <td class="data01count" style="padding-right: 20px;">$<?php echo ($net_commission != 0) ? number_format($net_commission, 2) : 0 ?></td>
                             </tr>
                             <tr>
                                 <td class="text-right">Adjustments:</td>
-                                <td width="15%" style="padding-left: 30px;">$0</td>
+                                <td class="data01count" style="padding-right: 20px;">$<?php echo ($adjustments != 0) ? number_format($adjustments, 2) : 0 ?></td>
                             </tr>
                             <tr>
                                 <td class="text-right">Total Check Amount:</td>
-                                <td width="15%" style="padding-left: 30px;">$0</td>
+                                <td class="data01count" style="padding-right: 20px;">$<?php echo ($check_amount != 0) ? number_format($check_amount, 2) : 0 ?></td>
                             </tr>
                             <tr>
                                 <td class="text-right">Balance Carried Forward:</td>
-                                <td width="15%" style="padding-left: 30px;">$0</td>
+                                <td class="data01count" style="padding-right: 20px;">$<?php echo ($balance != 0) ? number_format($balance, 2) : 0 ?></td>
                             </tr>
                             <tr>
                                 <td class="text-right">Retention:</td>
-                                <td width="15%" style="padding-left: 30px;">$0</td>
+                                <td class="data01count" style="padding-right: 20px;">$<?php echo ($retention != 0) ? number_format($retention, 2) : 0 ?></td>
                             </tr>
                         </table>
                         <div class="graphimg"></div>

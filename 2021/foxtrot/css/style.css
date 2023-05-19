@@ -607,7 +607,7 @@ select::-ms-expand {
 	float:left;
 }
 .data01count {
-	float:left;
+	float:right;
 	padding-left:10px;
 }
 .graphdata01.showhidata {
