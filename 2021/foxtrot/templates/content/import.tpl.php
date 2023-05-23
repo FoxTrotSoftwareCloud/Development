@@ -1,10 +1,10 @@
 <?php
-if(isset($_SESSION['zero_exception'])){
+if (isset($_SESSION['zero_exception'])) {
     $fileid = $_GET['id'];
     $filetype = $_GET['file_type'];
-    $redirecturl = SITE_URL.'import.php';
+    $redirecturl = SITE_URL . 'import.php';
     echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-        echo "<script>
+    echo "<script>
             $(document).ready(function(){
             Swal.fire({
                 icon: 'success',
@@ -182,9 +182,9 @@ if(isset($_SESSION['zero_exception'])){
                                 $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
                                 $total_commission_amount = 0.00;
 
-                                $total_unique_trade_unprocessed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
-                                $total_unique_trade_processed= $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-                                
+                                $total_unique_trade_unprocessed = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
+                                $total_unique_trade_processed = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
+
                                 if (empty($get_file_type)) {
                                     $fileTypeDescription = $get_file_data['file_type'];
                                 } else if (in_array($get_file_type, ['2', '9', '11'])) {
@@ -196,9 +196,8 @@ if(isset($_SESSION['zero_exception'])){
                                     $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
 
                                     $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-                                 
-                                    $total_commission_amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
 
+                                    $total_commission_amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
                                 } else if ($get_file_type == '3') {
                                     $fileTypeDescription = "Securities";
                                 } else {
@@ -207,18 +206,18 @@ if(isset($_SESSION['zero_exception'])){
                                 // echo "<pre>";
                                 // print_r($_GET['tab']);die;
                                 if ($_GET['tab'] == "review_files") { ?>
-                                
 
-                                <form method="post" id="reprocessform" style="display: none;">
 
-                                    <select name="process_file_<?php echo $_GET['id'] ?>"  class="form-control form-go-action">
-                                        <option value="5" selected>Reprocess</option>
-                                    </select>
-                                    <input type="text" name="id" id="id" value="<?php echo $get_file_data['id'] ?>">
-                                    <input type="text" name="process_file_type" id="process_file_type" value="<?php echo $get_file_data['file_type'] ?>">
-                                    <input type="text" name="process_file_type_code" id="process_file_type_code" value="<?php echo $get_file_data['file_type_code'] ?>">
-                                    <input type="hidden" name="go" value="go">
-                                    <button type="submit"><i class="fa fa-refresh"></i> submit</button>
+                                    <form method="post" id="reprocessform" style="display: none;">
+
+                                        <select name="process_file_<?php echo $_GET['id'] ?>" class="form-control form-go-action">
+                                            <option value="5" selected>Reprocess</option>
+                                        </select>
+                                        <input type="text" name="id" id="id" value="<?php echo $get_file_data['id'] ?>">
+                                        <input type="text" name="process_file_type" id="process_file_type" value="<?php echo $get_file_data['file_type'] ?>">
+                                        <input type="text" name="process_file_type_code" id="process_file_type_code" value="<?php echo $get_file_data['file_type_code'] ?>">
+                                        <input type="hidden" name="go" value="go">
+                                        <button type="submit"><i class="fa fa-refresh"></i> submit</button>
                                     </form>
 
                                     <h3>Review & Resolve Exceptions <a class="btn btn-primary pull-right" href="import.php">Back</a> </h3><br />
@@ -233,9 +232,9 @@ if(isset($_SESSION['zero_exception'])){
                                                                                                         echo date('m/d/Y', strtotime($get_file_data['last_processed_date']));
                                                                                                     } else echo '00-00-0000' ?></h4>
 
-                                    <?php if (in_array($get_file_type, [2, 9, 11])) {?>
+                                    <?php if (in_array($get_file_type, [2, 9, 11])) { ?>
                                         <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_commission_amount, 2); ?></h4>
-                                       
+
                                     <?php }
                                 } else { ?>
                                     <h3>Preview Data <a class="btn btn-primary pull-right" href="import.php">Back</a></h3><br />
@@ -279,7 +278,7 @@ if(isset($_SESSION['zero_exception'])){
                                     ?>
 
                                         <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_Check_Amount, 2); ?></h4>
-                                        
+
                             <?php }
                                 }
                             } ?>
@@ -329,7 +328,7 @@ if(isset($_SESSION['zero_exception'])){
                                                                 <th>Last Processed</th>
                                                                 <th>Sponsor</th>
                                                                 <th>Batch#</th>
-                                                                <th>Check Amount/ <br> Posted Amount</th>
+                                                                <th>Total/ <br> Exceptions</th>
                                                                 <th>Results</th>
                                                                 <th>Notes</th>
                                                             </thead>
@@ -361,8 +360,8 @@ if(isset($_SESSION['zero_exception'])){
                                                                         } else if (stripos($val['file_type'], 'generic commission') !== false or $val['file_type_code'] == 9) {
                                                                             $file_type_id = 9;
                                                                         } else if (stripos($val['file_type'], 'Orion') !== false or $val['file_type_code'] == 11) {
-                                                                            $file_type_id = 11; 
-                                                                        }else {
+                                                                            $file_type_id = 11;
+                                                                        } else {
                                                                             $file_type_id = 1;
                                                                         }
 
@@ -374,19 +373,23 @@ if(isset($_SESSION['zero_exception'])){
                                                                             $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=1");
 
                                                                             $total_Check_Amount = $total_unprocessed_commission_for_import + $total_processed_commission_for_import;
-                                                                            
-                                                                        }
-                                                                        else{
+                                                                        } else {
                                                                             $total_unprocessed_import = $instance->select_total_records("`is_delete`=0 AND `file_id`=$fid_to_send AND `file_type`=$file_type_id AND `solved`=0");
                                                                             $total_processed_import = $instance->select_total_records("`is_delete`=0 AND `file_id`=$fid_to_send AND `file_type`=$file_type_id AND `solved`=1");
-                                                                            $total_import=$total_unprocessed_import + $total_processed_import;
-
+                                                                            // below line comment on 23-05-2023
+                                                                            // $total_import = $total_unprocessed_import + $total_processed_import;
+                                                                            $total_import = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=0");
                                                                         }
 
-                                                                        
+
                                                                         if (isset($val['imported_date']) && $val['imported_date'] != '') {
-                                                                        
-                                                                            $sponsorLink = CURRENT_PAGE . "?tab=processed_files&id={$val['id']}&file_type=$file_type_id";
+                                                                            $check_file_exception_process = $instance->check_file_exception_process($val['id']);
+                                                                            if ($check_file_exception_process == 1) {
+                                                                                $page_go_to = "review_files";
+                                                                            } else {
+                                                                                $page_go_to = "processed_files";
+                                                                            }
+                                                                            $sponsorLink = CURRENT_PAGE . "?tab=$page_go_to&id={$val['id']}&file_type=$file_type_id";
                                                                 ?>
                                                                             <tr id="<?php echo '$key' . $key ?>">
 
@@ -419,10 +422,13 @@ if(isset($_SESSION['zero_exception'])){
                                                                                     $filename = $val['file_name'];
                                                                                     echo $str = (strlen($filename) > 22) ? substr($filename, 0, 20) . '...' : $filename;
                                                                                     ?></td>
-                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if($val['source']== 'DAZL Daily'){ echo 'DAZL ';} echo $val['file_type']; ?></td>
+                                                                                <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if ($val['source'] == 'DAZL Daily') {
+                                                                                                                                                                                                    echo 'DAZL ';
+                                                                                                                                                                                                }
+                                                                                                                                                                                                echo $val['file_type']; ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php if (isset($val['last_processed_date']) && $val['last_processed_date'] != '0000-00-00 00:00:00') {
-                                                                                                                                                                                                                                    echo date('m/d/Y', strtotime($val['last_processed_date']));
-                                                                                                                                                                                                                                } ?></td>
+                                                                                                                                                                                                    echo date('m/d/Y', strtotime($val['last_processed_date']));
+                                                                                                                                                                                                } ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo $sponsor; ?></td>
                                                                                 <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $sponsorLink ?>'" style="cursor:pointer"><?php echo in_array($file_type_id, [2, 9, 11]) ? $file_batch_id : 'N/A'; ?></td>
                                                                                 <!--<td style="width: 15%;"><?php echo date('m/d/Y', strtotime($val['imported_date'])); ?></td>-->
@@ -444,10 +450,9 @@ if(isset($_SESSION['zero_exception'])){
                                                                                     $total_processed_per = ($count_processed_data * 100) / $total_process;
                                                                                     $total_complete_process = round($total_processed_per);
                                                                                 } else {
-                                                                                    if($count_processed_data == 0 && $count_exception_data == 0 && $process_status == 1){
+                                                                                    if ($count_processed_data == 0 && $count_exception_data == 0 && $process_status == 1) {
                                                                                         $total_complete_process = 100;
-                                                                                    }
-                                                                                    else{
+                                                                                    } else {
                                                                                         $total_complete_process = 0;
                                                                                     }
                                                                                 }
@@ -460,19 +465,18 @@ if(isset($_SESSION['zero_exception'])){
 
                                                                                     if ($file_type_id == 2 || $file_type_id == 9 || $file_type_id == 11) {
 
-                                                                                        if($total_processed_commission_for_import == $total_Check_Amount && $process_status == 1){ 
+                                                                                        if ($total_processed_commission_for_import == $total_Check_Amount && $process_status == 1) {
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
 
                                                                                         echo ' $' . number_format($total_Check_Amount, 2);
                                                                                         echo "<br>";
                                                                                         echo ' $' . number_format($total_processed_commission_for_import, 2);
-                                                                                       
                                                                                     } else {
                                                                                         // echo "<pre>";
                                                                                         // print_r("else");die;
 
-                                                                                        if($total_processed_import == $total_import && $process_status == 1){ 
+                                                                                        if ($total_processed_import == $total_import && $process_status == 1) {
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
                                                                                         echo $total_import;
@@ -636,480 +640,481 @@ if(isset($_SESSION['zero_exception'])){
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files") {
                                                                                     echo "active";
-                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review  <?php 
-                                                                                        echo "(".$total_unique_trade_unprocessed.")" ;
-                                                                                    ?></a></li>
+                                                                                } ?>"><a href="#review_files" data-toggle="tab">Exceptions For Review <?php
+                                                                                                                                                        echo "(" . $total_unique_trade_unprocessed . ")";
+                                                                                                                                                        ?></a></li>
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "processed_files") {
                                                                                     echo "active";
-                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed <?php 
-                                                                                    echo "(".$total_unique_trade_processed.")"; }?></a></li>
-                                    </ul>  <br />
+                                                                                } ?>"><a href="#processed_files" data-toggle="tab">Processed <?php
+                                                                                                                                                echo "(" . $total_unique_trade_processed . ")";
+                                                                                                                                            } ?></a></li>
+                                    </ul> <br />
 
-                                <!-- Tab 1 is started -->
-                                <div class="tab-content">
-                                    <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files" && $_GET['id'] > 0) {
-                                                                echo "active";
-                                                            } ?>" id="review_files">
+                                    <!-- Tab 1 is started -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files" && $_GET['id'] > 0) {
+                                                                    echo "active";
+                                                                } ?>" id="review_files">
 
-                                        <div class="panel-overlay-wrap">
-                                            <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
-                                                <div class="row">
-                                                    <!--<div class="row">
+                                            <div class="panel-overlay-wrap">
+                                                <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
+                                                    <div class="row">
+                                                        <!--<div class="row">
                                             <div class="col-md-5"></div>
                                                 <a class="btn btn-sm btn-warning col-md-1" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>
                                                 <!--<a href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"><button type="button"  name="fetch" value="fetch" style="display: inline;"> Fetch</button></a>-->
-                                                    <!--<button type="submit" class="btn btn-sm btn-default col-md-2"  name="progress_all" value="progress_all" style="display: inline;"> Process All</button>
+                                                        <!--<button type="submit" class="btn btn-sm btn-default col-md-2"  name="progress_all" value="progress_all" style="display: inline;"> Process All</button>
                                             </div>
                                             <br />-->
-                                                    <?php
-                                                    if (isset($_GET['file_type'])) {
-                                                        $get_file_type = $_GET['file_type'];
-                                                    } else {
-                                                        $get_file_type = $instance->get_file_type($_GET['id']);
-                                                    }
-                                                    ?>
+                                                        <?php
+                                                        if (isset($_GET['file_type'])) {
+                                                            $get_file_type = $_GET['file_type'];
+                                                        } else {
+                                                            $get_file_type = $instance->get_file_type($_GET['id']);
+                                                        }
+                                                        ?>
 
-                                                    <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
-                                                        <table id="data-table3" class="table table-bordered">
-                                                            <thead>
-                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])) { ?>
-                                                                    <th>Trade Date</th>
-                                                                <?php }else{ ?>
-                                                                    <th>Date</th>
-                                                                <?php } ?>
-                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['1', '2', '9','11'])) { ?>
-                                                                    <th>Rep#</th>
-                                                                    <th>Rep Name</th>
-                                                                    <th>Account#</th>
-                                                                    <th>Client Name</th>
-                                                                <?php } ?>
-                                                                <?php if (isset($get_file_type) && $get_file_type == '1') { ?>
-                                                                    <th>Client Address</th>
-                                                                <?php } else if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
-                                                                    <th>CUSIP</th>
-                                                                    <th>Principal</th>
-                                                                    <th>Commission</th>
-                                                                <?php } else if (isset($get_file_type) && $get_file_type == '3') { ?>
-                                                                    <th>Fund Name</th>
-                                                                    <th>CUSIP</th>
-                                                                    <th>Ticker Symbol</th>
-                                                                    <th>Security Type</th>
-                                                                <?php } ?>
+                                                        <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
+                                                            <table id="data-table3" class="table table-bordered">
+                                                                <thead>
+                                                                    <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])) { ?>
+                                                                        <th>Trade Date</th>
+                                                                    <?php } else { ?>
+                                                                        <th>Date</th>
+                                                                    <?php } ?>
+                                                                    <?php if (isset($get_file_type) && in_array($get_file_type, ['1', '2', '9', '11'])) { ?>
+                                                                        <th>Rep#</th>
+                                                                        <th>Rep Name</th>
+                                                                        <th>Account#</th>
+                                                                        <th>Client Name</th>
+                                                                    <?php } ?>
+                                                                    <?php if (isset($get_file_type) && $get_file_type == '1') { ?>
+                                                                        <th>Client Address</th>
+                                                                    <?php } else if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
+                                                                        <th>CUSIP</th>
+                                                                        <th>Principal</th>
+                                                                        <th>Commission</th>
+                                                                    <?php } else if (isset($get_file_type) && $get_file_type == '3') { ?>
+                                                                        <th>Fund Name</th>
+                                                                        <th>CUSIP</th>
+                                                                        <th>Ticker Symbol</th>
+                                                                        <th>Security Type</th>
+                                                                    <?php } ?>
 
-                                                                <th>Issue</th>
-                                                                <th>Action</th>
-                                                            </thead>
-                                                            <tbody>
-                                                                <?php
-                                                                $existing_field_value = '';
-                                                                $existingDetailValues = [];
-                                                                $file_id = (isset($_GET['id'])) ? (int)$instance->re_db_input($_GET['id']) : 0;
-                                                                $file_info = $instance->select_current_file_id($file_id);
-                                                                $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
-                                                                $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
-                                                                $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
+                                                                    <th>Issue</th>
+                                                                    <th>Action</th>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <?php
+                                                                    $existing_field_value = '';
+                                                                    $existingDetailValues = [];
+                                                                    $file_id = (isset($_GET['id'])) ? (int)$instance->re_db_input($_GET['id']) : 0;
+                                                                    $file_info = $instance->select_current_file_id($file_id);
+                                                                    $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
+                                                                    $file_type = (isset($_GET['file_type'])) ? (int)$instance->re_db_input($_GET['file_type']) : 1;
+                                                                    $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
 
-                                                                $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
-                                                                // echo "<pre>";
-                                                                // print_r($total_unprocessed_commission_for_import);die;
+                                                                    $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
+                                                                    // echo "<pre>";
+                                                                    // print_r($total_unprocessed_commission_for_import);die;
                                                                     $prev_temp_data_id = 0;
                                                                     $bg_color = '#fff';
-                                                                foreach ($return_exception as $error_key => $error_val) {
+                                                                    foreach ($return_exception as $error_key => $error_val) {
 
-                                                                    $client_id=0;
+                                                                        $client_id = 0;
 
-                                                                    // echo "<pre>"; print_r($error_val);
-                                                                    
-                                                                    if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
-                                                                        $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
-                                                                        // echo "<pre>"; print_r($return_client_existing_data);
+                                                                        // echo "<pre>"; print_r($error_val);
 
-                                                                        $existing_field_value = $error_val['field_value'];
+                                                                        if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
+                                                                            $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
+                                                                            // echo "<pre>"; print_r($return_client_existing_data);
 
-                                                                        if ($error_val['field'] == 'social_security_number') {
-                                                                            $existing_field_value = ($error_val['error_code_id'] == 13 ? 'blank' : $return_client_existing_data[0]['social_security_number']);
-                                                                        }
-                                                                        if ($error_val['field'] == 'mutual_fund_customer_account_number') {
-                                                                            $existing_field_value = $return_client_existing_data[0][$file_source == 'DAZL' ? 'customer_account_number' : 'mutual_fund_customer_account_number'];
-                                                                        }
-                                                                        if ($error_val['field'] == 'registration_line1') {
-                                                                            $existing_field_value = $return_client_existing_data[0]['registration_line1'];
-                                                                        }
-                                                                        if ($error_val['field'] == 'u5') {
-                                                                            $rep_number = $return_client_existing_data[0]['representative_number'];
-                                                                            $u5_date = $instance->broker_termination_date($rep_number);
-                                                                            $existing_field_value = date('m/d/Y', strtotime($u5_date));
-                                                                        }
-                                                                    }
-                                                                    if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9', '11'])) {
-                                                                        // echo "<pre>";
-                                                                        // print_r("here");die;
-                                                                        switch ($error_val['file_type']) {
-                                                                            case '9':
-                                                                                $return_commission_existing_data = $instance->select_existing_gen_data($error_val['temp_data_id']);
-                                                                                break;
-                                                                            case '11':
-                                                                                $return_commission_existing_data = $instance->select_existing_ori_data($error_val['temp_data_id']);
-                                                                                break;
-                                                                            default:
-                                                                                $return_commission_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id'], $file_source);
-                                                                                break;
-                                                                        }
-                                                                        // Display the names found during the processing of the data. Sometimes they don't match what was sent in the data fields (alpha_code & rep_name), or the
-                                                                        // the descrtiptions are vague, i.e. "Trust Account 123"
-                                                                        $instance_client = new client_maintenance();
-                                                                        $instance_product = new product_maintenance();
-                                                                        $instance_broker = new broker_master();
-                                                                        $instance_import = new import();
-                                                                        $instance_suitability = new client_suitability_master();
+                                                                            $existing_field_value = $error_val['field_value'];
 
-                                                                        if (!empty($return_commission_existing_data['broker_id'])) {
-                                                                            $brokerRow = $instance_broker->select_broker_by_id($return_commission_existing_data['broker_id']);
-
-                                                                            if ($brokerRow) {
-                                                                                $error_val['rep_name'] = trim($brokerRow['last_name']) . (($brokerRow['last_name'] != '' and $brokerRow['last_name'] != '') ? ', ' : '') . trim($brokerRow['first_name']);
+                                                                            if ($error_val['field'] == 'social_security_number') {
+                                                                                $existing_field_value = ($error_val['error_code_id'] == 13 ? 'blank' : $return_client_existing_data[0]['social_security_number']);
+                                                                            }
+                                                                            if ($error_val['field'] == 'mutual_fund_customer_account_number') {
+                                                                                $existing_field_value = $return_client_existing_data[0][$file_source == 'DAZL' ? 'customer_account_number' : 'mutual_fund_customer_account_number'];
+                                                                            }
+                                                                            if ($error_val['field'] == 'registration_line1') {
+                                                                                $existing_field_value = $return_client_existing_data[0]['registration_line1'];
+                                                                            }
+                                                                            if ($error_val['field'] == 'u5') {
+                                                                                $rep_number = $return_client_existing_data[0]['representative_number'];
+                                                                                $u5_date = $instance->broker_termination_date($rep_number);
+                                                                                $existing_field_value = date('m/d/Y', strtotime($u5_date));
                                                                             }
                                                                         }
-                                                                        // echo "<pre>"; print_r($return_commission_existing_data['client_id']);
-
-                                                                        $client_id = $return_commission_existing_data['client_id'];
-                                                                        if (!empty($return_commission_existing_data['client_id'])) {
-                                                                            $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);
-
-                                                                            if ($clientDetail) {
-                                                                                $error_val['client'] = trim($clientDetail[0]['last_name']) . (($clientDetail[0]['first_name'] != '' and $clientDetail[0]['last_name'] != '') ? ', ' : '') . trim($clientDetail[0]['first_name']);
+                                                                        if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9', '11'])) {
+                                                                            // echo "<pre>";
+                                                                            // print_r("here");die;
+                                                                            switch ($error_val['file_type']) {
+                                                                                case '9':
+                                                                                    $return_commission_existing_data = $instance->select_existing_gen_data($error_val['temp_data_id']);
+                                                                                    break;
+                                                                                case '11':
+                                                                                    $return_commission_existing_data = $instance->select_existing_ori_data($error_val['temp_data_id']);
+                                                                                    break;
+                                                                                default:
+                                                                                    $return_commission_existing_data = $instance->select_existing_idc_data($error_val['temp_data_id'], $file_source);
+                                                                                    break;
                                                                             }
-                                                                        }
+                                                                            // Display the names found during the processing of the data. Sometimes they don't match what was sent in the data fields (alpha_code & rep_name), or the
+                                                                            // the descrtiptions are vague, i.e. "Trust Account 123"
+                                                                            $instance_client = new client_maintenance();
+                                                                            $instance_product = new product_maintenance();
+                                                                            $instance_broker = new broker_master();
+                                                                            $instance_import = new import();
+                                                                            $instance_suitability = new client_suitability_master();
 
-                                                                        // Exception Types
-                                                                        $existing_field_value = trim($error_val['field_value']);
+                                                                            if (!empty($return_commission_existing_data['broker_id'])) {
+                                                                                $brokerRow = $instance_broker->select_broker_by_id($return_commission_existing_data['broker_id']);
 
-                                                                        if ($error_val['field'] == 'customer_account_number') {
-                                                                            $existing_field_value = $return_commission_existing_data['customer_account_number'];
-                                                                        }
-
-                                                                        if ($error_val['field'] == 'cusip_number') {
-                                                                            $existing_field_value = $return_commission_existing_data['cusip_number'];
-                                                                        }
-
-                                                                        if ($error_val['field'] == 'u5') {
-                                                                            $rep_number = $return_commission_existing_data['representative_number'];
-                                                                            $u5_date = $instance->broker_termination_date($rep_number, $return_commission_existing_data['broker_id']);
-                                                                            $existing_field_value = date('m/d/Y', strtotime($u5_date));
-                                                                        }
-
-                                                                        if ($error_val['field'] == 'active_check') {
-                                                                            // 1.State / 2.ProdCat / 3.TermDate
-                                                                            $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);
-                                                                            if (empty($return_commission_existing_data['product_id'])) {
-                                                                                $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '" . $instance_client->re_db_input($return_commission_existing_data['cusip_number']) . "'");
-                                                                            } else {
-                                                                                $productDetail = $instance_product->edit_product($return_commission_existing_data['product_id']);
-                                                                            }
-                                                                            $licenceDetail = $instance_import->checkStateLicence($return_commission_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_commission_existing_data['trade_date'], 1);
-                                                                            $category = substr($licenceDetail['licence_table'], strrpos($licenceDetail['licence_table'], '_') + 1);
-                                                                            $existing_field_value = trim($category) . ' / ' . trim($licenceDetail['state_name']);
-                                                                        }
-
-                                                                        if ($error_val['field'] == 'objectives') {
-                                                                            $productObjectiveId = 0;
-                                                                            $existing_field_value = '';
-                                                                            $res = 0;
-
-                                                                            if (!empty($return_commission_existing_data['product_id'])) {
-                                                                                $productDetail = $instance_product->edit_product($return_commission_existing_data['product_id']);
-                                                                            } else {
-                                                                                $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '" . $instance_client->re_db_input($return_commission_existing_data['cusip_number']) . "'");
-                                                                            }
-
-                                                                            if ($productDetail) {
-                                                                                $productObjectiveId = (int)$productDetail['objective'];
-
-                                                                                $res = $instance_suitability->edit_objective($productObjectiveId);
-
-                                                                                if ($res) {
-                                                                                    $existing_field_value = $res['option'];
+                                                                                if ($brokerRow) {
+                                                                                    $error_val['rep_name'] = trim($brokerRow['last_name']) . (($brokerRow['last_name'] != '' and $brokerRow['last_name'] != '') ? ', ' : '') . trim($brokerRow['first_name']);
                                                                                 }
                                                                             }
-                                                                        }
+                                                                            // echo "<pre>"; print_r($return_commission_existing_data['client_id']);
 
-                                                                        if ($error_val['field'] == 'alpha_code') {
+                                                                            $client_id = $return_commission_existing_data['client_id'];
+                                                                            if (!empty($return_commission_existing_data['client_id'])) {
+                                                                                $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);
+
+                                                                                if ($clientDetail) {
+                                                                                    $error_val['client'] = trim($clientDetail[0]['last_name']) . (($clientDetail[0]['first_name'] != '' and $clientDetail[0]['last_name'] != '') ? ', ' : '') . trim($clientDetail[0]['first_name']);
+                                                                                }
+                                                                            }
+
+                                                                            // Exception Types
                                                                             $existing_field_value = trim($error_val['field_value']);
+
+                                                                            if ($error_val['field'] == 'customer_account_number') {
+                                                                                $existing_field_value = $return_commission_existing_data['customer_account_number'];
+                                                                            }
+
+                                                                            if ($error_val['field'] == 'cusip_number') {
+                                                                                $existing_field_value = $return_commission_existing_data['cusip_number'];
+                                                                            }
+
+                                                                            if ($error_val['field'] == 'u5') {
+                                                                                $rep_number = $return_commission_existing_data['representative_number'];
+                                                                                $u5_date = $instance->broker_termination_date($rep_number, $return_commission_existing_data['broker_id']);
+                                                                                $existing_field_value = date('m/d/Y', strtotime($u5_date));
+                                                                            }
+
+                                                                            if ($error_val['field'] == 'active_check') {
+                                                                                // 1.State / 2.ProdCat / 3.TermDate
+                                                                                $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);
+                                                                                if (empty($return_commission_existing_data['product_id'])) {
+                                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '" . $instance_client->re_db_input($return_commission_existing_data['cusip_number']) . "'");
+                                                                                } else {
+                                                                                    $productDetail = $instance_product->edit_product($return_commission_existing_data['product_id']);
+                                                                                }
+                                                                                $licenceDetail = $instance_import->checkStateLicence($return_commission_existing_data['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $return_commission_existing_data['trade_date'], 1);
+                                                                                $category = substr($licenceDetail['licence_table'], strrpos($licenceDetail['licence_table'], '_') + 1);
+                                                                                $existing_field_value = trim($category) . ' / ' . trim($licenceDetail['state_name']);
+                                                                            }
+
+                                                                            if ($error_val['field'] == 'objectives') {
+                                                                                $productObjectiveId = 0;
+                                                                                $existing_field_value = '';
+                                                                                $res = 0;
+
+                                                                                if (!empty($return_commission_existing_data['product_id'])) {
+                                                                                    $productDetail = $instance_product->edit_product($return_commission_existing_data['product_id']);
+                                                                                } else {
+                                                                                    $productDetail = $instance_product->product_list_by_query("`is_delete`=0 AND `cusip` = '" . $instance_client->re_db_input($return_commission_existing_data['cusip_number']) . "'");
+                                                                                }
+
+                                                                                if ($productDetail) {
+                                                                                    $productObjectiveId = (int)$productDetail['objective'];
+
+                                                                                    $res = $instance_suitability->edit_objective($productObjectiveId);
+
+                                                                                    if ($res) {
+                                                                                        $existing_field_value = $res['option'];
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                            if ($error_val['field'] == 'alpha_code') {
+                                                                                $existing_field_value = trim($error_val['field_value']);
+                                                                            }
                                                                         }
-                                                                    }
-                                                                    if (isset($error_val['file_type']) && $error_val['file_type'] == '3') {
-                                                                        $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id'], $file_source);
-
-                                                                        if ($error_val['field'] == 'cusip_number') {
-                                                                            $existing_field_value = $return_sfr_existing_data['cusip_number'];
-                                                                        } else if ($error_val['field'] == 'ticker_symbol') {
-                                                                            $existing_field_value = $return_sfr_existing_data['ticker_symbol'];
-                                                                        } else if ($error_val['field'] == 'fund_name') {
-                                                                            $existing_field_value = $return_sfr_existing_data['fund_name'];
-                                                                        } else if ($error_val['field'] == 'major_security_type') {
-                                                                            $existing_field_value = $return_sfr_existing_data['major_security_type'];
-                                                                        }
-                                                                    }
-                                                                    if (isset($file_type) && in_array($file_type, ['2', '9', '11'])) {
-                                                                        $error_val['date'] = $instance->select_trade_date($file_id,$file_type,$error_val['temp_data_id']);
-                                                                    }
-
-                                                                    $temp_data_id = $error_val['temp_data_id'];
-
-                                                                    if($prev_temp_data_id == 0){
-                                                                        $color = '#fff';
-                                                                    }
-                                                                    if($prev_temp_data_id != 0 && $prev_temp_data_id != $temp_data_id){
-                                                                        $color = ($color == '#f5f5f5') ? '#fff' : '#f5f5f5';
-                                                                        $bg_color = $color;
-                                                                    }
-                                                                    if($prev_temp_data_id == $temp_data_id){
-                                                                        $bg_color = $color;
-                                                                    }
-                                                                    
-
-                                                                ?>
-                                                                    <tr style="background-color: <?= $bg_color ?>;">
-                                                                        <td><?php echo date('m/d/Y', strtotime($error_val['date'])); ?></td>
-                                                                        <?php if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2', '9', '11'])) { ?>
-                                                                            <td><?php echo $error_val['rep']; ?></td>
-                                                                            <td><?php echo $error_val['rep_name']; ?></td>
-                                                                            <td><?php echo $error_val['account_no']; ?></td>
-                                                                            <td><?php echo $error_val['client']; ?></td>
-                                                                        <?php } ?>
-
-                                                                        <?php if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
-                                                                            $get_client_data = $instance->get_client_data($file_id, $error_val['temp_data_id'], $file_source); ?>
-                                                                            <td><?php echo $get_client_data[0]['client_address']; ?></td>
-                                                                        <?php } else if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9'])) { ?>
-                                                                            <td><?php echo $error_val['cusip']; ?></td>
-                                                                            <td style="text-align: right;"><?php if ($error_val['principal'] > 0) {
-                                                                                                                echo '$' . number_format($error_val['principal'], 2);
-                                                                                                            } else {
-                                                                                                                echo '$0';
-                                                                                                            } ?></td>
-                                                                            <td style="text-align: right;"><?php if ($error_val['commission'] > 0) {
-                                                                                                                echo '$' . number_format($error_val['commission'], 2);
-                                                                                                            } else {
-                                                                                                                echo '$0';
-                                                                                                            } ?></td>
-                                                                        <?php } else if (isset($error_val['file_type']) && $error_val['file_type'] == '3') { ?>
-                                                                            <?php
+                                                                        if (isset($error_val['file_type']) && $error_val['file_type'] == '3') {
                                                                             $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id'], $file_source);
 
-                                                                            if (count($return_sfr_existing_data)) {
-                                                                                $existingDetailValues = ['fund_name' => $return_sfr_existing_data['fund_name'], 'cusip_number' => $return_sfr_existing_data['cusip_number'], 'ticker_symbol' => $return_sfr_existing_data['ticker_symbol'], 'product_category_id' => $return_sfr_existing_data['product_category_id']];
-                                                                            } else {
-                                                                                $existingDetailValues = ['fund_name' => '', 'cusip_number' => '', 'ticker_symbol' => '', 'product_category_id' => ''];
+                                                                            if ($error_val['field'] == 'cusip_number') {
+                                                                                $existing_field_value = $return_sfr_existing_data['cusip_number'];
+                                                                            } else if ($error_val['field'] == 'ticker_symbol') {
+                                                                                $existing_field_value = $return_sfr_existing_data['ticker_symbol'];
+                                                                            } else if ($error_val['field'] == 'fund_name') {
+                                                                                $existing_field_value = $return_sfr_existing_data['fund_name'];
+                                                                            } else if ($error_val['field'] == 'major_security_type') {
+                                                                                $existing_field_value = $return_sfr_existing_data['major_security_type'];
                                                                             }
-                                                                            ?>
-                                                                            <?php if (count($return_sfr_existing_data)) { ?>
-                                                                                <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
-                                                                                <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
-                                                                                <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
-                                                                                <td><?php echo $return_sfr_existing_data['major_security_type'] ?></td>
+                                                                        }
+                                                                        if (isset($file_type) && in_array($file_type, ['2', '9', '11'])) {
+                                                                            $error_val['date'] = $instance->select_trade_date($file_id, $file_type, $error_val['temp_data_id']);
+                                                                        }
+
+                                                                        $temp_data_id = $error_val['temp_data_id'];
+
+                                                                        if ($prev_temp_data_id == 0) {
+                                                                            $color = '#fff';
+                                                                        }
+                                                                        if ($prev_temp_data_id != 0 && $prev_temp_data_id != $temp_data_id) {
+                                                                            $color = ($color == '#f5f5f5') ? '#fff' : '#f5f5f5';
+                                                                            $bg_color = $color;
+                                                                        }
+                                                                        if ($prev_temp_data_id == $temp_data_id) {
+                                                                            $bg_color = $color;
+                                                                        }
+
+
+                                                                    ?>
+                                                                        <tr style="background-color: <?= $bg_color ?>;">
+                                                                            <td><?php echo date('m/d/Y', strtotime($error_val['date'])); ?></td>
+                                                                            <?php if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['1', '2', '9', '11'])) { ?>
+                                                                                <td><?php echo $error_val['rep']; ?></td>
+                                                                                <td><?php echo $error_val['rep_name']; ?></td>
+                                                                                <td><?php echo $error_val['account_no']; ?></td>
+                                                                                <td><?php echo $error_val['client']; ?></td>
                                                                             <?php } ?>
-                                                                        <?php } ?>
-                                                                        <td><?php echo $error_val['error']; ?></td>
-                                                                        <td style="width: 20%;">
-                                                                            <form method="post">
 
-                                                                                <input type="hidden" name="id" id="id" value="" />
-                                                                                <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id']; ?>','<?php echo $error_val['file_type']; ?>','<?php echo $error_val['temp_data_id']; ?>','<?php echo $error_val['field']; ?>','<?php echo $error_val['rep']; ?>','<?php echo $existing_field_value; ?>',<?php echo $error_val['error_code_id']; ?>,<?php echo $error_val['id']; ?>,'<?php echo $error_val['account_no']; ?>','<?php echo $client_id ?>');" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
-                                                                            </form>
-                                                                        </td>
-                                                                    </tr>
-                                                                <?php                                                                
-                                                                $prev_temp_data_id = $temp_data_id;
-                                                            } ?>
-                                                         
-                                                            </tbody>
-                                                        </table>
-                                                        <?php
-                                                        if($return_exception!=array()){ ?>
-                                                            <table class="table">
-                                                                <tr style="text-align: right;">
+                                                                            <?php if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
+                                                                                $get_client_data = $instance->get_client_data($file_id, $error_val['temp_data_id'], $file_source); ?>
+                                                                                <td><?php echo $get_client_data[0]['client_address']; ?></td>
+                                                                            <?php } else if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9'])) { ?>
+                                                                                <td><?php echo $error_val['cusip']; ?></td>
+                                                                                <td style="text-align: right;"><?php if ($error_val['principal'] > 0) {
+                                                                                                                    echo '$' . number_format($error_val['principal'], 2);
+                                                                                                                } else {
+                                                                                                                    echo '$0';
+                                                                                                                } ?></td>
+                                                                                <td style="text-align: right;"><?php if ($error_val['commission'] > 0) {
+                                                                                                                    echo '$' . number_format($error_val['commission'], 2);
+                                                                                                                } else {
+                                                                                                                    echo '$0';
+                                                                                                                } ?></td>
+                                                                            <?php } else if (isset($error_val['file_type']) && $error_val['file_type'] == '3') { ?>
+                                                                                <?php
+                                                                                $return_sfr_existing_data = $instance->select_existing_sfr_data($error_val['temp_data_id'], $file_source);
 
-                                                                    <?php if(isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9', '11'])){ ?>
-                                                                            <td style="width: 60%;"><b> Total Commission : <?php echo '$'.number_format($total_unprocessed_commission_for_import,2) ?> </b></td>
-                                                                    <?php } ?>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                </tr>
+                                                                                if (count($return_sfr_existing_data)) {
+                                                                                    $existingDetailValues = ['fund_name' => $return_sfr_existing_data['fund_name'], 'cusip_number' => $return_sfr_existing_data['cusip_number'], 'ticker_symbol' => $return_sfr_existing_data['ticker_symbol'], 'product_category_id' => $return_sfr_existing_data['product_category_id']];
+                                                                                } else {
+                                                                                    $existingDetailValues = ['fund_name' => '', 'cusip_number' => '', 'ticker_symbol' => '', 'product_category_id' => ''];
+                                                                                }
+                                                                                ?>
+                                                                                <?php if (count($return_sfr_existing_data)) { ?>
+                                                                                    <td><?php echo $return_sfr_existing_data['fund_name'] ?></td>
+                                                                                    <td><?php echo $return_sfr_existing_data['cusip_number'] ?></td>
+                                                                                    <td><?php echo $return_sfr_existing_data['ticker_symbol'] ?></td>
+                                                                                    <td><?php echo $return_sfr_existing_data['major_security_type'] ?></td>
+                                                                                <?php } ?>
+                                                                            <?php } ?>
+                                                                            <td><?php echo $error_val['error']; ?></td>
+                                                                            <td style="width: 20%;">
+                                                                                <form method="post">
+
+                                                                                    <input type="hidden" name="id" id="id" value="" />
+                                                                                    <a href="#solve_exception_model" data-toggle="modal"><button type="submit" onclick="add_exception_value('<?php echo $error_val['file_id']; ?>','<?php echo $error_val['file_type']; ?>','<?php echo $error_val['temp_data_id']; ?>','<?php echo $error_val['field']; ?>','<?php echo $error_val['rep']; ?>','<?php echo $existing_field_value; ?>',<?php echo $error_val['error_code_id']; ?>,<?php echo $error_val['id']; ?>,'<?php echo $error_val['account_no']; ?>','<?php echo $client_id ?>');" class="btn btn-sm btn-warning" name="go" value="go" style="display: inline;">Resolve</button></a>
+                                                                                </form>
+                                                                            </td>
+                                                                        </tr>
+                                                                    <?php
+                                                                        $prev_temp_data_id = $temp_data_id;
+                                                                    } ?>
+
+                                                                </tbody>
                                                             </table>
-                                                        <?php }
-                                                                    
-                                                        ?> 
+                                                            <?php
+                                                            if ($return_exception != array()) { ?>
+                                                                <table class="table">
+                                                                    <tr style="text-align: right;">
+
+                                                                        <?php if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9', '11'])) { ?>
+                                                                            <td style="width: 60%;"><b> Total Commission : <?php echo '$' . number_format($total_unprocessed_commission_for_import, 2) ?> </b></td>
+                                                                        <?php } ?>
+                                                                        <td></td>
+                                                                        <td></td>
+                                                                        <td></td>
+                                                                    </tr>
+                                                                </table>
+                                                            <?php }
+
+                                                            ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel-overlay">
+                                                    <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span>
+                                                        <h4 class="panel-overlay-title"></h4>
+                                                        <p></p>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="panel-overlay">
-                                                <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span>
-                                                    <h4 class="panel-overlay-title"></h4>
-                                                    <p></p>
-                                                </div>
-                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "processed_files" && $_GET['id'] > 0) {
-                                                                echo "active";
-                                                            } ?>" id="processed_files">
-                                        <div class="panel-overlay-wrap">
-                                            <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
-                                                <div class="row">
-                                                    <?php if (isset($_GET['file_type'])) {
-                                                        $get_file_type = $instance->re_db_input($_GET['file_type']);
-                                                    } else {
-                                                        $get_file_type = $instance->get_file_type($_GET['id']);
-                                                    }
-                                                    $file_info = $instance->select_current_file_id($file_id);
-                                                    $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
-                                                    ?>
+                                        <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "processed_files" && $_GET['id'] > 0) {
+                                                                    echo "active";
+                                                                } ?>" id="processed_files">
+                                            <div class="panel-overlay-wrap">
+                                                <div class="panel-body" style="border: 1px solid #DFDFDF; margin-top: 17px;">
+                                                    <div class="row">
+                                                        <?php if (isset($_GET['file_type'])) {
+                                                            $get_file_type = $instance->re_db_input($_GET['file_type']);
+                                                        } else {
+                                                            $get_file_type = $instance->get_file_type($_GET['id']);
+                                                        }
+                                                        $file_info = $instance->select_current_file_id($file_id);
+                                                        $file_source = (isset($file_info[0]['source']) ? trim($file_info[0]['source']) : '');
+                                                        ?>
 
-                                                    <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
-                                                        <table id="data-table4" class="table table-bordered table-stripped table-hover">
-                                                            <thead>
-                                                                <!-- <th>Date</th> -->
-                                                                <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])) { ?>
-                                                                    <th>Trade Date</th>
-                                                                <?php }else{ ?>
-                                                                    <th>Date</th>
-                                                                <?php } ?>
-                                                                <?php if (isset($get_file_type) && $get_file_type == '3') { ?>
-                                                                    <th>Fund Name</th>
-                                                                    <th>CUSIP</th>
-                                                                    <th>Ticker Symbol</th>
-                                                                    <th>Security Type</th>
-                                                                <?php } else { ?>
-                                                                    <th>Rep#</th>
-                                                                    <th>Rep Name</th>
-                                                                    <th>Account#</th>
-                                                                    <th>Client Name</th>
-                                                                <?php } ?>
+                                                        <div class="table-responsive" style="margin: 0px 5px 0px 5px;">
+                                                            <table id="data-table4" class="table table-bordered table-stripped table-hover">
+                                                                <thead>
+                                                                    <!-- <th>Date</th> -->
+                                                                    <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])) { ?>
+                                                                        <th>Trade Date</th>
+                                                                    <?php } else { ?>
+                                                                        <th>Date</th>
+                                                                    <?php } ?>
+                                                                    <?php if (isset($get_file_type) && $get_file_type == '3') { ?>
+                                                                        <th>Fund Name</th>
+                                                                        <th>CUSIP</th>
+                                                                        <th>Ticker Symbol</th>
+                                                                        <th>Security Type</th>
+                                                                    <?php } else { ?>
+                                                                        <th>Rep#</th>
+                                                                        <th>Rep Name</th>
+                                                                        <th>Account#</th>
+                                                                        <th>Client Name</th>
+                                                                    <?php } ?>
 
-                                                                <?php if (isset($get_file_type) && $get_file_type == '1') { ?>
-                                                                    <th>Client Address</th>
-                                                                <?php } else if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
-                                                                    <th>CUSIP</th>
-                                                                    <th>Principal</th>
-                                                                    <th>Commission</th>
-                                                                <?php } ?>
-                                                            </thead>
-                                                            <tbody>
-                                                                <?php
-                                                                $file_id = isset($_GET['id']) ? $instance->re_db_input($_GET['id']) : 0;
-                                                                $get_sfr_detail_data = [];
-                                                                if (isset($_GET['file_type'])) {
-                                                                    $get_file_type = $instance->re_db_input($_GET['file_type']);
-                                                                } else {
-                                                                    $get_file_type = $instance->get_file_type($_GET['id']);
-                                                                }
-                                                                $return_solved_exception = $instance->select_solved_exception_data($file_id, $get_file_type);
-                                                            
-                                                                $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=1");
-
-
-                                                                foreach ($return_solved_exception as $process_key => $process_val) {
-                                                                    $total_commission_amount = $total_commission_amount + $process_val['commission'];
-
-                                                                    if($process_val['rep_name']){
-                                                                        $lnm=$fnm='';
-                                                                        $process_val['rep_name']=trim($process_val['rep_name']);
-                                                                        $arr=explode(" ",$process_val['rep_name']);
-                                                                       
-                                                                        if(sizeof($arr)==3){
-                                                                            $lnm=$arr[2];
-                                                                            $fnm=$arr[0];
-                                                                        }
-                                                                        if(sizeof($arr)==2){
-                                                                            $lnm=$arr[1];
-                                                                            $fnm=$arr[0];
-                                                                        }
-                                                                        if(sizeof($arr)==1){
-                                                                            $lnm=$arr[0];
-                                                                        }
-                                                                        $process_val['rep_name']=$lnm.", ".$fnm;
+                                                                    <?php if (isset($get_file_type) && $get_file_type == '1') { ?>
+                                                                        <th>Client Address</th>
+                                                                    <?php } else if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
+                                                                        <th>CUSIP</th>
+                                                                        <th>Principal</th>
+                                                                        <th>Commission</th>
+                                                                    <?php } ?>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <?php
+                                                                    $file_id = isset($_GET['id']) ? $instance->re_db_input($_GET['id']) : 0;
+                                                                    $get_sfr_detail_data = [];
+                                                                    if (isset($_GET['file_type'])) {
+                                                                        $get_file_type = $instance->re_db_input($_GET['file_type']);
+                                                                    } else {
+                                                                        $get_file_type = $instance->get_file_type($_GET['id']);
                                                                     }
+                                                                    $return_solved_exception = $instance->select_solved_exception_data($file_id, $get_file_type);
 
-                                                                    if (isset($file_type) && in_array($file_type, ['2', '9', '11'])) {
-                                                                        $process_val['date'] = $instance->select_trade_date($file_id,$file_type,$process_val['temp_data_id']);
-                                                                    }
+                                                                    $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=1");
+
+
+                                                                    foreach ($return_solved_exception as $process_key => $process_val) {
+                                                                        $total_commission_amount = $total_commission_amount + $process_val['commission'];
+
+                                                                        if ($process_val['rep_name']) {
+                                                                            $lnm = $fnm = '';
+                                                                            $process_val['rep_name'] = trim($process_val['rep_name']);
+                                                                            $arr = explode(" ", $process_val['rep_name']);
+
+                                                                            if (sizeof($arr) == 3) {
+                                                                                $lnm = $arr[2];
+                                                                                $fnm = $arr[0];
+                                                                            }
+                                                                            if (sizeof($arr) == 2) {
+                                                                                $lnm = $arr[1];
+                                                                                $fnm = $arr[0];
+                                                                            }
+                                                                            if (sizeof($arr) == 1) {
+                                                                                $lnm = $arr[0];
+                                                                            }
+                                                                            $process_val['rep_name'] = $lnm . ", " . $fnm;
+                                                                        }
+
+                                                                        if (isset($file_type) && in_array($file_type, ['2', '9', '11'])) {
+                                                                            $process_val['date'] = $instance->select_trade_date($file_id, $file_type, $process_val['temp_data_id']);
+                                                                        }
 
                                                                     ?>
 
-                                                                    <tr>
-                                                                        <td><?php echo date('m/d/Y', strtotime($process_val['date'])); ?></td>
+                                                                        <tr>
+                                                                            <td><?php echo date('m/d/Y', strtotime($process_val['date'])); ?></td>
 
-                                                                        <?php if (isset($get_file_type) && $get_file_type == '3') {
-                                                                            $get_sfr_detail_data = $instance->select_existing_sfr_data($process_val['temp_data_id'], $file_source);
-                                                                            $security_type = $instance_batches->get_product_type($get_sfr_detail_data['product_category_id']);
-                                                                        ?>
+                                                                            <?php if (isset($get_file_type) && $get_file_type == '3') {
+                                                                                $get_sfr_detail_data = $instance->select_existing_sfr_data($process_val['temp_data_id'], $file_source);
+                                                                                $security_type = $instance_batches->get_product_type($get_sfr_detail_data['product_category_id']);
+                                                                            ?>
 
-                                                                            <td><?php echo $get_sfr_detail_data['fund_name']; ?></td>
-                                                                            <td><?php echo $get_sfr_detail_data['cusip_number']; ?></td>
-                                                                            <td><?php echo $get_sfr_detail_data['ticker_symbol']; ?></td>
-                                                                            <td><?php if ($security_type != '') {
-                                                                                    echo $security_type;
-                                                                                } else {
-                                                                                    echo $get_sfr_detail_data['major_security_type'];
-                                                                                } ?></td>
-                                                                        <?php } else { ?>
-                                                                            <td><?php echo $process_val['rep']; ?></td>
-                                                                            <td><?php echo $process_val['rep_name']; ?></td>
-                                                                            <td><?php echo $process_val['account_no']; ?></td>
-                                                                            <td><?php echo $process_val['client']; ?></td>
-                                                                        <?php } ?>
+                                                                                <td><?php echo $get_sfr_detail_data['fund_name']; ?></td>
+                                                                                <td><?php echo $get_sfr_detail_data['cusip_number']; ?></td>
+                                                                                <td><?php echo $get_sfr_detail_data['ticker_symbol']; ?></td>
+                                                                                <td><?php if ($security_type != '') {
+                                                                                        echo $security_type;
+                                                                                    } else {
+                                                                                        echo $get_sfr_detail_data['major_security_type'];
+                                                                                    } ?></td>
+                                                                            <?php } else { ?>
+                                                                                <td><?php echo $process_val['rep']; ?></td>
+                                                                                <td><?php echo $process_val['rep_name']; ?></td>
+                                                                                <td><?php echo $process_val['account_no']; ?></td>
+                                                                                <td><?php echo $process_val['client']; ?></td>
+                                                                            <?php } ?>
 
 
-                                                                        <?php if (isset($get_file_type) && $get_file_type == '1') {
-                                                                            $get_client_data = $instance->get_client_data($file_id, $process_val['temp_data_id'], $file_source); ?>
-                                                                            <td><?php echo $get_client_data[0]['client_address']; ?></td>
-                                                                        <?php } else if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
-                                                                            <td><?php echo $process_val['cusip']; ?></td>
-                                                                            <td style="text-align: right;"><?php if ($process_val['principal'] > 0) {
-                                                                                                                echo '$' . number_format($process_val['principal'], 2);
-                                                                                                            } else {
-                                                                                                                echo '$0';
-                                                                                                            } ?></td>
-                                                                            <td style="text-align: right;"><?php if ($process_val['commission'] > 0) {
-                                                                                                                echo '$' . number_format($process_val['commission'], 2);
-                                                                                                            } else {
-                                                                                                                echo '$0';
-                                                                                                            } ?></td>
+                                                                            <?php if (isset($get_file_type) && $get_file_type == '1') {
+                                                                                $get_client_data = $instance->get_client_data($file_id, $process_val['temp_data_id'], $file_source); ?>
+                                                                                <td><?php echo $get_client_data[0]['client_address']; ?></td>
+                                                                            <?php } else if (isset($get_file_type) && in_array($get_file_type, ['2', '9'])) { ?>
+                                                                                <td><?php echo $process_val['cusip']; ?></td>
+                                                                                <td style="text-align: right;"><?php if ($process_val['principal'] > 0) {
+                                                                                                                    echo '$' . number_format($process_val['principal'], 2);
+                                                                                                                } else {
+                                                                                                                    echo '$0';
+                                                                                                                } ?></td>
+                                                                                <td style="text-align: right;"><?php if ($process_val['commission'] > 0) {
+                                                                                                                    echo '$' . number_format($process_val['commission'], 2);
+                                                                                                                } else {
+                                                                                                                    echo '$0';
+                                                                                                                } ?></td>
+                                                                            <?php } ?>
+                                                                        </tr>
+                                                                    <?php } ?>
+                                                                </tbody>
+                                                            </table>
+
+                                                            <?php
+                                                            if ($return_solved_exception != array()) { ?>
+                                                                <table class="table">
+                                                                    <tr style="text-align: right;">
+
+                                                                        <?php if (isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])) { ?>
+                                                                            <td><b> Total Commission : <?php echo '$' . number_format($total_processed_commission_for_import, 2);  ?> </b></td>
                                                                         <?php } ?>
                                                                     </tr>
-                                                                <?php } ?>
-                                                            </tbody>
-                                                        </table>
+                                                                </table>
+                                                            <?php }
 
-                                                        <?php
-                                                        if($return_solved_exception!=array()){ ?>
-                                                            <table class="table">
-                                                            <tr style="text-align: right;">
-   
-                                                                <?php if(isset($get_file_type) && in_array($get_file_type, ['2', '9', '11'])){ ?>
-                                                                <td><b> Total Commission : <?php echo '$'.number_format($total_processed_commission_for_import,2) ;  ?> </b></td>
-                                                                <?php } ?>
-                                                            </tr>
-                                                            </table>
-                                                        <?php }
-                                                                    
-                                                        ?> 
+                                                            ?>
 
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="panel-overlay">
-                                                <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span>
-                                                    <h4 class="panel-overlay-title"></h4>
-                                                    <p></p>
+                                                <div class="panel-overlay">
+                                                    <div class="panel-overlay-content pad-all unselectable"><span class="panel-overlay-icon text-dark"><i class="demo-psi-repeat-2 spin-anim icon-2x"></i></span>
+                                                        <h4 class="panel-overlay-title"></h4>
+                                                        <p></p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                             </div>
                         </div>
                         <div class="tab-content col-md-12">
@@ -1481,7 +1486,7 @@ if(isset($_SESSION['zero_exception'])){
                                                                             <div class="row">
                                                                                 <div class="col-md-6"></div>
                                                                                 <div class="col-md-6">
-                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>)" ><i class="fa fa-download"></i> Download</button>
+                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>)"><i class="fa fa-download"></i> Download</button>
                                                                                 </div>
                                                                             </div>
                                                                             <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
@@ -1512,7 +1517,7 @@ if(isset($_SESSION['zero_exception'])){
                                                                         <td>
                                                                             <div class="row">
                                                                                 <div class="col-md-6">
-                                                                                    <input type="file"  name="upload_generic_csv_file" class="form-control" />
+                                                                                    <input type="file" name="upload_generic_csv_file" class="form-control" />
                                                                                     <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=uploadGeneric" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Upload</a> -->
                                                                                 </div>
                                                                                 <div class="col-md-6">
@@ -1523,7 +1528,7 @@ if(isset($_SESSION['zero_exception'])){
                                                                     </tr>
                                                                 <?php }
                                                                 // Add ORION 30/03/23 -->
-                                                                
+
                                                                 $temp_data_interface = new data_interfaces_master();
                                                                 $orion = $temp_data_interface->select("`name` LIKE 'orion%'");
                                                                 if (count($orion)) { ?>
@@ -1541,7 +1546,7 @@ if(isset($_SESSION['zero_exception'])){
                                                                                 </div>
                                                                         </td>
                                                                     </tr>
-                                                            <?php
+                                                                <?php
                                                                     unset($temp_data_interface);
                                                                 }
                                                                 // <?php 
@@ -1563,29 +1568,29 @@ if(isset($_SESSION['zero_exception'])){
                                                                                 </div>
                                                                         </td>
                                                                     </tr>
-                                                            <?php
+                                                                <?php
                                                                     unset($temp_data_interface);
                                                                 }
                                                                 // Add NFS 11/20/22 -->
                                                                 $temp_data_interface = new data_interfaces_master();
                                                                 $temp_data_found = $temp_data_interface->select("`name` LIKE 'NFS%'");
-                                                                if(count($temp_data_found)){ ?>
+                                                                if (count($temp_data_found)) { ?>
                                                                     <tr>
-                                                                        <td><?php echo $temp_data_found[0]['name'];?></td>
+                                                                        <td><?php echo $temp_data_found[0]['name']; ?></td>
                                                                         <td></td>
                                                                         <td class="text-center">NFS</td>
                                                                         <td>
                                                                             <div class="row">
                                                                                 <div class="col-md-6">
-                                                                                    <input type="file" name="nfs_files[]" class="form-control" multiple/>
+                                                                                    <input type="file" name="nfs_files[]" class="form-control" multiple />
                                                                                 </div>
                                                                                 <div class="col-md-6">
                                                                                     <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Download</button>
                                                                                 </div>
                                                                         </td>
                                                                     </tr>
-                                                                <?php
-                                                                    unset($temp_data_interface, $temp_data_found); 
+                                                            <?php
+                                                                    unset($temp_data_interface, $temp_data_found);
                                                                 }
                                                             } ?>
                                                         </tbody>
@@ -1593,12 +1598,12 @@ if(isset($_SESSION['zero_exception'])){
                                                 </div>
                                             </div>
                                             <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="form-group">
-                                                    <textarea name="HTTPDL_result" id="HTTPDL_result" rows="10" cols="50" wrap="soft" class="form-control" readonly></textarea>
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <textarea name="HTTPDL_result" id="HTTPDL_result" rows="10" cols="50" wrap="soft" class="form-control" readonly></textarea>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
                                         </form>
                                     </div>
                                     <!--<form method="post" enctype="multipart/form-data">
@@ -1691,7 +1696,7 @@ if(isset($_SESSION['zero_exception'])){
                                 </div>
                             </div>
                             <!--*** Modal for add files ***-->
-                            <!--***01/16/23*** Changed to IMPORT ALL files instead of prompting the user for one or group of files manually --> 
+                            <!--***01/16/23*** Changed to IMPORT ALL files instead of prompting the user for one or group of files manually -->
                             <!-- <div id="upload_zip_import" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -1852,10 +1857,10 @@ if(isset($_SESSION['zero_exception'])){
                             <div class="col-md-4">
                                 <div class="inputpopup">
                                     <div id="demo-dp-range">
-                                            <div class="input-daterange input-group" id="datepicker">
-                                                <input type="text" name="client_birthdate" id="bdate" class="form-control"/>
-                                            </div>
-                                        </div>  
+                                        <div class="input-daterange input-group" id="datepicker">
+                                            <input type="text" name="client_birthdate" id="bdate" class="form-control" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1866,7 +1871,7 @@ if(isset($_SESSION['zero_exception'])){
                                 <div class="col-md-12">
                                     <h4><b>CIP</b></h4><br />
                                 </div>
-                            </div> 
+                            </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -1876,19 +1881,19 @@ if(isset($_SESSION['zero_exception'])){
                                         <input type="radio" onclick="open_other()" name="cip_options" id="options" class="radio" style="display: inline;" value="3" />&nbsp;<label>Other</label>&nbsp;
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-md-6" style="display: none;" id="other_div">
                                     <div class="form-group">
                                         <label>Other </label>
-                                        <input type="text" name="cip_other" id="other" class="form-control" value=""/>
+                                        <input type="text" name="cip_other" id="other" class="form-control" value="" />
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Number </label>
-                                        <input type="text" name="cip_number" id="number" class="form-control"/>
+                                        <input type="text" name="cip_number" id="number" class="form-control" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -1896,9 +1901,9 @@ if(isset($_SESSION['zero_exception'])){
                                         <label>Expiration </label>
                                         <div id="demo-dp-range">
                                             <div class="input-daterange input-group" id="datepicker">
-                                                <input type="text" name="cip_expiration" id="expiration" class="form-control"/>
+                                                <input type="text" name="cip_expiration" id="expiration" class="form-control" />
                                             </div>
-                                        </div>                                                        
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1908,8 +1913,8 @@ if(isset($_SESSION['zero_exception'])){
                                         <label>State </label>
                                         <select name="cip_state_employe" id="state_employe" class="form-control">
                                             <option value="">Select State</option>
-                                            <?php foreach($get_state as $key=>$val){ ?>
-                                            <option value="<?php echo $val['id'];?>" ><?php echo $val['name'];?></option>
+                                            <?php foreach ($get_state as $key => $val) { ?>
+                                                <option value="<?php echo $val['id']; ?>"><?php echo $val['name']; ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -1919,12 +1924,12 @@ if(isset($_SESSION['zero_exception'])){
                                         <label>Date Verified </label>
                                         <div id="demo-dp-range">
                                             <div class="input-daterange input-group" id="datepicker">
-                                                <input type="text" name="cip_date_verified" id="date_verified" class="form-control"/>
+                                                <input type="text" name="cip_date_verified" id="date_verified" class="form-control" />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                         </div>
 
                         <div class="row" id="enter_client_state_div" style="display: none;">
@@ -1939,13 +1944,13 @@ if(isset($_SESSION['zero_exception'])){
                                     <select name="client_assign_state" id="client_assign_state" class="form-control">
                                         <option value="">Select State </option>
                                         <?php foreach ($get_state as $key => $val) { ?>
-                                            <option value="<?php echo $val['id'];?>"> <?php echo $val['name'];?> </option>
+                                            <option value="<?php echo $val['id']; ?>"> <?php echo $val['name']; ?> </option>
                                         <?php } ?>
                                     </select>
                                 </div>
                             </div>
                         </div>
-                    
+
                         <div class="row" style="display: none;" id="broker_termination_options_clients">
                             <div class="col-md-5">
                                 <div class="inputpopup">
@@ -2166,14 +2171,13 @@ if(isset($_SESSION['zero_exception'])){
             "bInfo": false,
             "bAutoWidth": false,
             "dom": '<"toolbar">frtip',
-            "aoColumnDefs": [
-                {
+            "aoColumnDefs": [{
                     "bSortable": false,
-                    "aTargets": [0,9]
+                    "aTargets": [0, 9]
                 },
                 {
                     "bSearchable": false,
-                    "aTargets": [0,9]
+                    "aTargets": [0, 9]
                 },
                 {
                     "type": 'date',
@@ -2316,7 +2320,7 @@ if(isset($_SESSION['zero_exception'])){
             '</div>');
     });
 
-    function reprocessme(){
+    function reprocessme() {
         $('#reprocessform').submit();
     }
 
@@ -2386,27 +2390,26 @@ if(isset($_SESSION['zero_exception'])){
                 $("#assign_rep_to_broker").css('display', 'block');
             }
         }
-        if(value == 5){
+        if (value == 5) {
             $("#enter_client_state_div").css('display', 'block');
         }
-        if(value == 7){
+        if (value == 7) {
             $("#enter_client_cip").css('display', 'block');
         }
-        if(value == 8){
+        if (value == 8) {
             $("#enter_client_birthdate").css('display', 'block');
         }
     }
 
-    function open_other()
-    {
-        $('#other_div').css('display','block');
-    }
-    function close_other()
-    {
-        $('#other_div').css('display','none');
+    function open_other() {
+        $('#other_div').css('display', 'block');
     }
 
-    function add_exception_value(exception_file_id, exception_file_type, temp_data_id, exception_field, rep_number, existing_field_value, error_code_id, exception_record_id, client_account_no,client_id) {
+    function close_other() {
+        $('#other_div').css('display', 'none');
+    }
+
+    function add_exception_value(exception_file_id, exception_file_type, temp_data_id, exception_field, rep_number, existing_field_value, error_code_id, exception_record_id, client_account_no, client_id) {
         $('#msg_exception').html('');
 
         //--- For testing
@@ -2419,7 +2422,7 @@ if(isset($_SESSION['zero_exception'])){
             ',  existing_field_value:' + typeof existing_field_value + ': ' + existing_field_value +
             ',  error_code_id:' + typeof error_code_id + ': ' + error_code_id +
             ',  exception_record_id:' + typeof exception_record_id + ': ' + exception_record_id +
-            ',  client_account_no:' + typeof client_account_no + ': ' + client_account_no+
+            ',  client_account_no:' + typeof client_account_no + ': ' + client_account_no +
             ',  client_id:' + typeof client_id + ': ' + client_id
         );
 
@@ -2476,17 +2479,17 @@ if(isset($_SESSION['zero_exception'])){
         $("#assign_code_for_sponsor").css('display', 'none');
         $("#broker_termination_options_clients").css('display', 'none');
         $("#broker_termination_options_trades").css('display', 'none');
-        
-        if(error_code_id == 30){
+
+        if (error_code_id == 30) {
             $("#broker_mismatch").css('display', 'block');
         }
-        if(error_code_id == 29){
+        if (error_code_id == 29) {
             $("#client_state_error").css('display', 'block');
         }
-        if(error_code_id == 28){
+        if (error_code_id == 28) {
             $("#client_CIP_info").css('display', 'block');
         }
-        if(error_code_id == 27 || error_code_id == 26){
+        if (error_code_id == 27 || error_code_id == 26) {
             $("#client_birthdate").css('display', 'block');
         }
 
@@ -2981,14 +2984,14 @@ if(isset($_SESSION['zero_exception'])){
             }
         }
     }
-    
+
     function fetchDST(dimID) {
         var xmlhttp = new XMLHttpRequest();
-        
+
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
-                
+
                 if (data != '') {
                     $("#HTTPDL_result").removeAttr("readonly");
                     document.getElementById("HTTPDL_result").value = '';
@@ -3001,17 +3004,18 @@ if(isset($_SESSION['zero_exception'])){
         xmlhttp.open("GET", "import.php?action=fetchDST&dim_id=" + dimID, true);
         xmlhttp.send();
     }
+
     function importFiles(dimID) {
         var xmlhttp = new XMLHttpRequest();
-        
+
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
-                
+
                 if (data != '') {
                     document.getElementById("HTTPDL_result").value += data;
-                    $("#HTTPDL_result").attr("readonly",true);
-                    if(data.includes("done") ){
+                    $("#HTTPDL_result").attr("readonly", true);
+                    if (data.includes("done")) {
                         window.location.href = '<?php echo CURRENT_PAGE ?>';
                     }
                 }
@@ -3020,5 +3024,4 @@ if(isset($_SESSION['zero_exception'])){
         xmlhttp.open("GET", "import.php?action=importFiles&dim_id=" + dimID, true);
         xmlhttp.send();
     }
-
 </script>

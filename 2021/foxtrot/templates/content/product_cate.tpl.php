@@ -1,109 +1,110 @@
 <script>
-function addMoreThreshold(){
-    var html =
-                // '<div class="row new_row" style="padding: 5px;">'+
-                '<div name="thresholdRow[]" class="row main_row" style="padding: 5px;">'+
-                    '<div class="col-md-6">'+
-                        '<div class="row" style="padding: 5px;">'+
-                            '<div class="col-md-5">'+
-                                '<div class="input-group">'+
-                                    '<span class="input-group-addon">$</span>'+
-                                    ' <input type="hidden" value=""   class="form-control" id="threshold_id" name="threshold_id[]" placeholder="$0"  />'+
-                                    '<input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  disabled/>'+
-                                '</div>'+
-                            '</div>'+
-                            '<div class="col-md-2">'+
-                                '<div class="form-group">'+
-                                    '<label>To </label>'+
-                                '</div>'+
-                            '</div>'+
-                            '<div class="col-md-5">'+
-                                '<div class="input-group">'+
-                                    '<span class="input-group-addon">$</span>'+
-                                    '<input type="number" value=""  maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999"  />'+
-                                '</div>'+
-                            '</div>'+
+    function addMoreThreshold() {
+        var html =
+            // '<div class="row new_row" style="padding: 5px;">'+
+            '<div name="thresholdRow[]" class="row main_row" style="padding: 5px;">' +
+            '<div class="col-md-6">' +
+            '<div class="row" style="padding: 5px;">' +
+            '<div class="col-md-5">' +
+            '<div class="input-group">' +
+            '<span class="input-group-addon">$</span>' +
+            ' <input type="hidden" value=""   class="form-control" id="threshold_id" name="threshold_id[]" placeholder="$0"  />' +
+            '<input type="number" value=""  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  disabled/>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-md-2">' +
+            '<div class="form-group">' +
+            '<label>To </label>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-md-5">' +
+            '<div class="input-group">' +
+            '<span class="input-group-addon">$</span>' +
+            '<input type="number" value=""  maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999"  />' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+            '<div class="row" style="padding: 5px;">' +
+            '<div class="col-md-4">' +
+            '<div class="form-group">' +
+            '<label>with a Rate of </label>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+            '<div class="input-group">' +
+            '<input type="number" value="" maxlength="5" step="0.01" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.0%"  />' +
+            '<span class="input-group-addon">%</span>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-md-2">' +
+            '<div class="form-group">' +
+            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>' +
+            '</div>' +
+            '</div>' +
+            /*'<div class="col-md-6">'+
+                '<div class="form-group">'+
+                    '<input type="text" value="" maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />'+
+                '</div>'+
+            '</div>'+*/
+            '</div>' +
+            '</div>' +
+
+            /*'<div class="col-md-1">'+
+                '<div class="row" style="padding: 5px;">'+
+                    '<div class="col-md-12">'+
+                        '<div class="form-group">'+
+                            '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
                         '</div>'+
                     '</div>'+
-                    '<div class="col-md-6">'+
-                        '<div class="row" style="padding: 5px;">'+
-                            '<div class="col-md-4">'+
-                                '<div class="form-group">'+
-                                    '<label>with a Rate of </label>'+
-                                '</div>'+
-                            '</div>'+
-                            '<div class="col-md-6">'+
-                                '<div class="input-group">'+
-                                    '<input type="number" value="" maxlength="5" step="0.01" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.0%"  />'+
-                                    '<span class="input-group-addon">%</span>'+
-                                '</div>'+
-                            '</div>'+
-                            '<div class="col-md-2">'+
-                                '<div class="form-group">'+
-                                    '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
-                                '</div>'+
-                            '</div>'+
-                            /*'<div class="col-md-6">'+
-                                '<div class="form-group">'+
-                                    '<input type="text" value="" maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />'+
-                                '</div>'+
-                            '</div>'+*/
-                        '</div>'+
-                    '</div>'+
-
-                    /*'<div class="col-md-1">'+
-                        '<div class="row" style="padding: 5px;">'+
-                            '<div class="col-md-12">'+
-                                '<div class="form-group">'+
-                                    '<button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>'+
-                                '</div>'+
-                            '</div>'+
-                        '</div>'+
-                    '</div>'+*/
-                '</div>';
+                '</div>'+
+            '</div>'+*/
+            '</div>';
 
 
-    $(html).insertBefore('#add_more_threshold');
+        $(html).insertBefore('#add_more_threshold');
 
-    maxThreshold = document.getElementsByName("max_threshold[]")
-    minThreshold = document.getElementsByName("min_threshold[]")
-    minRate = document.getElementsByName("min_rate[]")
-    // Swap data values from the bottom row "add more threshold" to the newly created row
-    minThreshold[maxThreshold.length-2].value = minThreshold[maxThreshold.length-1].value
-    maxThreshold[maxThreshold.length-2].value = maxThreshold[maxThreshold.length-1].value
-    minRate[minRate.length-2].value = minRate[minRate.length-1].value
-    minThreshold[minThreshold.length-1].value = parseInt(maxThreshold[minThreshold.length-2].value)+1
-    maxThreshold[maxThreshold.length-1].value = ""
-    minRate[minRate.length-1].value = ""
-    maxThreshold[maxThreshold.length-1].focus()
-}
-$(document).on('click','.remove-row',function(){
-    $(this).closest('.main_row').remove();
-    default_min_threshold()
-});
-function default_min_threshold() {
-    // Default the "min" thresholds to $1 more than the prior "max"
-    minThreshold = document.getElementsByName("min_threshold[]")
-    maxThreshold = document.getElementsByName("max_threshold[]")
+        maxThreshold = document.getElementsByName("max_threshold[]")
+        minThreshold = document.getElementsByName("min_threshold[]")
+        minRate = document.getElementsByName("min_rate[]")
+        // Swap data values from the bottom row "add more threshold" to the newly created row
+        minThreshold[maxThreshold.length - 2].value = minThreshold[maxThreshold.length - 1].value
+        maxThreshold[maxThreshold.length - 2].value = maxThreshold[maxThreshold.length - 1].value
+        minRate[minRate.length - 2].value = minRate[minRate.length - 1].value
+        minThreshold[minThreshold.length - 1].value = parseInt(maxThreshold[minThreshold.length - 2].value) + 1
+        maxThreshold[maxThreshold.length - 1].value = ""
+        minRate[minRate.length - 1].value = ""
+        maxThreshold[maxThreshold.length - 1].focus()
+    }
+    $(document).on('click', '.remove-row', function() {
+        $(this).closest('.main_row').remove();
+        default_min_threshold()
+    });
 
-    for (var $i=0; $i < minThreshold.length; $i++){
-        if ($i == 0){
-            minThreshold[$i].value = "0"
-        } else {
-            minThreshold[$i].value = parseInt(maxThreshold[$i-1].value)+1
+    function default_min_threshold() {
+        // Default the "min" thresholds to $1 more than the prior "max"
+        minThreshold = document.getElementsByName("min_threshold[]")
+        maxThreshold = document.getElementsByName("max_threshold[]")
+
+        for (var $i = 0; $i < minThreshold.length; $i++) {
+            if ($i == 0) {
+                minThreshold[$i].value = "0"
+            } else {
+                minThreshold[$i].value = parseInt(maxThreshold[$i - 1].value) + 1
+            }
         }
     }
-}
 </script>
 <div class="container">
-<h1 class="<?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtitle';}*/?>">  Product Maintenance  </h1>
-<div class="col-lg-12 well <?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'fixedwell';}*/?>">
-<?php require_once(DIR_FS_INCLUDES."alerts.php"); ?>
-            <?php
-                    if(isset($_GET['action']) && $_GET['action']=='view_product') {?>
-                <div class="panel">
+    <h1 class="<?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtitle';}*/ ?>"> Product Maintenance </h1>
+    <div class="col-lg-12 well <?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'fixedwell';}*/ ?>">
+        <?php require_once(DIR_FS_INCLUDES . "alerts.php"); ?>
+        <?php
+        if (isset($_GET['action']) && $_GET['action'] == 'view_product') { ?>
+            <div class="panel">
 
-            		<!--<div class="panel-heading">
+                <!--<div class="panel-heading">
                         <div class="panel-control">
                             <div class="btn-group dropdown" style="float: right;">
                                 <button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
@@ -114,58 +115,57 @@ function default_min_threshold() {
             				</div>
             			</div>
                     </div><br />-->
-            		<div class="panel-body">
+                <div class="panel-body">
 
-                       <div class="table-responsive">
-            			<table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
-            	            <thead>
-            	                <tr>
+                    <div class="table-responsive">
+                        <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
                                     <th class="text-center">ACTION</th>
                                     <th>PRODUCT NAME</th>
                                     <th>CUSIP</th>
                                     <th>SPONSOR NAME</th>
                                     <th class="text-center">STATUS</th>
                                 </tr>
-            	            </thead>
-            	            <tbody>
-                            <?php
-                            $count = 0;
-                            foreach($return as $key=>$val){
+                            </thead>
+                            <tbody>
+                                <?php
+                                $count = 0;
+                                foreach ($return as $key => $val) {
                                 ?>
-            	                   <tr>
+                                    <tr>
                                         <td class="text-center">
-                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit_product&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit" ></i> Edit</a>
+                                            <a href="<?php echo CURRENT_PAGE; ?>?action=edit_product&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                             <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash" ></i> Delete</a> -->
                                         </td>
-                                        <td><?php echo $val['name'];?></td>
+                                        <td><?php echo $val['name']; ?></td>
                                         <td><?php echo $val['cusip']; ?></td>
                                         <td><?php echo $val['sponsor']; ?></td>
                                         <td class="text-center">
                                             <?php
-                                                if($val['status']==1){
-                                                    ?>
-                                                    <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success" ><i class="fa fa-check-square-o"  ></i> Active</a>
-                                                    <?php
-                                                }
-                                                else{
-                                                    ?>
-                                                    <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Terminated</a>
-                                                    <?php
-                                                }
+                                            if ($val['status'] == 1) {
+                                            ?>
+                                                <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success"><i class="fa fa-check-square-o"></i> Active</a>
+                                            <?php
+                                            } else {
+                                            ?>
+                                                <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Terminated</a>
+                                            <?php
+                                            }
                                             ?>
                                         </td>
                                     </tr>
-                            <?php } ?>
+                                <?php } ?>
                             </tbody>
                         </table>
-                        </div>
-            		</div>
-            	</div>
-                <?php } ?>
-            <?php
-            if($action=='select_cat'){
-                ?>
-                <!-- <div class="panel">
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+        <?php
+        if ($action == 'select_cat') {
+        ?>
+            <!-- <div class="panel">
 
                 <form name="frm2" method="POST">
                     <div class="panel-body">
@@ -175,8 +175,10 @@ function default_min_threshold() {
                                 <label>Product Category </label><br />
                                 <select class="form-control" id="set_category" onchange="product_category_autoredirect(this.value)" name="set_category" style="display: inline !important;">
                                     <option value="0" selected="true">Select Category</option>
-                                    <?php foreach($product_category as $key=>$val){?>
-                                    <option value="<?php echo $val['id'];?>" <?php if($category==$val['id']){echo "selected='selected'";} ?>><?php echo $val['type'];?></option>
+                                    <?php foreach ($product_category as $key => $val) { ?>
+                                    <option value="<?php echo $val['id']; ?>" <?php if ($category == $val['id']) {
+                                                                                    echo "selected='selected'";
+                                                                                } ?>><?php echo $val['type']; ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -203,9 +205,9 @@ function default_min_threshold() {
                 </form>
                 </div> -->
 
-                <div class="panel">
-                     <div class="panel-body">
-                         <div class="table-responsive">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="table-responsive">
                         <table id="data-table" class="table table-striped1 table-bordered" cellspacing="0" width="100%">
                             <thead>
                                 <tr>
@@ -218,340 +220,380 @@ function default_min_threshold() {
                                 </tr>
                             </thead>
                             <tbody>
-                            <?php
-                            $count = 0;
-                            foreach($return as $key=>$val){
-                                $editLink = CURRENT_PAGE . "?action=edit_product&category={$val['category']}&id={$val['id']}";
+                                <?php
+                                $count = 0;
+                                foreach ($return as $key => $val) {
+                                    $editLink = CURRENT_PAGE . "?action=edit_product&category={$val['category']}&id={$val['id']}";
                                 ?>
-                                   <tr>
+                                    <tr>
                                         <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
                                             <a href="<?php echo $editLink; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                             <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                                         </td>
-                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['name'];?></td>
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['name']; ?></td>
                                         <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['type']; ?></td>
                                         <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['cusip']; ?></td>
                                         <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['sponsor']; ?></td>
                                         <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
                                             <?php
-                                                if($val['status']==1){
-                                                    ?>
-                                                    <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success"><i class="fa fa-check-square-o"></i> Active</a>
-                                                    <?php
-                                                }
-                                                else{
-                                                    ?>
-                                                    <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Terminated</a>
-                                                    <?php
-                                                }
+                                            if ($val['status'] == 1) {
+                                            ?>
+                                                <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=0" class="btn btn-sm btn-success"><i class="fa fa-check-square-o"></i> Active</a>
+                                            <?php
+                                            } else {
+                                            ?>
+                                                <a href="<?php echo CURRENT_PAGE; ?>?action=product_status&category=<?php echo $val['category']; ?>&id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Terminated</a>
+                                            <?php
+                                            }
                                             ?>
                                         </td>
                                     </tr>
-                            <?php } ?>
+                                <?php } ?>
                             </tbody>
                         </table>
-                        </div>
-                     </div>
+                    </div>
                 </div>
+            </div>
 
-                <?php
-                    }
+        <?php
+        } else if ($action == 'add_product' || $action == 'add_product_from_trans' || ($action == 'edit_product' && $id > 0)) {
+        ?>
+            <ul class="nav nav-tabs <?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtabs';}*/ ?>">
+                <li class="active"><a href="#tab_aa" data-toggle="tab">General</a></li>
+                <li><a href="#tab_bb" data-toggle="tab">Suitability</a></li>
+                <!--<li><a href="#tab_ee" data-toggle="tab">Documents</a></li>-->
+                <div class="btn-group dropdown" style="float: right;">
+                    <button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
+                    </ul>
+                </div>
+            </ul>
+            <form name="frm" method="POST" onsubmit="return validation();" enctype="multipart/form-data">
 
-                    else if($action=='add_product' || $action=='add_product_from_trans' || ($action=='edit_product' && $id>0)){
-                ?>
-                <ul class="nav nav-tabs <?php /*if($action=='add_product'||($action=='edit_product' && $id>0)){ echo 'topfixedtabs';}*/?>">
-                  <li class="active"><a href="#tab_aa" data-toggle="tab">General</a></li>
-                  <li><a href="#tab_bb" data-toggle="tab">Suitability</a></li>
-                  <!--<li><a href="#tab_ee" data-toggle="tab">Documents</a></li>-->
-                    <div class="btn-group dropdown" style="float: right;">
-						<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-						<ul class="dropdown-menu dropdown-menu-right">
-							<li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
-						</ul>
-					</div>
-				</ul>
-                 <form name="frm" method="POST" onsubmit="return validation();" enctype="multipart/form-data">
-
-                 <div class="tab-content col-md-12 panel">
+                <div class="tab-content col-md-12 panel">
 
                     <div class="tab-pane active" id="tab_aa">
 
-        					<div class="row"><br />
-                                <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i> <?php echo $action=='add_product'?'Add':'Edit'; ?> Product</h3>
-        					</div><br />
+                        <div class="row"><br />
+                            <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i> <?php echo $action == 'add_product' ? 'Add' : 'Edit'; ?> Product</h3>
+                        </div><br />
 
-                            <div class="row">
+                        <div class="row">
 
 
-                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Product Category </label><br />
-                                        <select class="form-control" id="product_category" onchange="cateogry_change_event(this.value)" name="product_category" style="display: inline !important;">
-                                            <option value="0" selected="true">Select Category</option>
-                                            <?php foreach($product_category as $key=>$val){?>
-                                            <option value="<?php echo $val['id'];?>" <?php if($category==$val['id']){echo "selected='selected'";} ?>><?php echo $val['type'];?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Product Category </label><br />
+                                    <select class="form-control" id="product_category" onchange="cateogry_change_event(this.value)" name="product_category" style="display: inline !important;">
+                                        <option value="0" selected="true">Select Category</option>
+                                        <?php foreach ($product_category as $key => $val) { ?>
+                                            <option value="<?php echo $val['id']; ?>" <?php if ($category == $val['id']) {
+                                                                                            echo "selected='selected'";
+                                                                                        } ?>><?php echo $val['type']; ?></option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
+                            </div>
 
 
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Product Name <span class="text-red">*</span></label><br />
-                                        <input type="text" maxlength="40" class="form-control" name="name" value="<?php echo $name; ?>" required />
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Product Name <span class="text-red">*</span></label><br />
+                                    <input type="text" maxlength="40" class="form-control" name="name" value="<?php echo $name; ?>" required />
                                 </div>
-                                <!--div class="col-md-6">
+                            </div>
+                            <!--div class="col-md-6">
                                     <div class="form-group">
                                         <label></label><br />
                                         <a href="#client_notes" data-toggle="modal"><input type="button" class="col-md-6" name="notes" value="Notes" /></a>
                                         <a href="#client_attachment" data-toggle="modal"><input type="button" class="col-md-6" name="attach" value="Attach" /></a>
                                     </div>
                                  </div-->
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div id="div_sponsor">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div id="div_sponsor">
                                     <div class="form-group">
                                         <label>Sponsor <span class="text-red">*</span></label><br />
                                         <select class="form-control" name="sponsor" id="sponsor" required>
                                             <option value="">Select Sponsor</option>
-                                             <?php foreach($get_sponsor as $key=>$val){?>
-                                            <option value="<?php echo $val['id'];?>" <?php if($sponsor != '' && $sponsor==$val['id']){echo "selected='selected'";} ?>><?php echo $val['name'];?></option>
+                                            <?php foreach ($get_sponsor as $key => $val) { ?>
+                                                <option value="<?php echo $val['id']; ?>" <?php if ($sponsor != '' && $sponsor == $val['id']) {
+                                                                                                echo "selected='selected'";
+                                                                                            } ?>><?php echo $val['name']; ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Ticker Symbol </label><br />
-                                        <input type="text" maxlength="6" class="form-control" name="ticker_symbol" value="<?php echo $ticker_symbol; ?>"  />
-                                    </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>CUSIP </label><br />
-                                        <?php
-                                        if(isset($_GET['cusip_number']) && $_GET['cusip_number'] != '')
-                                        {
-                                        ?>
-                                            <input type="text" disabled="true" name="cusip_disp" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="cusip_disp" class="form-control" value="<?php echo $_GET['cusip_number'];?>" />
-                                            <input type="hidden" maxlength="11" class="form-control" name="cusip" value="<?php echo $_GET['cusip_number'];?>" />
-                                        <?php
-                                        }else{
-                                        ?>
-                                            <input type="text" maxlength="11" class="form-control" name="cusip" value="<?php echo $cusip; ?>" />
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Security Number </label><br />
-                                        <input type="text" maxlength="10" class="form-control" name="security" value="<?php echo $security; ?>"   />
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ticker Symbol </label><br />
+                                    <input type="text" maxlength="6" class="form-control" name="ticker_symbol" value="<?php echo $ticker_symbol; ?>" />
                                 </div>
                             </div>
-                            <div class="cat_extra_options">
-                                <div class="cat_1_block cat_1" style="display:none">
-                                    <div class="row">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>CUSIP </label><br />
+                                    <?php
+                                    if (isset($_GET['cusip_number']) && $_GET['cusip_number'] != '') {
+                                    ?>
+                                        <input type="text" disabled="true" name="cusip_disp" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="cusip_disp" class="form-control" value="<?php echo $_GET['cusip_number']; ?>" />
+                                        <input type="hidden" maxlength="11" class="form-control" name="cusip" value="<?php echo $_GET['cusip_number']; ?>" />
+                                    <?php
+                                    } else {
+                                    ?>
+                                        <input type="text" maxlength="11" class="form-control" name="cusip" value="<?php echo $cusip; ?>" />
+                                    <?php } ?>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Security Number </label><br />
+                                    <input type="text" maxlength="10" class="form-control" name="security" value="<?php echo $security; ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cat_extra_options">
+                            <div class="cat_1_block cat_1" style="display:none">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Allowable Receivable </label><br />
+                                            <input type="checkbox" class="checkbox" name="allowable_receivable" id="allowable_receivable" value="1" style="display: inline;" <?php if ($receive > 0) {
+                                                                                                                                                                                    echo "checked='checked'";
+                                                                                                                                                                                } ?> />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Non-Commissionable </label><br />
+                                            <input type="checkbox" class="checkbox" name="non_commissionable" id="non_commissionable" value="1" style="display: inline;" <?php if ($non_commissionable > 0) {
+                                                                                                                                                                                echo "checked='checked'";
+                                                                                                                                                                            } ?> />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="display: block; border: 1px solid #ddd;">
+                                    <div class="row" style="padding: 5px;">
+                                        <div class="col-md-12">
+                                            <h4><b>Mutual Funds</b></h4><br />
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding: 5px;">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label>Allowable Receivable </label><br />
-                                                <input type="checkbox" class="checkbox" name="allowable_receivable" id="allowable_receivable" value="1" style="display: inline;" <?php if($receive>0){echo "checked='checked'";}?>  />
+                                                <label>Class Type </label><br />
+                                                <input type="radio" class="radio" name="class_type" id="cpa" value="1" style="display: inline;" <?php if ($class_type == 1) {
+                                                                                                                                                    echo "checked='checked'";
+                                                                                                                                                } ?> />&nbsp;<label>A</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" class="radio" name="class_type" id="cpa" value="2" style="display: inline;" <?php if ($class_type == 2) {
+                                                                                                                                                    echo "checked='checked'";
+                                                                                                                                                } ?> />&nbsp;<label>B</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" class="radio" name="class_type" id="cpa" value="3" style="display: inline;" <?php if ($class_type == 3) {
+                                                                                                                                                    echo "checked='checked'";
+                                                                                                                                                } ?> />&nbsp;<label>C</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" class="radio" name="class_type" id="cpa" value="4" style="display: inline;" <?php if ($class_type == 4) {
+                                                                                                                                                    echo "checked='checked'";
+                                                                                                                                                } ?> />&nbsp;<label>other</label>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label>Non-Commissionable </label><br />
-                                                <input type="checkbox"  class="checkbox" name="non_commissionable" id="non_commissionable" value="1" style="display: inline;" <?php if($non_commissionable>0){echo "checked='checked'";}?>/>
+                                                <label>Fund Code </label><br />
+                                                <input type="text" maxlength="7" value="<?php echo $fund_code; ?>" class="form-control" name="fund_code" />
                                             </div>
                                         </div>
                                     </div>
+                                    <br />
+                                    <label>Threshold </label><br />
+                                    <?php
+                                    if ($return_rates != '') {
+                                        foreach ($return_rates as $keyedit_rates => $valedit_rates) {
+                                    ?>
+                                            <div name="thresholdRow[]" class="row main_row" style="padding: 5px;">
+                                                <div class="col-md-6">
+                                                    <div class="row" style="padding: 5px;">
 
-                                    <div style="display: block; border: 1px solid #ddd;">
-                                       <div class="row" style="padding: 5px;">
-                                            <div class="col-md-12">
-                                                <h4><b>Mutual Funds</b></h4><br />
-                                            </div>
-                                       </div>
-                                        <div class="row" style="padding: 5px;">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Class Type </label><br />
-                                                    <input type="radio" class="radio" name="class_type" id="cpa" value="1" style="display: inline;" <?php if($class_type==1){echo "checked='checked'";}?>/>&nbsp;<label>A</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                    <input type="radio" class="radio" name="class_type" id="cpa" value="2" style="display: inline;" <?php if($class_type==2){echo "checked='checked'";}?>/>&nbsp;<label>B</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                    <input type="radio" class="radio" name="class_type" id="cpa" value="3" style="display: inline;" <?php if($class_type==3){echo "checked='checked'";}?>/>&nbsp;<label>C</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                    <input type="radio" class="radio" name="class_type" id="cpa" value="4" style="display: inline;" <?php if($class_type==4){echo "checked='checked'";}?>/>&nbsp;<label>other</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Fund Code </label><br />
-                                                    <input type="text" maxlength="7" value="<?php echo $fund_code; ?>" class="form-control" name="fund_code"  />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <br />
-                                        <label>Threshold </label><br />
-                                       <?php
-                                        if($return_rates != '')
-                                        {
-                                        foreach($return_rates as $keyedit_rates=>$valedit_rates){
-                                        ?>
-                                       <div name="thresholdRow[]" class="row main_row" style="padding: 5px;">
-                                            <div class="col-md-6">
-                                                <div class="row" style="padding: 5px;">
-
-                                                    <div class="col-md-5">
-                                                        <div class="input-group">
-                                                            <span class="input-group-addon">$</span>
-                                                            <input type="hidden" value="<?php echo $valedit_rates['id']; ?>"   class="form-control" id="threshold_id" name="threshold_id[]"   />
-                                                            <input type="number" value="<?php echo $valedit_rates['min_threshold']; ?>"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0" disabled/>
+                                                        <div class="col-md-5">
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon">$</span>
+                                                                <input type="hidden" value="<?php echo $valedit_rates['id']; ?>" class="form-control" id="threshold_id" name="threshold_id[]" />
+                                                                <input type="number" value="<?php echo $valedit_rates['min_threshold']; ?>" maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0" disabled />
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <label>To </label>
-                                                    </div>
-                                                    <div class="col-md-5">
-                                                        <div class="input-group">
-                                                            <span class="input-group-addon">$</span>
-                                                            <input type="number" value="<?php echo $valedit_rates['max_threshold']; ?>"  maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999"  />
+                                                        <div class="col-md-2">
+                                                            <label>To </label>
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon">$</span>
+                                                                <input type="number" value="<?php echo $valedit_rates['max_threshold']; ?>" maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999" />
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="row" style="padding: 5px;">
-                                                    <div class="col-md-4">
-                                                        <div class="form-group">
-                                                            <label>with a Rate of </label>
+                                                <div class="col-md-6">
+                                                    <div class="row" style="padding: 5px;">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label>with a Rate of </label>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="input-group">
-                                                            <input type="number" value="<?php echo $valedit_rates['min_rate']; ?>" step="0.01" maxlength="5" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.0%"  />
-                                                            <span class="input-group-addon">%</span>
+                                                        <div class="col-md-6">
+                                                            <div class="input-group">
+                                                                <input type="number" value="<?php echo $valedit_rates['min_rate']; ?>" step="0.01" maxlength="5" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.0%" />
+                                                                <span class="input-group-addon">%</span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <!--<div class="col-md-6">
+                                                        <!--<div class="col-md-6">
                                                         <div class="form-group">
                                                             <input type="text" value="<?php echo $valedit_rates['max_rate']; ?>"  onblur="maxrate(this.value)"  maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />
                                                         </div>
                                                     </div>-->
-                                                    <div class="col-md-2">
-                                                        <div class="form-group">
-                                                            <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <button type="button" tabindex="-1" class="btn remove-row btn-icon btn-circle"><i class="fa fa-minus"></i></button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
 
-                                       </div>
-                                       <?php } }?>
-                                       <div name="thresholdRow[]" class="row" style="padding: 5px;" id="add_more_threshold">
-                                            <div class="col-md-6">
-                                                <!--<label>Threshold </label><br />-->
-                                                <div class="row" style="padding: 5px;">
-                                                    <div class="col-md-5">
-                                                        <div class="input-group">
-                                                            <span class="input-group-addon">$</span>
-                                                            <input type="number" value="0"  maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0"  disabled/>
-                                                        </div>
+                                            </div>
+                                    <?php }
+                                    } ?>
+                                    <div name="thresholdRow[]" class="row" style="padding: 5px;" id="add_more_threshold">
+                                        <div class="col-md-6">
+                                            <!--<label>Threshold </label><br />-->
+                                            <div class="row" style="padding: 5px;">
+                                                <div class="col-md-5">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">$</span>
+                                                        <input type="number" value="0" maxlength="9" class="form-control" id="min_threshold" name="min_threshold[]" placeholder="$0" disabled />
                                                     </div>
-                                                    <div class="col-md-2">
-                                                        <label>To </label>
-                                                    </div>
-                                                    <div class="col-md-5">
-                                                        <div class="input-group">
-                                                            <span class="input-group-addon">$</span>
-                                                            <input type="number" value=""  maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999"  />
-                                                        </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label>To </label>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">$</span>
+                                                        <input type="number" value="" maxlength="9" class="form-control" id="max_threshold" name="max_threshold[]" placeholder="$99,999,999" />
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <!--<label>Rate </label><br />-->
-                                                <div class="row" style="padding: 5px;">
-                                                    <div class="col-md-4">
-                                                        <div class="form-group">
-                                                            <label>with a Rate of </label>
-                                                        </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <!--<label>Rate </label><br />-->
+                                            <div class="row" style="padding: 5px;">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>with a Rate of </label>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <div class="input-group">
-                                                            <input type="number" value="" step="0.01"  maxlength="5" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.00%"  />
-                                                            <span class="input-group-addon">%</span>
-                                                            <!--<input type="text" value=""  maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />-->
-                                                        </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="input-group">
+                                                        <input type="number" value="" step="0.01" maxlength="5" class="form-control" name="min_rate[]" id="min_rate" placeholder="0.00%" />
+                                                        <span class="input-group-addon">%</span>
+                                                        <!--<input type="text" value=""  maxlength="5" class="form-control" name="max_rate[]" id="max_rate" placeholder="99.9%" />-->
                                                     </div>
-                                                    <div class="col-md-2">
-                                                        <div class="form-group">
-                                                            <button type="button" onclick="addMoreThreshold();" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
-                                                        </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <button type="button" onclick="addMoreThreshold();" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>
                                                     </div>
                                                 </div>
                                             </div>
-                                       </div>
-                                       <div class="row" style="padding: 5px;">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Waive Sweep Fee </label><br />
-                                                    <input type="checkbox" class="checkbox" name="sweep_fee" id="sweep_fee" value="1" style="display: inline;" <?php if($sweep_fee>0){echo "checked='checked'";}?>/>
-                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Waive Sweep Fee </label><br />
+                                                <input type="checkbox" class="checkbox" name="sweep_fee" id="sweep_fee" value="1" style="display: inline;" <?php if ($sweep_fee > 0) {
+                                                                                                                                                                echo "checked='checked'";
+                                                                                                                                                            } ?> />
                                             </div>
-                                       </div>
-                                   </div>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
 
 
-                                <div class="cat_block cat_11" style="display:none" data-cat="11">
-                                   <div style="display: block; border: 1px solid #ddd;">
-                                   <div class="row" style="padding: 5px;">
+                            <div class="cat_block cat_11" style="display:none" data-cat="11">
+                                <div style="display: block; border: 1px solid #ddd;">
+                                    <div class="row" style="padding: 5px;">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Investment Banking Type </label><br />
                                                 <select class="form-control" name="investment_banking_type">
                                                     <option value="">Select Banking Type</option>
-                                                    <option value="1" <?php if($investment_banking_type==1){echo "selected='selected'";} ?>>IPO</option>
-                                                    <option value="2" <?php if($investment_banking_type==2){echo "selected='selected'";} ?>>Bridge</option>
-                                                    <option value="3" <?php if($investment_banking_type==3){echo "selected='selected'";} ?>>Reg S</option>
-                                                    <option value="4" <?php if($investment_banking_type==4){echo "selected='selected'";} ?>>Reg D</option>
-                                                    <option value="5" <?php if($investment_banking_type==5){echo "selected='selected'";} ?>>Private Placement</option>
+                                                    <option value="1" <?php if ($investment_banking_type == 1) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>IPO</option>
+                                                    <option value="2" <?php if ($investment_banking_type == 2) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Bridge</option>
+                                                    <option value="3" <?php if ($investment_banking_type == 3) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Reg S</option>
+                                                    <option value="4" <?php if ($investment_banking_type == 4) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Reg D</option>
+                                                    <option value="5" <?php if ($investment_banking_type == 5) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Private Placement</option>
                                                 </select>
                                             </div>
                                         </div>
                                     </div>
-                                    </div><br />
-                                </div>
+                                </div><br />
+                            </div>
 
 
-                                <div class="cat_block cat_12" style="display:none" data-cat="12">
-                                   <div style="display: block; border: 1px solid #ddd;">
-                                   <div class="row" style="padding: 5px;">
+                            <div class="cat_block cat_12" style="display:none" data-cat="12">
+                                <div style="display: block; border: 1px solid #ddd;">
+                                    <div class="row" style="padding: 5px;">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>RIA Type </label><br />
                                                 <select class="form-control" name="ria_specific_type">
                                                     <option value="">Select Type</option>
-                                                    <option value="1" <?php if($ria_specific_type==1){echo "selected='selected'";} ?>>Fee Based Mutual Funds</option>
-                                                    <option value="2" <?php if($ria_specific_type==2){echo "selected='selected'";} ?>>Fee Based Stocks, Bonds &amp; Mutual Funds</option>
-                                                    <option value="3" <?php if($ria_specific_type==3){echo "selected='selected'";} ?>>Financial Planning</option>
-                                                    <option value="4" <?php if($ria_specific_type==4){echo "selected='selected'";} ?>>Money Managers</option>
-                                                    <option value="5" <?php if($ria_specific_type==5){echo "selected='selected'";} ?>>Non-Discretionary</option>
-                                                    <option value="6" <?php if($ria_specific_type==6){echo "selected='selected'";} ?>>Socially Screened</option>
+                                                    <option value="1" <?php if ($ria_specific_type == 1) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Fee Based Mutual Funds</option>
+                                                    <option value="2" <?php if ($ria_specific_type == 2) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Fee Based Stocks, Bonds &amp; Mutual Funds</option>
+                                                    <option value="3" <?php if ($ria_specific_type == 3) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Financial Planning</option>
+                                                    <option value="4" <?php if ($ria_specific_type == 4) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Money Managers</option>
+                                                    <option value="5" <?php if ($ria_specific_type == 5) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Non-Discretionary</option>
+                                                    <option value="6" <?php if ($ria_specific_type == 6) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Socially Screened</option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label></label><br />
-                                                <input type="radio"  name="based_type" class="radio"  value="1" style="display: inline;" <?php if($based==1){echo "checked='checked'";}?>/>&nbsp;<label>Asset Based</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                <input type="radio"  name="based_type" class="radio"  value="2" style="display: inline;" <?php if($based==2){echo "checked='checked'";}?>/>&nbsp;<label>Fee Based</label>
+                                                <input type="radio" name="based_type" class="radio" value="1" style="display: inline;" <?php if ($based == 1) {
+                                                                                                                                            echo "checked='checked'";
+                                                                                                                                        } ?> />&nbsp;<label>Asset Based</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" name="based_type" class="radio" value="2" style="display: inline;" <?php if ($based == 2) {
+                                                                                                                                            echo "checked='checked'";
+                                                                                                                                        } ?> />&nbsp;<label>Fee Based</label>
                                             </div>
                                         </div>
                                     </div>
@@ -559,39 +601,43 @@ function default_min_threshold() {
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Fee Rate </label><br />
-                                                <input type="text" value="<?php echo $fee_rate; ?>" onblur="round(this.value);"  maxlength="5"   class="form-control" name="fee_rate" id="fee_rate" placeholder="0.00"  />
+                                                <input type="text" value="<?php echo $fee_rate; ?>" onblur="round(this.value);" maxlength="5" class="form-control" name="fee_rate" id="fee_rate" placeholder="0.00" />
                                             </div>
                                         </div>
                                     </div>
-                                    </div>
-                                    <br />
-                                 </div>
+                                </div>
+                                <br />
+                            </div>
 
 
-                                 <div class="cat_block cat_2 cat_3" style="display:none" data-cat="2,3">
-                                   <div style="display: block; border: 1px solid #ddd;">
-                                   <div class="row" style="padding: 5px;">
+                            <div class="cat_block cat_2 cat_3" style="display:none" data-cat="2,3">
+                                <div style="display: block; border: 1px solid #ddd;">
+                                    <div class="row" style="padding: 5px;">
                                         <div class="col-md-12">
                                             <h4><b>Stocks, Bonds</b></h4><br />
                                         </div>
-                                   </div>
+                                    </div>
 
-                                   <div class="row" style="padding: 5px;">
+                                    <div class="row" style="padding: 5px;">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <input type="radio" class="radio" name="stocks_bonds" value="1" style="display: inline;" <?php if($st_bo==1){echo "checked='checked'";}?>/>&nbsp;<label>Listed </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" class="radio" name="stocks_bonds" value="1" style="display: inline;" <?php if ($st_bo == 1) {
+                                                                                                                                                echo "checked='checked'";
+                                                                                                                                            } ?> />&nbsp;<label>Listed </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                                                <input type="radio" class="radio" name="stocks_bonds"  value="2" style="display: inline;" <?php if($st_bo==2){echo "checked='checked'";}?>/>&nbsp;<label>OTC </label>
+                                                <input type="radio" class="radio" name="stocks_bonds" value="2" style="display: inline;" <?php if ($st_bo == 2) {
+                                                                                                                                                echo "checked='checked'";
+                                                                                                                                            } ?> />&nbsp;<label>OTC </label>
                                             </div>
                                         </div>
                                     </div>
-                                    </div>
-                                    <br />
                                 </div>
+                                <br />
+                            </div>
 
 
-                                <div class="cat_block cat_3 cat_7 cat_8" style="display:none" data-cat="3,7,8">
-                                   <div style="display: block; border: 1px solid #ddd;">
+                            <div class="cat_block cat_3 cat_7 cat_8" style="display:none" data-cat="3,7,8">
+                                <div style="display: block; border: 1px solid #ddd;">
                                     <div class="row" style="padding: 5px;">
 
                                         <div class="col-md-12">
@@ -615,1262 +661,1123 @@ function default_min_threshold() {
                                                 <label>Type </label><br />
                                                 <select class="form-control" name="type">
                                                     <option value="">Select Type...</option>
-                                                    <option value="1" <?php if($type==1){echo "selected='selected'";} ?>>Government Municipal</option>
-                                                    <option value="2" <?php if($type==2){echo "selected='selected'";} ?>>Corporate</option>
-                                                    <option value="3" <?php if($type==3){echo "selected='selected'";} ?>>Treasury</option>
-                                                    <option value="4" <?php if($type==4){echo "selected='selected'";} ?>>Zero Coupon</option>
+                                                    <option value="1" <?php if ($type == 1) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Government Municipal</option>
+                                                    <option value="2" <?php if ($type == 2) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Corporate</option>
+                                                    <option value="3" <?php if ($type == 3) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Treasury</option>
+                                                    <option value="4" <?php if ($type == 4) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Zero Coupon</option>
                                                 </select>
                                             </div>
                                         </div>
                                     </div>
-                                    </div>
-                                    <br />
                                 </div>
+                                <br />
+                            </div>
 
-                                <div class="cat_block cat_4" style="display:none" data-cat="4">
-                                   <div style="display: block; border: 1px solid #ddd;">
+                            <div class="cat_block cat_4" style="display:none" data-cat="4">
+                                <div style="display: block; border: 1px solid #ddd;">
                                     <div class="row" style="padding: 5px;">
 
                                         <div class="col-md-12">
                                             <h4><b>Variable Annuities</b></h4><br />
                                         </div>
                                     </div>
-                                   <div class="row" style="padding: 5px;">
+                                    <div class="row" style="padding: 5px;">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <input type="radio" class="radio" name="variable_annuities" value="1" style="display: inline;" <?php if($var==1){echo "checked='checked'";}?>/>&nbsp;<label>Single </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" class="radio" name="variable_annuities" value="1" style="display: inline;" <?php if ($var == 1) {
+                                                                                                                                                    echo "checked='checked'";
+                                                                                                                                                } ?> />&nbsp;<label>Single </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                                                <input type="radio" class="radio" name="variable_annuities"  value="2" style="display: inline;" <?php if($var==2){echo "checked='checked'";}?>/>&nbsp;<label>Recurring </label>
+                                                <input type="radio" class="radio" name="variable_annuities" value="2" style="display: inline;" <?php if ($var == 2) {
+                                                                                                                                                    echo "checked='checked'";
+                                                                                                                                                } ?> />&nbsp;<label>Recurring </label>
                                             </div>
                                         </div>
                                     </div>
-                                    </div>
-                                    <br />
                                 </div>
-
-                                <div class="cat_block cat_9 cat_10" style="display:none" data-cat="9,10">
-                                       <div style="display: block; border: 1px solid #ddd;">
-                                        <div class="row" style="padding: 5px;">
-                                            <div class="col-md-12">
-                                                <h4><b>Partnerships, Alternative Investments, REITs, Agency Tax Credits, Hedge Funds</b></h4><br />
-                                            </div>
-                                        </div>
-
-                                        <div class="row" style="padding: 5px;">
-                                           <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Registration Type </label><br />
-                                                    <select class="form-control" name="registration_type">
-                                                        <option value="">Select Registration Type</option>
-                                                        <option value="1" <?php if($reg_type==1){echo "selected='selected'";} ?>>Public Real Estate</option>
-                                                        <option value="2" <?php if($reg_type==2){echo "selected='selected'";} ?>>Private Real Estate</option>
-                                                        <option value="3" <?php if($reg_type==3){echo "selected='selected'";} ?>>Public Oil &amp; Gas</option>
-                                                        <option value="4" <?php if($reg_type==4){echo "selected='selected'";} ?>>Private Oil &amp; Gas</option>
-                                                        <option value="5" <?php if($reg_type==5){echo "selected='selected'";} ?>>Public Leasing</option>
-                                                        <option value="6" <?php if($reg_type==6){echo "selected='selected'";} ?>>Private Leasing</option>
-                                                        <option value="7" <?php if($reg_type==7){echo "selected='selected'";} ?>>Public Mortgage</option>
-                                                        <option value="8" <?php if($reg_type==8){echo "selected='selected'";} ?>>Private Mortgage</option>
-                                                        <option value="9" <?php if($reg_type==9){echo "selected='selected'";} ?>>Public Raw Land</option>
-                                                        <option value="10" <?php if($reg_type==10){echo "selected='selected'";} ?>>Private Raw Land</option>
-                                                        <option value="11" <?php if($reg_type==11){echo "selected='selected'";} ?>>REIT</option>
-                                                        <option value="12" <?php if($reg_type==12){echo "selected='selected'";} ?>>Subsidized Housing</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                      </div><br />
-                                </div>
+                                <br />
                             </div>
+
+                            <div class="cat_block cat_9 cat_10" style="display:none" data-cat="9,10">
+                                <div style="display: block; border: 1px solid #ddd;">
+                                    <div class="row" style="padding: 5px;">
+                                        <div class="col-md-12">
+                                            <h4><b>Partnerships, Alternative Investments, REITs, Agency Tax Credits, Hedge Funds</b></h4><br />
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Registration Type </label><br />
+                                                <select class="form-control" name="registration_type">
+                                                    <option value="">Select Registration Type</option>
+                                                    <option value="1" <?php if ($reg_type == 1) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Public Real Estate</option>
+                                                    <option value="2" <?php if ($reg_type == 2) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Private Real Estate</option>
+                                                    <option value="3" <?php if ($reg_type == 3) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Public Oil &amp; Gas</option>
+                                                    <option value="4" <?php if ($reg_type == 4) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Private Oil &amp; Gas</option>
+                                                    <option value="5" <?php if ($reg_type == 5) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Public Leasing</option>
+                                                    <option value="6" <?php if ($reg_type == 6) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Private Leasing</option>
+                                                    <option value="7" <?php if ($reg_type == 7) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Public Mortgage</option>
+                                                    <option value="8" <?php if ($reg_type == 8) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Private Mortgage</option>
+                                                    <option value="9" <?php if ($reg_type == 9) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Public Raw Land</option>
+                                                    <option value="10" <?php if ($reg_type == 10) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Private Raw Land</option>
+                                                    <option value="11" <?php if ($reg_type == 11) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>REIT</option>
+                                                    <option value="12" <?php if ($reg_type == 12) {
+                                                                            echo "selected='selected'";
+                                                                        } ?>>Subsidized Housing</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><br />
+                            </div>
+                        </div>
                     </div>
                     <div class="tab-pane" id="tab_bb">
                         <div class="row">
-                                <div class="col-md-12">
-                                    <h4><b>Suitability</b></h4><br />
-                                </div>
-                           </div>
-                           <!-- 06/16/22 -- Changed 1.Income, 2.Net Worth, 3.Net Worth ONLY(Liquid Net Worth) - to dropdowns to match the Client Suitability layout -->
-                           <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Income </label><br />
-                                        <select name="income" id="income" class="form-control">
-                                            <?php foreach($get_income as $key=>$val){
-                                                // Skip "Refuse to Disclose" option(2)
-                                                if ($val['id']!="2"){  ?>
-                                                    <option value="<?php echo $val['id'];?>" <?php if($income != '' && $income==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
-                                            <?php }} ?>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Net Worth </label><br />
-                                        <select name="networth" id="networth" class="form-control">
-                                            <?php foreach($get_networth as $key=>$val){
-                                                // Skip "Refuse to Disclose" option(2)
-                                                if ($val['id']!="2"){  ?>
-                                                <option value="<?php echo $val['id'];?>" <?php if($networth != '' && $networth==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
-                                            <?php }} ?>
-                                        </select>
-                                    </div>
+                            <div class="col-md-12">
+                                <h4><b>Suitability</b></h4><br />
+                            </div>
+                        </div>
+                        <!-- 06/16/22 -- Changed 1.Income, 2.Net Worth, 3.Net Worth ONLY(Liquid Net Worth) - to dropdowns to match the Client Suitability layout -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Income </label><br />
+                                    <select name="income" id="income" class="form-control">
+                                        <?php foreach ($get_income as $key => $val) {
+                                            // Skip "Refuse to Disclose" option(2)
+                                            if ($val['id'] != "2") {  ?>
+                                                <option value="<?php echo $val['id']; ?>" <?php if ($income != '' && $income == $val['id']) {
+                                                                                                echo "selected";
+                                                                                            } ?>><?php echo $val['option']; ?></option>
+                                        <?php }
+                                        } ?>
+                                    </select>
                                 </div>
                             </div>
-                           <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Liquid Net Worth </label><br />
-                                        <select name="networthonly" id="networthonly" class="form-control">
-                                            <?php foreach($get_networth as $key=>$val){
-                                                // Skip "Refuse to Disclose" option(2)
-                                                if ($val['id']!="2"){  ?>
-                                                <option value="<?php echo $val['id'];?>" <?php if($networthonly != '' && $networthonly==$val['id']){echo "selected";} ?>><?php echo $val['option'];?></option>
-                                            <?php }} ?>
-                                        </select>
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Net Worth </label><br />
+                                    <select name="networth" id="networth" class="form-control">
+                                        <?php foreach ($get_networth as $key => $val) {
+                                            // Skip "Refuse to Disclose" option(2)
+                                            if ($val['id'] != "2") {  ?>
+                                                <option value="<?php echo $val['id']; ?>" <?php if ($networth != '' && $networth == $val['id']) {
+                                                                                                echo "selected";
+                                                                                            } ?>><?php echo $val['option']; ?></option>
+                                        <?php }
+                                        } ?>
+                                    </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Minimum Investment </label><br />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Liquid Net Worth </label><br />
+                                    <select name="networthonly" id="networthonly" class="form-control">
+                                        <?php foreach ($get_networth as $key => $val) {
+                                            // Skip "Refuse to Disclose" option(2)
+                                            if ($val['id'] != "2") {  ?>
+                                                <option value="<?php echo $val['id']; ?>" <?php if ($networthonly != '' && $networthonly == $val['id']) {
+                                                                                                echo "selected";
+                                                                                            } ?>><?php echo $val['option']; ?></option>
+                                        <?php }
+                                        } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Minimum Investment </label><br />
 
-                                        <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="minimum_investment" value="<?php echo $minimum_investment; ?>"  />
-                                    </div>
+                                    <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="minimum_investment" value="<?php echo $minimum_investment; ?>" />
                                 </div>
                             </div>
-                           <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Minimum Offer </label><br />
-                                        <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="minimum_offer" value="<?php echo $minimum_offer; ?>"/>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Maximum Offer </label><br />
-                                        <input type="text" maxlength="9" value="<?php echo $maximum_offer; ?>" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="maximum_offer"/>
-                                    </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Minimum Offer </label><br />
+                                    <input type="text" maxlength="9" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="minimum_offer" value="<?php echo $minimum_offer; ?>" />
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Objectives </label><br />
-                                        <select class="form-control" name="objectives">
-                                            <option value="">Select Objective</option>
-                                            <?php foreach($get_objective as $key=>$val){?>
-                                                <option value="<?php echo $val['id'];?>" <?php echo $objective==$val['id']?'selected':'' ;?> ><?php echo $val['option'];?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Maximum Offer </label><br />
+                                    <input type="text" maxlength="9" value="<?php echo $maximum_offer; ?>" onkeypress='return event.charCode >= 48 && event.charCode <= 57' class="form-control" name="maximum_offer" />
                                 </div>
                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Objectives </label><br />
+                                    <select class="form-control" name="objectives">
+                                        <option value="">Select Objective</option>
+                                        <?php foreach ($get_objective as $key => $val) { ?>
+                                            <option value="<?php echo $val['id']; ?>" <?php echo $objective == $val['id'] ? 'selected' : ''; ?>><?php echo $val['option']; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
                 <div class="panel-footer fixedbtmenu">
-                        <div class="selectwrap container">
-                            <?php if(isset($_GET['cusip_number']) && ($_GET['cusip_number'] != '' || $_GET['cusip_number'] == '')){?>
-                                <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
-                                <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
-                                <input type="hidden" name="detail_data_id" id="detail_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
-                                <input type="hidden" name="exception_record_id" id="exception_record_id" class="form-control" value="<?php echo $_GET['exception_record_id']; ?>" />
-                            <?php }?>
-                            <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
-                            <?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=previous&category=<?php echo $category;?>" class="previous next_previous_a" style="float: left;"><input type="submit" name="submit" value="Previous" /></a><?php } ?>
-        					<?php if($_GET['action']=='edit_product' && $_GET['id']>0){?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id;?>&send=next&category=<?php echo $category;?>" class="next next_previous_a"><input type="submit" name="submit" value="Next" /></a><?php } ?>
+                    <div class="selectwrap container">
+                        <?php if (isset($_GET['cusip_number']) && ($_GET['cusip_number'] != '' || $_GET['cusip_number'] == '')) { ?>
+                            <input type="hidden" name="for_import" id="for_import" class="form-control" value="true" />
+                            <input type="hidden" name="file_id" id="file_id" class="form-control" value="<?php echo $_GET['file_id']; ?>" />
+                            <input type="hidden" name="detail_data_id" id="detail_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
+                            <input type="hidden" name="exception_record_id" id="exception_record_id" class="form-control" value="<?php echo $_GET['exception_record_id']; ?>" />
+                        <?php } ?>
+                        <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
+                        <?php if ($_GET['action'] == 'edit_product' && $_GET['id'] > 0) { ?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id; ?>&send=previous&category=<?php echo $category; ?>" class="previous next_previous_a" style="float: left;"><input type="submit" name="submit" value="Previous" /></a><?php } ?>
+                        <?php if ($_GET['action'] == 'edit_product' && $_GET['id'] > 0) { ?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id; ?>&send=next&category=<?php echo $category; ?>" class="next next_previous_a"><input type="submit" name="submit" value="Next" /></a><?php } ?>
 
-                            <?php if($action=='edit_product' && $id>0){?>
-                                <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10%;"/></a>
-                            <?php } ?>
-                            <a href="#product_notes" data-toggle="modal"><input type="button" onclick="get_product_notes();" name="notes" value="Notes" /></a>
-                            <a href="#product_transactions" data-toggle="modal"><input type="button" name="attach" value="Transactions" /></a>
-                            <a href="#product_attach" data-toggle="modal"><input type="button"  onclick="get_product_attach();" name="attach" value="Attachments" /></a>
+                        <?php if ($action == 'edit_product' && $id > 0) { ?>
+                            <a href="#view_changes" data-toggle="modal"><input type="button" name="view_changes" value="View Changes" style="margin-left: 10%;" /></a>
+                        <?php } ?>
+                        <a href="#product_notes" data-toggle="modal"><input type="button" onclick="get_product_notes();" name="notes" value="Notes" /></a>
+                        <a href="#product_transactions" data-toggle="modal"><input type="button" name="attach" value="Transactions" /></a>
+                        <a href="#product_attach" data-toggle="modal"><input type="button" onclick="get_product_attach();" name="attach" value="Attachments" /></a>
 
-                            <?php if($action=='edit_product' && $id>0){?>
-                                <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $_GET['category']; ?>&id=<?php echo $id; ?>');" ><input type="button" name="delete" value="Delete" style="margin-right: 8% !important;"/></a>
-                            <?php } ?>
+                        <?php if ($action == 'edit_product' && $id > 0) { ?>
+                            <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=product_delete&category=<?php echo $_GET['category']; ?>&id=<?php echo $id; ?>');"><input type="button" name="delete" value="Delete" style="margin-right: 8% !important;" /></a>
+                        <?php } ?>
 
-                            <a onclick="return confirmleave('<?php echo CURRENT_PAGE; ?>');" ><input type="button" name="cancel" value="Cancel" style="float: right;"/></a>
-                            <input type="submit" name="product"  value="Save" style="float: right;"/>
+                        <a onclick="return confirmleave('<?php echo CURRENT_PAGE; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
+                        <input type="submit" name="product" value="Save" style="float: right;" />
+                    </div>
+                </div>
+            </form>
+        <?php
+        }
+        ?>
+        <!-- Lightbox strart -->
+
+
+        <div id="joint_account" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog" style="margin-left: 19% !important;">
+                <div class="modal-content">
+                    <div class="modal-header" style="margin-bottom: 0px !important;">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h4 class="modal-title">Product Category</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="inputpopup">
+                            <a class="btn btn-sm btn-success" href="#add_new_category" onclick="get_product_category(0);" data-toggle="modal" style="float: right !important; margin-right: 5px !important;"><i class="fa fa-plus"></i> Add New</a>
                         </div>
-                    </div>
-			    </form>
-                <?php
-                    }
-                ?>
-                <!-- Lightbox strart -->
 
-
-        <div id="joint_account" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
-        <div class="modal-dialog" style="margin-left: 19% !important;">
-        <div class="modal-content" >
-        <div class="modal-header" style="margin-bottom: 0px !important;">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h4 class="modal-title">Product Category</h4>
-        </div>
-        <div class="modal-body">
-
-        <div class="inputpopup">
-            <a class="btn btn-sm btn-success" href="#add_new_category" onclick="get_product_category(0);" data-toggle="modal" style="float: right !important; margin-right: 5px !important;"><i class="fa fa-plus"></i> Add New</a>
-        </div>
-
-        <div class="col-md-12">
-            <div id="msg_account">
-            </div>
-        </div>
-
-        <div class="inputpopup">
-            <div class="table-responsive" id="ajax_account" style="margin: 0px 5px 0px 5px;">
-                <div class="col-md-12" style="padding-bottom:10px">
-                    <div class="col-md-8">
-                     <label>Product Category </label>
-
-                                <select class="form-control" id="edit_category" onchange="prod_cate_edit_del_enable(this.value)"  name="edit_category" style="display: inline !important;">
-                                    <option value="0" selected="true">Select Category</option>
-                                    <?php foreach($product_category as $key=>$val){?>
-                                    <option value="<?php echo $val['id'];?>" <?php if($category==$val['id']){echo "selected='selected'";} ?>><?php echo $val['type'];?></option>
-                                    <?php } ?>
-                                </select>
-                    </div>
-
-                    <div class="col-md-4" id="div_prod_cat_edit_del" style="visibility:hidden;">
-
-                        <a href="#add_new_category" onclick="get_product_category_edit();" data-toggle="modal"class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                       <!--  <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
-                       <a href="#delete_category" onclick="get_product_category_move();" data-toggle="modal" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash">Move Product Category</i></a>
-                    </div>
-                    </div>
-
-            </div>
-        </div>
-        </div><!-- End of Modal body -->
-        </div><!-- End of Modal content -->
-        </div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->
-
-                      <!-- Lightbox strart -->
-    <!-- Modal for add client notes -->
-    <div  id= "add_new_category" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
-        <div class="modal-dialog" style="margin-left: 19% !important;">
-        <div class="modal-content" >
-        <div class="modal-header" style="margin-bottom: 0px !important;">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h4 class="modal-title">Add/Edit Product Category</h4>
-        </div>
-        <div class="modal-body">
-                 <div class="inputpopup">
-                        <div class="table-responsive" id="ajax_product_category" style="margin: 0px 5px 0px 5px;">
-
+                        <div class="col-md-12">
+                            <div id="msg_account">
+                            </div>
                         </div>
-                    </div>
 
+                        <div class="inputpopup">
+                            <div class="table-responsive" id="ajax_account" style="margin: 0px 5px 0px 5px;">
+                                <div class="col-md-12" style="padding-bottom:10px">
+                                    <div class="col-md-8">
+                                        <label>Product Category </label>
 
-        </div><!-- End of Modal body -->
-        </div><!-- End of Modal content -->
-        </div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->
-                      <!-- Lightbox strart -->
-    <!-- Modal for add client notes -->
-    <div  id= "delete_category" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" >
-        <div class="modal-dialog" style="margin-left: 19% !important;">
-        <div class="modal-content" >
-        <div class="modal-header" style="margin-bottom: 0px !important;">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h4 class="modal-title">Delete Product Category</h4>
-        </div>
-        <div class="modal-body">
-        <div class="inputpopup">
-            <div class="table-responsive" id="ajax_move_product_category" style="margin: 0px 5px 0px 5px;">
+                                        <select class="form-control" id="edit_category" onchange="prod_cate_edit_del_enable(this.value)" name="edit_category" style="display: inline !important;">
+                                            <option value="0" selected="true">Select Category</option>
+                                            <?php foreach ($product_category as $key => $val) { ?>
+                                                <option value="<?php echo $val['id']; ?>" <?php if ($category == $val['id']) {
+                                                                                                echo "selected='selected'";
+                                                                                            } ?>><?php echo $val['type']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
 
+                                    <div class="col-md-4" id="div_prod_cat_edit_del" style="visibility:hidden;">
 
-            </div>
-        </div>
-        </div><!-- End of Modal body -->
-        </div><!-- End of Modal content -->
-        </div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->
-    <!-- Modal for add client notes -->
-            <!-- Lightbox strart -->
-            	<!-- Modal for add client notes -->
-            	<div id="product_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-            		<div class="modal-dialog">
-            		<div class="modal-content">
-            		<div class="modal-header" style="margin-bottom: 0px !important;">
-            			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            			<h4 class="modal-title">Branch's Notes</h4>
-            		</div>
-            		<div class="modal-body">
+                                        <a href="#add_new_category" onclick="get_product_category_edit();" data-toggle="modal" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                        <!--  <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
+                                        <a href="#delete_category" onclick="get_product_category_move();" data-toggle="modal" class="btn btn-sm btn-danger confirm"><i class="fa fa-trash">Move Product Category</i></a>
+                                    </div>
+                                </div>
 
-                    <div class="inputpopup">
-                        <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newnotes();"><i class="fa fa-plus"></i> Add New</a></li>
-            		</div>
-
-                    <div class="col-md-12">
-                        <div id="msg_notes">
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="inputpopup">
-                        <div class="table-responsive" id="ajax_notes" style="margin: 0px 5px 0px 5px;">
-
-                        </div>
-            		</div>
                     </div><!-- End of Modal body -->
-            		</div><!-- End of Modal content -->
-            		</div><!-- End of Modal dialog -->
-            </div><!-- End of Modal -->
-            <!-- Lightbox strart -->
+                </div><!-- End of Modal content -->
+            </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
 
-			<!-- Lightbox strart -->
-	<!-- Modal for add client notes -->
-	<div id="product_attach" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-		<div class="modal-dialog">
-		<div class="modal-content">
-		<div class="modal-header" style="margin-bottom: 0px !important;">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-			<h4 class="modal-title">Product's Attach</h4>
-		</div>
-		<div class="modal-body">
+        <!-- Lightbox strart -->
+        <!-- Modal for add client notes -->
+        <div id="add_new_category" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog" style="margin-left: 19% !important;">
+                <div class="modal-content">
+                    <div class="modal-header" style="margin-bottom: 0px !important;">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h4 class="modal-title">Add/Edit Product Category</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inputpopup">
+                            <div class="table-responsive" id="ajax_product_category" style="margin: 0px 5px 0px 5px;">
 
-        <div class="inputpopup">
-            <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newattach();"><i class="fa fa-plus"></i> Add New</a></li>
-		</div>
-
-        <div class="col-md-12">
-            <div id="msg_attach">
-            </div>
-        </div>
-
-        <div class="inputpopup">
-            <div class="table-responsive" id="ajax_attach" style="margin: 0px 5px 0px 5px;">
-
-            </div>
-		</div>
-        </div><!-- End of Modal body -->
-		</div><!-- End of Modal content -->
-		</div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->
-<!-- Lightbox strart -->
-<!-- Modal for transaction list -->
-<div id="product_transactions" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-	<div class="modal-dialog">
-	<div class="modal-content">
-	<div class="modal-header" style="margin-bottom: 0px !important;">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-		<h4 class="modal-title">Product's Transactions</h4>
-	</div>
-	<div class="modal-body">
-    <form method="post">
-    <div class="inputpopup">
-        <div class="table-responsive" id="table-scroll" style="margin: 0px 5px 0px 5px;">
-            <table class="table table-bordered table-stripped table-hover">
-                <thead>
-                    <th>Trade No</th>
-                    <th>Date</th>
-                    <th>Product</th>
-                    <th>Client No</th>
-                    <th>Trade Amount</th>
-                </thead>
-                <tbody>
-                <?php foreach($get_product_transactions As $key_trans=>$val_trans){?>
-                    <tr>
-                        <td><?php echo $val_trans['id'];?></td>
-                        <td><?php echo date('m/d/Y',strtotime($val_trans['trade_date']));?></td>
-                        <td><?php echo $val_trans['product_name'];?></td>
-                        <td><?php echo $val_trans['client_number'];?></td>
-                        <td><?php echo '$'.$val_trans['charge_amount'];?></td>
-                    </tr>
-                <?php } ?>
-              </tbody>
-            </table>
-        </div>
-	</div>
-    </form>
-    </div><!-- End of Modal body -->
-	</div><!-- End of Modal content -->
-	</div><!-- End of Modal dialog -->
-</div><!-- End of Modal -->
-<!-- Lightbox strart -->
-              <!-- Lightbox strart -->
-                <!-- Modal for transaction list -->
-                <div id="view_changes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-                	<div class="modal-dialog">
-                	<div class="modal-content">
-                	<div class="modal-header" style="margin-bottom: 0px !important;">
-                		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                		<h4 class="modal-title">View Changes</h4>
-                	</div>
-                	<div class="modal-body">
-                    <form method="post">
-                    <div class="inputpopup">
-                        <div class="table-responsive" id="table-scroll" style="margin: 0px 5px 0px 5px;">
-                            <table class="table table-bordered table-stripped table-hover">
-                                <thead>
-                                    <th>User Initials</th>
-                                    <th>Date of Change</th>
-                                    <th>Field Changed</th>
-                                    <th>Previous Value</th>
-                                    <th>New Value</th>
-                                </thead>
-                                <tbody>
-                                <?php
-                                $count = 0;
-                                $feild_name='';
-                                $lable_array = array();
-                                $lable_array = array('name' => 'Product Name','sponsor' => 'Sponsor','ticker_symbol' => 'Ticker Symbol','cusip' => 'CUSIP','security' => 'Security Number',
-                                'receive' => 'Allowable Receivable','income' => 'Income','networth' => 'Net Worth','networthonly' => 'Net Worth Only','minimum_investment' => 'Minimum Investment','minimum_offer' => 'Minimum Offer','maximum_offer' => 'Maximum Offer','objective' => 'Objectives', 'non_commissionable' => 'Non-Commissionable','class_type' => 'Class Type','fund_code' => 'Fund Code','min_rate' => 'Min Rate','max_rate' => 'Max Rate',
-                                'min_threshold' => 'Min Threshold','max_threshold' => 'Max Threshold','sweep_fee' => 'Waive Sweep Fee','ria_specific' => 'Investment Banking Type','ria_specific_type' => 'RIA Type','based' => 'Based Type','fee_rate' => 'Fee Rate','st_bo' => 'Stocks, Bonds',
-                                'm_date' => 'Maturity Date','type' => 'Type','var' => 'Variable Annuities','reg_type' => 'Registration Type');
-                                foreach($product_data as $key=>$val){
-
-                                    if(isset($lable_array[$val['field']])){
-                                        $feild_name = $lable_array[$val['field']];
-                                    }else {
-                                        $feild_name = $val['field'];
-                                    }?>
-                                    <tr>
-
-                                        <td><?php echo $val['user_initial'];?></td>
-                                        <td><?php echo date('m/d/Y',strtotime($val['modified_time']));?></td>
-                                        <td><?php echo $feild_name;?></td>
-                                        <?php
-                                        if($feild_name == 'Allowable Receivable' && $val['old_value'] == 0){?>
-                                        <td><?php echo 'UnChecked';?></td>
-                                        <td><?php echo 'Checked';?></td>
-                                        <?php }
-                                        else if($feild_name == 'Allowable Receivable' && $val['old_value'] == 1){?>
-                                        <td><?php echo 'Checked';?></td>
-                                        <td><?php echo 'UnChecked';?></td>
-                                        <?php }
-                                        else if($feild_name == 'Non-Commissionable' && $val['old_value'] == 0){?>
-                                        <td><?php echo 'UnChecked';?></td>
-                                        <td><?php echo 'Checked';?></td>
-                                        <?php }
-                                        else if($feild_name == 'Non-Commissionable' && $val['old_value'] == 1){?>
-                                        <td><?php echo 'Checked';?></td>
-                                        <td><?php echo 'UnChecked';?></td>
-                                        <?php }
-                                        else if($feild_name == 'Class Type'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'A';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'B';
-                                        }
-                                        else if($val['old_value'] == 3)
-                                        {
-                                            echo 'C';
-                                        }
-                                        else if($val['old_value'] == 4)
-                                        {
-                                            echo 'other';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'A';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'B';
-                                        }
-                                        else if($val['new_value'] == 3)
-                                        {
-                                            echo 'C';
-                                        }
-                                        else if($val['new_value'] == 4)
-                                        {
-                                            echo 'other';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'Waive Sweep Fee' && $val['old_value'] == 0){?>
-                                        <td><?php echo 'UnChecked';?></td>
-                                        <td><?php echo 'Checked';?></td>
-                                        <?php }
-                                        else if($feild_name == 'Waive Sweep Fee' && $val['old_value'] == 1){?>
-                                        <td><?php echo 'Checked';?></td>
-                                        <td><?php echo 'UnChecked';?></td>
-                                        <?php }
-                                        else if($feild_name == 'Investment Banking Type'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'IPO';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'Bridge';
-                                        }
-                                        else if($val['old_value'] == 3)
-                                        {
-                                            echo 'Reg S';
-                                        }
-                                        else if($val['old_value'] == 4)
-                                        {
-                                            echo 'Reg D';
-                                        }
-                                        else if($val['old_value'] == 5)
-                                        {
-                                            echo 'Private Placement';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'IPO';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'Bridge';
-                                        }
-                                        else if($val['new_value'] == 3)
-                                        {
-                                            echo 'Reg S';
-                                        }
-                                        else if($val['new_value'] == 4)
-                                        {
-                                            echo 'Reg D';
-                                        }
-                                        else if($val['new_value'] == 5)
-                                        {
-                                            echo 'Private Placement';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'RIA Type'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'Fee Based Mutual Funds';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'Fee Based Stocks, Bonds &amp; Mutual Funds';
-                                        }
-                                        else if($val['old_value'] == 3)
-                                        {
-                                            echo 'Financial Planning';
-                                        }
-                                        else if($val['old_value'] == 4)
-                                        {
-                                            echo 'Money Managers';
-                                        }
-                                        else if($val['old_value'] == 5)
-                                        {
-                                            echo 'Non-Discretionary';
-                                        }
-                                        else if($val['old_value'] == 6)
-                                        {
-                                            echo 'Socially Screened';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'Fee Based Mutual Funds';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'Fee Based Stocks, Bonds &amp; Mutual Funds';
-                                        }
-                                        else if($val['new_value'] == 3)
-                                        {
-                                            echo 'Financial Planning';
-                                        }
-                                        else if($val['new_value'] == 4)
-                                        {
-                                            echo 'Money Managers';
-                                        }
-                                        else if($val['new_value'] == 5)
-                                        {
-                                            echo 'Non-Discretionary';
-                                        }
-                                        else if($val['new_value'] == 6)
-                                        {
-                                            echo 'Socially Screened';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'Based Type'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'Asset Based';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'Fee Based';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'Asset Based';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'Fee Based';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'Stocks, Bonds'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'Listed';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'OTC';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'Listed';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'OTC';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'Type'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'Government Municipal';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'Corporate';
-                                        }
-                                        else if($val['old_value'] == 3)
-                                        {
-                                            echo 'Treasury';
-                                        }
-                                        else if($val['old_value'] == 4)
-                                        {
-                                            echo 'Zero Coupon';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'Government Municipal';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'Corporate';
-                                        }
-                                        else if($val['new_value'] == 3)
-                                        {
-                                            echo 'Treasury';
-                                        }
-                                        else if($val['new_value'] == 4)
-                                        {
-                                            echo 'Zero Coupon';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'Variable Annuities'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'Single';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'Recurring';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'Single';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'Recurring';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'Registration Type'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'Public Real Estate';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'Private Real Estate';
-                                        }
-                                        else if($val['old_value'] == 3)
-                                        {
-                                            echo 'Public Oil &amp; Gas';
-                                        }
-                                        else if($val['old_value'] == 4)
-                                        {
-                                            echo 'Private Oil &amp; Gas';
-                                        }
-                                        else if($val['old_value'] == 5)
-                                        {
-                                            echo 'Public Leasing';
-                                        }
-                                        else if($val['old_value'] == 6)
-                                        {
-                                            echo 'Private Leasing';
-                                        }
-                                        else if($val['old_value'] == 7)
-                                        {
-                                            echo 'Public Mortgage';
-                                        }
-                                        else if($val['old_value'] == 8)
-                                        {
-                                            echo 'Private Mortgage';
-                                        }
-                                        else if($val['old_value'] == 9)
-                                        {
-                                            echo 'Public Raw Land';
-                                        }
-                                        else if($val['old_value'] == 10)
-                                        {
-                                            echo 'Private Raw Land';
-                                        }
-                                        else if($val['old_value'] == 11)
-                                        {
-                                            echo 'REIT';
-                                        }
-                                        else if($val['old_value'] == 12)
-                                        {
-                                            echo 'Subsidized Housing';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'Public Real Estate';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'Private Real Estate';
-                                        }
-                                        else if($val['new_value'] == 3)
-                                        {
-                                            echo 'Public Oil &amp; Gas';
-                                        }
-                                        else if($val['new_value'] == 4)
-                                        {
-                                            echo 'Private Oil &amp; Gas';
-                                        }
-                                        else if($val['new_value'] == 5)
-                                        {
-                                            echo 'Public Leasing';
-                                        }
-                                        else if($val['new_value'] == 6)
-                                        {
-                                            echo 'Private Leasing';
-                                        }
-                                        else if($val['new_value'] == 7)
-                                        {
-                                            echo 'Public Mortgage';
-                                        }
-                                        else if($val['new_value'] == 8)
-                                        {
-                                            echo 'Private Mortgage';
-                                        }
-                                        else if($val['new_value'] == 9)
-                                        {
-                                            echo 'Public Raw Land';
-                                        }
-                                        else if($val['new_value'] == 10)
-                                        {
-                                            echo 'Private Raw Land';
-                                        }
-                                        else if($val['new_value'] == 11)
-                                        {
-                                            echo 'REIT';
-                                        }
-                                        else if($val['new_value'] == 12)
-                                        {
-                                            echo 'Subsidized Housing';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'Objectives'){?>
-                                        <td>
-                                        <?php
-                                        if($val['old_value'] == 1)
-                                        {
-                                            echo 'Growth';
-                                        }
-                                        else if($val['old_value'] == 2)
-                                        {
-                                            echo 'Income';
-                                        }
-                                        else if($val['old_value'] == 3)
-                                        {
-                                            echo 'Growth &amp; Income';
-                                        }
-                                        else if($val['old_value'] == 4)
-                                        {
-                                            echo 'Speculative';
-                                        }
-                                        else if($val['old_value'] == 5)
-                                        {
-                                            echo 'Preservation of Capital';
-                                        }
-                                        ?>
-                                        </td>
-                                        <td>
-                                        <?php
-                                        if($val['new_value'] == 1)
-                                        {
-                                            echo 'Growth';
-                                        }
-                                        else if($val['new_value'] == 2)
-                                        {
-                                            echo 'Income';
-                                        }
-                                        else if($val['new_value'] == 3)
-                                        {
-                                            echo 'Growth &amp; Income';
-                                        }
-                                        else if($val['new_value'] == 4)
-                                        {
-                                            echo 'Speculative';
-                                        }
-                                        else if($val['new_value'] == 5)
-                                        {
-                                            echo 'Preservation of Capital';
-                                        }
-                                        ?>
-                                        </td>
-                                        <?php }
-                                        else if($feild_name == 'Sponsor'){
-                                        $sponsor_fname = $instance->get_sponsor_name($val['old_value']);?>
-                                        <td><?php echo $sponsor_fname['sponsor'];?></td>
-                                        <?php $sponsor_fname = $instance->get_sponsor_name($val['new_value']);?>
-                                        <td><?php echo $sponsor_fname['sponsor'];?></td>
-                                        <?php } else {?>
-                                        <td><?php echo $val['old_value'];?></td>
-                                        <td><?php echo $val['new_value'];?></td>
-                                        <?php } ?>
-                                    </tr>
-                                <?php } ?>
-                              </tbody>
-                            </table>
+                            </div>
                         </div>
-                	</div>
-                    </form>
-                    </div><!-- End of Modal body -->
-                	</div><!-- End of Modal content -->
-                	</div><!-- End of Modal dialog -->
-                </div><!-- End of Modal -->
 
-        </div>
+
+                    </div><!-- End of Modal body -->
+                </div><!-- End of Modal content -->
+            </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
+        <!-- Lightbox strart -->
+        <!-- Modal for add client notes -->
+        <div id="delete_category" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog" style="margin-left: 19% !important;">
+                <div class="modal-content">
+                    <div class="modal-header" style="margin-bottom: 0px !important;">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h4 class="modal-title">Delete Product Category</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inputpopup">
+                            <div class="table-responsive" id="ajax_move_product_category" style="margin: 0px 5px 0px 5px;">
+
+
+                            </div>
+                        </div>
+                    </div><!-- End of Modal body -->
+                </div><!-- End of Modal content -->
+            </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
+        <!-- Modal for add client notes -->
+        <!-- Lightbox strart -->
+        <!-- Modal for add client notes -->
+        <div id="product_notes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="margin-bottom: 0px !important;">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h4 class="modal-title">Branch's Notes</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="inputpopup">
+                            <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newnotes();"><i class="fa fa-plus"></i> Add New</a></li>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div id="msg_notes">
+                            </div>
+                        </div>
+
+                        <div class="inputpopup">
+                            <div class="table-responsive" id="ajax_notes" style="margin: 0px 5px 0px 5px;">
+
+                            </div>
+                        </div>
+                    </div><!-- End of Modal body -->
+                </div><!-- End of Modal content -->
+            </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
+        <!-- Lightbox strart -->
+
+        <!-- Lightbox strart -->
+        <!-- Modal for add client notes -->
+        <div id="product_attach" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="margin-bottom: 0px !important;">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h4 class="modal-title">Product's Attach</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="inputpopup">
+                            <a class="btn btn-sm btn-success" style="float: right !important; margin-right: 5px !important;" onclick="open_newattach();"><i class="fa fa-plus"></i> Add New</a></li>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div id="msg_attach">
+                            </div>
+                        </div>
+
+                        <div class="inputpopup">
+                            <div class="table-responsive" id="ajax_attach" style="margin: 0px 5px 0px 5px;">
+
+                            </div>
+                        </div>
+                    </div><!-- End of Modal body -->
+                </div><!-- End of Modal content -->
+            </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
+        <!-- Lightbox strart -->
+        <!-- Modal for transaction list -->
+        <div id="product_transactions" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="margin-bottom: 0px !important;">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h4 class="modal-title">Product's Transactions</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post">
+                            <div class="inputpopup">
+                                <div class="table-responsive" id="table-scroll" style="margin: 0px 5px 0px 5px;">
+                                    <table class="table table-bordered table-stripped table-hover">
+                                        <thead>
+                                            <th>Trade No</th>
+                                            <th>Date</th>
+                                            <th>Product</th>
+                                            <th>Client No</th>
+                                            <th>Trade Amount</th>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($get_product_transactions as $key_trans => $val_trans) { ?>
+                                                <tr>
+                                                    <td><?php echo $val_trans['id']; ?></td>
+                                                    <td><?php echo date('m/d/Y', strtotime($val_trans['trade_date'])); ?></td>
+                                                    <td><?php echo $val_trans['product_name']; ?></td>
+                                                    <td><?php echo $val_trans['client_number']; ?></td>
+                                                    <td><?php echo '$' . $val_trans['charge_amount']; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div><!-- End of Modal body -->
+                </div><!-- End of Modal content -->
+            </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
+        <!-- Lightbox strart -->
+        <!-- Lightbox strart -->
+        <!-- Modal for transaction list -->
+        <div id="view_changes" class="modal fade inputpopupwrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="margin-bottom: 0px !important;">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h4 class="modal-title">View Changes</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post">
+                            <div class="inputpopup">
+                                <div class="table-responsive" id="table-scroll" style="margin: 0px 5px 0px 5px;">
+                                    <table class="table table-bordered table-stripped table-hover">
+                                        <thead>
+                                            <th>User Initials</th>
+                                            <th>Date of Change</th>
+                                            <th>Field Changed</th>
+                                            <th>Previous Value</th>
+                                            <th>New Value</th>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $count = 0;
+                                            $feild_name = '';
+                                            $lable_array = array();
+                                            $lable_array = array(
+                                                'name' => 'Product Name', 'sponsor' => 'Sponsor', 'ticker_symbol' => 'Ticker Symbol', 'cusip' => 'CUSIP', 'security' => 'Security Number',
+                                                'receive' => 'Allowable Receivable', 'income' => 'Income', 'networth' => 'Net Worth', 'networthonly' => 'Net Worth Only', 'minimum_investment' => 'Minimum Investment', 'minimum_offer' => 'Minimum Offer', 'maximum_offer' => 'Maximum Offer', 'objective' => 'Objectives', 'non_commissionable' => 'Non-Commissionable', 'class_type' => 'Class Type', 'fund_code' => 'Fund Code', 'min_rate' => 'Min Rate', 'max_rate' => 'Max Rate',
+                                                'min_threshold' => 'Min Threshold', 'max_threshold' => 'Max Threshold', 'sweep_fee' => 'Waive Sweep Fee', 'ria_specific' => 'Investment Banking Type', 'ria_specific_type' => 'RIA Type', 'based' => 'Based Type', 'fee_rate' => 'Fee Rate', 'st_bo' => 'Stocks, Bonds',
+                                                'm_date' => 'Maturity Date', 'type' => 'Type', 'var' => 'Variable Annuities', 'reg_type' => 'Registration Type'
+                                            );
+                                            foreach ($product_data as $key => $val) {
+
+                                                if (isset($lable_array[$val['field']])) {
+                                                    $feild_name = $lable_array[$val['field']];
+                                                } else {
+                                                    $feild_name = $val['field'];
+                                                } ?>
+                                                <tr>
+
+                                                    <td><?php echo $val['user_initial']; ?></td>
+                                                    <td><?php echo date('m/d/Y', strtotime($val['modified_time'])); ?></td>
+                                                    <td><?php echo $feild_name; ?></td>
+                                                    <?php
+                                                    if ($feild_name == 'Allowable Receivable' && $val['old_value'] == 0) { ?>
+                                                        <td><?php echo 'UnChecked'; ?></td>
+                                                        <td><?php echo 'Checked'; ?></td>
+                                                    <?php } else if ($feild_name == 'Allowable Receivable' && $val['old_value'] == 1) { ?>
+                                                        <td><?php echo 'Checked'; ?></td>
+                                                        <td><?php echo 'UnChecked'; ?></td>
+                                                    <?php } else if ($feild_name == 'Non-Commissionable' && $val['old_value'] == 0) { ?>
+                                                        <td><?php echo 'UnChecked'; ?></td>
+                                                        <td><?php echo 'Checked'; ?></td>
+                                                    <?php } else if ($feild_name == 'Non-Commissionable' && $val['old_value'] == 1) { ?>
+                                                        <td><?php echo 'Checked'; ?></td>
+                                                        <td><?php echo 'UnChecked'; ?></td>
+                                                    <?php } else if ($feild_name == 'Class Type') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'A';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'B';
+                                                            } else if ($val['old_value'] == 3) {
+                                                                echo 'C';
+                                                            } else if ($val['old_value'] == 4) {
+                                                                echo 'other';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'A';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'B';
+                                                            } else if ($val['new_value'] == 3) {
+                                                                echo 'C';
+                                                            } else if ($val['new_value'] == 4) {
+                                                                echo 'other';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'Waive Sweep Fee' && $val['old_value'] == 0) { ?>
+                                                        <td><?php echo 'UnChecked'; ?></td>
+                                                        <td><?php echo 'Checked'; ?></td>
+                                                    <?php } else if ($feild_name == 'Waive Sweep Fee' && $val['old_value'] == 1) { ?>
+                                                        <td><?php echo 'Checked'; ?></td>
+                                                        <td><?php echo 'UnChecked'; ?></td>
+                                                    <?php } else if ($feild_name == 'Investment Banking Type') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'IPO';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'Bridge';
+                                                            } else if ($val['old_value'] == 3) {
+                                                                echo 'Reg S';
+                                                            } else if ($val['old_value'] == 4) {
+                                                                echo 'Reg D';
+                                                            } else if ($val['old_value'] == 5) {
+                                                                echo 'Private Placement';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'IPO';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'Bridge';
+                                                            } else if ($val['new_value'] == 3) {
+                                                                echo 'Reg S';
+                                                            } else if ($val['new_value'] == 4) {
+                                                                echo 'Reg D';
+                                                            } else if ($val['new_value'] == 5) {
+                                                                echo 'Private Placement';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'RIA Type') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'Fee Based Mutual Funds';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'Fee Based Stocks, Bonds &amp; Mutual Funds';
+                                                            } else if ($val['old_value'] == 3) {
+                                                                echo 'Financial Planning';
+                                                            } else if ($val['old_value'] == 4) {
+                                                                echo 'Money Managers';
+                                                            } else if ($val['old_value'] == 5) {
+                                                                echo 'Non-Discretionary';
+                                                            } else if ($val['old_value'] == 6) {
+                                                                echo 'Socially Screened';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'Fee Based Mutual Funds';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'Fee Based Stocks, Bonds &amp; Mutual Funds';
+                                                            } else if ($val['new_value'] == 3) {
+                                                                echo 'Financial Planning';
+                                                            } else if ($val['new_value'] == 4) {
+                                                                echo 'Money Managers';
+                                                            } else if ($val['new_value'] == 5) {
+                                                                echo 'Non-Discretionary';
+                                                            } else if ($val['new_value'] == 6) {
+                                                                echo 'Socially Screened';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'Based Type') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'Asset Based';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'Fee Based';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'Asset Based';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'Fee Based';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'Stocks, Bonds') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'Listed';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'OTC';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'Listed';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'OTC';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'Type') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'Government Municipal';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'Corporate';
+                                                            } else if ($val['old_value'] == 3) {
+                                                                echo 'Treasury';
+                                                            } else if ($val['old_value'] == 4) {
+                                                                echo 'Zero Coupon';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'Government Municipal';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'Corporate';
+                                                            } else if ($val['new_value'] == 3) {
+                                                                echo 'Treasury';
+                                                            } else if ($val['new_value'] == 4) {
+                                                                echo 'Zero Coupon';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'Variable Annuities') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'Single';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'Recurring';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'Single';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'Recurring';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'Registration Type') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'Public Real Estate';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'Private Real Estate';
+                                                            } else if ($val['old_value'] == 3) {
+                                                                echo 'Public Oil &amp; Gas';
+                                                            } else if ($val['old_value'] == 4) {
+                                                                echo 'Private Oil &amp; Gas';
+                                                            } else if ($val['old_value'] == 5) {
+                                                                echo 'Public Leasing';
+                                                            } else if ($val['old_value'] == 6) {
+                                                                echo 'Private Leasing';
+                                                            } else if ($val['old_value'] == 7) {
+                                                                echo 'Public Mortgage';
+                                                            } else if ($val['old_value'] == 8) {
+                                                                echo 'Private Mortgage';
+                                                            } else if ($val['old_value'] == 9) {
+                                                                echo 'Public Raw Land';
+                                                            } else if ($val['old_value'] == 10) {
+                                                                echo 'Private Raw Land';
+                                                            } else if ($val['old_value'] == 11) {
+                                                                echo 'REIT';
+                                                            } else if ($val['old_value'] == 12) {
+                                                                echo 'Subsidized Housing';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'Public Real Estate';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'Private Real Estate';
+                                                            } else if ($val['new_value'] == 3) {
+                                                                echo 'Public Oil &amp; Gas';
+                                                            } else if ($val['new_value'] == 4) {
+                                                                echo 'Private Oil &amp; Gas';
+                                                            } else if ($val['new_value'] == 5) {
+                                                                echo 'Public Leasing';
+                                                            } else if ($val['new_value'] == 6) {
+                                                                echo 'Private Leasing';
+                                                            } else if ($val['new_value'] == 7) {
+                                                                echo 'Public Mortgage';
+                                                            } else if ($val['new_value'] == 8) {
+                                                                echo 'Private Mortgage';
+                                                            } else if ($val['new_value'] == 9) {
+                                                                echo 'Public Raw Land';
+                                                            } else if ($val['new_value'] == 10) {
+                                                                echo 'Private Raw Land';
+                                                            } else if ($val['new_value'] == 11) {
+                                                                echo 'REIT';
+                                                            } else if ($val['new_value'] == 12) {
+                                                                echo 'Subsidized Housing';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'Objectives') { ?>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['old_value'] == 1) {
+                                                                echo 'Growth';
+                                                            } else if ($val['old_value'] == 2) {
+                                                                echo 'Income';
+                                                            } else if ($val['old_value'] == 3) {
+                                                                echo 'Growth &amp; Income';
+                                                            } else if ($val['old_value'] == 4) {
+                                                                echo 'Speculative';
+                                                            } else if ($val['old_value'] == 5) {
+                                                                echo 'Preservation of Capital';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if ($val['new_value'] == 1) {
+                                                                echo 'Growth';
+                                                            } else if ($val['new_value'] == 2) {
+                                                                echo 'Income';
+                                                            } else if ($val['new_value'] == 3) {
+                                                                echo 'Growth &amp; Income';
+                                                            } else if ($val['new_value'] == 4) {
+                                                                echo 'Speculative';
+                                                            } else if ($val['new_value'] == 5) {
+                                                                echo 'Preservation of Capital';
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    <?php } else if ($feild_name == 'Sponsor') {
+                                                        $sponsor_fname = $instance->get_sponsor_name($val['old_value']); ?>
+                                                        <td><?php echo $sponsor_fname['sponsor']; ?></td>
+                                                        <?php $sponsor_fname = $instance->get_sponsor_name($val['new_value']); ?>
+                                                        <td><?php echo $sponsor_fname['sponsor']; ?></td>
+                                                    <?php } else { ?>
+                                                        <td><?php echo $val['old_value']; ?></td>
+                                                        <td><?php echo $val['new_value']; ?></td>
+                                                    <?php } ?>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div><!-- End of Modal body -->
+                </div><!-- End of Modal content -->
+            </div><!-- End of Modal dialog -->
+        </div><!-- End of Modal -->
+
+    </div>
 
 </div>
 <script type="text/javascript">
     $(document).ready(function() {
 
         $('#data-table').DataTable({
-        "pageLength": 25,
-        "bLengthChange": false,
-        "bFilter": true,
-        "bInfo": false,
-        "bAutoWidth": false,
-        "dom": '<"toolbar">frtip',
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [ 4 ] },
-                        { "bSearchable": false, "aTargets": [ 4 ] }]
+            "pageLength": 25,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "dom": '<"toolbar">frtip',
+            "aoColumnDefs": [{
+                    "bSortable": false,
+                    "aTargets": [4]
+                },
+                {
+                    "bSearchable": false,
+                    "aTargets": [4]
+                }
+            ]
         });
-
-        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_product" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>'+
-            '<div class="panel-control" style="padding-left:5px;display:inline;">'+
-                    '<div class="btn-group dropdown" style="float: right;">'+
-                        '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>'+
-    					'<ul class="dropdown-menu dropdown-menu-right" style="">'+
-                            '<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_product&category=<?php echo $category; ?>"><i class="fa fa-plus"></i> Add New</a></li>'+
-                            '<li><a href="<?php echo CURRENT_PAGE; ?>?action=select_cat"><i class="fa fa-minus"></i> Back To Category</a></li>'+
-                        '</ul>'+
-    				'</div>'+
-    			'</div>');
+        $("#data-table_filter [type='search']").focus();
+        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_product" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>' +
+            '<div class="panel-control" style="padding-left:5px;display:inline;">' +
+            '<div class="btn-group dropdown" style="float: right;">' +
+            '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>' +
+            '<ul class="dropdown-menu dropdown-menu-right" style="">' +
+            '<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_product&category=<?php echo $category; ?>"><i class="fa fa-plus"></i> Add New</a></li>' +
+            '<li><a href="<?php echo CURRENT_PAGE; ?>?action=select_cat"><i class="fa fa-minus"></i> Back To Category</a></li>' +
+            '</ul>' +
+            '</div>' +
+            '</div>');
         hideshow_sponser_based_on_product_category(<?php echo $category; ?>);
 
         $("input[name='max_threshold[]'").focusout(function() {
             default_min_threshold()
         })
 
-} );
+    });
 </script>
 <style type="text/css">
-.toolbar {
-    float: right;
-    padding-left: 5px;
-}
+    .toolbar {
+        float: right;
+        padding-left: 5px;
+    }
 </style>
 <script>
-function set_Category(val){
-    var category = val;
-    var a = document.getElementById("product_category").value;
-    // alert(a);
-}
+    function set_Category(val) {
+        var category = val;
+        var a = document.getElementById("product_category").value;
+        // alert(a);
+    }
 
-jQuery(function(){
-    console.log("trigger")
-    $("#product_category").trigger("change");
-})
-
-
+    jQuery(function() {
+        console.log("trigger")
+        $("#product_category").trigger("change");
+    })
 
 
-function formsubmit_movecategory()
-{
-   $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
 
-   var url = "product_category_maintenance.php"; // the script where you handle the form input.
-   console.log($("#move_category_form").serialize());
-   $.ajax({
-      type: "POST",
-      url: url,
-      data: $("#move_category_form").serialize(), // serializes the form's elements.
-      success: function(data){
-          if(data=='1'){
 
-             $("#delete_category").modal('hide');
-             get_product_category(0);
-             location.reload();
-             //header("location:"."product_cate.php");exit;
-            $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-            //window.location.href = "product_category_maintenance.php";//get_client_notes();
-          }
-          else{
-               $('#msg_account').html('<div class="alert alert-danger">'+data+'</div>');
-          }
+    function formsubmit_movecategory() {
+        $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
 
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-           $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
-      }
+        var url = "product_category_maintenance.php"; // the script where you handle the form input.
+        console.log($("#move_category_form").serialize());
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#move_category_form").serialize(), // serializes the form's elements.
+            success: function(data) {
+                if (data == '1') {
 
-   });
+                    $("#delete_category").modal('hide');
+                    get_product_category(0);
+                    location.reload();
+                    //header("location:"."product_cate.php");exit;
+                    $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
+                    //window.location.href = "product_category_maintenance.php";//get_client_notes();
+                } else {
+                    $('#msg_account').html('<div class="alert alert-danger">' + data + '</div>');
+                }
 
-   //e.preventDefault(); // avoid to execute the actual submit of the form.
-   return false;
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
+            }
 
-}
+        });
 
-function formsubmit_category()
-{
-   $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+        //e.preventDefault(); // avoid to execute the actual submit of the form.
+        return false;
 
-   var url = "product_category_maintenance.php"; // the script where you handle the form input.
-   console.log($("#add_new_category_form").serialize());
-   $.ajax({
-      type: "POST",
-      url: url,
-      data: $("#add_new_category_form").serialize(), // serializes the form's elements.
-      success: function(data){
-          if(data=='1'){
+    }
 
-             $("#add_new_category").modal('hide');
-             get_product_category(0);
-             location.reload();
-             //header("location:"."product_cate.php");exit;
-            $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-            //window.location.href = "product_category_maintenance.php";//get_client_notes();
-          }
-          else{
-               $('#msg_account').html('<div class="alert alert-danger">'+data+'</div>');
-          }
+    function formsubmit_category() {
+        $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
 
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-           $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
-      }
+        var url = "product_category_maintenance.php"; // the script where you handle the form input.
+        console.log($("#add_new_category_form").serialize());
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#add_new_category_form").serialize(), // serializes the form's elements.
+            success: function(data) {
+                if (data == '1') {
 
-   });
+                    $("#add_new_category").modal('hide');
+                    get_product_category(0);
+                    location.reload();
+                    //header("location:"."product_cate.php");exit;
+                    $('#msg_account').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
+                    //window.location.href = "product_category_maintenance.php";//get_client_notes();
+                } else {
+                    $('#msg_account').html('<div class="alert alert-danger">' + data + '</div>');
+                }
 
-   //e.preventDefault(); // avoid to execute the actual submit of the form.
-   return false;
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $('#msg_account').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
+            }
 
-}
+        });
+
+        //e.preventDefault(); // avoid to execute the actual submit of the form.
+        return false;
+
+    }
 </script>
 <script>
-
-    function cateogry_change_event(cat_id){
+    function cateogry_change_event(cat_id) {
         //$('.cat_block').hide();
-        if( $('.cat_'+cat_id).length)
-            $('.cat_'+cat_id).siblings().hide().end().show();
+        if ($('.cat_' + cat_id).length)
+            $('.cat_' + cat_id).siblings().hide().end().show();
         else
             $('.cat_block').hide();
     }
-function round(feerate)
-{
-    if(feerate>100)
-    {
-        var rounded = 99.9;
-    }
-    else
-    {
-        var round = Math.round( feerate * 10 ) / 10;
-        var rounded = round.toFixed(1);
-    }
-    document.getElementById("fee_rate").value = rounded;
 
-}
-function minrate(feerate)
-{
-    if(feerate>100)
-    {
-        var rounded = 99.9;
-    }
-    else
-    {
-        var round = Math.round( feerate * 10 ) / 10;
-        var rounded = round.toFixed(1);
-    }
-    document.getElementById("min_rate").value = rounded;
+    function round(feerate) {
+        if (feerate > 100) {
+            var rounded = 99.9;
+        } else {
+            var round = Math.round(feerate * 10) / 10;
+            var rounded = round.toFixed(1);
+        }
+        document.getElementById("fee_rate").value = rounded;
 
-}
-function maxrate(feerate)
-{
-    if(feerate>100)
-    {
-        var rounded = 99.9;
     }
-    else
-    {
-        var round = Math.round( feerate * 10 ) / 10;
-        var rounded = round.toFixed(1);
-    }
-    document.getElementById("max_rate").value = rounded;
 
-}
-function minthreshold(feerate)
-{
-    if(feerate>99999999)
-    {
-        var rounded = 99999999;
-    }
-    else if(feerate == '')
-    {
-        var rounded = 0;
-    }
-    else{
-        var rounded = feerate;
-    }
-    document.getElementById("min_threshold").value = rounded;
+    function minrate(feerate) {
+        if (feerate > 100) {
+            var rounded = 99.9;
+        } else {
+            var round = Math.round(feerate * 10) / 10;
+            var rounded = round.toFixed(1);
+        }
+        document.getElementById("min_rate").value = rounded;
 
-}
-function maxthreshold(feerate)
-{
-    if(feerate>99999999)
-    {
-        var rounded = 99999999;
     }
-    else if(feerate == '')
-    {
-        var rounded = 0;
-    }
-    else{
-        var rounded = feerate;
-    }
-    document.getElementById("max_threshold").value = rounded;
 
-}
+    function maxrate(feerate) {
+        if (feerate > 100) {
+            var rounded = 99.9;
+        } else {
+            var round = Math.round(feerate * 10) / 10;
+            var rounded = round.toFixed(1);
+        }
+        document.getElementById("max_rate").value = rounded;
+
+    }
+
+    function minthreshold(feerate) {
+        if (feerate > 99999999) {
+            var rounded = 99999999;
+        } else if (feerate == '') {
+            var rounded = 0;
+        } else {
+            var rounded = feerate;
+        }
+        document.getElementById("min_threshold").value = rounded;
+
+    }
+
+    function maxthreshold(feerate) {
+        if (feerate > 99999999) {
+            var rounded = 99999999;
+        } else if (feerate == '') {
+            var rounded = 0;
+        } else {
+            var rounded = feerate;
+        }
+        document.getElementById("max_threshold").value = rounded;
+
+    }
 </script>
 <script>
-function open_newnotes()
-{
-    document.getElementById("add_row_notes").style.display = "";
-}
-function open_newattach()
-{
-    document.getElementById("add_row_attach").style.display = "";
-}
+    function open_newnotes() {
+        document.getElementById("add_row_notes").style.display = "";
+    }
+
+    function open_newattach() {
+        document.getElementById("add_row_attach").style.display = "";
+    }
 </script>
 <script>
+    var isRedirectToTransPage = <?php echo isset($_GET['redirect']) && $_GET['redirect'] == "add_product_from_trans" ? 1 : 0 ?>;
 
-    var isRedirectToTransPage=<?php  echo isset($_GET['redirect']) && $_GET['redirect']== "add_product_from_trans" ? 1 : 0 ?>;
-
-function get_product_notes(){
+    function get_product_notes() {
 
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
+            if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("ajax_notes").innerHTML = this.responseText;
             }
         };
         xmlhttp.open("GET", "ajax_product_notes.php", true);
         xmlhttp.send();
-}
-function get_product_category_edit(){
+    }
+
+    function get_product_category_edit() {
         var cat_id = document.getElementById('edit_category').value;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
+            if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("ajax_product_category").innerHTML = this.responseText;
             }
         };
-        xmlhttp.open("GET", "ajax_product_category.php?id="+cat_id, true);
+        xmlhttp.open("GET", "ajax_product_category.php?id=" + cat_id, true);
         xmlhttp.send();
-}
-function get_product_category_move(){
+    }
+
+    function get_product_category_move() {
         var cat_id = document.getElementById('edit_category').value;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
+            if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("ajax_move_product_category").innerHTML = this.responseText;
             }
         };
-        xmlhttp.open("GET", "ajax_product_category.php?move_cat_id="+cat_id, true);
+        xmlhttp.open("GET", "ajax_product_category.php?move_cat_id=" + cat_id, true);
         xmlhttp.send();
-}
-function get_product_category(id){
+    }
+
+    function get_product_category(id) {
 
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
+            if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("ajax_product_category").innerHTML = this.responseText;
             }
         };
         xmlhttp.open("GET", "ajax_product_category.php", true);
         xmlhttp.send();
-}
-function get_product_attach(){
+    }
+
+    function get_product_attach() {
 
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200)
-            {
+            if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("ajax_attach").innerHTML = this.responseText;
             }
         };
         xmlhttp.open("GET", "ajax_product_attach.php", true);
         xmlhttp.send();
-}
-function hideshow_sponser_based_on_product_category(product_category)
-{
-    var divSponsorExists = document.getElementById("div_sponsor");
-
-    if(divSponsorExists && (product_category =='2' ||product_category =='3'|| product_category =='6'||product_category =='7'||product_category =='8'))
-    {
-        // document.getElementById("div_sponsor").style.visibility='hidden';
-        document.getElementById("div_sponsor").style.display='none';
-    } else if (divSponsorExists) {
-        // document.getElementById("div_sponsor").style.visibility='visible';
-        document.getElementById("div_sponsor").style.display='block';
-    }
-}
-function openedit(note_id){
-
-    var frm_element = document.getElementById("add_client_notes_"+note_id);
-    //var ele = frm_element.getElementById("client_note");
-    name = frm_element.elements["client_note"].removeAttribute("style");
-    //$(name).css('pointer-events','');
-    console.log(name);
-}
-function product_category_autoredirect(product_category){
-
-    if(product_category!='0')
-    {
-        if(isRedirectToTransPage == 1)
-          window.location="product_cate.php?action=add_product&category="+product_category+"&redirect=add_product_from_trans";
-        else
-        window.location="product_cate.php?action=view_product&category="+product_category
     }
 
-}
-function prod_cate_edit_del_enable(product_category)
-{
-    if(product_category!='0')
-    {
-        document.getElementById("div_prod_cat_edit_del").style.visibility = "visible";
+    function hideshow_sponser_based_on_product_category(product_category) {
+        var divSponsorExists = document.getElementById("div_sponsor");
+
+        if (divSponsorExists && (product_category == '2' || product_category == '3' || product_category == '6' || product_category == '7' || product_category == '8')) {
+            // document.getElementById("div_sponsor").style.visibility='hidden';
+            document.getElementById("div_sponsor").style.display = 'none';
+        } else if (divSponsorExists) {
+            // document.getElementById("div_sponsor").style.visibility='visible';
+            document.getElementById("div_sponsor").style.display = 'block';
+        }
     }
-    else
-    {
-        document.getElementById("div_prod_cat_edit_del").style.visibility = "hidden";
+
+    function openedit(note_id) {
+
+        var frm_element = document.getElementById("add_client_notes_" + note_id);
+        //var ele = frm_element.getElementById("client_note");
+        name = frm_element.elements["client_note"].removeAttribute("style");
+        //$(name).css('pointer-events','');
+        console.log(name);
     }
-}
+
+    function product_category_autoredirect(product_category) {
+
+        if (product_category != '0') {
+            if (isRedirectToTransPage == 1)
+                window.location = "product_cate.php?action=add_product&category=" + product_category + "&redirect=add_product_from_trans";
+            else
+                window.location = "product_cate.php?action=view_product&category=" + product_category
+        }
+
+    }
+
+    function prod_cate_edit_del_enable(product_category) {
+        if (product_category != '0') {
+            document.getElementById("div_prod_cat_edit_del").style.visibility = "visible";
+        } else {
+            document.getElementById("div_prod_cat_edit_del").style.visibility = "hidden";
+        }
+    }
 </script>
 <script>
-//submit share form data
-function notessubmit(note_id)
-{
-   $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
+    //submit share form data
+    function notessubmit(note_id) {
+        $('#msg').html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Please wait...</div>');
 
-   var url = "product_cate.php"; // the script where you handle the form input.
-   //alert("#add_client_notes_"+note_id);
-   $.ajax({
-      type: "POST",
-      url: url,
-      data: $("#add_client_notes_"+note_id).serialize(), // serializes the form's elements.
-      success: function(data){
-          if(data=='1'){
+        var url = "product_cate.php"; // the script where you handle the form input.
+        //alert("#add_client_notes_"+note_id);
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#add_client_notes_" + note_id).serialize(), // serializes the form's elements.
+            success: function(data) {
+                if (data == '1') {
 
-            get_product_notes();
-            $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
-            //window.location.href = "client_maintenance.php";//get_client_notes();
-          }
-          else{
-               $('#msg_notes').html('<div class="alert alert-danger">'+data+'</div>');
-          }
+                    get_product_notes();
+                    $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
+                    //window.location.href = "client_maintenance.php";//get_client_notes();
+                } else {
+                    $('#msg_notes').html('<div class="alert alert-danger">' + data + '</div>');
+                }
 
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-           $('#msg_notes').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
-      }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $('#msg_notes').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
+            }
 
-   });
+        });
 
-   //e.preventDefault(); // avoid to execute the actual submit of the form.
-   return false;
+        //e.preventDefault(); // avoid to execute the actual submit of the form.
+        return false;
 
-}
-function attachsubmit(attach_id)
-{
-        var myForm = document.getElementById('add_client_attach_'+attach_id);
+    }
+
+    function attachsubmit(attach_id) {
+        var myForm = document.getElementById('add_client_attach_' + attach_id);
         form_data = new FormData(myForm);
         $.ajax({
             url: 'product_cate.php', // point to server-side PHP script
@@ -1880,154 +1787,153 @@ function attachsubmit(attach_id)
             processData: false,
             data: form_data,
             type: 'post',
-            success: function(data){
-                  if(data=='1'){
+            success: function(data) {
+                if (data == '1') {
 
                     get_product_attach();
                     $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Data Successfully Saved.</div>');
                     //window.location.href = "client_maintenance.php";//get_client_attach();
-                  }
-                  else{
-                       $('#msg_attach').html('<div class="alert alert-danger">'+data+'</div>');
-                  }
+                } else {
+                    $('#msg_attach').html('<div class="alert alert-danger">' + data + '</div>');
+                }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                   $('#msg_attach').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
-              }
+                $('#msg_attach').html('<div class="alert alert-danger">Something went wrong, Please try again.</div>')
+            }
         });
 
 
-   return false;
+        return false;
 
-}
-function delete_notes(note_id){
+    }
 
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var data = this.responseText;
-                if(data=='1'){
-                   get_product_notes();
-                   $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Note deleted Successfully.</div>');
-                   //get_client_notes();
-
-                  }
-                  else{
-                       $('#msg_notes').html('<div class="alert alert-danger">'+data+'</div>');
-                  }
-
-            }
-        };
-        xmlhttp.open("GET", "product_cate.php?delete_action=delete_notes&note_id="+note_id, true);
-        xmlhttp.send();
-}
-function delete_attach(attach_id){
+    function delete_notes(note_id) {
 
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = this.responseText;
-                if(data=='1'){
-                   get_product_attach();
-                   $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Attach deleted Successfully.</div>');
-                  }
-                  else{
-                       $('#msg_attach').html('<div class="alert alert-danger">'+data+'</div>');
-                  }
+                if (data == '1') {
+                    get_product_notes();
+                    $('#msg_notes').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Note deleted Successfully.</div>');
+                    //get_client_notes();
+
+                } else {
+                    $('#msg_notes').html('<div class="alert alert-danger">' + data + '</div>');
+                }
+
             }
         };
-        xmlhttp.open("GET", "product_cate.php?delete_action=delete_attach&attach_id="+attach_id, true);
+        xmlhttp.open("GET", "product_cate.php?delete_action=delete_notes&note_id=" + note_id, true);
         xmlhttp.send();
-}
+    }
+
+    function delete_attach(attach_id) {
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = this.responseText;
+                if (data == '1') {
+                    get_product_attach();
+                    $('#msg_attach').html('<div class="alert alert-success alert-dismissable" style="opacity: 500;"><a href="#" class="close" data-dismiss="alert" aria-label="close">x</a><strong>Success!</strong> Attach deleted Successfully.</div>');
+                } else {
+                    $('#msg_attach').html('<div class="alert alert-danger">' + data + '</div>');
+                }
+            }
+        };
+        xmlhttp.open("GET", "product_cate.php?delete_action=delete_attach&attach_id=" + attach_id, true);
+        xmlhttp.send();
+    }
 
 
 
-$('#demo-dp-range .input-daterange').datepicker({
+    $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
         todayBtn: "linked",
         autoclose: true,
         todayHighlight: true
     });
-function checkLength(el) {
-  if (el.value.length != 2) {
-    alert("length grater than 2 characters")
-  }
-}
+
+    function checkLength(el) {
+        if (el.value.length != 2) {
+            alert("length grater than 2 characters")
+        }
+    }
 
 
 
 
-var waitingDialog = waitingDialog || (function ($) {
-    'use strict';
+    var waitingDialog = waitingDialog || (function($) {
+        'use strict';
 
-	// Creating modal dialog's DOM
-	var $dialog = $(
-		'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-		'<div class="modal-dialog modal-m">' +
-		'<div class="modal-content">' +
-			'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-			'<div class="modal-body">' +
-				'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-			'</div>' +
-		'</div></div></div>');
+        // Creating modal dialog's DOM
+        var $dialog = $(
+            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+            '<div class="modal-dialog modal-m">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+            '<div class="modal-body">' +
+            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+            '</div>' +
+            '</div></div></div>');
 
-	return {
-		/**
-		 * Opens our dialog
-		 * @param message Custom message
-		 * @param options Custom options:
-		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "md", "m";
-		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
-		 */
-		show: function (message, options) {
-			// Assigning defaults
-			if (typeof options === 'undefined') {
-				options = {};
-			}
-			if (typeof message === 'undefined') {
-				message = 'Saving...';
-			}
-			var settings = $.extend({
-				dialogSize: 'm',
-				progressType: '',
-				onHide: null // This callback runs after the dialog was hidden
-			}, options);
+        return {
+            /**
+             * Opens our dialog
+             * @param message Custom message
+             * @param options Custom options:
+             * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "md", "m";
+             * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+             */
+            show: function(message, options) {
+                // Assigning defaults
+                if (typeof options === 'undefined') {
+                    options = {};
+                }
+                if (typeof message === 'undefined') {
+                    message = 'Saving...';
+                }
+                var settings = $.extend({
+                    dialogSize: 'm',
+                    progressType: '',
+                    onHide: null // This callback runs after the dialog was hidden
+                }, options);
 
-			// Configuring dialog
-			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-			$dialog.find('.progress-bar').attr('class', 'progress-bar');
-			if (settings.progressType) {
-				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-			}
-			$dialog.find('h3').text(message);
-			// Adding callbacks
-			if (typeof settings.onHide === 'function') {
-				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
-					settings.onHide.call($dialog);
-				});
-			}
-			// Opening dialog
-			$dialog.modal();
-		},
-		/**
-		 * Closes dialog
-		 */
+                // Configuring dialog
+                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+                $dialog.find('.progress-bar').attr('class', 'progress-bar');
+                if (settings.progressType) {
+                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+                }
+                $dialog.find('h3').text(message);
+                // Adding callbacks
+                if (typeof settings.onHide === 'function') {
+                    $dialog.off('hidden.bs.modal').on('hidden.bs.modal', function(e) {
+                        settings.onHide.call($dialog);
+                    });
+                }
+                // Opening dialog
+                $dialog.modal();
+            },
+            /**
+             * Closes dialog
+             */
 
-	};
+        };
 
-})(jQuery);
+    })(jQuery);
 
-function validation() {
-    // 06/19/22 Default true - "onsubmit" call from the form name="frm"
-    return true;
-}
-
+    function validation() {
+        // 06/19/22 Default true - "onsubmit" call from the form name="frm"
+        return true;
+    }
 </script>
 
 <style>
-.btn-primary {
-    color: #fff;
-    background-color: #337ab7 !important;
-    border-color: #2e6da4 !important;
+    .btn-primary {
+        color: #fff;
+        background-color: #337ab7 !important;
+        border-color: #2e6da4 !important;
     }
 </style>

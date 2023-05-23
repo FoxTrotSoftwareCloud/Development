@@ -450,13 +450,13 @@
          '</td>' +
 
          '<td>' +
-         '<button type="button" tabindex="-1" onclick="addMoreAlias('+test+',this);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>' +
+         '<button type="button" tabindex="-1" onclick="addMoreAlias(' + test + ',this);" class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>' +
          '</td>' +
          '</tr>';
 
-         _this.removeAttr('onclick').removeClass('btn-purple').addClass('remove-row').html('<i class="fa fa-minus"></i>');
+      _this.removeAttr('onclick').removeClass('btn-purple').addClass('remove-row').html('<i class="fa fa-minus"></i>');
 
-         _this.closest('tr').after(html);
+      _this.closest('tr').after(html);
 
    }
    $(document).on('click', '.remove-row', function() {
@@ -504,13 +504,13 @@
          '<input type="checkbox" name="data[docs_required][' + test + ']" class="checkbox" value="1" id="docs_required' + test + '"/>' +
          '</td>' +
          '<td>' +
-         '<button type="button" tabindex="-1" onclick="addMoreDocs('+test+',this);"  class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>' +
+         '<button type="button" tabindex="-1" onclick="addMoreDocs(' + test + ',this);"  class="btn btn-purple btn-icon btn-circle"><i class="fa fa-plus"></i></button>' +
          '</td>' +
          '</tr>';
 
-         _this.removeAttr('onclick').removeClass('btn-purple').addClass('remove-row').html('<i class="fa fa-minus"></i>');
+      _this.removeAttr('onclick').removeClass('btn-purple').addClass('remove-row').html('<i class="fa fa-minus"></i>');
 
-         _this.closest('tr').after(html);
+      _this.closest('tr').after(html);
    }
    $(document).on('click', '.remove-row', function() {
       $(this).closest('.tr').remove();
@@ -566,7 +566,7 @@
                   })
                }
             }
-            if($("#email1_general").val() == ''){
+            if ($("#email1_general").val() == '') {
                alert("Please enter Primary Email!");
                return false;
             }
@@ -1217,9 +1217,9 @@
                                        <label>DOB </label>
                                        <div id="demo-dp-range">
                                           <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="dob_general" id="dob_general" value="<?php if ($action == 'edit' && $dob!='' && $dob!='0000-00-00') {
-                                                            echo date('m/d/Y', strtotime($dob));
-                                                          } ?>" class="form-control" />
+                                             <input type="text" name="dob_general" id="dob_general" value="<?php if ($action == 'edit' && $dob != '' && $dob != '0000-00-00') {
+                                                                                                               echo date('m/d/Y', strtotime($dob));
+                                                                                                            } ?>" class="form-control" />
                                              <label class="input-group-addon btn" for="dob_general">
                                                 <span class="fa fa-calendar"></span>
                                              </label>
@@ -1232,9 +1232,9 @@
                                        <label>Prospect Date </label><br />
                                        <div id="demo-dp-range">
                                           <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="prospect_date_general" id="prospect_date_general" value="<?php if ($action == 'edit' && $prospect_date!='' && $prospect_date!='0000-00-00') {
-                                                         echo date('m/d/Y', strtotime($prospect_date));
-                                                      } ?>" class="form-control" />
+                                             <input type="text" name="prospect_date_general" id="prospect_date_general" value="<?php if ($action == 'edit' && $prospect_date != '' && $prospect_date != '0000-00-00') {
+                                                                                                                                    echo date('m/d/Y', strtotime($prospect_date));
+                                                                                                                                 } ?>" class="form-control" />
                                              <label class="input-group-addon btn" for="prospect_date_general">
                                                 <span class="fa fa-calendar"></span>
                                              </label>
@@ -1247,9 +1247,9 @@
                                        <label>U4/Active Date </label><br />
                                        <div id="demo-dp-range">
                                           <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="u4_general" id="u4_general" value="<?php if ($action == 'edit' && $u4!='' && $u4!='0000-00-00') {
-                                                   echo date('m/d/Y', strtotime($u4));
-                                             } ?>" class="form-control" />
+                                             <input type="text" name="u4_general" id="u4_general" value="<?php if ($action == 'edit' && $u4 != '' && $u4 != '0000-00-00') {
+                                                                                                            echo date('m/d/Y', strtotime($u4));
+                                                                                                         } ?>" class="form-control" />
                                              <label class="input-group-addon btn" for="u4_general">
                                                 <span class="fa fa-calendar"></span>
                                              </label>
@@ -1262,9 +1262,9 @@
                                        <label>U5/Termination Date </label><br />
                                        <div id="demo-dp-range">
                                           <div class="input-daterange input-group" id="datepicker">
-                                             <input type="text" name="u5_general" id="u5_general" value="<?php if ($action == 'edit' && $u5 != '' && $u5!='0000-00-00') {
-                                                      echo date('m/d/Y', strtotime($u5));
-                                                } ?>" class="form-control" />
+                                             <input type="text" name="u5_general" id="u5_general" value="<?php if ($action == 'edit' && $u5 != '' && $u5 != '0000-00-00') {
+                                                                                                            echo date('m/d/Y', strtotime($u5));
+                                                                                                         } ?>" class="form-control" />
                                              <label class="input-group-addon btn" for="u5_general">
                                                 <span class="fa fa-calendar"></span>
                                              </label>
@@ -1353,9 +1353,9 @@
                                           <label>Start Date </label><br />
                                           <div id="demo-dp-range">
                                              <div class="input-daterange input-group" id="datepicker">
-                                                <input type="text" name="start_date_general" id="start_date_general" value="<?php if ($action == 'edit' && $start_date!='' && $start_date!='0000-00-00') {
-                                                            echo date('m/d/Y', strtotime($start_date));
-                                                         } ?>" class="form-control" />
+                                                <input type="text" name="start_date_general" id="start_date_general" value="<?php if ($action == 'edit' && $start_date != '' && $start_date != '0000-00-00') {
+                                                                                                                                 echo date('m/d/Y', strtotime($start_date));
+                                                                                                                              } ?>" class="form-control" />
                                                 <label class="input-group-addon btn" for="start_date_general">
                                                    <span class="fa fa-calendar"></span>
                                                 </label>
@@ -1372,8 +1372,8 @@
                                              <input type="radio" class="radio" name="transaction_type_general1" value="1" <?php if (isset($transaction_type_general) && $transaction_type_general == '') {
                                                                                                                               echo 'checked="true"';
                                                                                                                            } ?> <?php if (isset($transaction_type_general) && $transaction_type_general == 1) {
-                                                                                                                                                                                                                                       echo 'checked="true"';
-                                                                                                                                                                                                                                    } ?> /> Checking
+                                                                                                                                    echo 'checked="true"';
+                                                                                                                                 } ?> /> Checking
                                           </label>
                                           <label class="radio-inline">
                                              <input type="radio" class="radio" name="transaction_type_general1" value="2" <?php if (isset($transaction_type_general) && $transaction_type_general == 2) {
@@ -1462,7 +1462,9 @@
                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['crd']; ?></td>
                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['fund']; ?></td>
                                        <td class="internal" onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['internal']; ?></td>
-                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php if(isset($val['u4']) && $val['u4']!="0000-00-00"){ echo date('m/d/Y', strtotime($val['u4'])); } ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php if (isset($val['u4']) && $val['u4'] != "0000-00-00") {
+                                                                                                         echo date('m/d/Y', strtotime($val['u4']));
+                                                                                                      } ?></td>
                                        <td onclick="window.location.href='<?php echo $editLink; ?>'">
                                           <?php
                                           if ($val['active_status'] == 1) {
@@ -1529,8 +1531,8 @@
                                                 <div id="demo-dp-range">
                                                    <div class="input-daterange input-group" id="datepicker">
                                                       <input type="text" name="hold_commission_until" id="hold_commission_until" value="<?php if (isset($edit_payout['hold_commission_until']) && ($edit_payout['hold_commission_until'] != '' && $edit_payout['hold_commission_until'] != 0000 - 00 - 00)) {
-                                                             echo date('m/d/Y', strtotime($edit_payout['hold_commission_until']));
-                                                            } ?>" class="form-control" />
+                                                                                                                                             echo date('m/d/Y', strtotime($edit_payout['hold_commission_until']));
+                                                                                                                                          } ?>" class="form-control" />
                                                       <label class="input-group-addon btn" for="hold_commission_until">
                                                          <span class="fa fa-calendar"></span>
                                                       </label>
@@ -1555,15 +1557,15 @@
                                           </div>
                                        </div>
                                     </div>
-                                 
+
                                  </div>
                               </div>
-                             
+
                               <br />
                               <div class="panel" id="div_fixed_rates">
                                  <fieldset>
                                     <legend>Fixed Rates:</legend>
-                                       <div class="row">
+                                    <div class="row">
                                        <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_payout_fixed_rates)) { ?>
                                           <?php foreach ($edit_payout_fixed_rates as $key => $val) { ?>
                                              <div class="col-md-2" style="text-align: right; margin-bottom:10px"><label><?php echo $val['type']; ?></label></div>
@@ -1575,7 +1577,7 @@
                                                 </div>
                                              </div>
                                           <?php }
-                                                } else { ?>
+                                       } else { ?>
                                           <?php foreach ($product_category as $key => $val) { ?>
                                              <div class="col-md-2" style="text-align: right; margin-bottom:10px"><label><?php echo $val['type']; ?></label></div>
                                              <div class="col-md-2" style="margin-bottom:10px">
@@ -1585,10 +1587,10 @@
                                                    <span class="input-group-addon">%</span>
                                                 </div>
                                              </div>
-                                          
-                                          <?php }
-                                                } ?>
-                                       </div>
+
+                                       <?php }
+                                       } ?>
+                                    </div>
                                  </fieldset>
                               </div>
                               <div class="row">
@@ -1791,8 +1793,8 @@
                                                 <div id="demo-dp-range">
                                                    <div class="input-daterange input-daterange-limit input-group" id="datepicker">
                                                       <input type="text" name="reset" id="reset" value="<?php if (isset($edit_payout['reset']) && $edit_payout['reset'] != '') {
-                                                                                                echo date('m/d/Y', strtotime($edit_payout['reset']));
-                                                                                             } ?>" class="form-control" />
+                                                                                                            echo date('m/d/Y', strtotime($edit_payout['reset']));
+                                                                                                         } ?>" class="form-control" />
                                                       <label class="input-group-addon btn" for="reset">
                                                          <span class="fa fa-calendar"></span>
                                                       </label>
@@ -1891,7 +1893,7 @@
                                     </div>
                                  </div>
                               </div>
-                            
+
                            </div>
                         </div>
                         <div class="panel-overlay">
@@ -2439,7 +2441,7 @@
                                                    <table class="table table-bordered table-stripped table-hover license_cat_wrap">
                                                       <thead>
                                                          <tr>
-                                                            <th style="width: 15%;">Active  <br>
+                                                            <th style="width: 15%;">Active <br>
                                                                <span style="font-size: 13px;">Select All</span>
                                                                <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
                                                             </th>
@@ -2455,67 +2457,72 @@
                                                          if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_securities)) {
                                                             foreach ($edit_licences_securities as $seckey => $secval) {
                                                                // echo "<pre>"; print_r($secval);
-                                                               ?>
+                                                         ?>
 
-                                                                     <tr class="tr">
+                                                               <tr class="tr">
 
-                                                                        <!-- <?php echo '<pre>';
-                                                                              print_r($secval); ?> -->
-                                                                        <?php
-                                                                        $row_counter++; ?>
-                                                                        <td>
+                                                                  <!-- <?php echo '<pre>';
+                                                                        print_r($secval); ?> -->
+                                                                  <?php
+                                                                  $row_counter++; ?>
+                                                                  <td>
 
-                                                                           <input type="checkbox" name="data_sec[active][<?php echo $row_counter; ?>]" value="1" <?php if ($secval['active_check'] == 1) { ?>checked="true" <?php } ?> class="checkbox" />
+                                                                     <input type="checkbox" name="data_sec[active][<?php echo $row_counter; ?>]" value="1" <?php if ($secval['active_check'] == 1) { ?>checked="true" <?php } ?> class="checkbox" />
 
-                                                                           <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="<?php echo $secval['id'] ?>">
+                                                                     <input type="hidden" name="data_sec[row_id][<?php echo $row_counter; ?>]" value="<?php echo $secval['id'] ?>">
 
-                                                                        </td>
-                                                                        <td>
-                                                                        
-                                                                           <?php 
+                                                                  </td>
+                                                                  <td>
 
-                                                                              foreach ($get_state_new as $statekey => $stateval) {
-                                                                                 if ($secval['state_id'] == $stateval['id']) {
-                                                                                 
-                                                                                 echo $stateval['name']; ?>
-                                                                                 <input type="hidden" name="data_sec[state][<?php echo $row_counter; ?>]" value="<?php echo $stateval['id'] ?>">
+                                                                     <?php
 
-                                                                             <?php }}
-                                                                           
-                                                                           ?>
+                                                                     foreach ($get_state_new as $statekey => $stateval) {
+                                                                        if ($secval['state_id'] == $stateval['id']) {
 
-                                                                        </td>
-                                                                        <td>
+                                                                           echo $stateval['name']; ?>
+                                                                           <input type="hidden" name="data_sec[state][<?php echo $row_counter; ?>]" value="<?php echo $stateval['id'] ?>">
 
-                                                                           <div id="demo-dp-range">
-                                                                              <div class="input-daterange input-group" id="datepicker">
-                                                                                 <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]" id="data_sec[received][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['received']) && $secval['received']!='1000-01-01') { echo date('m/d/Y', strtotime(trim($secval['received']))); } ?>" class="form-control" />
-                                                                                 <label class="input-group-addon btn" for="data_sec[received][<?php echo $row_counter; ?>]">
-                                                                                    <span class="fa fa-calendar"></span>
-                                                                                 </label>
-                                                                              </div>
-                                                                           </div>
-                                                                        </td>
-                                                                        <td>
-                                                                           <div id="demo-dp-range">
-                                                                              <div class="input-daterange input-group" id="datepicker">
-                                                                                 <input type="text" name="data_sec[to][<?php echo $row_counter; ?>]" id="data_sec[to][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['terminated']) && $secval['terminated']!='1000-01-01') { echo date('m/d/Y', strtotime(trim($secval['terminated']))); } ?>" class="form-control" />
-                                                                                 <label class="input-group-addon btn" for="data_sec[to][<?php echo $row_counter; ?>]">
-                                                                                    <span class="fa fa-calendar"></span>
-                                                                                 </label>
-                                                                              </div>
-                                                                           </div>
-                                                                        </td>
-                                                                        <td>
-                                                                           <input type="text" name="data_sec[reason][<?php echo $row_counter; ?>]" id="data_sec[reason][<?php echo $row_counter; ?>]" value="<?php echo $secval['reson']; ?>" class="form-control" />
-                                                                        </td>
-                                                                        <!-- <td>
+                                                                     <?php }
+                                                                     }
+
+                                                                     ?>
+
+                                                                  </td>
+                                                                  <td>
+
+                                                                     <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                           <input type="text" name="data_sec[from][<?php echo $row_counter; ?>]" id="data_sec[received][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['received']) && $secval['received'] != '1000-01-01') {
+                                                                                                                                                                                                                  echo date('m/d/Y', strtotime(trim($secval['received'])));
+                                                                                                                                                                                                               } ?>" class="form-control" />
+                                                                           <label class="input-group-addon btn" for="data_sec[received][<?php echo $row_counter; ?>]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                        </div>
+                                                                     </div>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                           <input type="text" name="data_sec[to][<?php echo $row_counter; ?>]" id="data_sec[to][<?php echo $row_counter; ?>]" value="<?php if (isset($secval['terminated']) && $secval['terminated'] != '1000-01-01') {
+                                                                                                                                                                                                         echo date('m/d/Y', strtotime(trim($secval['terminated'])));
+                                                                                                                                                                                                      } ?>" class="form-control" />
+                                                                           <label class="input-group-addon btn" for="data_sec[to][<?php echo $row_counter; ?>]">
+                                                                              <span class="fa fa-calendar"></span>
+                                                                           </label>
+                                                                        </div>
+                                                                     </div>
+                                                                  </td>
+                                                                  <td>
+                                                                     <input type="text" name="data_sec[reason][<?php echo $row_counter; ?>]" id="data_sec[reason][<?php echo $row_counter; ?>]" value="<?php echo $secval['reson']; ?>" class="form-control" />
+                                                                  </td>
+                                                                  <!-- <td>
                                                                            <button type="button" tabindex="-1" class="btn remove-licrow btn-icon btn-circle"><i class="fa fa-minus"></i></button>
                                                                         </td> -->
-                                                                     </tr>
-                                                         <?php }
-                                                         }else {
-                                                            foreach ($get_state_new as $statekey => $stateval) { 
+                                                               </tr>
+                                                            <?php }
+                                                         } else {
+                                                            foreach ($get_state_new as $statekey => $stateval) {
                                                                $row_counter++; ?>
                                                                <tr class="tr">
                                                                   <td>
@@ -2550,10 +2557,10 @@
                                                                      <input type="text" name="data_sec[reason][<?php echo $row_counter; ?>]" id="data_sec['reason'][<?php echo $row_counter; ?>]" value="" class="form-control" />
                                                                   </td>
                                                                </tr>
-                                                            
+
                                                          <?php }
                                                          }
-                                                          
+
                                                          $row_counter++;  ?>
 
 
@@ -2748,116 +2755,120 @@
                                        <input type="hidden" name="type" value="2" />
                                        <!-- SECURITY -->
                                        <div class="panel-body">
-                                       <div class="row">
-                                          <table class="table table-bordered table-stripped table-hover license_cat_wrap">
-                                             <thead>
-                                                <tr>
-                                                   <th style="width: 15%;">Active <br>
-                                                      <span style="font-size: 13px;">Select All</span>
-                                                      <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
-                                                   </th>
-                                                   <th>State</th>
-                                                   <th>Received</th>
-                                                   <th>Terminated</th>
-                                                   <th>Reason</th>
-                                                </tr>
-                                             </thead>
-                                             <tbody id="data_sec_row" class="panel-row-wrap">
-                                                <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_insurance)) {
-                                                foreach ($edit_licences_insurance as $key => $val) {
-                                                   foreach ($get_state_new as $statekey => $stateval) {
-                                                      if ($val['state_id'] == $stateval['id']) { ?>
-                                                            
-                                                            <tr class="tr">
-                                                               <td>
-                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                     <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" <?php if ($val['active_check'] == 1) { ?>checked="true" <?php } ?> value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
-                                                                  </div>
-                                                               </td>
-                                                               <td>
-                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                     <?php echo $stateval['name']; ?>
-                                                                  </div>
-                                                               </td>
-                                                               <td>
-                                                                  <div id="demo-dp-range">
+                                          <div class="row">
+                                             <table class="table table-bordered table-stripped table-hover license_cat_wrap">
+                                                <thead>
+                                                   <tr>
+                                                      <th style="width: 15%;">Active <br>
+                                                         <span style="font-size: 13px;">Select All</span>
+                                                         <input type="checkbox" style=" display: inline;height: 12px;" name="check_all" class="check_all checkbox" value="" />
+                                                      </th>
+                                                      <th>State</th>
+                                                      <th>Received</th>
+                                                      <th>Terminated</th>
+                                                      <th>Reason</th>
+                                                   </tr>
+                                                </thead>
+                                                <tbody id="data_sec_row" class="panel-row-wrap">
+                                                   <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_insurance)) {
+                                                      foreach ($edit_licences_insurance as $key => $val) {
+                                                         foreach ($get_state_new as $statekey => $stateval) {
+                                                            if ($val['state_id'] == $stateval['id']) { ?>
+
+                                                               <tr class="tr">
+                                                                  <td>
+                                                                     <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                        <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" <?php if ($val['active_check'] == 1) { ?>checked="true" <?php } ?> value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
+                                                                     </div>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                        <?php echo $stateval['name']; ?>
+                                                                     </div>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div id="demo-dp-range">
                                                                         <div class="input-daterange input-group" id="datepicker">
-                                                                           <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received']!='1000-01-01') { echo date('m/d/Y', strtotime($val['received'])); } ?>" class="form-control" />
+                                                                           <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received'] != '1000-01-01') {
+                                                                                                                                                                                                                  echo date('m/d/Y', strtotime($val['received']));
+                                                                                                                                                                                                               } ?>" class="form-control" />
                                                                            <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][received]">
                                                                               <span class="fa fa-calendar"></span>
                                                                            </label>
                                                                         </div>
                                                                      </div>
-                                                               </td>
-                                                               <td>
-                                                                  <div id="demo-dp-range">
-                                                                     <div class="input-daterange input-group" id="datepicker">
-                                                                        <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated']!='1000-01-01') { echo date('m/d/Y', strtotime($val['terminated'])); } ?>" class="form-control" />
-                                                                        <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][terminated]">
+                                                                  </td>
+                                                                  <td>
+                                                                     <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                           <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated'] != '1000-01-01') {
+                                                                                                                                                                                                                        echo date('m/d/Y', strtotime($val['terminated']));
+                                                                                                                                                                                                                     } ?>" class="form-control" />
+                                                                           <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][terminated]">
                                                                               <span class="fa fa-calendar"></span>
                                                                            </label>
+                                                                        </div>
                                                                      </div>
-                                                                  </div>
-                                                               </td>
-                                                               <td>
-                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                     <input class="form-control" value="<?php echo $val['reson'] ?>" name="data2[<?php echo $stateval['id'] ?>][reason]" id="data2[<?php echo $stateval['id'] ?>][reason]" type="text" />
-                                                                  </div>
-                                                               </td>
-                                                            </tr>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                        <input class="form-control" value="<?php echo $val['reson'] ?>" name="data2[<?php echo $stateval['id'] ?>][reason]" id="data2[<?php echo $stateval['id'] ?>][reason]" type="text" />
+                                                                     </div>
+                                                                  </td>
+                                                               </tr>
 
                                                       <?php }
+                                                         }
                                                       }
-                                                   } 
-                                                }else { ?>
-                                                   <?php foreach ($get_state_new as $statekey => $stateval) {?>
+                                                   } else { ?>
+                                                      <?php foreach ($get_state_new as $statekey => $stateval) { ?>
 
-                                                      <tr class="tr">
-                                                         <td>
-                                                            <div class="form-group" style="margin-bottom: 0px !important;">
-                                                               <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
-                                                            </div>
-                                                         </td>
-                                                         <td>
-                                                            <div class="form-group" style="margin-bottom: 0px !important;">
-                                                               <?php echo $stateval['name']; ?>
-                                                            </div>
-                                                         </td>
-                                                         <td>
-                                                            <div class="form-group" style="margin-bottom: 0px !important;">
-                                                               <div id="demo-dp-range">
-                                                                  <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="" class="form-control" />
-                                                                     <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][received]">
-                                                                              <span class="fa fa-calendar"></span>
-                                                                     </label>
+                                                         <tr class="tr">
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <input type="checkbox" name="data2[<?php echo $stateval['id'] ?>][active_check]" value="1" id="data2[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
+                                                               </div>
+                                                            </td>
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <?php echo $stateval['name']; ?>
+                                                               </div>
+                                                            </td>
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <div id="demo-dp-range">
+                                                                     <div class="input-daterange input-group" id="datepicker">
+                                                                        <input type="text" name="data2[<?php echo $stateval['id'] ?>][received]" id="data2[<?php echo $stateval['id'] ?>][received]" value="" class="form-control" />
+                                                                        <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][received]">
+                                                                           <span class="fa fa-calendar"></span>
+                                                                        </label>
+                                                                     </div>
                                                                   </div>
                                                                </div>
-                                                            </div>
-                                                         </td>
-                                                         <td>
-                                                            <div class="form-group" style="margin-bottom: 0px !important;">
-                                                               <div id="demo-dp-range">
-                                                                  <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="" class="form-control" />
-                                                                     <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][terminated]">
-                                                                              <span class="fa fa-calendar"></span>
-                                                                           </label>
+                                                            </td>
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <div id="demo-dp-range">
+                                                                     <div class="input-daterange input-group" id="datepicker">
+                                                                        <input type="text" name="data2[<?php echo $stateval['id'] ?>][terminated]" id="data2[<?php echo $stateval['id'] ?>][terminated]" value="" class="form-control" />
+                                                                        <label class="input-group-addon btn" for="data2[<?php echo $stateval['id'] ?>][terminated]">
+                                                                           <span class="fa fa-calendar"></span>
+                                                                        </label>
+                                                                     </div>
                                                                   </div>
                                                                </div>
-                                                            </div>
-                                                         </td>
-                                                         <td>
-                                                            <div class="form-group" style="margin-bottom: 0px !important;">
-                                                               <input class="form-control" value="" name="data2[<?php echo $stateval['id'] ?>][reason]" id="data2[<?php echo $stateval['id'] ?>][reason]" type="text" />
-                                                            </div>
-                                                         </td>
-                                                      </tr>
-                                                <?php } 
-                                                } ?>
-                                             </tbody>
-                                          </table>
-                                       </div>
+                                                            </td>
+                                                            <td>
+                                                               <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                  <input class="form-control" value="" name="data2[<?php echo $stateval['id'] ?>][reason]" id="data2[<?php echo $stateval['id'] ?>][reason]" type="text" />
+                                                               </div>
+                                                            </td>
+                                                         </tr>
+                                                   <?php }
+                                                   } ?>
+                                                </tbody>
+                                             </table>
+                                          </div>
                                        </div>
 
                                        <div class="panel-overlay">
@@ -2894,8 +2905,8 @@
                                        <input type="hidden" name="type" value="3" />
                                        <div class="panel-body">
                                           <div class="row">
-                                          <table class="table table-bordered table-stripped table-hover license_cat_wrap">
-                                             <thead>
+                                             <table class="table table-bordered table-stripped table-hover license_cat_wrap">
+                                                <thead>
                                                    <tr>
                                                       <th style="width: 15%;">Active <br>
                                                          <span style="font-size: 13px;">Select All</span>
@@ -2906,57 +2917,61 @@
                                                       <th>Terminated</th>
                                                       <th>Reason</th>
                                                    </tr>
-                                             </thead>
-                                             <tbody id="data_sec_row" class="panel-row-wrap">
-                                                <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_ria)) {
-                                                   foreach ($edit_licences_ria as $key => $val) {
-                                                      foreach ($get_state_new as $statekey => $stateval) {
-                                                         if ($val['state_id'] == $stateval['id']) { ?>
-                                                            <tr class="tr">
-                                                               <td>
-                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                     <input type="checkbox" name="data3[<?php echo $stateval['id'] ?>][active_check]" <?php if ($val['active_check'] == 1) { ?>checked="true" <?php } ?> value="1" id="data3[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
-                                                                  </div>
-                                                               </td>
-                                                               <td>
-                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                     <?php echo $stateval['name']; ?>
-                                                                  </div>
-                                                               </td>
-                                                               <td>
-                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                     <div id="demo-dp-range">
-                                                                        <div class="input-daterange input-group" id="datepicker">
-                                                                           <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received']!='1000-01-01') { echo date('m/d/Y', strtotime($val['received'])); } ?>" class="form-control" />
-                                                                           <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][received]">
-                                                                              <span class="fa fa-calendar"></span>
-                                                                           </label>
+                                                </thead>
+                                                <tbody id="data_sec_row" class="panel-row-wrap">
+                                                   <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_ria)) {
+                                                      foreach ($edit_licences_ria as $key => $val) {
+                                                         foreach ($get_state_new as $statekey => $stateval) {
+                                                            if ($val['state_id'] == $stateval['id']) { ?>
+                                                               <tr class="tr">
+                                                                  <td>
+                                                                     <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                        <input type="checkbox" name="data3[<?php echo $stateval['id'] ?>][active_check]" <?php if ($val['active_check'] == 1) { ?>checked="true" <?php } ?> value="1" id="data3[<?php echo $stateval['id'] ?>][active_check]" class="checkbox" />
+                                                                     </div>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                        <?php echo $stateval['name']; ?>
+                                                                     </div>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                        <div id="demo-dp-range">
+                                                                           <div class="input-daterange input-group" id="datepicker">
+                                                                              <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="<?php if (isset($val['received']) && $val['received'] != '1000-01-01') {
+                                                                                                                                                                                                                     echo date('m/d/Y', strtotime($val['received']));
+                                                                                                                                                                                                                  } ?>" class="form-control" />
+                                                                              <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][received]">
+                                                                                 <span class="fa fa-calendar"></span>
+                                                                              </label>
+                                                                           </div>
                                                                         </div>
                                                                      </div>
-                                                                  </div>
-                                                               </td>
-                                                               <td>
-                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                     <div id="demo-dp-range">
-                                                                        <div class="input-daterange input-group" id="datepicker">
-                                                                           <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated']!='1000-01-01') { echo date('m/d/Y', strtotime($val['terminated'])); } ?>" class="form-control" />
-                                                                           <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][terminated]">
-                                                                              <span class="fa fa-calendar"></span>
-                                                                           </label>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                        <div id="demo-dp-range">
+                                                                           <div class="input-daterange input-group" id="datepicker">
+                                                                              <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="<?php if (isset($val['terminated']) && $val['terminated'] != '1000-01-01') {
+                                                                                                                                                                                                                           echo date('m/d/Y', strtotime($val['terminated']));
+                                                                                                                                                                                                                        } ?>" class="form-control" />
+                                                                              <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][terminated]">
+                                                                                 <span class="fa fa-calendar"></span>
+                                                                              </label>
+                                                                           </div>
                                                                         </div>
                                                                      </div>
-                                                                  </div>
-                                                               </td>
-                                                               <td>
-                                                                  <div class="form-group" style="margin-bottom: 0px !important;">
-                                                                     <input class="form-control" value="<?php echo $val['reson'] ?>" name="data3[<?php echo $stateval['id'] ?>][reason]" id="data3[<?php echo $stateval['id'] ?>][reason]" type="text" />
-                                                                  </div>
-                                                               </td>
-                                                            </tr>
+                                                                  </td>
+                                                                  <td>
+                                                                     <div class="form-group" style="margin-bottom: 0px !important;">
+                                                                        <input class="form-control" value="<?php echo $val['reson'] ?>" name="data3[<?php echo $stateval['id'] ?>][reason]" id="data3[<?php echo $stateval['id'] ?>][reason]" type="text" />
+                                                                     </div>
+                                                                  </td>
+                                                               </tr>
 
-                                                         <?php }
+                                                      <?php }
                                                          }
-                                                       }
+                                                      }
                                                    } else { ?>
                                                       <?php foreach ($get_state_new as $statekey => $stateval) { ?>
 
@@ -2977,8 +2992,8 @@
                                                                      <div class="input-daterange input-group" id="datepicker">
                                                                         <input type="text" name="data3[<?php echo $stateval['id'] ?>][received]" id="data3[<?php echo $stateval['id'] ?>][received]" value="" class="form-control" />
                                                                         <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][received]">
-                                                                              <span class="fa fa-calendar"></span>
-                                                                           </label>
+                                                                           <span class="fa fa-calendar"></span>
+                                                                        </label>
                                                                      </div>
                                                                   </div>
                                                                </div>
@@ -2989,22 +3004,22 @@
                                                                      <div class="input-daterange input-group" id="datepicker">
                                                                         <input type="text" name="data3[<?php echo $stateval['id'] ?>][terminated]" id="data3[<?php echo $stateval['id'] ?>][terminated]" value="" class="form-control" />
                                                                         <label class="input-group-addon btn" for="data3[<?php echo $stateval['id'] ?>][terminated]">
-                                                                              <span class="fa fa-calendar"></span>
-                                                                           </label>
+                                                                           <span class="fa fa-calendar"></span>
+                                                                        </label>
                                                                      </div>
                                                                   </div>
                                                                </div>
                                                             </td>
                                                             <td>
                                                                <div class="form-group" style="margin-bottom: 0px !important;">
-                                                               <input class="form-control" value="" name="data3[<?php echo $stateval['id'] ?>][reason]" id="data3[<?php echo $stateval['id'] ?>][reason]" type="text" />
+                                                                  <input class="form-control" value="" name="data3[<?php echo $stateval['id'] ?>][reason]" id="data3[<?php echo $stateval['id'] ?>][reason]" type="text" />
                                                                </div>
                                                             </td>
                                                          </tr>
-                                                      <?php }
+                                                   <?php }
                                                    } ?>
-                                             </tbody>
-                                          </table>
+                                                </tbody>
+                                             </table>
                                           </div>
                                        </div>
                                        <div class="panel-overlay">
@@ -3078,14 +3093,18 @@
                                                             <td>
                                                                <div id="demo-dp-range">
                                                                   <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][approval_date]" value="<?php  if (isset($val['approval_date']) && $val['approval_date'] != '' && $val['approval_date']!='0000-00-00') { echo date('m/d/Y', strtotime($val['approval_date'])); } ?>" class="form-control" />
+                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][approval_date]" value="<?php if (isset($val['approval_date']) && $val['approval_date'] != '' && $val['approval_date'] != '0000-00-00') {
+                                                                                                                                                            echo date('m/d/Y', strtotime($val['approval_date']));
+                                                                                                                                                         } ?>" class="form-control" />
                                                                   </div>
                                                                </div>
                                                             </td>
                                                             <td>
                                                                <div id="demo-dp-range">
                                                                   <div class="input-daterange input-group" id="datepicker">
-                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][expiration_date]" value="<?php if (isset($val['expiration_date']) && $val['expiration_date'] != '' && $val['expiration_date']!='0000-00-00') { echo date('m/d/Y', strtotime($val['expiration_date'])); } ?>" class="form-control" />
+                                                                     <input type="text" name="data4[<?php echo $regval['id']; ?>][expiration_date]" value="<?php if (isset($val['expiration_date']) && $val['expiration_date'] != '' && $val['expiration_date'] != '0000-00-00') {
+                                                                                                                                                               echo date('m/d/Y', strtotime($val['expiration_date']));
+                                                                                                                                                            } ?>" class="form-control" />
                                                                   </div>
                                                                </div>
                                                             </td>
@@ -3187,8 +3206,8 @@
                                                          <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
                                                                <input type="text" name="data[docs_date][<?php echo $doc_id; ?>]" id="docs_date<?php echo $doc_id; ?>" value="<?php if (isset($val['date']) && $val['date'] != '') {
-                                                                                                                                                                              echo date('m/d/Y', strtotime($val['date']));
-                                                                                                                                                                           } ?>" class="form-control" />
+                                                                                                                                                                                 echo date('m/d/Y', strtotime($val['date']));
+                                                                                                                                                                              } ?>" class="form-control" />
                                                             </div>
                                                          </div>
                                                       </td>
@@ -3308,8 +3327,8 @@
                                                             <option value="0">All Companies</option>
                                                             <?php foreach ($get_sponsor as $key_sponsor => $val_sponsor) { ?>
                                                                <option value="<?php echo $val_sponsor['id']; ?>" <?php if ($val['sponsor_company'] != '' && $val['sponsor_company'] == $val_sponsor['id']) {
-                                                                  echo "selected='selected'";
-                                                               } ?>><?php echo $val_sponsor['name']; ?></option>
+                                                                                                                     echo "selected='selected'";
+                                                                                                                  } ?>><?php echo $val_sponsor['name']; ?></option>
                                                             <?php } ?>
                                                          </select>
                                                       </td>
@@ -3321,8 +3340,8 @@
                                                          <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
                                                                <input type="text" name="alias[date][<?php echo $doc_id; ?>]" value="<?php if (isset($val['date']) && $val['date'] != '') {
-                                                                  echo date('m/d/Y', strtotime($val['date']));
-                                                               } ?>" class="form-control" />
+                                                                                                                                       echo date('m/d/Y', strtotime($val['date']));
+                                                                                                                                    } ?>" class="form-control" />
                                                             </div>
                                                          </div>
                                                       </td>
@@ -3331,17 +3350,17 @@
                                                             <option value="0">Select State</option>
                                                             <?php foreach ($get_state as $statekey => $stateval) { ?>
                                                                <option value="<?php echo $stateval['id']; ?>" <?php if ($val['state'] != '' && $val['state'] == $stateval['id']) {
-                                                                  echo "selected='selected'";
-                                                               } ?>><?php echo $stateval['name']; ?></option>
+                                                                                                                  echo "selected='selected'";
+                                                                                                               } ?>><?php echo $stateval['name']; ?></option>
                                                             <?php } ?>
                                                          </select>
                                                       </td>
                                                       <td>
                                                          <div id="demo-dp-range">
                                                             <div class="input-daterange input-group" id="datepicker">
-                                                               <input type="text" name="alias[termdate][<?php echo $doc_id; ?>]" value="<?php if (isset($val['termdate']) && $val['termdate'] != '' && $val['termdate']!='0000-00-00') {
-                                                                  echo date('m/d/Y', strtotime($val['termdate']));
-                                                               } ?>" class="form-control" />
+                                                               <input type="text" name="alias[termdate][<?php echo $doc_id; ?>]" value="<?php if (isset($val['termdate']) && $val['termdate'] != '' && $val['termdate'] != '0000-00-00') {
+                                                                                                                                             echo date('m/d/Y', strtotime($val['termdate']));
+                                                                                                                                          } ?>" class="form-control" />
                                                             </div>
                                                          </div>
                                                       </td>
@@ -3359,16 +3378,16 @@
                                                       <option value="0">All Companies</option>
                                                       <?php foreach ($get_sponsor as $key_sponsor => $val_sponsor) { ?>
                                                          <option value="<?php echo $val_sponsor['id']; ?>" <?php if (isset($alias_sponsor) && $alias_sponsor == $val_sponsor['id']) {
-                                                            echo "selected='selected'";
-                                                      } ?>><?php echo $val_sponsor['name']; ?></option>
+                                                                                                               echo "selected='selected'";
+                                                                                                            } ?>><?php echo $val_sponsor['name']; ?></option>
                                                       <?php } ?>
                                                    </select>
                                                 </td>
                                                 <td>
                                                    <!-- 09/02/22 Remove the keystroke filtering:  onkeypress="return isOnlyAlphaNumeric(this,event)" pattern="^[A-Za-z0-9 ]*$"-->
                                                    <input type="text" name="alias[alias_name][<?php echo $doc_id; ?>]" maxlength="20" value="<?php if (isset($alias_number) && $alias_number != '') {
-                                                            echo $alias_number;
-                                                      } ?>" max="20" class="form-control" />
+                                                                                                                                                echo $alias_number;
+                                                                                                                                             } ?>" max="20" class="form-control" />
                                                 </td>
                                                 <td>
                                                    <div id="demo-dp-range">
@@ -3382,8 +3401,8 @@
                                                       <option value="0">Select State</option>
                                                       <?php foreach ($get_state as $statekey => $stateval) { ?>
                                                          <option value="<?php echo $stateval['id']; ?>" <?php if (isset($alias_state['state']) == $stateval['id']) {
-                                                            echo "selected='selected'";
-                                                      } ?>><?php echo $stateval['name']; ?></option>
+                                                                                                            echo "selected='selected'";
+                                                                                                         } ?>><?php echo $stateval['name']; ?></option>
                                                       <?php } ?>
                                                    </select>
                                                 </td>
@@ -4268,7 +4287,7 @@
          ],
          "order": [<?php echo !empty($dataTableOrder) ? $dataTableOrder : '[1, "asc"]'; ?>],
       });
-
+      $("#data-table_filter [type='search']").focus();
       $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>' +
          '<div class="panel-control" style="padding-left:5px;display:inline;">' +
          '<div class="btn-group dropdown" style="float: right;">' +
@@ -4712,7 +4731,7 @@
    $(document).ready(function() {
 
       $('body').on('focus', ".input-daterange-limit", function() {
-          current_date = new Date();
+         current_date = new Date();
          $(this).datepicker({
             format: "mm/dd/yyyy",
             todayBtn: "linked",
