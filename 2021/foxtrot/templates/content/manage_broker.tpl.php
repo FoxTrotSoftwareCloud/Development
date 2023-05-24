@@ -1454,18 +1454,18 @@
 
                                  ?>
                                     <tr>
-                                       <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
+                                       <td class="text-center">
                                           <a href="<?php echo $editLink; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                           <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                                        </td>
-                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['last_name'] . ", " . $val['first_name']; ?></td>
-                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['crd']; ?></td>
-                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['fund']; ?></td>
-                                       <td class="internal" onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['internal']; ?></td>
-                                       <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php if (isset($val['u4']) && $val['u4'] != "0000-00-00") {
-                                                                                                         echo date('m/d/Y', strtotime($val['u4']));
-                                                                                                      } ?></td>
-                                       <td onclick="window.location.href='<?php echo $editLink; ?>'">
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['last_name'] . ", " . $val['first_name']; ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['crd']; ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['fund']; ?></td>
+                                       <td class="internal" onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['internal']; ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php if (isset($val['u4']) && $val['u4'] != "0000-00-00") {
+                                                                                                                                 echo date('m/d/Y', strtotime($val['u4']));
+                                                                                                                              } ?></td>
+                                       <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer">
                                           <?php
                                           if ($val['active_status'] == 1) {
                                              echo "Active";

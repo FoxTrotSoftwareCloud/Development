@@ -552,24 +552,25 @@
                             <?php
                             $count = 0;
                             foreach ($return as $key => $val) {
+                                $multicompanyEditLink = CURRENT_PAGE . "?action=edit&id=" . $val['id'];
                             ?>
                                 <tr>
                                     <td class="text-center">
                                         <a href="<?php echo CURRENT_PAGE; ?>?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                     </td>
-                                    <td><?php echo $val['company_name']; ?></td>
-                                    <td><?php foreach ($get_manager as $statekey => $stateval) {
-                                            if ($val['manager_name'] == $stateval['id']) {
-                                                echo $stateval['first_name'] . ' ' . $stateval['middle_name'] . ' ' . $stateval['last_name'];
-                                            }
-                                        } ?></td>
-                                    <td><?php echo $val['company_type']; ?></td>
-                                    <td><?php if ($val['e_date'] != '1970-01-01') {
-                                            echo date('m/d/Y', strtotime($val['e_date']));
-                                        } ?></td>
-                                    <td><?php if ($val['i_date'] != '1970-01-01') {
-                                            echo date('m/d/Y', strtotime($val['i_date']));
-                                        } ?></td>
+                                    <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $multicompanyEditLink ?>'" style="cursor:pointer"><?php echo $val['company_name']; ?></td>
+                                    <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $multicompanyEditLink ?>'" style="cursor:pointer"><?php foreach ($get_manager as $statekey => $stateval) {
+                                                                                                                                                                if ($val['manager_name'] == $stateval['id']) {
+                                                                                                                                                                    echo $stateval['first_name'] . ' ' . $stateval['middle_name'] . ' ' . $stateval['last_name'];
+                                                                                                                                                                }
+                                                                                                                                                            } ?></td>
+                                    <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $multicompanyEditLink ?>'" style="cursor:pointer"><?php echo $val['company_type']; ?></td>
+                                    <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $multicompanyEditLink ?>'" style="cursor:pointer"><?php if ($val['e_date'] != '1970-01-01') {
+                                                                                                                                                                echo date('m/d/Y', strtotime($val['e_date']));
+                                                                                                                                                            } ?></td>
+                                    <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $multicompanyEditLink ?>'" style="cursor:pointer"><?php if ($val['i_date'] != '1970-01-01') {
+                                                                                                                                                                echo date('m/d/Y', strtotime($val['i_date']));
+                                                                                                                                                            } ?></td>
                                     <!-- <td class="text-center">
                                     <?php
                                     if ($val['status'] == 1) {
@@ -945,6 +946,9 @@
                 }
                 if (typeof message === 'undefined') {
                     message = 'Saving...';
+                }
+                if (message === 'a') {
+                    message = 'Working on it...';
                 }
                 var settings = $.extend({
                     dialogSize: 'm',

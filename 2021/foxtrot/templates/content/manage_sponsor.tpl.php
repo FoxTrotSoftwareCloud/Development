@@ -376,12 +376,12 @@
                                     $editLink = CURRENT_PAGE . "?action=edit_sponsor&sponsor_id={$val['id']}";
                                 ?>
                                     <tr>
-                                        <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
+                                        <td class="text-center">
                                             <a href="<?php echo $editLink; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                             <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=sponsor_delete&sponsor_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                                         </td>
-                                        <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['name']; ?></td>
-                                        <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
+                                        <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['name']; ?></td>
+                                        <td class="text-center">
                                             <?php
                                             if ($val['status'] == 1) {
                                             ?>

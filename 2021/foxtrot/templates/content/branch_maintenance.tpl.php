@@ -406,6 +406,7 @@
                                     // print_r($return);
                                     // die;
                                     foreach ($return as $key => $val) {
+                                        $branchEditLink = CURRENT_PAGE . "?action=edit&id=" . $val['id'];
                                     ?>
                                         <tr>
                                             <td class="text-center">
@@ -413,9 +414,9 @@
                                                 <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                                             </td>
 
-                                            <td><?php echo $val['name']; ?></td>
-                                            <td><?php echo ($val['company'] > 0) ? $instance->get_company_name_by_id($val['company']) : ''; ?></td>
-                                            <td><?php echo ($val['broker'] > 0) ? $instance->get_manager_name_by_id($val['broker']) : ''; ?></td>
+                                            <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $branchEditLink ?>'" style="cursor:pointer"><?php echo $val['name']; ?></td>
+                                            <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $branchEditLink ?>'" style="cursor:pointer"><?php echo ($val['company'] > 0) ? $instance->get_company_name_by_id($val['company']) : ''; ?></td>
+                                            <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $branchEditLink ?>'" style="cursor:pointer"><?php echo ($val['broker'] > 0) ? $instance->get_manager_name_by_id($val['broker']) : ''; ?></td>
 
                                             <!-- <td class="text-center">
                                 <?php
@@ -794,6 +795,9 @@
                 }
                 if (typeof message === 'undefined') {
                     message = 'Saving...';
+                }
+                if (message === 'a') {
+                    message = 'Working on it...';
                 }
                 var settings = $.extend({
                     dialogSize: 'm',

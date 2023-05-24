@@ -934,6 +934,7 @@
                 <table id="data-table" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     <thead>
                         <tr>
+                            <th class="text-center" colspan="2">ACTION</th>
                             <th>Trade Number</th>
                             <th>Trade Date</th>
                             <th>Client Name</th>
@@ -942,25 +943,31 @@
                             <th>Batch</th>
                             <th>Investment Amount</th>
                             <th>Commission Received</th>
-                            <th class="text-center" colspan="2">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
                         $count = 0;
                         foreach ($return as $key => $val) {
+                            $commissionEditLink = CURRENT_PAGE . "?action=edit_transaction&id=" . $val['id'];
                         ?>
                             <tr>
-                                <td><?php echo $val['id']; ?></td>
-                                <td><?php echo date('m/d/Y', strtotime($val['trade_date'])); ?></td>
-                                <td><?php if (isset($val['client_lastname']) && $val['client_lastname'] != '') {
-                                        echo $val['client_lastname'] . ',' . $val['client_firstname'];
-                                    } ?></td>
-                                <td><?php echo $val['client_number']; ?></td>
-                                <td><?php echo $val['broker_last_name'] . ', ' . $val['broker_firstname']; ?></td>
-                                <td><?php echo $val['batch_desc']; ?></td>
-                                <td style="text-align: right;"><?php echo '$' . number_format($val['invest_amount'], 2); ?></td>
-                                <td style="text-align: right;"><?php echo '$' . number_format($val['commission_received'], 2); ?></td>
+                                <td class="text-center">
+                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit_transaction&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                </td>
+                                <td class="text-center">
+                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=transaction_delete&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a>
+                                </td>
+                                <td onclick="window.location.href='<?php echo $commissionEditLink ?>'" style="cursor:pointer"><?php echo $val['id']; ?></td>
+                                <td onclick="window.location.href='<?php echo $commissionEditLink ?>'" style="cursor:pointer"><?php echo date('m/d/Y', strtotime($val['trade_date'])); ?></td>
+                                <td onclick="window.location.href='<?php echo $commissionEditLink ?>'" style="cursor:pointer"><?php if (isset($val['client_lastname']) && $val['client_lastname'] != '') {
+                                                                                                                                    echo $val['client_lastname'] . ',' . $val['client_firstname'];
+                                                                                                                                } ?></td>
+                                <td onclick="window.location.href='<?php echo $commissionEditLink ?>'" style="cursor:pointer"><?php echo $val['client_number']; ?></td>
+                                <td onclick="window.location.href='<?php echo $commissionEditLink ?>'" style="cursor:pointer"><?php echo $val['broker_last_name'] . ', ' . $val['broker_firstname']; ?></td>
+                                <td onclick="window.location.href='<?php echo $commissionEditLink ?>'" style="cursor:pointer"><?php echo $val['batch_desc']; ?></td>
+                                <td onclick="window.location.href='<?php echo $commissionEditLink ?>'" style="cursor:pointer;text-align: right;"><?php echo '$' . number_format($val['invest_amount'], 2); ?></td>
+                                <td onclick="window.location.href='<?php echo $commissionEditLink ?>'" style="cursor:pointer;text-align: right;"><?php echo '$' . number_format($val['commission_received'], 2); ?></td>
                                 <!--td class="text-center">
                                     <?php
                                     if ($val['status'] == 1) {
@@ -974,12 +981,7 @@
                                         }
                                             ?>
                                 </td-->
-                                <td class="text-center">
-                                    <a href="<?php echo CURRENT_PAGE; ?>?action=edit_transaction&id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                </td>
-                                <td class="text-center">
-                                    <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=transaction_delete&id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a>
-                                </td>
+
                             </tr>
                         <?php }  ?>
                     </tbody>

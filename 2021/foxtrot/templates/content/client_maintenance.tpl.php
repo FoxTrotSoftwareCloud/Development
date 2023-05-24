@@ -1281,15 +1281,15 @@
                                             $editLink = CURRENT_PAGE . "?action=edit&id={$val['id']}";
                                         ?>
                                             <tr>
-                                                <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
+                                                <td class="text-center">
                                                     <a href="<?php echo $editLink; ?>" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
                                                     <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $val['id']; ?>');" class="btn btn-sm btn-danger confirm" ><i class="fa fa-trash"></i> Delete</a> -->
                                                 </td>
-                                                <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['last_name'] . ", " . $val['first_name']; ?></td>
-                                                <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['client_file_number']; ?></td>
-                                                <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['account_type']; ?></td>
-                                                <td onclick="window.location.href='<?php echo $editLink; ?>'"><?php echo $val['broker_fname'] . " " . $val['broker_lname']; ?></td>
-                                                <td class="text-center" onclick="window.location.href='<?php echo $editLink; ?>'">
+                                                <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['last_name'] . ", " . $val['first_name']; ?></td>
+                                                <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['client_file_number']; ?></td>
+                                                <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['account_type']; ?></td>
+                                                <td onclick="window.location.href='<?php echo $editLink; ?>'" style="cursor:pointer"><?php echo $val['broker_fname'] . " " . $val['broker_lname']; ?></td>
+                                                <td class="text-center">
                                                     <?php
                                                     if ($val['status'] == 1) {
                                                     ?>
