@@ -145,17 +145,19 @@ class home extends db
         $q = "SELECT t.product_cate, SUM(t.invest_amount) AS total_ytd_investment_amount,pc.type AS product_category, 
             IFNULL((SELECT SUM(ftm.commission_received) 
             FROM " . TRANSACTION_MASTER . " as ftm 
-            WHERE t.product_cate=ftm.product_cate AND ftm.is_delete='0' AND ftm.hold_commission='2' 
+            WHERE t.product_cate=ftm.product_cate AND ftm.is_delete='0' AND ftm.hold_commission='2'
+            AND ftm.created_time >= DATE_SUB(NOW(), INTERVAL 12 MONTH) AND ftm.created_time <= NOW() 
             GROUP BY ftm.product_cate),0) AS total_ytd_commission_received, 
             
             IFNULL((SELECT SUM(ftma.commission_received) 
             FROM " . TRANSACTION_MASTER . " as ftma 
-            WHERE t.product_cate=ftma.product_cate AND ftma.is_delete='0' AND ftma.hold_commission='1' 
+            WHERE t.product_cate=ftma.product_cate AND ftma.is_delete='0' AND ftma.hold_commission='1'
+            AND ftma.created_time >= DATE_SUB(NOW(), INTERVAL 12 MONTH) AND ftma.created_time <= NOW() 
             GROUP BY ftma.product_cate),0) AS total_ytd_commission_pending 
             
             FROM " . TRANSACTION_MASTER . " AS t 
             LEFT JOIN " . PRODUCT_TYPE . " AS pc ON pc.id=t.product_cate 
-            WHERE t.is_delete='0' " . $con . " 
+            WHERE t.is_delete='0' and t.created_time >= DATE_SUB(NOW(), INTERVAL 12 MONTH) and t.created_time <= NOW() " . $con . " 
             GROUP BY t.product_cate 
             ORDER BY t.product_cate ASC";
 
@@ -182,16 +184,17 @@ class home extends db
             IFNULL((SELECT SUM(ftm.commission_received) 
             FROM " . TRANSACTION_MASTER . " as ftm 
             WHERE MONTH(t.created_time) = MONTH(ftm.created_time) AND ftm.is_delete='0' AND ftm.hold_commission='2' 
+            AND ftm.created_time >= DATE_SUB(NOW(), INTERVAL 12 MONTH) AND ftm.created_time <= NOW() 
             GROUP BY MONTH(ftm.created_time)),0) AS total_ytd_commission_received,
             
             IFNULL((SELECT SUM(ftma.commission_received) 
             FROM " . TRANSACTION_MASTER . " as ftma 
-            WHERE MONTH(t.created_time) = MONTH(ftma.created_time) AND ftma.is_delete='0' AND ftma.hold_commission='1' 
+            WHERE MONTH(t.created_time) = MONTH(ftma.created_time) AND ftma.is_delete='0' AND ftma.hold_commission='1' AND ftma.created_time >= DATE_SUB(NOW(), INTERVAL 12 MONTH) AND ftma.created_time <= NOW() 
             GROUP BY MONTH(ftma.created_time)),0) AS total_ytd_commission_pending 
             
             FROM " . TRANSACTION_MASTER . " AS t 
             LEFT JOIN " . PRODUCT_TYPE . " AS pc ON pc.id=t.product_cate 
-            WHERE t.is_delete='0' " . $con . " 
+            WHERE t.is_delete='0' and t.created_time >= DATE_SUB(NOW(), INTERVAL 12 MONTH) and t.created_time <= NOW() " . $con . " 
             GROUP BY MONTH(t.created_time) 
             ORDER BY MONTH(t.created_time) ASC";
 
@@ -206,11 +209,11 @@ class home extends db
                 $return_row[$row['month']]['total_ytd_commission_pending'] = $row['total_ytd_commission_pending'];
 
                 /*$return_row[$row['month']]['month'][]= $row['month'];
-                     $return_row[$row['month']]['product_cate'][]= $row['product_cate'];
-                     $return_row[$row['month']]['product_category'][]= $row['product_category'];
-                     $return_row[$row['month']]['total_ytd_investment_amount'][]= $row['total_ytd_investment_amount'];
-                     $return_row[$row['month']]['total_ytd_commission_received'][]= $row['total_ytd_commission_received'];
-                     $return_row[$row['month']]['total_ytd_commission_pending'][]= $row['total_ytd_commission_pending'];*/
+                $return_row[$row['month']]['product_cate'][]= $row['product_cate'];
+                $return_row[$row['month']]['product_category'][]= $row['product_category'];
+                $return_row[$row['month']]['total_ytd_investment_amount'][]= $row['total_ytd_investment_amount'];
+                $return_row[$row['month']]['total_ytd_commission_received'][]= $row['total_ytd_commission_received'];
+                $return_row[$row['month']]['total_ytd_commission_pending'][]= $row['total_ytd_commission_pending'];*/
             }
             $return = $return_row; //echo '<pre>';print_r($return);exit;
         }
@@ -220,8 +223,10 @@ class home extends db
     {
         $return = array();
 
+        // $q = "SELECT COUNT(*) as total_processed_commission,MONTH(created_time) as month
+        //     FROM " . TRANSACTION_MASTER . " WHERE is_delete='0' and hold_commission='2' " . $con . " GROUP BY MONTH(created_time)";
         $q = "SELECT COUNT(*) as total_processed_commission,MONTH(created_time) as month
-            FROM " . TRANSACTION_MASTER . " WHERE is_delete='0' and hold_commission='2' " . $con . " GROUP BY MONTH(created_time)";
+            FROM " . TRANSACTION_MASTER . " WHERE is_delete='0' and hold_commission='2' and created_time >= DATE_SUB(NOW(), INTERVAL 12 MONTH) and created_time <= NOW() " . $con . " GROUP BY MONTH(created_time)";
         $res = $this->re_db_query($q);
         if ($this->re_db_num_rows($res) > 0) {
             while ($row = $this->re_db_fetch_array($res)) {
@@ -234,8 +239,10 @@ class home extends db
     {
         $return = array();
 
+        // $q = "SELECT COUNT(*) as total_hold_commission,MONTH(created_time) as month
+        //     FROM " . TRANSACTION_MASTER . " WHERE is_delete='0' and hold_commission='1' " . $con . " GROUP BY MONTH(created_time)";
         $q = "SELECT COUNT(*) as total_hold_commission,MONTH(created_time) as month
-            FROM " . TRANSACTION_MASTER . " WHERE is_delete='0' and hold_commission='1' " . $con . " GROUP BY MONTH(created_time)";
+            FROM " . TRANSACTION_MASTER . " WHERE is_delete='0' and hold_commission='1' and created_time >= DATE_SUB(NOW(), INTERVAL 12 MONTH) and created_time <= NOW() " . $con . " GROUP BY MONTH(created_time)";
         $res = $this->re_db_query($q);
         if ($this->re_db_num_rows($res) > 0) {
             while ($row = $this->re_db_fetch_array($res)) {

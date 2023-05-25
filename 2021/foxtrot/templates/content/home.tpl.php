@@ -140,8 +140,12 @@
             title: {
                 text: ''
             },
+            // xAxis: [{
+            //     categories: <?php echo $dis_month_list; ?>,
+            //     crosshair: true
+            // }],
             xAxis: [{
-                categories: <?php echo $dis_month_list; ?>,
+                categories: <?php echo $last_12_month_list; ?>,
                 crosshair: true
             }],
             yAxis: [{ // Primary yAxis
@@ -263,8 +267,12 @@
             title: {
                 text: ''
             },
+            // xAxis: {
+            //     categories: <?php echo $dis_month_list; ?>,
+            //     crosshair: true
+            // },
             xAxis: {
-                categories: <?php echo $dis_month_list; ?>,
+                categories: <?php echo $last_12_month_list ?>,
                 crosshair: true
             },
             yAxis: {

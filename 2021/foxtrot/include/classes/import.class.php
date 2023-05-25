@@ -214,6 +214,10 @@ class import extends db
         $code_for_sponsor = (isset($data['sponsor']) ? (int)$this->re_db_input($data['sponsor']) : 0);
 
         // echo "<pre>"; print_r($data);die;
+        echo "<pre>";
+        print_r($exception_value);
+        die;
+
 
         //--> RESOLVE ACTION - Element is used for more than just "Broker Terminated" exceptions (radio button input element)
         if (isset($data['resolve_broker_terminated'])) {
@@ -2180,7 +2184,7 @@ class import extends db
                         foreach ($DETAIL as $detail_key => $detail_val) {
                             if ($detail_key == '1' || $detail_key == '3') {
                                 foreach ($detail_val as $seq_key => $seq_val) {
-                                    $q = "INSERT INTO " . IMPORT_IDC_DETAIL_DATA . " SET file_id='" . $id . "',idc_header_id='" . $rhr_inserted_id . "',commission_record_type_code='" . $seq_val['commission_record_type_code'] . "',dealer_number='" . $seq_val['dealer_number'] . "',dealer_branch_number='" . $seq_val['dealer_branch_number'] . "',representative_number='" . trim($seq_val['representative_number']) . "',representative_name='" . $seq_val['representative_name'] . "',cusip_number='" . $seq_val['cusip_number'] . "',alpha_code='" . $seq_val['alpha_code'] . "',trade_date='" . date('Y-m-d', strtotime($seq_val['trade_date'])) . "',gross_transaction_amount='" . ($seq_val['gross_transaction_amount'] / 100) . "',gross_amount_sign_code='" . $seq_val['gross_amount_sign_code'] . "',dealer_commission_amount='" . ($seq_val['dealer_commission_amount'] / 100) . "',commission_rate='" . $seq_val['commission_rate'] . "',customer_account_number='" . $seq_val['customer_account_number'] . "',account_number_type_code='" . $seq_val['account_number_type_code'] . "',purchase_type_code='" . $seq_val['purchase_type_code'] . "',social_code='" . $seq_val['social_code'] . "',cumulative_discount_number='" . $seq_val['cumulative_discount_number'] . "',`letter_of_intent(LOI)_number`='" . $seq_val['letter_of_intent(LOI)_number'] . "',social_security_number='" . $seq_val['social_security_number'] . "',social_security_number_status_code='" . $seq_val['social_security_number_status_code'] . "',transaction_share_count='" . $seq_val['transaction_share_count'] . "',share_price_amount='" . $seq_val['share_price_amount'] . "',resident_state_country_code='" . $seq_val['resident_state_country_code'] . "',dealer_commission_sign_code='" . $seq_val['dealer_commission_sign_code'] . "'" . $this->insert_common_sql();
+                                    $q = "INSERT INTO " . IMPORT_IDC_DETAIL_DATA . " SET file_id='" . $id . "',idc_header_id='" . $rhr_inserted_id . "',commission_record_type_code='" . $seq_val['commission_record_type_code'] . "',dealer_number='" . $seq_val['dealer_number'] . "',dealer_branch_number='" . $seq_val['dealer_branch_number'] . "',representative_number='" . trim($seq_val['representative_number']) . "',representative_name='" . str_replace(array("'"), "''", $seq_val['representative_name']) . "',cusip_number='" . $seq_val['cusip_number'] . "',alpha_code='" . $seq_val['alpha_code'] . "',trade_date='" . date('Y-m-d', strtotime($seq_val['trade_date'])) . "',gross_transaction_amount='" . ($seq_val['gross_transaction_amount'] / 100) . "',gross_amount_sign_code='" . $seq_val['gross_amount_sign_code'] . "',dealer_commission_amount='" . ($seq_val['dealer_commission_amount'] / 100) . "',commission_rate='" . $seq_val['commission_rate'] . "',customer_account_number='" . $seq_val['customer_account_number'] . "',account_number_type_code='" . $seq_val['account_number_type_code'] . "',purchase_type_code='" . $seq_val['purchase_type_code'] . "',social_code='" . $seq_val['social_code'] . "',cumulative_discount_number='" . $seq_val['cumulative_discount_number'] . "',`letter_of_intent(LOI)_number`='" . $seq_val['letter_of_intent(LOI)_number'] . "',social_security_number='" . $seq_val['social_security_number'] . "',social_security_number_status_code='" . $seq_val['social_security_number_status_code'] . "',transaction_share_count='" . $seq_val['transaction_share_count'] . "',share_price_amount='" . $seq_val['share_price_amount'] . "',resident_state_country_code='" . $seq_val['resident_state_country_code'] . "',dealer_commission_sign_code='" . $seq_val['dealer_commission_sign_code'] . "'" . $this->insert_common_sql();
                                     $res = $this->re_db_query($q);
                                     $data_status = true;
                                 }
@@ -2424,7 +2428,7 @@ class import extends db
                                 . ",temp_data_id='" . $check_data_val['id'] . "'"
                                 . ",date='" . date('Y-m-d') . "'"
                                 . ",rep='" . trim($check_data_val['representative_number']) . "'"
-                                . ",rep_name='" . $check_data_val['representative_name'] . "'"
+                                . ",rep_name='" . str_replace(array("'"), "''", $check_data_val['representative_name']) . "'"
                                 . ",account_no='" . $client_account_number . "'"
                                 . ",client='" . $check_data_val['registration_line1'] . "'"
                                 . ",cusip='" . $check_data_val['cusip_number'] . "'"
@@ -2552,27 +2556,112 @@ class import extends db
                             }
                             $res = '';
 
-                            $q = "INSERT INTO " . IMPORT_EXCEPTION . ""
-                                . " SET"
-                                . " file_id='" . $check_data_val['file_id'] . "'"
-                                . ",error_code_id='19'"
-                                . ",field='social_security_number'"
-                                . ",field_value='$field_value'"
-                                . ",file_type='1'"
-                                . ",temp_data_id='" . $check_data_val['id'] . "'"
-                                . ",date='" . date('Y-m-d') . "'"
-                                . ",rep='" . $this->re_db_input($check_data_val['representative_number']) . "'"
-                                . ",rep_name='" . $this->re_db_input($check_data_val['representative_name']) . "'"
-                                . ",account_no='" . $client_account_number . "'"
-                                . ",client='" . $this->re_db_input($check_data_val['registration_line1']) . "'"
-                                . ",cusip='" . $this->re_db_input($check_data_val['cusip_number']) . "'"
-                                . $this->insert_common_sql();
+                            //25-05-23 update client detail using ssn and account number in client master table
+                            $q = "SELECT * FROM " . CLIENT_ACCOUNT . " WHERE account_no=" . $client_account_number . " AND is_delete=0";
                             $res = $this->re_db_query($q);
-                            $exception_raised = 1;
-                            $existingSocialExceptionId = $this->re_db_insert_id();
-                            // client_id assigned in Resolve Exceptions 3/12/22
-                            // $this->re_db_perform($detailTable,["client_id"=>$existingSocialArray[0]['id']],"update","id='".$check_data_val['id']."'");
-                            $result++;
+                            $accountnosArray = ($this->re_db_num_rows($res) ? $this->re_db_fetch_all($res) : array());
+
+                            foreach ($accountnosArray as $key => $val) {
+                                $q = "SELECT * FROM " . CLIENT_MASTER . " WHERE id=" . $val['client_id'] . " AND client_ssn= " . $social_security_number . " AND is_delete=0";
+                                $res = $this->re_db_query($q);
+                                $clientArray = ($this->re_db_num_rows($res) ? $this->re_db_fetch_all($res) : array());
+
+                                foreach ($clientArray as $keys => $vals) {
+                                    $res = $last_inserted_id = $last_inserted_account_no_id = $process_result = 0;
+                                    $long_name = $client_address1 = $client_address2 = $city = $state = $zip_code = $email = $telephone = $telephone_employment = '';
+                                    $open_date = $last_contacted = '0000-00-00';
+                                    if ($check_data_val['zip_code'] != '') {
+                                        $zip_code = $this->re_db_input($check_data_val['zip_code']);
+
+                                        if (strlen($zip_code) == 9 and strpos($zip_code, '-') === false) {
+                                            $zip_code = substr_replace($check_data_val['zip_code'], '-', 5, 0);
+                                        }
+                                    }
+                                    if (isset($check_data_val['registration_line1'])) {
+                                        $registration_line1 = isset($check_data_val['registration_line1']) ? $this->re_db_input($check_data_val['registration_line1']) : '';
+                                        $client_name_array = explode(' ', $registration_line1);
+
+                                        if (isset($client_name_array[2]) and $client_name_array[2] != '') {
+                                            $first_name = isset($client_name_array[0]) ? $this->re_db_input($client_name_array[0]) : '';
+                                            $middle_name = isset($client_name_array[1]) ? $this->re_db_input($client_name_array[1]) : '';
+                                            $last_name = isset($client_name_array[2]) ? $this->re_db_input($client_name_array[2]) : '';
+                                        } else {
+                                            $first_name = isset($client_name_array[0]) ? $this->re_db_input($client_name_array[0]) : '';
+                                            $middle_name = '';
+                                            $last_name = isset($client_name_array[1]) ? $this->re_db_input($client_name_array[1]) : '';
+                                        }
+                                        // 08/16/22 Long Name, Client Address added to CLIENT MASTER
+                                        $res = '';
+                                        for ($i = 1; $i < 7; $i++) {
+                                            // Long Name, Address
+                                            if (isset($check_data_val['registration_line' . $i]) and trim($check_data_val['registration_line' . $i]) != '') {
+                                                //-- Escape an apostrophes in the reg line
+                                                $res = trim($this->re_db_input($check_data_val['registration_line' . $i]));
+                                                $long_name .= ($long_name == '' ? '' : " /(Line $i)") . $res;
+
+                                                // Client Address 1 & 2
+                                                if (isset($check_data_val['line_code']) and $i >= (int)$check_data_val['line_code']) {
+                                                    if ($i == (int)$check_data_val['line_code']) {
+                                                        $client_address1 = $res;
+                                                    } else if ($fileSource == 'dst') {
+                                                        $client_address1 .= ' ' . $res;
+                                                    } else if ($fileSource == 'daz' and strpos($check_data_val['registration_line' . $i], $check_data_val['city']) === false) {
+                                                        $client_address2 .= ' ' . $res;
+                                                    }
+                                                }
+                                            }
+
+                                            $res = '';
+                                        }
+                                    }
+
+                                    $bod = $check_data_val['customer_date_of_birth'];
+                                    $q = "UPDATE " . CLIENT_MASTER . ""
+                                        . " SET first_name='$first_name'"
+                                        . " ,mi='$middle_name'"
+                                        . " ,last_name='$last_name'"
+                                        . " ,address1='$client_address1'"
+                                        . " ,address2='$client_address2'"
+                                        . " ,birth_date='$bod'"
+                                        . " ,zip_code='$zip_code'"
+                                        . " ,city='$city'"
+                                        . " ,state='$state'"
+                                        . $this->update_common_sql()
+                                        . " WHERE id='" . $val['client_id'] . "' AND client_ssn='" . $social_security_number . "' AND is_delete=0";
+                                    $res = $this->re_db_query($q);
+
+                                    $process_result++;
+
+                                    // Update DETAIL TABLE for added/updated clients
+                                    $q = "UPDATE " . $detailTable . ""
+                                        . " SET process_result='$process_result'"
+                                        . $this->update_common_sql()
+                                        . " WHERE id='" . $check_data_val['id'] . "' AND is_delete=0";
+                                    $res = $this->re_db_query($q);
+                                }
+                            }
+
+                            // $q = "INSERT INTO " . IMPORT_EXCEPTION . ""
+                            //     . " SET"
+                            //     . " file_id='" . $check_data_val['file_id'] . "'"
+                            //     . ",error_code_id='19'"
+                            //     . ",field='social_security_number'"
+                            //     . ",field_value='$field_value'"
+                            //     . ",file_type='1'"
+                            //     . ",temp_data_id='" . $check_data_val['id'] . "'"
+                            //     . ",date='" . date('Y-m-d') . "'"
+                            //     . ",rep='" . $this->re_db_input($check_data_val['representative_number']) . "'"
+                            //     . ",rep_name='" . $this->re_db_input($check_data_val['representative_name']) . "'"
+                            //     . ",account_no='" . $client_account_number . "'"
+                            //     . ",client='" . $this->re_db_input($check_data_val['registration_line1']) . "'"
+                            //     . ",cusip='" . $this->re_db_input($check_data_val['cusip_number']) . "'"
+                            //     . $this->insert_common_sql();
+                            // $res = $this->re_db_query($q);
+                            // $exception_raised = 1;
+                            // $existingSocialExceptionId = $this->re_db_insert_id();
+                            // // client_id assigned in Resolve Exceptions 3/12/22
+                            // // $this->re_db_perform($detailTable,["client_id"=>$existingSocialArray[0]['id']],"update","id='".$check_data_val['id']."'");
+                            // $result++;
                         }
                     }
 
@@ -3120,7 +3209,7 @@ class import extends db
                             . ",temp_data_id='" . $check_data_val['id'] . "'"
                             . ",date='" . date('Y-m-d') . "'"
                             . ",rep='" . $this->re_db_input($check_data_val['representative_number']) . "'"
-                            . ",rep_name='" . $check_data_val['representative_name'] . "'"
+                            . ",rep_name='" . str_replace(array("'"), "''", $check_data_val['representative_name']) . "'"
                             . ",account_no='" . ltrim($check_data_val['customer_account_number'], '0') . "'"
                             . ",client='" . $this->re_db_input($check_data_val['alpha_code']) . "'"
                             . ",cusip='" . $check_data_val['cusip_number'] . "'"
@@ -4145,11 +4234,20 @@ class import extends db
         $masterArray = $clientClass->select_client_master($clientId);
 
         foreach ($data as $column => $value) {
+            // echo "<pre>";
+            // print_r($column);
+            // echo "<pre>";
+            // print_r($value);
             if (isset($masterArray[$column]) and empty($masterArray[$column]) and !empty($data[$column]) and !in_array(strtolower($column), ['id', 'file_id', 'modified_time', 'modified_by', 'modified_ip'])) {
                 $updateArray[$column] = $value;
+                // echo "<pre>";
+                // echo "<br/> inside if";
+                // print_r($updateArray[$column]);
             }
+            // echo "<pre>";
+            // print_r("out if");
         }
-
+        // die;
         if (!empty($updateArray)) {
             $modifiedArray = $this->update_common_sql(2);
 
@@ -4181,19 +4279,19 @@ class import extends db
         if ($sfrBreakOut) {
             // UNION in an SFR row, if one exists
             // DAZL - August 2022
-            $q = "SELECT id,0 AS header_id, file_name, file_type, file_type_code AS file_type_code, processed, process_completed, is_archived, imported_date, last_processed_date, source, sponsor_id"
+            $q = "SELECT id,0 AS header_id, file_name, file_type, file_type_code AS file_type_code, note, processed, process_completed, is_archived, imported_date, last_processed_date, source, sponsor_id"
                 . " FROM " . IMPORT_CURRENT_FILES . ""
                 . " WHERE is_delete=0"
                 . " AND is_archived=0"
                 . " AND source NOT LIKE 'DAZL%'"
                 . " UNION"
-                . " SELECT b.id, a.id AS header_id, CONCAT(TRIM(b.file_name),'(SFR)') AS file_name, 'Security File' AS file_type, 3 AS file_type_code, b.processed, b.process_completed, b.is_archived, b.imported_date, b.last_processed_date, b.source, b.sponsor_id"
+                . " SELECT b.id, a.id AS header_id, CONCAT(TRIM(b.file_name),'(SFR)') AS file_name, 'Security File' AS file_type, 3 AS file_type_code, b.processed, b.process_completed, b.is_archived, b.imported_date, b.last_processed_date, b.source, b.sponsor_id, b.note"
                 . " FROM " . IMPORT_SFR_HEADER_DATA . " a"
                 . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON b.id = a.file_id AND b.is_delete=0"
                 . " WHERE a.is_delete=0"
                 . " AND b.is_archived=0"
                 . " UNION"
-                . " SELECT b.id AS id,a.id AS header_id, CONCAT(TRIM(b.file_name),'(subfile)') AS file_name, a.file_type, a.file_type_code, b.processed, b.process_completed, b.is_archived, b.imported_date, a.last_processed_date, b.source, b.sponsor_id"
+                . " SELECT b.id AS id,a.id AS header_id, CONCAT(TRIM(b.file_name),'(subfile)') AS file_name, a.file_type, a.file_type_code, b.processed, b.process_completed, b.is_archived, b.imported_date, a.last_processed_date, b.source, b.sponsor_id, b.note"
                 . " FROM " . DAZL_HEADER_DATA . " a"
                 . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON b.id = a.file_id AND b.is_delete=0"
                 . " WHERE a.is_delete=0"
