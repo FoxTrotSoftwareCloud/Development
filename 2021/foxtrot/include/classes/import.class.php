@@ -214,9 +214,9 @@ class import extends db
         $code_for_sponsor = (isset($data['sponsor']) ? (int)$this->re_db_input($data['sponsor']) : 0);
 
         // echo "<pre>"; print_r($data);die;
-        echo "<pre>";
-        print_r($exception_value);
-        die;
+        // echo "<pre>";
+        // print_r($exception_value);
+        // die;
 
 
         //--> RESOLVE ACTION - Element is used for more than just "Broker Terminated" exceptions (radio button input element)

@@ -148,7 +148,7 @@
          '<select name="split[rap][' + flag2 + ']" class="form-control">' +
          '<option value="">Select Broker</option>' +
          <?php foreach ($select_broker as $key => $val) {
-            if ($val['id'] != $id) { ?> '<option value="<?php echo $val['id'] ?>"><?php echo $val['last_name'] . ', ' . $val['first_name'] ?></option>' +
+            if ($val['id'] != $id) { ?> "<option value='<?php echo $val['id'] ?>'><?php echo $val['last_name'] . ', ' . $val['first_name'] ?></option>" +
          <?php }
          } ?> '</select>' +
          '</td>' +
@@ -203,7 +203,7 @@
          '<select name="override[receiving_rep1][' + flag1 + ']"  class="form-control" >' +
          '<option value="">Select Broker</option>' +
          <?php foreach ($select_broker as $key => $val) {
-            if ($val['id'] != $id) { ?> '<option value="<?php echo $val['id'] ?>"><?php echo $val['last_name'] . ', ' . $val['first_name'] ?></option>' +
+            if ($val['id'] != $id) { ?> "<option value='<?php echo $val['id'] ?>'><?php echo $val['last_name'] . ', ' . $val['first_name'] ?></option>" +
          <?php }
          } ?> '</select>' +
          '</td>' +
@@ -4991,7 +4991,7 @@
          <?php
          if (isset($regval['id'])) {
             $product_category_based_on_series = $instance->select_category_based_on_series($regval['id']);
-            foreach ($product_category_based_on_series as $key => $val) { ?> '<option value="<?php echo $val['id']; ?>"><?php echo $val['type']; ?></option>' +
+            foreach ($product_category_based_on_series as $key => $val) { ?> "<option value='<?php echo $val['id']; ?>'><?php echo $val['type']; ?></option>" +
          <?php }
          }
          ?> '</select>' +
