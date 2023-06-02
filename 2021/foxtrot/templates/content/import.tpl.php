@@ -510,10 +510,10 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                                         $check_file_exception_process = $instance->check_file_exception_process($val['id']);
                                                                                                         ?>
 
-                                                                                    <form method="post">
+                                                                                    <form method="post" id="noteform_<?php echo $val['id']; ?>">
                                                                                         <input type="hidden" name="id" id="id" value="<?php echo $val['id']; ?>" />
                                                                                         <input type="hidden" name="note" value="save_note" />
-                                                                                        <input type="text" maxlength="25" class="notes" value="<?php echo isset($val['note']) ? $val['note'] : ''; ?>" name="note_<?php echo $val['id']; ?>">
+                                                                                        <input type="text" maxlength="25" class="notes" value="<?php echo isset($val['note']) ? $val['note'] : ''; ?>" name="note_<?php echo $val['id']; ?>" onchange="save_note_change(<?php echo $val['id']; ?>)">
                                                                                         <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type']; ?>" />
                                                                                     </form>
                                                                                 </td>
@@ -2374,6 +2374,10 @@ if (isset($_SESSION['zero_exception'])) {
         autoclose: true,
         todayHighlight: true
     });
+
+    function save_note_change(id) {
+        $("#noteform_" + id).submit();
+    }
 
     function reassign_broker_(value) {
         exceptionField = document.getElementById('broker_termination_options_trades').dataset.exceptionField;
