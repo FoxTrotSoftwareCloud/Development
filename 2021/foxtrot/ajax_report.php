@@ -228,7 +228,7 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
                         $total_batch_charges = 0;
                 ?>
                         <tr>
-                            <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="9"><?php echo "BATCH : " . $trans_main["batch_desc"]; ?></td>
+                            <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="9"><?php echo "BATCH#" . $trans_main['id'] . ": " . $trans_main["batch_desc"]; ?></td>
                         </tr>
 
                         <?php

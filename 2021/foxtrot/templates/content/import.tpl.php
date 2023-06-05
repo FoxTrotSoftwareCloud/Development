@@ -469,9 +469,9 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
 
-                                                                                        echo ' $' . number_format($total_Check_Amount, 2);
-                                                                                        echo "<br>";
                                                                                         echo ' $' . number_format($total_processed_commission_for_import, 2);
+                                                                                        echo "<br>";
+                                                                                        echo ' $' . number_format($total_Check_Amount, 2);
                                                                                     } else {
                                                                                         // echo "<pre>";
                                                                                         // print_r("else");die;
@@ -479,9 +479,9 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                         if ($total_processed_import == $total_import && $process_status == 1) {
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
-                                                                                        echo $total_import;
-                                                                                        echo "<br>";
                                                                                         echo $total_processed_import;
+                                                                                        echo "<br>";
+                                                                                        echo $total_import;
                                                                                     }
 
                                                                                     ?>
@@ -513,7 +513,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                     <form method="post" id="noteform_<?php echo $val['id']; ?>">
                                                                                         <input type="hidden" name="id" id="id" value="<?php echo $val['id']; ?>" />
                                                                                         <input type="hidden" name="note" value="save_note" />
-                                                                                        <input type="text" maxlength="25" class="notes" value="<?php echo isset($val['note']) ? $val['note'] : ''; ?>" name="note_<?php echo $val['id']; ?>" onchange="save_note_change(<?php echo $val['id']; ?>)">
+                                                                                        <input type="text" maxlength="100" class="notes" value="<?php echo isset($val['note']) ? $val['note'] : ''; ?>" name="note_<?php echo $val['id']; ?>" onchange="save_note_change(<?php echo $val['id']; ?>)">
                                                                                         <input type="hidden" name="process_file_type" id="process_file_type" value="<?php echo $val['file_type']; ?>" />
                                                                                     </form>
                                                                                 </td>

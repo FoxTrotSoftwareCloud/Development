@@ -117,7 +117,7 @@ if ($filter_array['report_for'] == 1) {
             $total_batch_amount_invested = 0;
             $total_batch_commission_received = 0;
             $total_batch_charges = 0;
-            $html .= '<tr><td style="font-size:8px;font-weight:bold;text-align:left;" colspan="9">BATCH : ' . $trans_main["batch_desc"] . '</td></tr>';
+            $html .= '<tr><td style="font-size:8px;font-weight:bold;text-align:left;" colspan="9">BATCH#' . $trans_main["id"] . ' : ' . $trans_main["batch_desc"] . '</td></tr>';
             foreach ($trans_main["child"] as $trans_main_key => $trans_main_data) {
                 $sub_total_records             = 0;
                 $sub_total_amount_invested     = 0;

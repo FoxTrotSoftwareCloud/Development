@@ -98,7 +98,7 @@ if (is_array($return) && count($return) > 0) {
         $total_batch_charges = 0;
         $i++;
         /*$html.='<tr><td style="font-size:8px;font-weight:bold;text-align:left;" colspan="9">BATCH : '.$trans_main["batch_desc"].'</td></tr>';*/
-        $sheet_data[0]['A' . $i] = array('Batch: ' . $trans_main["batch_desc"], array('bold', 'left', 'color' => array('000000'), 'size' => array(10), 'font_name' => array('Calibri'), 'merge' => array('A' . $i, 'H' . $i)));
+        $sheet_data[0]['A' . $i] = array('Batch#' . $trans_main["id"] . ': ' . $trans_main["batch_desc"], array('bold', 'left', 'color' => array('000000'), 'size' => array(10), 'font_name' => array('Calibri'), 'merge' => array('A' . $i, 'H' . $i)));
         foreach ($trans_main["child"] as $trans_main_key => $trans_main_data) {
             $sub_total_records = 0;
             $sub_total_amount_invested = 0;

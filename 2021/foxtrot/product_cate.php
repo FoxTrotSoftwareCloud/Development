@@ -371,7 +371,6 @@ if (isset($_POST['next']) && $_POST['next'] == 'Next') {
     $dataDetail = $exceptionDetail = $sponsor = $category = 0;
     $cusip = $name = $action = '';
     $exceptionDetail = $instance_import->select_exception_data(0, $_GET['exception_record_id']);
-
     if ($exceptionDetail) {
         $importSelect = $instance_import->import_table_select($exceptionDetail[0]['file_id'], $exceptionDetail[0]['file_type']);
 
