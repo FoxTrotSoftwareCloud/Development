@@ -2836,9 +2836,10 @@ if (isset($_SESSION['zero_exception'])) {
         cusip_number = document.getElementById("assign_cusip_number").value;
         exception_file_id = document.getElementById("exception_file_id").value;
         temp_data_id = document.getElementById("exception_data_id").value;
+        exception_record_id = document.getElementById("exception_record_id").value;
 
         if (category_id > 0) {
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'product_cate.php?action=add_product&category='; ?>' + category_id + '&cusip_number=' + cusip_number + '&file_id=' + exception_file_id + '&exception_data_id=' + temp_data_id + '" style="display: block; float: right;" id="add_product_for_cusip">Add New Product</a>';
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'product_cate.php?action=add_product&category='; ?>' + category_id + '&cusip_number=' + cusip_number + '&file_id=' + exception_file_id + '&exception_data_id=' + temp_data_id + '&exception_record_id=' + exception_record_id + '" style="display: block; float: right;" id="add_product_for_cusip">Add New Product</a>';
         } else {
             document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'product_cate.php?action=add_product&category='; ?>' + category_id + '&cusip_number=' + cusip_number + '" style="display: none; float: right;" id="add_product_for_cusip">Add New Product</a>';
         }
