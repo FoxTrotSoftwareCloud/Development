@@ -559,6 +559,7 @@
                   })
                   alert("Please enter valid Primary Email!");
                   $dialog.modal('hide');
+                  $("#email1_general").focus();
                   return false;
                } else {
                   $("#email1_general").css({
@@ -568,6 +569,7 @@
             }
             if ($("#email1_general").val() == '') {
                alert("Please enter Primary Email!");
+               $("#email1_general").focus();
                return false;
             }
             if ($("#email2_general").val() != '') {
@@ -1172,7 +1174,7 @@
                               <div class="row">
                                  <div class="col-md-6">
                                     <div class="form-group">
-                                       <label>Primary Email</label>
+                                       <label>Primary Email <span class="text-red">*</span></label>
                                        <input type="text" name="email1_general" id="email1_general" value="<?php if ($action == 'edit') {
                                                                                                                echo $email1;
                                                                                                             } ?>" class="form-control" />
