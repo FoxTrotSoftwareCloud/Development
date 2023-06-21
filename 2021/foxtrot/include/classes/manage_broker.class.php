@@ -19,8 +19,7 @@ class broker_master extends db
                     ORDER BY `fbg`.`id` ASC";
 
     $res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0)
-      {
+    if ($this->re_db_num_rows($res) > 0) {
       $row = $this->re_db_fetch_array($res);
       return $row;
     }
@@ -33,23 +32,27 @@ class broker_master extends db
    * @return one-dimensional array from BROKER MASTER
    * 07/28/22 Allow user to choose database field\value combo - only returns first match
    * */
-		public function select_broker_by_id($brokerId=0, $tableField='', $tableValue=''){
+  public function select_broker_by_id($brokerId = 0, $tableField = '', $tableValue = '')
+  {
     $brokerId = (int)$this->re_db_input($brokerId);
     $tableField = $this->re_db_input($tableField);
     $tableValue = $this->re_db_input($tableValue);
     $con = '';
 
-      if ($brokerId > 0) { $con = " AND `fbg`.`id` = $brokerId"; }
-      if (!empty($tableField) AND !empty($tableValue)) { $con = " AND `fbg`.`$tableField` = '$tableValue'"; }
+    if ($brokerId > 0) {
+      $con = " AND `fbg`.`id` = $brokerId";
+    }
+    if (!empty($tableField) and !empty($tableValue)) {
+      $con = " AND `fbg`.`$tableField` = '$tableValue'";
+    }
 
     $q = "SELECT `fbg`.*"
-					  ." FROM `" . $this->table . "` AS `fbg`"
-            ." WHERE `fbg`.`is_delete`=0"
-              .$con
-            ." ORDER BY `fbg`.`id` ASC";
+      . " FROM `" . $this->table . "` AS `fbg`"
+      . " WHERE `fbg`.`is_delete`=0"
+      . $con
+      . " ORDER BY `fbg`.`id` ASC";
     $res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0)
-      {
+    if ($this->re_db_num_rows($res) > 0) {
       $row = $this->re_db_fetch_array($res);
       return $row;
     }
@@ -61,16 +64,16 @@ class broker_master extends db
    * @param string $brokerFund, default blank
    * @return array()
    * */
-		public function select_broker_by_fund($brokerFund='')
+  public function select_broker_by_fund($brokerFund = '')
   {
     $q = "SELECT `fbg`.*"
-					    ." FROM `" . $this->table . "` AS `fbg`"
-              ." WHERE `fbg`.`is_delete`='0'"
-                ." AND `fbg`.`fund`='".$this->re_db_input($brokerFund)."'"
-              ." ORDER BY `fbg`.`id` ASC";
+      . " FROM `" . $this->table . "` AS `fbg`"
+      . " WHERE `fbg`.`is_delete`='0'"
+      . " AND `fbg`.`fund`='" . $this->re_db_input($brokerFund) . "'"
+      . " ORDER BY `fbg`.`id` ASC";
     $res = $this->re_db_query($q);
 
-      if($this->re_db_num_rows($res)>0)
+    if ($this->re_db_num_rows($res) > 0)
       return $this->re_db_fetch_array($res);
 
     return array();
@@ -80,25 +83,25 @@ class broker_master extends db
    * @param int $sponsorCompany ID
    * @return array()
    * */
-		public function select_broker_by_alias($aliasName='', $sponsorCompany = 0)
+  public function select_broker_by_alias($aliasName = '', $sponsorCompany = 0)
   {
     if (!empty($sponsorCompany))
-        $sponsorSearch = " AND `alias`.`sponsor_company`='".$this->re_db_input($sponsorCompany)."'";
+      $sponsorSearch = " AND `alias`.`sponsor_company`='" . $this->re_db_input($sponsorCompany) . "'";
     else
-        $sponsorSearch='';
+      $sponsorSearch = '';
 
     $q = "SELECT `alias`.`id` AS `alias_id`, `alias`.`alias_name`, `alias`.`sponsor_company` AS `sponsor_id`, `sponsors`.`name` AS `sponsor_name`, `alias`.`broker_id`, `fbg`.`first_name`, `fbg`.`last_name`"
-              ." FROM `".BROKER_ALIAS."` AS `alias`"
-					    ." LEFT JOIN `". $this->table ."` AS `fbg` ON `alias`.`broker_id` = `fbg`.`id` AND `fbg`.`is_delete` = 0"
-              ." LEFT JOIN `".SPONSOR_MASTER."` AS `sponsors` ON `alias`.`sponsor_company` = `sponsors`.`id` AND `sponsors`.`is_delete` = 0"
-              ." WHERE `alias`.`is_delete`='0'"
-                ." AND `alias`.`broker_id`=`fbg`.`id`"
-                ." AND `alias`.`alias_name`='".$this->re_db_input($aliasName)."'"
-                .$sponsorSearch
-              ." ORDER BY `alias`.`created_time` ASC";
+      . " FROM `" . BROKER_ALIAS . "` AS `alias`"
+      . " LEFT JOIN `" . $this->table . "` AS `fbg` ON `alias`.`broker_id` = `fbg`.`id` AND `fbg`.`is_delete` = 0"
+      . " LEFT JOIN `" . SPONSOR_MASTER . "` AS `sponsors` ON `alias`.`sponsor_company` = `sponsors`.`id` AND `sponsors`.`is_delete` = 0"
+      . " WHERE `alias`.`is_delete`='0'"
+      . " AND `alias`.`broker_id`=`fbg`.`id`"
+      . " AND `alias`.`alias_name`='" . $this->re_db_input($aliasName) . "'"
+      . $sponsorSearch
+      . " ORDER BY `alias`.`created_time` ASC";
     $res = $this->re_db_query($q);
 
-      if($this->re_db_num_rows($res)>0)
+    if ($this->re_db_num_rows($res) > 0)
       return $this->re_db_fetch_array($res);
 
     return array();
@@ -116,8 +119,7 @@ class broker_master extends db
                     ORDER BY `fbpm`.`id` ASC";
 
     $res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0)
-      {
+    if ($this->re_db_num_rows($res) > 0) {
       $row = $this->re_db_fetch_array($res);
       return $row;
     }
@@ -137,8 +139,7 @@ class broker_master extends db
             ORDER BY `bb`.`id` ASC";
 
     $res = $this->re_db_query($q);
-      if($this->re_db_num_rows($res)>0)
-      {
+    if ($this->re_db_num_rows($res) > 0) {
       $row = $this->re_db_fetch_array($res);
       return $row;
     }
@@ -150,23 +151,24 @@ class broker_master extends db
    * @param post array
    * @return true if success, error message if any errors
    * */
-		public function insert_update($data){
-      //echo '<pre>';print_r($_POST);exit;
+  public function insert_update($data)
+  {
+    //echo '<pre>';print_r($_POST);exit;
     $_SESSION['last_insert_id'] = 0;
-			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
+    $id = isset($data['id']) ? $this->re_db_input($data['id']) : 0;
 
     if ($id > 0)
       $originalInstance = $this->select_broker_by_id($id);
-			$fname = isset($data['fname'])?$this->re_db_input($data['fname']):'';
-			$lname = isset($data['lname'])?$this->re_db_input($data['lname']):'';
-			$mname = isset($data['mname'])?$this->re_db_input($data['mname']):'';
-			$suffix = isset($data['suffix'])?$this->re_db_input($data['suffix']):'';
-			$fund = isset($data['fund'])?$this->re_db_input($data['fund']):'';
-			$internal = isset($data['internal'])?$this->re_db_input($data['internal']):'';
-      $display_on_statement = isset($data['display_on_statement'])?$this->re_db_input($data['display_on_statement']):'';
-			$ssn_mask = (isset($data['ssn']) && $data['ssn'] != '')?$this->re_db_input($data['ssn']):0;
+    $fname = isset($data['fname']) ? $this->re_db_input($data['fname']) : '';
+    $lname = isset($data['lname']) ? $this->re_db_input($data['lname']) : '';
+    $mname = isset($data['mname']) ? $this->re_db_input($data['mname']) : '';
+    $suffix = isset($data['suffix']) ? $this->re_db_input($data['suffix']) : '';
+    $fund = isset($data['fund']) ? $this->re_db_input($data['fund']) : '';
+    $internal = isset($data['internal']) ? $this->re_db_input($data['internal']) : '';
+    $display_on_statement = isset($data['display_on_statement']) ? $this->re_db_input($data['display_on_statement']) : '';
+    $ssn_mask = (isset($data['ssn']) && $data['ssn'] != '') ? $this->re_db_input($data['ssn']) : 0;
     $ssn = str_replace("-", '', $ssn_mask);
-      $tax_id_mask = (isset($data['tax_id']) && $data['tax_id'] !='')?$this->re_db_input($data['tax_id']):0;
+    $tax_id_mask = (isset($data['tax_id']) && $data['tax_id'] != '') ? $this->re_db_input($data['tax_id']) : 0;
     $tax_id = str_replace("-", '', $tax_id_mask);
     $crd = isset($data['crd']) ? $this->re_db_input($data['crd']) : '';
     $active_status_cdd = isset($data['active_status_cdd']) ? $this->re_db_input($data['active_status_cdd']) : '';
@@ -613,6 +615,11 @@ class broker_master extends db
           );
           array_push($newArray, $newRow);
         }
+        if ($from == '' && $to == '' && $per == '') {
+          $qq = "update `" . BROKER_PAYOUT_GRID . "` SET is_delete=1 where `broker_id`=" . $id . "";
+          $res = $this->re_db_query($qq);
+          $flag = 1;
+        }
       }
       $newRowNumbers = count($newArray);
       $originalHash = md5(json_encode($originalArray));
@@ -720,11 +727,14 @@ class broker_master extends db
           );
           array_push($newArray, $newRow);
         }
+        if ($from1 == '1970-01-01' && $to1 == '1970-01-01' && $rap == '') {
+          $qq = "update `" . BROKER_PAYOUT_OVERRIDE . "` SET is_delete=1 where `broker_id`=" . $id . "";
+          $res = $this->re_db_query($qq);
+          $flag1 = 1;
+        }
       }
-      $newRowNumbers = count($newArray);
       $originalHash = md5(json_encode($originalArray));
       $newHash = md5(json_encode($newArray));
-
       /* ---- CREATE THE NEW VALUES TO COMPARE TO INITIAL VALUES END -----------*/
 
       if ($originalHash != $newHash) {
@@ -822,6 +832,11 @@ class broker_master extends db
             'until' => $until,
           );
           array_push($newArray, $newRow);
+        }
+        if ($rap == '' && $rate == '' && $start == '1970-01-01' && $until == '1970-01-01') {
+          $qq = "update `" . BROKER_PAYOUT_SPLIT . "` SET is_delete=1 where `broker_id`=" . $id . "";
+          $res = $this->re_db_query($qq);
+          $flag2 = 1;
         }
       }
       $newRowNumbers = count($newArray);
@@ -1675,6 +1690,11 @@ class broker_master extends db
             . ",`required`='" . $docs_required . "'"
             . $this->insert_common_sql();
           $res = $this->re_db_query($q);
+        }
+        if ($docs_description == '') {
+          $qq = "update `" . BROKER_REQ_DOC . "` SET is_delete=1 where `broker_id`=" . $id . "";
+          $res = $this->re_db_query($qq);
+          $flag4 = 1;
         }
       }
 
