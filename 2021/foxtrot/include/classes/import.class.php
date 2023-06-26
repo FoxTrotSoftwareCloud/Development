@@ -2557,7 +2557,7 @@ class import extends db
                             $res = '';
 
                             //25-05-23 update client detail using ssn and account number in client master table
-                            $q = "SELECT * FROM " . CLIENT_ACCOUNT . " WHERE account_no=" . $client_account_number . " AND is_delete=0";
+                            $q = "SELECT * FROM " . CLIENT_ACCOUNT . " WHERE account_no='" . $client_account_number . "' AND is_delete=0";
                             $res = $this->re_db_query($q);
                             $accountnosArray = ($this->re_db_num_rows($res) ? $this->re_db_fetch_all($res) : array());
 
