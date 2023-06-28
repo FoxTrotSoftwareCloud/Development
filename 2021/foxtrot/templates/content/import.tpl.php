@@ -1593,6 +1593,20 @@ if (isset($_SESSION['zero_exception'])) {
                                                                     unset($temp_data_interface, $temp_data_found);
                                                                 }
                                                             } ?>
+                                                            <!-- <tr>
+                                                                <td>Z - INSERT CLIENT</td>
+                                                                <td></td>
+                                                                <td class="text-center">CLIENT</td>
+                                                                <td>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6">
+                                                                            <input type="file" name="upload_client_file" class="form-control" />
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_client_file" value="upload_client_file"><i class="fa fa-download"></i> Upload</button>
+                                                                        </div>
+                                                                </td>
+                                                            </tr> -->
                                                         </tbody>
                                                     </table>
                                                 </div>

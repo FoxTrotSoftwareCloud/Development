@@ -326,5 +326,3 @@ class import_orion extends import {
     }
 
 }
-
-?>
