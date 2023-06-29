@@ -1,7 +1,7 @@
 <?php
 if (isset($_SESSION['zero_exception'])) {
-    $fileid = $_GET['id'];
-    $filetype = $_GET['file_type'];
+    $fileid = isset($_GET['id']) ? $_GET['id'] : $_SESSION['last_id'];
+    $filetype = isset($_GET['file_type']) ? $_GET['file_type'] : 1;
     $redirecturl = SITE_URL . 'import.php';
     echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
     echo "<script>

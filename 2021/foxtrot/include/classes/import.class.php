@@ -4200,6 +4200,11 @@ class import extends db
             // echo '<script>alert("Congratulations! \nAll trades have been successfully resolved")</script>';
             // echo '<script>location.reload();</script>';
             // exit;
+            $q = "SELECT id FROM " . IMPORT_CURRENT_FILES . " ORDER BY id DESC LIMIT 1";
+            $res = $this->re_db_query($q);
+            $import_file_data = $this->re_db_fetch_array($res);
+            $get_last_import_file_id = $import_file_data['id'];
+            $_SESSION['last_id'] = $get_last_import_file_id;
             $_SESSION['zero_exception'] = 'no exception';
             return true;
         }
@@ -4285,7 +4290,7 @@ class import extends db
                 . " AND is_archived=0"
                 . " AND source NOT LIKE 'DAZL%'"
                 . " UNION"
-                . " SELECT b.id, a.id AS header_id, CONCAT(TRIM(b.file_name),'(SFR)') AS file_name, 'Security File' AS file_type, 3 AS file_type_code, b.processed, b.process_completed, b.is_archived, b.imported_date, b.last_processed_date, b.source, b.sponsor_id, b.note"
+                . " SELECT b.id, a.id AS header_id, CONCAT(TRIM(b.file_name),'(SFR)') AS file_name, 'Security File' AS file_type, 3 AS file_type_code, b.note, b.processed, b.process_completed, b.is_archived, b.imported_date, b.last_processed_date, b.source, b.sponsor_id"
                 . " FROM " . IMPORT_SFR_HEADER_DATA . " a"
                 . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON b.id = a.file_id AND b.is_delete=0"
                 . " WHERE a.is_delete=0"
