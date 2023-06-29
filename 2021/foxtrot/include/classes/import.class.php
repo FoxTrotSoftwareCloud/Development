@@ -4296,7 +4296,7 @@ class import extends db
                 . " WHERE a.is_delete=0"
                 . " AND b.is_archived=0"
                 . " UNION"
-                . " SELECT b.id AS id,a.id AS header_id, CONCAT(TRIM(b.file_name),'(subfile)') AS file_name, a.file_type, a.file_type_code, b.processed, b.process_completed, b.is_archived, b.imported_date, a.last_processed_date, b.source, b.sponsor_id, b.note"
+                . " SELECT b.id AS id,a.id AS header_id, CONCAT(TRIM(b.file_name),'(subfile)') AS file_name, a.file_type, a.file_type_code, b.note, b.processed, b.process_completed, b.is_archived, b.imported_date, a.last_processed_date, b.source, b.sponsor_id"
                 . " FROM " . DAZL_HEADER_DATA . " a"
                 . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON b.id = a.file_id AND b.is_delete=0"
                 . " WHERE a.is_delete=0"
