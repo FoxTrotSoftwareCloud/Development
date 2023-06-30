@@ -92,6 +92,28 @@
             $("#supervisor_wrap").hide();
         }
     });
+    $(document).on('click', '[name="submit"]', function() {
+        if ($("#lname").val() == '') {
+            alert("Please enter Last Name");
+            $("#lname").focus();
+            return false;
+        }
+        if ($("#client_file_number").val() == '') {
+            alert("Please enter client file number");
+            $("#client_file_number").focus();
+            return false;
+        }
+        if ($("#broker_name").val() == '') {
+            alert("Please enter broker");
+            $("#broker_name").focus();
+            return false;
+        }
+        if ($("#naf_date").val() == '') {
+            alert("Please enter NAF Date");
+            $("#naf_date").focus();
+            return false;
+        }
+    });
 </script>
 <div class="container">
     <h1 class="<?php /*if($action=='add_new'||($action=='edit' && $id>0)){ echo 'topfixedtitle';}*/ ?>">Client Maintenance</h1>
