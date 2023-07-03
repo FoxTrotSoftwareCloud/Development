@@ -149,12 +149,12 @@
                                     } ?>"><a href="<?php echo CURRENT_PAGE; ?>#tab_cc" data-tab="tab_cc" data-toggle="tab">Objectives</a></li>
 
                         <!--<li><a href="#tab_ee" data-toggle="tab">Documents</a></li>-->
-                        <div class="btn-group dropdown" style="float: right;">
+                        <!-- <div class="btn-group dropdown" style="float: right;">
                             <button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
-                            <ul class="dropdown-menu dropdown-menu-right"> <!-- style="" -->
+                            <ul class="dropdown-menu dropdown-menu-right">
                                 <li><a href="<?php echo CURRENT_PAGE; ?>"><i class="fa fa-eye"></i> View List</a></li>
                             </ul>
-                        </div>
+                        </div> -->
                     </ul>
                     <form method="post">
                         <!--<div class="panel-footer"><br />
@@ -1256,9 +1256,9 @@
 
                                     <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $_GET['id']; ?>');"><input type="button" value="Delete" /></a>
                                 <?php } ?>
-
-                                <a onclick="return confirmleave('<?php echo CURRENT_PAGE ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
+                                <!-- <a onclick="return confirmleave('<?php echo CURRENT_PAGE ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a> -->
                                 <input type="submit" name="submit" onclick="return waitingDialog.show();" value="Save" style="float: right;" />
+                                <a onclick="history.back()"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                             </div>
                         </div>
                     </form>
