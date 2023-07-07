@@ -582,25 +582,26 @@ class payroll extends db
         $taxable_adjustment = isset($data['taxable_adjustment']) ? $this->re_db_input($data['taxable_adjustment']) : 0;
         $broker = isset($data['broker']) ? $this->re_db_input($data['broker']) : 0;
         if ($broker == 2) {
-            $broker_number = isset($data['broker_number']) ? $this->re_db_input($data['broker_number']) : '';
+            $broker_number = isset($data['broker_number']) ? $this->re_db_input($data['broker_number']) : 0;
             $broker_name = isset($data['broker_name']) ? $this->re_db_input($data['broker_name']) : '';
         } else {
-            $broker_number = '';
+            $broker_number = 0;
             $broker_name = '';
         }
         $recurring = isset($data['recurring']) ? $this->re_db_input($data['recurring']) : 0;
         if ($recurring == 1) {
-            $recurring_type = isset($data['recurring_type']) ? $this->re_db_input($data['recurring_type']) : '';
+            $recurring_type = isset($data['recurring_type']) ? $this->re_db_input($data['recurring_type']) : 0;
         } else {
-            $recurring_type = '';
+            $recurring_type = 0;
         }
         $description = isset($data['description']) ? $this->re_db_input($data['description']) : '';
         $pay_type = isset($data['pay_type']) ? $this->re_db_input($data['pay_type']) : '';
         $pay_amount = isset($data['pay_amount']) ? $this->re_db_input($data['pay_amount']) : '';
+        $payable_trans_id = 0;
 
         if ($id == 0) {
 
-            $q = "INSERT INTO " . PAYROLL_ADJUSTMENTS_MASTER . " SET `adjustment_amount`='" . $adjustment_amount . "',`date`='" . date('Y-m-d', strtotime($date)) . "',`pay_on`='" . date('Y-m-d', strtotime($pay_date)) . "',`gl_account`='" . $account . "',
+            $q = "INSERT INTO " . PAYROLL_ADJUSTMENTS_MASTER . " SET `payable_trans_id`='" . $payable_trans_id . "',`adjustment_amount`='" . $adjustment_amount . "',`date`='" . date('Y-m-d', strtotime($date)) . "',`pay_on`='" . date('Y-m-d', strtotime($pay_date)) . "',`gl_account`='" . $account . "',
             `expire`='" . date('Y-m-d', strtotime($expire_date)) . "',`category`='" . $payroll_category . "',`taxable_adjustment`='" . $taxable_adjustment . "',`broker`='" . $broker . "',`broker_number`='" . $broker_number . "',`broker_name`='" . $broker_name . "',`recurring`='" . $recurring . "',`recurring_type`='" . $recurring_type . "',`description`='" . $description . "',`pay_type`='" . $pay_type . "',`pay_amount`='" . $pay_amount . "'" . $this->insert_common_sql();
             $res = $this->re_db_query($q);
 

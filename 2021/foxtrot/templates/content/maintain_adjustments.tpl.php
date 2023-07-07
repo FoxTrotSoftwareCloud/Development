@@ -23,7 +23,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Adjustment Amount <span class="text-red"> (Deductions Must be Entered with a Negative Sign)</span></label>
+                                        <label>Adjustment Amount <span class="text-red"> (Deductions Must be Entered with a Negative Sign) *</span></label>
                                         <input type="number" name="adjustment_amount" id="adjustment_amount" class="form-control" value="<?php echo $adjustment_amount; ?>" />
                                     </div>
                                 </div>
@@ -31,7 +31,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Date </label>
+                                        <label>Date <span class="text-red">*</span></label>
                                         <div id="demo-dp-range">
                                             <div class="input-daterange input-group" id="datepicker">
                                                 <input type="text" name="date" id="date" class="form-control" value="<?php if ($date != '' && $date != '0000-00-00') {
@@ -43,7 +43,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Pay On\After Payroll </label>
+                                        <label>Pay On/After Payroll <span class="text-red">*</span></label>
                                         <div id="demo-dp-range">
                                             <div class="input-daterange input-group" id="datepicker">
                                                 <input type="text" name="pay_date" id="pay_date" class="form-control" value="<?php if ($pay_date != '' && $pay_date != '0000-00-00') {
@@ -77,7 +77,7 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label>Category </label>
+                                        <label>Category <span class="text-red">*</span></label>
                                         <select class="form-control" name="payroll_category" id="payroll_category">
                                             <option value="0">Select Category</option>
                                             <?php foreach ($get_payroll_category as $key => $val) { ?>
@@ -163,7 +163,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Description </label><br />
+                                        <label>Description <span class="text-red">*</span></label><br />
                                         <input class="form-control" type="text" name="description" id="description" value="<?php echo $description; ?>" />
                                     </div>
                                 </div>
@@ -278,14 +278,17 @@
         $("div.toolbar1").html('<div class="panel-control">' +
             '<button type="submit" class="btn btn-default" name="delete_selected" id="delete_selected" value="Delete Selected"><i class="fa fa-trash-o"></i> Delete Selected</button>' +
             '</div>');
-        $("div.toolbar").html('<div class="panel-control">' +
-            '<div class="btn-group dropdown" style="float: right;">' +
-            '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>' +
-            '<ul class="dropdown-menu dropdown-menu-right" style="">' +
-            '<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_new"><i class="fa fa-plus"></i> Add New</a></li>' +
-            '</ul>' +
-            '</div>' +
-            '</div>');
+        // $("div.toolbar").html('<div class="panel-control">' +
+        //     '<div class="btn-group dropdown" style="float: right;">' +
+        //     '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>' +
+        //     '<ul class="dropdown-menu dropdown-menu-right" style="">' +
+        // '<li><a href="<?php echo CURRENT_PAGE; ?>?action=add_new"><i class="fa fa-plus"></i> Add New</a></li>' +
+        //     '</ul>' +
+        //     '</div>' +
+        //     '</div>');
+        $('.datepicker').hide();
+        $("#adjustment_amount").focus();
+        $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>');
     });
     //date format
     $('#demo-dp-range .input-daterange').datepicker({
@@ -385,6 +388,33 @@
     });
     $('#delete_all').click(function() {
         $(".delete_selected_class").prop("checked", $("#delete_all").prop("checked"));
+    });
+    $(document).on('click', '[name="submit"]', function() {
+        if ($("#adjustment_amount").val() == '') {
+            alert("Please enter Adjustment Amount");
+            $("#adjustment_amount").focus();
+            return false;
+        }
+        if ($("#date").val() == '') {
+            alert("Please enter Date");
+            $("#date").focus();
+            return false;
+        }
+        if ($("#pay_date").val() == '') {
+            alert("Please enter Pay Date");
+            $("#pay_date").focus();
+            return false;
+        }
+        if ($("#payroll_category").val() == '') {
+            alert("Please enter Payroll Category");
+            $("#payroll_category").focus();
+            return false;
+        }
+        if ($("#description").val() == '') {
+            alert("Please enter Description");
+            $("#description").focus();
+            return false;
+        }
     });
 </script>
 <style>
