@@ -213,9 +213,6 @@
 
         $('#rep_name').trigger('change');
 
-
-
-
         $('#data-table').DataTable({
             "pageLength": 25,
             "bLengthChange": false,
@@ -233,6 +230,7 @@
                 }
             ]
         });
+        $("#data-table_filter [type='search']").focus();
         $("div.toolbar").html('<div class="panel-control">' +
             '<div class="btn-group dropdown" style="float: right;">' +
             '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>' +

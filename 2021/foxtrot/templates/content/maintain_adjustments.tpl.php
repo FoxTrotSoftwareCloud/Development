@@ -289,6 +289,7 @@
         $('.datepicker').hide();
         $("#adjustment_amount").focus();
         $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>');
+        $("#data-table_filter [type='search']").focus();
     });
     //date format
     $('#demo-dp-range .input-daterange').datepicker({
