@@ -66,7 +66,7 @@
                                         <label>Expire </label>
                                         <div id="demo-dp-range">
                                             <div class="input-daterange input-group" id="datepicker">
-                                                <input type="text" name="expire_date" id="expire_date" class="form-control" value="<?php if ($expire_date != '' && $expire_date != '0000-00-00') {
+                                                <input type="text" name="expire_date" id="expire_date" class="form-control" value="<?php if ($expire_date != '' && $expire_date != '0000-00-00' && $expire_date != '1970-01-01') {
                                                                                                                                         echo date('m/d/Y', strtotime($expire_date));
                                                                                                                                     } ?>" />
                                             </div>
