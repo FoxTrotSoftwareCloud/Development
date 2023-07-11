@@ -90,7 +90,7 @@
     }
     else if($action=='view'){
         
-        $return = $instance->select();//echo '<pre>';print_r($return);exit;
+        $return = $instance->select();
         
     }
     

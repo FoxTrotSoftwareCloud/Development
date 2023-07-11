@@ -21,7 +21,7 @@ $get_brokers=$instance_broker->select_broker();
 //filter batch report
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
-    $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'],true);
     $state_id = isset($filter_array['state'])?$filter_array['state']:0;
     $broker_id = $broker = isset($filter_array['broker'])?$filter_array['broker']:0;
     $sponsor = isset($filter_array['sponsor'])?$filter_array['sponsor']:'';

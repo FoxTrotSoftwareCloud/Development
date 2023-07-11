@@ -13,7 +13,6 @@
     $get_product  = $instance->select_product_category();
     if(isset($_POST['submit'])&& $_POST['submit']=='Save'){
         
-        //echo '<pre>';print_r($_POST);exit();
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         
         if ($id > 0)
@@ -193,7 +192,7 @@
         echo $error;
         exit;
     } 
-    else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){//print_r($_FILES);exit;
+    else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
         $file = isset($_FILES['add_attach'])?$_FILES['add_attach']:array();

@@ -10,7 +10,7 @@
     $instance = new payroll_master();
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Save'){
-        //print_r($_POST);exit;
+
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $type = isset($_POST['type'])?$instance->re_db_input($_POST['type']):''; 
         $return = $instance->insert_update($_POST);       

@@ -65,7 +65,6 @@ if(isset($client) && $client != 0){
 
 
 $list_data= $instance_import->complience_exception_report($beginning_date,$ending_date,$broker_id,$client);
-//echo "<pre>"; print_r($list_data);  die;
 
     $heading = $excel_name = 'COMPLIENCE EXCEPTION REPORT';
     $is_recrod_found=false;

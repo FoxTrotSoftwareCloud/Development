@@ -9,7 +9,7 @@
     $get_broker = $instance->get_broker_name();
     $rulesDetailArray = $instance->select(0,0,1);
     if(isset($_POST['rule'])&& $_POST['rule']=='Save'){
-        //echo '<pre>';print_r($_POST);exit();
+
         $in_force = isset($_POST['in_force'])?$instance->re_db_input($_POST['in_force']):0;
         $rule = isset($_POST['rule'])?$instance->re_db_input($_POST['rule']):0;
         $action = isset($_POST['action'])?$instance->re_db_input($_POST['action']):0;

@@ -71,7 +71,7 @@ $get_liquid_net_worth = $instance_client_suitability->select_liquid_net_worth();
 if ($category == '' || $category == '0') {
     $get_product_transactions = '';
 } else {
-    $get_product_transactions = $instance->get_transaction_on_product($id, $category); //print_r($get_product_transactions);exit;
+    $get_product_transactions = $instance->get_transaction_on_product($id, $category);
 }
 
 //-- Process the user inputs --//
@@ -294,7 +294,7 @@ if (isset($_POST['next']) && $_POST['next'] == 'Next') {
         exit;
     }
 } else if (isset($_POST['add_attach']) && $_POST['add_attach'] == 'Add Attach') {
-    //print_r($_FILES);exit;
+
     $_POST['user_id'] = $_SESSION['user_name'];
     $_POST['date'] = date('Y-m-d');
     $file = isset($_FILES['add_attach']) ? $_FILES['add_attach'] : array();

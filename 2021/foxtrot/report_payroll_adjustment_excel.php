@@ -22,7 +22,7 @@
     //filter payroll reconciliation report
     if(isset($_GET['filter']) && $_GET['filter'] != '')
     {
-        $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+        $filter_array = json_decode($_GET['filter'],true);
         $company = isset($filter_array['company'])?$filter_array['company']:0;
         $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
         // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit
@@ -60,7 +60,7 @@
     else
     {
         $sorted_by='';
-    }//print_r($sorted_by);exit;
+    }
     
     $creator                = "Foxtrot User";
     $last_modified_by       = "Foxtrot User";

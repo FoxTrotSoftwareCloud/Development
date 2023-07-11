@@ -26,7 +26,7 @@
 
     if(isset($_GET['filter']) && $_GET['filter'] != '')
     {
-        $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+        $filter_array = json_decode($_GET['filter'],true);
         $product_category = isset($filter_array['product_category'])?$filter_array['product_category']:0;
         $company = isset($filter_array['company'])?$filter_array['company']:0;
         $batch = isset($filter_array['batch'])?$filter_array['batch']:0;
@@ -43,9 +43,7 @@
         {
             $product_category_name = 'All Categories';
         }
-    }
-        //echo '<pre>';print_r($return);exit;
-        
+    }        
         
     $creator                = "Foxtrot User";
     $last_modified_by       = "Foxtrot User";
@@ -64,7 +62,7 @@
     //$objPHPExcel = new PHPExcel();
     /*$objDrawing = new PHPExcel_Worksheet_HeaderFooterDrawing();
     $objDrawing->setName('Image');
-    $objDrawing->setPath("upload/logo/".$system_logo);//print_r($objDrawing);exit;
+    $objDrawing->setPath("upload/logo/".$system_logo);
     $objDrawing->setHeight(36);
     $objPHPExcel->getActiveSheet()->getHeaderFooter()->addImage($objDrawing, PHPExcel_Worksheet_HeaderFooter::IMAGE_HEADER_LEFT);
     $objPHPExcel->getActiveSheet()->getHeaderFooter()->setOddHeader('&L&G&');*/

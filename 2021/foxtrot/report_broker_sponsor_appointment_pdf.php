@@ -47,7 +47,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     $is_recrod_found = false;
 
     $list_data= $instance->broker_sponsor_appointment_report($broker_id,$sponsor_id,$group_by);
-    //echo "<pre>"; print_r($list_data);
 
 }
 ?>

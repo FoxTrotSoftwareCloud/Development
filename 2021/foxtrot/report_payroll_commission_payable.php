@@ -7,7 +7,7 @@ $get_logo = $instance->get_system_logo();
 $system_logo = isset($get_logo['logo'])?$instance->re_db_input($get_logo['logo']):'';
 $get_company_name = $instance->get_company_name();
 $system_company_name = isset($get_company_name['company_name'])?$instance->re_db_input($get_company_name['company_name']):'';
-//print_r($system_logo);exit;
+
 
 $filter_array = array();
 $company = 0;
@@ -15,7 +15,7 @@ $sort_by='';
 //filter payroll company statement report
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
-    $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'],true);
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
     

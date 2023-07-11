@@ -92,7 +92,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     }
        
     $get_trans_data = $instance_trans->select_transcation_history_by_broker($broker,$beginning_date,$ending_date,$date_by,$filter_by,$is_trail);
-        //echo '<pre>';print_r($return);exit;
         
         
     $creator                = "Foxtrot User";

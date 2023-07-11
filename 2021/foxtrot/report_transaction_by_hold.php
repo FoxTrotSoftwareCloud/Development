@@ -7,7 +7,6 @@ $get_logo = $instance->get_system_logo();
 $system_logo = isset($get_logo['logo'])?$instance->re_db_input($get_logo['logo']):'';
 $get_company_name = $instance->get_company_name();
 $system_company_name = isset($get_company_name['company_name'])?$instance->re_db_input($get_company_name['company_name']):'';
-//print_r($system_logo);exit;
 
 $filter_array = array();
 $product_category = '';
@@ -19,7 +18,7 @@ $total_records=0;
 //filter batch report
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
-    $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'],true);
     $product_category = isset($filter_array['product_category'])?$filter_array['product_category']:0;
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $batch = isset($filter_array['batch'])?$filter_array['batch']:0;

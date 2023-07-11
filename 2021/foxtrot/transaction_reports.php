@@ -1,5 +1,4 @@
 <?php
-// print_r($_GET);
 
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");

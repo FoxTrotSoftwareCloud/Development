@@ -61,7 +61,6 @@ $total_records = 0;
     $is_recrod_found = false;
 
     $list_data= $instance->broker_sponsor_appointment_report($broker_id,$sponsor_id,$group_by);
-    //echo "<pre>"; print_r($list_data);die;
 
     $heading = $excel_name = 'BROKER SPONSOR APPOINTMENTS';    
     $subheading2= 'Broker: '. $queried_brokers.', Sponsor: '. $sponsor_name;

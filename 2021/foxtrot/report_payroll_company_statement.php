@@ -25,7 +25,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     
     $get_company_data = $instance_payroll->get_company_statement_report_data($company,$sort_by,$payroll_id);
     // $get_company_data = $instance_payroll->get_company_statement_report_data($company,$sort_by,$payroll_date);
-    //echo '<pre>';print_r($get_company_data);exit;
+
 }
 ?>
 <?php
@@ -101,7 +101,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $report_check_amount_total = 0;
         $report_retention_total = 0;
         foreach($get_company_data as $com_key=>$com_data)
-        {//echo '<pre>'print_r($get_company_data);exit;
+        {
             $html.='<tr>
                    <td colspan="11" style="font-size:8px;font-weight:bold;text-align:left;">'.$com_key.'</td>
             </tr>

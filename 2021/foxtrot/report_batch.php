@@ -18,7 +18,7 @@ $ending_date = '';
 
 //filter batch report
 if (isset($_GET['filter']) && $_GET['filter'] != '') {
-    $filter_array = json_decode($_GET['filter'], true); //echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'], true); 
     $product_category = isset($filter_array['product_category']) ? $filter_array['product_category'] : 0;
     $company = isset($filter_array['company']) ? $filter_array['company'] : 0;
     $batch = isset($filter_array['batch']) ? $filter_array['batch'] : 0;

@@ -26,7 +26,7 @@
     $get_product_category = $instance->select_category();
     $select_broker= $instance->select_broker();
     
-    if(isset($_POST['submit'])&& $_POST['submit']=='Save'){//echo'<pre>';print_r($_POST);exit;
+    if(isset($_POST['submit'])&& $_POST['submit']=='Save'){
         
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
 		$schedule_name = isset($_POST['schedule_name'])?$instance->re_db_input($_POST['schedule_name']):'';
@@ -44,7 +44,6 @@
         $team_member = isset($_POST['team_member'])?$_POST['team_member']:array();
         $edit_grid = isset($_POST['leval'])?$instance->reArrayFiles_grid($_POST['leval']):array();
         $is_default = isset($_POST['is_default'])?$instance->re_db_input($_POST['is_default']):0;
-        //echo '<pre>';print_r($team_member);exit;
         
         $return = $instance->insert_update($_POST);
         $return1 = $instance->insert_update_payout_schedule_grid($instance->reArrayFiles_grid($_POST['leval']),$_POST['id']);

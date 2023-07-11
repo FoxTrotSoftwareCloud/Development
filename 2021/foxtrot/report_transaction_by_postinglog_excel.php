@@ -21,7 +21,7 @@ $system_company_name = isset($get_company_name['company_name']) ? $instance->re_
 $image_path = SITE_URL . "upload/logo/" . $system_logo;
 
 if (isset($_GET['filter']) && $_GET['filter'] != '') {
-    $filter_array = json_decode($_GET['filter'], true); //echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'], true); 
     $product_category = isset($filter_array['product_category']) ? $filter_array['product_category'] : 0;
     $company = isset($filter_array['company']) ? $filter_array['company'] : 0;
     $batch = isset($filter_array['batch']) ? $filter_array['batch'] : 0;
@@ -48,7 +48,6 @@ if ($filter_array['report_for'] == 1)
 $total_amount_invested = 0;
 $total_commission_received = 0;
 $total_charges = 0;
-//echo '<pre>';print_r($return);exit;
 
 
 $creator                = "Foxtrot User";

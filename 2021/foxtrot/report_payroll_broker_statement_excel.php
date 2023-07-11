@@ -32,7 +32,7 @@
     //filter payroll adjustments log report
     if(isset($_GET['filter']) && $_GET['filter'] != '')
     {
-        $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+        $filter_array = json_decode($_GET['filter'],true);
         $company = isset($filter_array['company'])?$filter_array['company']:0;
         $print_type = isset($filter_array['print_type'])?$filter_array['print_type']:'';
         // $payroll_date = isset($filter_array['payroll_date'])?$filter_array['payroll_date']:'';
@@ -44,7 +44,7 @@
         $pdf_for_broker = isset($filter_array['pdf_for_broker'])?$filter_array['pdf_for_broker']:'';
         
         $get_broker_commission_data = $instance_payroll->get_broker_commission_report_data($company,$payroll_id,$broker,$print_type);
-        //echo '<pre>';print_r($get_broker_commission_data);exit;
+
         if($payroll_date != ''){ 
             $payroll_date = date('F d, Y',strtotime($payroll_date));
         }
@@ -549,7 +549,7 @@
         $i++;
         $sheet_data[$sheet_offset]['A'.$i] = array($instance->re_db_output('No record found.'),array('center','size'=>array(10),'color'=>array('000000'),'merge'=>array('A'.$i,'K'.$i)));
     }
-    //echo '<pre>';print_r($sheet_data);exit;
+
     // Create Excel instance.
     $Excel = new Excel();
     

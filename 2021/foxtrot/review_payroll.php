@@ -44,7 +44,7 @@
     $branch = $company = '';
 
     if(isset($_POST['submit'])&& $_POST['submit']=='Save'){
-        //echo '<pre>';print_r($_POST);exit;
+
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $payroll_id = isset($_POST['payroll_id'])?$instance->re_db_input($_POST['payroll_id']):0;
 
@@ -86,7 +86,7 @@
 
     }
     else if($action=='edit' && $id>0){
-        $return = $instance->edit_review_payroll($id);//echo '<pre>';print_r($return);exit;
+        $return = $instance->edit_review_payroll($id);
         $transaction_id=isset($return['trade_number'])?$return['trade_number']:'';
         //$return_trade_splits = $instance->edit_review_trade_splits($id,$transaction_id);
         //$return_trade_overrides = $instance->edit_review_trade_overrides($id,$transaction_id);

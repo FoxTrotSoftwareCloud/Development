@@ -59,7 +59,7 @@ $total_records_sub = 0;
     }
 
     $trade_data= $instance_trans->daily_trade_blotter_report($company_id,$branch_id,$broker_id,$beginning_date,$ending_date);
-    // echo "<pre>"; print_r($trade_data); 
+
     $is_recrod_found=false;
 
 

@@ -41,7 +41,7 @@ $report_for = '';
 //filter batch report
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
-    $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'],true);
 
     $report_for = isset($filter_array['report_for'])?trim($filter_array['report_for']):'';
     $state = isset($filter_array['state'])?$filter_array['state']:0;

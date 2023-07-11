@@ -20,7 +20,7 @@ else
     $get_webcrd_main_data = $instance->select_master();
     $webcrd_main_id = isset($get_webcrd_main_data[0]['id'])?$instance->re_db_input($get_webcrd_main_data[0]['id']):0;
 }
-//print_r($get_webcrd_data);exit;
+
 $file_date = isset($get_webcrd_main_data[0]['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_webcrd_main_data[0]['file_date']))):'00/00/0000';
 $import_date = isset($get_webcrd_main_data[0]['import_date'])?$instance->re_db_input(date('m/d/Y h:i:s A',strtotime($get_webcrd_main_data[0]['import_date']))):'00/00/0000';
 $total_added = isset($get_webcrd_main_data[0]['added'])?$instance->re_db_input($get_webcrd_main_data[0]['added']):0;

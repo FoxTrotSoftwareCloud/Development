@@ -22,9 +22,7 @@
     
     $total_investments = 0;
     $total_commissions = 0;
-    $total_records=0;
-        //echo '<pre>';print_r($return);exit;
-        
+    $total_records=0;       
         
     $creator                = "Foxtrot User";
     $last_modified_by       = "Foxtrot User";

@@ -19,7 +19,7 @@ $output_type = '';
 //filter payroll adjustments log report
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
-    $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'],true);
     $company = isset($filter_array['company'])?$filter_array['company']:0;
     $sort_by = isset($filter_array['sort_by'])?$filter_array['sort_by']:'';
     // 11/23/21 Payroll ID passed instead of 'payroll_date' from the form submit

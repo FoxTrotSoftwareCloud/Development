@@ -146,11 +146,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
     }
    // $subheading.=", Dates: ".$beginning_date." - ".$ending_date;
-        
-           
-   
-        //echo '<pre>';print_r($return);exit;
-        
+               
         
     $creator                = "Foxtrot User";
     $last_modified_by       = "Foxtrot User";
@@ -211,12 +207,12 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 
             if(is_array($get_trans_data) && count($get_trans_data)>0)
             {
-               //echo '<pre>';print_r($get_trans_data);
+
                     $total_gross_earning=0.00;
                     $total_net_commission=0.00;
                     $total_check_amount=0.00;
                     $total_earning_1099=0.00;   
-                   // print_r($get_trans_data); die;
+
                      
                     foreach($get_trans_data as $trans_key=>$row_item) {
 
@@ -307,7 +303,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     'sheet_data'=>$sheet_data,
                     'excel_name'=>$excel_name
                 );
-            //print_r($args); die;
+
             $formPost = $Excel->generate( $args);
 
     
@@ -427,7 +423,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $row_count++;
             $sheet_data[0]['A'.$row_count] = array($instance->re_db_output('No record found.'),array('center','size'=>array(10),'color'=>array('000000'),'merge'=>array('A'.$row_count,'H'.$row_count)));
         }
-       // print_r($sheet_data); die;
+
 
         $Excel = new Excel();
             
@@ -775,7 +771,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
       $get_trans_data = $instance_trans->select_transcation_history_report_v2($report_for,$sort_by,$branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail,$prod_cat);
 
-      ///  print_r($get_trans_data);
         if(!empty($get_trans_data))
         {
             $get_data_by_category = array();

@@ -24,7 +24,7 @@ $ending_date = '';
 //filter batch report
 if(isset($_GET['filter']) && $_GET['filter'] != '')
 {
-    $filter_array = json_decode($_GET['filter'],true);//echo '<pre>';print_r($filter_array);exit;
+    $filter_array = json_decode($_GET['filter'],true);
     $state = isset($filter_array['state'])?$filter_array['state']:0;
     $broker_id = isset($filter_array['broker'])?$filter_array['broker']:0;
     $sponsor_id = isset($filter_array['sponsor'])?$filter_array['sponsor']:'';
@@ -133,8 +133,7 @@ $total_records_sub=0;
     
     if($return_client_review_list != array())
     {   
-        /*echo "<pre>";
-        print_r($return_client_review_list);die;*/
+
         $last_record=0;
         foreach($return_client_review_list as $client_review)
         {
@@ -165,7 +164,7 @@ $total_records_sub=0;
                               substr($current_client['telephone'], 6)) : '';
                $reviewed_at=(!empty($current_client['reviewed_at'])) ? date('m/d/Y',strtotime($current_client['reviewed_at'])) : ' '.$supervisor_shortname.' /';
                $reviewed_by=(!empty($current_client['birth_date'])) ? date('m/d/Y',strtotime($current_client['birth_date'])) : '';
-               // print_r($current_client);
+
              $html.='<tr>
                         <td colspan="2">'.$current_client['last_name'].', '.$current_client['first_name'].'</td>
                         <td style="text-align:left;">'.trim($current_client['client_file_number']).'</td>

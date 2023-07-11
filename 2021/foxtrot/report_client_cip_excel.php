@@ -73,7 +73,6 @@ if(isset($sponsor_id) && $sponsor_id != 0){
 $is_recrod_found = false;
 
     $list_data= $instance_client->client_cip_report($beginning_date,$ending_date,$broker_id,$cip_client,$exclude_donot_contact_client,$sponsor_id);
-        //echo "<pre>"; print_r($list_data);
     
     $heading = $excel_name = 'CLIENT CIP REPORT';  
     $dont_contact_client="";

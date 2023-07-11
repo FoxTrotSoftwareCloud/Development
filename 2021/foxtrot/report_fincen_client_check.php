@@ -24,7 +24,7 @@ else
     $fincen_main_id = isset($get_fincen_main_data['id'])?$instance->re_db_input($get_fincen_main_data['id']):0;
     $get_fincen_data = $instance->select_fincen_scan_report($fincen_main_id);
 }
-//print_r($get_ofac_data);exit;
+
 $file_date = isset($get_fincen_main_data['file_date'])?$instance->re_db_input(date('m/d/Y',strtotime($get_fincen_main_data['file_date']))):'00/00/0000';
 $scan_date = isset($get_fincen_main_data['created_time'])?$instance->re_db_input(date('m/d/Y h:i:s A',strtotime($get_fincen_main_data['created_time']))):'00/00/0000';
 $total_matches = isset($get_fincen_main_data['total_match'])?$instance->re_db_input($get_fincen_main_data['total_match']):0;

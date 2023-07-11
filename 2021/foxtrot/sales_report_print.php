@@ -306,12 +306,10 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             exit;
     }
     else if($report_for == 'broker_ranking') {
-                 //print_r($prod_cat);
             
                 $prod_cat =array_filter($prod_cat,function($value) {
                     return $value > 0;
                 });
-                // print_r($prod_cat);
 
                 $is_all_category = empty($prod_cat);
 
@@ -478,7 +476,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 $companyhead.=', All Brokers';
             }
 
-                //  print_r($rows);
             $date_heading = ($annul_broker_date_type == 1) ? 'By Trade Date' : 'By Settlement Date';
             $subheading = 'Annual Broker Report ';
             $subheading2 = 'For '.$report_year.' - '.$date_heading;
@@ -585,7 +582,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
          $earning_by = 2;
             $earning_filter = compact('earning_by','beginning_date','ending_date');
             $rows = $instance_trans->select_monthly_broker_production_report($company,$earning_filter);
-         //  echo '<pre>'; print_r($rows); echo '</pre>';
             $subheading = 'BROKER PRODUCTION REPORT ';
             $subheading2 = 'Trade Dates: '.$beginning_date." - ".$ending_date;
             /*echo '<table border="0" width="100%">
@@ -743,7 +739,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 
                 $pdf->SetFont('times','B',12);
                 $pdf->SetFont('times','',10); 
-            //echo '<pre>'; print_r($rows); echo '</pre>';
+
             /*echo '<table border="0" width="100%">
                     <tr>
                          <td width="20%" align="left">'.date("m/d/Y").'</td>
@@ -949,7 +945,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     $total_no_of_trans+=1;
                 }
             }
-            //echo '<pre>';print_r($get_trans_data);
+
             foreach($get_trans_data as $key => $category_data)
             {
                 if($report_for == "Production by Product Category"){               
@@ -965,7 +961,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 $cat_percentage=0;
                 foreach($category_data as $trans_key=>$trans_data)
                 {
-                        //echo '<pre>';print_r($category_data);
+
                         // $total_comm_received+=$trans_data['commission_received'];
                         // $total_comm_paid+=$trans_data['charge_amount'];
                         // $total_inv+=$trans_data['invest_amount'];

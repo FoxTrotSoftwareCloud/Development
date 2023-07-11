@@ -48,7 +48,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'Save') {
     $description = isset($_POST['description']) ? $instance->re_db_input($_POST['description']) : '';
     $pay_type = isset($_POST['pay_type']) ? $instance->re_db_input($_POST['pay_type']) : '';
     $pay_amount = isset($_POST['pay_amount']) ? $instance->re_db_input($_POST['pay_amount']) : '';
-    //print_r($_POST);exit;
+
     $return = $instance->insert_update_adjustment_master($_POST);
 
     if ($return === true) {
@@ -86,7 +86,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'Save') {
         header('location:' . CURRENT_PAGE . '?action=view');
         exit;
     }
-} else if (isset($_POST['delete_selected']) && $_POST['delete_selected'] == 'Delete Selected') { //echo '<pre>';print_r($_POST);exit;
+} else if (isset($_POST['delete_selected']) && $_POST['delete_selected'] == 'Delete Selected') {
     $return = $instance->delete_selected_adjustments_master($_POST);
     if ($return == true) {
         header('location:' . CURRENT_PAGE . '?action=view');

@@ -164,7 +164,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     $total_no_of_trans+=1;
                 }
             }
-            //echo '<pre>';print_r($get_trans_data);
+ 
             foreach($get_trans_data as $key => $category_data)
             {
                 if($report_for == "Production by Product Category"){               
@@ -180,7 +180,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 $cat_percentage=0;
                 foreach($category_data as $trans_key=>$trans_data)
                 {
-                        //echo '<pre>';print_r($category_data);
+
                         // $total_comm_received+=$trans_data['commission_received'];
                         // $total_comm_paid+=$trans_data['charge_amount'];
                         // $total_inv+=$trans_data['invest_amount'];

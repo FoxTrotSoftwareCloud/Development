@@ -70,10 +70,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $branch_name=$queried_branch['name'];
     }
 
-    $trade_data= $instance_trans->daily_trade_blotter_report($company_id,$branch_id,$broker_id,$beginning_date,$ending_date);
-    // echo "<pre>"; print_r($trade_data); 
-
-    
+    $trade_data= $instance_trans->daily_trade_blotter_report($company_id,$branch_id,$broker_id,$beginning_date,$ending_date);    
 
     $heading = $excel_name = 'DAILY TRADE BLOTTER REPORT';
     $is_recrod_found=false;

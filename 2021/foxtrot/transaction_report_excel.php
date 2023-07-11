@@ -158,9 +158,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
          $subheading.=", DATES: ".$beginning_date." - ".$ending_date;
     }
        
-            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail,$sponsor,$index_column);
-        //echo '<pre>';print_r($return);exit;
-        
+            $get_trans_data = $instance_trans->select_transcation_history_report($branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail,$sponsor,$index_column);        
         
     $creator                = "Foxtrot User";
     $last_modified_by       = "Foxtrot User";

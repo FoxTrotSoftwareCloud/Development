@@ -120,7 +120,6 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     $for_import = isset($_POST['for_import']) ? $instance->re_db_input($_POST['for_import']) : 'false';
     $file_id = isset($_POST['file_id']) ? $instance->re_db_input($_POST['file_id']) : 0;
     $file_type = isset($_POST['file_type']) ? $instance->re_db_input($_POST['file_type']) : 0;
-    //echo '<pre>';print_r($_POST);exit;
 
     $home_general = isset($_POST['home_general']) ? $instance->re_db_input($_POST['home_general']) : '';
     $home_address1_general = isset($_POST['home_address1_general']) ? $instance->re_db_input($_POST['home_address1_general']) : '';
@@ -168,7 +167,7 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     $clu_general = isset($_POST['clu_general']) ? $instance->re_db_input($_POST['clu_general']) : 0;
     $cfa_general = isset($_POST['cfa_general']) ? $instance->re_db_input($_POST['cfa_general']) : 0;
     $ria_general = isset($_POST['ria_general']) ? $instance->re_db_input($_POST['ria_general']) : 0;
-    $insurance_general = isset($_POST['insurance_general']) ? $instance->re_db_input($_POST['insurance_general']) : 0; //echo '<pre>';print_r($_POST);exit;
+    $insurance_general = isset($_POST['insurance_general']) ? $instance->re_db_input($_POST['insurance_general']) : 0;
 
     $branch_broker = isset($_POST['branch_broker']) ? $instance->re_db_input($_POST['branch_broker']) : '';
     $branch_1 = isset($_POST['branch_1']) ? $instance->re_db_input($_POST['branch_1']) : '';
@@ -193,7 +192,7 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     $return3 = $instance->insert_update_payout_grid($instance->reArrayFiles_grid($_POST['leval']), $_POST['id']);
     $return4 = $instance->insert_update_payout_override($instance->reArrayFiles_override($_POST['override']), $_POST['id'], $_POST['override']['receiving_rep1']);
     $return5 = $instance->insert_update_payout_split($instance->reArrayFiles_split($_POST['split']), $_POST['id']);
-    //echo '<pre>';print_r($return5);exit;
+ 
     //security tab
 
     // $returnSecurity = $instance->insert_update_licences_security($_POST);
@@ -252,9 +251,9 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
             exit;
         }
     } else if ($return == true && $_POST['submit'] == 'Previous') {
-        //  print_r($_POST);
+
         $return = $instance->get_Previous_broker($id);
-        //  var_dump($return); die;
+
         if ($return != false) {
             $id = $return['id'];
             header("location:" . CURRENT_PAGE . "?action=edit&id=" . $id . "");
@@ -268,7 +267,7 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     }
 }
 /*else if(isset($_POST['payout'])&& $_POST['payout']=='Save'){
-        //echo '<pre>';print_r($_POST['leval']);exit;
+
         $return2 = $instance->insert_update_payout($_POST);
         $return1 = $instance->insert_update_payout_grid($instance->reArrayFiles_grid($_POST['leval']),$_POST['id']);
         $return2 = $instance->insert_update_payout_override($instance->reArrayFiles_override($_POST['override']),$_POST['id'],$_POST['receiving_rep']);
@@ -288,7 +287,7 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
         }
     }
      else if(isset($_POST['securities'])&& $_POST['securities']=='Save'){
-       //echo '<pre>';print_r($_POST);exit;
+
         $return = $instance->insert_update_licences($_POST);
         if($return===true){
             if($action == 'edit')
@@ -338,7 +337,6 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     }
     else if(isset($_POST['register'])&& $_POST['register']=='Save'){
 
-            //echo '<pre>';print_r($_POST);exit;
             $return = $instance->insert_update_register($_POST);
             if($return===true){
             if($action == 'edit')
@@ -355,7 +353,7 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
         }
     }
      else if(issePt($_POST['req_doc'])&& $_POST['req_doc']=='Save'){
-             //echo '<pre>';print_r($_POST);exit;
+
              $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
 
             $return = $instance->insert_update_req_doc($instance->reArrayFiles($_POST['data']),$id);
@@ -390,7 +388,7 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
         else{
             $error = !isset($_SESSION['warning'])?$return:'';
         }
-    }*/ else if (isset($_POST['submit_new_payout']) && $_POST['submit_new_payout'] == 'Save') { //echo '<pre>';print_r($_POST);exit;
+    }*/ else if (isset($_POST['submit_new_payout']) && $_POST['submit_new_payout'] == 'Save') {
     $return = $instance->insert_update_payout_schedule($_POST);
     $return1 = $instance->insert_update_payout_grid($instance->reArrayFiles_grid($_POST['leval']), $_POST['id']);
 
@@ -408,7 +406,7 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     $broker_data = $instance->get_broker_changes($id);
     $payrolls_instance = new payroll();
     $prior_payrolls_data = $payrolls_instance->select_prior_payrolls_master($id);
-    $edit_general = $instance->edit_allgeneral($id); //print_r($edit_general);exit;
+    $edit_general = $instance->edit_allgeneral($id); 
     $edit_licences_securities = $instance->edit_licences_securities($id);
     $edit_licences_ria = $instance->edit_licences_ria($id);
     $edit_licences_insurance = $instance->edit_licences_insurance($id);
@@ -422,7 +420,6 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     $edit_charge_check = $instance->edit_charge_check($id);
     $edit_alias = $instance->edit_alias($id, 0, 1);
     $edit_branches = $instance->edit_branches($id);
-    //echo '<pre>';print_r($edit_charge_check);exit;//echo '<pre>';print_r($edit_override);exit;
 
     $_SESSION['last_insert_id'] = $id;
     $fname = isset($return['first_name']) ? $instance->re_db_output($return['first_name']) : '';
@@ -487,9 +484,8 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     $clu_general = isset($edit_general['clu']) ? $instance->re_db_output($edit_general['clu']) : 0;
     $cfa_general = isset($edit_general['cfa']) ? $instance->re_db_output($edit_general['cfa']) : 0;
     $ria_general = isset($edit_general['ria']) ? $instance->re_db_output($edit_general['ria']) : 0;
-    $insurance_general = isset($edit_general['insurance']) ? $instance->re_db_output($edit_general['insurance']) : 0; //echo '<pre>';print_r($_POST);exit;
+    $insurance_general = isset($edit_general['insurance']) ? $instance->re_db_output($edit_general['insurance']) : 0;
 
-    //echo '<pre>';print_r($edit_licences_securities);exit;
     $branch_broker = isset($edit_branches['broker_name']) ? $instance->re_db_output($edit_branches['broker_name']) : '';
     $branch_1 = isset($edit_branches['branch1']) ? $instance->re_db_output($edit_branches['branch1']) : '';
     $branch_office_1 = isset($edit_branches['branch_office1']) ? $instance->re_db_output($edit_branches['branch_office1']) : '';
@@ -571,7 +567,7 @@ if ((isset($_POST['submit']) && $_POST['submit'] == 'Save')
     }
     echo $error;
     exit;
-} else if (isset($_POST['add_attach']) && $_POST['add_attach'] == 'Add Attach') { //print_r($_FILES);exit;
+} else if (isset($_POST['add_attach']) && $_POST['add_attach'] == 'Add Attach') {
     $_POST['user_id'] = $_SESSION['user_name'];
     $_POST['date'] = date('Y-m-d');
     $file = isset($_FILES['add_attach']) ? $_FILES['add_attach'] : array();
