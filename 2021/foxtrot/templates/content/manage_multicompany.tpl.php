@@ -503,8 +503,8 @@
                                         <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $_GET['id']; ?>');"><input type="button" name="view_changes" value="Delete" /></a>
                                     <?php } ?>
 
-                                    <a onclick="return confirmleave('<?php echo CURRENT_PAGE; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                                     <input type="submit" name="submit" value="Save" style="float: right;" />
+                                    <a onclick="return confirmleave('<?php echo CURRENT_PAGE; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                                 </div><br />
                             </div>
                     </form>

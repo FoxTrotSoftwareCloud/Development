@@ -65,8 +65,8 @@
                             <?php if ($_GET['action'] == 'edit' && $id > 0) { ?>
                                 <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $id; ?>');"><input type="button" value="Delete" /></a>
                             <?php } ?>
-                            <a href="<?php echo CURRENT_PAGE . '?action=view'; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                             <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save" style="float: right;" />
+                            <a href="<?php echo CURRENT_PAGE . '?action=view'; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                         </div>
                         <!--</div>
                  </div>-->
@@ -168,6 +168,7 @@
             ]
         });
 
+        $("#data-table_filter [type='search']").focus();
         $("div.toolbar").html('<div class="panel-control">' +
             '<div class="btn-group dropdown" style="float: right;">' +
             '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>' +

@@ -145,13 +145,13 @@
                         <div class="selectwrap container">
                             <input type="hidden" name="id" id="id" value="<?php echo $id; ?>" />
 
-                            <a href="<?php echo CURRENT_PAGE; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
+                            <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save" style="float: right;" />
 
                             <?php if ($action == 'edit' && $id > 0) { ?>
                                 <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $id ?>');"><input type="button" name="delete" value="Delete" style="float: right;" /></a>
                             <?php } ?>
 
-                            <input type="submit" name="submit" onclick="waitingDialog.show();" value="Save" style="float: right;" />
+                            <a href="<?php echo CURRENT_PAGE; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                         </div>
                     </div>
                 </form>
@@ -248,6 +248,7 @@
             ]
         });
 
+        $("#data-table_filter [type='search']").focus();
         $("div.toolbar").html('<div class="panel-control">' +
             '<div class="btn-group dropdown" style="float: right;">' +
             '<button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>' +

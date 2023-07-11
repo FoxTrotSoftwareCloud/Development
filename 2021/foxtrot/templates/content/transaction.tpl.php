@@ -817,12 +817,12 @@
                         </div>
                         <div class="panel-footer fixedbtmenu">
                             <div class="selectwrap container">
-                                <a id="anchor_cancel" href="<?php echo CURRENT_PAGE . '?action=cancel'; ?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;" /></a>
                                 <input type="submit" name="transaction" onclick="return waitingDialog.show();" id="save" value="Save" style="float: right;" />
                                 <?php if (isset($_GET['action']) &&  $_GET['action'] == 'add') {
                                     echo ' <input type="submit" name="transaction" id="transaction" onclick="return waitingDialog.show();" value="Save & Copy" style="float: right;"/>  ';
                                 } ?>
                                 <input type="hidden" name="rule_engine_warning_action" id="rule_engine_warning_action" value="0" />
+                                <a id="anchor_cancel" href="<?php echo CURRENT_PAGE . '?action=cancel'; ?>"><input type="button" name="cancel" id="cancel" value="Cancel" style="float: right;" /></a>
                             </div>
                         </div>
                     </div>
@@ -1115,6 +1115,7 @@
             ]
         });
 
+        $("#data-table_filter [type='search']").focus();
         $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>' +
             '<div class="panel-control" style="padding-left:5px;display:inline;">' +
             '<div class="btn-group dropdown" style="float: right;">' +

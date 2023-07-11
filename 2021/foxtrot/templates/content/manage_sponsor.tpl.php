@@ -333,8 +333,8 @@
                             <?php } ?>
 
 
-                            <a onclick="return confirmleave('<?php echo CURRENT_PAGE . '?action=view_sponsor'; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                             <input type="submit" name="sponsor" onclick="waitingDialog.show();" value="Save" style="float: right;" />
+                            <a onclick="return confirmleave('<?php echo CURRENT_PAGE . '?action=view_sponsor'; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                         </div>
                     </div>
                 </div>

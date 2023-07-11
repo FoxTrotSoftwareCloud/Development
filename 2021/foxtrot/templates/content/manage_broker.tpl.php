@@ -3644,8 +3644,8 @@
                         <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete&id=<?php echo $_GET['id']; ?>');"><input type="button" value="Delete" /></a>
                      <?php } ?>
 
-                     <a onclick="return confirmleave('<?php echo CURRENT_PAGE . '?action=cancel'; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                      <input type="submit" name="submit" value="Save" style="float: right;" id="licences_security">
+                     <a onclick="return confirmleave('<?php echo CURRENT_PAGE . '?action=cancel'; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                   </div>
                </div>
             </form>
