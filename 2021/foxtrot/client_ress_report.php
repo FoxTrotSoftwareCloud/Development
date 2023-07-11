@@ -7,7 +7,7 @@ $get_logo = $instance->get_system_logo();
 $system_logo = isset($get_logo['logo'])?$instance->re_db_input($get_logo['logo']):'';
 $get_company_name = $instance->get_company_name();
 $system_company_name = isset($get_company_name['company_name'])?$instance->re_db_input($get_company_name['company_name']):'';
-//print_r($get_logo);exit;
+
 $from_broker = '';
 if(isset($_GET['from_broker']) && $_GET['from_broker'] != '')
 {

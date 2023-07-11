@@ -7,7 +7,7 @@
     $return_from_broker_client = array();
     
     if(isset($_POST['submit'])&& $_POST['submit']=='Proceed'){ 
-        //echo '<pre>';print_r($_POST);exit();
+
         $from_broker = isset($_POST['from_broker'])?$instance->re_db_input($_POST['from_broker']):0;
         $to_broker= isset($_POST['to_broker'])?$instance->re_db_input($_POST['to_broker']):'';
         $output = isset($_POST['output'])?$instance->re_db_input($_POST['output']):'';

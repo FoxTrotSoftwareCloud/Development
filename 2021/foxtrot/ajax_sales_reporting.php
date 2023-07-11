@@ -98,7 +98,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 
                 if(!empty($get_trans_data))
                 {                   
-                    //echo '<pre>';print_r($get_trans_data);
+
                     $total_gross_earning=0.00;
                     $total_net_commission=0.00;
                     $total_check_amount=0.00;
@@ -194,7 +194,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $total_comm_paid=0;
                     foreach($get_trans_data as $trans_main_key=>$trans_main_data)
                     {
-                       //print_r($trans_main_data[0]);die;
+
                        ?>
                        <tr>
                            <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="6">

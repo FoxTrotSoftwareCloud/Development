@@ -1,5 +1,5 @@
 <?php
-// print_r($_GET);
+
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
 $client_maintenance_instance = new client_maintenance();
@@ -8,8 +8,7 @@ $instance_broker = new broker_master();
 $get_brokers=$instance_broker->select_broker();
 $client_list_instance=new client_list();
 list($client_list,$total_rec)=$client_list_instance->get_client_list();
-// print_r($client_list);
-// echo $total_records['total_records'];
+
 if (isset($_GET['page_no']) && $_GET['page_no']!="") {
     $page_no = (int)$_GET['page_no'];
 } 

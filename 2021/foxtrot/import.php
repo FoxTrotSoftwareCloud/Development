@@ -167,8 +167,6 @@ if (isset($_POST['go']) && $_POST['go'] == 'go') {
         $exception_value = isset($_POST['exception_value']) ? $instance->re_db_input($_POST['exception_value']) : '';
     }
 
-    // echo "<pre>"; print_r($_POST['exception_value']);die;
-
     $return = $instance->resolve_exceptions($_POST);
 
     if ($return === true) {
@@ -311,17 +309,14 @@ else if (isset($_POST['upload_orion_file']) && $_POST['upload_orion_file'] == 'u
     $upload_sponsor_file = 'upload_orion_file';
 
     if ($upload_sponsor_file == 'upload_orion_file') {
-        // print_r($instance_importOrion->dataInterface['local_folder']);die;
+
         $localFolder = rtrim($instance_importOrion->dataInterface['local_folder'], "/") . "/";
-        // echo '<pre>';
-        // print_r($_FILES);die;
         // Validate file parameters
         if (empty($_FILES[$upload_sponsor_file]['name'])) {
             $error = 'No file specified. Procedure cancelled.';
+        } else if (file_exists($localFolder . $_FILES[$upload_sponsor_file]['name'])) {
+            $error = "File '" . $_FILES[$upload_sponsor_file]['name'] . "' already uploaded. Please select another file or rename current file.";
         }
-        // else if (file_exists($localFolder.$_FILES[$upload_sponsor_file]['name'])){
-        //     $error = "File '".$_FILES[$upload_sponsor_file]['name']."' already uploaded. Please select another file or rename current file.";
-        // }
 
         // Upload file
         if (empty($error)) {
@@ -352,10 +347,9 @@ else if (isset($_POST['upload_orion_file']) && $_POST['upload_orion_file'] == 'u
     $upload_sponsor_file = 'upload_orion_file';
 
     if ($upload_sponsor_file == 'upload_orion_file') {
-        // print_r($instance_importOrion->dataInterface['local_folder']);die;
+
         $localFolder = rtrim($instance_importOrion->dataInterface['local_folder'], "/") . "/";
-        // echo '<pre>';
-        // print_r($_FILES);die;
+
         // Validate file parameters
         if (empty($_FILES[$upload_sponsor_file]['name'])) {
             $error = 'No file specified. Procedure cancelled.';
@@ -392,10 +386,9 @@ else if (isset($_POST['upload_client_file']) && $_POST['upload_client_file'] == 
     $upload_sponsor_file = 'upload_client_file';
 
     if ($upload_sponsor_file == 'upload_client_file') {
-        // print_r($instance_importClient->dataInterface['local_folder']);die;
+
         $localFolder = rtrim($instance_importClient->dataInterface['local_folder'], "/") . "/";
-        // echo '<pre>';
-        // print_r($_FILES);die;
+
         // Validate file parameters
         if (empty($_FILES[$upload_sponsor_file]['name'])) {
             $error = 'No file specified. Procedure cancelled.';
@@ -432,7 +425,7 @@ else if (isset($_POST['upload_client_file']) && $_POST['upload_client_file'] == 
     $folder_location = isset($return['folder_location']) ? $instance->re_db_output($return['folder_location']) : '';
     $ftp_file_type = isset($return['ftp_file_type']) ? $instance->re_db_output($return['ftp_file_type']) : '';
     $status = isset($return['status']) ? $instance->re_db_output($return['status']) : '';
-} else if (isset($action) && $action == 'open_ftp') { //print_r($action);exit;
+} else if (isset($action) && $action == 'open_ftp') {
     header("location:" . CURRENT_PAGE . "?tab=open_ftp");
     exit;
 } else if (isset($_GET['tab']) && $_GET['tab'] == 'open_ftp') {
@@ -482,7 +475,7 @@ else if (isset($_POST['upload_client_file']) && $_POST['upload_client_file'] == 
 } else if (isset($_GET['error_code_id']) && $_GET['error_code_id'] == '19') {
     $a = 0;
 } else if ($action == 'view') {
-    $return = $instance->select_current_files(); //echo '<pre>';print_r($return);exit;
+    $return = $instance->select_current_files();
 } else if ($action == 'fetchDST' and (isset($_GET['dim_id']))) {
     // 01/11/23 2nd parameter is for test mode(pulls 2-5 files at a time(testMode == 1)
     $instance_dst_fetch = new DSTFetch((int)$_GET['dim_id'], 0);

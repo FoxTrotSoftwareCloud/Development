@@ -12,11 +12,11 @@
     $get_sponsor = $instance->select_sponsor();
     $get_commission_amount = array();
     if(!empty($_POST)) {
-      //  print_r($_POST); die;
+
     }
     if(isset($_POST['batches'])&& $_POST['batches']=='Save')
     { 
-        //echo '<pre>';print_r($_POST);exit();
+
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $pro_category = isset($_POST['pro_category'])?$instance->re_db_input($_POST['pro_category']):'';
         //$batch_number = isset($_POST['batch_number'])?$instance->re_db_input($_POST['batch_number']):'';
@@ -55,7 +55,7 @@
  
     }
     else if(isset($_POST['post_trade'])&& $_POST['post_trade']=='Post'){ 
-        //echo '<pre>';print_r($_POST);exit();
+
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $pro_category = isset($_POST['pro_category'])?$instance->re_db_input($_POST['pro_category']):'';
         //$batch_number = isset($_POST['batch_number'])?$instance->re_db_input($_POST['batch_number']):'';
@@ -143,7 +143,7 @@
     }
     else if($action=='view_batches'){
         
-        $return = $instance->select();//echo'<pre>';//print_r($return);exit;
+        $return = $instance->select();
         
     }
     $content = "batches";

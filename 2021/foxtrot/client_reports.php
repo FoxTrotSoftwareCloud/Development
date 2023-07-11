@@ -1,5 +1,5 @@
 <?php
-// print_r($_GET);
+
 require_once("include/config.php");
 require_once(DIR_FS."islogin.php");
 $client_maintenance_instance = new client_maintenance();
@@ -24,7 +24,7 @@ $return_from_broker_client = array();
         $report_for = isset($_POST['report_for'])?$instance->re_db_input($_POST['report_for']):'';
         
         if($report_for == 1)
-        {//print_r($report_for);exit;
+        {
             if($output == 1)
             {
                 header('location:'.CURRENT_PAGE.'?filter='.$data_array);exit;

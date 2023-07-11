@@ -1,5 +1,5 @@
 <?php
-// print_r($_GET);
+
 require_once("include/config.php");
 require_once(DIR_FS . "islogin.php");
 $client_maintenance_instance = new client_maintenance();
@@ -36,7 +36,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'Proceed') {
     $dont_contact_client = isset($_POST['dont_contact_client']) ? $instance->re_db_input($_POST['dont_contact_client']) : 0;
     $beginning_date = isset($_POST['beginning_date']) ? $instance->re_db_input($_POST['beginning_date']) : '';
     $ending_date = isset($_POST['ending_date']) ? $instance->re_db_input($_POST['ending_date']) : '';
-    if ($report_for == 1) { //print_r($report_for);exit;
+    if ($report_for == 1) { 
         if ($output == 1) {
             header('location:' . CURRENT_PAGE . '?filter=' . $data_array);
             exit;

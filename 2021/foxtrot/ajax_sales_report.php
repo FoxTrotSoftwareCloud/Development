@@ -39,7 +39,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
      $prod_cat =array_filter($prod_cat,function($value) {
         return $value > 0;
     });
-    // print_r($prod_cat);
+
     $sponsor = isset($filter_array['sponsor'])?$instance->re_db_input($filter_array['sponsor']):'';
     $rep_no = isset($filter_array['rep_no'])?$instance->re_db_input($filter_array['rep_no']):'';
     $date_by= isset($filter_array['date_by'])?$instance->re_db_input($filter_array['date_by']):1;
@@ -197,8 +197,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         }
             $without_earning= isset($filter_array['without_earning'])?$instance->re_db_input($filter_array['without_earning']):'';
             $get_trans_data = $instance_trans->select_year_to_date_sale_report($beginning_date,$ending_date,$company,$without_earning,$earning_by);
-        /*echo '<pre>';print_r($get_trans_data);
-             echo '</pre>';*/
+
         ?>
         <table border="0" width="100%">
             <tr>
@@ -233,7 +232,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
                 if(!empty($get_trans_data))
                 {                   
-                    //echo '<pre>';print_r($get_trans_data);
+
                     $total_gross_earning=0.00;
                     $total_net_commission=0.00;
                     $total_check_amount=0.00;
@@ -329,11 +328,11 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $prod_cat =array_filter($prod_cat,function($value) {
             return $value > 0;
         });
-        //  print_r($prod_cat);
+
         $is_all_category = empty($prod_cat);
 
             $ranks = ['Total Earnings','Gross Concessions','Total Sales','Profitability'];
-        // var_dump($report_rank_order_by);
+
             $subheading = '<h6> <strong> BROKER RANKINGS REPORT </strong> </h6> <h5> '.$companyhead.' </h5>  <h6>  ';
 
 
@@ -433,7 +432,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             else {
                 $companyhead.=', All Brokers';
         }
-        //  print_r($rows);
+
         $date_heading = ($annul_broker_date_type == 1) ? 'By Trade Date' : ' By Settlement Date';
         $subheading = 'ANNUAL BROKER REPORT ';
             $subheading2 = 'For '.$report_year.' - '.$date_heading;
@@ -493,7 +492,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
         $earning_by = 2;
             $earning_filter = compact('earning_by','beginning_date','ending_date');
             $rows = $instance_trans->select_monthly_broker_production_report($company,$earning_filter);
-        //  echo '<pre>'; print_r($rows); echo '</pre>';
+
         $subheading = 'BROKER PRODUCTION REPORT ';
             $subheading2 = 'Trade Dates: '.$beginning_date." - ".$ending_date;
         echo '<table border="0" width="100%">
@@ -568,7 +567,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
             $subheading2 = 'Trade Dates: '.$beginning_date." - ".$ending_date;
         // $subheading2 = 'Ending Date: '.date('F d, Y',strtotime($ending_date));
             $rows = $instance_trans->select_monthly_branch_office_report($company,$branch,$ending_date,$beginning_date);
-        //echo '<pre>'; print_r($rows); echo '</pre>';
+
         echo '<table border="0" width="100%">
                     <tr>
                          <td width="20%" align="left">'.date("m/d/Y").'</td>
@@ -588,9 +587,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     <td align="right">Net Commission </td>
                 </tr>
                 </thead>';
-        /* echo '<pre>';
-                print_r($rows);
-                echo '</pre>';*/
+
             if(!empty($rows)) {
             $main_net_commission = $main_total_concessions = $main_invest_total = 0;
             echo '<tbody class="modal-tbody-rows">';
@@ -670,7 +667,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
 
             $get_trans_data = $instance_trans->select_transcation_history_report_v2($report_for,$sort_by,$branch,$broker,'',$client,$product,$beginning_date,$ending_date,$batch,$date_by,$filter_by,$is_trail,$prod_cat);
     
-          //  print_r($get_trans_data);
+
             if(!empty($get_trans_data))
             {
             $get_data_by_category = array();
@@ -727,7 +724,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                 <?php
                 if(!empty($get_trans_data))
                 {                   
-                    //echo '<pre>';print_r($get_trans_data);
+               
                     $total_comm_received=0;
                     $total_comm_paid=0;
                     $total_inv=0;
@@ -887,7 +884,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $total_comm_paid=0;
                     foreach($get_trans_data as $trans_main_key=>$trans_main_data)
                     {
-                        //print_r($trans_main_data[0]);die;
+  
                 ?>
                         <tr>
                             <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="6">

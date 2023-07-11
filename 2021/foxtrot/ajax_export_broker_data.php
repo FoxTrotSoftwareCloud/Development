@@ -69,7 +69,6 @@ foreach ($return as $key => $returns) {
             $reassign_broker = $r_broker_data['last_name'] . ", " . $r_broker_data['first_name'];
         }
         
-        // print_r($r_broker_data);
         $u4                       = isset($editreturns['u4']) ? date('m/d/Y', strtotime($instance->re_db_output($editreturns['u4']))) : '';
         $u5                       = isset($editreturns['u5']) ? date('m/d/Y', strtotime($instance->re_db_output($editreturns['u5']))) : '';
         $day_after_u5             = isset($editreturns['day_after_u5']) ? $instance->re_db_output($editreturns['day_after_u5']) : '';

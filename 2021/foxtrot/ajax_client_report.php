@@ -58,8 +58,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
     {
     $is_recrod_found=false;
         $return_client_accounts= $instance->get_client_account_list($sponsor_id,$broker_id);
-       /* echo "<pre>";
-        print_r($return_client_accounts);die;*/
+
         $queried_sponsors=isset($sponsor_id) && $sponsor_id!=0 ? implode(",",array_map("get_sponsor_name_only",array_filter($get_sponsors,function ($sponsorA) use ($sponsor_id){return $sponsorA['id']==$sponsor_id ? true :false;}))) : 'All Sponsors';
         ?>
        <div class="print_section accounting">
@@ -153,8 +152,6 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
       else if($report_for==2)
       {
             $return_broker_list = $instance->get_client_report($state_id,$broker_id);
-            /*echo "<pre>";
-            print_r($return_broker_list);die;*/
             
             // $queried_states=isset($state_id) && $state_id!=0 ? implode(",",array_map("get_name_only",array_filter($get_states,"get_state_name"))) : 'ALL';
 
@@ -296,8 +293,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                     $last_record=0;
                     $is_recrod_found=false;
                      $return_client_review_list = $instance->get_client_review_report($broker_id,$beginning_date,$ending_date,$dont_contact_client);
-                    /*echo "<pre>";
-                    print_r($return_client_review_list);die;*/
+
                     foreach($return_client_review_list as $client_review):
                     $is_recrod_found=true;
                     if(!empty($client_review['client_accounts'])):

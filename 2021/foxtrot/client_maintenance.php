@@ -395,7 +395,7 @@
         }
     }
     else if(isset($_POST['add_allobjectives'])&& $_POST['add_allobjectives']=='Add_AllObjectives'){
-        // echo '<pre>';print_r($_POST);exit;
+
         $id = isset($_POST['allobjectives_id'])?$instance->re_db_input($_POST['allobjectives_id']):0;
         $allobjectives = isset($_POST['allobjectives'])?$_POST['allobjectives']:array();
 
@@ -443,7 +443,7 @@
         echo $error;
         exit;
     }
-    else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){//print_r($_FILES);exit;
+    else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
         $file = isset($_FILES['add_attach'])?$_FILES['add_attach']:array();
@@ -478,7 +478,7 @@
        $return = $instance->search($search_text);
     }
     else if($action=='edit' && $id>0){
-        $return = $instance->edit($id);//echo '<pre>';print_r($return);exit;
+        $return = $instance->edit($id);
         $client_change_data = $instance->get_client_changes($id);
         $fname = isset($return['first_name'])?$instance->re_db_output($return['first_name']):'';
         $lname = isset($return['last_name'])?$instance->re_db_output($return['last_name']):'';
@@ -687,10 +687,9 @@
         } else if ($file_type==11) {
             $detailData = $instance_import->select_existing_ori_data($exceptionId);
         }
-        // echo "<pre>";
-        // print_r($detailData);die;
+
         if ($detailData){
-         //   echo "<pre>"; print_r($detailData);die;
+
             // Broker 
             $broker_name = $dbins->re_db_input($detailData['broker_id']);
     

@@ -54,7 +54,6 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
     $is_recrod_found = false;
 
     $list_data= $instance->broker_state_license_report($branch,$broker_id,$state);
-    //echo "<pre>"; print_r($list_data);die;
 ?>
     <div class="print_section accounting">
 

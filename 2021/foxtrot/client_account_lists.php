@@ -7,8 +7,7 @@ $instance_broker = new broker_master();
 $get_brokers=$instance_broker->select_broker();
 $client_account_list_instance=new client_account_list();
 list($client_list,$total_rec)=$client_account_list_instance->get_client_account_list();
-// print_r($client_list);die;
-// echo $total_records['total_records'];
+
 if (isset($_GET['page_no']) && $_GET['page_no']!="") {
     $page_no = (int)$_GET['page_no'];
 } 

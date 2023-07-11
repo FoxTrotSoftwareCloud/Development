@@ -254,7 +254,7 @@ require_once(DIR_FS . "islogin.php"); ?>
                                     <li class="active menuhome"><a href="home.php"><i class="fa fa-home"></i></a></li>
                                     <?php
                                     $menu = $instance_header->menu_select();
-                                    // print_r($menu);
+                                 
                                     foreach ($menu as $menukey => $menudata) {
                                     ?>
                                         <li>
@@ -263,7 +263,7 @@ require_once(DIR_FS . "islogin.php"); ?>
                                                 <ul class="dropdown-menu multi-level">
                                                     <?php
                                                     foreach ($menudata['submenu'] as $subkey => $subdata) {
-                                                        //print_r($subdata);
+                                                 
                                                     ?>
                                                         <?php if (empty($subdata['submenu'])) {  ?>
                                                             <li><a href="<?php echo $subdata['link_page'] ?>"><?php echo $subdata['link_text']; ?></a></li>

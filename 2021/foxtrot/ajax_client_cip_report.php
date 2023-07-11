@@ -56,7 +56,6 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
     $is_recrod_found = false;
 
     $list_data = $instance_client->client_cip_report($beginning_date, $ending_date, $broker_id, $cip_client, $exclude_donot_contact_client, $sponsor_id);
-    //echo "<pre>"; print_r($list_data);
 ?>
     <div class="print_section accounting">
 

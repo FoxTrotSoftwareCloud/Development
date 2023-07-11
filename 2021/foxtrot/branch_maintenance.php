@@ -1,7 +1,7 @@
 <?php
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
-    //echo '<pre>';print_r($_FILES);exit;
+
     $search_text = '';
     $name = '';
     $broker = '';
@@ -198,7 +198,7 @@
         echo $error;
         exit;
     } 
-    else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){//print_r($_FILES);exit;
+    else if(isset($_POST['add_attach'])&& $_POST['add_attach']=='Add Attach'){
         $_POST['user_id']=$_SESSION['user_name'];
         $_POST['date'] = date('Y-m-d');
         $file = isset($_FILES['add_attach'])?$_FILES['add_attach']:array();

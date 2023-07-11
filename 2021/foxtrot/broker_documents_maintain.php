@@ -9,7 +9,7 @@
     $instance = new broker_document();
    
     if(isset($_POST['submit'])&& $_POST['submit']=='Save'){ 
-        //echo '<pre>';print_r($_POST);exit();
+
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $desc = isset($_POST['desc'])?$instance->re_db_input($_POST['desc']):'';
         $required = isset($_POST['required'])?$instance->re_db_input($_POST['required']):'';

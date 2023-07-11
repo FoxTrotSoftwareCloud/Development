@@ -1,5 +1,5 @@
 <?php
-// print_r($_GET);
+
 require_once("include/config.php");
 require_once(DIR_FS . "islogin.php");
 
@@ -14,7 +14,6 @@ $get_brokers = $instance_broker->select_broker();
 
 $instance_manager = new user_master();
 $manager_list = $instance_manager->select_managers();
-// echo "<pre>"; print_r($manager_list);die;
 
 $is_branch_manager = $instance_branch->check_if_branch_manager($_SESSION['user_id']);
 

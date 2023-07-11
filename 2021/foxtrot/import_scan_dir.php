@@ -1,7 +1,7 @@
 <?php
     require_once("include/config.php");
     require_once(DIR_FS."islogin.php");
-    //print_r($_POST);exit;
+
     $action = isset($_GET['action'])&&$_GET['action']!=''?$dbins->re_db_input($_GET['action']):'view';
     $id = isset($_GET['id'])&&$_GET['id']!=''?$dbins->re_db_input($_GET['id']):0;
     $return = array();
@@ -53,7 +53,7 @@
         }
     }
     else if(isset($_POST['fetch_files']) && $_POST['fetch_files']== 'Fetch Files')
-    {//print_r($_FILES['files']);exit;
+    {
         $return = $instance->insert_update_files($_POST);   
         if($return===true){
             echo '1';exit;
@@ -74,7 +74,7 @@
         $status = isset($return['status'])?$instance->re_db_output($return['status']):'';
     }
     else if(isset($action) && $action=='open_ftp')
-    {//print_r($action);exit;
+    {
         header("location:".CURRENT_PAGE."?tab=open_ftp");exit;
     }
     else if(isset($_GET['tab']) && $_GET['tab'] =='open_ftp')
@@ -109,8 +109,7 @@
         }
     }  
     else if($action=='view'){
-        $return = $instance->select_current_files();//echo '<pre>';print_r($return);exit;
-        //print_r($return);exit;
+        $return = $instance->select_current_files();
     }
     
     

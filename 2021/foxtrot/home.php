@@ -224,12 +224,6 @@ for ($i = 0; $i <= 11; $i++) {
     $ytd_month_array_commission_pending[date("m", strtotime("-" . $i . " Months"))] = 0.00;
 }
 
-// print_r(array_reverse($year_array_last));
-
-// echo "<pre>";
-// print_r(array_reverse($month_name));
-// die;
-
 $last_12_month_list = json_encode(array_values(array_reverse($month_name)));
 
 // for compliencs chart 

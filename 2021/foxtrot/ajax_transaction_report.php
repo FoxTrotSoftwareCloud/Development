@@ -203,7 +203,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $total_comm_paid=0;
                         foreach($get_trans_data as $trans_main_key=>$trans_main_data)
                         {
-                               //print_r($trans_main_data[0]);die;
+
                                ?>
                                <tr>
                                    <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="6">
@@ -325,7 +325,7 @@ if(isset($_GET['filter']) && $_GET['filter'] != '')
                         $total_comm_paid=0;
                     foreach($get_trans_data as $trans_main_key=>$trans_main_data)
                     {
-                       //print_r($trans_main_data[0]);die;
+
                        ?>
                        <tr>
                            <td style="font-size:10px;font-weight:bold;text-align:left;" colspan="6">

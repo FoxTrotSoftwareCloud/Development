@@ -53,7 +53,7 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
         $is_recrod_found = false;
 
         $list_data= $instance_import->complience_exception_report($beginning_date,$ending_date,$broker_id,$client);
-        //echo "<pre>"; print_r($list_data);
+
         ?>
         <div class="print_section accounting">
 
