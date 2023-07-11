@@ -153,7 +153,7 @@ class broker_master extends db
    * */
   public function insert_update($data)
   {
-    //echo '<pre>';print_r($_POST);exit;
+
     $_SESSION['last_insert_id'] = 0;
     $id = isset($data['id']) ? $this->re_db_input($data['id']) : 0;
 
@@ -564,7 +564,7 @@ class broker_master extends db
         }
       }
     }
-    //echo '<pre>';print_r($file_ary);exit;
+
     return $file_ary;
   }
   public function insert_update_payout_grid($data, $id)
@@ -671,7 +671,7 @@ class broker_master extends db
         }
       }
     }
-    //echo'<pre>';print_r($file_ary);exit;
+
     return $file_ary;
   }
   public function insert_update_payout_override($data, $id)
@@ -784,10 +784,10 @@ class broker_master extends db
     return $file_ary;
   }
   public function insert_update_payout_split($data, $id)
-  { //echo '<pre>';print_r($data);exit;
+  { 
     $id = isset($id) ? $this->re_db_input($id) : 0;
     $flag2 = 0;
-    //echo '<pre>';print_r($data);exit;
+
     if ($id == 0) {
       foreach ($data as $key => $val) {
         $rap = isset($val['rap']) ? $this->re_db_input($val['rap']) : '';
@@ -874,9 +874,7 @@ class broker_master extends db
   }
   public function insert_update_payout_fixed_rates($data, $id)
   {
-    // echo '<pre>';
-    // print_r($data);
-    // exit;
+
     $id = isset($id) ? $this->re_db_input($id) : 0;
 
     /* ---- GET INITIAL VALUES START -----------*/
@@ -1077,10 +1075,8 @@ class broker_master extends db
   public function insert_update_licences_security($data)
   {
 
-    // echo '<pre>';print_r($data); die;
-
     $id = isset($data['id']) ? $this->re_db_input($data['id']) : 0;
-    // print_r($id); die;
+
     // $active=isset($data['active'])?$this->re_db_input($data['active']):'0';
     // $categorey=isset($data['category'])?$this->re_db_input($data['category']):'';
     $query = $this->re_db_query("select id from " . BROKER_LICENCES_SECURITIES . " where `broker_id`=" . $id . " and is_delete=0");
@@ -1096,7 +1092,6 @@ class broker_master extends db
     $updateRows = array_intersect($postedData['row_id'], $alreadyExistedRecords);
     $newInsertRows = array_diff($postedData['row_id'], $alreadyExistedRecords);
     $deletedRows = array_diff($alreadyExistedRecords, $postedData['row_id']);
-    // ECHO'<PRE>';print_r( $deletedRows); DIE;
 
     $rowCounter = 0;
     if ($id == 0) {
@@ -1229,8 +1224,7 @@ class broker_master extends db
     //     if ($originalHash != $newHash)
     //     {
     //       foreach ($newValues as $key => $value){
-    //                // echo '<pre>'; print_r($value);
-    //                // echo '<pre>'; print_r($value); die;
+ 
     //       $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `product_category`='".$value['product_category']."' ,`state_id`='".$value['state']."',
     //         `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state']."' and `broker_id`='".$id."'";
 
@@ -1260,7 +1254,7 @@ class broker_master extends db
 
   //   public function insert_update_licences($data)
   //   {
-  //     // ECHO '<pre>';print_r($data); die();
+
   //     $id = isset($data['id'])?$this->re_db_input($data['id']):0;
   //     $type_of_licences =isset($data['type'])?$this->re_db_input($data['type']):'';
   //     $waive_home_state_fee = isset($data['pass_through'])?$this->re_db_input($data['pass_through']):'0';
@@ -1271,7 +1265,7 @@ class broker_master extends db
   //       {
 
   //       	foreach($cat_row as $cat_id=>$val){
-  //           // print_r($val); die;
+
   //           $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
   //           $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
   //           $received=isset($val['received'])?$this->re_db_input(date('Y-m-d',strtotime($val['received']))):'0000-00-00';
@@ -1338,7 +1332,7 @@ class broker_master extends db
   //         {
   //           foreach ($newValues as $key => $value)
   //           {
-  //             print_r($value); DIE;
+ 
   //             $q = "UPDATE `".BROKER_LICENCES_SECURITIES."`  SET `type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
   //             `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `product_category`='".$value['product_category']."' ,`active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
   //             `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->update_common_sql()." WHERE `state_id`='".$value['state_id']."' and `broker_id`='".$id."'";
@@ -1351,7 +1345,7 @@ class broker_master extends db
   //       else
   //       {
   //         foreach ($newValues as $key => $value) {
-  //            print_r($value); DIE;
+
   //           $q="INSERT INTO `".BROKER_LICENCES_SECURITIES."` SET `broker_id`='".$id."' ,`type_of_licences`='".$value['type_of_licences']."' ,`state_id`='".$value['state_id']."' ,
   //             `waive_home_state_fee`='".$value['waive_home_state_fee']."' , `product_category`='".$value['product_category']."' ,`active_check`='".$value['active_check']."' ,`fee`='".$value['fee']."' ,
   //             `received`='".$value['received']."' ,`terminated`='".$value['terminated']."',`reson`='".$value['reson']."' ".$this->insert_common_sql();
@@ -1372,17 +1366,16 @@ class broker_master extends db
   //   }
   public function insert_update_licences1($data)
   {
-    // echo '<pre>';print_r($data); die;
+
     $id = isset($data['id']) ? $this->re_db_input($data['id']) : 0;
     $categorey = isset($data['category']) ? $this->re_db_input($data['category']) : 0;
-    // echo '<pre>';print_r($categorey); die;
 
     // $type_of_licences =isset($data['type'])?$this->re_db_input($data['type']):'';
     // $ = isset($data['pass_through'])?$this->re_db_input($data['pass_through']):'0';
     // $product_category = (isset($data['product_category']) && strlen($data['product_category'] > 0))?$this->re_db_input($data['product_category']):'0';
     if ($id >= 0) {
       if ($id == 0) {
-        // echo '<pre>';print_r($data['data2']); die;
+
         foreach ($data['data2'] as $key => $val) {
           // $active_check=isset($val['active_check'])?$this->re_db_input($val['active_check']):'0';
           // $fee=isset($val['fee'])?$this->re_db_input($val['fee']):'';
@@ -1450,9 +1443,9 @@ class broker_master extends db
         /* ---- GET NEW VALUES END -------------*/
         if ($variable > 0) {
           if ($originalHash != $newHash) {
-            // echo '<pre>'; print_r($value); die;
+
             foreach ($newValues as $key => $value) {
-              // echo '<pre>';print_r($value); die;
+
               // 06/10/22 Just changed one piece of code below:
               // OLD: SET `type_of_licences`='".$value['category']
               // NEW: SET `type_of_licences`='".$value['type_of_licences']
@@ -1500,7 +1493,7 @@ class broker_master extends db
 
   public function insert_update_licences2($data)
   {
-    //echo '<pre>';print_r($data);
+
     $id = isset($data['id']) ? $this->re_db_input($data['id']) : 0;
     $type_of_licences = isset($data['type']) ? $this->re_db_input($data['type']) : '';
     $waive_home_state_fee = isset($data['pass_through']) ? $this->re_db_input($data['pass_through']) : '0';
@@ -1587,10 +1580,10 @@ class broker_master extends db
   public function reArrayFiles($file_post)
   {
     $file_ary = array();
-    //echo '<pre>';print_R($file_post);
+
     $file_count = count($file_post['docs_description']);
     $file_keys = array_keys($file_post);
-    //echo '<pre>';print_R($file_keys);
+
     for ($i = 1; $i <= $file_count; $i++) {
       foreach ($file_keys as $key) {
         if (isset($file_post[$key][$i])) {
@@ -1600,13 +1593,13 @@ class broker_master extends db
         }
       }
     }
-    //echo '<pre>';print_R($file_ary);exit;
+
     return $file_ary;
   }
 
   public function insert_update_req_doc($data, $id1)
   {
-    //echo '<pre>';print_r($data);exit;
+
     $id = isset($id1) ? $this->re_db_input($id1) : 0;
     $flag4 = $res = 0;
 
@@ -1726,7 +1719,7 @@ class broker_master extends db
     return $file_ary;
   }
   public function insert_update_alias($data, $id)
-  { //echo '<pre>';print_r($data);exit;
+  { 
     $id = isset($id) ? $this->re_db_input($id) : 0;
     $flag8 = 0;
     if ($id == 0) {
@@ -1866,12 +1859,7 @@ class broker_master extends db
         }
         $originalHash = md5(json_encode($originalArray));
         $newHash = md5(json_encode($newValues));
-        /*
-              echo '<pre>';
-              print_r($originalArray);
-              print_r($newValues);
-              var_dump($originalArray == $newValues );
-              die;*/
+
         /* ---- GET NEW VALUES END -------------*/
         if ($variable > 0) {
           if ($originalArray != $newValues) {
@@ -1899,15 +1887,14 @@ class broker_master extends db
   /** Insert update charges data for broker. **/
   public function insert_update_charges1231321564($data)
   {
-    /*          echo '<pre>';print_r($data);exit;
-*/
+
     $id = isset($data['id']) ? $this->re_db_input($data['id']) : 0;
     if ($id == 0) {
 
       foreach ($data as $key => $val) {
         $charges_type = $key;
         foreach ($val as $key => $value) {
-          $charges_name = $key; //echo '<pre>';print_r($value);exit;
+          $charges_name = $key; 
           $q = "INSERT INTO `" . BROKER_CHARGES_MASTER . "` SET `broker_id`='" . $_SESSION['last_insert_id'] . "',`charges_type`='" . $charges_type . "',`charges_name`='" . $charges_name . "',`manage_clearing`='" . $value['clearing'] . "',`manage_execution`='" . $value['execution'] . "',`non_manage_clearing`='" . $value['non_clearing'] . "',`non_manage_execution`='" . $value['non_execution'] . "'" . $this->insert_common_sql();
           $res = $this->re_db_query($q);
         }
@@ -1929,7 +1916,7 @@ class broker_master extends db
   }
   /** Insert update charges data for broker. **/
   public function insert_update_charges($data)
-  { //print_r($data['pass_through1']);exit;
+  { 
     $pass_through = isset($data['pass_through1']) ? $this->re_db_input($data['pass_through1']) : 0;
     if (isset($data['id']) && $data['id'] == '0') {
       $id = $_SESSION['last_insert_id'];
@@ -1971,7 +1958,7 @@ class broker_master extends db
    * @return array of record if success, error message if any errors
    * */
   public function insert_update_broker_notes($data)
-  { //print_r($data);
+  { 
     $notes_id = isset($data['notes_id']) ? $this->re_db_input($data['notes_id']) : 0;
     $date = isset($data['date']) ? $this->re_db_input($data['date']) : '';
     $user_id = isset($data['user_id']) ? $this->re_db_input($data['user_id']) : '';
@@ -2013,7 +2000,7 @@ class broker_master extends db
     }
   }
   public function insert_update_broker_attach($data)
-  { //print_r($data);exit;
+  { 
     $attach_id = isset($data['attach_id']) ? $this->re_db_input($data['attach_id']) : 0;
     $date = isset($data['date']) ? $this->re_db_input($data['date']) : '';
     $user_id = isset($data['user_id']) ? $this->re_db_input($data['user_id']) : '';
@@ -2976,7 +2963,7 @@ class broker_master extends db
     if ($this->re_db_num_rows($res) > 0) {
       $a = 0;
       while ($row = $this->re_db_fetch_array($res)) {
-        //print_r($row);exit;
+
         array_push($return, $row);
       }
     }
@@ -3098,7 +3085,7 @@ class broker_master extends db
       while ($row = $this->re_db_fetch_array($res)) {
         $return[$row['charge_type_id']][$row['charge_name_id']][$row['account_type']][$row['account_process']] = $row['value'];
       }
-    } //echo "<pre>"; print_r($return);exit;
+    } 
     return $return;
   }
 
@@ -3287,8 +3274,6 @@ class broker_master extends db
       }
     }
 
-    //echo "<pre>"; print_r($all_appointments);die;
-
     if ($groupby == "broker") {
 
       //fetch all brokers
@@ -3391,9 +3376,6 @@ class broker_master extends db
         array_push($all_licenses, $row);
       }
     }
-
-    //  echo "<pre>"; print_r($all_licenses);die;
-
 
     //fetch all states
     $state_query = "SELECT `s`.* FROM `" . STATE_MASTER . "` AS `s` 

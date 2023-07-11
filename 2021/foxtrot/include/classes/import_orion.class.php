@@ -48,8 +48,7 @@ class import_orion extends import {
         if ($file_id) { 
             $return = $this->load_detail_table($loadFile, $file_id, $sponsor_id, $product_category_id); 
         } 
-        // echo '<pre>';
-        // print_r($return);die;
+
         if ($return) { 
             $instance_import->reprocess_current_files($file_id, $this->file_type); 
         }
@@ -150,8 +149,7 @@ class import_orion extends import {
         }
     
         $fileDetailArray = $this->load_csvfile_detail($filePathAndName);
-        // echo '<pre>';
-        // print_r($fileDetailArray);die;
+
         $repnumber = "";
         if ($fileDetailArray){
             $insertCommonSQL = $this->insert_common_sql(3);
@@ -261,9 +259,7 @@ class import_orion extends import {
                             }                            
                         }
                     }
-                    
-                    // echo '<pre>';
-                    // print_r($fieldValues);die;
+
                     // Table Fields to populate
                     // 20-12-2022 considered column D as cusip_number so it is added in detail table
                     $tableFields = '';
@@ -286,8 +282,6 @@ class import_orion extends import {
                     }
                 }
             }
-            // echo '<pre>';
-            // print_r($fieldValues);die;
 
         }
         

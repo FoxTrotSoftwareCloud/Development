@@ -186,7 +186,7 @@
       return null;
 		}
         
-        public function insert_update_company_notes($data){//print_r($data);
+        public function insert_update_company_notes($data){
 			$notes_id = isset($data['notes_id'])?$this->re_db_input($data['notes_id']):0;
 			$date = isset($data['date'])?$this->re_db_input($data['date']):'';
             $user_id = isset($data['user_id'])?$this->re_db_input($data['user_id']):'';
@@ -229,7 +229,7 @@
     			}
             }
 		}
-        public function insert_update_company_attach($data){//print_r($data);exit;
+        public function insert_update_company_attach($data){
             $attach_id = isset($data['attach_id'])?$this->re_db_input($data['attach_id']):0;
             $date = isset($data['date'])?$this->re_db_input($data['date']):'';
             $user_id = isset($data['user_id'])?$this->re_db_input($data['user_id']):'';
@@ -551,7 +551,7 @@
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
-    			     //print_r($row);exit;
+
                      array_push($return,$row);
                      
     			}

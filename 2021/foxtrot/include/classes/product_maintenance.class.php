@@ -7,7 +7,7 @@ class product_maintenance extends db
 
 
 	public function insert_update_product($data, $isReturn = false)
-	{ //echo '<pre>';print_r($data);exit;
+	{ 
 
 		$id = isset($data['id']) ? $this->re_db_input($data['id']) : 0;
 		$category = isset($data['product_category']) ? $this->re_db_input($data['product_category']) : '';
@@ -200,7 +200,7 @@ class product_maintenance extends db
 	 * @return true if success, error message if any errors
 	 * */
 	public function insert_update($data, $isReturn = false)
-	{ //echo '<pre>';print_r($data);exit;
+	{ 
 
 		$id = isset($data['id']) ? $this->re_db_input($data['id']) : 0;
 		$category = isset($data['product_category']) ? $this->re_db_input($data['product_category']) : '';
@@ -321,7 +321,7 @@ class product_maintenance extends db
 		}
 	}
 	public function insert_update_product_notes($data)
-	{ //print_r($data);
+	{ 
 		$notes_id = isset($data['notes_id']) ? $this->re_db_input($data['notes_id']) : 0;
 		$date = isset($data['date']) ? $this->re_db_input($data['date']) : '';
 		$user_id = isset($data['user_id']) ? $this->re_db_input($data['user_id']) : '';
@@ -361,7 +361,7 @@ class product_maintenance extends db
 		}
 	}
 	public function insert_update_product_attach($data)
-	{ //print_r($data);exit;
+	{ 
 		$attach_id = isset($data['attach_id']) ? $this->re_db_input($data['attach_id']) : 0;
 		$date = isset($data['date']) ? $this->re_db_input($data['date']) : '';
 		$user_id = isset($data['user_id']) ? $this->re_db_input($data['user_id']) : '';
@@ -663,7 +663,7 @@ class product_maintenance extends db
 		if ($this->re_db_num_rows($res) > 0) {
 			$a = 0;
 			while ($row = $this->re_db_fetch_array($res)) {
-				//print_r($row);exit;
+			
 				array_push($return, $row);
 			}
 		}

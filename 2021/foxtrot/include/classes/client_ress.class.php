@@ -73,7 +73,7 @@ class client_ress extends db{
 			while($row = $this->re_db_fetch_array($res)){
 			     array_push($return,$row);
 			}
-        }//echo '<pre>';print_r($return);exit;
+        }
 		return $return;
 	}
 }

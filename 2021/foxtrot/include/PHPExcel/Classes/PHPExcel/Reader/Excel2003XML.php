@@ -516,8 +516,7 @@ class PHPExcel_Reader_Excel2003XML extends PHPExcel_Reader_Abstract implements P
                         break;
                 }
             }
-//            print_r($this->styles[$styleID]);
-//            echo '<hr />';
+
         }
 //        echo '<hr />';
 
@@ -743,9 +742,7 @@ class PHPExcel_Reader_Excel2003XML extends PHPExcel_Reader_Abstract implements P
                             $style = (string) $cell_ss['StyleID'];
 //                            echo 'Cell style for '.$columnID.$rowID.' is '.$style.'<br />';
                             if ((isset($this->styles[$style])) && (!empty($this->styles[$style]))) {
-//                                echo 'Cell '.$columnID.$rowID.'<br />';
-//                                print_r($this->styles[$style]);
-//                                echo '<br />';
+
                                 if (!$objPHPExcel->getActiveSheet()->cellExists($columnID.$rowID)) {
                                     $objPHPExcel->getActiveSheet()->getCell($columnID.$rowID)->setValue(null);
                                 }

@@ -156,7 +156,7 @@
             $menu_rights = isset($data['check_sub'])?$data['check_sub']:array();
             $main_menu_rights = isset($data['check_parent'])?$data['check_parent']:array();
             
-            $user_image = isset($_FILES['file_image'])?$_FILES['file_image']:array();//print_r($user_image);exit;
+            $user_image = isset($_FILES['file_image'])?$_FILES['file_image']:array();
             $valid_file = array('jpg','jpeg','png','bmp');
 			
 			if($fname==''){

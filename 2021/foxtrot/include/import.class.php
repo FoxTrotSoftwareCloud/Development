@@ -1683,7 +1683,6 @@ class import extends db
                                 mkdir(DIR_FS."import_files/user_".$_SESSION['user_id'], 0777, true);
                             }
 
-                            //print_r(DIR_FS."import_files/user_".$_SESSION['user_id']);exit;
                             $zip->extractTo(DIR_FS."import_files/user_".$_SESSION['user_id']);
                             $zip->close();
                         }
@@ -1700,7 +1699,7 @@ class import extends db
                         $file_type_array    = array('07' => 'Non-Financial Activity', '08' => 'New Account Activity', '09' => 'Account Master Position', 'C1' => 'DST Commission');
                         $file_name_array    = explode('.', $ext_filename);
                         $file_type_checkkey = substr($file_name_array[0], -2);
-//print_r($ext_filename);exit;
+
                         if (array_key_exists($file_type_checkkey, $file_type_array)) {
                             if (isset($file_type_checkkey) && ($file_type_checkkey == '07' || $file_type_checkkey == '08' || $file_type_checkkey == '09')) {
                                 $source = 'DSTFANMail';
@@ -1801,7 +1800,7 @@ class import extends db
 
             $this->errors = '';
 
-//print_r($return);
+
             if ($return == 0) {
                 $file_string_array = array();
                 $get_file          = $this->select_user_files($id);
@@ -2010,7 +2009,7 @@ class import extends db
                         $res             = $this->re_db_query($q);
                         $rhr_inserted_id = $this->re_db_insert_id();
                         $data_status     = true;
-                        //echo '<pre>';print_r($main_val);exit;
+
                         $DETAIL = $main_val['DETAIL'];
 
                         foreach ($DETAIL as $detail_key => $detail_val) {

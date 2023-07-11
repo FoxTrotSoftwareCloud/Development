@@ -289,7 +289,7 @@
 
 		}
 
-		public function insert_update_employment($data){//echo '<pre>';print_r($data);exit;
+		public function insert_update_employment($data){
 			$id = isset($data['employment_id'])?$this->re_db_input($data['employment_id']):0;
 			if ($id > 0){
 				$originalInstance = $this->select_client_employment_by_id($id);
@@ -430,9 +430,9 @@
                                 $no_match_key = array_keys($no_match_val);
                                 $q = "INSERT INTO `".CLIENT_HISTORY."` SET `client_id`='".$id."',`field`='account_no',`old_value`='".$no_match_val[$no_match_key[0]]."',`new_value`='".$val_acc."'".$this->insert_common_sql();
                 				$res = $this->re_db_query($q);
-                            }//echo '<pre>';print_r($sponsor[$key_acc]);
+                            }/
                             /*if(!in_array($sponsor[$key_acc],$sponsor_data,true))
-                            {print_r($sponsor[$key_acc]);
+                            {
                                 //$no_match_val = array_diff($sponsor_data,$account_no);
                                 //$no_match_key = array_keys($no_match_val);
                                 $q = "INSERT INTO `".CLIENT_HISTORY."` SET `client_id`='".$id."',`field`='sponsor_company',`old_value`='-',`new_value`='".$sponsor[$key_acc]."'".$this->insert_common_sql();
@@ -552,7 +552,7 @@
 				return false;
 			}
 		}
-        public function insert_update_allobjectives($data){//print_r($data);exit;
+        public function insert_update_allobjectives($data){
 
 			$allobjectives = isset($data['allobjectives'])?$data['allobjectives']:array();
 
@@ -614,7 +614,7 @@
     			}
             }
 		}
-        public function insert_update_client_account($data){//echo '<pre>';print_r($data);exit();
+        public function insert_update_client_account($data){
 			$account_id = isset($data['id'])?$this->re_db_input($data['id']):0;
 			$joint_name = isset($data['joint_name'])?$this->re_db_input($data['joint_name']):'';
             $ssn = isset($data['ssn'])?$this->re_db_input($data['ssn']):'';
@@ -664,7 +664,7 @@
     			}
             }
 		}
-        public function insert_update_client_attach($data){//print_r($data);exit;
+        public function insert_update_client_attach($data){
             $attach_id = isset($data['attach_id'])?$this->re_db_input($data['attach_id']):0;
             $date = isset($data['date'])?$this->re_db_input($data['date']):'';
             $user_id = isset($data['user_id'])?$this->re_db_input($data['user_id']):'';
@@ -1229,7 +1229,7 @@
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
-    			     //print_r($row);exit;
+  
                      array_push($return,$row);
 
     			}
@@ -1264,7 +1264,7 @@
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			while($row = $this->re_db_fetch_array($res)){
-    			     //print_r($row);exit;
+
                      array_push($return,$row);
 
     			}

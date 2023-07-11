@@ -217,19 +217,13 @@ class payroll extends db
             $res = $this->re_db_query($q);
             $last_inserted_id = $this->re_db_insert_id();
         }
-        // echo "<pre>";
-        // print_r($direct_business_cutoff_date);
-        // echo "<pre>";
-        // print_r($clearing_business_cutoff_date);
+
         // DIRECT BUSINESS Trades
         if ($direct_business_cutoff_date != '') {
             $trades_array = $this->select_trades($direct_business_cutoff_date, 1, $uploadRepsQuery, $company_id);
 
             foreach ($trades_array as $key => $val) {
-                // echo "<pre>";
-                // print_r("if");
-                // echo "<pre>";
-                // print_r($val);    
+  
                 $q = "INSERT INTO `" . PAYROLL_REVIEW_MASTER . "`"
                     . " SET `payroll_id`='" . $last_inserted_id . "',`trade_number`='" . $val['id'] . "',`trade_date`='" . $val['trade_date'] . "' ,`product`='" . $val['product'] . "',`product_category`='" . $val['product_cate'] . "'"
                     . ",`client_account_number`='" . $val['client_number'] . "',`client_name`='" . $val['client_name'] . "',`broker_id`='" . $val['broker_name'] . "',`quantity`='" . $val['units'] . "',`price`='" . $val['shares'] . "'"
@@ -251,10 +245,7 @@ class payroll extends db
             $trades_array = $this->select_trades($clearing_business_cutoff_date, 2, $uploadRepsQuery, $company_id);
 
             foreach ($trades_array as $key => $val) {
-                // echo "<pre>";
-                // print_r("else");
-                // echo "<pre>";
-                // print_r($val);
+
                 $q = "INSERT INTO `" . PAYROLL_REVIEW_MASTER . "`"
                     . " SET "
                     . "`payroll_id`='" . $last_inserted_id . "'"
@@ -288,8 +279,7 @@ class payroll extends db
             }
             $total_trades += count($trades_array);
         }
-        // echo "<pre>";
-        // print_r($total_trades);die;
+
         if ($res) {
             if ($total_trades > 0) {
                 $_SESSION['success'] = $total_trades . ' trades uploaded successfully.';
@@ -2095,7 +2085,7 @@ class payroll extends db
         $res = $this->re_db_query($q);
         if ($this->re_db_num_rows($res) > 0) {
             while ($row = $this->re_db_fetch_array($res)) {
-                $total_hold_commission = $this->get_hold_commissions_data($row['batch_number']); //print_r($total_hold_commission);exit;
+                $total_hold_commission = $this->get_hold_commissions_data($row['batch_number']);
                 if (count($total_hold_commission) > 0) {
                     $row['total_hold_commission'] = $total_hold_commission['total_hold_commission'];
                     $row['total_commission'] +=  $total_hold_commission['total_hold_commission'];

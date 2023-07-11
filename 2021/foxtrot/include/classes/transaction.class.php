@@ -7,7 +7,7 @@ class transaction extends db{
     public $broker_master = BROKER_MASTER;
     public $product_type = PRODUCT_TYPE;
 
-    public function insert_update($data){//echo '<pre>';print_r($data);exit;
+    public function insert_update($data){
 		// 06/11/22 Rule Engine variables
 		$instance_rules = new rules();
 		$ruleEngineProceed = (isset($data['rule_engine_warning_action']) ? $data['rule_engine_warning_action'] : "0");
@@ -304,7 +304,7 @@ class transaction extends db{
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			while($row = $this->re_db_fetch_array($res)){
-    			     //print_r($row);exit;
+
                      array_push($return,$row);
 
     			}
@@ -319,7 +319,7 @@ class transaction extends db{
 			$res = $this->re_db_query($q);
             if($this->re_db_num_rows($res)>0){
     			while($row = $this->re_db_fetch_array($res)){
-    			     //print_r($row);exit;
+
                      array_push($return,$row);
 
     			}
@@ -327,7 +327,7 @@ class transaction extends db{
 			return $return;
 		}
         public function search_transcation($data){
-            //echo '<pre>';print_r($data);exit;
+
             $search_type= isset($data['search_type'])?$this->re_db_input($data['search_type']):'';
             $search_text_batches= isset($data['search_text'])?$this->re_db_input($data['search_text']):'';
 
@@ -1395,7 +1395,7 @@ class transaction extends db{
     				}*/
     			}
             }
-            //print_r($return);
+
 
 			return $return;
 		}

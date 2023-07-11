@@ -337,9 +337,7 @@ class PHPExcel_Reader_OOCalc extends PHPExcel_Reader_Abstract implements PHPExce
 //        echo '<h1>Meta Information</h1>';
         $xml = simplexml_load_string($this->securityScan($zip->getFromName("meta.xml")), 'SimpleXMLElement', PHPExcel_Settings::getLibXmlLoaderOptions());
         $namespacesMeta = $xml->getNamespaces(true);
-//        echo '<pre>';
-//        print_r($namespacesMeta);
-//        echo '</pre><hr />';
+
 
         $docProps = $objPHPExcel->getProperties();
         $officeProperty = $xml->children($namespacesMeta['office']);
@@ -423,9 +421,7 @@ class PHPExcel_Reader_OOCalc extends PHPExcel_Reader_Abstract implements PHPExce
 //        echo '<h1>Workbook Content</h1>';
         $xml = simplexml_load_string($this->securityScan($zip->getFromName("content.xml")), 'SimpleXMLElement', PHPExcel_Settings::getLibXmlLoaderOptions());
         $namespacesContent = $xml->getNamespaces(true);
-//        echo '<pre>';
-//        print_r($namespacesContent);
-//        echo '</pre><hr />';
+
 
         $workbook = $xml->children($namespacesContent['office']);
         foreach ($workbook->body->spreadsheet as $workbookData) {
@@ -433,11 +429,9 @@ class PHPExcel_Reader_OOCalc extends PHPExcel_Reader_Abstract implements PHPExce
             $worksheetID = 0;
             foreach ($workbookData->table as $worksheetDataSet) {
                 $worksheetData = $worksheetDataSet->children($namespacesContent['table']);
-//                print_r($worksheetData);
-//                echo '<br />';
+
                 $worksheetDataAttributes = $worksheetDataSet->attributes($namespacesContent['table']);
-//                print_r($worksheetDataAttributes);
-//                echo '<br />';
+
                 if ((isset($this->loadSheetsOnly)) && (isset($worksheetDataAttributes['name'])) &&
                     (!in_array($worksheetDataAttributes['name'], $this->loadSheetsOnly))) {
                     continue;
@@ -481,14 +475,6 @@ class PHPExcel_Reader_OOCalc extends PHPExcel_Reader_Abstract implements PHPExce
                                 $cellDataOfficeAttributes = $cellData->attributes($namespacesContent['office']);
                                 $cellDataTableAttributes = $cellData->attributes($namespacesContent['table']);
 
-//                                echo 'Office Attributes: ';
-//                                print_r($cellDataOfficeAttributes);
-//                                echo '<br />Table Attributes: ';
-//                                print_r($cellDataTableAttributes);
-//                                echo '<br />Cell Data Text';
-//                                print_r($cellDataText);
-//                                echo '<br />';
-//
                                 $type = $formatting = $hyperlink = null;
                                 $hasCalculatedValue = false;
                                 $cellDataFormula = '';

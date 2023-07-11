@@ -7,8 +7,7 @@
 
 
         public function insert_update($data){
-			//echo '<pre>';print_r($data);exit;
-
+	
 			foreach($data['data'] as $key=>$val){
 				$in_force= isset($val['in_force'])?$this->re_db_input($val['in_force']):'0';
 				$rule= isset($val['rule'])?$this->re_db_input($val['rule']):'';

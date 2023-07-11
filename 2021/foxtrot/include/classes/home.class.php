@@ -215,7 +215,7 @@ class home extends db
                 $return_row[$row['month']]['total_ytd_commission_received'][]= $row['total_ytd_commission_received'];
                 $return_row[$row['month']]['total_ytd_commission_pending'][]= $row['total_ytd_commission_pending'];*/
             }
-            $return = $return_row; //echo '<pre>';print_r($return);exit;
+            $return = $return_row; 
         }
         return $return;
     }

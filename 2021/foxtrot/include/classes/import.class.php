@@ -147,8 +147,6 @@ class import extends db
     public function resolve_exceptions($data)
     {
 
-        // echo "<pre>"; print_r($data);die;
-
         $this->errors = '';
         $result = $resolveAction = 0;
         $resultMessage = '';
@@ -213,12 +211,6 @@ class import extends db
         $skipException = (isset($data['skip_exception']) ? (int)$this->re_db_input($data['skip_exception']) : 0);
         $code_for_sponsor = (isset($data['sponsor']) ? (int)$this->re_db_input($data['sponsor']) : 0);
 
-        // echo "<pre>"; print_r($data);die;
-        // echo "<pre>";
-        // print_r($exception_value);
-        // die;
-
-
         //--> RESOLVE ACTION - Element is used for more than just "Broker Terminated" exceptions (radio button input element)
         if (isset($data['resolve_broker_terminated'])) {
             $resolveAction = (int)$data['resolve_broker_terminated'];
@@ -237,8 +229,6 @@ class import extends db
             $resolveAction = 6;
         }
 
-        // echo "<pre>"; print_r($exception_value);die;
-
         // Validate Exception Field
         if ($exception_value == '') {
             $this->errors = 'Please enter field value.';
@@ -247,7 +237,7 @@ class import extends db
 
         //IMPORT BROKER <> CLIENT BROKER ON FILE
         if ($resolveAction == 9 && $error_code_id == 30) {
-            // echo "<pre>"; print_r($data);die;
+
             $q = "UPDATE " . IMPORT_EXCEPTION . ""
                 . " SET resolve_action=9, solved=1 "
                 . $this->update_common_sql()
@@ -259,7 +249,6 @@ class import extends db
 
         //IMPORT BROKER <> CLIENT BROKER ON FILE
         if ($resolveAction == 10 && $error_code_id == 30) {
-            //  echo "<pre>"; print_r($data);die;
 
             $fileSource = $this->import_table_select($exception_file_id, $exception_file_type);
             $table = $fileSource['table'];
@@ -307,7 +296,6 @@ class import extends db
 
         //26-CLIENT OF LEGAL AGE || 27-CLIENT BIRTH DATE NOT SPECIFIED
         if ($resolveAction == 8 && $error_code_id == 27 || $error_code_id == 26) {
-            //  echo "<pre>"; print_r($data);die;
 
             $client_id = $data['client_id'];
             if ($client_id > 0) {
@@ -355,7 +343,6 @@ class import extends db
 
         //CLIENT PROOF OF IDENTITY NOT SPECIFIED - 28
         if ($resolveAction == 7 && $exception_value_2 = 'proof_of_identity' && $error_code_id == 28) {
-            // echo "<pre>"; print_r($data);die;
 
             $client_id = $data['client_id'];
             if ($client_id > 0) {
@@ -531,8 +518,7 @@ class import extends db
             else if ($exception_field == 'representative_number' and $error_code_id == 13) {
                 $result = $this->resolve_exception_3Reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
             } else if ($exception_field == 'social_security_number' || $exception_field == 'mutual_fund_customer_account_number') {
-                // echo "<pre>"; print_r(empty($acc_for_client));echo "<br/>";
-
+   
                 if ($resolveAction == 4) {
                     $result = $this->resolve_exception_4Delete($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                 } else if (!empty($acc_for_client)) {
@@ -607,7 +593,6 @@ class import extends db
 
                             $clientDetail = $instance_client->get_client_name($idcDetailRow['client_id']);
                             $licenceDetail = $this->checkStateLicence($idcDetailRow['broker_id'], $clientDetail[0]['state'], $productDetail['category'], $idcDetailRow['trade_date'], 1, 1);
-                            //echo "<pre>"; print_r($licenceDetail);die;
 
                             if (!empty($licenceDetail['licence_table']) and !empty($licenceDetail['state_id'])) {
                                 // ADD/UPDATE the existing licence record
@@ -1447,9 +1432,6 @@ class import extends db
         $fileSource = $this->import_table_select($file_id, $file_type);
         $importFileTable = $fileSource['table'];
 
-        // echo "<pre>"; print_r($detail_data_id);
-        // echo "<pre>"; print_r($importFileTable);die;
-
         if (in_array($reassign_field, ['broker_id', 'client_id']) and $newId and $file_type and $file_id and $detail_data_id and $exception_record_id) {
             $res = $q = '';
             $fileSource = $this->import_table_select($file_id, $file_type);
@@ -1885,7 +1867,7 @@ class import extends db
                 if (count($check_current_array) == 0) {
                     $file_type_array = array('07' => 'Non-Financial Activity', '08' => 'New Account Activity', '09' => 'Account Master Position', 'C1' => 'DST Commission');
                     $file_name_array = explode('.', $file_val);
-                    $file_type_checkkey = substr($file_name_array[0], -2); //print_r($ext_filename);exit;
+                    $file_type_checkkey = substr($file_name_array[0], -2); 
 
                     if (array_key_exists($file_type_checkkey, $file_type_array)) {
                         if (isset($file_type_checkkey) && ($file_type_checkkey == '07' || $file_type_checkkey == '08' || $file_type_checkkey == '09')) {
@@ -1985,7 +1967,7 @@ class import extends db
             }
 
             $this->errors = '';
-            //print_r($return);
+
             if ($return == 0) {
                 $instance_dim = new data_interfaces_master();
                 $file_string_array = array();
@@ -2179,7 +2161,7 @@ class import extends db
                         $res = $this->re_db_query($q);
                         $rhr_inserted_id = $this->re_db_insert_id();
                         $data_status = true;
-                        //echo '<pre>';print_r($main_val);exit;
+  
                         $DETAIL = $main_val['DETAIL'];
                         foreach ($DETAIL as $detail_key => $detail_val) {
                             if ($detail_key == '1' || $detail_key == '3') {
@@ -3135,9 +3117,7 @@ class import extends db
                     $commission_detail_array = $this->get_idc_detail_data($file_id, 0, ($detail_record_id > 0) ? $detail_record_id : 0);
                     $commissionFileType = 2;
                 }
-                // echo "<pre>";
-                // print_r($commissionFileType);
-                // die;
+
                 foreach ($commission_detail_array as $check_data_key => $check_data_val) {
                     // Flag the record as processed for "Import" file grid to get an accurate count of the processed vs exception records
                     $this->re_db_perform($commDetailTable, ["process_result" => 0], 'update', "id=" . $check_data_val['id'] . " AND is_delete=0");
@@ -3509,9 +3489,6 @@ class import extends db
                         $result++;
                     } else {
 
-                        //  echo "<pre>";
-                        //  print_r($reassignClient);die;
-
                         if ($reassignClient) {
                             $client_id = $check_data_val['client_id'];
                             $clientAccount = $instance_client_maintenance->edit($client_id);
@@ -3567,9 +3544,6 @@ class import extends db
                                     // $sponsor_id = $res[0]['id'];
                                 }
                             }
-
-                            // echo "<pre>";
-                            // print_r($check_data_val['alpha_code']);die;
 
                             // Add->Check Client Name
                             if (empty($check_data_val['alpha_code']) && $check_data_val['sponsor_id'] != 293) {
@@ -3643,9 +3617,6 @@ class import extends db
                             }
                             unset($_SESSION[$for_import]);
                         }
-
-                        // echo "<pre>";
-                        // print_r($clientAccount);die;
 
                         //--- VALID CLIENT FOUND --//
                         if (!empty($clientAccount['id'])) {
@@ -4239,18 +4210,12 @@ class import extends db
         $masterArray = $clientClass->select_client_master($clientId);
 
         foreach ($data as $column => $value) {
-            // echo "<pre>";
-            // print_r($column);
-            // echo "<pre>";
-            // print_r($value);
+
             if (isset($masterArray[$column]) and empty($masterArray[$column]) and !empty($data[$column]) and !in_array(strtolower($column), ['id', 'file_id', 'modified_time', 'modified_by', 'modified_ip'])) {
                 $updateArray[$column] = $value;
-                // echo "<pre>";
-                // echo "<br/> inside if";
-                // print_r($updateArray[$column]);
+
             }
-            // echo "<pre>";
-            // print_r("out if");
+
         }
         // die;
         if (!empty($updateArray)) {
@@ -4611,9 +4576,6 @@ class import extends db
         $detailTable = '';
         $fileSource = $this->import_table_select($file_id, 1);
         $detailTable = $fileSource['table'];
-
-        // echo "<pre>";
-        // print_r($detailTable);
 
         if (is_null($process_result)) {
             // Do nothing
@@ -5112,8 +5074,7 @@ class import extends db
                 array_push($return, $row);
             }
         }
-        // print_r($return[0]['Total_records']);
-        // die;
+
         return $return[0]['Total_records'];
     }
 
@@ -5950,7 +5911,6 @@ class import extends db
             }
         }
 
-        //echo "<pre>"; print_r($exceptions);die;
         foreach ($exceptions as $exception) {
             $table = $this->import_table_select($exception['file_id'], $exception['file_type']);
 
@@ -6115,7 +6075,6 @@ class import extends db
             }
         }
 
-        //echo "<pre>"; print_r($return);die;
         return $return;
     }
 

@@ -5,7 +5,7 @@
         public $errors = '';
         public $table = BATCH_MASTER;
         
-        public function insert_update($data){//echo '<pre>';print_r($data);exit;
+        public function insert_update($data){
             
 			$id = isset($data['id'])?$this->re_db_input($data['id']):0;
             $pro_category= isset($data['pro_category'])?$this->re_db_input($data['pro_category']):'';

@@ -96,8 +96,8 @@
 				    /*unset($data['submit']);
 				    $current_data = $this->get_dataview($id);
                     if(count($data)>0 && count($current_data)>0)
-                    {//echo '<pre>';print_r($data);echo '<pre>';print_r($current_data);
-                      $new_list=array_diff($data,$current_data);//echo '<pre>';print_r($new_list);exit;
+                    {
+                      $new_list=array_diff($data,$current_data);
                       foreach($new_list as $key=>$val)
                       {
                           $old_data = $current_data[$key];
@@ -124,7 +124,7 @@
 			}
             }
 		}
-        public function insert_update_branch_notes($data){//print_r($data);
+        public function insert_update_branch_notes($data){
 			$notes_id = isset($data['notes_id'])?$this->re_db_input($data['notes_id']):0;
 			$date = isset($data['date'])?$this->re_db_input($data['date']):'';
             $user_id = isset($data['user_id'])?$this->re_db_input($data['user_id']):'';
@@ -167,7 +167,7 @@
     			}
             }
 		}
-        public function insert_update_branch_attach($data){//print_r($data);exit;
+        public function insert_update_branch_attach($data){
             $attach_id = isset($data['attach_id'])?$this->re_db_input($data['attach_id']):0;
             $date = isset($data['date'])?$this->re_db_input($data['date']):'';
             $user_id = isset($data['user_id'])?$this->re_db_input($data['user_id']):'';
@@ -340,7 +340,7 @@
             if($this->re_db_num_rows($res)>0){
                 $a = 0;
     			while($row = $this->re_db_fetch_array($res)){
-    			     //print_r($row);exit;
+
                      array_push($return,$row);
                      
     			}

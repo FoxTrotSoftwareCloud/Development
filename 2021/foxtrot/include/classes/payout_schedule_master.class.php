@@ -120,8 +120,6 @@ class payout_schedule_master extends db
                 $to = isset($val['to']) ? $this->re_db_input($val['to']) : '';
                 $per = isset($val['per']) ? $this->re_db_input($val['per']) : '';
                 if ($from != '' && $to != '') {
-                    echo "<pre>";
-                    print_r($data);
 
                     if ($flag == 0) {
                         $qq = "update `" . BROKER_PAYOUT_SCHEDULE_GRID . "` SET is_delete=1 where `payout_schedule_id`=" . $id . "";
@@ -161,7 +159,6 @@ class payout_schedule_master extends db
                 }
             }
         }
-        //echo '<pre>';print_r($file_ary);exit;
         return $file_ary;
     }
     /**

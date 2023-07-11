@@ -3255,7 +3255,7 @@ class PHPExcel_Calculation
                         }
                     } elseif ($expectedArgumentCount != '*') {
                         $isOperandOrFunction = preg_match('/(\d*)([-+,])(\d*)/', $expectedArgumentCount, $argMatch);
-//print_r($argMatch);
+
 //echo PHP_EOL;
                         switch ($argMatch[2]) {
                             case '+':
@@ -3519,7 +3519,7 @@ class PHPExcel_Calculation
 
         //    Loop through each token in turn
         foreach ($tokens as $tokenData) {
-//            print_r($tokenData);
+
 //            echo '<br />';
             $token = $tokenData['value'];
 //            echo '<b>Token is '.$token.'</b><br />';
@@ -3831,7 +3831,7 @@ class PHPExcel_Calculation
                         $argArrayVals[] = $this->showValue($cellID);
                     }
 //                    echo 'Arguments are: ';
-//                    print_r($args);
+
 //                    echo '<br />';
                     if ($functionName != 'MKMATRIX') {
                         if ($this->_debugLog->getWriteDebugLog()) {
@@ -4314,7 +4314,6 @@ class PHPExcel_Calculation
                     }
                 }
             }
-//                print_r($returnValue);
 //            echo '<br />';
         }
 

@@ -271,16 +271,14 @@ class PHPExcel_Reader_Excel2007 extends PHPExcel_Reader_Abstract implements PHPE
             $instance = (string)$c->f['si'];
 
 //            echo 'Instance ID = ', $instance, PHP_EOL;
-//
-//            echo 'Shared Formula Array:', PHP_EOL;
-//            print_r($sharedFormulas);
+
             if (!isset($sharedFormulas[(string)$c->f['si']])) {
 //                echo 'SETTING NEW SHARED FORMULA', PHP_EOL;
 //                echo 'Master is ', $r, PHP_EOL;
 //                echo 'Formula is ', $value, PHP_EOL;
                 $sharedFormulas[$instance] = array('master' => $r, 'formula' => $value);
 //                echo 'New Shared Formula Array:', PHP_EOL;
-//                print_r($sharedFormulas);
+
             } else {
 //                echo 'GETTING SHARED FORMULA', PHP_EOL;
 //                echo 'Master is ', $sharedFormulas[$instance]['master'], PHP_EOL;
@@ -823,7 +821,7 @@ class PHPExcel_Reader_Excel2007 extends PHPExcel_Reader_Abstract implements PHPE
                                         }
 
     //                                    echo 'Reading cell ', $coordinates[0], $coordinates[1], PHP_EOL;
-    //                                    print_r($c);
+  
     //                                    echo PHP_EOL;
     //                                    echo 'Cell Data Type is ', $cellDataType, ': ';
     //

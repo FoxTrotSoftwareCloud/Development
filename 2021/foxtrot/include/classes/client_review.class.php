@@ -164,7 +164,7 @@ class client_review extends db
         foreach($all_brokers as &$broker) {
 
         	$broker['client_accounts']=array_filter($all_client_ids,function($client_ac) use ($broker){
-        		// print_r($client_ac);die;
+       
         		return $broker['broker_id']==$client_ac['client_data'][$broker['broker_id']][0]['reviewed_by'] ? true :false;
         	});
         }
