@@ -402,9 +402,6 @@
                                 <tbody>
                                     <?php
                                     $count = 0;
-                                    // echo "<pre>";
-                                    // print_r($return);
-                                    // die;
                                     foreach ($return as $key => $val) {
                                         $branchEditLink = CURRENT_PAGE . "?action=edit&id=" . $val['id'];
                                     ?>

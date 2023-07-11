@@ -203,8 +203,7 @@ if (isset($_SESSION['zero_exception'])) {
                                 } else {
                                     $fileTypeDescription = "Clients";
                                 }
-                                // echo "<pre>";
-                                // print_r($_GET['tab']);die;
+  
                                 if ($_GET['tab'] == "review_files") { ?>
 
 
@@ -349,7 +348,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                         $management_code = isset($return_file_data_array[0]['dst_management_code']) ? $return_file_data_array[0]['dst_management_code'] : '';
                                                                         $sponsor_detail = $instance_sponsor->edit_sponsor($val['sponsor_id']);
                                                                         $sponsor = isset($sponsor_detail['name']) ? $sponsor_detail['name'] : '';
-                                                                        //echo '<pre>';print_r($system_id.','.$management_code);
+                                                                        
                                                                         $file_batch_id = $instance->get_file_batch($val['id']);
                                                                         if (!isset($val['file_type'])) {
                                                                             $file_type_id = 1;
@@ -460,8 +459,6 @@ if (isset($_SESSION['zero_exception'])) {
 
                                                                                 <td style="text-align:right ;" class="chkamt">
                                                                                     <?php
-                                                                                    // echo "<pre>";
-                                                                                    // print_r($file_type_id);die;
 
                                                                                     if ($file_type_id == 2 || $file_type_id == 9 || $file_type_id == 11) {
 
@@ -473,9 +470,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                         echo "<br>";
                                                                                         echo ' $' . number_format($total_Check_Amount, 2);
                                                                                     } else {
-                                                                                        // echo "<pre>";
-                                                                                        // print_r("else");die;
-
+                                                                                        
                                                                                         if ($total_processed_import == $total_import && $process_status == 1) {
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
@@ -715,20 +710,16 @@ if (isset($_SESSION['zero_exception'])) {
                                                                     $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
 
                                                                     $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
-                                                                    // echo "<pre>";
-                                                                    // print_r($total_unprocessed_commission_for_import);die;
+                                                                    
                                                                     $prev_temp_data_id = 0;
                                                                     $bg_color = '#fff';
                                                                     foreach ($return_exception as $error_key => $error_val) {
 
                                                                         $client_id = 0;
 
-                                                                        // echo "<pre>"; print_r($error_val);
-
                                                                         if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
                                                                             $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
-                                                                            // echo "<pre>"; print_r($return_client_existing_data);
-
+                                                                            
                                                                             $existing_field_value = $error_val['field_value'];
 
                                                                             if ($error_val['field'] == 'social_security_number') {
@@ -747,8 +738,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             }
                                                                         }
                                                                         if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9', '11'])) {
-                                                                            // echo "<pre>";
-                                                                            // print_r("here");die;
+
                                                                             switch ($error_val['file_type']) {
                                                                                 case '9':
                                                                                     $return_commission_existing_data = $instance->select_existing_gen_data($error_val['temp_data_id']);
@@ -775,8 +765,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                     $error_val['rep_name'] = trim($brokerRow['last_name']) . (($brokerRow['last_name'] != '' and $brokerRow['last_name'] != '') ? ', ' : '') . trim($brokerRow['first_name']);
                                                                                 }
                                                                             }
-                                                                            // echo "<pre>"; print_r($return_commission_existing_data['client_id']);
-
+                                                                            
                                                                             $client_id = $return_commission_existing_data['client_id'];
                                                                             if (!empty($return_commission_existing_data['client_id'])) {
                                                                                 $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);

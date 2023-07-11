@@ -794,7 +794,7 @@
                                                         foreach ($get_objectives as $key => $val) {
                                                         ?>
                                                             <?php
-                                                            $obj_id = $val['id']; //echo '<pre>';print_r($trans_check_id);
+                                                            $obj_id = $val['id']; 
                                                             if (!in_array($obj_id, $objectives_check_id)) { ?>
                                                            
                                                                 <input type="hidden" class="all_objective" name="allobjectives[]" id="allobjectives" value="<?php echo $val['id']; ?>" />
@@ -820,7 +820,7 @@
                                                                 ?>
                                                                     
                                                                     <?php
-                                                                    $obj_id = $val['id']; //echo '<pre>';print_r($trans_check_id);
+                                                                    $obj_id = $val['id']; 
                                                                     if (!in_array($obj_id, $objectives_check_id)) { ?>
                                                                     
                                                                    <tr>

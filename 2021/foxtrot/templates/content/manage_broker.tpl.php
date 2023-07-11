@@ -2458,13 +2458,10 @@
                                                          <?php $row_counter = 0;
                                                          if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_securities)) {
                                                             foreach ($edit_licences_securities as $seckey => $secval) {
-                                                               // echo "<pre>"; print_r($secval);
                                                          ?>
 
                                                                <tr class="tr">
 
-                                                                  <!-- <?php echo '<pre>';
-                                                                        print_r($secval); ?> -->
                                                                   <?php
                                                                   $row_counter++; ?>
                                                                   <td>
@@ -2675,7 +2672,7 @@
                                         </div> -->
 
                                           <?php if (isset($_GET['action']) && $_GET['action'] == 'edit' && !empty($edit_licences_securities)) {
-                                             foreach ($edit_licences_securities as $key => $val) { //echo '<pre>'; print_r($row);
+                                             foreach ($edit_licences_securities as $key => $val) { 
                                                 foreach ($get_state_new as $statekey => $stateval) {
                                                    if ($val['state_id'] == $stateval['id']) { ?>
                                                       <!--  <div class="panel panel-row-wrap" style="border: 1px solid #cccccc !important; padding: 5px !important; margin-bottom: 5px !important;">
@@ -3186,7 +3183,7 @@
                                              <th>Add/Remove</th>
                                           </thead>
                                           <tbody>
-                                             <?php $doc_id = 0; //echo '<pre>';print_r($edit_required_docs);
+                                             <?php $doc_id = 0;
                                              if (isset($_GET['action']) && $_GET['action'] == 'edit' && isset($edit_required_docs)) {
                                                 foreach ($edit_required_docs as $key => $val) {
                                                    $doc_id++; ?>
@@ -3319,7 +3316,7 @@
                                              <th>Add/Remove</th>
                                           </thead>
                                           <tbody>
-                                             <?php $doc_id = 0; //echo '<pre>';print_r($edit_required_docs);
+                                             <?php $doc_id = 0;
                                              if (isset($_GET['action']) && $_GET['action'] == 'edit' && isset($edit_required_docs)) {
                                                 foreach ($edit_alias as $key => $val) {
                                                    $doc_id++; ?>

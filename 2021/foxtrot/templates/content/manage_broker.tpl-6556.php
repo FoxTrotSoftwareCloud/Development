@@ -789,7 +789,6 @@ var waitingDialog = waitingDialog || (function ($) {
                                     </div>
                                     <?php 
                                     $broker_charge=$instance->select_broker_charge($id);
-                                    //echo "<pre>"; print_r($broker_charge);
                                     $charge_type_arr=$instance->select_charge_type();
                                     foreach($charge_type_arr as $charge_type){
                                         ?>

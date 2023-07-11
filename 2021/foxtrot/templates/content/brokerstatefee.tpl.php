@@ -31,7 +31,6 @@
                            <div id="state-dynamic-content">
                             <?php
                               
-                             // print_r($feeData);
                              foreach($get_states as $state):
 
                                 $state_fee = isset($feeData[$state['id']]) ? $feeData[$state['id']] : 0.00;
