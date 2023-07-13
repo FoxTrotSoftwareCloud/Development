@@ -430,7 +430,7 @@
                                 $no_match_key = array_keys($no_match_val);
                                 $q = "INSERT INTO `".CLIENT_HISTORY."` SET `client_id`='".$id."',`field`='account_no',`old_value`='".$no_match_val[$no_match_key[0]]."',`new_value`='".$val_acc."'".$this->insert_common_sql();
                 				$res = $this->re_db_query($q);
-                            }/
+                            }
                             /*if(!in_array($sponsor[$key_acc],$sponsor_data,true))
                             {
                                 //$no_match_val = array_diff($sponsor_data,$account_no);
@@ -1484,4 +1484,3 @@
         	return $return;
 		}
     }
-?>
