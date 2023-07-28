@@ -123,7 +123,7 @@ class import_client extends import
     function load_detail_table($filePathAndName, $file_id, $sponsor_id = 0, $product_category_id = 0)
     {
 
-        $fileDetailArray = $this->load_file_detail($filePathAndName);
+        $fileDetailArray = $this->load_file_detail($filePathAndName, $file_id);
 
         if ($fileDetailArray) {
             $_SESSION['success'] = 'Insert client data successfully.';
@@ -134,7 +134,7 @@ class import_client extends import
         }
     }
 
-    function load_file_detail($filePathAndName = '')
+    function load_file_detail($filePathAndName = '', $file_id)
     {
 
         $result = 0;
@@ -219,6 +219,14 @@ class import_client extends import
                         $age = $from->diff($to)->y;
                         $today = date('Y-m-d');
 
+                        $check_digit = preg_match('/^[0-9]+$/', $rowArray[1]);
+
+                        if ($check_digit) {
+                            $set_ssn = str_pad($rowArray[1], 10, '0', STR_PAD_LEFT);
+                        } else {
+                            $set_ssn = $rowArray[1];
+                        }
+
                         $open_date = '0000-00-00';
                         $last_contacted = $telephone = $ressign = $reviewed_at = '0000-00-00';
 
@@ -233,7 +241,7 @@ class import_client extends import
                             . ",`long_name`=''"
                             . ",`client_file_number`='" . str_replace("'", "''", $rowArray[1]) . "'"
                             . ",`clearing_account`=''"
-                            . ",`client_ssn`=''"
+                            . ",`client_ssn`='" . str_replace("'", "''", $set_ssn) . "'"
                             . ",`house_hold`=''"
                             . ",`split_broker`=''"
                             . ",`split_rate`=0"
@@ -264,7 +272,7 @@ class import_client extends import
                             . ",`split_rate_to`=''"
                             . ",`split_rate_from`=''"
                             . ",`split_rate_category`=''"
-                            . ",`file_id`=0"
+                            . ",`file_id`='" . $file_id . "'"
                             . $this->insert_common_sql();
 
                         $res = $this->re_db_query($q);

@@ -203,7 +203,7 @@ if (isset($_SESSION['zero_exception'])) {
                                 } else {
                                     $fileTypeDescription = "Clients";
                                 }
-  
+
                                 if ($_GET['tab'] == "review_files") { ?>
 
 
@@ -348,7 +348,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                         $management_code = isset($return_file_data_array[0]['dst_management_code']) ? $return_file_data_array[0]['dst_management_code'] : '';
                                                                         $sponsor_detail = $instance_sponsor->edit_sponsor($val['sponsor_id']);
                                                                         $sponsor = isset($sponsor_detail['name']) ? $sponsor_detail['name'] : '';
-                                                                        
+
                                                                         $file_batch_id = $instance->get_file_batch($val['id']);
                                                                         if (!isset($val['file_type'])) {
                                                                             $file_type_id = 1;
@@ -470,7 +470,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                         echo "<br>";
                                                                                         echo ' $' . number_format($total_Check_Amount, 2);
                                                                                     } else {
-                                                                                        
+
                                                                                         if ($total_processed_import == $total_import && $process_status == 1) {
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
@@ -710,7 +710,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                     $return_exception = $instance->select_exception_data(0, 0, "`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
 
                                                                     $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$file_type AND `at`.`solved`=0");
-                                                                    
+
                                                                     $prev_temp_data_id = 0;
                                                                     $bg_color = '#fff';
                                                                     foreach ($return_exception as $error_key => $error_val) {
@@ -719,7 +719,7 @@ if (isset($_SESSION['zero_exception'])) {
 
                                                                         if (isset($error_val['file_type']) && $error_val['file_type'] == '1') {
                                                                             $return_client_existing_data = $instance->get_client_detail_data($file_id, null, $error_val['temp_data_id'], $file_source);
-                                                                            
+
                                                                             $existing_field_value = $error_val['field_value'];
 
                                                                             if ($error_val['field'] == 'social_security_number') {
@@ -765,7 +765,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                     $error_val['rep_name'] = trim($brokerRow['last_name']) . (($brokerRow['last_name'] != '' and $brokerRow['last_name'] != '') ? ', ' : '') . trim($brokerRow['first_name']);
                                                                                 }
                                                                             }
-                                                                            
+
                                                                             $client_id = $return_commission_existing_data['client_id'];
                                                                             if (!empty($return_commission_existing_data['client_id'])) {
                                                                                 $clientDetail = $instance_client->get_client_name($return_commission_existing_data['client_id']);

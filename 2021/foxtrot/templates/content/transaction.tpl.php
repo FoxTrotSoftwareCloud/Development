@@ -1598,7 +1598,8 @@
 
     function setnumber_format(inputtext) {
         var number = inputtext.value;
-        var roundedNumber = Number((Math.floor(number * 100) / 100).toFixed(2))
+        // var roundedNumber = Number((Math.floor(number * 100) / 100).toFixed(2))
+        var roundedNumber = Number(number).toFixed(2);
         var options = {
             style: 'currency',
             currency: 'USD'

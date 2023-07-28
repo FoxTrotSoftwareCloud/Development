@@ -518,7 +518,7 @@ class import extends db
             else if ($exception_field == 'representative_number' and $error_code_id == 13) {
                 $result = $this->resolve_exception_3Reassign('broker_id', $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
             } else if ($exception_field == 'social_security_number' || $exception_field == 'mutual_fund_customer_account_number') {
-   
+
                 if ($resolveAction == 4) {
                     $result = $this->resolve_exception_4Delete($exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
                 } else if (!empty($acc_for_client)) {
@@ -1867,7 +1867,7 @@ class import extends db
                 if (count($check_current_array) == 0) {
                     $file_type_array = array('07' => 'Non-Financial Activity', '08' => 'New Account Activity', '09' => 'Account Master Position', 'C1' => 'DST Commission');
                     $file_name_array = explode('.', $file_val);
-                    $file_type_checkkey = substr($file_name_array[0], -2); 
+                    $file_type_checkkey = substr($file_name_array[0], -2);
 
                     if (array_key_exists($file_type_checkkey, $file_type_array)) {
                         if (isset($file_type_checkkey) && ($file_type_checkkey == '07' || $file_type_checkkey == '08' || $file_type_checkkey == '09')) {
@@ -2161,7 +2161,7 @@ class import extends db
                         $res = $this->re_db_query($q);
                         $rhr_inserted_id = $this->re_db_insert_id();
                         $data_status = true;
-  
+
                         $DETAIL = $main_val['DETAIL'];
                         foreach ($DETAIL as $detail_key => $detail_val) {
                             if ($detail_key == '1' || $detail_key == '3') {
@@ -4213,9 +4213,7 @@ class import extends db
 
             if (isset($masterArray[$column]) and empty($masterArray[$column]) and !empty($data[$column]) and !in_array(strtolower($column), ['id', 'file_id', 'modified_time', 'modified_by', 'modified_ip'])) {
                 $updateArray[$column] = $value;
-
             }
-
         }
         // die;
         if (!empty($updateArray)) {
