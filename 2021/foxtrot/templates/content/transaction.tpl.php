@@ -574,9 +574,9 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Commission Received Amount <span class="text-red">*</span></label><br />
-                                    <input type="text" maxlength="12" data-required="true" onChange="setnumber_format(this)" class="form-control" onkeypress='return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 ' name="commission_received" value="<?php if (isset($commission_received)) {
-                                                                                                                                                                                                                                                                                    echo $commission_received;
-                                                                                                                                                                                                                                                                                } ?>" />
+                                    <input type="text" maxlength="12" data-required="true" onChange="setnumber_format(this)" class="form-control" onkeypress='return (event.charCode >= 45 && event.charCode <= 58 && event.charCode != 47) || event.charCode == 46 ' name="commission_received" value="<?php if (isset($commission_received)) {
+                                                                                                                                                                                                                                                                                                            echo $commission_received;
+                                                                                                                                                                                                                                                                                                        } ?>" />
                                 </div>
                             </div>
                             <div class="col-md-4">

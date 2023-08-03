@@ -1735,6 +1735,24 @@ class transaction extends db
 				$return[$row['broker_name']]['transactions'][] = $row;
 			}
 		}
+		$u_category = array();
+		$u_q = "SELECT
+				SUM(tm.invest_amount) as total_investment,
+				SUM(tm.commission_received-tm.charge_amount) AS net_commission,
+				SUM(tm.commission_received) as total_commission_received,tm.product_cate,
+				pt.type as product_cat_name
+				FROM $this->table tm
+				LEFT JOIN $this->broker_master as bm on bm.id = tm.broker_name
+				LEFT JOIN $this->product_type as pt on pt.id = tm.product_cate
+				where 1=1 $where  group by product_cate $order_by";
+		$u_res = $this->re_db_query($u_q);
+		if ($this->re_db_num_rows($u_res) > 0) {
+			while ($row = $this->re_db_fetch_array($u_res)) {
+				$u_category[] = $row;
+			}
+		}
+		$return['unique_category'] = $u_category;
+
 		return $return;
 	}
 	function select_monthly_branch_office_report($company = 0, $branch = 0, $end_date = '', $start_date = '')
