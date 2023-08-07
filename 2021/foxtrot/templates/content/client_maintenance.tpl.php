@@ -47,7 +47,7 @@
             '<div class="col-md-4">' +
             '<div class="form-group">' +
             '<label></label><br />' +
-            '<input type="text" name="account_no[]" onkeypress="return event.charCode >= 48 && event.charCode <= 57" id="account_no" class="form-control" />' +
+            '<input type="text" name="account_no[]" onkeypress="return /[0-9a-zA-Z]/i.test(event.key)" id="account_no" class="form-control" />' +
             '</div>' +
             '</div>' +
 
@@ -794,7 +794,7 @@
                                                         foreach ($get_objectives as $key => $val) {
                                                         ?>
                                                             <?php
-                                                            $obj_id = $val['id']; 
+                                                            $obj_id = $val['id'];
                                                             if (!in_array($obj_id, $objectives_check_id)) { ?>
                                                            
                                                                 <input type="hidden" class="all_objective" name="allobjectives[]" id="allobjectives" value="<?php echo $val['id']; ?>" />
@@ -820,7 +820,7 @@
                                                                 ?>
                                                                     
                                                                     <?php
-                                                                    $obj_id = $val['id']; 
+                                                                    $obj_id = $val['id'];
                                                                     if (!in_array($obj_id, $objectives_check_id)) { ?>
                                                                     
                                                                    <tr>
@@ -888,13 +888,13 @@
                                                         <label>Account No's </label><br />
                                                         <?php if (isset($_GET['account_no']) && $_GET['account_no'] != '') {
                                                         ?>
-                                                            <input type="text" disabled="true" name="account_no_dis[]" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no_dis" class="form-control" value="<?php echo ltrim($_GET['account_no'], '0'); ?>" />
-                                                            <input type="hidden" name="account_no[]" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control" value="<?php echo ltrim($_GET['account_no'], '0'); ?>" />
+                                                            <input type="text" disabled="true" name="account_no_dis[]" onkeypress='return /[0-9a-zA-Z]/i.test(event.key)' id="account_no_dis" class="form-control" value="<?php echo ltrim($_GET['account_no'], '0'); ?>" />
+                                                            <input type="hidden" name="account_no[]" onkeypress='return /[0-9a-zA-Z]/i.test(event.key)' id="account_no" class="form-control" value="<?php echo ltrim($_GET['account_no'], '0'); ?>" />
                                                         <?php
                                                         } else {
                                                         ?>
-                                                            <input type="text" name="account_no[]" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control" value="<?php //echo //$valedit['account_no'];
-                                                                                                                                                                                                                ?>" />
+                                                            <input type="text" name="account_no[]" onkeypress='return /[0-9a-zA-Z]/i.test(event.key)' id="account_no" class="form-control" value="<?php //echo //$valedit['account_no'];
+                                                                                                                                                                                                    ?>" />
                                                         <?php } ?>
                                                     </div>
                                                 </div>
@@ -932,7 +932,7 @@
                                                         <div class="col-md-4">
                                                             <div class="form-group">
                                                                 <label></label><br />
-                                                                <input type="text" name="account_no[]" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="account_no" class="form-control" value="<?php echo $valedit['account_no']; ?>" />
+                                                                <input type="text" name="account_no[]" onkeypress='return /[0-9a-zA-Z]/i.test(event.key)' id="account_no" class="form-control" value="<?php echo $valedit['account_no']; ?>" />
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">

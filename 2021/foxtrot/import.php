@@ -339,45 +339,6 @@ else if (isset($_POST['upload_orion_file']) && $_POST['upload_orion_file'] == 'u
     }
     exit;
 }
-// *** 03/30/2023 ORION file upload
-else if (isset($_POST['upload_orion_file']) && $_POST['upload_orion_file'] == 'upload_orion_file') {
-    $error = $upload_sponsor_file = $localFolder = $result = '';
-    $uploadFiles = $dim = [];
-    $uploaded =  0;
-    $upload_sponsor_file = 'upload_orion_file';
-
-    if ($upload_sponsor_file == 'upload_orion_file') {
-
-        $localFolder = rtrim($instance_importOrion->dataInterface['local_folder'], "/") . "/";
-
-        // Validate file parameters
-        if (empty($_FILES[$upload_sponsor_file]['name'])) {
-            $error = 'No file specified. Procedure cancelled.';
-        } else if (file_exists($localFolder . $_FILES[$upload_sponsor_file]['name'])) {
-            $error = "File '" . $_FILES[$upload_sponsor_file]['name'] . "' already uploaded. Please select another file or rename current file.";
-        }
-
-        // Upload file
-        if (empty($error)) {
-            $uploaded = $instance->upload_file($_FILES[$upload_sponsor_file], $instance_importOrion->dataInterface['local_folder']);
-        }
-        if ($uploaded) {
-            $uploaded = $instance_importOrion->process_file($_FILES[$upload_sponsor_file]['name']);
-            $successMessage = "File '" . $_FILES[$upload_sponsor_file]['name'] . "' uploaded and processed.";
-        } else if (empty($error)) {
-            $error = 'File not uploaded. Please check privileges on the directory & file: ' . $$_FILES[$upload_sponsor_file]['name'];
-        }
-    }
-
-    if (empty($error) and $uploaded) {
-        $_SESSION['success'] = $successMessage;
-        header("location:" . CURRENT_PAGE);
-    } else {
-        $_SESSION['warning'] = !empty($error) ? $error : 'Problem occurred. File not processed.';
-        header("location:" . CURRENT_PAGE . "?tab=open_ftp");
-    }
-    exit;
-}
 // *** 28/06/2023 client file upload
 else if (isset($_POST['upload_client_file']) && $_POST['upload_client_file'] == 'upload_client_file') {
     $error = $upload_sponsor_file = $localFolder = $result = '';
