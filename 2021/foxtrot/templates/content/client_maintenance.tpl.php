@@ -1888,7 +1888,7 @@
 </script>
 <script>
     $(document).ready(function() {
-        $('#client_ssn').mask("999-99-9999");
+        // $('#client_ssn').mask("999-99-9999");
         $('#spouse_ssn').mask("999-99-9999");
     });
 

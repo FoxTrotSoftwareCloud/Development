@@ -521,7 +521,7 @@ if (isset($_GET['filter']) && $_GET['filter'] != '') {
 
             $main_net_commission = $main_invest_total = $main_commision_received = 0;
             echo '<tbody class="modal-tbody-rows">';
-            foreach ($rows as $trans_items) {
+            foreach ($rows as $key=>$trans_items) {
                 if ($key == 'unique_category') {
                     continue;
                 }
