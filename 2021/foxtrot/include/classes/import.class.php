@@ -3211,6 +3211,7 @@ class import extends db
                             . ",principal='" . $this->re_db_input($check_data_val['gross_transaction_amount']) . "'"
                             . ",commission='" . $this->re_db_input($check_data_val['gross_commission_amount']) . "'"
                             . $this->insert_common_sql();
+                    }
                         // check product present in list or not if yes then do nothing otherwise add product 
                         $q_get = "SELECT name " .
                             " FROM " . PRODUCT_LIST . "" .
@@ -3235,7 +3236,6 @@ class import extends db
                             $last_inserted_id = $this->re_db_insert_id();
                             $reprocess_status = $res_InsertProduct;
                         }
-                    }
 
                     // Exception intervention in resolve exception() by user(reassign client OR broker)
                     $reassignBroker = $reassignClient = 0;
@@ -3897,6 +3897,16 @@ class import extends db
                             $batch_description = $this->re_db_input($file_array['name']) . ' - ' . date('m/d/Y', strtotime($batch_date));
                         } else {
                             $batch_description = $this->re_db_input($file_sponsor_array['name']) . ' - ' . date('m/d/Y', strtotime($batch_date));
+                        }
+
+                        // 08/14/2023 below if condtion put for DSTIDC file and commission_record_type_code 1,2,3,4,8 and seperate Mutual Funds into Mutual Fund and 12B1 Trailers
+                        if($product_category_id == 1){
+                            if($check_data_val['commission_record_type_code'] == 1 || $check_data_val['commission_record_type_code'] == 2){
+                                $product_category_id = 1;
+                            }
+                            if($check_data_val['commission_record_type_code'] == 8 || $check_data_val['commission_record_type_code'] == 4 || $check_data_val['commission_record_type_code'] == 3){
+                                $product_category_id = 23;
+                            }
                         }
 
                         // Create new BATCH
