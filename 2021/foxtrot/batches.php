@@ -16,11 +16,12 @@
     }
     if(isset($_POST['batches'])&& $_POST['batches']=='Save')
     { 
-
+        
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $pro_category = isset($_POST['pro_category'])?$instance->re_db_input($_POST['pro_category']):'';
         //$batch_number = isset($_POST['batch_number'])?$instance->re_db_input($_POST['batch_number']):'';
         $batch_desc = isset($_POST['batch_desc'])?$instance->re_db_input($_POST['batch_desc']):'';
+        $retain_commission = isset($_POST['retain_commission'])?$instance->re_db_input($_POST['retain_commission']):0;
         $sponsor = isset($_POST['sponsor'])?$instance->re_db_input($_POST['sponsor']):'';
         $batch_date = isset($_POST['batch_date'])?$instance->re_db_input($_POST['batch_date']):'';
         $deposit_date = isset($_POST['deposit_date'])?$instance->re_db_input($_POST['deposit_date']):'';
@@ -102,6 +103,7 @@
         $pro_category = isset($return['pro_category'])?$instance->re_db_output($return['pro_category']):'';
         $batch_number = isset($return['id'])?$instance->re_db_output($return['id']):'';
         $batch_desc = isset($return['batch_desc'])?$instance->re_db_output($return['batch_desc']):'';
+        $retain_commission = isset($return['retain_commission'])?$instance->re_db_output($return['retain_commission']):0;
         $sponsor = isset($return['sponsor'])?$instance->re_db_output($return['sponsor']):'';
         $batch_date = isset($return['batch_date'])?$instance->re_db_output($return['batch_date']):'';
         $deposit_date = isset($return['deposit_date'])?$instance->re_db_output($return['deposit_date']):'';

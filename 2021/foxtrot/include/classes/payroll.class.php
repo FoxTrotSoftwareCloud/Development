@@ -1283,7 +1283,7 @@ class payroll extends db
         if ($commission_received_date != '') {
             $q = "SELECT `trans`.*,`bt`.id as batch_number,`cl`.first_name as client_firstname,`cl`.last_name as client_lastname,`bm`.first_name as broker_firstname,`bm`.last_name as broker_lastname"
                 . " FROM `" . TRANSACTION_MASTER . "` AS `trans`"
-                . " LEFT JOIN `" . BATCH_MASTER . "` as `bt` on `bt`.`id` = `trans`.`batch`"
+                . " LEFT JOIN `" . BATCH_MASTER . "` as `bt` on `bt`.`id` = `trans`.`batch` AND `bt`.`retain_commission`='0'"
                 . " LEFT JOIN `" . CLIENT_MASTER . "` as `cl` on `cl`.`id` = `trans`.`client_name`"
                 . " LEFT JOIN `" . BROKER_MASTER . "` as `bm` on `bm`.`id` = `trans`.`broker_name`"
                 . " WHERE `trans`.`is_delete`='0'"

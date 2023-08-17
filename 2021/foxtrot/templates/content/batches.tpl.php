@@ -33,7 +33,9 @@
                             <a class="btn btn-primary pull-right" href="<?php echo CURRENT_PAGE; ?>?action=view_batches">Back</a>
 
                         </div>
-                        <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i><?php echo $action == 'add_batches' ? 'Add' : 'Edit'; ?> Batches</h3>
+                        <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i><?php echo $action == 'add_batches' ? 'Add' : 'Edit'; ?> Batches &nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="checkbox" class="checkbox" name="retain_commission" id="retain_commission" style="display: inline;" value="1" <?php if (isset($retain_commission) && ($retain_commission == 1)) {echo "checked='checked'";} ?>/> Retain in Commissions
+                        </h3>
                     </div>
                     <div class="panel-body">
 
