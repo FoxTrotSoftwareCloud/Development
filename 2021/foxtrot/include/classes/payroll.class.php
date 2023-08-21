@@ -30,7 +30,7 @@ class payroll extends db
         $investment_amount = isset($data['investment_amount']) ? $this->re_db_input($data['investment_amount']) : '';
         $commission_expired = isset($data['commission_expired']) ? $this->re_db_input($data['commission_expired']) : '';
         $charge = isset($data['charge']) ? $this->re_db_input($data['charge']) : '';
-        $date_received = isset($data['date_received']) ? $this->re_db_input($data['date_received']) : '';
+        $date_received = isset($data['date_received']) ? $this->re_db_input($data['date_received']) : date('Y-m-d');
         if ($date_received != '') {
             $date_received = date('Y-m-d', strtotime($date_received));
         }

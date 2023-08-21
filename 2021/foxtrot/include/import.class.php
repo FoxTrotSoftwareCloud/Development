@@ -3444,6 +3444,7 @@ class import extends db
                             .",sponsor='".$this->re_db_input($sponsor_id)."'"
                             .",check_amount='".$total_check_amount."'"
                             .",batch_date='".$batch_date."'"
+                            . ",deposit_date='" . date('Y-m-d') . "'"
                             .",retain_commission=0"
                             .",trade_start_date='".$this->re_db_input($batchArray['trade_start_date'])."'"
                             .",trade_end_date='".$this->re_db_input($batchArray['trade_end_date'])."'"

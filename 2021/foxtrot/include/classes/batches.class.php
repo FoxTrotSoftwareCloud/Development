@@ -17,7 +17,7 @@
             {
                 $batch_date = date('Y-m-d',strtotime($batch_date));
             }
-            $deposit_date= isset($data['deposit_date'])?$this->re_db_input($data['deposit_date']):'';
+            $deposit_date= isset($data['deposit_date'])?$this->re_db_input($data['deposit_date']):date('Y-m-d');
             if($deposit_date != '')
             {
                 $deposit_date = date('Y-m-d',strtotime($deposit_date));

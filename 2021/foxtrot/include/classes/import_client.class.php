@@ -264,7 +264,7 @@ class import_client extends import
                             . ",`ressign_date`='" . $ressign . "'"
                             . ",`telephone`=''"
                             . ",`contact_status`=0"
-                            . ",`email`=''"
+                            . ",`email`='" . str_replace("'", "''", $rowArray[10]) . "'"
                             . ",`status`=1"
                             . ",`reviewed_at`='" . $reviewed_at . "'"
                             . ",`reviewed_by`='" . $_SESSION['user_id'] . "'"

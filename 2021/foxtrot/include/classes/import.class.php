@@ -3936,6 +3936,7 @@ class import extends db
                                 . ",sponsor='" . $this->re_db_input($sponsor_id) . "'"
                                 . ",check_amount='" . $total_check_amount . "'"
                                 . ",batch_date='" . $batch_date . "'"
+                                . ",deposit_date='" . date('Y-m-d') . "'"
                                 .",retain_commission=0"
                                 . ",trade_start_date='" . $this->re_db_input($batchArray['trade_start_date']) . "'"
                                 . ",trade_end_date='" . $this->re_db_input($batchArray['trade_end_date']) . "'"
@@ -4048,7 +4049,8 @@ class import extends db
                                     . ",split='2'"
                                     . ",buy_sell='1'"
                                     . ",cancel='2'"
-                                    . ",commission_received_date='" . $batch_date . "'"
+                                    // . ",commission_received_date='" . $batch_date . "'"
+                                    . ",commission_received_date='" . date('Y-m-d H:i:s') . "'"
                                     . ",trail_trade=$isTrail"
                                     . $con
                                     . $this->insert_common_sql();
@@ -4076,7 +4078,8 @@ class import extends db
                                     . ",split='2'"
                                     . ",buy_sell='1'"
                                     . ",cancel='2'"
-                                    . ",commission_received_date='" . $batch_date . "'"
+                                    // . ",commission_received_date='" . $batch_date . "'"
+                                    . ",commission_received_date='" . date('Y-m-d H:i:s') . "'"
                                     . ",trail_trade=$isTrail"
                                     . $con
                                     . $this->insert_common_sql();
