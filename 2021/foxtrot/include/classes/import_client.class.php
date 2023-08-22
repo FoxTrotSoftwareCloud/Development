@@ -181,6 +181,19 @@ class import_client extends import
                         }
                     }
 
+                    $from = new DateTime($rowArray[9]);
+                    $to = new DateTime('today');
+                    $age = $from->diff($to)->y;
+                    $today = date('Y-m-d');
+
+                    $check_digit = preg_match('/^[0-9]+$/', $rowArray[1]);
+
+                    if ($check_digit) {
+                        $set_ssn = str_pad($rowArray[1], 10, '0', STR_PAD_LEFT);
+                    } else {
+                        $set_ssn = $rowArray[1];
+                    }
+
                     $q = "SELECT `cm`.*
 					FROM `" . CLIENT_MASTER . "` AS `cm`
                     WHERE `cm`.`is_delete`='0' AND `cm`.`first_name`='" . str_replace("'", "''", $rowArray[2]) . "'
@@ -191,6 +204,23 @@ class import_client extends import
                     if ($this->re_db_num_rows($res) > 0) {
                         $get_client = $this->re_db_fetch_array($res);
                         $get_client_id = $get_client['id'];
+
+                            $q = "UPDATE " . CLIENT_MASTER . ""
+                                . " SET address1='" . str_replace("'", "''", $rowArray[4]) . "'"
+                                . ",`address2`='" . str_replace("'", "''", $rowArray[5]) . "'"
+                                . ",`client_ssn`='" . str_replace("'", "''", $set_ssn) . "'"
+                                . ",`city`='" . str_replace("'", "''", $rowArray[6]) . "'"
+                                . ",`state`='" . str_replace("'", "''", $rowArray[7]) . "'"
+                                . ",`zip_code`='" . str_replace("'", "''", $rowArray[8]) . "'"
+                                . ",`age`='" . $age . "'"
+                                . ",`birth_date`='" . $this->re_db_input(date('Y-m-d', strtotime($rowArray[9]))) . "'"
+                                . ",`broker_name`='" . $broker_id . "'"
+                                . ",`email`='" . str_replace("'", "''", $rowArray[10]) . "'"
+                                . ",`file_id`='" . $file_id . "'"
+                                . $this->update_common_sql()
+                                . " WHERE id='" . $get_client_id . "' AND is_delete=0";
+                            $res = $this->re_db_query($q);
+
                         $q = "SELECT `at`.*
                         FROM `" . CLIENT_ACCOUNT . "` AS `at`
                         WHERE `at`.`is_delete`='0' and `at`.`client_id`=" . $get_client_id . "
@@ -200,8 +230,14 @@ class import_client extends import
                             $get_account = $this->re_db_fetch_all($res);
                             $found_account = false;
                             foreach ($get_account as $key => $val) {
-                                if ($val['account_no'] == $rowArray[0]) {
-                                    $found_account = true;
+                                if ($val['account_no'] == $rowArray[0] && $val['is_delete'] == 0) {
+                                    if($val['sponsor_company'] == $sponser_id){
+                                        $found_account = true;
+                                    }else{
+                                        $q = "UPDATE `".CLIENT_ACCOUNT."` SET `sponsor_company`='" . $sponser_id . "'".$this->update_common_sql()." WHERE `id`='".$val['id']."' AND `is_delete`=0";
+				                        $res = $this->re_db_query($q);
+                                        $found_account = true;
+                                    }
                                 }
                             }
                             if (!$found_account) {
@@ -213,19 +249,6 @@ class import_client extends import
                             $res = $this->re_db_query($q);
                         }
                     } else {
-
-                        $from = new DateTime($rowArray[9]);
-                        $to = new DateTime('today');
-                        $age = $from->diff($to)->y;
-                        $today = date('Y-m-d');
-
-                        $check_digit = preg_match('/^[0-9]+$/', $rowArray[1]);
-
-                        if ($check_digit) {
-                            $set_ssn = str_pad($rowArray[1], 10, '0', STR_PAD_LEFT);
-                        } else {
-                            $set_ssn = $rowArray[1];
-                        }
 
                         $open_date = '0000-00-00';
                         $last_contacted = $telephone = $ressign = $reviewed_at = '0000-00-00';
