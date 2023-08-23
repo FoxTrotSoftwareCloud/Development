@@ -377,7 +377,8 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             $total_processed_import = $instance->select_total_records("`is_delete`=0 AND `file_id`=$fid_to_send AND `file_type`=$file_type_id AND `solved`=1");
                                                                             // below line comment on 23-05-2023
                                                                             // $total_import = $total_unprocessed_import + $total_processed_import;
-                                                                            $total_import = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=0");
+                                                                            $total_import = $instance->total_detail_record("`is_delete`=0 AND `file_id`=$fid_to_send");
+                                                                            $total_import_unique = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$fid_to_send AND `at`.`file_type`=$file_type_id AND `at`.`solved`=0");
                                                                         }
 
 
@@ -471,12 +472,21 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                         echo ' $' . number_format($total_Check_Amount, 2);
                                                                                     } else {
 
-                                                                                        if ($total_processed_import == $total_import && $process_status == 1) {
+                                                                                // below comment on 23-06-2023 as per client comment
+                                                                                        // if ($total_processed_import == $total_import_unique && $process_status == 1) {
+                                                                                        //     echo '<i class="fa fa-check text-success"></i>';
+                                                                                        // }
+                                                                                        
+                                                                                        // echo $total_processed_import;
+                                                                                        // echo "<br>";
+                                                                                        // echo $total_import_unique;
+                                                                                        
+                                                                                        if ($total_unprocessed_import ==0  && $process_status == 1) {
                                                                                             echo '<i class="fa fa-check text-success"></i>';
                                                                                         }
-                                                                                        echo $total_processed_import;
-                                                                                        echo "<br>";
                                                                                         echo $total_import;
+                                                                                        echo "<br>";
+                                                                                        echo $total_unprocessed_import;
                                                                                     }
 
                                                                                     ?>
@@ -1443,6 +1453,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 <th>Host Name</th>
                                                                 <th>Username</th>
                                                                 <th>Sponsor</th>
+                                                                <th>Deposite Date</th>
                                                                 <th class="text-center">ACTION</th>
                                                             </tr>
                                                         </thead>
@@ -1466,6 +1477,12 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             <?php } ?> -->
                                                                         </td>
                                                                         <td>
+                                                                            <?php if($key==0){ ?>
+                                <input type="date" name="deposite_date" id="deposite_date" value="">
+                                                                            <?php }else {} ?>
+                                                                            
+                                                                        </td>
+                                                                        <td>
                                                                             <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=open_ftp&action=edit_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-primary"><i class="fa fa-edit"></i> Edit</a> -->
                                                                             <!-- <a onclick="return conf('<?php echo CURRENT_PAGE; ?>?action=delete_ftp&ftp_id=<?php echo $val['id']; ?>');" class="btn btn-md btn-danger confirm"><i class="fa fa-trash"></i> Delete</a> -->
                                                                             <!-- <a href="<?php echo CURRENT_PAGE; ?>?tab=get_ftp&ftp_id=<?php echo $val['id']; ?>" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Fetch</a> -->
@@ -1475,7 +1492,11 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             <div class="row">
                                                                                 <div class="col-md-6"></div>
                                                                                 <div class="col-md-6">
+                                                                                <?php if($key==0){ ?>
+                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDSTDate(<?= $val['dim_id'] ?>)"><i class="fa fa-download"></i> Download</button>
+                                                                                <?php }else { ?>
                                                                                     <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>)"><i class="fa fa-download"></i> Download</button>
+                                                                                <?php } ?>
                                                                                 </div>
                                                                             </div>
                                                                             <!--<button type="submit" class="btn btn-md btn-warning" name="submit_files" value="Fetch"><i class="fa fa-download"></i> Fetch</button>-->
@@ -1502,6 +1523,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                 <?php } ?>
                                                                             </select>
                                                                         </td>
+                                                                        <td></td>
                                                                         <!-- <td class="text-center"> -->
                                                                         <td>
                                                                             <div class="row">
@@ -1525,6 +1547,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                         <td><?php echo $orion[0]['name']; ?></td>
                                                                         <td></td>
                                                                         <td class="text-center">ORION</td>
+                                                                        <td></td>
                                                                         <td>
                                                                             <div class="row">
                                                                                 <div class="col-md-6">
@@ -1547,6 +1570,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                         <td><?php echo $dazl[0]['name']; ?></td>
                                                                         <td></td>
                                                                         <td class="text-center">DAZL</td>
+                                                                        <td></td>
                                                                         <td>
                                                                             <div class="row">
                                                                                 <div class="col-md-6">
@@ -1568,6 +1592,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                         <td><?php echo $temp_data_found[0]['name']; ?></td>
                                                                         <td></td>
                                                                         <td class="text-center">NFS</td>
+                                                                        <td></td>
                                                                         <td>
                                                                             <div class="row">
                                                                                 <div class="col-md-6">
@@ -1586,6 +1611,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 <td>Z - INSERT CLIENT</td>
                                                                 <td></td>
                                                                 <td class="text-center">CLIENT</td>
+                                                                <td></td>
                                                                 <td>
                                                                     <div class="row">
                                                                         <div class="col-md-6">
@@ -3030,6 +3056,49 @@ if (isset($_SESSION['zero_exception'])) {
             }
         };
         xmlhttp.open("GET", "import.php?action=importFiles&dim_id=" + dimID, true);
+        xmlhttp.send();
+    }
+
+    function fetchDSTDate(dimID) {
+
+        var d_date = document.getElementById("deposite_date").value;
+
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = this.responseText;
+
+                if (data != '') {
+                    $("#HTTPDL_result").removeAttr("readonly");
+                    document.getElementById("HTTPDL_result").value = '';
+                    document.getElementById("HTTPDL_result").value = data;
+                    alert(data);
+                }
+                importFilesDate(dimID,d_date);
+            }
+        };
+        xmlhttp.open("GET", "import.php?action=fetchDSTDate&dim_id=" + dimID+"&deposite_date=" + d_date, true);
+        xmlhttp.send();
+    }
+
+    function importFilesDate(dimID,d_date) {
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = this.responseText;
+
+                if (data != '') {
+                    document.getElementById("HTTPDL_result").value += data;
+                    $("#HTTPDL_result").attr("readonly", true);
+                    if (data.includes("done")) {
+                        window.location.href = '<?php echo CURRENT_PAGE ?>';
+                    }
+                }
+            }
+        };
+        xmlhttp.open("GET", "import.php?action=importFilesDate&dim_id=" + dimID+"&deposite_date=" + d_date, true);
         xmlhttp.send();
     }
 </script>

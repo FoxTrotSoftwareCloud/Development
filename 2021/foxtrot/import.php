@@ -482,6 +482,52 @@ else if (isset($_POST['upload_client_file']) && $_POST['upload_client_file'] == 
         echo $responseText;
     }
     exit;
+} else if ($action == 'fetchDSTDate' and (isset($_GET['dim_id'])) and (isset($_GET['deposite_date']))) {
+    // 01/11/23 2nd parameter is for test mode(pulls 2-5 files at a time(testMode == 1)
+    $instance_dst_fetch = new DSTFetch((int)$_GET['dim_id'], 0);
+    $return = $instance_dst_fetch->fetch();
+    $responseText = "";
+    echo $instance_dst_fetch->fetchStatus . $responseText;
+    exit;
+} else if ($action == 'importFilesDate' and (isset($_GET['dim_id'])) and (isset($_GET['deposite_date']))) {
+    // Import all the DST TXT files from "DATA_TNTERFACE -> local_folder"  (done after a file fetch from DST Server)
+    $instance_dim = new data_interfaces_master();
+    $dimID = (int)$_GET['dim_id'];
+    $depositeDate = isset($_GET['deposite_date']) ? $instance->re_db_input(date('Y-m-d', strtotime($_GET['deposite_date']))) : '0000-00-00';
+    $dimInfo = $instance_dim->edit($dimID);
+    $return = $responseText = '';
+    $all_file_processed = true;
+
+    if ($dimInfo) {
+        $responseText = "\n\nInitiating file import for " . trim($dimInfo['name']) . "...";
+        echo $responseText;
+
+        $return = $instance->insert_update_files_date($dimID,$depositeDate);
+        $responseText = "\r\nImport complete...";
+
+        if ($return && is_array($return)) {
+            foreach ($return as $file) {
+                $responseText .= "\r\n" . $file['name'] . ": " . $file['status'];
+                if ($file['status'] != 'SUCCESS: 1.INSERT-Current Files DB, 2. File Processed') {
+                    $all_file_processed = false;
+                }
+            }
+        } else {
+            $responseText .= "\nNo files imported.";
+            $all_file_processed = false;
+        }
+
+        if ($all_file_processed == true) {
+            $responseText .= " done";
+        }
+
+        echo $responseText;
+    } else {
+        $responseText = "Invalid Data Interface #: " . $dimID . ". Import cancelled.";
+        $all_file_processed = false;
+        echo $responseText;
+    }
+    exit;
 }
 
 $content = "import";

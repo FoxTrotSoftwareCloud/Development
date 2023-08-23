@@ -1926,6 +1926,106 @@ class import extends db
             }
         }
     }
+
+    public function insert_update_files_date($dimID = 2,$depositeDate)
+    {
+        $res = 0;
+        $instance_dim = new data_interfaces_master();
+        $dimInfo = $instance_dim->edit($dimID);
+        $directory = DIR_FS . ($dimInfo['local_folder']);
+        $completedDir = rtrim($directory, '/') . '/completed';
+        $extension = 'TXT';
+        $all_files = array_filter(scandir($directory), function ($dirContents) use ($extension) {
+            return strcasecmp(pathinfo($dirContents, PATHINFO_EXTENSION), $extension) == 0;
+        });
+
+        // Create a "completed" subdirectory for downloaded files
+        if (!file_exists($completedDir)) {
+            $res = mkdir($completedDir);
+            if ($res === false) {
+                $this->errors = "Network Error: 'Completed' subdirectory cannot be created. Check with CloudFox administrator for server permission rights.";
+            }
+        }
+
+        if (count($all_files) == 0) {
+            $this->errors = "No download files found for " . trim($dimInfo['name']) . ". Please check 'Supervisor > Data Interfaces' page for valid directory and credentials.";
+        }
+
+        if ($this->errors != '') {
+            return $this->errors;
+        } else {
+            $return_files = [];
+            $goodFile = $fileHandle =  0;
+            $this->errors = "";
+
+            foreach ($all_files as $file_key => $file_val) {
+                $res = $id = 0;
+                $source = '';
+                $check_current_array = $this->check_current_files(0, $file_val);
+
+                if (count($check_current_array) == 0) {
+                    $file_type_array = array('07' => 'Non-Financial Activity', '08' => 'New Account Activity', '09' => 'Account Master Position', 'C1' => 'DST Commission');
+                    $file_name_array = explode('.', $file_val);
+                    $file_type_checkkey = substr($file_name_array[0], -2);
+
+                    if (array_key_exists($file_type_checkkey, $file_type_array)) {
+                        if (isset($file_type_checkkey) && ($file_type_checkkey == '07' || $file_type_checkkey == '08' || $file_type_checkkey == '09')) {
+                            $source = 'DSTFANMail';
+                        } else if (isset($file_type_checkkey) && $file_type_checkkey == 'C1') {
+                            $source = 'DSTIDC';
+                        }
+
+                        $sponsor_array = $this->get_sponsor_on_system_management_code(substr($file_val, 0, 3), substr($file_val, 3, 2));
+
+                        if (empty($sponsor_array)) {
+                            $sponsor_array = ['id' => 0, 'name' => '*Not Found*', 'dst_code' => substr($file_val, 0, 5)];
+                        }
+
+                        $q = "INSERT INTO " . IMPORT_CURRENT_FILES
+                            . " SET "
+                            . "user_id='" . $_SESSION['user_id'] . "'"
+                            . ",imported_date='" . date('Y-m-d') . "'"
+                            . ",last_processed_date='0000-00-00'"
+                            . ",file_name='" . $file_val . "'"
+                            . ",file_type='" . $file_type_array[$file_type_checkkey] . "'"
+                            . ",source='" . $source . "'"
+                            . ",sponsor_id=" . $sponsor_array['id']
+                            . ",dim_id=" . $dimInfo['dim_id']
+                            . ",deposite_date='" . $depositeDate . "'"
+                            . $this->insert_common_sql();
+                        $res = $this->re_db_query($q);
+                        $id = $this->re_db_insert_id();
+
+                        $goodFile++;
+                        $return_files[] = ['name' => $file_val, 'status' => 'SUCCESS: 1.INSERT-Current Files DB', 'file_id' => $id];
+
+                        // Process/Load the data into the import header/detail tables
+                        $res = $this->process_current_files($id);
+                        $return_files[count($return_files) - 1]['status'] .= ', 2. File Processed';
+                        $fileHandle = rename(rtrim($directory, '/') . '/' . $file_val, rtrim($completedDir, '/') . '/' . $file_val);
+
+                        if (!$fileHandle) {
+                            $this->errors .= ($this->errors != '' ? '\r\n' : '') . "FILE ERROR: File " . $file_val . " not moved to 'Completed' folder.";
+                        }
+                    } else {
+                        $return_files[] = ['name' => $file_val, 'status' => 'SKIPPED: Invalid File Type: ' . $file_type_checkkey, 'file_id' => 0];
+                        $fileHandle = unlink(rtrim($directory, '/') . '/' . $file_val);
+                    }
+                } else {
+                    $return_files[] = ['name' => $file_val, 'status' => 'SKIPPED: File already imported', 'file_id' => 0];
+                    $fileHandle = unlink(rtrim($directory, '/') . '/' . $file_val);
+                }
+            }
+
+            if ($goodFile or $return_files) {
+                $_SESSION['success'] = INSERT_MESSAGE;
+                return $return_files;
+            } else {
+                $_SESSION['warning'] = UNKWON_ERROR;
+                return $return_files;
+            }
+        }
+    }
     public function reArrayFiles($file_post)
     {
         $file_array = array();
@@ -3909,6 +4009,18 @@ class import extends db
                             }
                         }
 
+                        // 08/23/2023 get deposite date
+                        $q = "SELECT * FROM " . IMPORT_CURRENT_FILES . " WHERE id='" . $check_data_val['file_id'] . "'; ";
+                        $res = $this->re_db_query($q);
+                        if ($this->re_db_num_rows($res) > 0) {
+                            $get_all_import_file = $this->re_db_fetch_all($res);
+                            foreach ($get_all_import_file as $key => $val) {
+                                $deposite_date = $val['deposite_date'];
+                            }
+                        }else{
+                            $deposite_date = '0000-00-00';
+                        }
+
                         // Create new BATCH
                         if (empty($batch_id)) {
 
@@ -3936,7 +4048,7 @@ class import extends db
                                 . ",sponsor='" . $this->re_db_input($sponsor_id) . "'"
                                 . ",check_amount='" . $total_check_amount . "'"
                                 . ",batch_date='" . $batch_date . "'"
-                                . ",deposit_date='" . date('Y-m-d') . "'"
+                                . ",deposit_date='" . $deposite_date . "'"
                                 .",retain_commission=0"
                                 . ",trade_start_date='" . $this->re_db_input($batchArray['trade_start_date']) . "'"
                                 . ",trade_end_date='" . $this->re_db_input($batchArray['trade_end_date']) . "'"
@@ -4050,7 +4162,7 @@ class import extends db
                                     . ",buy_sell='1'"
                                     . ",cancel='2'"
                                     // . ",commission_received_date='" . $batch_date . "'"
-                                    . ",commission_received_date='" . date('Y-m-d H:i:s') . "'"
+                                    . ",commission_received_date='" . $deposite_date . "'"
                                     . ",trail_trade=$isTrail"
                                     . $con
                                     . $this->insert_common_sql();
@@ -4079,7 +4191,7 @@ class import extends db
                                     . ",buy_sell='1'"
                                     . ",cancel='2'"
                                     // . ",commission_received_date='" . $batch_date . "'"
-                                    . ",commission_received_date='" . date('Y-m-d H:i:s') . "'"
+                                    . ",commission_received_date='" . $deposite_date . "'"
                                     . ",trail_trade=$isTrail"
                                     . $con
                                     . $this->insert_common_sql();
@@ -5068,6 +5180,26 @@ class import extends db
         //     echo '<script>alert("Congratulations! \nAll trades have been successfully resolved")</script>';
         // }
         return $return[0]['total_trades'];
+    }
+
+    public function total_detail_record($customWhere = '')
+    {
+        $return = array();
+
+        if ($customWhere != '') {
+            $q = "SELECT count(*) as Total_records"
+                . " FROM " . IMPORT_DETAIL_DATA . " WHERE $customWhere";
+        }
+        $res = $this->re_db_query($q);
+
+        if ($this->re_db_num_rows($res) > 0) {
+            $a = 0;
+            while ($row = $this->re_db_fetch_array($res)) {
+                array_push($return, $row);
+            }
+        }
+
+        return $return[0]['Total_records'];
     }
 
     public function select_total_records($customWhere = '')
