@@ -167,17 +167,24 @@ class import_generic extends import {
                         
                         $fieldValues .= (empty($fieldValues) ? '' : ', ').$addValue;
                     }
+
+                    $tableFields = '';
                     // Table Fields to populate
                     // 20-12-2022 considered column D as cusip_number so it is added in detail table
-                    $tableFields = '';
-                    if ($currentFileType == $this->fileNamePrefix.'RIA') {
-                        $tableFields =  "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
-                            ." `customer_account_number`, `alpha_code`, `gross_commission_amount`, `dealer_commission_amount`";
-                    } else {
-                        $tableFields = "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
+                    // 24-08-2023 if else condition comment
+                    // if ($currentFileType == $this->fileNamePrefix.'RIA') {
+                    //     $tableFields =  "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
+                    //         ." `customer_account_number`, `alpha_code`, `gross_commission_amount`, `dealer_commission_amount`";
+                    // } else {
+                    //     $tableFields = "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
+                    //         ." `customer_account_number`, `alpha_code`, `comm_type`,`gross_transaction_amount`,"
+                    //         ." `gross_commission_amount`, `rep_regular`, `rep_trail`, `dealer_commission_amount`, `cusip_number`";
+                    // }
+                    
+                    $tableFields = "`representative_name`, `representative_number`, `trade_date`,`fund_company`,"
                             ." `customer_account_number`, `alpha_code`, `comm_type`,`gross_transaction_amount`,"
                             ." `gross_commission_amount`, `rep_regular`, `rep_trail`, `dealer_commission_amount`, `cusip_number`";
-                    }
+                    
                     // Insert record into the detail table
                     $q = "INSERT INTO `".IMPORT_GEN_DETAIL_DATA."` "
                         ."(`file_id`, `product_category`, `sponsor_id`, ".$tableFields.$insertCommonSQL['fields'].")"
