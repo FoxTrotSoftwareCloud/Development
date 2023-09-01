@@ -4009,17 +4009,22 @@ class import extends db
                             }
                         }
 
-                        // 08/23/2023 get deposite date
-                        $q = "SELECT * FROM " . IMPORT_CURRENT_FILES . " WHERE id='" . $check_data_val['file_id'] . "'; ";
-                        $res = $this->re_db_query($q);
-                        if ($this->re_db_num_rows($res) > 0) {
-                            $get_all_import_file = $this->re_db_fetch_all($res);
-                            foreach ($get_all_import_file as $key => $val) {
-                                $deposite_date = $val['deposite_date'];
+                        if ($fileSource == 'dst') {
+                            // 08/23/2023 get deposite date
+                            $q = "SELECT * FROM " . IMPORT_CURRENT_FILES . " WHERE id='" . $check_data_val['file_id'] . "'; ";
+                            $res = $this->re_db_query($q);
+                            if ($this->re_db_num_rows($res) > 0) {
+                                $get_all_import_file = $this->re_db_fetch_all($res);
+                                foreach ($get_all_import_file as $key => $val) {
+                                    $deposite_date = $val['deposite_date'];
+                                }
+                            }else{
+                                $deposite_date = '0000-00-00';
                             }
                         }else{
-                            $deposite_date = '0000-00-00';
+                            $deposite_date = $val['batch_date'];
                         }
+                        
 
                         // Create new BATCH
                         if (empty($batch_id)) {

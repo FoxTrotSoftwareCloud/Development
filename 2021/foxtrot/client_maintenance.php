@@ -128,8 +128,8 @@
 
 
     if((isset($_POST['submit'])&& $_POST['submit']=='Save')
-        || (isset($_POST['submit'])&& $_POST['submit']=='Previous')
-        || (isset($_POST['submit'])&& $_POST['submit']=='Next') )
+        || (isset($_POST['submit'])&& $_POST['submit']=='<< Previous')
+        || (isset($_POST['submit'])&& $_POST['submit']=='Next >>') )
     {
         $id = isset($_POST['id'])?$instance->re_db_input($_POST['id']):0;
         $fname = isset($_POST['fname'])?$instance->re_db_input($_POST['fname']):'';
@@ -252,7 +252,7 @@
                 }
             }
         }
-        else if($return===true && $_POST['submit']=='Next')
+        else if($return===true && $_POST['submit']=='Next >>')
         {
             $return = $instance->get_next_client($id);
 
@@ -264,7 +264,7 @@
                 header("location:".CURRENT_PAGE."?action=edit&id=".$id."");exit;
              }
         }
-        else if($return===true && $_POST['submit']=='Previous')
+        else if($return===true && $_POST['submit']=='<< Previous')
         {
             $return = $instance->get_previous_client($id);
 
@@ -589,6 +589,8 @@
     }
     else if(isset($_GET['send'])&&$_GET['send']=='next' && isset($_GET['id'])&&$_GET['id']>0 && $_GET['id']!='')
     {
+        print_r("send");
+        die;
         $id = $instance->re_db_input($_GET['id']);
 
         $return = $instance->get_next_client($id);

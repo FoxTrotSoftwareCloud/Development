@@ -1242,8 +1242,18 @@
                                     <input type="hidden" name="temp_data_id" id="temp_data_id" class="form-control" value="<?php echo $_GET['exception_data_id']; ?>" />
                                     <input type="hidden" name="exception_record_id" id="exception_record_id" class="form-control" value="<?php echo $_GET['exception_record_id']; ?>" />
                                 <?php } ?>
-                                <?php if ($_GET['action'] == 'edit' && $_GET['id'] > 0) { ?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id; ?>&send=previous" class="previous next_previous_a" style="float: left;"><input type="button" name="previos" value="&laquo; Previous" /></a><?php } ?>
-                                <?php if ($_GET['action'] == 'edit' && $_GET['id'] > 0) { ?><a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id; ?>&send=next" class="next next_previous_a"><input type="button" name="next" value="Next &raquo;" /></a><?php } ?>
+                                <?php if ($_GET['action'] == 'edit' && $_GET['id'] > 0) { ?>
+                                    <!-- <a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id; ?>&send=previous" class="previous next_previous_a" style="float: left;">
+                                    <input type="button" name="previos" value="&laquo; Previous" />
+                                    </a> -->
+                                    <input type="submit" name="submit" value="<< Previous" />
+                                <?php } ?>
+                                <?php if ($_GET['action'] == 'edit' && $_GET['id'] > 0) { ?>
+                                    <!-- <a href="<?php echo CURRENT_PAGE; ?>?id=<?php echo $id; ?>&send=next" class="next next_previous_a">
+                                    <input type="button" name="next" value="Next &raquo;" />
+                                    </a> -->
+                                    <input type="submit" name="submit" value="Next >>" />
+                                <?php } ?>
                                 <?php if ($action == 'edit' && $id > 0) { ?>
                                     <a href="#view_changes" data-toggle="modal"><input id="view_changesbtn" type="button" name="view_changes" value="View Changes" /></a>
                                 <?php } ?>

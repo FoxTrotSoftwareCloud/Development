@@ -5,6 +5,7 @@ require_once(DIR_FS . "islogin.php");
 $instance = new transaction();
 
 $return = array();
+$get_trans_data = array();
 $filter_array = array();
 $product_category = '';
 $product_category_name = '';
