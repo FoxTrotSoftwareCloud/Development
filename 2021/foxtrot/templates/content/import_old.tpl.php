@@ -22,8 +22,144 @@ if (isset($_SESSION['zero_exception'])) {
     unset($_SESSION['zero_exception']);
 }
 ?>
+<script language="javascript">
+    // function GetFileList() {
+    //     document.getElementsByName("HTTPDL_result").value = "";
+    //     console.log(HTTPDL, "HTTPDL")
+    //     //HTTPDL_result.value = "";
+    //     HTTPDL.Host = "filetransfer.financialtrans.com";
+    //     HTTPDL.UseProxy = false;
+    //     HTTPDL.LocalDirectory = "E:\foxtrot_idc_file";
+    //     HTTPDL.UseHttps = true;
+    //     // Note: Test System Information
+    //     HTTPDL.Target = "/tf/FANMail";
+    //     //HTTPDL.Client = "419041819";
+    //     HTTPDL.Client = "415171403";
+    //     //415171403
+    //     // Note: For testing UserID and Password will be supplied by DST
+    //     HTTPDL.UserID = UserID.value;
+    //     HTTPDL.ftpType = ftpType.value;
+    //     HTTPDL.Password = Password.value;
+    //     var list = HTTPDL.GetFileListAsXML();
+    //     //alert(list);
+    //     var dlist = "No file list returned";
+    //     //HTTPs Download Guide Product Guide
+    //     var xmldoc = MSXML3;
+    //     xmldoc.async = false;
+    //     xmldoc.preserveWhiteSpace = true;
+    //     xmldoc.loadXML(list);
 
-<div class="sectionwrapper" style="flex: 1; overflow: auto">
+    //     var docelement = xmldoc.documentElement;
+
+    //     if (docelement.hasChildNodes()) {
+    //         dlist = "<form name=\"Selection\">";
+    //         var nodeList = docelement.childNodes;
+    //         var node = nodeList.nextNode();
+    //         while (node != null) {
+    //             var file = node.getAttribute("name");
+    //             var display = node.getAttribute("short-name");
+    //             if (HTTPDL.ftpType == 1) {
+    //                 var file_type_array = ["07", "08", "09", "C1"];
+    //                 var file_name_array = display.split('.');
+    //                 var get_file_first_string = file_name_array[0];
+    //                 var get_file_last_character = get_file_first_string.slice(-2);
+    //                 //alert(file_type_array);
+    //                 for (var i = 0; i < file_type_array.length; i++) {
+    //                     if (file_type_array[i] === get_file_last_character) {
+
+    //                         dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
+    //                         dlist += file;
+    //                         dlist += "\">&nbsp;";
+    //                         dlist += display;
+    //                         dlist += "<br>";
+    //                     }
+    //                 }
+    //             } else {
+    //                 dlist += "<input type=\"checkbox\" class=\"checkbox\" name=\"sfile\" style=\"display:inline;\" value=\"";
+    //                 dlist += file;
+    //                 dlist += "\">&nbsp;";
+    //                 dlist += display;
+    //                 dlist += "<br>";
+    //             }
+    //             node = nodeList.nextNode();
+    //         }
+    //         //HTTPs Download Guide Product Guide
+    //         dlist += "<br>";
+    //         dlist += "<div class=\"panel-footer\">";
+    //         dlist += "<div class=\"selectwrap\">";
+    //         dlist += "<input type=\"button\" value=\"Download Files\" onclick=\"Download()\">";
+    //         dlist += "&nbsp;<input type=\"button\" value=\"Cancel\" onclick=\"CancelDownload()\">";
+    //         dlist += "</div>";
+    //         dlist += "<br>";
+    //         dlist += "</div>";
+    //         dlist += "</form>";
+    //     }
+    //     //--- 08/10/22 TEST DELETE ME---> console.log(dlist);
+    //     //document.getElementByID("FileList").innerHTML=dlist;
+    //     document.getElementById("FileList").innerHTML = dlist;
+    //     Download();
+    //     //FileList.innerHTML = dlist;
+    // }
+
+    // function Download() {
+    //     HTTPDL.LocalDirectory = DestDir.value;
+    //     document.getElementById('subscribe_frm');
+    //     var selection = document.forms["Selection"].sfile;
+
+    //     //var selection = document.forms[0].sfile;console.log(selection);
+    //     var flist = "";
+    //     for (index = 0; index < selection.length; ++index) { //alert(selection[index]);
+    //         /*if ( selection[index].checked )
+    //         {*/
+    //         flist += selection[index].value;
+    //         flist += ";";
+    //         /*}*/
+    //     }
+    //     PostResult("Begin Download");
+    //     //HTTPs Download Guide Product Guide
+    //     HTTPDL.DownloadFiles(flist);
+    // }
+
+    // function CancelDownload() {
+    //     HTTPDL.CancelRequest();
+    // }
+
+    // function TerminateDownload() {
+    //     HTTPDL.Terminate();
+    // }
+
+    // function PostResult(msg) {
+    //     content = HTTPDL_result.value;
+    //     content += msg;
+    //     content += "\r\n";
+    //     HTTPDL_result.value = content;
+    // }
+</script>
+<!-- <script for="HTTPDL" event="DownloadError( code, msg )" language="javascript">
+    PostResult(msg);
+</script> -->
+<!-- <script for="HTTPDL" event="DownloadComplete()" language="javascript">
+    //HTTPs Download Guide Product Guide
+    PostResult("DownloadComplete");
+</script> -->
+<!-- <script for="HTTPDL" event="DownloadProgress( msg )" language="javascript">
+    PostResult(msg);
+</script> -->
+<!--<div class="container">
+<h1>Import</h1>
+
+<div class="col-lg-8 well">
+<div class="tab-content col-md-12">
+</div>
+</div>
+
+<div class="col-lg-4 well">-->
+
+<!--<div class="tab-content col-md-12">
+</div>
+</div>
+</div>-->
+<div class="sectionwrapper" style="flex: 1; overflow: auto;">
     <div class="container">
         <?php require_once(DIR_FS_INCLUDES . "alerts.php"); ?>
 
@@ -39,9 +175,115 @@ if (isset($_SESSION['zero_exception'])) {
                     <div class="graphboxcontent">
                         <div class="tab-content col-md-12">
 
+                            <!-- Record Grid -> RESOLVE EXCEPTIONS & PROCESSED Tabs -->
+                            <?php
+                            if (isset($_GET['tab']) && ($_GET['tab'] == "review_files" || $_GET['tab'] == "processed_files") && $_GET['id'] > 0) {
+                                $get_file_data = $instance->select_user_files($_GET['id']);
+                                $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
+                                $total_commission_amount = 0.00;
+
+                                $total_unique_trade_unprocessed = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
+                                $total_unique_trade_processed = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
+
+                                if (empty($get_file_type)) {
+                                    $fileTypeDescription = $get_file_data['file_type'];
+                                } else if (in_array($get_file_type, ['2', '9', '11'])) {
+                                    $fileTypeDescription = "Commissions";
+                                    // $total_commission_amount = (float)$instance->get_file_batch($_GET['id'], 'commission_amount');
+
+
+                                    $id = $_GET['id'];
+                                    $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
+
+                                    $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
+
+                                    $total_commission_amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
+                                } else if ($get_file_type == '3') {
+                                    $fileTypeDescription = "Securities";
+                                } else {
+                                    $fileTypeDescription = "Clients";
+                                }
+
+                                if ($_GET['tab'] == "review_files") { ?>
+
+
+                                    <form method="post" id="reprocessform" style="display: none;">
+
+                                        <select name="process_file_<?php echo $_GET['id'] ?>" class="form-control form-go-action">
+                                            <option value="5" selected>Reprocess</option>
+                                        </select>
+                                        <input type="text" name="id" id="id" value="<?php echo $get_file_data['id'] ?>">
+                                        <input type="text" name="process_file_type" id="process_file_type" value="<?php echo $get_file_data['file_type'] ?>">
+                                        <input type="text" name="process_file_type_code" id="process_file_type_code" value="<?php echo $get_file_data['file_type_code'] ?>">
+                                        <input type="hidden" name="go" value="go">
+                                        <button type="submit"><i class="fa fa-refresh"></i> submit</button>
+                                    </form>
+
+                                    <h3>Review & Resolve Exceptions <a class="btn btn-primary pull-right" href="import.php">Back</a> </h3><br />
+                                    <h4 style="margin-right: 5% !important; display: inline;">File: <?php if (isset($get_file_data['file_name'])) {
+                                                                                                        echo $get_file_data['file_name'];
+                                                                                                    } ?></h4>
+                                    <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if (isset($get_file_data['source'])) {
+                                                                                                            echo $get_file_data['source'];
+                                                                                                        } ?></h4>
+                                    <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
+                                    <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if (isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00') {
+                                                                                                        echo date('m/d/Y', strtotime($get_file_data['last_processed_date']));
+                                                                                                    } else echo '00-00-0000' ?></h4>
+
+                                    <?php if (in_array($get_file_type, [2, 9, 11])) { ?>
+                                        <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_commission_amount, 2); ?></h4>
+
+                                    <?php }
+                                } else { ?>
+                                    <h3>Preview Data <a class="btn btn-primary pull-right" href="import.php">Back</a></h3><br />
+                                    <h4 style="margin-right: 5% !important; display: inline;">File: <?php if (isset($get_file_data['file_name'])) {
+                                                                                                        echo $get_file_data['file_name'];
+                                                                                                    } ?></h4>
+                                    <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if (isset($get_file_data['source'])) {
+                                                                                                            echo $get_file_data['source'];
+                                                                                                        } ?></h4>
+                                    <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
+                                    <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if (isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00') {
+                                                                                                        echo date('m/d/Y', strtotime($get_file_data['last_processed_date']));
+                                                                                                    } else echo '00-00-0000' ?></h4>
+                                    <?php
+                                    $file_id = isset($_GET['id']) ? $instance->re_db_input($_GET['id']) : 0;
+                                    $get_file_type_source = $instance->get_current_file_type($file_id);
+
+                                    if (isset($get_file_type) && in_array($get_file_type, [2, 9, 11])) {
+                                        // $total_amount = 0;
+
+                                        // if ($get_file_type == 9) {
+                                        //     $return_file_data_array = $instance->get_gen_detail_data($file_id);
+                                        // } else {
+                                        //     $return_file_data_array = $instance->get_idc_detail_data($file_id);
+                                        // }
+
+                                        // foreach ($return_file_data_array as $preview_key => $preview_val) {
+                                        //     $total_amount += $preview_val['dealer_commission_amount'];
+                                        // }
+                                        // $total_commission_amount = $total_amount;
+
+
+                                        //get total commission Amount
+
+                                        $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
+
+                                        $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
+
+                                        $total_Check_Amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
+
+                                    ?>
+
+                                        <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_Check_Amount, 2); ?></h4>
+
+                            <?php }
+                                }
+                            } ?>
 
                             <!-- Import File Table -->
-                            <div class="tab-pane active" id="tab_a"><?php if (isset($_GET['tab']) && $_GET['tab'] == "current_files" || !isset($_GET['tab'])) { ?>
+                            <div class="tab-pane active" id="tab_a"><?php if (isset($_GET['tab']) && ($_GET['tab'] == "current_files" || $_GET['tab'] == "archived_files") || !isset($_GET['tab'])) { ?>
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "current_files") {
                                                                             echo "active";
@@ -49,10 +291,10 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             echo "active";
                                                                         } else {
                                                                             echo '';
-                                                                        } ?>"><a href="#current_files" id="current_files" onclick="tabfunction(this.id)" data-toggle="tab">Current Files</a></li>
+                                                                        } ?>"><a href="#current_files" data-toggle="tab">Current Files</a></li>
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "archived_files") {
                                                                             echo "active";
-                                                                        } ?>"><a href="#archived_files" id="archived_files" onclick="tabfunction(this.id)" data-toggle="tab">Archived Files</a></li>
+                                                                        } ?>"><a href="#archived_files" data-toggle="tab">Archived Files</a></li>
                                     </ul> <?php } ?> <br />
                                 <!-- Tab 1 is started -->
                                 <div class="tab-content">
@@ -70,7 +312,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                     <!--<div class="row">
                                         <div class="col-md-5"></div>
                                             <a class="btn btn-sm btn-warning col-md-1" href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"> Fetch</a>
-                                            <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"><!--<button type="button"  name="fetch" value="fetch" style="display: inline;"> Fetch</button></a> -->
+                                            <!--<a href="<?php echo CURRENT_PAGE; ?>?action=open_ftp"><!--<button type="button"  name="fetch" value="fetch" style="display: inline;"> Fetch</button></a>-->
                                                     <!--<button type="submit" class="btn btn-sm btn-default col-md-2"  name="progress_all" value="progress_all" style="display: inline;"> Process All</button>
                                         </div>
                                         <br />-->
@@ -92,7 +334,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                             <tbody>
                                                                 <?php
                                                                 $count = 0;
-                                                                if (isset($return) && $return != array()) {        
+                                                                if (isset($return) && $return != array()) {
                                                                     $return = $instance->select_current_files(1);
 
                                                                     foreach ($return as $key => $val) {
@@ -299,23 +541,6 @@ if (isset($_SESSION['zero_exception'])) {
                                         </div>
 
                                     </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane active"><?php if (isset($_GET['tab']) && $_GET['tab'] == "archived_files") { ?>
-                                    <ul class="nav nav-tabs ">
-                                        <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "current_files") {
-                                                                            echo "active";
-                                                                        } else if (!isset($_GET['tab'])) {
-                                                                            echo "active";
-                                                                        } else {
-                                                                            echo '';
-                                                                        } ?>"><a href="#current_files" id="current_files" onclick="tabfunction(this.id)" data-toggle="tab">Current Files</a></li>
-                                        <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "archived_files") {
-                                                                            echo "active";
-                                                                        } ?>"><a href="#archived_files" id="archived_files" onclick="tabfunction(this.id)" data-toggle="tab">Archived Files</a></li>
-                                    </ul> <?php } ?> <br />
-                                <!-- Tab 1 is started -->
-                                <div class="tab-content">
                                     <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "archived_files") {
                                                                 echo "active";
                                                             } ?>" id="archived_files">
@@ -413,119 +638,10 @@ if (isset($_SESSION['zero_exception'])) {
                                 </div>
                             </div>
                         </div>
-
-                         <!-- Record Grid -> RESOLVE EXCEPTIONS & PROCESSED Tabs -->
-                         <?php
-                            if (isset($_GET['tab']) && ($_GET['tab'] == "review_files" || $_GET['tab'] == "processed_files") && $_GET['id'] > 0) {
-                                $get_file_data = $instance->select_user_files($_GET['id']);
-                                $get_file_type = empty($_GET['file_type']) ? $instance->get_file_type($_GET['id']) : $_GET['file_type'];
-                                $total_commission_amount = 0.00;
-
-                                $total_unique_trade_unprocessed = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
-                                $total_unique_trade_processed = $instance->unique_trades_count("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-
-                                if (empty($get_file_type)) {
-                                    $fileTypeDescription = $get_file_data['file_type'];
-                                } else if (in_array($get_file_type, ['2', '9', '11'])) {
-                                    $fileTypeDescription = "Commissions";
-                                    // $total_commission_amount = (float)$instance->get_file_batch($_GET['id'], 'commission_amount');
-
-
-                                    $id = $_GET['id'];
-                                    $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
-
-                                    $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-
-                                    $total_commission_amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
-                                } else if ($get_file_type == '3') {
-                                    $fileTypeDescription = "Securities";
-                                } else {
-                                    $fileTypeDescription = "Clients";
-                                }
-
-                                if ($_GET['tab'] == "review_files") { ?>
-
-
-                                    <form method="post" id="reprocessform" style="display: none;">
-
-                                        <select name="process_file_<?php echo $_GET['id'] ?>" class="form-control form-go-action">
-                                            <option value="5" selected>Reprocess</option>
-                                        </select>
-                                        <input type="text" name="id" id="id" value="<?php echo $get_file_data['id'] ?>">
-                                        <input type="text" name="process_file_type" id="process_file_type" value="<?php echo $get_file_data['file_type'] ?>">
-                                        <input type="text" name="process_file_type_code" id="process_file_type_code" value="<?php echo $get_file_data['file_type_code'] ?>">
-                                        <input type="hidden" name="go" value="go">
-                                        <button type="submit"><i class="fa fa-refresh"></i> submit</button>
-                                    </form>
-
-                                    <h3>Review & Resolve Exceptions <a class="btn btn-primary pull-right" href="import.php">Back</a> </h3><br />
-                                    <h4 style="margin-right: 5% !important; display: inline;">File: <?php if (isset($get_file_data['file_name'])) {
-                                                                                                        echo $get_file_data['file_name'];
-                                                                                                    } ?></h4>
-                                    <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if (isset($get_file_data['source'])) {
-                                                                                                            echo $get_file_data['source'];
-                                                                                                        } ?></h4>
-                                    <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
-                                    <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if (isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00') {
-                                                                                                        echo date('m/d/Y', strtotime($get_file_data['last_processed_date']));
-                                                                                                    } else echo '00-00-0000' ?></h4>
-
-                                    <?php if (in_array($get_file_type, [2, 9, 11])) { ?>
-                                        <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_commission_amount, 2); ?></h4>
-
-                                    <?php }
-                                } else { ?>
-                                    <h3>Preview Data <a class="btn btn-primary pull-right" href="import.php">Back</a></h3><br />
-                                    <h4 style="margin-right: 5% !important; display: inline;">File: <?php if (isset($get_file_data['file_name'])) {
-                                                                                                        echo $get_file_data['file_name'];
-                                                                                                    } ?></h4>
-                                    <h4 style="margin-right: 5% !important; display: inline;">Source: <?php if (isset($get_file_data['source'])) {
-                                                                                                            echo $get_file_data['source'];
-                                                                                                        } ?></h4>
-                                    <h4 style="margin-right: 5% !important; display: inline;">File Type: <?php echo $fileTypeDescription ?></h4>
-                                    <h4 style="margin-right: 5% !important; display: inline;">Date: <?php if (isset($get_file_data['last_processed_date']) && $get_file_data['last_processed_date'] != '0000-00-00') {
-                                                                                                        echo date('m/d/Y', strtotime($get_file_data['last_processed_date']));
-                                                                                                    } else echo '00-00-0000' ?></h4>
-                                    <?php
-                                    $file_id = isset($_GET['id']) ? $instance->re_db_input($_GET['id']) : 0;
-                                    $get_file_type_source = $instance->get_current_file_type($file_id);
-
-                                    if (isset($get_file_type) && in_array($get_file_type, [2, 9, 11])) {
-                                        // $total_amount = 0;
-
-                                        // if ($get_file_type == 9) {
-                                        //     $return_file_data_array = $instance->get_gen_detail_data($file_id);
-                                        // } else {
-                                        //     $return_file_data_array = $instance->get_idc_detail_data($file_id);
-                                        // }
-
-                                        // foreach ($return_file_data_array as $preview_key => $preview_val) {
-                                        //     $total_amount += $preview_val['dealer_commission_amount'];
-                                        // }
-                                        // $total_commission_amount = $total_amount;
-
-
-                                        //get total commission Amount
-
-                                        $total_unprocessed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=0");
-
-                                        $total_processed_commission_for_import = $instance->select_total_commission("`at`.`is_delete`=0 AND `at`.`file_id`=$file_id AND `at`.`file_type`=$get_file_type AND `at`.`solved`=1");
-
-                                        $total_Check_Amount = ($total_unprocessed_commission_for_import) + ($total_processed_commission_for_import);
-
-                                    ?>
-
-                                        <h4 style="margin-right: 0% !important; display: inline;">Total Received: <?php echo '$' . number_format($total_Check_Amount, 2); ?></h4>
-
-                            <?php }
-                                }
-                            } ?>
-
                         <div class="tab-content col-md-12">
                             <div class="tab-pane <?php if (isset($_GET['tab']) && ($_GET['tab'] == "review_files" || $_GET['tab'] == "processed_files")) {
                                                         echo "active";
-                                                    } ?>" id="tab_review"><?php if (isset($_GET['tab']) && ($_GET['tab'] == "review_files" || $_GET['tab'] == "processed_files") && $_GET['id'] > 0) {
-                                                         ?>
+                                                    } ?>" id="tab_review"><?php if (isset($_GET['tab']) && ($_GET['tab'] == "review_files" || $_GET['tab'] == "processed_files") && $_GET['id'] > 0) { ?>
                                     <ul class="nav nav-tabs ">
                                         <li class="<?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files") {
                                                                                     echo "active";
@@ -541,7 +657,7 @@ if (isset($_SESSION['zero_exception'])) {
 
                                     <!-- Tab 1 is started -->
                                     <div class="tab-content">
-                                        <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files" && $_GET['id'] > 0) { 
+                                        <div class="tab-pane <?php if (isset($_GET['tab']) && $_GET['tab'] == "review_files" && $_GET['id'] > 0) {
                                                                     echo "active";
                                                                 } ?>" id="review_files">
 
@@ -2032,11 +2148,6 @@ if (isset($_SESSION['zero_exception'])) {
     </div><!-- End of Modal dialog -->
 </div>
 <!-- End of Modal -->
-<script>
-    function tabfunction(idget){
-        window.location.href="<?php echo CURRENT_PAGE; ?>?tab="+idget;
-    }
-</script>
 <style>
     #table-scroll {
         height: 500px;

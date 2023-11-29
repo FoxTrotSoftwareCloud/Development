@@ -530,5 +530,14 @@ else if (isset($_POST['upload_client_file']) && $_POST['upload_client_file'] == 
     exit;
 }
 
-$content = "import";
-include(DIR_WS_TEMPLATES . "main_page.tpl.php");
+// below if else condition use in horen for reduce import loading page speed
+if((!isset($_GET['tab']) && $_GET['tab'] == '') || (isset($_GET['tab']) && $_GET['tab'] == 'current_files')){
+    $content = "import_home";
+    include(DIR_WS_TEMPLATES . "main_page.tpl.php");
+}else{
+    $content = "import";
+    include(DIR_WS_TEMPLATES . "main_page.tpl.php");
+}
+
+// $content = "import_old";
+// include(DIR_WS_TEMPLATES . "main_page.tpl.php");
