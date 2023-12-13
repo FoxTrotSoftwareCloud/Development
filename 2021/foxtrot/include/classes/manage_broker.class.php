@@ -509,7 +509,11 @@ class broker_master extends db
 							return false;
 						}*/
       } else {
-        $q = "UPDATE `" . BROKER_GENERAL . "`"
+
+        $get_broker_general = $this->select_broker_general_by_id($id);
+
+        if ($get_broker_general) {
+          $q = "UPDATE `" . BROKER_GENERAL . "`"
           . "SET `home`='" . $home_general . "',`home_address1_general`='" . $home_address1_general . "',`home_address2_general`='" . $home_address2_general . "',`city`='" . $city_general . "',`state_id`='" . $state_general . "',`zip_code`='" . $zip_code_general . "'"
           . ",`business_address1_general`='" . $business_address1_general . "',`business_address2_general`='" . $business_address2_general . "',`business_city`='$business_city',`business_state`='$business_state',`business_zipcode`='$business_zipcode'"
           . ",`telephone`='" . $telephone_general . "',`cell`='" . $cell_general . "',`fax`='" . $fax_general . "',`gender`='" . $gender_general . "',`marital_status`='" . $status_general . "',`spouse`='" . $spouse_general . "',`children`='" . $children_general . "'"
@@ -531,15 +535,30 @@ class broker_master extends db
             'account_no', 'cfp', 'chfp', 'cpa', 'clu', 'cfa', 'ria', 'insurance'
           );
           $this->update_history(BROKER_HISTORY, $originalInstance, $newInstance, $fieldsToWatch);
+        }
+        } else {
+          $q = "INSERT INTO `" . BROKER_GENERAL . "`"
+          . " SET `broker_id`='" . $id . "',`home`='" . $home_general . "',`home_address1_general`='" . $home_address1_general . "',`home_address2_general`='" . $home_address2_general . "',`city`='" . $city_general . "',`state_id`='" . $state_general . "',`zip_code`='" . $zip_code_general . "'"
+          . ",`business_address1_general`='" . $business_address1_general . "',`business_address2_general`='" . $business_address2_general . "',`business_city`='$business_city',`business_state`='$business_state',`business_zipcode`='$business_zipcode'"
+          . ",`telephone`='" . $telephone_general . "',`cell`='" . $cell_general . "',`fax`='" . $fax_general . "',`gender`='" . $gender_general . "',`marital_status`='" . $status_general . "',`spouse`='" . $spouse_general . "'"
+          . ",`children`='" . $children_general . "',`email1`='" . $email1_general . "',`email2`='" . $email2_general . "',`web_id`='" . $web_id_general . "',`web_password`='" . $web_password_general . "',`dob`='" . $dob_general . "'"
+          . ",`prospect_date`='" . $prospect_date_general . "',`reassign_broker`='" . $reassign_broker_general . "',`u4`='" . $u4_general . "',`u5`='" . $u5_general . "',`day_after_u5`='" . $day_after_u5 . "',`dba_name`='" . $dba_name_general . "'"
+          . ",`eft_information`='" . $eft_info_general . "',`start_date`='" . $start_date_general . "',`transaction_type`='" . $transaction_type_general . "',`routing`='" . $routing_general . "',`account_no`='" . $account_no_general . "'"
+          . ",`cfp`='" . $cfp_general . "',`chfp`='" . $chfp_general . "',`cpa`='" . $cpa_general . "',`clu`='" . $clu_general . "',`cfa`='" . $cfa_general . "',`ria`='" . $ria_general . "',`insurance`='" . $insurance_general . "'"
+          . ",higher_risk = '" . $higher_risk . "' ,  exam_notes = '" . $exam_notes . "' ,finra_exam_date = '" . $finra_exam_date . "'"
+          . $this->insert_common_sql();
 
-          $_SESSION['success'] = UPDATE_MESSAGE;
-          return true;
+          $res = $this->re_db_query($q);
+        }
+
+        $_SESSION['success'] = UPDATE_MESSAGE;
+        return true;
         }
         /*else{
 							$_SESSION['warning'] = UNKWON_ERROR;
 							return false;
 						}*/
-      }
+      // }
       /*else{
 							$_SESSION['warning'] = UNKWON_ERROR;
 							return false;

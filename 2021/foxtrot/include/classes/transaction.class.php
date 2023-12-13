@@ -1285,7 +1285,9 @@ class transaction extends db
 				$con .= " AND `at`.`trade_date` between '" . date('Y-m-d', strtotime($beginning_date)) . "' and '" . date('Y-m-d', strtotime($ending_date)) . "' ";
 		}
 		if ($report_for == "Production by Product Category") {
-			$con .= " Group by `at`.product_cate,`at`.product";
+			// below line comment on 12/12/2023 for sponser unique according to product_cate
+			// $con .= " Group by `at`.product_cate,`at`.product";
+			$con .= " Group by `at`.product_cate,`at`.sponsor";
 		} else if ($report_for == "Product Category Summary Report") {
 			$con .= " Group by `at`.product_cate,`at`.product";
 		} else if ($report_for == "Production by Sponsor Report") {
