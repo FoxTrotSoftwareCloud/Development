@@ -151,6 +151,9 @@ class import_generic extends import {
                 if ($rowNumber == 0){
                     
                 } else {
+                    if ($rowArray[0] == '' && $rowArray[1] == '') {
+                        continue;
+                    }
                     // Validate the file values
                     $fieldValues = "";
                     $rowArray[12]=$rowArray[3];

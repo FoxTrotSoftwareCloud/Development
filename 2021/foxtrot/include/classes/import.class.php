@@ -2026,6 +2026,7 @@ class import extends db
             }
         }
     }
+    
     public function reArrayFiles($file_post)
     {
         $file_array = array();
