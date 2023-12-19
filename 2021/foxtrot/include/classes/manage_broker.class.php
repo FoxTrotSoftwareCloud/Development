@@ -2181,7 +2181,7 @@ class broker_master extends db
     $q = "SELECT `at`.*
 					FROM `" . PRODUCT_TYPE . "` AS `at`
                     WHERE `at`.`is_delete`='0'
-                    ORDER BY `at`.`id` ASC";
+                    ORDER BY `at`.`type` ASC";
     $res = $this->re_db_query($q);
     if ($this->re_db_num_rows($res) > 0) {
       $a = 0;
@@ -2426,7 +2426,7 @@ class broker_master extends db
     if ($orderById == 1) {
       $orderBy = "`at`.`last_name`, `at`.`first_name`, `at`.`id`";
     } else {
-      $orderBy = "`at`.`id` ASC";
+      $orderBy = "`at`.`last_name`, `at`.`first_name`";
     }
 
     $q = "SELECT `at`.*,`bg`.`u4`

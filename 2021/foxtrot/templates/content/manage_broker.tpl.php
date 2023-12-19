@@ -567,6 +567,11 @@
                   })
                }
             }
+            if ($("#lname").val() == '') {
+               alert("Please enter last name!");
+               $("#lname").focus();
+               return false;
+            }
             if ($("#email1_general").val() == '') {
                alert("Please enter Primary Email!");
                $("#email1_general").focus();
