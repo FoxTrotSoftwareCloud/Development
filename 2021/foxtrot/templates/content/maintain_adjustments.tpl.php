@@ -26,7 +26,7 @@
                             <div class="row" style="margin-bottom:15px">
                                 <div class="col-md-6">
                                     <label>Adjustment Amount <span class="text-red"> (Deductions Must be Entered with a Negative Sign) *</span></label>
-                                        <input type="text" name="adjustment_amount" id="adjustment_amount" onchange="formatCurrencyInput(this)" value="<?php if ($action == 'edit') { echo '$'.$adjustment_amount;} ?>" class="form-control" />
+                                        <input type="text" name="adjustment_amount" id="adjustment_amount" onchange="formatCurrencyInput(this)" value="<?php if ($action == 'edit') { echo '$'.number_format($adjustment_amount, 2);} ?>" class="form-control" />
                                 </div>
                             </div>
                             <div class="row">
