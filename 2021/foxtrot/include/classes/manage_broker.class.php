@@ -463,7 +463,7 @@ class broker_master extends db
 				*/
 
     if ($web_id_general != '') {
-      $q = "SELECT * FROM `" . BROKER_GENERAL . "` WHERE `web_id`='" . $web_id_general . "' AND  `id`!=" . $id;
+      $q = "SELECT * FROM `" . BROKER_GENERAL . "` WHERE `web_id`='" . $web_id_general . "' AND  `broker_id`!=" . $id;
       $res = $this->re_db_query($q);
       $numrows = $this->re_db_num_rows($res);
       if ($numrows > 0) {
@@ -472,7 +472,7 @@ class broker_master extends db
         if ($id == 0) {
           $web_id_general = '';
         } else {
-          $q = "SELECT `web_id` FROM `" . BROKER_GENERAL . "` WHERE `id`='" . $id . "'";
+          $q = "SELECT `web_id` FROM `" . BROKER_GENERAL . "` WHERE `broker_id`='" . $id . "'";
           $res = $this->re_db_query($q);
           if ($this->re_db_num_rows($res) > 0) {
             $return = $this->re_db_fetch_array($res);

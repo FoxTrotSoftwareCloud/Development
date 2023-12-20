@@ -10,6 +10,9 @@
                     <div class="panel">
                         <div class="panel-heading">
                             <div class="panel-control" style="float: right;">
+                                <?php if ($action == 'edit') { ?>
+                                    <a href="<?php echo SITE_URL ?>upload_adjustments.php" class="btn btn-sm btn-default">Upload Adjustments</a>
+                                <?php } ?>
                                 <div class="btn-group dropdown">
                                     <button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
                                     <ul class="dropdown-menu dropdown-menu-right" style="">
@@ -20,12 +23,10 @@
                             <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i><?php echo $action == 'add_new' ? 'Add' : 'Edit'; ?> Adjustments</h3>
                         </div>
                         <div class="panel-body">
-                            <div class="row">
+                            <div class="row" style="margin-bottom:15px">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Adjustment Amount <span class="text-red"> (Deductions Must be Entered with a Negative Sign) *</span></label>
-                                        <input type="number" name="adjustment_amount" id="adjustment_amount" class="form-control" value="<?php echo $adjustment_amount; ?>" />
-                                    </div>
+                                    <label>Adjustment Amount <span class="text-red"> (Deductions Must be Entered with a Negative Sign) *</span></label>
+                                        <input type="text" name="adjustment_amount" id="adjustment_amount" onchange="formatCurrencyInput(this)" value="<?php if ($action == 'edit') { echo '$'.$adjustment_amount;} ?>" class="form-control" />
                                 </div>
                             </div>
                             <div class="row">
@@ -239,7 +240,7 @@
                                             </td>
                                             <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $payrollmaintainEditLink ?>'" style="cursor:pointer"><?php echo date('m/d/Y', strtotime($val['date'])); ?></td>
                                             <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $payrollmaintainEditLink ?>'" style="cursor:pointer"><?php echo $val['broker_firstname'] . ' ' . $val['broker_lastname']; ?></td>
-                                            <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $payrollmaintainEditLink ?>'" style="cursor:pointer"><?php echo $val['adjustment_amount']; ?></td>
+                                            <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $payrollmaintainEditLink ?>'" style="cursor:pointer">$ <?php echo number_format($val['adjustment_amount'],2); ?></td>
                                             <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $payrollmaintainEditLink ?>'" style="cursor:pointer"><?php echo $val['category']; ?></td>
                                             <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $payrollmaintainEditLink ?>'" style="cursor:pointer"><?php echo $val['description']; ?></td>
                                             <td onclick="waitingDialog.show('a'),window.location.href='<?php echo $payrollmaintainEditLink ?>'" style="cursor:pointer"><?php echo $val['recurring_type']; ?></td>
@@ -291,6 +292,13 @@
         $("div.toolbar").html('<a href="<?php echo CURRENT_PAGE; ?>?action=add_new" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New</a>');
         $("#data-table_filter [type='search']").focus();
     });
+    function formatCurrencyInput(inputField) {
+        // Remove non-numeric and non-dot characters
+        inputField.value = inputField.value.replace(/[^0-9.-]/g, '');
+
+        // If the value is not empty, format it as currency
+        inputField.value = '$' + parseFloat(inputField.value).toFixed(2);
+    }
     //date format
     $('#demo-dp-range .input-daterange').datepicker({
         format: "mm/dd/yyyy",
@@ -396,6 +404,8 @@
             $("#adjustment_amount").focus();
             return false;
         }
+        var adjustedValue = $('#adjustment_amount').val().replace('$', '');
+        $('#adjustment_amount').val(adjustedValue);
         if ($("#date").val() == '') {
             alert("Please enter Date");
             $("#date").focus();
