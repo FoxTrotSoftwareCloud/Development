@@ -11,7 +11,7 @@
                         <div class="panel-heading">
                             <div class="panel-control" style="float: right;">
                                 <?php if ($action == 'edit') { ?>
-                                    <a href="<?php echo SITE_URL ?>upload_adjustments.php" class="btn btn-sm btn-default">Upload Adjustments</a>
+                                    <a href="<?php echo SITE_URL . 'upload_adjustments.php'; ?>" class="btn btn-sm btn-default">Upload Adjustments</a>
                                 <?php } ?>
                                 <div class="btn-group dropdown">
                                     <button type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></button>
@@ -132,7 +132,7 @@
                                                         <?php foreach ($get_broker as $key => $val) { ?>
                                                             <option value="<?php echo $val['id']; ?>" <?php if ($broker_name != '' && $broker_name == $val['id']) {
                                                                                                             echo "selected='selected'";
-                                                                                                        } ?>><?php echo $val['first_name'] . ' ' . $val['last_name']; ?></option>
+                                                                                                        } ?>><?php echo $val['last_name']  . ' ' . $val['first_name']; ?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
