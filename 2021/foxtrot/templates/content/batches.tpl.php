@@ -30,7 +30,13 @@
                     </div>
                     <div class="panel-heading">
                         <div class="panel-control" style="float: right;">
-                            <a class="btn btn-primary pull-right" href="<?php echo CURRENT_PAGE; ?>?action=view_batches">Back</a>
+                        <a class="btn btn-primary pull-right" href="<?php 
+                            if(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1) {
+                                echo SITE_URL . "advisory.php?action=add";
+                            } else {
+                                echo CURRENT_PAGE . "?action=view_batches";
+                            }
+                        ?>">Back</a>
 
                         </div>
                         <h3 class="panel-title"><i class="fa fa-pencil-square-o"></i><?php echo $action == 'add_batches' ? 'Add' : 'Edit'; ?> Batches &nbsp;&nbsp;&nbsp;&nbsp;
@@ -245,7 +251,13 @@
                                 echo '<button ype="submit" class="btn-theme" name="post_trade" value="Post" style="float: right;" >Save & Post</button>';
                             }
                             ?>
-                            <a href="<?php echo CURRENT_PAGE . '?action=view_batches'; ?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
+                            <a href="<?php 
+                                if(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1) {
+                                    echo SITE_URL . "advisory.php?action=add";
+                                } else {
+                                    echo CURRENT_PAGE . "?action=view_batches";
+                                }
+                            ?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                         </div>
                         <!--</div>
                  </div>-->

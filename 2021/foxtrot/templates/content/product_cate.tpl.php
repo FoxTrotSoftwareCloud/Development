@@ -882,7 +882,16 @@
                         <?php } ?>
 
                         <input type="submit" name="product" value="Save" style="float: right;" />
-                        <a onclick="return confirmleave('<?php echo CURRENT_PAGE; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
+                        <!-- <a onclick="return confirmleave('<?php echo CURRENT_PAGE; ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a> -->
+                        <a href="<?php 
+                            if(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1) {
+                                echo SITE_URL . "advisory.php?action=add";
+                            }
+                        ?>" onclick="<?php 
+                            if(!(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1)) {
+                                echo "return confirmleave('" . CURRENT_PAGE . "');";
+                            }
+                        ?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                     </div>
                 </div>
             </form>

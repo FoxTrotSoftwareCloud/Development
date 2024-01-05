@@ -1268,7 +1268,15 @@
                                 <?php } ?>
                                 <!-- <a onclick="return confirmleave('<?php echo CURRENT_PAGE ?>');"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a> -->
                                 <input type="submit" name="submit" onclick="return waitingDialog.show();" value="Save" style="float: right;" />
-                                <a onclick="history.back()"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
+                                <!-- <a onclick="history.back()"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a> -->
+                                <a href="<?php 
+                                    if(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1) {
+                                        echo SITE_URL . "advisory.php?action=add";
+                                    } ?>" onclick="<?php 
+                                    if(!(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1)) {
+                                        echo "history.back(); return false;";
+                                    }
+                                ?>"><input type="button" name="cancel" value="Cancel" style="float: right;" /></a>
                             </div>
                         </div>
                     </form>
