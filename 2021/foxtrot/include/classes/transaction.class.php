@@ -70,6 +70,8 @@ class transaction extends db
 		$hold_reason = str_replace("\\r\\n", "<br>", $hold_reason);
 		$hold_commission = isset($data['hold_commission']) ? $this->re_db_input($data['hold_commission']) : '';
 
+		$payroll_count = isset($data['payroll_count']) ? $data['payroll_count'] : 0;
+
 		//-- Validate the entries
 		$this->errors = '';
 
@@ -77,7 +79,7 @@ class transaction extends db
 			$this->errors .= "Please select client name.<br>";
 		} else if ($broker_name == '0') {
 			$this->errors .= "Please select broker name.<br>";
-		} else if ($product_cate == '0') {
+		} else if ($product_cate == '0' && $payroll_count == 0) {
 			$this->errors .= "Please select product category.<br>";
 		} else if ($product == '0') {
 			$this->errors .= "Please select product name.<br>";
@@ -91,19 +93,20 @@ class transaction extends db
 			$this->errors .= "Please enter commission received date.<br>";
 			// } else if($settlement_date==''){
 			// 	$this->errors .= "Please enter settlement date.<br>";
-		} else if ($split == '') {
+		} else if ($split == '' && $payroll_count == 0) {
 			$this->errors .= "Please select split commission .<br>";
 			// } else if($split_rate==array()){
 			// 	$this->errors .= "Please enter split rate commission received.<br>";
-		} else if ($hold_commission == '1' && $hold_reason == '') {
+		} else if ($hold_commission == '1' && $hold_reason == '' && $payroll_count == 0) {
 			$this->errors .= "Please enter commission hold reason.<br>";
 		}
-
 		//-- 06/08/22 Rule Engine check
 		if ($ruleEngineProceed == "0") {
 			unset($_SESSION['transaction_rule_engine']);
 
-			$ruleReturn = $instance_rules->rule_engine_manual_check($data);
+			// $ruleReturn = $instance_rules->rule_engine_manual_check($data);
+			$ruleReturn = '';
+
 			if ($ruleReturn and (!empty($ruleReturn['warnings']) or !empty($ruleReturn['errors']))) {
 				// Only show the "warnings" if there is not show-stopper(errors exist)
 				$this->errors .= $ruleReturn['errors'] . (empty($ruleReturn['errors']) ? 'Rule Engine Warning' : '');
@@ -132,8 +135,16 @@ class transaction extends db
 
 			if ($is_new_client) {
 				$client_number = $_POST['c_account_no'];
-				$q = "INSERT INTO `" . CLIENT_ACCOUNT . "` SET `client_id`='" . $client_name . "',`account_no`='" . $client_number . "',`sponsor_company`='" . $_POST['c_sponsor'] . "'" . $this->insert_common_sql();;
+				$q = "SELECT `at`.*
+					FROM `".CLIENT_ACCOUNT."` AS `at`
+                    WHERE `at`.`is_delete`='0' and `at`.`client_id`='".$client_name."' and `at`.`account_no`='".$client_number."' and `at`.`sponsor_company`='".$_POST['c_sponsor']."'
+                    ORDER BY `at`.`id` ASC";
 				$res = $this->re_db_query($q);
+				if($this->re_db_num_rows($res)>0){
+				}else{
+					$q = "INSERT INTO `" . CLIENT_ACCOUNT . "` SET `client_id`='" . $client_name . "',`account_no`='" . $client_number . "',`sponsor_company`='" . $_POST['c_sponsor'] . "'" . $this->insert_common_sql();
+					$res = $this->re_db_query($q);
+				}
 			}
 			// 05/03/22 Branch & Company added to the Entry Form so user can choose a specific branch/company for the trade
 			//  $get_branch_company_detail = $this->select_branch_company_ref($broker_name);

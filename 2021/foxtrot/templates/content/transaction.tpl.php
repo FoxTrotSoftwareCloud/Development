@@ -1488,10 +1488,10 @@
 
     function add_new_client_no(element) {
 
-        if (element.value == -1) {
-            jQuery("#account_no_row").show();
+        if (element.val() == -1) {
+            document.getElementById("account_no_row").style.display = "block";
         } else {
-            jQuery("#account_no_row").hide();
+            document.getElementById("account_no_row").style.display="none";
         }
     }
 
