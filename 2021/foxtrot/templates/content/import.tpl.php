@@ -1334,10 +1334,10 @@ if (isset($_SESSION['zero_exception'])) {
                                                     <table id="data-table2" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                                         <thead>
                                                             <tr>
-                                                                <th>Host Name</th>
-                                                                <th>Username</th>
+                                                                <th>Source</th>
                                                                 <th>Sponsor</th>
-                                                                <th>Deposite Date</th>
+                                                                <th>Category/Username</th>
+                                                                <th>Deposit/Batch Date</th>
                                                                 <th class="text-center">ACTION</th>
                                                             </tr>
                                                         </thead>
@@ -1351,7 +1351,6 @@ if (isset($_SESSION['zero_exception'])) {
                                                             ?>
                                                                     <tr>
                                                                         <td><?php echo $val['name']; ?></td>
-                                                                        <td><?php echo $val['user_name']; ?></td>
                                                                         <td class="text-center">
                                                                             DST
                                                                             <!-- <?php if ($val['status'] == 1) { ?>
@@ -1360,9 +1359,14 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                 <a href="<?php echo CURRENT_PAGE; ?>?action=ftp_status&ftp_id=<?php echo $val['id']; ?>&status=1" class="btn btn-sm btn-warning"><i class="fa fa-warning"></i> Inactive</a>
                                                                             <?php } ?> -->
                                                                         </td>
+                                                                        <td><?php echo $val['user_name']; ?></td>
                                                                         <td>
                                                                             <?php if($key==0){ ?>
-                                <input type="date" name="deposite_date" id="deposite_date" value="">
+                                                                                <div id="demo-dp-range">
+                                                                                    <div class="input-daterange input-group" id="datepicker">
+                                                                                        <input type="text" name="deposite_date" id="deposite_date" class="form-control" value="<?= date('m/d/Y') ?>" />
+                                                                                    </div>
+                                                                                </div>
                                                                             <?php }else {} ?>
                                                                             
                                                                         </td>
@@ -1390,7 +1394,15 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 // Add Generic CSV Interface for user-file upload -->
                                                                 if (!empty($instance_importGeneric->dataInterface)) { ?>
                                                                     <tr>
-                                                                        <td><?php echo $instance_importGeneric->dataInterface['name']; ?></td>
+                                                                        <td>Generic Trade Activity CSV</td>
+                                                                        <td>
+                                                                            <select name="generic_product_category" id="generic_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
+                                                                                <option value="0">Select Category</option>
+                                                                                <?php foreach ($get_product_category as $key => $val) { ?>
+                                                                                    <option value="<?php echo $val['id']; ?>" <?php echo (isset($existingDetailValues['product_category_id']) and $val['id'] == $existingDetailValues['product_category_id']) ? "selected" : "" ?>><?php echo $val['type']; ?></option>
+                                                                                <?php } ?>
+                                                                            </select>
+                                                                        </td>
                                                                         <td>
                                                                             <select name="generic_sponsor" id="generic_sponsor" class="form-control" style="display: block; width: 200px;">
                                                                                 <option value="">Select Sponsor</option>
@@ -1400,14 +1412,16 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             </select>
                                                                         </td>
                                                                         <td>
-                                                                            <select name="generic_product_category" id="generic_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
-                                                                                <option value="0">Select Category</option>
-                                                                                <?php foreach ($get_product_category as $key => $val) { ?>
-                                                                                    <option value="<?php echo $val['id']; ?>" <?php echo (isset($existingDetailValues['product_category_id']) and $val['id'] == $existingDetailValues['product_category_id']) ? "selected" : "" ?>><?php echo $val['type']; ?></option>
-                                                                                <?php } ?>
-                                                                            </select>
+                                                                        <div class="row">
+                                                                            <div class="col-md-4" style="width:50%">
+                                                                                <input type="number" class="form-control" name="payroll_count" id="payroll_count" style="display:none;" onchange="changeNumber()" onkeypress='return (event.charCode != 45)' placeholder="Enter Number of Payrolls to pay" min=1 max=50/>
+                                                                            </div>
+                                                                            <div class="col-md-4" id="demo-dp-range" style="width:50%">
+                                                                                <div class="input-daterange form-group datename-container">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                         </td>
-                                                                        <td></td>
                                                                         <!-- <td class="text-center"> -->
                                                                         <td>
                                                                             <div class="row">
@@ -1429,8 +1443,8 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 if (count($orion)) { ?>
                                                                     <tr>
                                                                         <td><?php echo $orion[0]['name']; ?></td>
-                                                                        <td></td>
                                                                         <td class="text-center">ORION</td>
+                                                                        <td></td>
                                                                         <td></td>
                                                                         <td>
                                                                             <div class="row">
@@ -1452,8 +1466,8 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 if (count($dazl)) { ?>
                                                                     <tr>
                                                                         <td><?php echo $dazl[0]['name']; ?></td>
-                                                                        <td></td>
                                                                         <td class="text-center">DAZL</td>
+                                                                        <td></td>
                                                                         <td></td>
                                                                         <td>
                                                                             <div class="row">
@@ -1474,8 +1488,8 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 if (count($temp_data_found)) { ?>
                                                                     <tr>
                                                                         <td><?php echo $temp_data_found[0]['name']; ?></td>
-                                                                        <td></td>
                                                                         <td class="text-center">NFS</td>
+                                                                        <td></td>
                                                                         <td></td>
                                                                         <td>
                                                                             <div class="row">
@@ -1491,11 +1505,24 @@ if (isset($_SESSION['zero_exception'])) {
                                                                     unset($temp_data_interface, $temp_data_found);
                                                                 }
                                                             } ?>
-                                                            <!-- <tr>
-                                                                <td>Z - INSERT CLIENT</td>
-                                                                <td></td>
-                                                                <td class="text-center">CLIENT</td>
-                                                                <td></td>
+                                                            <tr>
+                                                                <td>Generic Client Accounts CSV</td>
+                                                                <td class="text-center">Client Accounts</td>
+                                                                <td>
+                                                                <select name="client_generic_sponsor" id="client_generic_sponsor" class="form-control" style="display: block; width: 200px;">
+                                                                                <option value="">Select Sponsor</option>
+                                                                                <?php foreach ($get_sponsor as $key => $val) { ?>
+                                                                                    <option value="<?php echo $val['id']; ?>"><?php echo $val['name']; ?></option>
+                                                                                <?php } ?>
+                                                                            </select>
+                                                                </td>
+                                                                <td>
+                                                                    <div id="demo-dp-range">
+                                                                        <div class="input-daterange input-group" id="datepicker">
+                                                                            <input type="text" name="client_deposite_date" id="client_deposite_date" class="form-control" value="<?= date('m/d/Y') ?>" />
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
                                                                 <td>
                                                                     <div class="row">
                                                                         <div class="col-md-6">
@@ -1505,7 +1532,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             <button type="submit" class="btn btn-md btn-warning" name="upload_client_file" value="upload_client_file"><i class="fa fa-download"></i> Upload</button>
                                                                         </div>
                                                                 </td>
-                                                            </tr> -->
+                                                            </tr>
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -2245,6 +2272,9 @@ if (isset($_SESSION['zero_exception'])) {
     function get_product(category_id) {
         category_id = document.getElementById("assign_cusip_product_category").value;
 
+        var datenameContainer = document.getElementsByClassName("datename-container")[0];
+        datenameContainer.innerHTML = "";
+
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -2253,6 +2283,45 @@ if (isset($_SESSION['zero_exception'])) {
         };
         xmlhttp.open("GET", "ajax_get_product.php?product_category_id=" + category_id, true);
         xmlhttp.send();
+
+        var category = $('#generic_product_category').val();
+        if(category == 12){
+            $('#payroll_count').show();
+            $('#demo-dp-range .datename-container').show();
+        }else{
+            $('#payroll_count').val('');
+            $('#payroll_count').hide();
+            $('#demo-dp-range .datename-container').hide();
+        }
+    }
+
+    function changeNumber() {
+        var numberOfFields = document.getElementById("payroll_count").value;
+
+        if(numberOfFields == 0 || numberOfFields == ''){
+            alert("Enter Number valid number of Payrolls to pay");
+        }
+
+        var datenameContainer = document.getElementsByClassName("datename-container")[0];
+            datenameContainer.innerHTML = "";
+            for (var i = 0; i < numberOfFields; i++) {
+                var inputElement = document.createElement("input");
+                inputElement.type = "text";
+                inputElement.name = "custom-payroll-date-"+i;
+                inputElement.className = "form-control custom-date" + i;
+                inputElement.placeholder = "Enter date "+(i+1);
+                datenameContainer.appendChild(inputElement);
+                if (i < numberOfFields - 1) {
+                    datenameContainer.appendChild(document.createElement("br"));
+                }
+                
+                $('.custom-date'+i).datepicker({
+                    format: "mm/dd/yyyy",
+                    todayBtn: "linked",
+                    autoclose: true,
+                    todayHighlight: true
+                });
+            } 
     }
 </script>
 <style type="text/css">
@@ -2284,13 +2353,20 @@ if (isset($_SESSION['zero_exception'])) {
         float: right;
         padding-left: 5px;
     }
+    .datename-container .form-control{
+        display:flex;
+        width:inherit;
+        vertical-align:middle;
+    }
 </style>
 <script type="text/javascript">
-    $('#demo-dp-range .input-daterange').datepicker({
-        format: "mm/dd/yyyy",
-        todayBtn: "linked",
-        autoclose: true,
-        todayHighlight: true
+    $(document).ready(function() {
+        $('#demo-dp-range .input-daterange').datepicker({
+            format: "mm/dd/yyyy",
+            todayBtn: "linked",
+            autoclose: false, // Set autoclose to false
+            todayHighlight: true
+        });
     });
 
     function save_note_change(id) {

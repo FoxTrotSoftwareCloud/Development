@@ -23,7 +23,7 @@ class import_client extends import
 
     // Fully cycle a file Decode CSV -> Process 
     // 04/05/22 $_FILES['upload_generic_csv_file']['name'] not found in file_exists(<name>) on the server side(works in //localhost), use the "tmp_name" property instead
-    function process_file($postFileName, $sponsor_id = 0, $product_category_id = 0)
+    function process_file($postFileName, $sponsor_id = 0, $product_category_id = 0, $date = '')
     {
         $file_id = $return = 0;
         $instance_import = new import();
@@ -33,7 +33,7 @@ class import_client extends import
         $sponsor_id = (int)$this->re_db_input($sponsor_id);
         $product_category_id = (int)$this->re_db_input($product_category_id);
 
-        $file_id = $this->load_current_file_table($fileName, $sponsor_id, $product_category_id);
+        $file_id = $this->load_current_file_table($fileName, $sponsor_id, $product_category_id, $date);
         if ($file_id) {
             $return = $this->load_detail_table($loadFile, $file_id, $sponsor_id, $product_category_id);
         }
@@ -41,7 +41,7 @@ class import_client extends import
         return $return;
     }
 
-    function load_current_file_table($file_name = '', $sponsor_id = 0, $product_category_id = 0, $source = 'ORION')
+    function load_current_file_table($file_name = '', $sponsor_id = 0, $product_category_id = 0, $date='',$source = 'CLIENT')
     {
 
         $instance_product_maintenance = new product_maintenance();
@@ -54,7 +54,7 @@ class import_client extends import
         $productCategoryArray = $instance_product_maintenance->select_category($product_category_id);
         $source = $this->re_db_input($source);
 
-        if (($source != 'ORION' or pathInfo($fileName, PATHINFO_EXTENSION) == 'CSV' or pathInfo($fileName, PATHINFO_EXTENSION) == 'csv') and !in_array($fileName, $currentImportFiles)) {
+        if (($source == 'CLIENT' or pathInfo($fileName, PATHINFO_EXTENSION) == 'CSV' or pathInfo($fileName, PATHINFO_EXTENSION) == 'csv') and !in_array($fileName, $currentImportFiles)) {
 
             // File Type
             // Have to use the stripos()!==false, stripos() returns unpredictable "false" values(booleanfalse OR 0 OR <blank>) and if the position is found at the beginning the string, it returns 0
@@ -71,6 +71,7 @@ class import_client extends import
                 . ",`is_delete` = 1"
                 . ",`processed` = 1"
                 . ",`process_completed` = 1"
+                . ",`deposite_date` = '" . $this->re_db_input(date('Y-m-d', strtotime($date))) . "'"
                 . $this->insert_common_sql();
             $res = $this->re_db_query($q);
 
@@ -161,6 +162,7 @@ class import_client extends import
 
             foreach ($resultArray as $rowNumber => $rowArray) {
 
+                $sponser_id = $broker_id = '';
                 // Skip header row
                 if ($rowNumber == 0) {
                 } else {
@@ -173,12 +175,30 @@ class import_client extends import
                         }
                     }
 
+                    if($broker_id == ''){
+                        $commaSeparatedString = explode(", ",  $rowArray[12]);
+                        $lname = trim($commaSeparatedString[0]);
+                        $fname = trim($commaSeparatedString[1]);
+                        $internal = trim($rowArray[11]);
+                        $q = "INSERT INTO `" . BROKER_MASTER . "` SET `first_name`='" . $fname . "',`last_name`='" . $lname . "',`middle_name`='',`suffix`='',`fund`='',`internal`='" . $internal . "',`display_on_statement`='',`tax_id`='0',`crd`='',`ssn`='0',`active_status`='1',`pay_method`='0'" . $this->insert_common_sql();
+                        $res = $this->re_db_query($q);
+                        $id = $this->re_db_insert_id();
+                        $broker_id = $id;
+                    }
+
                     $instance_sponser = new manage_sponsor();
                     $get_sponser_list = $instance_sponser->select_sponsor();
                     foreach ($get_sponser_list as $key => $val) {
                         if (trim($val['name']) == trim(strtoupper($rowArray[14]))) {
                             $sponser_id = $val['id'];
                         }
+                    }
+
+                    if($sponser_id == ''){
+                        $q = "INSERT INTO `".SPONSOR_MASTER."` SET `name`='".strtoupper($rowArray[14])."',`address1`='',`address2`='',`city`='',`state`='0',`zip_code`='',`email`='',`website`='',`general_contact`='',`general_phone`='',`operations_contact`='',`operations_phone`='',`dst_system_id`='',`dst_mgmt_code`='',`dst_importing`='',`dazl_code`='',`dazl_importing`='',`dtcc_nscc_id`='',`clearing_firm_id`=''".$this->insert_common_sql();
+                        $res = $this->re_db_query($q);
+                        $id = $this->re_db_insert_id();
+                        $sponser_id = $id;
                     }
 
                     $from = new DateTime($rowArray[9]);

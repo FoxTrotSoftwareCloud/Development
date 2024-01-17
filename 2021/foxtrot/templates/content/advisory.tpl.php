@@ -319,7 +319,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Number of Payrolls to Pay <span class="text-red">*</span></label><br />
-                                    <input type="number" class="form-control" name="payroll_count" id="payroll_count" onchange="changeNumber()" onkeypress='return (event.charCode != 48 && event.charCode != 45)' min=1 max=50/>
+                                    <input type="number" class="form-control" name="payroll_count" id="payroll_count" onchange="changeNumber()" onkeypress='return (event.charCode != 45)' min=1 max=50/>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -650,7 +650,7 @@
         var selectedValue = getCheckedRadioButtonValue();
 
         if(numberOfFields == 0 || numberOfFields == ''){
-            alert("Enter Number of Payrolls to pay");
+            alert("Enter valid Number of Payrolls to pay");
         }
 
         var datenameContainer = document.getElementsByClassName("datename-container")[0];

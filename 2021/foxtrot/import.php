@@ -362,7 +362,7 @@ else if (isset($_POST['upload_client_file']) && $_POST['upload_client_file'] == 
             $uploaded = $instance->upload_file($_FILES[$upload_sponsor_file], $instance_importClient->dataInterface['local_folder']);
         }
         if ($uploaded) {
-            $uploaded = $instance_importClient->process_file($_FILES[$upload_sponsor_file]['name']);
+            $uploaded = $instance_importClient->process_file($_FILES[$upload_sponsor_file]['name'], $_POST['client_generic_sponsor'], 0, $_POST['client_deposite_date']);
             $successMessage = "File '" . $_FILES[$upload_sponsor_file]['name'] . "' uploaded succesfully.";
         } else if (empty($error)) {
             $error = 'File not uploaded. Please check privileges on the directory & file: ' . $$_FILES[$upload_sponsor_file]['name'];
