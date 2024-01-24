@@ -38,6 +38,10 @@ class import_client extends import
             $return = $this->load_detail_table($loadFile, $file_id, $sponsor_id, $product_category_id);
         }
 
+        // if ($return) { 
+        //     $instance_import->reprocess_current_files($file_id, $this->file_type);
+        // }
+
         return $return;
     }
 
@@ -65,12 +69,13 @@ class import_client extends import
                 . "`user_id` = '" . $_SESSION['user_id'] . "'"
                 . ",`imported_date` = '" . date('Y-m-d') . "'"
                 . ",`file_name` = '$fileName'"
-                . ",`file_type` = ''"
-                . ",`source` = ''"
+                . ",`file_type` = '15'"
+                . ",`source` = 'CLIENT'"
                 . ",`sponsor_id` = $sponsor_id"
-                . ",`is_delete` = 1"
-                . ",`processed` = 1"
-                . ",`process_completed` = 1"
+                . ",`is_delete` = 0"
+                . ",`processed` = 0"
+                . ",`process_completed` = 0"
+                . ",`last_processed_date`='" . date('Y-m-d H:i:s') . "'"
                 . ",`deposite_date` = '" . $this->re_db_input(date('Y-m-d', strtotime($date))) . "'"
                 . $this->insert_common_sql();
             $res = $this->re_db_query($q);
@@ -170,20 +175,19 @@ class import_client extends import
                     $instance_broker = new broker_master();
                     $get_broker_list = $instance_broker->select_broker();
                     foreach ($get_broker_list as $key => $val) {
-                        if (($val['last_name'] . ", " . $val['first_name']) == $rowArray[12]) {
-                            $broker_id = $val['id'];
+                        if($val['first_name'] == ''){
+                            if (($val['last_name'] . ",") == $rowArray[12]) {
+                                $broker_id = $val['id'];
+                            }
+                        } else {
+                            if (($val['last_name'] . ", " . $val['first_name']) == $rowArray[12]) {
+                                $broker_id = $val['id'];
+                            }
                         }
                     }
 
                     if($broker_id == ''){
-                        $commaSeparatedString = explode(", ",  $rowArray[12]);
-                        $lname = trim($commaSeparatedString[0]);
-                        $fname = trim($commaSeparatedString[1]);
-                        $internal = trim($rowArray[11]);
-                        $q = "INSERT INTO `" . BROKER_MASTER . "` SET `first_name`='" . $fname . "',`last_name`='" . $lname . "',`middle_name`='',`suffix`='',`fund`='',`internal`='" . $internal . "',`display_on_statement`='',`tax_id`='0',`crd`='',`ssn`='0',`active_status`='1',`pay_method`='0'" . $this->insert_common_sql();
-                        $res = $this->re_db_query($q);
-                        $id = $this->re_db_insert_id();
-                        $broker_id = $id;
+                        $broker_id = 0;
                     }
 
                     $instance_sponser = new manage_sponsor();
@@ -195,11 +199,11 @@ class import_client extends import
                     }
 
                     if($sponser_id == ''){
-                        $q = "INSERT INTO `".SPONSOR_MASTER."` SET `name`='".strtoupper($rowArray[14])."',`address1`='',`address2`='',`city`='',`state`='0',`zip_code`='',`email`='',`website`='',`general_contact`='',`general_phone`='',`operations_contact`='',`operations_phone`='',`dst_system_id`='',`dst_mgmt_code`='',`dst_importing`='',`dazl_code`='',`dazl_importing`='',`dtcc_nscc_id`='',`clearing_firm_id`=''".$this->insert_common_sql();
-                        $res = $this->re_db_query($q);
-                        $id = $this->re_db_insert_id();
-                        $sponser_id = $id;
+                        $sponser_id = 0;
                     }
+
+                    $client_id = 0;
+                    $client_account_no_id = 0;
 
                     $from = new DateTime($rowArray[9]);
                     $to = new DateTime('today');
@@ -223,7 +227,7 @@ class import_client extends import
                     $res = $this->re_db_query($q);
                     if ($this->re_db_num_rows($res) > 0) {
                         $get_client = $this->re_db_fetch_array($res);
-                        $get_client_id = $get_client['id'];
+                        $client_id = $get_client['id'];
 
                             $q = "UPDATE " . CLIENT_MASTER . ""
                                 . " SET address1='" . str_replace("'", "''", $rowArray[4]) . "'"
@@ -238,12 +242,12 @@ class import_client extends import
                                 . ",`email`='" . str_replace("'", "''", $rowArray[10]) . "'"
                                 . ",`file_id`='" . $file_id . "'"
                                 . $this->update_common_sql()
-                                . " WHERE id='" . $get_client_id . "' AND is_delete=0";
+                                . " WHERE id='" . $client_id . "' AND is_delete=0";
                             $res = $this->re_db_query($q);
 
                         $q = "SELECT `at`.*
                         FROM `" . CLIENT_ACCOUNT . "` AS `at`
-                        WHERE `at`.`is_delete`='0' and `at`.`client_id`=" . $get_client_id . "
+                        WHERE `at`.`is_delete`='0' and `at`.`client_id`=" . $client_id . "
                         ORDER BY `at`.`id` ASC";
                         $res = $this->re_db_query($q);
                         if ($this->re_db_num_rows($res) > 0) {
@@ -256,6 +260,7 @@ class import_client extends import
                                     }else{
                                         $q = "UPDATE `".CLIENT_ACCOUNT."` SET `sponsor_company`='" . $sponser_id . "'".$this->update_common_sql()." WHERE `id`='".$val['id']."' AND `is_delete`=0";
 				                        $res = $this->re_db_query($q);
+                                        $client_account_no_id = $val['id'];
                                         $found_account = true;
                                     }
                                 }
@@ -263,10 +268,12 @@ class import_client extends import
                             if (!$found_account) {
                                 $q = "INSERT INTO `" . CLIENT_ACCOUNT . "` SET `client_id`='" . $get_client_id . "',`account_no`='" . $rowArray[0] . "',`sponsor_company`='" . $sponser_id . "'" . $this->insert_common_sql();
                                 $res = $this->re_db_query($q);
+                                $client_account_no_id = $this->re_db_insert_id();
                             }
                         } else {
                             $q = "INSERT INTO `" . CLIENT_ACCOUNT . "` SET `client_id`='" . $get_client_id . "',`account_no`='" . $rowArray[0] . "',`sponsor_company`='" . $sponser_id . "'" . $this->insert_common_sql();
                             $res = $this->re_db_query($q);
+                            $client_account_no_id = $this->re_db_insert_id();
                         }
                     } else {
 
@@ -345,8 +352,48 @@ class import_client extends import
 
                         $q = "INSERT INTO `" . CLIENT_ACCOUNT . "` SET `client_id`='" . $client_id . "',`account_no`='" . $rowArray[0] . "',`sponsor_company`='" . $sponser_id . "'" . $this->insert_common_sql();
                         $res = $this->re_db_query($q);
-                        $a_id = $this->re_db_insert_id();
+                        $client_account_no_id = $this->re_db_insert_id();
                     }
+                    
+                    if($broker_id == 0){
+                        $q = "INSERT INTO " . IMPORT_EXCEPTION . ""
+                            . " SET"
+                            . " file_id='" . $file_id . "'"
+                            . ",error_code_id='1'"
+                            . ",field='representative_number'"
+                            . ",field_value='".$rowArray[11]."'"
+                            . ",file_type='15'"
+                            . ",temp_data_id='".$client_id."'"
+                            . ",date='" . date('Y-m-d') . "'"
+                            . ",rep='".$rowArray[11]."'"
+                            . ",rep_name='".$rowArray[12]."'"
+                            . ",account_no='".$rowArray[0]."'"
+                            . ",client='".$rowArray[3]."'"
+                            . ",cusip=''"
+                            . ",is_delete='0'"
+                            . $this->insert_common_sql();
+                        $res = $this->re_db_query($q);
+                    }
+                    if($sponser_id == 0){
+                        $qac = "INSERT INTO " . IMPORT_EXCEPTION . ""
+                            . " SET"
+                            . " file_id='" . $file_id . "'"
+                            . ",error_code_id='14'"
+                            . ",field='sponsor_id'"
+                            . ",field_value='".str_replace(" ", "_", $rowArray[14])."'"
+                            . ",file_type='15'"
+                            . ",temp_data_id='".$client_account_no_id."'"
+                            . ",date='" . date('Y-m-d') . "'"
+                            . ",rep=''"
+                            . ",rep_name='".$rowArray[14]."'"
+                            . ",account_no='".$rowArray[0]."'"
+                            . ",client='".$rowArray[3]."'"
+                            . ",cusip=''"
+                            . ",is_delete='0'"
+                            . $this->insert_common_sql();
+                        $res = $this->re_db_query($qac);
+                    }
+
                     if ($res) {
                         $result += 1;
                     } else {

@@ -118,6 +118,8 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             $file_type_id = 9;
                                                                         } else if (stripos($val['file_type'], 'Orion') !== false or $val['file_type_code'] == 11) {
                                                                             $file_type_id = 11;
+                                                                        } else if ($val['file_type'] == 15) {
+                                                                            $file_type_id = 15;
                                                                         } else {
                                                                             $file_type_id = 1;
                                                                         }
@@ -197,7 +199,12 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                 $detailTable = $detailTable['table'];
 
 
-                                                                                $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
+                                                                                if($file_type_id == 15){
+                                                                                    $total_processed_data = $instance->check_client_file_exception_process($val['id'], 1, 'CLIENT');
+                                                                                }else{
+                                                                                    $total_processed_data = $instance->check_file_exception_process($val['id'], 1, $detailTable);
+                                                                                }
+
                                                                                 $process_status = $instance->check_file_process_status($val['id']);
 
                                                                                 $count_processed_data = $total_processed_data['processed'];
@@ -631,6 +638,9 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                 $existing_field_value = date('m/d/Y', strtotime($u5_date));
                                                                             }
                                                                         }
+                                                                        if(isset($error_val['file_type']) && $error_val['file_type'] == '15'){
+                                                                            $existing_field_value = $error_val['rep_name'];
+                                                                        }
                                                                         if (isset($error_val['file_type']) && in_array($error_val['file_type'], ['2', '9', '11'])) {
 
                                                                             switch ($error_val['file_type']) {
@@ -900,9 +910,8 @@ if (isset($_SESSION['zero_exception'])) {
 
 
                                                                     foreach ($return_solved_exception as $process_key => $process_val) {
-                                                                        $total_commission_amount = $total_commission_amount + $process_val['commission'];
-
-                                                                        if ($process_val['rep_name']) {
+                                                                        $total_commission_amount = $total_commission_amount + $process_val['commission'];                                                                        
+                                                                        if ($process_val['rep_name'] && $process_val['file_type'] != 15) {
                                                                             $lnm = $fnm = '';
                                                                             $process_val['rep_name'] = trim($process_val['rep_name']);
                                                                             $arr = explode(" ", $process_val['rep_name']);
@@ -919,6 +928,29 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                 $lnm = $arr[0];
                                                                             }
                                                                             $process_val['rep_name'] = $lnm . ", " . $fnm;
+                                                                        }
+
+                                                                        if ($process_val['file_type'] == 15 && $process_val['error_code_id'] == 14) {
+                                                                            $process_val['rep_name'] = $process_val['rep_name'];
+                                                                        }
+
+                                                                        if ($process_val['file_type'] == 15 && $process_val['error_code_id'] == 1) {
+                                                                            $lnm = $fnm = '';
+                                                                            $process_val['rep_name'] = trim($process_val['rep_name']);
+                                                                            $arr = explode(",", $process_val['rep_name']);
+
+                                                                            if (sizeof($arr) == 3) {
+                                                                                $lnm = $arr[2];
+                                                                                $fnm = $arr[0];
+                                                                            }
+                                                                            if (sizeof($arr) == 2) {
+                                                                                $lnm = $arr[1];
+                                                                                $fnm = $arr[0];
+                                                                            }
+                                                                            if (sizeof($arr) == 1) {
+                                                                                $lnm = $arr[0];
+                                                                            }
+                                                                            $process_val['rep_name'] = $fnm . ", " . $lnm;
                                                                         }
 
                                                                         if (isset($file_type) && in_array($file_type, ['2', '9', '11'])) {
@@ -1381,9 +1413,9 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                 <div class="col-md-6"></div>
                                                                                 <div class="col-md-6">
                                                                                 <?php if($key==0){ ?>
-                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDSTDate(<?= $val['dim_id'] ?>)"><i class="fa fa-download"></i> Download</button>
+                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDSTDate(<?= $val['dim_id'] ?>)"><i class="fa fa-download"></i> Import</button>
                                                                                 <?php }else { ?>
-                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>)"><i class="fa fa-download"></i> Download</button>
+                                                                                    <button type="button" class="btn btn-md btn-warning" onclick="fetchDST(<?= $val['dim_id'] ?>)"><i class="fa fa-download"></i> Import</button>
                                                                                 <?php } ?>
                                                                                 </div>
                                                                             </div>
@@ -1396,14 +1428,6 @@ if (isset($_SESSION['zero_exception'])) {
                                                                     <tr>
                                                                         <td>Generic Trade Activity CSV</td>
                                                                         <td>
-                                                                            <select name="generic_product_category" id="generic_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
-                                                                                <option value="0">Select Category</option>
-                                                                                <?php foreach ($get_product_category as $key => $val) { ?>
-                                                                                    <option value="<?php echo $val['id']; ?>" <?php echo (isset($existingDetailValues['product_category_id']) and $val['id'] == $existingDetailValues['product_category_id']) ? "selected" : "" ?>><?php echo $val['type']; ?></option>
-                                                                                <?php } ?>
-                                                                            </select>
-                                                                        </td>
-                                                                        <td>
                                                                             <select name="generic_sponsor" id="generic_sponsor" class="form-control" style="display: block; width: 200px;">
                                                                                 <option value="">Select Sponsor</option>
                                                                                 <?php foreach ($get_sponsor as $key => $val) { ?>
@@ -1412,6 +1436,19 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             </select>
                                                                         </td>
                                                                         <td>
+                                                                            <select name="generic_product_category" id="generic_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
+                                                                                <option value="0">Select Category</option>
+                                                                                <?php foreach ($get_product_category as $key => $val) { ?>
+                                                                                    <option value="<?php echo $val['id']; ?>" <?php echo (isset($existingDetailValues['product_category_id']) and $val['id'] == $existingDetailValues['product_category_id']) ? "selected" : "" ?>><?php echo $val['type']; ?></option>
+                                                                                <?php } ?>
+                                                                            </select>
+                                                                        </td>
+                                                                        <td>
+                                                                        <div id="demo-dp-range" class="generic_intial_data">
+                                                                            <div class="input-daterange input-group" id="datepicker">
+                                                                                <input type="text" name="generic_deposite_date" id="generic_deposite_date" class="form-control" value="<?= date('m/d/Y') ?>" />
+                                                                            </div>
+                                                                        </div>
                                                                         <div class="row">
                                                                             <div class="col-md-4" style="width:50%">
                                                                                 <input type="number" class="form-control" name="payroll_count" id="payroll_count" style="display:none;" onchange="changeNumber()" onkeypress='return (event.charCode != 45)' placeholder="Enter Number of Payrolls to pay" min=1 max=50/>
@@ -1430,7 +1467,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                     <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=uploadGeneric" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Upload</a> -->
                                                                                 </div>
                                                                                 <div class="col-md-6">
-                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-download"></i> Download</button>
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-download"></i> Import</button>
                                                                                 </div>
                                                                             </div>
                                                                         </td>
@@ -1452,7 +1489,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                     <input type="file" name="upload_orion_file" class="form-control" />
                                                                                 </div>
                                                                                 <div class="col-md-6">
-                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_orion_file" value="upload_orion_file"><i class="fa fa-download"></i> Download</button>
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_orion_file" value="upload_orion_file"><i class="fa fa-download"></i> Import</button>
                                                                                 </div>
                                                                         </td>
                                                                     </tr>
@@ -1475,7 +1512,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                     <input type="file" name="dazl_files[]" class="form-control" multiple />
                                                                                 </div>
                                                                                 <div class="col-md-6">
-                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Download</button>
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Import</button>
                                                                                 </div>
                                                                         </td>
                                                                     </tr>
@@ -1497,7 +1534,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                     <input type="file" name="nfs_files[]" class="form-control" multiple />
                                                                                 </div>
                                                                                 <div class="col-md-6">
-                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Download</button>
+                                                                                    <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Import</button>
                                                                                 </div>
                                                                         </td>
                                                                     </tr>
@@ -1507,7 +1544,6 @@ if (isset($_SESSION['zero_exception'])) {
                                                             } ?>
                                                             <tr>
                                                                 <td>Generic Client Accounts CSV</td>
-                                                                <td class="text-center">Client Accounts</td>
                                                                 <td>
                                                                 <select name="client_generic_sponsor" id="client_generic_sponsor" class="form-control" style="display: block; width: 200px;">
                                                                                 <option value="">Select Sponsor</option>
@@ -1516,6 +1552,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                 <?php } ?>
                                                                             </select>
                                                                 </td>
+                                                                <td class="text-center">Client Accounts</td>
                                                                 <td>
                                                                     <div id="demo-dp-range">
                                                                         <div class="input-daterange input-group" id="datepicker">
@@ -1529,7 +1566,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             <input type="file" name="upload_client_file" class="form-control" />
                                                                         </div>
                                                                         <div class="col-md-6">
-                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_client_file" value="upload_client_file"><i class="fa fa-download"></i> Upload</button>
+                                                                            <button type="submit" class="btn btn-md btn-warning" name="upload_client_file" value="upload_client_file"><i class="fa fa-download"></i> Import</button>
                                                                         </div>
                                                                 </td>
                                                             </tr>
@@ -2286,9 +2323,11 @@ if (isset($_SESSION['zero_exception'])) {
 
         var category = $('#generic_product_category').val();
         if(category == 12){
+            $('#demo-dp-range.generic_intial_data').hide();
             $('#payroll_count').show();
             $('#demo-dp-range .datename-container').show();
         }else{
+            $('#demo-dp-range.generic_intial_data').show();
             $('#payroll_count').val('');
             $('#payroll_count').hide();
             $('#demo-dp-range .datename-container').hide();
@@ -2552,14 +2591,21 @@ if (isset($_SESSION['zero_exception'])) {
             result += 1;
         } else if (exception_field == 'representative_number' || error_code_id == 1) {
             document.getElementById("field_label").innerHTML = (error_code_id == 13 ? 'Missing Field' : 'Alias # Not Found');
-            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'manage_broker.php?action=add_new&rep_no='; ?>' + rep_number + '<?php echo '&file_id='; ?>' + exception_file_id + '&file_type=' + exception_file_type + '<?php echo '&exception_data_id='; ?>' + temp_data_id + '<?php echo '&exception_record_id='; ?>' + exception_record_id + '" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+            if(exception_file_type == 15){
+                document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'manage_broker.php?action=add_new'; ?>" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+            }
+            if(exception_file_type != 15){
+                document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'manage_broker.php?action=add_new&rep_no='; ?>' + rep_number + '<?php echo '&file_id='; ?>' + exception_file_id + '&file_type=' + exception_file_type + '<?php echo '&exception_data_id='; ?>' + temp_data_id + '<?php echo '&exception_record_id='; ?>' + exception_record_id + '" style="display: block; float: right;" id="add_broker_for_rep">Add New Broker</a>';
+            }
             document.getElementById("exception_value").value = (error_code_id == 13 ? '<Broker Alias/Fund #>' : rep_number);
             $("#assign_rep_to_broker").css('display', 'block');
             $("#resolveAction").val('2');
 
-            if (error_code_id == 1) {
+            if (error_code_id == 1 && exception_file_type != 15) {
                 document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Alias to Broker';
             } else if (exception_file_type == 1 && error_code_id == 13) {
+                document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Client to Broker';
+            } else if (exception_file_type == 15 && error_code_id == 1) {
                 document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Client to Broker';
             } else if (tradeOrCommRecord && error_code_id == 13) {
                 document.getElementById("label_assign_rep_to_broker").innerHTML = 'Assign Trade to Broker';
@@ -2698,6 +2744,13 @@ if (isset($_SESSION['zero_exception'])) {
             //     document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'manage_sponsor.php?action=add_sponsor'; ?>&file_id='+exception_file_id+'&exception_data_id='+temp_data_id+'&exception_record_id='+exception_record_id+'&field_value='+existing_field_value+'" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
 
             //     result += 1;
+        } else if (exception_field == 'sponsor_id' && error_code_id == 14) {
+            $("#field_label").css('display', 'none');
+            $("#exception_value").css('display', 'none');
+            $("#assign_code_for_sponsor").css('display', 'block');
+            document.getElementById("link_div").innerHTML = '<a href="<?php echo SITE_URL . 'manage_sponsor.php?action=add_sponsor'; ?>" style="display: block; float: right;" id="add_sponsor">Add New Sponsor</a>';
+
+            result += 1;
         } else if (['sponsor', 'sponsor_id'].includes(exception_field)) {
             document.getElementById("field_label").innerHTML = 'Management/Sponsor Code';
             $("#exception_value").css('display', 'none');
@@ -2765,7 +2818,7 @@ if (isset($_SESSION['zero_exception'])) {
             }
 
             result += 1;
-        }
+        } 
 
         return result
     }

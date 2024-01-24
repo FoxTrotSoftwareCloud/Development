@@ -183,6 +183,8 @@ class import extends db
             }
         } else if ($exception_field == 'sponsor') {
             $exception_value = isset($data['sponsor']) ? $this->re_db_input($data['sponsor']) : '';
+        } else if($exception_field == 'sponsor_id'){
+            $exception_value = isset($data['sponsor']) ? $this->re_db_input($data['sponsor']) : '';
         } else if ($exception_field == 'cusip_number' && $error_code_id == '13') {
             $exception_value = isset($data['cusip_number']) ? $this->re_db_input($data['cusip_number']) : '';
         } else if ($exception_field == 'cusip_number' && $error_code_id == '11') {
@@ -494,6 +496,22 @@ class import extends db
 
         if ($this->errors != '') {
             return $this->errors;
+        }
+
+        if ($exception_file_type == '15') {
+            // Broker Not Found
+            if ($exception_field == 'representative_number' and $error_code_id == 1) {
+                $result = $this->resolve_exception_addbroker($exception_value, $rep_for_broker, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+            }
+            // Sponser Not Found
+            if ($exception_field == 'sponsor_id' and $error_code_id == 14) {
+                if (!empty($code_for_sponsor)) {
+                    $result = $this->resolve_exception_addsponser($exception_value, $code_for_sponsor, $exception_file_type, $exception_file_id, $exception_data_id, $exception_record_id);
+                }
+            }
+            if ($this->errors != '') {
+                return $this->errors;
+            }
         }
 
         //--- CLIENT FILE ---//
@@ -1192,6 +1210,166 @@ class import extends db
             return $this->errors;
         }
     }
+
+    function resolve_exception_addbroker($brokerAlias = '', $brokerId = 0, $file_type = 0, $file_id = 0, $detail_data_id = 0, $exception_record_id = 0)
+    {
+
+        $result = $res = $success = 0;
+        $errorMsg = '';
+        $fileSource = $this->import_table_select($file_id, $file_type);
+        $importFileTable = $fileSource['table'];
+
+        $excArray = $this->select_exception_data(0, $exception_record_id);
+
+        if ($excArray) {
+            $q = "SELECT ex.id AS exception_id, ex.temp_data_id, ex.error_code_id, ex.field"
+                . " FROM " . IMPORT_EXCEPTION . " ex"
+                . " WHERE ex.file_id=$file_id"
+                . " AND ex.file_type=$file_type"
+                . " AND ex.error_code_id={$excArray[0]['error_code_id']}"
+                . " AND ex.is_delete=0"
+                . " AND ex.rep='" . $brokerAlias . "'";
+            $res = $this->re_db_query($q);
+
+            if ($this->re_db_num_rows($res)) {
+                $excArray = $this->re_db_fetch_all($res);  
+
+                foreach ($excArray as $excRow) {     
+                    $q = "UPDATE " . IMPORT_EXCEPTION . ""
+                        . " SET solved=1"
+                        . ",process_completed=1"
+                        . $this->update_common_sql()
+                        . " WHERE id=" . $excRow['exception_id'];
+                    $success = $this->re_db_query($q);
+                    
+                    $q = "UPDATE " . CLIENT_MASTER . ""
+                        . " SET broker_name=$brokerId"
+                        . $this->update_common_sql()
+                        . " WHERE id=" . $excRow['temp_data_id'];
+                    $success = $this->re_db_query($q);
+
+                    // $result = $this->reprocess_current_files($file_id, $file_type, $excRow['temp_data_id']);
+                }
+            }
+        }
+
+        $this->all_exception_resolve($file_id,$file_type);
+
+        // $q = "UPDATE " . IMPORT_EXCEPTION . ""
+        //     . " SET solved=1"
+        //     . ",process_completed=1"
+        //     . $this->update_common_sql()
+        //     . " WHERE id=" . $exception_record_id;
+        // $success = $this->re_db_query($q);
+
+        // $q = "UPDATE " . CLIENT_MASTER . ""
+        //     . " SET broker_name=$brokerId"
+        //     . $this->update_common_sql()
+        //     . " WHERE id=" . $detail_data_id;
+        // $success = $this->re_db_query($q);
+
+        if ($errorMsg == '') {
+            return $success;
+        } else {
+            $this->errors = $errorMsg;
+            return $this->errors;
+        }
+    }
+
+    function resolve_exception_addsponser($sponsorAlias = '', $sponsorId = 0, $file_type = 0, $file_id = 0, $detail_data_id = 0, $exception_record_id = 0)
+    {
+
+        $result = $res = $success = 0;
+        $errorMsg = '';
+        $fileSource = $this->import_table_select($file_id, $file_type);
+        $importFileTable = $fileSource['table'];
+
+        $excArray = $this->select_exception_data(0, $exception_record_id);
+
+        if ($excArray) {
+            $q = "SELECT ex.id AS exception_id, ex.temp_data_id, ex.error_code_id, ex.field"
+                . " FROM " . IMPORT_EXCEPTION . " ex"
+                . " WHERE ex.file_id=$file_id"
+                . " AND ex.file_type=$file_type"
+                . " AND ex.error_code_id={$excArray[0]['error_code_id']}"
+                . " AND ex.is_delete=0"
+                . " AND ex.field_value='".$excArray[0]['field_value']."'";
+            $res = $this->re_db_query($q);
+
+            if ($this->re_db_num_rows($res)) {
+                $excArray = $this->re_db_fetch_all($res);                
+                
+                foreach ($excArray as $excRow) {     
+                    $q = "UPDATE " . IMPORT_EXCEPTION . ""
+                        . " SET solved=1"
+                        . ",process_completed=1"
+                        . $this->update_common_sql()
+                        . " WHERE id=" . $excRow['exception_id'];
+                    $success = $this->re_db_query($q);
+
+                    $q = "UPDATE " . CLIENT_ACCOUNT . ""
+                        . " SET sponsor_company=$sponsorId"
+                        . $this->update_common_sql()
+                        . " WHERE id=" . $excRow['temp_data_id'];
+                    $success = $this->re_db_query($q);
+                    
+                    // $result = $this->reprocess_current_files($file_id, $file_type, $excRow['temp_data_id']);
+                }
+            }
+        }
+
+        $this->all_exception_resolve($file_id,$file_type);
+
+        // $q = "UPDATE " . IMPORT_EXCEPTION . ""
+        //     . " SET solved=1"
+        //     . ",process_completed=1"
+        //     . $this->update_common_sql()
+        //     . " WHERE id=" . $exception_record_id;
+        // $success = $this->re_db_query($q);
+
+        // $q = "UPDATE " . CLIENT_ACCOUNT . ""
+        //     . " SET sponsor_company=$sponsorId"
+        //     . $this->update_common_sql()
+        //     . " WHERE id=" . $detail_data_id;
+        // $success = $this->re_db_query($q);
+
+        if ($errorMsg == '') {
+            return $success;
+        } else {
+            $this->errors = $errorMsg;
+            return $this->errors;
+        }
+    }
+
+    function all_exception_resolve($file_id,$file_type)
+    {
+        $q = "SELECT ex.*"
+                . " FROM " . IMPORT_EXCEPTION . " ex"
+                . " WHERE ex.file_id=$file_id"
+                . " AND ex.file_type=$file_type"
+                . " AND ex.solved=0"
+                . " AND ex.is_delete=0"
+                . " AND ex.process_completed=0";
+        $get_exception = $this->re_db_query($q);
+
+        if($get_exception){
+            $rowCount = mysqli_num_rows($get_exception);
+            if($rowCount == 0){
+                $q = "UPDATE " . IMPORT_CURRENT_FILES . ""
+                    . " SET processed='1'"
+                    . ",last_processed_date='" . date('Y-m-d H:i:s') . "'"
+                    . ",process_completed='1'"
+                    . $this->update_common_sql()
+                    . " WHERE id=$file_id";
+                $res = $this->re_db_query($q);
+
+                $_SESSION['last_id'] = $file_id;
+                $_SESSION['zero_exception'] = 'no exception';
+                return true;
+            }
+        }
+    }
+
     function resolve_exception_2AddClientValues($clientId = 0, $fieldArray = [], $file_type = 0, $file_id = 0, $detail_data_id = 0, $exception_record_id = 0)
     {
         $result = $res = 0;
@@ -1708,6 +1886,9 @@ class import extends db
                         break;
                     case $this->ORION_file_type:
                         $return['table'] = IMPORT_ORION_DETAIL_DATA;
+                        break;
+                    case 15:
+                        $return['table'] = CLIENT_MASTER;
                         break;
                 }
             }
@@ -2345,6 +2526,76 @@ class import extends db
                         $file_array['sponsor_id'] = $file_sponsor_array['id'];
                     }
                 }
+
+                // if($file_array['source'] == 'CLIENT' && $file_array['file_type'] == 15){
+                //     $client_list_array = [];
+                //     $client_account_no_array = [];
+
+                //     $q = "SELECT `cm`.*
+				// 	FROM `" . CLIENT_MASTER . "` AS `cm`
+                //     WHERE `cm`.`is_delete`='0' AND `cm`.`file_id`='" . $file_id . "'
+                //     AND `cm`.`broker_name`='0'
+                //     ";
+
+                //     $res = $this->re_db_query($q);
+                //     $client_list_array = $this->re_db_fetch_all($res);
+
+                //     foreach($client_list_array as $client_list){
+                //         if($client_list['broker_name'] == 0){
+                //             $q = "INSERT INTO " . IMPORT_EXCEPTION . ""
+                //                 . " SET"
+                //                 . " file_id='" . $file_id . "'"
+                //                 . ",error_code_id='1'"
+                //                 . ",field='representative_number'"
+                //                 . ",field_value=''"
+                //                 . ",file_type='".$file_array['file_type']."'"
+                //                 . ",temp_data_id='".$client_list['id']."'"
+                //                 . ",date='" . date('Y-m-d') . "'"
+                //                 . ",rep=''"
+                //                 . ",rep_name=''"
+                //                 . ",account_no=''"
+                //                 . ",client=''"
+                //                 . ",cusip=''"
+                //                 . ",is_delete='0'"
+                //                 . $this->insert_common_sql();
+                //             $res = $this->re_db_query($q);
+                //             $exception_raised = 1;
+                //             $result++;
+                //         }
+
+                //         $qa = "SELECT `at`.*
+                //         FROM `" . CLIENT_ACCOUNT . "` AS `at`
+                //         WHERE `at`.`is_delete`='0' and `at`.`client_id`='" . $client_list['id'] . "'
+                //         and `at`.`sponsor_company`='0'";
+
+                //         $resa = $this->re_db_query($qa);
+                //         $client_account_no_array = $this->re_db_fetch_all($resa);
+
+                //         foreach($client_account_no_array as $client_account){
+                //             if($client_account['sponsor_company'] == 0){
+                //                 $qac = "INSERT INTO " . IMPORT_EXCEPTION . ""
+                //                     . " SET"
+                //                     . " file_id='" . $file_id . "'"
+                //                     . ",error_code_id='14'"
+                //                     . ",field=''"
+                //                     . ",field_value=''"
+                //                     . ",file_type='".$file_array['file_type']."'"
+                //                     . ",temp_data_id='".$client_list['id']."'"
+                //                     . ",date='" . date('Y-m-d') . "'"
+                //                     . ",rep=''"
+                //                     . ",rep_name=''"
+                //                     . ",account_no=''"
+                //                     . ",client=''"
+                //                     . ",cusip=''"
+                //                     . ",is_delete='0'"
+                //                     . $this->insert_common_sql();
+                //                 $res = $this->re_db_query($qac);
+                //                 $exception_raised = 1;
+                //                 $result++;
+                //             }
+                //         }
+                //     }
+                // }
 
                 if (empty($file_array['sponsor_id']) and !in_array(strtolower(substr($file_array['source'], 0, 3)), ['daz'])) {
                     $q = "INSERT INTO " . IMPORT_EXCEPTION . ""
@@ -4672,6 +4923,8 @@ class import extends db
                 $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA];
             } else if (in_array($source, ['DZ', 'DAZL', 'DAZL DAILY'])) {
                 $tableArray = [DAZL_ACCOUNT_DATA, DAZL_SECURITY_DATA, DAZL_COMM_DATA];
+            // } else if (in_array($source, ['CLIENT'])) {
+            //     $tableArray = [CLIENT_MASTER];
             } else {
                 $tableArray = [$source];
             }
@@ -4679,11 +4932,99 @@ class import extends db
             foreach ($tableArray as $table) {
                 $table = strtolower($table);
 
-                $q = "SELECT a.file_id, b.file_name, SUM(if(a.process_result>0,0,1)) AS exceptions, SUM(if(a.process_result>0,1,0)) AS processed"
+                if($source == 'CLIENT'){
+                    $q = "SELECT a.file_id, b.file_name, SUM(if(a.broker_name>0,0,1)) AS exceptions, SUM(if(a.broker_name>0,1,0)) AS processed"
+                    . " FROM ".CLIENT_MASTER." a"
+                    . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON a.file_id=b.id AND b.is_delete=0"
+                    . " WHERE a.is_delete=0 AND file_id=$file_id"
+                    . " GROUP BY a.file_id, b.file_name";
+
+                    // $q = "SELECT a.file_id, b.file_name, SUM(if(a.broker_name>0,0,1)+if(ca.sponsor_company>0,0,1)) AS exceptions, SUM(if(a.broker_name>0,1,0)+if(ca.sponsor_company>0,1,0)) AS processed"
+                    // . " FROM ".CLIENT_MASTER." a"
+                    // . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON a.file_id=b.id AND b.is_delete=0"
+                    // . " LEFT JOIN " . CLIENT_ACCOUNT . " ca ON a.id=ca.client_id AND ca.is_delete=0"
+                    // . " WHERE a.is_delete=0 AND file_id=$file_id"
+                    // . " GROUP BY a.file_id, b.file_name";
+                }
+
+                if($source != 'CLIENT'){
+                    $q = "SELECT a.file_id, b.file_name, SUM(if(a.process_result>0,0,1)) AS exceptions, SUM(if(a.process_result>0,1,0)) AS processed"
                     . " FROM $table a"
                     . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON a.file_id=b.id AND b.is_delete=0"
                     . " WHERE a.is_delete=0 AND file_id=$file_id"
                     . " GROUP BY a.file_id, b.file_name";
+                }
+
+                $res = $this->re_db_query($q);
+
+                if ($this->re_db_num_rows($res) > 0) {
+                    $fileTotals = $this->re_db_fetch_array($res);
+                    $return['file_name'] = $fileTotals['file_name'];
+                    $return['exceptions'] += $fileTotals['exceptions'];
+                    $return['processed'] += $fileTotals['processed'];
+                }
+            }
+        }
+        return $return;
+    }
+
+    public function check_client_file_exception_process($file_id, $exceptionSummary = 0, $source = '')
+    {
+        $return = 0; 
+
+        if ($exceptionSummary == 0) {
+            $q = "SELECT at.*
+                        FROM " . IMPORT_CURRENT_FILES . " AS at
+                        WHERE at.is_delete=0
+                          AND at.processed='1'
+                          AND at.id='" . $file_id . "'
+                        ORDER BY at.id ASC";
+            $res = $this->re_db_query($q);
+            if ($this->re_db_num_rows($res) > 0) {
+                $get_exceptions = $this->get_exception_data($file_id);
+                if ($get_exceptions != array()) {
+                    $return = 1;
+                }
+            }
+        } else {
+            $return = ["file_id" => $file_id, "file_name" => '*Not Found*', "exceptions" => 0, "processed" => 0];
+            // Make sure to re-value the parameter to uppercase for the "in_array()" call below
+            $source = strtoupper($this->re_db_input($source));
+
+            if (empty($source)) {
+                $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA, IMPORT_GEN_DETAIL_DATA, IMPORT_ORION_DETAIL_DATA];
+            } else if (in_array($source, ['DSTIDC'])) {
+                $tableArray = [IMPORT_IDC_DETAIL_DATA];
+            } else if (in_array($source, ['ORION'])) {
+                $tableArray = [IMPORT_ORION_DETAIL_DATA];
+            } else if (in_array($source, ['GENERIC'])) {
+                $tableArray = [IMPORT_GEN_DETAIL_DATA];
+            } else if (in_array($source, ['DS', 'DST', 'DSTFANMAIL'])) {
+                $tableArray = [IMPORT_DETAIL_DATA, IMPORT_IDC_DETAIL_DATA, IMPORT_SFR_DETAIL_DATA];
+            } else if (in_array($source, ['DZ', 'DAZL', 'DAZL DAILY'])) {
+                $tableArray = [DAZL_ACCOUNT_DATA, DAZL_SECURITY_DATA, DAZL_COMM_DATA];
+            } else {
+                $tableArray = [$source];
+            }
+
+            foreach ($tableArray as $table) {
+                $table = strtolower($table);
+
+                if($source == 'CLIENT'){
+                    $q = "SELECT a.file_id, b.file_name, SUM(if(a.broker_name>0,0,1)) AS exceptions, SUM(if(a.broker_name>0,1,0)) AS processed"
+                    . " FROM ".CLIENT_MASTER." a"
+                    . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON a.file_id=b.id AND b.is_delete=0"
+                    . " WHERE a.is_delete=0 AND file_id=$file_id"
+                    . " GROUP BY a.file_id, b.file_name";
+                }
+
+                if($source != 'CLIENT'){
+                    $q = "SELECT a.file_id, b.file_name, SUM(if(a.process_result>0,0,1)) AS exceptions, SUM(if(a.process_result>0,1,0)) AS processed"
+                    . " FROM $table a"
+                    . " LEFT JOIN " . IMPORT_CURRENT_FILES . " b ON a.file_id=b.id AND b.is_delete=0"
+                    . " WHERE a.is_delete=0 AND file_id=$file_id"
+                    . " GROUP BY a.file_id, b.file_name";
+                }
 
                 $res = $this->re_db_query($q);
 
