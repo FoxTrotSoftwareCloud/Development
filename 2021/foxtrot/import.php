@@ -30,6 +30,7 @@ $get_client = $instance_client->select(1);
 $instance_sponsor = new manage_sponsor();
 $get_sponsor = $instance_sponsor->select_sponsor(1);
 $instance_batches = new batches();
+$get_batch = $instance_batches->select();
 $instance_importGeneric = new import_generic();
 $instance_importOrion = new import_orion();
 $instance_importClient = new import_client();

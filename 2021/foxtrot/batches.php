@@ -40,8 +40,17 @@
         
         if($return===true)
         {
-            if($action=='add_batches_from_trans')
+            if ($action=='add_batches_from_trans' && isset($_SESSION['advisory_url']) && $_SESSION['advisory_url'] == 1){
+                $_SESSION['advisory_url'] = "";
+                header("location:".SITE_URL."advisory.php?action=add");exit;
+            }
+            else if($action=='add_batches_from_trans' && isset($_SESSION['open_ftp']) && $_SESSION['open_ftp'] == 1)
             {
+                $_SESSION['open_ftp'] = "";
+                header("location:".SITE_URL."import.php?tab=open_ftp");exit;
+                
+            }
+            else if ($action=='add_batches_from_trans'){
                 header("location:".SITE_URL."transaction.php?action=add&batch_id=".$_SESSION['last_inserted_batch_id']);exit;
             }
             else

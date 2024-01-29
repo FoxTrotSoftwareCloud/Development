@@ -1367,9 +1367,10 @@ if (isset($_SESSION['zero_exception'])) {
                                                         <thead>
                                                             <tr>
                                                                 <th>Source</th>
+                                                                <th>Batch</th>
                                                                 <th>Sponsor</th>
                                                                 <th>Category/Username</th>
-                                                                <th>Deposit/Batch Date</th>
+                                                                <th>Batch Date</th>
                                                                 <th class="text-center">ACTION</th>
                                                             </tr>
                                                         </thead>
@@ -1383,6 +1384,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                             ?>
                                                                     <tr>
                                                                         <td><?php echo $val['name']; ?></td>
+                                                                        <td></td>
                                                                         <td class="text-center">
                                                                             DST
                                                                             <!-- <?php if ($val['status'] == 1) { ?>
@@ -1409,9 +1411,8 @@ if (isset($_SESSION['zero_exception'])) {
 
 
                                                                             <!-- updated on 23-02-2023 not used get_ftp tab and directly download & import files from server by clicking below button -->
-                                                                            <div class="row">
-                                                                                <div class="col-md-6"></div>
-                                                                                <div class="col-md-6">
+                                                                            <div class="classflex">
+                                                                                <div class="classgaplarge">
                                                                                 <?php if($key==0){ ?>
                                                                                     <button type="button" class="btn btn-md btn-warning" onclick="fetchDSTDate(<?= $val['dim_id'] ?>)"><i class="fa fa-download"></i> Import</button>
                                                                                 <?php }else { ?>
@@ -1428,7 +1429,22 @@ if (isset($_SESSION['zero_exception'])) {
                                                                     <tr>
                                                                         <td>Generic Trade Activity CSV</td>
                                                                         <td>
-                                                                            <select name="generic_sponsor" id="generic_sponsor" class="form-control" style="display: block; width: 200px;">
+                                                                            <div class="classflex">
+                                                                                <div class="">
+                                                                                    <select name="generic_batch" id="generic_batch" onchange="selectbatch(this.value)" class="form-control classselect" >
+                                                                                        <option value="">Select Batch</option>
+                                                                                        <?php foreach ($get_batch as $key => $val) { ?>
+                                                                                        <option value="<?php echo $val['id']; ?>"><?php echo $val['batch_desc']; ?></option>
+                                                                                        <?php } ?>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div style="margin-top:10px">
+                                                                                <a id="add_new_batch" href="#" onclick="return redirect_url('batches.php?action=add_batches_from_trans','batch');" class="btn btn-sm btn-default"><i class="fa fa-plus"></i> Add New Batch</a>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <select name="generic_sponsor" id="generic_sponsor" class="form-control classselect">
                                                                                 <option value="">Select Sponsor</option>
                                                                                 <?php foreach ($get_sponsor as $key => $val) { ?>
                                                                                     <option value="<?php echo $val['id']; ?>"><?php echo $val['name']; ?></option>
@@ -1436,7 +1452,7 @@ if (isset($_SESSION['zero_exception'])) {
                                                                             </select>
                                                                         </td>
                                                                         <td>
-                                                                            <select name="generic_product_category" id="generic_product_category" class="form-control" onchange="get_product(this.value);open_product_link(this.value);">
+                                                                            <select name="generic_product_category" id="generic_product_category" class="form-control classselect" onchange="get_product(this.value);open_product_link(this.value);">
                                                                                 <option value="0">Select Category</option>
                                                                                 <?php foreach ($get_product_category as $key => $val) { ?>
                                                                                     <option value="<?php echo $val['id']; ?>" <?php echo (isset($existingDetailValues['product_category_id']) and $val['id'] == $existingDetailValues['product_category_id']) ? "selected" : "" ?>><?php echo $val['type']; ?></option>
@@ -1449,11 +1465,11 @@ if (isset($_SESSION['zero_exception'])) {
                                                                                 <input type="text" name="generic_deposite_date" id="generic_deposite_date" class="form-control" value="<?= date('m/d/Y') ?>" />
                                                                             </div>
                                                                         </div>
-                                                                        <div class="row">
-                                                                            <div class="col-md-4" style="width:50%">
-                                                                                <input type="number" class="form-control" name="payroll_count" id="payroll_count" style="display:none;" onchange="changeNumber()" onkeypress='return (event.charCode != 45)' placeholder="Enter Number of Payrolls to pay" min=1 max=50/>
+                                                                        <div class="classflex">
+                                                                            <div>
+                                                                                <input type="number" class="form-control classnumber" name="payroll_count" id="payroll_count" style="display:none;" onchange="changeNumber()" onkeypress='return (event.charCode != 45)' placeholder="Enter Number of Payrolls to pay" min=1 max=50/>
                                                                             </div>
-                                                                            <div class="col-md-4" id="demo-dp-range" style="width:50%">
+                                                                            <div class="classgap" id="demo-dp-range">
                                                                                 <div class="input-daterange form-group datename-container">
                                                                                 </div>
                                                                             </div>
@@ -1461,12 +1477,12 @@ if (isset($_SESSION['zero_exception'])) {
                                                                         </td>
                                                                         <!-- <td class="text-center"> -->
                                                                         <td>
-                                                                            <div class="row">
-                                                                                <div class="col-md-6">
-                                                                                    <input type="file" name="upload_generic_csv_file" class="form-control" />
+                                                                            <div class="classflex">
+                                                                                <div class="">
+                                                                                    <input type="file" name="upload_generic_csv_file" class="form-control classfile" />
                                                                                     <!-- <a href="<?php echo CURRENT_PAGE; ?>?action=uploadGeneric" class="btn btn-md btn-warning"><i class="fa fa-download"></i> Upload</a> -->
                                                                                 </div>
-                                                                                <div class="col-md-6">
+                                                                                <div class="classgap">
                                                                                     <button type="submit" class="btn btn-md btn-warning" name="upload_generic_csv_file" value="upload_generic_csv_file"><i class="fa fa-download"></i> Import</button>
                                                                                 </div>
                                                                             </div>
@@ -1480,17 +1496,19 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 if (count($orion)) { ?>
                                                                     <tr>
                                                                         <td><?php echo $orion[0]['name']; ?></td>
+                                                                        <td></td>
                                                                         <td class="text-center">ORION</td>
                                                                         <td></td>
                                                                         <td></td>
                                                                         <td>
-                                                                            <div class="row">
-                                                                                <div class="col-md-6">
-                                                                                    <input type="file" name="upload_orion_file" class="form-control" />
+                                                                            <div class="classflex">
+                                                                                <div class="">
+                                                                                    <input type="file" name="upload_orion_file" class="form-control classfile" />
                                                                                 </div>
-                                                                                <div class="col-md-6">
+                                                                                <div class="classgap">
                                                                                     <button type="submit" class="btn btn-md btn-warning" name="upload_orion_file" value="upload_orion_file"><i class="fa fa-download"></i> Import</button>
                                                                                 </div>
+                                                                            </div>
                                                                         </td>
                                                                     </tr>
                                                                 <?php
@@ -1503,17 +1521,19 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 if (count($dazl)) { ?>
                                                                     <tr>
                                                                         <td><?php echo $dazl[0]['name']; ?></td>
+                                                                        <td></td>
                                                                         <td class="text-center">DAZL</td>
                                                                         <td></td>
                                                                         <td></td>
                                                                         <td>
-                                                                            <div class="row">
-                                                                                <div class="col-md-6">
-                                                                                    <input type="file" name="dazl_files[]" class="form-control" multiple />
+                                                                            <div class="classflex">
+                                                                                <div class="">
+                                                                                    <input type="file" name="dazl_files[]" class="form-control classfile" multiple />
                                                                                 </div>
-                                                                                <div class="col-md-6">
+                                                                                <div class="classgap">
                                                                                     <button type="submit" class="btn btn-md btn-warning" name="upload_dazl_file" value="upload_dazl_file"><i class="fa fa-download"></i> Import</button>
                                                                                 </div>
+                                                                            </div>
                                                                         </td>
                                                                     </tr>
                                                                 <?php
@@ -1525,17 +1545,19 @@ if (isset($_SESSION['zero_exception'])) {
                                                                 if (count($temp_data_found)) { ?>
                                                                     <tr>
                                                                         <td><?php echo $temp_data_found[0]['name']; ?></td>
+                                                                        <td></td>
                                                                         <td class="text-center">NFS</td>
                                                                         <td></td>
                                                                         <td></td>
                                                                         <td>
-                                                                            <div class="row">
-                                                                                <div class="col-md-6">
-                                                                                    <input type="file" name="nfs_files[]" class="form-control" multiple />
+                                                                            <div class="classflex">
+                                                                                <div class="">
+                                                                                    <input type="file" name="nfs_files" class="form-control classfile" />
                                                                                 </div>
-                                                                                <div class="col-md-6">
+                                                                                <div class="classgap">
                                                                                     <button type="submit" class="btn btn-md btn-warning" name="upload_nfs_file" value="upload_nfs_file"><i class="fa fa-download"></i> Import</button>
                                                                                 </div>
+                                                                            </div>
                                                                         </td>
                                                                     </tr>
                                                             <?php
@@ -1544,8 +1566,9 @@ if (isset($_SESSION['zero_exception'])) {
                                                             } ?>
                                                             <tr>
                                                                 <td>Generic Client Accounts CSV</td>
+                                                                <td></td>
                                                                 <td>
-                                                                <select name="client_generic_sponsor" id="client_generic_sponsor" class="form-control" style="display: block; width: 200px;">
+                                                                <select name="client_generic_sponsor" id="client_generic_sponsor" class="form-control classselect">
                                                                                 <option value="">Select Sponsor</option>
                                                                                 <?php foreach ($get_sponsor as $key => $val) { ?>
                                                                                     <option value="<?php echo $val['id']; ?>"><?php echo $val['name']; ?></option>
@@ -1561,13 +1584,14 @@ if (isset($_SESSION['zero_exception'])) {
                                                                     </div>
                                                                 </td>
                                                                 <td>
-                                                                    <div class="row">
-                                                                        <div class="col-md-6">
-                                                                            <input type="file" name="upload_client_file" class="form-control" />
+                                                                    <div class="classflex">
+                                                                        <div class="">
+                                                                            <input type="file" name="upload_client_file" class="form-control classfile" />
                                                                         </div>
-                                                                        <div class="col-md-6">
+                                                                        <div class="classgap">
                                                                             <button type="submit" class="btn btn-md btn-warning" name="upload_client_file" value="upload_client_file"><i class="fa fa-download"></i> Import</button>
                                                                         </div>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -2138,6 +2162,26 @@ if (isset($_SESSION['zero_exception'])) {
     #data-table .source {
         width: 8%;
     }
+    .classflex{
+        display:flex;
+        width:50% !important;
+    }
+    .classgap{
+        margin-left:10px;
+    }
+    .classgaplarge{
+        margin-left:210px;
+    }
+    .classfile{
+        width:200px !important;
+    }
+    .classnumber{
+        width:130px !important;
+    }
+    .classselect{
+        display: block;
+        width:160px !important;
+    }
 </style>
 <script type="text/javascript">
     $(document).ready(function() {
@@ -2347,7 +2391,7 @@ if (isset($_SESSION['zero_exception'])) {
                 var inputElement = document.createElement("input");
                 inputElement.type = "text";
                 inputElement.name = "custom-payroll-date-"+i;
-                inputElement.className = "form-control custom-date" + i;
+                inputElement.className = "form-control classnumber custom-date" + i;
                 inputElement.placeholder = "Enter date "+(i+1);
                 datenameContainer.appendChild(inputElement);
                 if (i < numberOfFields - 1) {
@@ -2410,6 +2454,52 @@ if (isset($_SESSION['zero_exception'])) {
 
     function save_note_change(id) {
         $("#noteform_" + id).submit();
+    }
+
+    function selectbatch(id){
+
+        var datenameContainer = document.getElementsByClassName("datename-container")[0];
+        datenameContainer.innerHTML = "";
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "ajax_get_batch_data.php?id=" + encodeURIComponent(id), true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var responseData = JSON.parse(xhr.responseText);
+                if(responseData.pro_category == 12){
+                    $('#demo-dp-range.generic_intial_data').hide();
+                    $('#payroll_count').show();
+                    $('#demo-dp-range .datename-container').show();
+                }else{
+                    $('#demo-dp-range.generic_intial_data').show();
+                    $('#payroll_count').val('');
+                    $('#payroll_count').hide();
+                    $('#demo-dp-range .datename-container').hide();
+                }
+                document.getElementById("generic_product_category").value = responseData.pro_category;
+                document.getElementById("generic_sponsor").value = responseData.sponsor;
+                document.getElementById("generic_deposite_date").value = responseData.batch_date;
+            }
+        };
+
+        // Send the request
+        xhr.send();
+    }
+
+    function redirect_url(url, selector) {
+        url = url + "&open_ftp=1";
+            $.ajax({
+                type: "POST",
+                url:url,
+                data: {},
+                success: function(value) {
+                    // console.log('Form Data posted...');
+                }
+            })
+        setTimeout(function() {
+            window.location.href = url
+        }, 100);
+        return false;
     }
 
     function reassign_broker_(value) {

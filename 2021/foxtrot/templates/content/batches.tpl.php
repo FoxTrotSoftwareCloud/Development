@@ -21,6 +21,17 @@
                  </div>
                  </div>
              </div> -->
+             <?php 
+                if(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1) {
+                    $_SESSION['advisory_url'] = 1;
+                }
+                else if(isset($_GET['open_ftp']) && $_GET['open_ftp'] == 1) {
+                    $_SESSION['open_ftp'] = 1;
+                } else{
+                    $_SESSION['open_ftp'] = "";
+                    $_SESSION['advisory_url'] = "";
+                }
+             ?>
                 <div class="panel">
 
                     <div class="panel-footer">
@@ -33,6 +44,8 @@
                         <a class="btn btn-primary pull-right" href="<?php 
                             if(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1) {
                                 echo SITE_URL . "advisory.php?action=add";
+                            } else if(isset($_GET['open_ftp']) && $_GET['open_ftp'] == 1) {
+                                echo SITE_URL . "import.php?tab=open_ftp";
                             } else {
                                 echo CURRENT_PAGE . "?action=view_batches";
                             }
@@ -254,6 +267,8 @@
                             <a href="<?php 
                                 if(isset($_GET['advisory_url']) && $_GET['advisory_url'] == 1) {
                                     echo SITE_URL . "advisory.php?action=add";
+                                } else if(isset($_GET['open_ftp']) && $_GET['open_ftp'] == 1) {
+                                    echo SITE_URL . "import.php?tab=open_ftp";
                                 } else {
                                     echo CURRENT_PAGE . "?action=view_batches";
                                 }
